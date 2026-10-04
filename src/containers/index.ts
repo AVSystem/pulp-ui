@@ -49,6 +49,7 @@ export { default as PythonRemoteList } from './python-remote/list';
 export { default as PythonRepositoryDetail } from './python-repository/detail';
 export { default as PythonRepositoryEdit } from './python-repository/edit';
 export { default as PythonRepositoryList } from './python-repository/list';
+export { default as PythonPackageList } from './python/package-list';
 export { default as RPMPackageList } from './rpm/package-list';
 export { default as RPMRemoteDetail } from './rpm-remote/detail';
 export { default as RPMRemoteEdit } from './rpm-remote/edit';

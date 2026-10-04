@@ -55,6 +55,7 @@ import {
   NamespaceDetail,
   Partners,
   PulpStatus,
+  PythonPackageList,
   PythonRemoteDetail,
   PythonRemoteEdit,
   PythonRemoteList,
@@ -355,6 +356,10 @@ const routes: IRouteConfig[] = [
     component: AboutProject,
     path: Paths.meta.about,
     noAuth: true,
+  },
+  {
+    component: PythonPackageList,
+    path: Paths.python.package.list,
   },
   {
     component: PythonRemoteDetail,
