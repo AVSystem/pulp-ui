@@ -88,6 +88,7 @@ export {
   PythonRepositoryAPI,
   type PythonRepositoryType,
 } from './python-repository';
+export { PythonPackageAPI } from './python-package';
 export { RPMPackageAPI } from './rpm-package';
 export { RPMDistributionAPI } from './rpm-distribution';
 export { RPMRemoteAPI, type RPMRemoteType } from './rpm-remote';
