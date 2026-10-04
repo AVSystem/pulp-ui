@@ -41,7 +41,7 @@ interface IProps {
   onSave: (options: {
     distribution: { basePath: string } | null;
   }) => void | Promise<void>;
-  plugin: 'ansible' | 'deb' | 'file' | 'rpm';
+  plugin: 'ansible' | 'deb' | 'file' | 'python' | 'rpm';
   repository: AnsibleRepositoryType;
   updateRepository: (r) => void;
 }
