@@ -25,10 +25,11 @@ function UserEdit(props: RouteProps) {
   const [user, setUser] = useState<UserType>();
 
   const {
-    credentials: { username },
-    updateUsername,
-    updatePassword,
+    user: sessionUser,
+    setUser: setSessionUser,
+    endSession,
   } = useUserContext();
+  const username = sessionUser?.username;
 
   const id = props.routeParams.user_id;
   useEffect(() => {
@@ -45,12 +46,18 @@ function UserEdit(props: RouteProps) {
   const saveUser = () =>
     UserAPI.saveUser(user)
       .then(() => {
-        // update saved credentials when password of logged user is changed
-        if (initialState.username === username && user.password) {
-          updatePassword(user.password);
+        const isOwnRecord = initialState.username === username;
+
+        if (isOwnRecord && user.password) {
+          // The server ends every session of a user whose password changes, so
+          // the next request would fail. The route guard sends the user to the
+          // login page, which explains why.
+          endSession('password-changed');
+          return;
         }
-        if (initialState.username === username && username !== user.username) {
-          updateUsername(user.username);
+        if (isOwnRecord && username !== user.username) {
+          // A rename keeps the session.
+          setSessionUser({ ...sessionUser, username: user.username });
         }
 
         setRedirect(formatPath(Paths.core.user.list));

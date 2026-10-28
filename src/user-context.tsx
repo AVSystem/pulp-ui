@@ -19,11 +19,10 @@ interface IUserContextType {
   status: SessionStatus;
   setUser: (user: ISessionUser | null) => void;
   logout: () => Promise<void>;
-  endSession: () => void;
-  credentials: { username: string } | null;
-  clearCredentials: () => void;
-  updateUsername: (username: string) => void;
-  updatePassword: (password?: string) => void;
+  // Clears the user without a request, for when the server already ended the
+  // session. The optional reason travels to the login page through the guard.
+  endSession: (reason?: string) => void;
+  endReason: string | null;
 }
 
 const UserContext = createContext<IUserContextType>(undefined);
@@ -43,10 +42,12 @@ function logoutFailure(error): Error {
 export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<ISessionUser | null>(null);
   const [status, setStatus] = useState<SessionStatus>('checking');
+  const [endReason, setEndReason] = useState<string | null>(null);
 
   const setUser = (next: ISessionUser | null) => {
     setUserState(next);
     setStatus(next ? 'authenticated' : 'anonymous');
+    setEndReason(null);
   };
 
   useEffect(() => {
@@ -63,7 +64,10 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       .catch(() => setUser(null));
   }, []);
 
-  const endSession = () => setUser(null);
+  const endSession = (reason?: string) => {
+    setUser(null);
+    setEndReason(reason ?? null);
+  };
 
   const logout = () =>
     PulpLoginAPI.logout().then(
@@ -89,12 +93,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
         setUser,
         logout,
         endSession,
-        credentials: user ? { username: user.username } : null,
-        clearCredentials: () => {
-          logout().catch(() => undefined);
-        },
-        updateUsername: (username) => setUser({ ...user, username }),
-        updatePassword: () => endSession(),
+        endReason,
       }}
     >
       {children}

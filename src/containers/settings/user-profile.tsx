@@ -27,10 +27,11 @@ function UserProfile(_props: RouteProps) {
   const [user, setUser] = useState<UserType>();
 
   const {
-    credentials: { username },
-    updateUsername,
-    updatePassword,
+    user: sessionUser,
+    setUser: setSessionUser,
+    endSession,
   } = useUserContext();
+  const username = sessionUser?.username;
 
   const addAlert = (alert: AlertType) => {
     setAlerts([...alerts, alert]);
@@ -66,12 +67,14 @@ function UserProfile(_props: RouteProps) {
           title: t`Saved changes to user "${username}".`,
         });
 
-        // update saved credentials when password of logged user is changed
         if (user.password) {
-          updatePassword(user.password);
-        }
-        if (username !== user.username) {
-          updateUsername(user.username);
+          // The server ends every session of a user whose password changes, so
+          // the next request would fail. The route guard sends the user to the
+          // login page, which explains why.
+          endSession('password-changed');
+        } else if (username !== user.username) {
+          // A rename keeps the session.
+          setSessionUser({ ...sessionUser, username: user.username });
         }
       })
       .catch((err) => setErrorMessages(mapErrorMessages(err)));

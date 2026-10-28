@@ -357,7 +357,7 @@ const AuthHandler = ({
   noAuth,
   path,
 }: IRouteConfig) => {
-  const { user, status } = useUserContext();
+  const { user, status, endReason } = useUserContext();
   const { pathname } = useLocation();
 
   if (status === 'checking' && !noAuth) {
@@ -374,7 +374,13 @@ const AuthHandler = ({
     }
 
     return (
-      <Navigate to={formatPath(Paths.meta.login, {}, { next: pathname })} />
+      <Navigate
+        to={formatPath(
+          Paths.meta.login,
+          {},
+          { next: pathname, ...(endReason ? { reason: endReason } : {}) },
+        )}
+      />
     );
   }
 

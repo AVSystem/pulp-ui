@@ -4,7 +4,7 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclam
 import { useState } from 'react';
 import { Navigate } from 'react-router';
 import { PulpLoginAPI } from 'src/api/pulp-login';
-import { LoginForm } from 'src/components';
+import { FormFieldHelper, LoginForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useUserContext } from 'src/user-context';
 import { useQueryParams, withRouter } from 'src/utilities';
@@ -13,7 +13,7 @@ import PulpLogo from 'static/images/pulp_logo.png';
 
 function PulpLoginPage(_props) {
   const { setUser } = useUserContext();
-  const { next } = useQueryParams();
+  const { next, reason } = useQueryParams();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -56,6 +56,11 @@ function PulpLoginPage(_props) {
       <LoginForm
         helperText={
           <>
+            {reason === 'password-changed' ? (
+              <FormFieldHelper>
+                {t`Your password was changed. Sign in with the new password.`}
+              </FormFieldHelper>
+            ) : null}
             {error ? (
               <span style={{ color: 'var(--pf-v5-global--danger-color--100)' }}>
                 <ExclamationCircleIcon /> {error}
