@@ -3,15 +3,17 @@ import {
   GenericDistributionAPI,
   GenericRepositoryAPI,
 } from '../api/generic-pulp';
-import { ModelToApi } from './model-to-api';
 import { parsePulpResource } from './parse-pulp-id';
+import { plugin2api } from './plugin-repository-base-path';
 
-// returns the preferred distribution given a repo name
-// if there is a distribution with the same name as the repository, it will be used (as long as it's connected to the right repo too)
-// if not, the oldest will be used
-// reject if no distributions or repository
-// optional pulp_href param skips repo lookup
-// optional distributionAPI to avoid one API call
+// Returns the distribution that serves a repository, looked up by repository
+// name. A distribution named like the repository wins when it is bound to that
+// repository; otherwise the oldest distribution bound to the repository is
+// used. The distribution list comes from the plugin the repository belongs to.
+// Rejects when the repository or a distribution for it cannot be found, or
+// when the plugin has no distribution API.
+// An optional pulp_href skips the repository lookup; an optional
+// distributionAPI saves one request.
 
 export interface Distribution {
   pulp_href: string;
@@ -54,7 +56,12 @@ export function repositoryDistro(
     }
 
     const resource = parsePulpResource(repository.pulp_href);
-    const api = ModelToApi[resource.model];
+    const api = plugin2api(resource?.plugin).DistributionAPI;
+    if (!api) {
+      return Promise.reject(
+        t`Distributions of ${resource?.plugin} repositories cannot be looked up`,
+      );
+    }
     distribution = await api.list(params).then(firstResult);
     if (!distribution) {
       return Promise.reject(

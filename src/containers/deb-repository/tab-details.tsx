@@ -1,13 +1,15 @@
 import { t } from '@lingui/core/macro';
 import { Link } from 'react-router';
 import { type DebRemoteType, type DebRepositoryType } from 'src/api';
-import { CopyURL, Details, PulpLabels } from 'src/components';
+import { Details, PulpLabels } from 'src/components';
+import { DistributionURLs } from 'src/components/distribution-url';
 import { Paths, formatPath } from 'src/paths';
-import { getRepoURL } from 'src/utilities';
+import { type RepositoryDistribution } from 'src/utilities/repository-distributions';
 
 interface TabProps {
   item: DebRepositoryType & {
-    distroBasePath?: string;
+    distributions?: RepositoryDistribution[];
+    distributionsError?: string | null;
     remote?: DebRemoteType;
   };
   actionContext: { addAlert: (alert) => void; state: { params } };
@@ -25,10 +27,11 @@ export const DetailsTab = ({ item }: TabProps) => {
         },
         {
           label: t`Repository URL`,
-          value: item?.distroBasePath ? (
-            <CopyURL url={getRepoURL(item.distroBasePath)} />
-          ) : (
-            '---'
+          value: (
+            <DistributionURLs
+              distributions={item?.distributions}
+              error={item?.distributionsError}
+            />
           ),
         },
         {

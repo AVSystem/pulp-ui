@@ -1,3 +1,4 @@
+const { existsSync, readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -13,12 +14,89 @@ const webpack = require('webpack');
 
 const isBuild = process.env.NODE_ENV === 'production';
 
-// only run git when PULP_UI_COMMIT is NOT provided
+// The build stamps the full commit it was built from. PULP_UI_COMMIT is
+// required when there is no git checkout (for example an unpacked source
+// archive); otherwise the commit is read from git, which throws when git or the
+// repository is missing - the commit is never guessed.
+const commit =
+  process.env.PULP_UI_COMMIT ||
+  execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
+
+// A short hash or a branch name would not pin the build to one source tree.
+if (!/^[0-9a-f]{40}$/.test(commit)) {
+  throw new Error(
+    `PULP_UI_COMMIT must be a full 40-character commit hash (lowercase hex), got: ${JSON.stringify(commit)}`,
+  );
+}
+
+// The stamp comes from the commit, not from the clock, so two builds of one
+// commit are byte-identical. Without a date source the date is null.
+const commitDate = () => {
+  if (process.env.PULP_UI_DATE) {
+    return process.env.PULP_UI_DATE;
+  }
+
+  try {
+    return (
+      execSync(`git log -1 --format=%cs ${commit}`, {
+        encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim() || null
+    );
+  } catch {
+    return null;
+  }
+};
+
+// A deployment supplies its own settings at build time by pointing
+// PULP_UI_CONFIG at a pulp-ui-config.json; that file is shipped instead of the
+// repository's. It is read and checked here so a missing or malformed file
+// fails the build instead of surfacing as a broken page in the browser.
+const shippedConfigPath = (() => {
+  const path = process.env.PULP_UI_CONFIG
+    ? resolve(process.env.PULP_UI_CONFIG)
+    : resolve(__dirname, '../pulp-ui-config.json');
+
+  if (!process.env.PULP_UI_CONFIG) {
+    return path;
+  }
+
+  if (!existsSync(path)) {
+    throw new Error(`PULP_UI_CONFIG file does not exist: ${path}`);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf-8'));
+  } catch (e) {
+    throw new Error(
+      `PULP_UI_CONFIG file is not valid JSON: ${path}: ${e.message}`,
+      { cause: e },
+    );
+  }
+
+  if (typeof parsed?.API_BASE_PATH !== 'string') {
+    throw new Error(
+      `PULP_UI_CONFIG file needs a string API_BASE_PATH: ${path}`,
+    );
+  }
+
+  const prefixes = parsed.RESERVED_BASE_PATH_PREFIXES;
+  if (
+    prefixes !== undefined &&
+    !(Array.isArray(prefixes) && prefixes.every((p) => typeof p === 'string'))
+  ) {
+    throw new Error(
+      `RESERVED_BASE_PATH_PREFIXES in the PULP_UI_CONFIG file must be an array of strings: ${path}`,
+    );
+  }
+
+  return path;
+})();
+
 const buildInfo = {
-  hash:
-    process.env.PULP_UI_COMMIT ||
-    execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim(),
-  date: execSync('date -I', { encoding: 'utf-8' }).trim(),
+  hash: commit,
+  date: commitDate(),
   version: require('../package.json').version,
 };
 
@@ -141,7 +219,7 @@ module.exports = (inputConfigs) => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: resolve(__dirname, '../pulp-ui-config.json'),
+            from: shippedConfigPath,
             to: 'pulp-ui-config.json',
           },
         ],

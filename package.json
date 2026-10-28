@@ -1,6 +1,6 @@
 {
   "name": "pulp-ui",
-  "version": "0.1.25",
+  "version": "0.1.25-fork.1",
   "license": "Apache-2.0",
   "author": "Martin Hradil, Zita Pospisil Nemeckova",
   "private": true,
@@ -92,7 +92,7 @@
     "lint:po": "lint-po locale/*.po",
     "lint:po:setup": "pip install --upgrade --user --break-system-packages lint-po",
     "lint:sass": "stylelint 'src/**/*.scss' --config .stylelintrc.json",
-    "lint:ts": "tsc -p ./tsconfig.json --excludeDirectories 'packages/*'",
+    "lint:ts": "tsc -p ./tsconfig.json --noEmit --excludeDirectories 'packages/*'",
     "lint:yaml": "yamllint .",
     "lint:yaml:setup": "pip install --upgrade --user --break-system-packages yamllint",
     "prettier": "prettier --write .",

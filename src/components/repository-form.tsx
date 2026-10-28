@@ -7,8 +7,10 @@ import {
   FormGroup,
   TextInput,
 } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type AnsibleRepositoryType } from 'src/api';
+import { AnsibleDistributionAPI } from 'src/api/ansible-distribution';
+import { PulpStatusAPI } from 'src/api/pulp-status';
 import {
   FormFieldHelper,
   HelpButton,
@@ -17,18 +19,28 @@ import {
   Spinner,
   Typeahead,
 } from 'src/components';
+import { config } from 'src/ui-config';
 import {
   type ErrorMessagesType,
   errorMessage,
   plugin2api,
-  pluginRepositoryBasePath,
 } from 'src/utilities';
+import {
+  basePathProblem,
+  reservedPrefixFor,
+  sanitizeBasePath,
+} from 'src/utilities/base-path-rules';
 
 interface IProps {
   allowEditName: boolean;
   errorMessages: ErrorMessagesType;
+  // true on the create form, which alone may offer a distribution
+  isNew: boolean;
   onCancel: () => void;
-  onSave: ({ createDistribution }) => void;
+  // resolves when the save attempt is over; the form keeps Save disabled until then
+  onSave: (options: {
+    distribution: { basePath: string } | null;
+  }) => void | Promise<void>;
   plugin: 'ansible' | 'deb' | 'file' | 'rpm';
   repository: AnsibleRepositoryType;
   updateRepository: (r) => void;
@@ -37,6 +49,7 @@ interface IProps {
 export const RepositoryForm = ({
   allowEditName,
   errorMessages,
+  isNew,
   onCancel,
   onSave,
   plugin,
@@ -93,17 +106,67 @@ export const RepositoryForm = ({
 
   const isValid = !requiredFields.find((field) => !repository[field]);
 
-  const [createDistribution, setCreateDistribution] = useState(true);
-  const [disabledDistribution, setDisabledDistribution] = useState(false);
-  const onDistributionsLoad = (distroBasePath) => {
-    if (distroBasePath) {
-      setCreateDistribution(false);
-      setDisabledDistribution(true);
-    } else {
-      setCreateDistribution(true);
-      setDisabledDistribution(false);
+  const [createDistribution, setCreateDistribution] = useState(false);
+  // undefined until the user edits the field; until then the base path follows
+  // the repository name
+  const [typedBasePath, setTypedBasePath] = useState<string | undefined>();
+  const basePath = typedBasePath ?? sanitizeBasePath(repository.name || '');
+  const [urlPrefix, setUrlPrefix] = useState<string | null | undefined>();
+  const [saving, setSaving] = useState(false);
+  // a second click can arrive before the disabled button has rendered
+  const savingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isNew || !createDistribution) {
+      return;
+    }
+
+    let current = true;
+    loadUrlPrefix(plugin).then((prefix) => current && setUrlPrefix(prefix));
+    return () => {
+      current = false;
+    };
+  }, [isNew, createDistribution, plugin]);
+
+  const problem = createDistribution ? basePathProblem(basePath) : null;
+  const reserved = createDistribution
+    ? reservedPrefixFor(basePath, config?.RESERVED_BASE_PATH_PREFIXES)
+    : null;
+  const basePathError =
+    (problem === 'empty' && t`Enter a base path.`) ||
+    (problem === 'slash' &&
+      t`A base path cannot start or end with a slash or contain two slashes in a row.`) ||
+    (problem === 'characters' &&
+      t`A base path may contain only letters, digits, "-", "_" and "/".`) ||
+    (reserved &&
+      t`Base paths starting with "${reserved}" are reserved on this server. Choose another base path.`) ||
+    errorMessages['base_path'] ||
+    null;
+  const blocked = !!(problem || reserved);
+
+  const save = async () => {
+    if (savingRef.current) {
+      return;
+    }
+    savingRef.current = true;
+    setSaving(true);
+    try {
+      await onSave({
+        distribution: isNew && createDistribution ? { basePath } : null,
+      });
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
   };
+
+  const url = urlPrefix ? `${urlPrefix}${basePath}/` : null;
+  const previewUrl =
+    urlPrefix === undefined
+      ? null
+      : url
+        ? t`URL (preview): ${url}`
+        : t`The client URL is shown on the repository page once the distribution exists.`;
 
   const [remotes, setRemotes] = useState(null);
   const [remotesError, setRemotesError] = useState(null);
@@ -123,18 +186,6 @@ export const RepositoryForm = ({
 
   useEffect(() => loadRemotes(), []);
 
-  useEffect(() => {
-    // create
-    if (!repository || !repository.name) {
-      onDistributionsLoad(null);
-      return;
-    }
-
-    pluginRepositoryBasePath(plugin, repository.name, repository.pulp_href)
-      .catch(() => null)
-      .then(onDistributionsLoad);
-  }, [repository?.pulp_href]);
-
   const selectedRemote = remotes?.find?.(
     ({ pulp_href }) => pulp_href === repository?.remote,
   );
@@ -153,21 +204,48 @@ export const RepositoryForm = ({
         'distributions',
         t`Distributions`,
         t`Content in repositories without a distribution will not be visible to clients for sync, download or search.`,
-        <>
+        isNew ? (
+          <>
+            <Checkbox
+              isChecked={createDistribution}
+              onChange={(_event, value) => setCreateDistribution(value)}
+              label={t`Create a distribution for this repository`}
+              id='create_distribution'
+            />
+            {createDistribution ? (
+              <FormGroup
+                fieldId='base_path'
+                label={t`Base path`}
+                isRequired
+                style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}
+              >
+                <TextInput
+                  id='base_path'
+                  isRequired
+                  type='text'
+                  validated={basePathError ? 'error' : 'default'}
+                  value={basePath}
+                  onChange={(_event, value) => setTypedBasePath(value)}
+                />
+                <FormFieldHelper variant={basePathError ? 'error' : 'default'}>
+                  {basePathError || previewUrl}
+                </FormFieldHelper>
+                {basePathError && previewUrl ? (
+                  <FormFieldHelper>{previewUrl}</FormFieldHelper>
+                ) : null}
+                <FormFieldHelper variant='warning'>
+                  {t`The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in.`}
+                </FormFieldHelper>
+              </FormGroup>
+            ) : null}
+          </>
+        ) : (
           <LazyDistributions
             plugin={plugin}
             emptyText={t`None`}
             repositoryHref={repository.pulp_href}
           />
-          <br />
-          <Checkbox
-            isChecked={createDistribution}
-            isDisabled={disabledDistribution}
-            onChange={(_event, value) => setCreateDistribution(value)}
-            label={t`Create a "${repository.name}" distribution`}
-            id='create_distribution'
-          />
-        </>,
+        ),
       )}
 
       {formGroup(
@@ -265,14 +343,10 @@ export const RepositoryForm = ({
 
       <ActionGroup key='actions'>
         <Button
-          isDisabled={!isValid}
+          isDisabled={!isValid || blocked || saving}
           key='confirm'
           variant='primary'
-          onClick={() =>
-            onSave({
-              createDistribution,
-            })
-          }
+          onClick={save}
         >
           {t`Save`}
         </Button>
@@ -283,3 +357,37 @@ export const RepositoryForm = ({
     </Form>
   );
 };
+
+// The URL every distribution of the plugin is served under, up to where the
+// base path starts, or null when it cannot be derived. File, deb and rpm
+// distributions are served from the content app's origin and path prefix; an
+// ansible distribution reports its own client URL, so the prefix is that URL
+// without the distribution's base path.
+async function loadUrlPrefix(plugin: string): Promise<string | null> {
+  try {
+    if (plugin === 'ansible') {
+      const {
+        data: { results },
+      } = await AnsibleDistributionAPI.list({ page_size: 1 });
+      const { client_url, base_path } = results[0] || {};
+      const trimmed = client_url?.replace(/\/+$/, '');
+      return trimmed?.endsWith(base_path)
+        ? trimmed.slice(0, trimmed.length - base_path.length)
+        : null;
+    }
+
+    const {
+      data: { content_settings },
+    } = await PulpStatusAPI.get();
+    const origin = (
+      content_settings.content_origin || window.location.origin
+    ).replace(/\/+$/, '');
+    const prefix = content_settings.content_path_prefix.replace(
+      /^\/+|\/+$/g,
+      '',
+    );
+    return `${origin}/${prefix ? `${prefix}/` : ''}`;
+  } catch {
+    return null;
+  }
+}

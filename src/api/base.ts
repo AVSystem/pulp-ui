@@ -8,9 +8,14 @@ export class BaseAPI {
 
   constructor() {
     this.http = axios.create({
-      // adapter + withCredentials ensures no popup on http basic auth fail
       adapter: 'fetch',
-      withCredentials: false,
+      // The API is same-origin and signed-in calls are authenticated by the
+      // session cookie, so the cookie must travel with every request.
+      withCredentials: true,
+      // With the cookie enabled, a 401 answered with a plain Basic challenge
+      // can make the browser open its own password dialog. This header makes
+      // the server answer with a challenge browsers leave alone.
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
 
       // baseURL gets set in PulpAPI
       paramsSerializer: {

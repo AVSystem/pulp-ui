@@ -13,18 +13,22 @@ import {
 } from 'src/api';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { lastSyncStatus, lastSynced, parsePulpIDFromURL } from 'src/utilities';
 import {
-  lastSyncStatus,
-  lastSynced,
-  parsePulpIDFromURL,
-  pluginRepositoryBasePath,
-} from 'src/utilities';
+  type RepositoryDistribution,
+  distributionsLoadError,
+  repositoryDistributions,
+} from 'src/utilities/repository-distributions';
 import { DetailsTab } from './tab-details';
 import { DistributionsTab } from './tab-distributions';
 import { RepositoryVersionsTab } from './tab-repository-versions';
 
 const DebRepositoryDetail = PageWithTabs<
-  DebRepositoryType & { remote?: DebRemoteType }
+  DebRepositoryType & {
+    distributions?: RepositoryDistribution[];
+    distributionsError?: string | null;
+    remote?: DebRemoteType;
+  }
 >({
   breadcrumbs: ({ name, tab, params: { repositoryVersion } }) => {
     const crumbs = [
@@ -77,27 +81,28 @@ const DebRepositoryDetail = PageWithTabs<
           return Promise.reject({ response: { status: 404 } });
         }
 
-        const err = (val) => (e) => {
-          console.error(e);
-          return val;
-        };
-
         return Promise.all([
-          // the plugin-aware variant, so the deb distribution endpoint is the
-          // one consulted
-          pluginRepositoryBasePath(
-            'deb',
-            repository.name,
-            repository.pulp_href,
-          ).catch(err(null)),
+          // a failed load reaches the page as a visible message, never as an
+          // empty list
+          repositoryDistributions('deb', repository.pulp_href).then(
+            (distributions) => ({ distributions, distributionsError: null }),
+            (e) => {
+              console.error(e);
+              return {
+                distributions: [] as RepositoryDistribution[],
+                distributionsError: distributionsLoadError(e),
+              };
+            },
+          ),
           repository.remote
             ? DebRemoteAPI.get(parsePulpIDFromURL(repository.remote))
                 .then(({ data }) => data)
                 .catch(() => null)
             : null,
-        ]).then(([distroBasePath, remote]) => ({
+        ]).then(([{ distributions, distributionsError }, remote]) => ({
           ...repository,
-          distroBasePath,
+          distributions,
+          distributionsError,
           remote,
         }));
       }),

@@ -3,7 +3,12 @@ import { Banner, Flex, FlexItem } from '@patternfly/react-core';
 import WrenchIcon from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
 import { type ElementType } from 'react';
 import { Navigate, redirect, useLocation } from 'react-router';
-import { ErrorBoundary, ExternalLink, NotFound } from 'src/components';
+import {
+  ErrorBoundary,
+  ExternalLink,
+  LoadingPage,
+  NotFound,
+} from 'src/components';
 import {
   AboutProject,
   AnsibleRemoteDetail,
@@ -352,10 +357,16 @@ const AuthHandler = ({
   noAuth,
   path,
 }: IRouteConfig) => {
-  const { credentials } = useUserContext();
+  const { user, status, endReason } = useUserContext();
   const { pathname } = useLocation();
 
-  if (!credentials && !noAuth) {
+  if (status === 'checking' && !noAuth) {
+    // Redirecting before the session check answers would make every reload of
+    // a protected page look like a logout.
+    return <LoadingPage />;
+  }
+
+  if (!user && !noAuth) {
     // NOTE: also update LoginLink when changing this
     if (config.UI_EXTERNAL_LOGIN_URI) {
       window.location.replace(loginURL(pathname));
@@ -363,7 +374,13 @@ const AuthHandler = ({
     }
 
     return (
-      <Navigate to={formatPath(Paths.meta.login, {}, { next: pathname })} />
+      <Navigate
+        to={formatPath(
+          Paths.meta.login,
+          {},
+          { next: pathname, ...(endReason ? { reason: endReason } : {}) },
+        )}
+      />
     );
   }
 
