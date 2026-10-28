@@ -15,7 +15,7 @@ import { plugin2api } from './plugin-repository-base-path';
 // Every distribution that serves a repository, with the URL the server
 // reports for it and whether the content app answers with content.
 
-export type RepositoryDistributionPlugin = 'ansible' | 'deb' | 'file';
+export type RepositoryDistributionPlugin = 'ansible' | 'deb' | 'file' | 'rpm';
 
 export interface RepositoryDistribution {
   pulp_href: string;
@@ -64,6 +64,7 @@ const PUBLICATION_APIS: Record<
   ansible: [],
   deb: [DebPublicationAPI, DebVerbatimPublicationAPI],
   file: [FilePublicationAPI],
+  rpm: [],
 };
 
 const COMMON_FIELDS = [

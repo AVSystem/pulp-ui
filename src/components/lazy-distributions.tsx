@@ -1,102 +1,102 @@
 import { t } from '@lingui/core/macro';
-import { Button } from '@patternfly/react-core';
+import { Button, Label } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { useEffect, useState } from 'react';
-import { Spinner, Tooltip } from 'src/components';
-import { errorMessage, plugin2api } from 'src/utilities';
+import { Fragment, useEffect, useState } from 'react';
+import {
+  type RepositoryDistribution,
+  type RepositoryDistributionPlugin,
+  distributionsLoadError,
+  repositoryDistributions,
+} from '../utilities/repository-distributions';
+import { Spinner } from './patternfly-wrappers/l10n';
+import { Tooltip } from './patternfly-wrappers/tooltip';
 
+// The names of every distribution serving a repository, publication-bound
+// ones included. A distribution the content app answers 404 for is flagged, so
+// an editor does not take it for a working one.
 export const LazyDistributions = ({
   emptyText,
   plugin,
   repositoryHref,
 }: {
   emptyText?: string;
-  plugin: 'ansible' | 'deb' | 'file' | 'rpm';
+  plugin: RepositoryDistributionPlugin;
   repositoryHref: string;
 }) => {
-  const [distributions, setDistributions] = useState([]);
-  const [count, setCount] = useState(null);
-  const [page, setPage] = useState(1);
-  const [error, setError] = useState(null);
+  const [distributions, setDistributions] = useState<RepositoryDistribution[]>(
+    [],
+  );
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const query = (prepend?) => {
-    plugin2api(plugin)
-      .DistributionAPI.list({
-        repository: repositoryHref,
-        sort: 'pulp_created',
-        page,
-        page_size: 10,
-      })
-      .then(({ data: { count, results } }) => {
-        setDistributions(prepend ? [...prepend, ...results] : results);
-        setCount(count);
-        setError(null);
-        setLoading(false);
-      })
-      .catch((e) => {
-        const { status, statusText } = e.response;
-        setDistributions(prepend || []);
-        setCount(null);
-        setError(errorMessage(status, statusText));
-        setLoading(false);
-      });
-  };
-
   useEffect(() => {
+    setDistributions([]);
+    setError(null);
+
     if (!repositoryHref) {
-      setDistributions([]);
-      setCount(null);
-      setPage(1);
-      setError(null);
       setLoading(false);
       return;
     }
 
-    setDistributions([]);
-    setCount(null);
-    setPage(1);
-    setError(null);
     setLoading(true);
 
-    query();
-  }, [repositoryHref]);
+    // a response for a repository that is no longer shown must not replace
+    // the current one
+    let current = true;
 
-  // support pagination, but page == 1 is handled above
-  useEffect(() => {
-    if (page === 1) {
-      return;
-    }
+    repositoryDistributions(plugin, repositoryHref)
+      .then((result) => {
+        if (current) {
+          setDistributions(result);
+          setLoading(false);
+        }
+      })
+      .catch((e) => {
+        if (current) {
+          setError(distributionsLoadError(e));
+          setLoading(false);
+        }
+      });
 
-    query(distributions);
-  }, [page]);
+    return () => {
+      current = false;
+    };
+  }, [plugin, repositoryHref]);
 
-  const errorElement = error && (
-    <Tooltip content={t`Failed to load distributions: ${error}`} key='empty'>
-      <Button variant='plain'>
-        <ExclamationCircleIcon />
-      </Button>
-    </Tooltip>
-  );
+  if (loading) {
+    return <Spinner size='sm' />;
+  }
 
-  const loadMore = () => {
-    setPage((page) => page + 1);
-  };
+  if (error) {
+    return (
+      <Tooltip content={t`Failed to load distributions: ${error}`} key='empty'>
+        <Button variant='plain'>
+          <ExclamationCircleIcon />
+        </Button>
+      </Tooltip>
+    );
+  }
 
-  return loading ? (
-    <Spinner size='sm' />
-  ) : error ? (
-    errorElement
-  ) : (
+  if (!distributions.length) {
+    return <>{emptyText ?? '---'}</>;
+  }
+
+  return (
     <>
-      {distributions?.map?.(({ name }) => name)?.join?.(', ') ||
-        (emptyText ?? '---')}
-      {count > distributions?.length ? (
-        <>
-          {' '}
-          <a onClick={loadMore}>(more)</a>
-        </>
-      ) : null}
+      {distributions.map(({ pulp_href, name, served }, index) => (
+        <Fragment key={pulp_href}>
+          {index ? ', ' : null}
+          {name}
+          {served ? null : (
+            <>
+              {' '}
+              <Label color='orange' isCompact>
+                {t`Not served: no publication`}
+              </Label>
+            </>
+          )}
+        </Fragment>
+      ))}
     </>
   );
 };
