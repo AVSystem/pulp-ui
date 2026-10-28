@@ -3,6 +3,7 @@ import {
   DebVerbatimPublicationAPI,
 } from '../api/deb-publication';
 import { FilePublicationAPI } from '../api/file-publication';
+import { RPMPublicationAPI } from '../api/rpm-publication';
 import {
   SERVES_FROM_PUBLICATION,
   distributionUrl,
@@ -64,7 +65,7 @@ const PUBLICATION_APIS: Record<
   ansible: [],
   deb: [DebPublicationAPI, DebVerbatimPublicationAPI],
   file: [FilePublicationAPI],
-  rpm: [],
+  rpm: [RPMPublicationAPI],
 };
 
 const COMMON_FIELDS = [
