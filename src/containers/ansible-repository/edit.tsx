@@ -102,8 +102,15 @@ const AnsibleRepositoryEdit = Page<AnsibleRepositoryType>({
             parsePulpIDFromURL(item.pulp_href),
             data,
           );
+          // the server answers with the repository itself, not a task, when
+          // the update changes nothing
           queueAlert(
-            taskAlert(task, t`Update started for repository ${data.name}`),
+            task?.task
+              ? taskAlert(task, t`Update started for repository ${data.name}`)
+              : {
+                  variant: 'success',
+                  title: t`Updated repository ${data.name}`,
+                },
           );
           goToRepository();
           return;

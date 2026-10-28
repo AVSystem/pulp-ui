@@ -1,3 +1,4 @@
+const { existsSync, readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -46,6 +47,52 @@ const commitDate = () => {
     return null;
   }
 };
+
+// A deployment supplies its own settings at build time by pointing
+// PULP_UI_CONFIG at a pulp-ui-config.json; that file is shipped instead of the
+// repository's. It is read and checked here so a missing or malformed file
+// fails the build instead of surfacing as a broken page in the browser.
+const shippedConfigPath = (() => {
+  const path = process.env.PULP_UI_CONFIG
+    ? resolve(process.env.PULP_UI_CONFIG)
+    : resolve(__dirname, '../pulp-ui-config.json');
+
+  if (!process.env.PULP_UI_CONFIG) {
+    return path;
+  }
+
+  if (!existsSync(path)) {
+    throw new Error(`PULP_UI_CONFIG file does not exist: ${path}`);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf-8'));
+  } catch (e) {
+    throw new Error(
+      `PULP_UI_CONFIG file is not valid JSON: ${path}: ${e.message}`,
+      { cause: e },
+    );
+  }
+
+  if (typeof parsed?.API_BASE_PATH !== 'string') {
+    throw new Error(
+      `PULP_UI_CONFIG file needs a string API_BASE_PATH: ${path}`,
+    );
+  }
+
+  const prefixes = parsed.RESERVED_BASE_PATH_PREFIXES;
+  if (
+    prefixes !== undefined &&
+    !(Array.isArray(prefixes) && prefixes.every((p) => typeof p === 'string'))
+  ) {
+    throw new Error(
+      `RESERVED_BASE_PATH_PREFIXES in the PULP_UI_CONFIG file must be an array of strings: ${path}`,
+    );
+  }
+
+  return path;
+})();
 
 const buildInfo = {
   hash: commit,
@@ -172,7 +219,7 @@ module.exports = (inputConfigs) => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: resolve(__dirname, '../pulp-ui-config.json'),
+            from: shippedConfigPath,
             to: 'pulp-ui-config.json',
           },
         ],
