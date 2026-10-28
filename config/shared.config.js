@@ -13,12 +13,43 @@ const webpack = require('webpack');
 
 const isBuild = process.env.NODE_ENV === 'production';
 
-// only run git when PULP_UI_COMMIT is NOT provided
+// The build stamps the full commit it was built from. PULP_UI_COMMIT is
+// required when there is no git checkout (for example an unpacked source
+// archive); otherwise the commit is read from git, which throws when git or the
+// repository is missing - the commit is never guessed.
+const commit =
+  process.env.PULP_UI_COMMIT ||
+  execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
+
+// A short hash or a branch name would not pin the build to one source tree.
+if (!/^[0-9a-f]{40}$/.test(commit)) {
+  throw new Error(
+    `PULP_UI_COMMIT must be a full 40-character commit hash (lowercase hex), got: ${JSON.stringify(commit)}`,
+  );
+}
+
+// The stamp comes from the commit, not from the clock, so two builds of one
+// commit are byte-identical. Without a date source the date is null.
+const commitDate = () => {
+  if (process.env.PULP_UI_DATE) {
+    return process.env.PULP_UI_DATE;
+  }
+
+  try {
+    return (
+      execSync(`git log -1 --format=%cs ${commit}`, {
+        encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim() || null
+    );
+  } catch {
+    return null;
+  }
+};
+
 const buildInfo = {
-  hash:
-    process.env.PULP_UI_COMMIT ||
-    execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim(),
-  date: execSync('date -I', { encoding: 'utf-8' }).trim(),
+  hash: commit,
+  date: commitDate(),
   version: require('../package.json').version,
 };
 

@@ -15,6 +15,9 @@ import { config } from 'src/ui-config';
 import { plugin_versions } from 'src/utilities';
 import PulpLogo from 'static/images/pulp_logo.png';
 
+// The fork's public repository; version tags and commits are linked from here.
+const FORK_REPOSITORY_URL = 'https://github.com/AVSystem/pulp-ui';
+
 const Label = ({ children }: { children: ReactNode }) => (
   <TextListItem component={TextListItemVariants.dt}>{children}</TextListItem>
 );
@@ -48,7 +51,8 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
     pulp_core_version, // e.g. 3.65.0
   } = applicationInfo;
 
-  const ui_sha = UI_BUILD_INFO?.hash?.slice(0, 7);
+  const ui_hash = UI_BUILD_INFO?.hash;
+  const ui_sha = ui_hash?.slice(0, 12);
   const ui_date = UI_BUILD_INFO?.date;
   const ui_version = UI_BUILD_INFO?.version;
   const ui_extra = config.EXTRA_VERSION;
@@ -84,20 +88,22 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
             {ui_version ? (
               <>
                 <ExternalLink
-                  href={`https://github.com/pulp/pulp-ui/releases/tag/v${ui_version}`}
+                  href={`${FORK_REPOSITORY_URL}/tree/v${ui_version}`}
                 >
                   {ui_version}
                 </ExternalLink>{' '}
               </>
             ) : null}
             {ui_version ? '(' : null}
-            <ExternalLink
-              href={`https://github.com/pulp/pulp-ui/commit/${ui_sha}`}
-            >
+            <ExternalLink href={`${FORK_REPOSITORY_URL}/commit/${ui_hash}`}>
               {ui_sha}
             </ExternalLink>
-            {', '}
-            <DateComponent date={ui_date} />
+            {ui_date ? (
+              <>
+                {', '}
+                <DateComponent date={ui_date} />
+              </>
+            ) : null}
             {ui_version ? ')' : null}
             {ui_extra ? (
               <>
