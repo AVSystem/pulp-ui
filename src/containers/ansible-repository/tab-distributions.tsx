@@ -2,7 +2,6 @@ import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
 import { AnsibleDistributionAPI, type AnsibleRepositoryType } from 'src/api';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
-import { getRepoURL } from 'src/utilities';
 
 interface TabProps {
   item: AnsibleRepositoryType;
@@ -40,13 +39,14 @@ export const DistributionsTab = ({
     });
   };
 
-  const cliConfig = (base_path) =>
+  // The URL is the client_url the server returns for the distribution.
+  const cliConfig = (base_path, client_url) =>
     [
       '[galaxy]',
       `server_list = ${base_path}`,
       '',
       `[galaxy_server.${base_path}]`,
-      `url=${getRepoURL(base_path)}`,
+      `url=${client_url}`,
       'token=<put your token here>',
     ].join('\n');
 
@@ -55,7 +55,7 @@ export const DistributionsTab = ({
     index: number,
     _actionContext,
   ) => {
-    const { name, base_path, pulp_created } = item;
+    const { name, base_path, client_url, pulp_created } = item;
 
     return (
       <Tr key={index}>
@@ -66,7 +66,7 @@ export const DistributionsTab = ({
         </Td>
         <Td>
           <ClipboardCopy isCode isReadOnly variant={'expansion'} key={index}>
-            {cliConfig(base_path)}
+            {cliConfig(base_path, client_url)}
           </ClipboardCopy>
         </Td>
       </Tr>
