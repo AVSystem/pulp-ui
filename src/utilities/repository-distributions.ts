@@ -1,3 +1,7 @@
+import {
+  DebPublicationAPI,
+  DebVerbatimPublicationAPI,
+} from '../api/deb-publication';
 import { FilePublicationAPI } from '../api/file-publication';
 import {
   SERVES_FROM_PUBLICATION,
@@ -58,7 +62,7 @@ const PUBLICATION_APIS: Record<
   }[]
 > = {
   ansible: [],
-  deb: [],
+  deb: [DebPublicationAPI, DebVerbatimPublicationAPI],
   file: [FilePublicationAPI],
 };
 
