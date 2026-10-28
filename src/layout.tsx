@@ -129,6 +129,17 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       <PageSidebarBody>
         <PulpMenu />
       </PageSidebarBody>
+      <PageSidebarBody isFilled={false}>
+        <small
+          style={{
+            color: 'var(--pf-v5-global--Color--200)',
+            display: 'block',
+            padding: '0 var(--pf-v5-global--spacer--md)',
+          }}
+        >
+          {`pulp-ui ${UI_BUILD_INFO?.version} (${UI_BUILD_INFO?.hash?.slice(0, 7)})`}
+        </small>
+      </PageSidebarBody>
     </PageSidebar>
   );
 
