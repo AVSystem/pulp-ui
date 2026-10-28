@@ -17,7 +17,7 @@ export const useAppContext = () => useContext(AppContext);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
-  const { credentials } = useUserContext();
+  const { user } = useUserContext();
 
   // hub compat for now
   const featureFlags = {
@@ -50,9 +50,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         setAlerts,
         settings,
         // FIXME: hack
-        user: credentials
+        user: user
           ? {
-              username: credentials.username,
+              username: user.username,
               groups: [],
               model_permissions: {},
             }

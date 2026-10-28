@@ -300,7 +300,7 @@ export const PulpMenu = () => {
   const location = useLocation();
   const [menu, setMenu] = useState([]);
 
-  const { credentials } = useUserContext();
+  const { user } = useUserContext();
 
   const plugins = usePlugins();
 
@@ -328,7 +328,7 @@ export const PulpMenu = () => {
       <NavList>
         <Menu
           items={menu}
-          context={{ user: credentials, plugins }}
+          context={{ user, plugins }}
           expandedSections={expandedSections}
         />
       </NavList>

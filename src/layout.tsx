@@ -19,6 +19,8 @@ import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-
 import { type ReactNode, useState } from 'react';
 import { Link } from 'react-router';
 import {
+  AlertList,
+  type AlertType,
   DarkmodeSwitcher,
   ExternalLink,
   LanguageSwitcher,
@@ -26,6 +28,7 @@ import {
   PulpAboutModal,
   SmallLogo,
   StatefulDropdown,
+  closeAlert,
 } from 'src/components';
 import { PulpMenu } from './menu';
 import { Paths, formatPath } from './paths';
@@ -86,9 +89,28 @@ const UserDropdown = ({
 
 export const Layout = ({ children }: { children: ReactNode }) => {
   const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);
-  const { credentials, clearCredentials } = useUserContext();
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const { user, logout } = useUserContext();
 
-  const username = credentials?.username;
+  const username = user?.username;
+
+  // A refused or failed logout leaves the server session alive, so the user is
+  // told instead of being shown as signed out.
+  const signOut = () =>
+    logout().catch((error) =>
+      setAlerts((current) => [
+        ...current,
+        {
+          variant: 'danger',
+          title: t`Sign-out did not complete`,
+          description: (
+            <>
+              {error.message} {t`You are still signed in.`}
+            </>
+          ),
+        },
+      ]),
+    );
 
   const Header = (
     <Masthead>
@@ -116,10 +138,8 @@ export const Layout = ({ children }: { children: ReactNode }) => {
         <DarkmodeSwitcher />
         <LanguageSwitcher />
         <DocsDropdown showAbout={() => setAboutModalVisible(true)} />
-        {credentials ? (
-          <UserDropdown username={username} logout={() => clearCredentials()} />
-        ) : null}
-        {!credentials ? <LoginLink /> : null}
+        {user ? <UserDropdown username={username} logout={signOut} /> : null}
+        {!user ? <LoginLink /> : null}
       </MastheadContent>
     </Masthead>
   );
@@ -145,6 +165,10 @@ export const Layout = ({ children }: { children: ReactNode }) => {
 
   return (
     <Page isManagedSidebar header={Header} sidebar={Sidebar}>
+      <AlertList
+        alerts={alerts}
+        closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
+      />
       {children}
       {aboutModalVisible ? (
         <PulpAboutModal
