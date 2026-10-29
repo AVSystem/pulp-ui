@@ -582,16 +582,42 @@ describe('modes in real repositories', () => {
     expect(res2.stdout).toMatch(/^zzrangetoken\.ts:0: denylist: zzrangetoken/m);
   });
 
-  it('skips binary files', () => {
-    const dir = newRepo(root, 'binary');
-    writeFileSync(
-      join(dir, 'blob.bin'),
-      Buffer.concat([Buffer.from([0, 1, 2, 0]), Buffer.from(leak)]),
-    );
+  it('scans a NUL-bearing file in --all and in a staged change', () => {
+    const dir = newRepo(root, 'binary', { hooks: false });
+    const body = Buffer.concat([
+      Buffer.from('host ' + ip(10, 1, 2, 3) + ' here\n'),
+      Buffer.from([0, 1, 2, 0]),
+    ]);
+    writeFileSync(join(dir, 'blob.bin'), body);
     git(dir, ['add', 'blob.bin']);
+    const staged = run('node', [SCRIPT, '--staged'], { cwd: dir });
+    expect(staged.status).toBe(1);
+    expect(staged.stdout).toMatch(/^blob\.bin:1: private-address: /m);
     const res = git(dir, ['commit', '-q', '-m', 'Add blob']);
     expect(res.status, res.output).toBe(0);
-    expect(check(dir, ['--all']).status).toBe(0);
+    const all = check(dir, ['--all']);
+    expect(all.status).toBe(1);
+    expect(all.stdout).toMatch(/^blob\.bin:1: private-address: /m);
+    const head = git(dir, ['rev-parse', 'HEAD']).stdout.trim();
+    const ranged = check(dir, ['--range', `${head}^!`]);
+    expect(ranged.status).toBe(1);
+    expect(ranged.stdout).toMatch(/^blob\.bin:1: private-address: /m);
+  });
+
+  it('scans a file marked -diff in .gitattributes', () => {
+    const dir = newRepo(root, 'nodiff', { hooks: false });
+    write(dir, '.gitattributes', '*.md -diff\n');
+    write(dir, 'notes.md', 'host ' + ip(10, 1, 2, 3) + ' here\n');
+    git(dir, ['add', '.gitattributes', 'notes.md']);
+    const staged = run('node', [SCRIPT, '--staged'], { cwd: dir });
+    expect(staged.status).toBe(1);
+    expect(staged.stdout).toMatch(/^notes\.md:1: private-address: /m);
+    const res = git(dir, ['commit', '-q', '-m', 'Add notes']);
+    expect(res.status, res.output).toBe(0);
+    const head = git(dir, ['rev-parse', 'HEAD']).stdout.trim();
+    const range = check(dir, ['--range', `${head}^!`]);
+    expect(range.status).toBe(1);
+    expect(range.stdout).toMatch(/^notes\.md:1: private-address: /m);
   });
 
   it('does not mistake an added line that starts with plus signs for a header', () => {

@@ -583,11 +583,17 @@ function git(args, cwd, input) {
   });
 }
 
+// --text makes git emit hunks for every file. Without it a file with a NUL
+// byte, or one marked "-diff" in .gitattributes, is reported as binary and its
+// content would never be scanned. --no-textconv keeps a configured conversion
+// filter from replacing the committed bytes with other text.
 const DIFF_FLAGS = [
   '-U0',
   '-M',
   '--no-color',
   '--no-ext-diff',
+  '--no-textconv',
+  '--text',
   '--src-prefix=a/',
   '--dst-prefix=b/',
 ];
@@ -670,10 +676,11 @@ function scanAll(rules, cwd) {
     } catch {
       continue;
     }
-    if (buf.includes(0)) {
-      continue;
-    }
-    findings.push(...scan(buf.toString('utf8'), path, rules));
+    // A NUL byte does not make a file safe to publish: decode such a file one
+    // byte per character so any address or name inside it is still seen.
+    findings.push(
+      ...scan(buf.toString(buf.includes(0) ? 'latin1' : 'utf8'), path, rules),
+    );
   }
   return { findings, offending: [], scanned: paths.length };
 }
