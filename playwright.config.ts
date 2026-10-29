@@ -4,6 +4,12 @@ import { defineConfig } from '@playwright/test';
 // e2e/support/env.ts); nothing here names a host or a credential. The base URL
 // is the UI root and must end in /ui/, and tests navigate with relative paths
 // such as page.goto('deb/repositories') so the prefix is kept.
+//
+// The remote projects run against a deployment given by PULP_UI_E2E_BASE_URL
+// with the accounts listed in the JSON file named by PULP_UI_E2E_ACCOUNTS. They
+// sign in once through the API (remote-setup), reuse that session per role, and
+// end it again (remote-teardown). They are meant for a person at a terminal, not
+// for a hosted workflow: their output holds session data.
 export default defineConfig({
   testDir: 'e2e',
   // One worker in CI: the tests share one Pulp and sign in as the same account.
@@ -21,6 +27,28 @@ export default defineConfig({
     {
       name: 'smoke',
       testMatch: 'smoke/**/*.spec.ts',
+    },
+    {
+      name: 'remote-setup',
+      testMatch: 'remote/auth.setup.ts',
+      teardown: 'remote-teardown',
+    },
+    {
+      name: 'remote-teardown',
+      testMatch: 'remote/auth.teardown.ts',
+    },
+    {
+      name: 'remote-admin',
+      testMatch: 'remote/**/*.spec.ts',
+      testIgnore: '**/*.viewer.spec.ts',
+      use: { storageState: 'playwright/.auth/admin.json' },
+      dependencies: ['remote-setup'],
+    },
+    {
+      name: 'remote-viewer',
+      testMatch: 'remote/**/*.viewer.spec.ts',
+      use: { storageState: 'playwright/.auth/viewer.json' },
+      dependencies: ['remote-setup'],
     },
   ],
 });
