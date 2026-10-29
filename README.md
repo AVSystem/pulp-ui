@@ -189,8 +189,10 @@ PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \
 npx playwright test --project=remote-admin --project=remote-viewer
 ```
 
-Output of the remote projects (traces, screenshots, the HTML report) can show data of that
-deployment; keep it local.
+Output of the remote projects (screenshots, the HTML report) can show data of that
+deployment; keep it local. These projects record no Playwright trace, because a trace keeps the
+headers of every request, including the sign-in request with the account's credential. The
+smoke project, which runs against a throwaway local instance, keeps traces on failure.
 
 ### Git hooks
 
