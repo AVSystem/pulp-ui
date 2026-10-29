@@ -48,10 +48,8 @@
     "commander": "15.0.0",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.2",
-    "cypress": "16.0.0",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-cypress": "^7.0.2",
     "eslint-plugin-lingui": "^0.16.0",
     "eslint-plugin-react": "^7.37.5",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
@@ -81,12 +79,8 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --config config/build.config.js",
-    "cypress": "cypress open",
-    "cypress:chrome": "cypress run --e2e --browser chrome --headless",
-    "cypress:chromium": "cypress run --e2e --browser chromium-browser --headless",
-    "cypress:firefox": "cypress run --e2e --browser firefox --headless",
-    "eslint": "eslint src/ config/ cypress/ scripts/",
-    "eslint:fix": "eslint --fix src/ config/ cypress/ scripts/",
+    "eslint": "eslint src/ config/ e2e/ scripts/",
+    "eslint:fix": "eslint --fix src/ config/ e2e/ scripts/",
     "find-unused-exports": "npx find-unused-exports --module-glob 'src/**/*.{js,ts,jsx,tsx}' --resolve-file-extensions 'tsx,ts,jsx,js' --resolve-index-files",
     "gettext:compile": "lingui compile",
     "gettext:extract": "lingui extract",
@@ -118,7 +112,6 @@
     "npm": ">=10"
   },
   "allowScripts": {
-    "cypress@16.0.0": true,
     "esbuild@0.28.2": true,
     "fsevents": false,
     "msw@2.15.0": true

@@ -3,10 +3,6 @@
 .idea/
 .vscode/
 coverage/
-cypress/downloads/*
-cypress/fixtures/example.json
-cypress/screenshots/*
-cypress/videos/*
 dist/
 node_modules/
 npm-debug.log*
