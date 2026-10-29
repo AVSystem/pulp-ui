@@ -52,9 +52,17 @@ test.describe('sessions of their own', () => {
     expect(session?.httpOnly, 'session cookie is HttpOnly').toBe(true);
     expect(session?.secure, 'session cookie is Secure').toBe(true);
 
+    // Booleans, never the values: a failed comparison prints both sides, and
+    // these hold the session cookie names and the password.
     const visible = await page.evaluate(() => document.cookie);
-    expect(visible).toContain('csrftoken');
-    expect(visible).not.toContain('sessionid');
+    expect(
+      visible.includes('csrftoken'),
+      'the CSRF cookie is visible to scripts',
+    ).toBe(true);
+    expect(
+      visible.includes('sessionid'),
+      'the session cookie is hidden from scripts',
+    ).toBe(false);
 
     const stored = await page.evaluate(() => ({
       everything: JSON.stringify([
@@ -64,9 +72,18 @@ test.describe('sessions of their own', () => {
       localCredentials: localStorage.getItem('credentials'),
       sessionCredentials: sessionStorage.getItem('credentials'),
     }));
-    expect(stored.everything).not.toContain(password);
-    expect(stored.localCredentials).toBeNull();
-    expect(stored.sessionCredentials).toBeNull();
+    expect(
+      stored.everything.includes(password),
+      'stored text must not contain the password',
+    ).toBe(false);
+    expect(
+      stored.localCredentials === null,
+      'localStorage holds no credentials entry',
+    ).toBe(true);
+    expect(
+      stored.sessionCredentials === null,
+      'sessionStorage holds no credentials entry',
+    ).toBe(true);
 
     // Exactly one call carries the Basic header: the sign in itself.
     const calls = watched.calls;
