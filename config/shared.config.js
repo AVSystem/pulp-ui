@@ -106,6 +106,7 @@ const defaultConfigs = [
   { name: 'UI_BUILD_INFO', default: buildInfo, scope: 'browser' },
 
   // webpack: will only be available to webpack config, via `customConfigs`
+  { name: 'DEV_HOST', default: '0.0.0.0', scope: 'webpack' },
   { name: 'DEV_PORT', scope: 'webpack' },
   { name: 'DEV_HTTPS', scope: 'webpack' },
   { name: 'DEV_PROXY', scope: 'webpack' },
@@ -141,7 +142,7 @@ module.exports = (inputConfigs) => {
             client: { overlay: false },
             devMiddleware: { writeToDisk: true },
             historyApiFallback: true,
-            host: '0.0.0.0',
+            host: customConfigs.DEV_HOST,
             hot: false,
             liveReload: true,
             onListening: ({ options: { https, port } }) =>
@@ -150,11 +151,44 @@ module.exports = (inputConfigs) => {
                 `${https ? 'https' : 'http'}://localhost:${port}`,
               ),
             port: customConfigs.DEV_PORT,
+            // The browser talks to the dev server, which forwards API calls to
+            // the target Pulp. The target checks the Host header against its
+            // allowed hosts and, for session writes, the Origin (or Referer)
+            // header against its trusted origins, so the proxy presents both as
+            // the target's own. The proxy adds no credential and leaves TLS
+            // verification of the target on; cookies are passed through
+            // unchanged (the target sets host-only cookies).
             proxy: Object.entries(customConfigs.DEV_PROXY).map(
-              ([path, target]) => ({
-                context: [path],
-                target,
-              }),
+              ([path, target]) => {
+                const targetOrigin = new URL(target).origin;
+
+                return {
+                  context: [path],
+                  target,
+                  changeOrigin: true,
+                  on: {
+                    proxyReq: (proxyReq) => {
+                      if (proxyReq.getHeader('origin')) {
+                        proxyReq.setHeader('origin', targetOrigin);
+                      }
+
+                      const referer = proxyReq.getHeader('referer');
+                      if (referer) {
+                        try {
+                          proxyReq.setHeader(
+                            'referer',
+                            targetOrigin + new URL(String(referer)).pathname,
+                          );
+                        } catch {
+                          // An unparsable referer is dropped rather than
+                          // forwarded with the dev server's own origin.
+                          proxyReq.removeHeader('referer');
+                        }
+                      }
+                    },
+                  },
+                };
+              },
             ),
             server: { type: customConfigs.DEV_HTTPS ? 'https' : 'http' },
             static: { directory: resolve(__dirname, '../dist') },
