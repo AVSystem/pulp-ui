@@ -145,10 +145,11 @@ for (const route of crawlRoutes()) {
     );
     expect(dark, `the page is in the ${theme} theme`).toBe(theme === 'dark');
 
+    // A page that crashed shows no title; the lookup must not wait for one.
     const heading = await page
       .locator('.pf-v5-c-title')
       .first()
-      .textContent()
+      .textContent({ timeout: 1000 })
       .catch(() => null);
     const errorBoundary =
       (await page.getByText('The stack trace is:').count()) > 0 ||
