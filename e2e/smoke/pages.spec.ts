@@ -19,7 +19,7 @@ const pages: { name: string; path: string; title: string }[] = [
   { name: 'Task management', path: 'tasks', title: 'Task management' },
   { name: 'Users', path: 'users', title: 'Users' },
   { name: 'Groups', path: 'groups', title: 'Groups' },
-  { name: 'Roles', path: 'roles', title: 'Roles' },
+  { name: 'Roles', path: 'roles', title: 'Roles that do not exist' },
   { name: 'About project', path: 'about', title: 'About project' },
 ];
 
