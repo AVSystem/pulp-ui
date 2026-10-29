@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { origin } from '../support/env';
+import { ParamResolver } from './params';
 import {
   type ConsoleError,
   type DuplicateRequest,
@@ -13,13 +14,7 @@ import {
   screenPath,
   writeScreenReport,
 } from './report';
-import {
-  type CrawlRoute,
-  PLACEHOLDER,
-  UNKNOWN_PATH,
-  crawlRoutes,
-  fillPattern,
-} from './routes';
+import { crawlRoutes } from './routes';
 
 // Opens every screen of the application as the account of the run and records
 // what the page did: its title, whether it crashed into the error boundary, the
@@ -37,26 +32,9 @@ const account = crawlAccount();
 
 test.describe.configure({ mode: 'parallel' });
 
-// The path of a route relative to the UI root, with parameters filled in. The
-// index is the root itself and the catch-all gets a path nothing matches.
-function pathOf(route: CrawlRoute): {
-  path: string;
-  params: ScreenReport['params'];
-} {
-  if (route.pattern === '/') {
-    return { path: '', params: 'none' };
-  }
-  if (route.pattern === '*') {
-    return { path: UNKNOWN_PATH, params: 'none' };
-  }
-  const values = Object.fromEntries(
-    route.params.map((name) => [name, PLACEHOLDER]),
-  );
-  return {
-    path: fillPattern(route.pattern, values),
-    params: route.params.length ? 'placeholder' : 'none',
-  };
-}
+// Resolves the parameters of a route with GET list calls; one per worker.
+const resolver = new ParamResolver();
+test.afterAll(() => resolver.close());
 
 // An answer the crawl expects: the anonymous probe of the session endpoint
 // says 401, and a read-only account is refused what it may not read.
@@ -87,7 +65,7 @@ for (const route of crawlRoutes()) {
       theme: Theme;
       viewport: Viewport;
     };
-    const { path, params } = pathOf(route);
+    const { path, params } = await resolver.resolve(route);
     const here = origin();
 
     const consoleErrors: (ConsoleError & { source: string })[] = [];

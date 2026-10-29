@@ -36,6 +36,10 @@ function crawlProject(theme: 'light' | 'dark', viewport: 'desktop' | 'phone') {
 
 export default defineConfig({
   testDir: 'e2e',
+  // The crawl run is named before the workers start and summarised after every
+  // project has finished; both do nothing in a run without crawl projects.
+  globalSetup: './e2e/crawl/global-setup.ts',
+  globalTeardown: './e2e/crawl/summarize.ts',
   // One worker in CI: the tests share one Pulp and sign in as the same account.
   workers: process.env['CI'] ? 1 : undefined,
   forbidOnly: !!process.env['CI'],
@@ -75,5 +79,8 @@ export default defineConfig({
       dependencies: ['remote-setup'],
     },
     crawlProject('light', 'desktop'),
+    crawlProject('dark', 'desktop'),
+    crawlProject('light', 'phone'),
+    crawlProject('dark', 'phone'),
   ],
 });
