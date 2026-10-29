@@ -14,6 +14,7 @@ PulpUI is a community driven single-page application that talks to a running [pu
 - [Features](#features)
 - [Requirements](#requirements)
 - [Quick start](#quick-start)
+- [Development](#development)
 - [Configuration](#configuration)
 - [Contributing & Help](#contributing--help)
 - [License](#license)
@@ -33,8 +34,8 @@ PulpUI is a community driven single-page application that talks to a running [pu
 
 ## Requirements
 - Node.js >= 22.32.2
-- npm >= 10
-- Python 3 + pip
+- npm >= 10 (macOS or Linux)
+- Python 3 + pip (only for the optional `pulp-cli`)
 
 ## Quick start
 
@@ -86,12 +87,17 @@ pulp user list
 
 ### 2. Run the frontend
 
+Everything below works the same on macOS and Linux.
+
 #### Clone and install
 ```sh
 git clone https://github.com/pulp/pulp-ui
 cd pulp-ui
-npm install
+npm ci
 ```
+
+`npm ci` installs the exact versions of `package-lock.json` and also installs the git hooks
+described under [Git hooks](#git-hooks). Use plain `npm ci`; no extra flags are needed.
 
 #### Start
 ```sh
@@ -100,7 +106,100 @@ npm run start
 
 Open http://localhost:8002/.
 
-If your API listens elsewhere, you can use `API_PROXY=http://elsewhere:12345 npm run start`. The server at `elsewhere` must allow CORS requests from `localhost`; using `changeOrigin` is out of scope for pulp-ui, and breaks pulp API URLs. **Do NOT use the webpack proxy in production.**
+The dev server proxies the API paths (`/pulp/`, `/api/`, `/auth/`, `/assets/`, `/extensions/`,
+`/v2/`, `/static/rest_framework/`) to a Pulp at `http://localhost:8080` unless `API_PROXY` says
+otherwise. **Do NOT use the webpack proxy in production.**
+
+## Development
+
+### Run against any Pulp
+
+Point the dev server at a Pulp that listens elsewhere, including one behind HTTPS:
+
+```sh
+API_PROXY=https://pulp.example.org DEV_HOST=127.0.0.1 npm start
+```
+
+- The proxy sends the target's own `Host` and presents the target's origin in the `Origin` and
+  `Referer` headers. Pulp checks these for requests that change data after a browser sign-in
+  (it refuses them with a CSRF error otherwise), so sign-in, reads, logout and writes all work
+  through `http://localhost:8002/ui/`. The proxy adds no credential of its own.
+- `DEV_HOST=127.0.0.1` keeps the dev server reachable from your machine only. It is recommended
+  for a remote target; without it the server listens on all interfaces.
+- To use another port, for example when 8002 is taken: `npm start -- --port 8012`.
+- Use Chrome or Firefox. A deployment that sets `Secure` cookies is reached over plain
+  `http://localhost`, which these browsers accept for localhost; Safari does not.
+- TLS certificates of the target are verified. For a lab with a self-signed certificate, trust
+  it for Node instead of turning verification off:
+  `NODE_EXTRA_CA_CERTS=/path/to/ca.pem API_PROXY=https://pulp.example.org npm start`.
+- The dev server serves its own `pulp-ui-config.json` (the repository's default), not the one
+  of the target deployment.
+
+### Build
+
+```sh
+npm run build
+```
+
+The production build is written to `dist/`. It needs no environment variables inside a git
+checkout.
+
+### Unit tests
+
+```sh
+npm test
+npm test -w @pulp-ui/sdk
+```
+
+The first runs the application's unit and component tests, the second the SDK's tests.
+
+### End-to-end tests
+
+The Playwright projects take their target and accounts from the environment only; no host or
+credential is stored in the repository. `PULP_UI_E2E_BASE_URL` is the UI root and must end in
+`/ui/`. Install the browser once with `npx playwright install chromium`.
+
+The smoke project signs in with one account against a built UI served next to a throwaway Pulp
+(this is what CI runs):
+
+```sh
+PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \
+PULP_UI_E2E_USERNAME=admin PULP_UI_E2E_PASSWORD=admin \
+npx playwright test --project=smoke
+```
+
+The remote projects (`remote-admin` and `remote-viewer`) run against a deployment you own, with
+an administrator and a limited account. The accounts come from a JSON file named by
+`PULP_UI_E2E_ACCOUNTS`, shaped like
+
+```json
+{
+  "admin": { "username": "...", "password": "..." },
+  "viewer": { "username": "...", "password": "..." }
+}
+```
+
+Keep the file outside the repository with mode `0600`. The tests create and delete only
+objects named `zz-e2e-...`. The target is either a deployed UI or the dev server of the
+previous section:
+
+```sh
+PULP_UI_E2E_ACCOUNTS=/path/to/accounts.json \
+PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \
+npx playwright test --project=remote-admin --project=remote-viewer
+```
+
+Output of the remote projects (traces, screenshots, the HTML report) can show data of that
+deployment; keep it local.
+
+### Git hooks
+
+`npm ci` points git at the hooks in `.githooks`. They run `scripts/check-public.mjs`, which
+refuses internal hostnames, private addresses and other details that must not be published,
+before a commit and before a push; CI runs it again over the whole tree. You can add a private
+denylist of your own terms in a file outside the repository, named by the
+`PUBLIC_CHECK_DENYLIST` environment variable or by `git config publiccheck.denylist`. When it
+is configured but unreadable, the check fails instead of passing silently.
 
 ## Configuration
 A production build (`npm run build`) can be further configured by serving a `/pulp-ui-config.json` alongside the built UI, mapped at `/`. 
