@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '14 4 * * 6'
 
+permissions:
+  contents: read
+
 concurrency:
   group: cypress-${{ github.ref }}
   cancel-in-progress: true

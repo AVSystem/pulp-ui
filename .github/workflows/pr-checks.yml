@@ -3,13 +3,25 @@ name: 'PR checks'
 on:
   pull_request:
     branches: ['main']
+  push:
+    branches: ['main']
+
+permissions:
+  contents: read
+
+# A newer push to a pull request supersedes its older run. Runs on main are
+# never cancelled, so every merge gets a complete result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   docs:
-    # The workflow tag and the pulpdocs_ref must match.
-    uses: 'pulp/pulp-docs/.github/workflows/docs-ci.yml@main'
+    # Pinned to a commit so a change in the external repository cannot alter
+    # this pipeline unnoticed. The workflow ref and the pulpdocs_ref must match.
+    uses: 'pulp/pulp-docs/.github/workflows/docs-ci.yml@22a82dad2765d66701a964bb81a86fc2ced2cd09'
     with:
-      pulpdocs_ref: 'main'
+      pulpdocs_ref: '22a82dad2765d66701a964bb81a86fc2ced2cd09'
 
   pr-checks:
     runs-on: ubuntu-latest
@@ -56,21 +68,27 @@ jobs:
           fi
 
   merge-commits:
+    # Only a pull request has a range to check; on main the merge commit that
+    # brought the pull request in is expected.
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
-      # need to checkout out head, the merge commit won't have any merges in history
-      # also need more than 1 commit, assuming no PR will have more than 128
+      # Full history, so the range base..head can be walked.
       - name: 'Checkout pulp-ui HEAD'
         uses: actions/checkout@v7
         with:
-          fetch-depth: 128
+          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Ensure no merge commits'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          # fail on merge commits in the PR
-          # since squash&merge doesn't create merge commits,
-          # and the last non-squash merges were in Jul 2019,
-          # we can just look for any merge commits since 2020
-          count=`git log --min-parents=2 --since 2020-01-01 | tee /dev/stderr | wc -l`
+          # Fail on merge commits that belong to the pull request itself.
+          # The range is limited to the commits of the pull request, so merge
+          # commits that are already part of main never fail a pull request.
+          # Merging main into a pull request branch adds a merge commit to
+          # the range, so rebase the branch instead.
+          count=`git log --merges --format=%H "$BASE_SHA..$HEAD_SHA" | tee /dev/stderr | wc -l`
           [ "$count" = 0 ]
