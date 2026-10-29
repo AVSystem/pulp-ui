@@ -30,3 +30,9 @@ export function account(): { username: string; password: string } {
     password: required('PULP_UI_E2E_PASSWORD'),
   };
 }
+
+// The origin (scheme, host and port) the UI is served from. The API lives under
+// the same origin, so API calls made by a test are built from it.
+export function origin(): string {
+  return new URL(baseUrl()).origin;
+}
