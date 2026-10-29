@@ -1,0 +1,112 @@
+name: 'Playwright smoke'
+
+on:
+  pull_request:
+    branches: ['main']
+  push:
+    branches: ['main']
+
+permissions:
+  contents: read
+
+# A newer push to a pull request supersedes its older run. Runs on main are
+# never cancelled, so every merge gets a complete result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  smoke:
+    # Builds the production bundle, serves it behind nginx the way a deployment
+    # does and drives it in a browser against the upstream Pulp image. That image
+    # has none of the fork-only plugin APIs, so a green run is also the standing
+    # check that the UI degrades gracefully without them.
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout pulp-ui (${{ github.ref }})'
+        uses: actions/checkout@v7
+
+      - name: 'backend setup'
+        run: |
+          mkdir -p settings/certs pulp_storage pgsql containers
+          echo "CONTENT_ORIGIN='http://$(hostname):8080'" >> settings/settings.py
+          echo "SECRET_KEY=\"$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')\"" >> settings/settings.py
+
+      - name: 'backend run'
+        run: |
+          podman run --publish 8080:80 --name pulp --replace --detach \
+            --volume "$(pwd)/settings":/etc/pulp \
+            --volume "$(pwd)/pulp_storage":/var/lib/pulp \
+            --volume "$(pwd)/pgsql":/var/lib/pgsql \
+            --volume "$(pwd)/containers":/var/lib/containers \
+            quay.io/pulp/pulp:3.120
+
+      - name: 'Install node 24'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'gettext extract & compile'
+        run: |
+          # production displays unknown translations literally, make sure it's up to date
+          npm run gettext:extract
+          npm run gettext:compile
+
+      - name: 'Build UI'
+        run: |
+          npm run build
+
+          # save the App.*.js hash for later verification
+          BUILD_HASH=`ls dist/js/App*js | cut -d. -f2`
+          echo "BUILD_HASH=${BUILD_HASH}" >> $GITHUB_ENV
+
+      - name: 'Serve UI'
+        run: |
+          podman run --detach --name ui --replace --network host \
+            --volume "$(pwd)/dist":/usr/share/pulp-ui:ro \
+            --volume "$(pwd)/e2e/ci/nginx.conf":/etc/nginx/nginx.conf:ro \
+            docker.io/library/nginx:stable-alpine
+
+      - name: 'Ensure index.html uses the new js'
+        run: |
+          echo 'expecting /static/pulp_ui/js/App.'"$BUILD_HASH"'.js'
+          curl -s -f --retry 8 --retry-all-errors http://127.0.0.1:8002/ui/ | tee /dev/stderr | grep '/static/pulp_ui/js/App.'"$BUILD_HASH"'.js'
+
+      - name: 'Wait for Pulp'
+        run: |
+          curl -s -f --retry 60 --retry-delay 5 --retry-all-errors http://127.0.0.1:8080/pulp/api/v3/status/ | jq
+
+      - name: 'Set the throwaway admin password'
+        run: |
+          # no TTY on a runner, so no -it
+          podman exec pulp pulpcore-manager reset-admin-password --password admin
+
+      - name: 'Install browser'
+        run: npx playwright install --with-deps --only-shell chromium
+
+      - name: 'Run smoke'
+        env:
+          PULP_UI_E2E_BASE_URL: http://127.0.0.1:8002/ui/
+          PULP_UI_E2E_USERNAME: admin
+          PULP_UI_E2E_PASSWORD: admin
+        run: npx playwright test --project=smoke
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-smoke-failure
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+      - name: 'Show logs, stop containers'
+        if: always()
+        run: |
+          podman logs pulp || true
+          podman logs ui || true
+          podman kill pulp ui || true

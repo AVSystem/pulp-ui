@@ -1,6 +1,5 @@
 import jsEslint from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import pluginCypress from 'eslint-plugin-cypress';
 import pluginLingui from 'eslint-plugin-lingui';
 import pluginReact from 'eslint-plugin-react/configs/recommended.js';
 import { defineConfig } from 'eslint/config';
@@ -111,14 +110,9 @@ export default defineConfig([
     },
   },
   {
-    files: ['cypress/**/*.{js,jsx,ts,tsx}'],
-    plugins: {
-      cypress: pluginCypress,
-    },
-    extends: [pluginCypress.configs.recommended, pluginCypress.configs.globals],
-    rules: {
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
+    files: ['e2e/**/*.ts', 'playwright.config.ts'],
+    languageOptions: {
+      globals: { ...globals.node },
     },
   },
   {
