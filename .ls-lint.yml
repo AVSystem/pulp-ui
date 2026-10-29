@@ -4,6 +4,7 @@ ls:
   .js: kebab-case
   .jsx: kebab-case
   .test.ts: kebab-case
+  .test.tsx: kebab-case
   .ts: kebab-case
   .tsx: kebab-case
 
