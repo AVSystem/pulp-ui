@@ -1,0 +1,65 @@
+name: 'Public content guard'
+
+on:
+  pull_request:
+    branches: ['main']
+  push:
+    branches: ['main']
+
+permissions:
+  contents: read
+
+# A newer push to a pull request supersedes its older run. Runs on main are
+# never cancelled, so every merge gets a complete result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  guard:
+    # Runs the same script the git hooks run, over the whole tree and over the
+    # commits of the pull request or push. Only the public rules run here: the
+    # private denylist is deliberately not stored on GitHub, so it is checked
+    # by the hooks on a developer machine only.
+    #
+    # A finding here means the content is already public on the pushed branch
+    # (a push publishes it, and GitHub keeps the head of a pull request even
+    # after a force push). Rewrite the branch to drop the content, close the
+    # pull request and report it so the stored pull request head can be purged.
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout pulp-ui (${{ github.ref }})'
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 'Install node 24'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: 'Scan the whole tree'
+        run: node scripts/check-public.mjs --all
+
+      - name: 'Scan the pull request commits'
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/check-public.mjs --range "${BASE_SHA}..${HEAD_SHA}"
+
+      - name: 'Scan the pushed commits'
+        if: github.event_name == 'push'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          # A new branch has an all-zero "before", and a forced push can leave a
+          # "before" that this clone does not have; the whole-tree scan above
+          # still covers those pushes.
+          if [ -n "${BEFORE_SHA}" ] && [ "${BEFORE_SHA#*[!0]}" != "${BEFORE_SHA}" ] \
+            && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            node scripts/check-public.mjs --range "${BEFORE_SHA}..${AFTER_SHA}"
+          else
+            echo "No usable previous commit; the whole-tree scan covers this push."
+          fi

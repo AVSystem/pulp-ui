@@ -1,0 +1,53 @@
+# Hostnames that may appear in this repository's text.
+#
+# One host per line. "*.domain" matches every subdomain of domain but not the
+# domain itself, so list both when both are needed. Matching ignores case and a
+# trailing dot. Names reserved for documentation (localhost, example.com,
+# *.example, *.test, *.invalid) never need an entry.
+#
+# This is a list of hostnames written in source text, checked by
+# scripts/check-public.mjs. It does not decide who may read or write anything.
+# Add a host only when it is a public project, documentation or registry host;
+# anything that identifies a private deployment never belongs here.
+
+# Package registry and source hosting
+registry.npmjs.org
+npmjs.com
+www.npmjs.com
+github.com
+*.github.com
+raw.githubusercontent.com
+*.githubusercontent.com
+nodejs.org
+webpack.js.org
+eslint.org
+playwright.dev
+
+# Container registries
+docker.io
+www.docker.com
+quay.io
+registry.redhat.io
+
+# Pulp and Ansible projects
+pulpproject.org
+*.pulpproject.org
+ansible.com
+*.ansible.com
+redhat.com
+
+# Badges, chat, standards, licences and logo metadata
+img.shields.io
+matrix.to
+www.apache.org
+www.w3.org
+purl.org
+www.inkscape.org
+sodipodi.sourceforge.net
+creativecommons.org
+eur-lex.europa.eu
+www.rfc-editor.org
+
+# Placeholder single-label names used in documentation and test fixtures
+h
+elsewhere

@@ -1,0 +1,15 @@
+#!/bin/sh
+# Refuses a commit whose staged changes add a host that is not on the public
+# host list, a private address, or an entry of the private denylist. The check
+# lives in scripts/check-public.mjs; this hook only locates and runs it, from
+# whatever directory git invokes the hook.
+set -eu
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node is not on PATH, so the public-content check cannot run." >&2
+  echo "Start git from a shell that has node, or install node." >&2
+  exit 1
+fi
+
+here=$(cd "$(dirname "$0")" && pwd)
+exec node "$here/../scripts/check-public.mjs" --staged
