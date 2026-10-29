@@ -43,6 +43,18 @@ describe('listOf', () => {
     expect(body.count).toBe(5);
   });
 
+  it('answers only the rows the matching filter selects, with their count', async () => {
+    const { handler } = listOf(REPOSITORIES, rows, {
+      matching: (row, query) => row === query.get('name'),
+    });
+    server.use(handler);
+
+    const body = await read('name=c');
+
+    expect(body.results).toStrictEqual(['c']);
+    expect(body.count).toBe(1);
+  });
+
   it('links to the next page until the last page, which has none', async () => {
     const { handler } = listOf(REPOSITORIES, rows, { pageSize: 2 });
     server.use(handler);

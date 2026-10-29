@@ -5,7 +5,8 @@ import { defineConfig } from 'vitest/config';
 // Two projects keep the browser-like setup away from Node tooling tests:
 // "app" runs the application tests under src/ in a DOM environment with the
 // HTTP mock server and the lingui macro transform, "node" runs the tests of the
-// repository scripts under scripts/ with no setup at all. The sdk workspace
+// repository scripts under scripts/ and of the build configuration under
+// config/ with no setup at all. The sdk workspace
 // keeps its own configuration and is run through its own test script, so
 // nothing under packages/ is collected here. There is deliberately no
 // passWithNoTests: an include pattern that matches no file must fail the run,
@@ -52,7 +53,7 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['scripts/**/*.test.{ts,mjs}'],
+          include: ['scripts/**/*.test.{ts,mjs}', 'config/**/*.test.ts'],
           exclude,
         },
       },
