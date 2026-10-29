@@ -117,15 +117,19 @@ otherwise. **Do NOT use the webpack proxy in production.**
 Point the dev server at a Pulp that listens elsewhere, including one behind HTTPS:
 
 ```sh
-API_PROXY=https://pulp.example.org DEV_HOST=127.0.0.1 npm start
+API_PROXY=https://pulp.example.org npm start
 ```
 
 - The proxy sends the target's own `Host` and presents the target's origin in the `Origin` and
   `Referer` headers. Pulp checks these for requests that change data after a browser sign-in
   (it refuses them with a CSRF error otherwise), so sign-in, reads, logout and writes all work
   through `http://localhost:8002/ui/`. The proxy adds no credential of its own.
-- `DEV_HOST=127.0.0.1` keeps the dev server reachable from your machine only. It is recommended
-  for a remote target; without it the server listens on all interfaces.
+- The dev server listens on all interfaces when the target is on your machine (the default
+  `http://localhost:8080`), and on `127.0.0.1` only when `API_PROXY` names any other target. The
+  proxy presents the target's own origin, so a dev server that anyone on your network could reach
+  would be a relay to the target. Set `DEV_HOST` to choose the address yourself, for example
+  `DEV_HOST=0.0.0.0` to expose it on purpose or `DEV_HOST=127.0.0.1` to keep a local target
+  private.
 - To use another port, for example when 8002 is taken: `npm start -- --port 8012`.
 - Use Chrome or Firefox. A deployment that sets `Secure` cookies is reached over plain
   `http://localhost`, which these browsers accept for localhost; Safari does not.
@@ -189,8 +193,10 @@ PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \
 npx playwright test --project=remote-admin --project=remote-viewer
 ```
 
-Output of the remote projects (traces, screenshots, the HTML report) can show data of that
-deployment; keep it local.
+Output of the remote projects (screenshots, the HTML report) can show data of that
+deployment; keep it local. These projects record no Playwright trace, because a trace keeps the
+headers of every request, including the sign-in request with the account's credential. The
+smoke project, which runs against a throwaway local instance, keeps traces on failure.
 
 ### Git hooks
 
@@ -199,7 +205,9 @@ refuses internal hostnames, private addresses and other details that must not be
 before a commit and before a push; CI runs it again over the whole tree. You can add a private
 denylist of your own terms in a file outside the repository, named by the
 `PUBLIC_CHECK_DENYLIST` environment variable or by `git config publiccheck.denylist`. When it
-is configured but unreadable, the check fails instead of passing silently.
+is configured but unreadable, or holds no entry, the check fails instead of passing silently.
+When none is configured, the hooks say so on every run: only the public rules ran, and internal
+names that those rules cannot recognise are not checked.
 
 ## Configuration
 A production build (`npm run build`) can be further configured by serving a `/pulp-ui-config.json` alongside the built UI, mapped at `/`. 

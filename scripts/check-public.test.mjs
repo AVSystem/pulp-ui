@@ -189,6 +189,14 @@ describe('denylist rule', () => {
     }
   });
 
+  it('refuses a list with no active entry', () => {
+    for (const text of ['', '\n\n', '# comment only\n\n  \n', '\r\n#x\r\n']) {
+      expect(() => rules('', text)).toThrow(/holds no entries/);
+    }
+    expect(() => rules('', 'entry\n')).not.toThrow();
+    expect(rules('', null).denylist).toBeNull();
+  });
+
   it('fails closed when the configured file is missing', () => {
     const dir = mkdtempSync(join(tmpdir(), 'guard-deny-'));
     try {
@@ -422,7 +430,35 @@ describe('pre-commit hook in a real repository', () => {
     const dir = newRepo(root, 'empty');
     const res = run('node', [SCRIPT, '--staged'], { cwd: dir });
     expect(res.status).toBe(0);
-    expect(res.output).toBe('');
+    expect(res.output).toMatch(/no private denylist configured/);
+  });
+
+  it('warns on every run when no denylist is configured, even with nothing to scan', () => {
+    const dir = newRepo(root, 'warn-hooks');
+    const pre = run('sh', [join(HOOKS, 'pre-commit')], { cwd: dir });
+    expect(pre.status).toBe(0);
+    expect(pre.stderr).toMatch(/no private denylist configured/);
+    const push = run('sh', [join(HOOKS, 'pre-push'), 'origin', 'none'], {
+      cwd: dir,
+      input: '',
+    });
+    expect(push.status).toBe(0);
+    expect(push.stderr).toMatch(/no private denylist configured/);
+  });
+
+  it('refuses a configured denylist that holds no entries and names the setting', () => {
+    const dir = newRepo(root, 'empty-list');
+    const file = join(root, 'deny-empty.txt');
+    writeFileSync(file, '# only a comment zzcommenttext\n\n   \n');
+    stage(dir, 'notes.ts', '// zzanything\n');
+    const res = commit(dir, { PUBLIC_CHECK_DENYLIST: file });
+    expect(res.status).not.toBe(0);
+    expect(res.output).toMatch(/PUBLIC_CHECK_DENYLIST/);
+    expect(res.output).toMatch(/publiccheck\.denylist/);
+    expect(res.output).toMatch(/holds no entries/);
+    expect(res.output).not.toContain('zzcommenttext');
+    writeFileSync(file, '');
+    expect(commit(dir, { PUBLIC_CHECK_DENYLIST: file }).status).not.toBe(0);
   });
 });
 
@@ -546,16 +582,42 @@ describe('modes in real repositories', () => {
     expect(res2.stdout).toMatch(/^zzrangetoken\.ts:0: denylist: zzrangetoken/m);
   });
 
-  it('skips binary files', () => {
-    const dir = newRepo(root, 'binary');
-    writeFileSync(
-      join(dir, 'blob.bin'),
-      Buffer.concat([Buffer.from([0, 1, 2, 0]), Buffer.from(leak)]),
-    );
+  it('scans a NUL-bearing file in --all and in a staged change', () => {
+    const dir = newRepo(root, 'binary', { hooks: false });
+    const body = Buffer.concat([
+      Buffer.from('host ' + ip(10, 1, 2, 3) + ' here\n'),
+      Buffer.from([0, 1, 2, 0]),
+    ]);
+    writeFileSync(join(dir, 'blob.bin'), body);
     git(dir, ['add', 'blob.bin']);
+    const staged = run('node', [SCRIPT, '--staged'], { cwd: dir });
+    expect(staged.status).toBe(1);
+    expect(staged.stdout).toMatch(/^blob\.bin:1: private-address: /m);
     const res = git(dir, ['commit', '-q', '-m', 'Add blob']);
     expect(res.status, res.output).toBe(0);
-    expect(check(dir, ['--all']).status).toBe(0);
+    const all = check(dir, ['--all']);
+    expect(all.status).toBe(1);
+    expect(all.stdout).toMatch(/^blob\.bin:1: private-address: /m);
+    const head = git(dir, ['rev-parse', 'HEAD']).stdout.trim();
+    const ranged = check(dir, ['--range', `${head}^!`]);
+    expect(ranged.status).toBe(1);
+    expect(ranged.stdout).toMatch(/^blob\.bin:1: private-address: /m);
+  });
+
+  it('scans a file marked -diff in .gitattributes', () => {
+    const dir = newRepo(root, 'nodiff', { hooks: false });
+    write(dir, '.gitattributes', '*.md -diff\n');
+    write(dir, 'notes.md', 'host ' + ip(10, 1, 2, 3) + ' here\n');
+    git(dir, ['add', '.gitattributes', 'notes.md']);
+    const staged = run('node', [SCRIPT, '--staged'], { cwd: dir });
+    expect(staged.status).toBe(1);
+    expect(staged.stdout).toMatch(/^notes\.md:1: private-address: /m);
+    const res = git(dir, ['commit', '-q', '-m', 'Add notes']);
+    expect(res.status, res.output).toBe(0);
+    const head = git(dir, ['rev-parse', 'HEAD']).stdout.trim();
+    const range = check(dir, ['--range', `${head}^!`]);
+    expect(range.status).toBe(1);
+    expect(range.stdout).toMatch(/^notes\.md:1: private-address: /m);
   });
 
   it('does not mistake an added line that starts with plus signs for a header', () => {

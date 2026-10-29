@@ -1,12 +1,13 @@
+const { devHost } = require('./dev-host');
 const webpackBase = require('./shared.config');
 
 const proxyTarget = process.env.API_PROXY || 'http://localhost:8080';
 
 module.exports = webpackBase({
-  // Address the dev server binds to. The default listens on all interfaces;
-  // set DEV_HOST=127.0.0.1 to keep a dev server that proxies to a remote
-  // Pulp reachable from this machine only.
-  DEV_HOST: process.env.DEV_HOST || undefined,
+  // Address the dev server binds to. Loopback only when API_PROXY names a
+  // target that is not on this machine, all interfaces otherwise; DEV_HOST
+  // overrides either (see config/dev-host.js).
+  DEV_HOST: devHost(),
 
   // Port that the UI is served over (override with: npm start -- --port N).
   DEV_PORT: 8002,
