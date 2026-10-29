@@ -1,0 +1,41 @@
+name: 'Unit tests'
+
+on:
+  pull_request:
+    branches: ['main']
+  push:
+    branches: ['main']
+
+permissions:
+  contents: read
+
+# A newer push to a pull request supersedes its older run. Runs on main are
+# never cancelled, so every merge gets a complete result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout pulp-ui (${{ github.ref }})'
+        uses: actions/checkout@v7
+
+      - name: 'Install node 24'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'App unit tests'
+        run: npm test
+
+      - name: 'sdk unit tests'
+        run: npm test -w @pulp-ui/sdk
+
+      - name: 'sdk type-check'
+        run: npm run typecheck -w @pulp-ui/sdk
