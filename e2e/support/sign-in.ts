@@ -11,13 +11,29 @@ export function title(page: Page, text: string) {
 // the Status page, where the application sends a fresh sign-in.
 export async function signIn(page: Page): Promise<void> {
   baseUrl();
-  const { username, password } = account();
+  await signInWith(page, account());
+}
 
+// The same, for an explicit account and starting from the plain login page.
+export async function signInWith(
+  page: Page,
+  { username, password }: { username: string; password: string },
+): Promise<void> {
   await page.goto('login');
-  await page.locator('#pf-login-username-id').fill(username);
-  await page.locator('#pf-login-password-id').fill(password);
-  await page.getByRole('button', { name: 'Log in' }).click();
+  await submitLoginForm(page, username, password);
 
   await expect(title(page, 'Status')).toBeVisible();
   await expect(page.locator('[data-cy=user-dropdown]')).toBeVisible();
+}
+
+// Types a user name and password into the login form that is already open and
+// submits it. What follows is up to the caller.
+export async function submitLoginForm(
+  page: Page,
+  username: string,
+  password: string,
+): Promise<void> {
+  await page.locator('#pf-login-username-id').fill(username);
+  await page.locator('#pf-login-password-id').fill(password);
+  await page.getByRole('button', { name: 'Log in' }).click();
 }
