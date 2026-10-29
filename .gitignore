@@ -11,3 +11,6 @@ dist/
 node_modules/
 npm-debug.log*
 /pulp-ui-*.tar.gz
+playwright-report/
+test-results/
+playwright/.auth/
