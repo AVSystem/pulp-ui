@@ -17,10 +17,11 @@ concurrency:
 
 jobs:
   docs:
-    # The workflow tag and the pulpdocs_ref must match.
-    uses: 'pulp/pulp-docs/.github/workflows/docs-ci.yml@main'
+    # Pinned to a commit so a change in the external repository cannot alter
+    # this pipeline unnoticed. The workflow ref and the pulpdocs_ref must match.
+    uses: 'pulp/pulp-docs/.github/workflows/docs-ci.yml@22a82dad2765d66701a964bb81a86fc2ced2cd09'
     with:
-      pulpdocs_ref: 'main'
+      pulpdocs_ref: '22a82dad2765d66701a964bb81a86fc2ced2cd09'
 
   pr-checks:
     runs-on: ubuntu-latest
