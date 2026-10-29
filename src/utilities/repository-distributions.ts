@@ -172,20 +172,18 @@ export async function repositoryDistributions(
     );
 
   return Array.from(serving.values())
-    .map(
-      (distribution): RepositoryDistribution => ({
-        pulp_href: distribution.pulp_href,
-        name: distribution.name,
-        base_path: distribution.base_path,
-        url: distributionUrl(distribution),
-        served:
-          servedState(distribution, servesFromPublication, publications) ===
-          'served',
-        binding: bindingOf(distribution),
-        content_guard: distribution.content_guard ?? null,
-        pulp_created: distribution.pulp_created,
-      }),
-    )
+    .map((distribution): RepositoryDistribution => ({
+      pulp_href: distribution.pulp_href,
+      name: distribution.name,
+      base_path: distribution.base_path,
+      url: distributionUrl(distribution),
+      served:
+        servedState(distribution, servesFromPublication, publications) ===
+        'served',
+      binding: bindingOf(distribution),
+      content_guard: distribution.content_guard ?? null,
+      pulp_created: distribution.pulp_created,
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
