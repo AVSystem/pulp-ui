@@ -31,18 +31,29 @@ const DEFAULT_PAGE_SIZE = 100;
 // A GET handler for a list endpoint, to pass to server.use. It answers offset
 // and limit requests with slices of the rows and a next link until the last
 // page, as the server does; pageSize caps the rows of one page whatever the
-// request asks for. The query of every request it answers is recorded in
-// queries, in order, for assertions.
+// request asks for. matching keeps only the rows a filter query selects, the
+// way a server filter does; without it every row is answered whatever the
+// query says. The query of every request it answers is recorded in queries, in
+// order, for assertions.
 export function listOf<T>(
   path: string,
-  rows: T[],
-  { pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number } = {},
+  allRows: T[],
+  {
+    pageSize = DEFAULT_PAGE_SIZE,
+    matching,
+  }: {
+    pageSize?: number;
+    matching?: (row: T, query: URLSearchParams) => boolean;
+  } = {},
 ) {
   const queries: URLSearchParams[] = [];
 
   const handler = http.get(`*${path}`, ({ request }) => {
     const url = new URL(request.url);
     queries.push(new URLSearchParams(url.searchParams));
+    const rows = matching
+      ? allRows.filter((row) => matching(row, url.searchParams))
+      : allRows;
 
     const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
     const requested = Number(url.searchParams.get('limit')) || pageSize;
