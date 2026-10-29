@@ -83,7 +83,7 @@ function asciiJson(value: unknown): string {
 }
 
 function cell(value: string, limit = 140): string {
-  const flat = ascii(value).replace(/\s+/g, ' ').replace(/\|/g, '/').trim();
+  const flat = ascii(value.replace(/\s+/g, ' ')).replace(/\|/g, '/').trim();
   return flat.length > limit ? `${flat.slice(0, limit - 3)}...` : flat;
 }
 
