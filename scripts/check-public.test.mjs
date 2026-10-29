@@ -223,6 +223,69 @@ describe('lockfile rule', () => {
   });
 });
 
+describe('prose rule', () => {
+  const host = ['unlisted', 'fixture', 'lan'].join('.');
+
+  it('flags a bare host in a prose file only', () => {
+    const text = `Open ${host} in a browser`;
+    expect(rulesOf(scan(text, 'notes.md', rules()))).toEqual(['bare-host']);
+    expect(scan(text, 'notes.yml', rules())).toHaveLength(1);
+    expect(scan(text, 'notes.txt', rules())).toHaveLength(1);
+    expect(scan(text, 'notes.po', rules())).toHaveLength(1);
+    expect(scan(text, 'index.html', rules())).toHaveLength(1);
+    expect(scan(text, 'notes.ts', rules())).toEqual([]);
+    expect(scan(text, 'notes.mjs', rules())).toEqual([]);
+  });
+
+  it('passes listed and reserved hosts and does not repeat a URL finding', () => {
+    expect(scan(`see ${host}`, 'n.md', rules(`${host}\n`))).toEqual([]);
+    expect(scan('see docs.example.com and a.test', 'n.md', rules())).toEqual(
+      [],
+    );
+    const found = scan(`see ${url(host, '/a.org')}`, 'n.md', rules());
+    expect(rulesOf(found)).toEqual(['url-host']);
+  });
+
+  it('flags the domain of an email address', () => {
+    const found = scan(`mail someone@${host}`, 'n.md', rules());
+    expect(tokensOf(found)).toEqual([host]);
+  });
+});
+
+describe('noise classes', () => {
+  it('ignores version strings that look like addresses', () => {
+    const text = [
+      'node 10.13.0 and 1.2.3.4',
+      'v' + ip(10, 1, 2, 3),
+      'pkg@' + ip(10, 1, 2, 3),
+      '^' + ip(172, 16, 0, 1),
+      'release ' + ip(10, 1, 2, 3) + '-beta.1',
+    ].join('\n');
+    expect(scan(text, 'a.ts', rules())).toEqual([]);
+    expect(scan(text, 'a.md', rules())).toEqual([]);
+  });
+
+  it('ignores dotted identifiers and file names', () => {
+    const code = 'const a = item.name + config.ui + this.state.id + obj.pk;';
+    expect(scan(code, 'a.ts', rules())).toEqual([]);
+    const prose =
+      'See `item.name`, `config.ui`, README.md, build.sh and a.b.c.';
+    expect(scan(prose, 'a.md', rules())).toEqual([]);
+  });
+
+  it('ignores reserved example names and loopback in prose and code', () => {
+    const text =
+      'try https://api.example.org/x, localhost:8080 and evil.example';
+    expect(scan(text, 'a.md', rules())).toEqual([]);
+    expect(scan(text, 'a.ts', rules())).toEqual([]);
+  });
+
+  it('ignores lockfile funding URLs', () => {
+    const lock = '"funding": { "url": "https://' + 'x' + '.invalid/sponsor" }';
+    expect(scan(lock, 'package-lock.json', rules())).toEqual([]);
+  });
+});
+
 // Child processes see none of the outer git or guard configuration.
 function cleanEnv(extra = {}) {
   const env = { ...process.env };
@@ -397,5 +460,192 @@ describe('hook installer', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('modes in real repositories', () => {
+  let root;
+  beforeAll(() => {
+    root = mkdtempSync(join(tmpdir(), 'guard-modes-'));
+  });
+  afterAll(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  const leak = `const u = '${url(ip(203, 0, 113, 7), '/x')}';\n`;
+  const write = (dir, name, body) => writeFileSync(join(dir, name), body);
+  const commitAll = (dir, message, extra = []) => {
+    git(dir, ['add', '-A']);
+    const res = git(dir, ['commit', '-q', '-m', message, ...extra]);
+    expect(res.status, res.output).toBe(0);
+    return git(dir, ['rev-parse', 'HEAD']).stdout.trim();
+  };
+  const check = (dir, args, options = {}) =>
+    run('node', [SCRIPT, ...args], { cwd: dir, ...options });
+
+  it('--all scans every tracked file and the empty tree is clean', () => {
+    const dir = newRepo(root, 'all', { hooks: false });
+    expect(check(dir, ['--all']).status).toBe(0);
+    write(dir, 'ok.ts', 'export {};\n');
+    commitAll(dir, 'Add ok');
+    expect(check(dir, ['--all']).status).toBe(0);
+    write(dir, 'bad.ts', `export {};\n${leak}`);
+    commitAll(dir, 'Add bad');
+    const res = check(dir, ['--all']);
+    expect(res.status).toBe(1);
+    expect(res.stdout).toMatch(/^bad\.ts:2: url-host: /m);
+  });
+
+  it('--all fails closed when the configured denylist is missing', () => {
+    const dir = newRepo(root, 'all-missing', { hooks: false });
+    write(dir, 'ok.ts', 'export {};\n');
+    commitAll(dir, 'Add ok');
+    const res = check(dir, ['--all'], {
+      env: { PUBLIC_CHECK_DENYLIST: join(root, 'absent.txt') },
+    });
+    expect(res.status).toBe(1);
+    expect(res.output).toMatch(/cannot be read/);
+  });
+
+  it('--range scans each commit, so content added and removed is still found', () => {
+    const dir = newRepo(root, 'range', { hooks: false });
+    write(dir, 'a.ts', 'export {};\n');
+    const base = commitAll(dir, 'Base');
+    write(dir, 'a.ts', leak);
+    commitAll(dir, 'Add leak');
+    write(dir, 'a.ts', 'export {};\n');
+    commitAll(dir, 'Remove it again');
+    const res = check(dir, ['--range', `${base}..HEAD`]);
+    expect(res.status).toBe(1);
+    expect(res.stdout).toMatch(/^a\.ts:1: url-host: /m);
+    expect(res.stderr).toMatch(/offending commits: [0-9a-f]{12}/);
+    expect(check(dir, ['--range', 'HEAD..HEAD']).status).toBe(0);
+  });
+
+  it('--range scans commit messages and added paths', () => {
+    const dir = newRepo(root, 'range-msg', { hooks: false });
+    write(dir, 'a.ts', 'export {};\n');
+    const base = commitAll(dir, 'Base');
+    write(dir, 'b.ts', 'export {};\n');
+    commitAll(
+      dir,
+      `Deploy to ${url(['unlisted', 'fixture', 'lan'].join('.'))}`,
+    );
+    const res = check(dir, ['--range', `${base}..HEAD`]);
+    expect(res.status).toBe(1);
+    expect(res.stdout).toMatch(/^commit:[0-9a-f]{12}:1: url-host: /m);
+
+    const denyFile = join(root, 'range-deny.txt');
+    writeFileSync(denyFile, 'zzrangetoken\n');
+    write(dir, 'zzrangetoken.ts', 'export {};\n');
+    const head = commitAll(dir, 'Add a file');
+    const res2 = check(dir, ['--range', `${head}~1..${head}`], {
+      env: { PUBLIC_CHECK_DENYLIST: denyFile },
+    });
+    expect(res2.status).toBe(1);
+    expect(res2.stdout).toMatch(/^zzrangetoken\.ts:0: denylist: zzrangetoken/m);
+  });
+
+  it('skips binary files', () => {
+    const dir = newRepo(root, 'binary');
+    writeFileSync(
+      join(dir, 'blob.bin'),
+      Buffer.concat([Buffer.from([0, 1, 2, 0]), Buffer.from(leak)]),
+    );
+    git(dir, ['add', 'blob.bin']);
+    const res = git(dir, ['commit', '-q', '-m', 'Add blob']);
+    expect(res.status, res.output).toBe(0);
+    expect(check(dir, ['--all']).status).toBe(0);
+  });
+
+  it('does not mistake an added line that starts with plus signs for a header', () => {
+    const dir = newRepo(root, 'plus', { hooks: false });
+    write(dir, 'a.ts', 'export {};\n');
+    const base = commitAll(dir, 'Base');
+    write(dir, 'a.ts', `export {};\n++ b/other.ts\n${leak}`);
+    commitAll(dir, 'Add lines');
+    const res = check(dir, ['--range', `${base}..HEAD`]);
+    expect(res.stdout).toMatch(/^a\.ts:3: url-host: /m);
+  });
+
+  describe('pre-push', () => {
+    const ZERO = '0'.repeat(40);
+
+    function pushSetup(name) {
+      const remote = join(root, `${name}-remote.git`);
+      mkdirSync(remote);
+      git(remote, ['init', '-q', '--bare', '-b', 'main']);
+      const dir = newRepo(root, name, { hooks: false });
+      git(dir, ['remote', 'add', 'origin', remote]);
+      write(dir, 'a.ts', 'export {};\n');
+      commitAll(dir, 'Base');
+      expect(git(dir, ['push', '-q', 'origin', 'main']).status).toBe(0);
+      return { dir, remote };
+    }
+    // Hooks are enabled only for the push itself, so a commit that carries a
+    // leak can be created first.
+    const push = (dir, args) =>
+      git(dir, ['-c', `core.hooksPath=${HOOKS}`, 'push', ...args]);
+    const remoteHead = (remote, ref) =>
+      git(remote, ['rev-parse', '--verify', '-q', ref]).stdout.trim();
+
+    it('exits 0 for a deleted ref and for an empty push', () => {
+      const dir = newRepo(root, 'push-delete', { hooks: false });
+      const del = `refs/heads/x ${ZERO} refs/heads/x ${'1'.repeat(40)}\n`;
+      const r1 = check(dir, ['--pre-push', 'origin', 'url'], { input: del });
+      expect(r1.status).toBe(0);
+      const r2 = check(dir, ['--pre-push', 'origin', 'url'], { input: '' });
+      expect(r2.status).toBe(0);
+    });
+
+    it('refuses a push of an existing branch that adds a leak', () => {
+      const { dir, remote } = pushSetup('push-existing');
+      const before = remoteHead(remote, 'main');
+      write(dir, 'a.ts', leak);
+      commitAll(dir, 'Add leak');
+      const res = push(dir, ['origin', 'main']);
+      expect(res.status).not.toBe(0);
+      expect(res.output).toMatch(/a\.ts:1: url-host: /);
+      expect(remoteHead(remote, 'main')).toBe(before);
+    });
+
+    it('refuses a new branch that carries a leak and accepts a clean one', () => {
+      const { dir, remote } = pushSetup('push-new');
+      git(dir, ['switch', '-q', '-c', 'feature']);
+      write(dir, 'b.ts', leak);
+      commitAll(dir, 'Add leak');
+      const bad = push(dir, ['origin', 'feature']);
+      expect(bad.status).not.toBe(0);
+      expect(bad.output).toMatch(/b\.ts:1: url-host: /);
+      expect(remoteHead(remote, 'refs/heads/feature')).toBe('');
+
+      git(dir, ['switch', '-q', '-c', 'clean', 'main']);
+      write(dir, 'c.ts', 'export const c = 1;\n');
+      commitAll(dir, 'Add clean file');
+      const ok = push(dir, ['origin', 'clean']);
+      expect(ok.status, ok.output).toBe(0);
+      expect(remoteHead(remote, 'refs/heads/clean')).not.toBe('');
+    });
+
+    it('refuses a push whose commit message carries a leak', () => {
+      const { dir } = pushSetup('push-message');
+      write(dir, 'c.ts', 'export {};\n');
+      commitAll(
+        dir,
+        `Deploy to ${url(['unlisted', 'fixture', 'lan'].join('.'))}`,
+      );
+      const res = push(dir, ['origin', 'main']);
+      expect(res.status).not.toBe(0);
+      expect(res.output).toMatch(/commit:[0-9a-f]{12}:1: url-host: /);
+    });
+
+    it('pushes a branch deletion without scanning', () => {
+      const { dir, remote } = pushSetup('push-del');
+      git(dir, ['push', '-q', 'origin', 'main:refs/heads/gone']);
+      expect(remoteHead(remote, 'refs/heads/gone')).not.toBe('');
+      const res = push(dir, ['origin', ':refs/heads/gone']);
+      expect(res.status, res.output).toBe(0);
+      expect(remoteHead(remote, 'refs/heads/gone')).toBe('');
+    });
   });
 });

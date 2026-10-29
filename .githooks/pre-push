@@ -1,0 +1,17 @@
+#!/bin/sh
+# Refuses a push of commits that add a host that is not on the public host
+# list, a private address, or an entry of the private denylist, in file
+# contents, file paths or commit messages. A push publishes the commits at
+# once, so this is the last point where the content can still be stopped. The
+# check lives in scripts/check-public.mjs; this hook passes on its arguments
+# (remote name and url) and the list of refs git sends on standard input.
+set -eu
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-push: node is not on PATH, so the public-content check cannot run." >&2
+  echo "Start git from a shell that has node, or install node." >&2
+  exit 1
+fi
+
+here=$(cd "$(dirname "$0")" && pwd)
+exec node "$here/../scripts/check-public.mjs" --pre-push "$@"
