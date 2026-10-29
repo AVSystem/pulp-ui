@@ -189,6 +189,14 @@ describe('denylist rule', () => {
     }
   });
 
+  it('refuses a list with no active entry', () => {
+    for (const text of ['', '\n\n', '# comment only\n\n  \n', '\r\n#x\r\n']) {
+      expect(() => rules('', text)).toThrow(/holds no entries/);
+    }
+    expect(() => rules('', 'entry\n')).not.toThrow();
+    expect(rules('', null).denylist).toBeNull();
+  });
+
   it('fails closed when the configured file is missing', () => {
     const dir = mkdtempSync(join(tmpdir(), 'guard-deny-'));
     try {
@@ -422,7 +430,35 @@ describe('pre-commit hook in a real repository', () => {
     const dir = newRepo(root, 'empty');
     const res = run('node', [SCRIPT, '--staged'], { cwd: dir });
     expect(res.status).toBe(0);
-    expect(res.output).toBe('');
+    expect(res.output).toMatch(/no private denylist configured/);
+  });
+
+  it('warns on every run when no denylist is configured, even with nothing to scan', () => {
+    const dir = newRepo(root, 'warn-hooks');
+    const pre = run('sh', [join(HOOKS, 'pre-commit')], { cwd: dir });
+    expect(pre.status).toBe(0);
+    expect(pre.stderr).toMatch(/no private denylist configured/);
+    const push = run('sh', [join(HOOKS, 'pre-push'), 'origin', 'none'], {
+      cwd: dir,
+      input: '',
+    });
+    expect(push.status).toBe(0);
+    expect(push.stderr).toMatch(/no private denylist configured/);
+  });
+
+  it('refuses a configured denylist that holds no entries and names the setting', () => {
+    const dir = newRepo(root, 'empty-list');
+    const file = join(root, 'deny-empty.txt');
+    writeFileSync(file, '# only a comment zzcommenttext\n\n   \n');
+    stage(dir, 'notes.ts', '// zzanything\n');
+    const res = commit(dir, { PUBLIC_CHECK_DENYLIST: file });
+    expect(res.status).not.toBe(0);
+    expect(res.output).toMatch(/PUBLIC_CHECK_DENYLIST/);
+    expect(res.output).toMatch(/publiccheck\.denylist/);
+    expect(res.output).toMatch(/holds no entries/);
+    expect(res.output).not.toContain('zzcommenttext');
+    writeFileSync(file, '');
+    expect(commit(dir, { PUBLIC_CHECK_DENYLIST: file }).status).not.toBe(0);
   });
 });
 

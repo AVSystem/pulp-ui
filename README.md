@@ -199,7 +199,9 @@ refuses internal hostnames, private addresses and other details that must not be
 before a commit and before a push; CI runs it again over the whole tree. You can add a private
 denylist of your own terms in a file outside the repository, named by the
 `PUBLIC_CHECK_DENYLIST` environment variable or by `git config publiccheck.denylist`. When it
-is configured but unreadable, the check fails instead of passing silently.
+is configured but unreadable, or holds no entry, the check fails instead of passing silently.
+When none is configured, the hooks say so on every run: only the public rules ran, and internal
+names that those rules cannot recognise are not checked.
 
 ## Configuration
 A production build (`npm run build`) can be further configured by serving a `/pulp-ui-config.json` alongside the built UI, mapped at `/`. 

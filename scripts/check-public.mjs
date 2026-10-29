@@ -32,9 +32,11 @@
 //
 // Private denylist: a file kept outside the repository, named by the
 // PUBLIC_CHECK_DENYLIST environment variable or by the git configuration key
-// publiccheck.denylist. When it is configured but cannot be read the guard
-// fails closed (exit 1). When nothing is configured only the public rules run
-// and one line says so.
+// publiccheck.denylist. When it is configured but cannot be read, or holds no
+// entry (empty, or only comments and blank lines), the guard fails closed
+// (exit 1): a list that matches nothing would otherwise pass everything in
+// silence. When nothing is configured only the public rules run and one line
+// on standard error says so on every run; CI has no list and relies on that.
 //
 // Usage:
 //   node scripts/check-public.mjs --staged
@@ -240,10 +242,17 @@ export function parseDenylist(text) {
 
 /** Builds the rule set used by scan(). Both arguments are optional text. */
 export function buildRules({ hostsText = '', denylistText = null } = {}) {
-  return {
-    hosts: parseHostList(hostsText),
-    denylist: denylistText === null ? null : parseDenylist(denylistText),
-  };
+  let denylist = null;
+  if (denylistText !== null) {
+    denylist = parseDenylist(denylistText);
+    if (denylist.length === 0) {
+      throw new Error(
+        'the private denylist (PUBLIC_CHECK_DENYLIST or git config ' +
+          'publiccheck.denylist) is configured but holds no entries',
+      );
+    }
+  }
+  return { hosts: parseHostList(hostsText), denylist };
 }
 
 function ipv4Octets(host) {
@@ -780,6 +789,11 @@ export function main(argv) {
       result = scanAll(rules, cwd);
     }
 
+    if (denylistText === null) {
+      process.stderr.write(
+        'check-public: no private denylist configured; only the public rules ran\n',
+      );
+    }
     for (const f of result.findings) {
       process.stdout.write(`${f.path}:${f.line}: ${f.rule}: ${f.token}\n`);
     }
@@ -794,11 +808,6 @@ export function main(argv) {
           'do not bypass the check, because a push publishes it.\n',
       );
       return 1;
-    }
-    if (denylistText === null && result.scanned > 0) {
-      process.stderr.write(
-        'check-public: no private denylist configured; only the public rules ran\n',
-      );
     }
     return 0;
   } catch (err) {
