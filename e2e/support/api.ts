@@ -51,9 +51,57 @@ interface Task {
   error?: { description?: string } | null;
 }
 
-// Endpoints that hold objects created by the tests, deepest dependants first.
-const DISTRIBUTIONS = ['distributions/file/file/', 'distributions/deb/apt/'];
-const REPOSITORIES = ['repositories/file/file/', 'repositories/deb/apt/'];
+// Endpoints that hold objects created by the tests, deepest dependants first:
+// distributions, publications, repositories, remotes, content guards. Only
+// objects under these endpoints are ever deleted. Publications carry no name of
+// their own; every other kind must carry the scope's prefix.
+const DISTRIBUTIONS = [
+  'distributions/file/file/',
+  'distributions/deb/apt/',
+  'distributions/rpm/rpm/',
+  'distributions/python/pypi/',
+];
+const PUBLICATIONS = [
+  'publications/file/file/',
+  'publications/deb/apt/',
+  'publications/rpm/rpm/',
+  'publications/python/pypi/',
+];
+const REPOSITORIES = [
+  'repositories/file/file/',
+  'repositories/deb/apt/',
+  'repositories/rpm/rpm/',
+  'repositories/python/python/',
+];
+const REMOTES = [
+  'remotes/file/file/',
+  'remotes/deb/apt/',
+  'remotes/rpm/rpm/',
+  'remotes/python/python/',
+];
+const CONTENT_GUARDS = ['contentguards/core/rbac/'];
+
+// The endpoint groups in the order objects can be deleted.
+const DELETION_ORDER = [
+  DISTRIBUTIONS,
+  PUBLICATIONS,
+  REPOSITORIES,
+  REMOTES,
+  CONTENT_GUARDS,
+];
+
+// The endpoints whose objects have a name, and so can be found by the scope's
+// prefix, in deletion order.
+const NAMED_DELETION_ORDER = DELETION_ORDER.filter(
+  (endpoints) => endpoints !== PUBLICATIONS,
+);
+const NAMED_ENDPOINTS = NAMED_DELETION_ORDER.flat();
+
+function groupOf(href: string): number {
+  return DELETION_ORDER.findIndex((endpoints) =>
+    endpoints.some((path) => href.startsWith(`${API_BASE}${path}`)),
+  );
+}
 
 function url(pathOrHref: string): string {
   return pathOrHref.startsWith('/') ? pathOrHref : `${API_BASE}${pathOrHref}`;
@@ -181,8 +229,14 @@ export class TestObjects {
   }
 
   // Deletes an object and waits for the task; an object that is already gone
-  // is fine. A named object outside this scope is refused.
+  // is fine. An href outside the known endpoints, a named object outside this
+  // scope and an unnamed object that is not a publication are refused.
   async remove(href: string): Promise<void> {
+    const group = groupOf(href);
+    if (group < 0) {
+      throw new Error(`refusing to delete ${href}: not a known test endpoint`);
+    }
+
     const current = await this.api.get(url(href));
     if (current.status() === 404) {
       return;
@@ -191,8 +245,15 @@ export class TestObjects {
       await fail(`GET ${href}`, current);
     }
     const { name } = (await current.json()) as PulpObject;
-    if (typeof name === 'string' && !name.startsWith(this.prefix)) {
-      throw new Error(`refusing to delete "${name}": not under ${this.prefix}`);
+    // a publication belongs to a repository version and has no name
+    const unnamedKind = DELETION_ORDER[group] === PUBLICATIONS;
+    if (
+      !unnamedKind &&
+      (typeof name !== 'string' || !name.startsWith(this.prefix))
+    ) {
+      throw new Error(
+        `refusing to delete ${href} named "${String(name)}": not under ${this.prefix}`,
+      );
     }
 
     const response = await this.api.delete(url(href));
@@ -209,6 +270,44 @@ export class TestObjects {
     }
   }
 
+  // Uploads a small generated text file as a file content unit and adds it to
+  // the repository as a new version; returns the finished task. The repository
+  // must carry this scope's prefix, and the content always includes the prefix
+  // so no unit is shared with an object of another run.
+  async upload(
+    repositoryHref: string,
+    relativePath: string,
+    text: string,
+  ): Promise<Task> {
+    const repository = await this.get(repositoryHref);
+    if (
+      groupOf(repositoryHref) !== DELETION_ORDER.indexOf(REPOSITORIES) ||
+      typeof repository.name !== 'string' ||
+      !repository.name.startsWith(this.prefix)
+    ) {
+      throw new Error(
+        `refusing to upload to ${repositoryHref}: not a repository under ${this.prefix}`,
+      );
+    }
+
+    const response = await this.api.post(url('content/file/files/'), {
+      multipart: {
+        file: {
+          name: relativePath.split('/').pop() as string,
+          mimeType: 'text/plain',
+          buffer: Buffer.from(`${this.prefix}${text}\n`),
+        },
+        relative_path: relativePath,
+        repository: repositoryHref,
+      },
+    });
+    if (!response.ok()) {
+      await fail('POST content/file/files/', response);
+    }
+    const answer = (await response.json()) as { task: string };
+    return this.waitForTask(answer.task);
+  }
+
   // Registers an object that something else created, for example the UI.
   track(href: string): void {
     this.registered.push(href);
@@ -217,7 +316,7 @@ export class TestObjects {
   // Objects of this scope that still exist, by endpoint.
   async leftovers(): Promise<string[]> {
     const found: string[] = [];
-    for (const path of [...DISTRIBUTIONS, ...REPOSITORIES]) {
+    for (const path of NAMED_ENDPOINTS) {
       const objects = await this.list(path, {
         name__startswith: this.prefix,
         fields: 'pulp_href,name',
@@ -227,34 +326,28 @@ export class TestObjects {
     return found;
   }
 
-  // Deletes everything this scope created: registered objects in reverse order
-  // of creation (distributions, then publications, then repositories), then
+  // Deletes everything this scope created: registered objects dependants first
+  // (distributions, publications, repositories, remotes, content guards), then
   // anything of the scope that is still listed, for objects created through
   // the UI. Throws when something is left; always closes the API context.
   async cleanUp(): Promise<void> {
     try {
-      const rank = (href: string) =>
-        href.includes('/distributions/')
-          ? 0
-          : href.includes('/publications/')
-            ? 1
-            : href.includes('/repositories/')
-              ? 2
-              : 3;
-      const ordered = [...this.registered]
-        .reverse()
-        .sort((a, b) => rank(a) - rank(b));
+      const ordered = [...this.registered].reverse();
       this.registered.length = 0;
 
-      for (const group of [0, 1, 2, 3]) {
+      for (const group of DELETION_ORDER.keys()) {
         await Promise.all(
           ordered
-            .filter((href) => rank(href) === group)
+            .filter((href) => groupOf(href) === group)
             .map((href) => this.remove(href)),
         );
       }
+      const unknown = ordered.filter((href) => groupOf(href) < 0);
+      if (unknown.length) {
+        throw new Error(`registered but not deletable: ${unknown.join(', ')}`);
+      }
 
-      for (const endpoints of [DISTRIBUTIONS, REPOSITORIES]) {
+      for (const endpoints of NAMED_DELETION_ORDER) {
         for (const path of endpoints) {
           const objects = await this.list(path, {
             name__startswith: this.prefix,
