@@ -316,5 +316,85 @@ describe('repositoryDistributions', () => {
         },
       ]);
     });
+
+    it('finds a distribution bound to a deprecated publication of the repository only in a complete lookup', async () => {
+      const repo = repository();
+      const other = repository();
+      const repoPublication = publication({ repository: repo.pulp_href });
+      const otherPublication = publication({ repository: other.pulp_href });
+      const byPublication = distribution({
+        base_path: 'by-publication',
+        publication: repoPublication.pulp_href,
+      });
+      const foreign = distribution({
+        base_path: 'foreign',
+        publication: otherPublication.pulp_href,
+      });
+      const publications = listOf(
+        '/pulp/api/v3/publications/python/pypi/',
+        [repoPublication, otherPublication],
+        { pageSize: 1000, matching: ofRepository },
+      );
+      server.use(
+        listOf(
+          '/pulp/api/v3/distributions/python/pypi/',
+          [byPublication, foreign],
+          {
+            pageSize: 1000,
+            matching: (row, query) =>
+              query.has('repository') ? ofRepository(row, query) : true,
+          },
+        ).handler,
+        publications.handler,
+      );
+
+      const plain = await repositoryDistributions('python', repo.pulp_href);
+      const complete = await repositoryDistributions('python', repo.pulp_href, {
+        complete: true,
+      });
+
+      expect(plain).toStrictEqual([]);
+      expect(publications.queries).toHaveLength(1);
+      expect(complete.map(({ name }) => name)).toStrictEqual([
+        'by-publication',
+      ]);
+    });
+  });
+
+  describe('ansible', () => {
+    it('finds a distribution pinned to a version of the repository only in a complete lookup', async () => {
+      const repo = repository();
+      const other = repository();
+      server.use(
+        listOf(
+          '/pulp/api/v3/distributions/ansible/ansible/',
+          [
+            distribution({
+              base_path: 'pinned',
+              repository_version: `${repo.pulp_href}versions/2/`,
+            }),
+            distribution({
+              base_path: 'foreign-pinned',
+              repository_version: `${other.pulp_href}versions/2/`,
+            }),
+          ],
+          {
+            pageSize: 1000,
+            matching: (row, query) =>
+              query.has('repository') ? ofRepository(row, query) : true,
+          },
+        ).handler,
+      );
+
+      const plain = await repositoryDistributions('ansible', repo.pulp_href);
+      const complete = await repositoryDistributions(
+        'ansible',
+        repo.pulp_href,
+        { complete: true },
+      );
+
+      expect(plain).toStrictEqual([]);
+      expect(complete.map(({ name }) => name)).toStrictEqual(['pinned']);
+    });
   });
 });

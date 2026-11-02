@@ -3,6 +3,7 @@ import {
   DebVerbatimPublicationAPI,
 } from '../api/deb-publication';
 import { FilePublicationAPI } from '../api/file-publication';
+import { PythonPublicationAPI } from '../api/python-publication';
 import { RPMPublicationAPI } from '../api/rpm-publication';
 import {
   SERVES_FROM_PUBLICATION,
@@ -53,8 +54,9 @@ interface PublicationRecord {
 }
 
 // Publication endpoints per plugin. A deb distribution may serve either kind
-// of publication. Ansible and Python serve the repository directly, so they
-// have no publication endpoint to scan.
+// of publication. Ansible serves the repository directly and has no
+// publication endpoint. A Python distribution still carries a deprecated
+// publication binding, so its publications are read only by a complete scan.
 const PUBLICATION_APIS: Record<
   RepositoryDistributionPlugin,
   {
@@ -66,7 +68,7 @@ const PUBLICATION_APIS: Record<
   ansible: [],
   deb: [DebPublicationAPI, DebVerbatimPublicationAPI],
   file: [FilePublicationAPI],
-  python: [],
+  python: [PythonPublicationAPI],
   rpm: [RPMPublicationAPI],
 };
 
@@ -99,24 +101,34 @@ function bindingOf(
   return distribution.repository_version ? 'repository_version' : 'repository';
 }
 
+interface RepositoryDistributionsOptions {
+  // Always look for the distributions bound to a publication or a version of
+  // the repository, for every plugin. A caller that removes the repository
+  // needs every distribution that would be left pointing at it, including the
+  // deprecated and indirect bindings the served-URL views do not follow.
+  complete?: boolean;
+}
+
 // Distributions serving a repository: the ones bound to the repository, and
-// for plugins that serve from publications also the ones bound to one of its
-// publications or to one of its versions. Every error propagates to the
-// caller.
+// for plugins that serve from publications (or when complete is set) also the
+// ones bound to one of its publications or to one of its versions. Every
+// error propagates to the caller.
 export async function repositoryDistributions(
   plugin: RepositoryDistributionPlugin,
   repositoryHref: string,
+  { complete = false }: RepositoryDistributionsOptions = {},
 ): Promise<RepositoryDistribution[]> {
   const { DistributionAPI } = plugin2api(plugin);
   const fields = distributionFields(plugin);
   const servesFromPublication = SERVES_FROM_PUBLICATION[plugin];
+  const scan = servesFromPublication || complete;
 
   const [bound, publications, scanned] = await Promise.all([
     listAll<DistributionRecord>((params) => DistributionAPI.list(params), {
       repository: repositoryHref,
       fields,
     }),
-    servesFromPublication
+    scan
       ? Promise.all(
           PUBLICATION_APIS[plugin].map((api) =>
             listAll<PublicationRecord>((params) => api.list(params), {
@@ -129,7 +141,7 @@ export async function repositoryDistributions(
     // The distribution endpoints cannot filter by publication, so this one
     // paged scan of all distributions of the plugin is how the ones bound to a
     // publication or a version of the repository are found.
-    servesFromPublication
+    scan
       ? listAll<DistributionRecord>((params) => DistributionAPI.list(params), {
           fields,
         })
