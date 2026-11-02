@@ -7,11 +7,16 @@ export class ErrorMessagesType {
 
 export function mapErrorMessages(err): ErrorMessagesType {
   const messages = {};
-  const { data } = err.response;
+  const data = err?.response?.data;
+
+  // an error without a response body has no messages to map
+  if (data === undefined || data === null) {
+    return messages;
+  }
 
   // 500 errors only have err.response.data string
   if (typeof data === 'string') {
-    messages['__nofield'] = err.response.data;
+    messages['__nofield'] = data;
     return messages;
   }
 
@@ -38,7 +43,7 @@ export function mapErrorMessages(err): ErrorMessagesType {
 
   // handle galaxy error
   if ('errors' in data && Array.isArray(data['errors'])) {
-    for (const e of err.response.data.errors) {
+    for (const e of data.errors) {
       if (e.source) {
         messages[e.source.parameter] = e.detail;
       } else {

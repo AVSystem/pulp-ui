@@ -60,7 +60,7 @@ export const NamespaceModal = ({
         onCreateSuccess(data);
       })
       .catch((error) => {
-        for (const e of error.response.data.errors) {
+        for (const e of error?.response?.data?.errors ?? []) {
           errorMessages[e.source.parameter] = e.detail;
         }
 

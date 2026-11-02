@@ -27,10 +27,13 @@ import {
   type ErrorMessagesType,
   ParamHelper,
   type RouteProps,
-  jsxErrorMessage,
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -270,18 +273,17 @@ class EditNamespace extends Component<RouteProps, IState> {
           );
         })
         .catch((error) => {
-          const result = error.response;
-          if (result.status === 400) {
+          if (requestErrorStatus(error) === 400) {
             this.setState({
               errorMessages: mapErrorMessages(error),
               saving: false,
             });
-          } else if (result.status === 404) {
+          } else {
             this.setState({
               alerts: this.state.alerts.concat({
                 variant: 'danger',
                 title: t`Changes to namespace "${this.state.namespace.name}" could not be saved.`,
-                description: jsxErrorMessage(result.status, result.statusText),
+                description: requestErrorDescription(error),
               }),
               saving: false,
             });

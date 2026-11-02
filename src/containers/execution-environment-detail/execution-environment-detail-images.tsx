@@ -41,10 +41,10 @@ import {
   filterIsSet,
   getContainersURL,
   getHumanSize,
-  jsxErrorMessage,
   waitForTask,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import {
   type IDetailSharedProps,
   containerName,
@@ -571,7 +571,6 @@ class ExecutionEnvironmentDetailImages extends Component<
           });
         })
         .catch((err) => {
-          const { status, statusText } = err.response;
           this.setState({
             deleteModalVisible: false,
             selectedImage: null,
@@ -581,7 +580,7 @@ class ExecutionEnvironmentDetailImages extends Component<
           this.props.addAlert({
             variant: 'danger',
             title: t`Image "${digest}" could not be deleted.`,
-            description: jsxErrorMessage(status, statusText),
+            description: requestErrorDescription(err),
           });
         }),
     );

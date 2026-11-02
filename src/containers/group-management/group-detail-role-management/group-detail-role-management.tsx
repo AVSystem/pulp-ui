@@ -35,10 +35,10 @@ import {
   ParamHelper,
   type ParamType,
   filterIsSet,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   translateLockedRole,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import './group-detail-role-management.scss';
 
 interface GroupRoleType {
@@ -101,11 +101,10 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
         setLoading(false);
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         addAlert(
           t`Permissions for group "${group.name}" could not be displayed.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       });
   };
@@ -124,11 +123,10 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
         );
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
         addAlert(
           t`Role "${selectedDeleteRole.role}" could not be deleted.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(err),
         );
       })
       .finally(() => {
@@ -250,12 +248,12 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
                   );
                 })
                 .catch((e) => {
-                  const { status, statusText, data } = e.response;
+                  const data = e?.response?.data;
 
                   const errMessage =
                     data?.non_field_errors?.length > 0
                       ? data.non_field_errors[0]
-                      : jsxErrorMessage(status, statusText);
+                      : requestErrorDescription(e);
 
                   addAlert(
                     t`Role ${role.name} could not be assigned to group ${group.name}.`,

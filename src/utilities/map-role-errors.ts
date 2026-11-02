@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 
 export function mapNetworkErrors(err) {
-  const errors = { ...err.response.data };
+  const errors = { ...err?.response?.data };
   for (const field in errors) {
     errors[field] = errors[field].toString().split(',').join(' ');
   }

@@ -10,12 +10,8 @@ import {
 import { AppContext, type IAppContextType } from 'src/app-context';
 import { AccessTab } from 'src/components';
 import { Paths, formatEEPath } from 'src/paths';
-import {
-  ParamHelper,
-  assignRoles,
-  jsxErrorMessage,
-  withRouter,
-} from 'src/utilities';
+import { ParamHelper, assignRoles, withRouter } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import { type IDetailSharedProps, withContainerRepo } from './base';
 import './execution-environment-detail.scss';
 
@@ -116,11 +112,11 @@ class ExecutionEnvironmentDetailAccess extends Component<
         // ensure reload() sets users/groups: null to trigger loading spinner
         this.queryNamespace(namespace);
       })
-      .catch(({ response: { status, statusText } }) => {
+      .catch((e) => {
         addAlert({
           title: alertFailure,
           variant: 'danger',
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(e),
         });
       })
       .finally(() => {

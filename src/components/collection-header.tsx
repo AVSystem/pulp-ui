@@ -57,11 +57,14 @@ import {
   DeleteCollectionUtils,
   ParamHelper,
   canSignNamespace,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   repositoryRemoveCollection,
   waitForTask,
 } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 interface IProps {
   activeTab: string;
@@ -693,7 +696,7 @@ export const CollectionHeader = ({
       })
       .catch((error) =>
         // The request failed in the first place
-        addAlert(errorAlert(error.response.status)),
+        addAlert(errorAlert(requestErrorStatus(error) ?? undefined)),
       );
   }
 
@@ -733,7 +736,7 @@ export const CollectionHeader = ({
       })
       .catch((error) =>
         // The request failed in the first place
-        addAlert(errorAlert(error.response.status)),
+        addAlert(errorAlert(requestErrorStatus(error) ?? undefined)),
       );
   }
 
@@ -755,14 +758,13 @@ export const CollectionHeader = ({
         });
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
         setCollectionVersion(null);
         addAlert({
           variant: 'danger',
           title: !collection.is_deprecated
             ? t`Collection "${collection.collection_version.name}" could not be deprecated.`
             : t`Collection "${collection.collection_version.name}" could not be undeprecated.`,
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(err),
         });
       });
   }
@@ -827,13 +829,13 @@ export const CollectionHeader = ({
         }
       })
       .catch((err) => {
-        const {
-          data: { detail, dependent_collection_versions },
-          status,
-          statusText,
-        } = err.response;
+        const data = err?.response?.data;
 
-        if (status === 400) {
+        if (requestErrorStatus(err) === 400) {
+          const detail = data?.detail;
+          const dependent_collection_versions =
+            data?.dependent_collection_versions ?? [];
+
           const dependencies = (
             <>
               {t`Dependent collections`}
@@ -863,7 +865,7 @@ export const CollectionHeader = ({
           addAlert({
             variant: 'danger',
             title: t`Collection "${deleteCollection.collection_version.name} v${collectionVersion}" could not be deleted.`,
-            description: jsxErrorMessage(status, statusText),
+            description: requestErrorDescription(err),
           });
         }
       });

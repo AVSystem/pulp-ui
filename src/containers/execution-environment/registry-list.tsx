@@ -37,13 +37,13 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   lastSyncStatus,
   lastSynced,
   mapErrorMessages,
   taskAlert,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -474,11 +474,10 @@ class ExecutionEnvironmentRegistryList extends Component<RouteProps, IState> {
         ),
       )
       .catch((err) => {
-        const { status, statusText } = err.response;
         this.addAlert(
           t`Remote registry "${name}" could not be deleted.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(err),
         );
       })
       .then(() => {
@@ -496,11 +495,10 @@ class ExecutionEnvironmentRegistryList extends Component<RouteProps, IState> {
         this.queryRegistries(true);
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
         this.addAlert(
           t`Remote registry "${name}" could not be synced.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(err),
         );
       });
   }
@@ -517,11 +515,10 @@ class ExecutionEnvironmentRegistryList extends Component<RouteProps, IState> {
         );
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
         this.addAlert(
           t`Container "${name}" could not be indexed.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(err),
         );
       });
   }

@@ -19,12 +19,8 @@ import {
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import {
-  ParamHelper,
-  type RouteProps,
-  jsxErrorMessage,
-  withRouter,
-} from 'src/utilities';
+import { ParamHelper, type RouteProps, withRouter } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import { type IBaseCollectionState, loadCollection } from './base';
 import './collection-dependencies.scss';
 
@@ -264,8 +260,7 @@ class CollectionDependencies extends Component<RouteProps, IState> {
             usedByDependenciesLoading: false,
           });
         })
-        .catch(({ response }) => {
-          const { status, statusText } = response;
+        .catch((e) => {
           this.setState({
             usedByDependenciesLoading: false,
             alerts: [
@@ -273,7 +268,7 @@ class CollectionDependencies extends Component<RouteProps, IState> {
               {
                 variant: 'danger',
                 title: t`Dependent collections could not be displayed.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               },
             ],
           });

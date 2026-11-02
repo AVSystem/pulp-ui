@@ -32,9 +32,9 @@ import {
   alertErrorsWithoutFields,
   isFieldValid,
   isFormValid,
-  jsxErrorMessage,
   mapErrorMessages,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IProps {
   name: string;
@@ -103,12 +103,11 @@ export class ContainerRepositoryForm extends Component<IProps, IState> {
           }
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           const errorTitle = t`Registries list could not be displayed.`;
           this.addAlert({
             variant: 'danger',
             title: errorTitle,
-            description: jsxErrorMessage(status, statusText),
+            description: requestErrorDescription(e),
           });
           this.setState({
             formErrors: { ...this.state.formErrors, registries: errorTitle },

@@ -37,9 +37,9 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IState {
   params: {
@@ -392,7 +392,6 @@ class UserList extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState({
             users: [],
             itemCount: 0,
@@ -402,7 +401,7 @@ class UserList extends Component<RouteProps, IState> {
               {
                 variant: 'danger',
                 title: t`Users list could not be displayed.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               },
             ],
           });

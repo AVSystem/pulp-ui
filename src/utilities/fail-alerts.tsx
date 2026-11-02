@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { LoginLink } from '../components/login-link';
 import { mapErrorMessages } from './map-error-messages';
+import { requestErrorStatus } from './request-error';
 
 export function errorMessage(
   statusCode: number,
@@ -39,16 +40,15 @@ export function jsxErrorMessage(code, text, custom?) {
 }
 
 export const handleHttpError = (title, callback, addAlert) => (e) => {
-  let description = e.toString();
+  let description = String(e);
 
-  if (e.response) {
+  const status = requestErrorStatus(e);
+  if (status !== null) {
     // HTTP error
-    const { status, statusText } = e.response;
-
     const err = mapErrorMessages(e);
     const message = Object.values(err).join(' ');
 
-    description = jsxErrorMessage(status, statusText, message);
+    description = jsxErrorMessage(status, e.response.statusText, message);
   }
 
   addAlert({

@@ -2,9 +2,9 @@ import { t } from '@lingui/core/macro';
 import { CollectionAPI } from '../api/collection';
 import { CollectionVersionAPI } from '../api/collection-version';
 import { type CollectionVersionSearch } from '../api/response-types/collection';
-import { jsxErrorMessage } from './fail-alerts';
 import { parsePulpIDFromURL } from './parse-pulp-id';
 import { repositoryRemoveCollection } from './repository-remove-collection';
+import { requestErrorDescription } from './request-error';
 import { waitForTask } from './wait-for-task';
 
 export class DeleteCollectionUtils {
@@ -13,11 +13,10 @@ export class DeleteCollectionUtils {
     return CollectionVersionAPI.getUsedDependenciesByCollection(namespace, name)
       .then(({ data }) => data.data.length)
       .catch((err) => {
-        const { status, statusText } = err.response;
         return Promise.reject({
           title: t`Dependencies for collection "${name}" could not be displayed.`,
           variant: 'danger',
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(err),
         });
       });
   }
@@ -62,12 +61,10 @@ export class DeleteCollectionUtils {
         }
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
-
         addAlert({
           variant: 'danger',
           title: t`Collection "${collection.collection_version.name}" could not be deleted.`,
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(err),
         });
       })
       .finally(() =>

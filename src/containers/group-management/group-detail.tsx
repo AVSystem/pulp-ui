@@ -46,9 +46,12 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   withRouter,
 } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 import GroupDetailRoleManagement from './group-detail-role-management/group-detail-role-management';
 
 interface IState {
@@ -358,11 +361,10 @@ class GroupDetail extends Component<RouteProps, IState> {
                 });
               })
               .catch((e) => {
-                const { status, statusText } = e.response;
                 this.addAlert(
                   t`Users list could not be displayed.`,
                   'danger',
-                  jsxErrorMessage(status, statusText),
+                  requestErrorDescription(e),
                 );
               })
           }
@@ -424,11 +426,10 @@ class GroupDetail extends Component<RouteProps, IState> {
           this.setState({ redirect: formatPath(Paths.core.group.list) });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.addAlert(
             t`Group "${group.name}" could not be deleted.`,
             'danger',
-            jsxErrorMessage(status, statusText),
+            requestErrorDescription(e),
           );
         });
     };
@@ -485,11 +486,10 @@ class GroupDetail extends Component<RouteProps, IState> {
         );
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.addAlert(
           t`User "${selectedUsers[0].name}" could not be added to group "${this.state.group.name}".`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       })
       .then(() => this.queryUsers());
@@ -504,11 +504,10 @@ class GroupDetail extends Component<RouteProps, IState> {
         this.setState({ options, allUsers: result.data.results });
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.addAlert(
           t`Users list could not be displayed.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       });
   }
@@ -684,11 +683,10 @@ class GroupDetail extends Component<RouteProps, IState> {
         }),
       )
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.addAlert(
           t`Users list could not be displayed.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       });
   }
@@ -699,14 +697,13 @@ class GroupDetail extends Component<RouteProps, IState> {
         this.setState({ group: result.data });
       })
       .catch((e) => {
-        if (e.response.status === 404) {
+        if (requestErrorStatus(e) === 404) {
           this.setState({ notFound: true });
         } else {
-          const { status, statusText } = e.response;
           this.addAlert(
             t`Group could not be displayed.`,
             'danger',
-            jsxErrorMessage(status, statusText),
+            requestErrorDescription(e),
           );
         }
       });
@@ -734,11 +731,10 @@ class GroupDetail extends Component<RouteProps, IState> {
         this.queryUsers();
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.addAlert(
           t`User "${user.username}" could not be removed from group "${name}".`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       });
   }
