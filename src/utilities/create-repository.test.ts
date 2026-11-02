@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileDistributionAPI } from 'src/api/file-distribution';
 import { FileRepositoryAPI } from 'src/api/file-repository';
 import { type IDistribution, distribution, listOf } from 'src/test-utils/pulp';
@@ -226,6 +226,7 @@ describe('createRepository', () => {
       expect(result).toStrictEqual({
         repositoryHref: REPOSITORY_HREF,
         distributionError: null,
+        distributionPending: null,
       });
       expect(posts().map((r) => r.path)).toStrictEqual([
         '/pulp/api/v3/repositories/file/file/',
@@ -251,6 +252,7 @@ describe('createRepository', () => {
       expect(result).toStrictEqual({
         repositoryHref: REPOSITORY_HREF,
         distributionError: null,
+        distributionPending: null,
       });
       expect(posts().map((r) => r.path)).toStrictEqual([
         '/pulp/api/v3/repositories/file/file/',
@@ -294,6 +296,32 @@ describe('createRepository', () => {
       expect(result.distributionError).toBe('base path overlaps another one');
       expect(requestsOf('POST', '/distributions/file/file/')).toHaveLength(1);
       expect(seen.filter((r) => r.method === 'DELETE')).toStrictEqual([]);
+    });
+
+    it('reports the distribution as still being created, not as failed, when its task outlives the wait', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout'] });
+      try {
+        serveExistingDistributions([]);
+        serveRepositoryCreate();
+        serveDistributionCreate(() =>
+          HttpResponse.json({ task: TASK_HREF }, { status: 202 }),
+        );
+        serveTask('running');
+
+        const pending = create({ basePath: BASE_PATH });
+        await vi.advanceTimersByTimeAsync(600_000);
+        const result = await pending;
+
+        expect(result).toStrictEqual({
+          repositoryHref: REPOSITORY_HREF,
+          distributionError: null,
+          distributionPending: TASK_HREF,
+        });
+        expect(requestsOf('POST', '/distributions/file/file/')).toHaveLength(1);
+        expect(seen.filter((r) => r.method === 'DELETE')).toStrictEqual([]);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('rejects with the server error and sends no distribution request when the repository is refused', async () => {

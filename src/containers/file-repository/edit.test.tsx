@@ -1,10 +1,10 @@
 import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes, useLocation } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { AppContextProvider } from 'src/app-context';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppContextProvider, useAppContext } from 'src/app-context';
 import { Paths } from 'src/paths';
-import { listOf, repository } from 'src/test-utils/pulp';
+import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import FileRepositoryEdit from './edit';
@@ -36,10 +36,23 @@ afterEach(() => {
   server.events.removeAllListeners();
 });
 
-// Shows where the application ended up after a save.
+// Shows where the application ended up after a save and the alerts it raised.
 function Where() {
   const { pathname } = useLocation();
-  return <p data-testid='where'>{pathname}</p>;
+  const { alerts } = useAppContext();
+  return (
+    <>
+      <p data-testid='where'>{pathname}</p>
+      <ul>
+        {alerts.map(({ title, description }, index) => (
+          <li key={index}>
+            {title}
+            {description}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 }
 
 function renderEdit(route: string) {
@@ -59,6 +72,8 @@ function renderEdit(route: string) {
 
 const nameInput = () => screen.findByRole('textbox', { name: /Name/ });
 const retainInput = () => screen.getByRole('spinbutton', { name: /Retained/ });
+const descriptionInput = () =>
+  screen.getByRole('textbox', { name: /Description/ });
 const save = () => screen.getByRole('button', { name: 'Save' });
 
 // Answers a repository create and keeps the JSON body it was sent.
@@ -176,28 +191,48 @@ describe('creating a file repository', () => {
 });
 
 describe('editing a file repository', () => {
-  beforeEach(serveSupportingLists);
+  const REPOSITORY_ID = '00000000-0000-4000-8000-000000000001';
+  const existing = repository({
+    name: 'existing',
+    pulp_href: `${API}/repositories/file/file/${REPOSITORY_ID}/`,
+    description: 'old text',
+    retain_repo_versions: 3,
+    pulp_labels: { team: 'a', tier: 'b' },
+    remote: null,
+  });
+  let patched: Record<string, unknown>[];
 
-  it('sends one PUT to the repository and creates neither a repository nor a distribution', async () => {
-    const existing = repository({
-      name: 'existing',
-      pulp_href: `${API}/repositories/file/file/00000000-0000-4000-8000-000000000001/`,
-      retain_repo_versions: null,
-    });
+  // Serves the repository and records every PATCH body; the answer is a task
+  // (changes were made) unless the test gives another one.
+  function serveRepository(answer?: () => Response) {
     server.use(
       listOf(`${API}/repositories/file/file/`, [existing], {
         matching: (row, query) => row.name === query.get('name'),
       }).handler,
-      http.put(`*${API}/repositories/file/file/:id/`, () =>
-        HttpResponse.json({ task: TASK_HREF }, { status: 202 }),
-      ),
+      http.patch(`*${API}/repositories/file/file/:id/`, async ({ request }) => {
+        patched.push((await request.json()) as Record<string, unknown>);
+        return (
+          answer?.() ?? HttpResponse.json({ task: TASK_HREF }, { status: 202 })
+        );
+      }),
     );
+  }
+
+  beforeEach(() => {
+    patched = [];
+    serveSupportingLists();
+  });
+
+  it('sends one PATCH with only the changed field and creates neither a repository nor a distribution', async () => {
+    serveRepository();
     const { user } = renderEdit('/file/repositories/edit/existing');
 
     await screen.findByDisplayValue('existing');
     expect(
       screen.queryByRole('checkbox', { name: /Create a distribution/ }),
     ).toBeNull();
+    await user.clear(descriptionInput());
+    await user.type(descriptionInput(), 'new text');
     await user.click(save());
 
     await waitFor(() =>
@@ -206,7 +241,137 @@ describe('editing a file repository', () => {
       ),
     );
     expect(writes().map((r) => `${r.method} ${r.path}`)).toStrictEqual([
-      `PUT ${API}/repositories/file/file/00000000-0000-4000-8000-000000000001/`,
+      `PATCH ${API}/repositories/file/file/${REPOSITORY_ID}/`,
     ]);
+    expect(patched).toStrictEqual([{ description: 'new text' }]);
+  });
+
+  it('sends null for a description the user emptied', async () => {
+    serveRepository();
+    const { user } = renderEdit('/file/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.clear(descriptionInput());
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('where')).toBeInTheDocument(),
+    );
+    expect(patched).toStrictEqual([{ description: null }]);
+  });
+
+  it('sends no request and says nothing changed when Save is pressed without a change', async () => {
+    serveRepository();
+    const { user } = renderEdit('/file/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('where')).toHaveTextContent(
+        '/file/repositories/detail/existing',
+      ),
+    );
+    expect(writes()).toStrictEqual([]);
+    expect(
+      screen.getByText(/Nothing changed in repository existing/),
+    ).toBeInTheDocument();
+  });
+
+  it('sends no request when a typed value equals the stored one', async () => {
+    serveRepository();
+    const { user } = renderEdit('/file/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.clear(retainInput());
+    await user.type(retainInput(), '3');
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('where')).toBeInTheDocument(),
+    );
+    expect(writes()).toStrictEqual([]);
+  });
+
+  it('shows the task alert with a link to the task when the update is answered with a task', async () => {
+    serveRepository();
+    const { user } = renderEdit('/file/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.type(descriptionInput(), '!');
+    await user.click(save());
+
+    expect(
+      await screen.findByText(/Update started for repository existing/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /detail page/ })).toHaveAttribute(
+      'href',
+      expect.stringContaining('0000000000cc'),
+    );
+  });
+
+  it('shows a plain success alert when the update is answered with the repository itself', async () => {
+    serveRepository(() => HttpResponse.json(existing, { status: 200 }));
+    const { user } = renderEdit('/file/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.type(descriptionInput(), '!');
+    await user.click(save());
+
+    expect(
+      await screen.findByText(/Updated repository existing/),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /detail page/ })).toBeNull();
+  });
+});
+
+describe('creating a file repository with a distribution that takes long', () => {
+  beforeEach(() => {
+    serveSupportingLists();
+    server.use(
+      listOf(`${API}/distributions/`, []).handler,
+      http.get(`*${API}/status/`, () =>
+        HttpResponse.json({
+          content_settings: {
+            content_origin: 'https://pulp.example',
+            content_path_prefix: '/pulp/content/',
+          },
+        }),
+      ),
+    );
+  });
+
+  it('says the distribution is still being created, with a link to the task, instead of saying it was not created', async () => {
+    serveCreate();
+    server.use(
+      http.post(`*${API}/distributions/file/file/`, () =>
+        HttpResponse.json({ task: TASK_HREF }, { status: 202 }),
+      ),
+      http.get(`*${API}/tasks/:id/`, () =>
+        HttpResponse.json(task({ pulp_href: TASK_HREF, state: 'running' })),
+      ),
+    );
+    vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
+    try {
+      const { user } = renderEdit('/file/repositories/edit/_');
+
+      await user.type(await nameInput(), 'tools');
+      await user.click(
+        screen.getByRole('checkbox', { name: /Create a distribution/ }),
+      );
+      await user.click(save());
+      await vi.advanceTimersByTimeAsync(600_000);
+
+      expect(
+        await screen.findByText(/distribution "tools" is still being created/),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/was not created/)).toBeNull();
+      expect(screen.getByRole('link', { name: /detail page/ })).toHaveAttribute(
+        'href',
+        expect.stringContaining('0000000000cc'),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

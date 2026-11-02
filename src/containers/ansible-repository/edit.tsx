@@ -7,11 +7,12 @@ import {
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import {
+  createAlerts,
   createRepository,
   saveErrorMessages,
 } from 'src/utilities/create-repository';
 import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
-import { taskAlert } from 'src/utilities/task-alert';
+import { patchRepository } from 'src/utilities/update-repository';
 
 // retain_repo_versions null keeps every version of a new repository
 const initialRepository: AnsibleRepositoryType = {
@@ -90,57 +91,25 @@ const AnsibleRepositoryEdit = Page<AnsibleRepositoryType>({
       try {
         if (item) {
           // editing never creates a distribution
-          delete data.my_permissions;
-          delete data.last_sync_task;
-          delete data.last_synced_metadata_time;
-          delete data.latest_version_href;
-          delete data.pulp_created;
-          delete data.pulp_href;
-          delete data.versions_href;
-
-          const { data: task } = await AnsibleRepositoryAPI.update(
-            parsePulpIDFromURL(item.pulp_href),
-            data,
-          );
-          // the server answers with the repository itself, not a task, when
-          // the update changes nothing
           queueAlert(
-            task?.task
-              ? taskAlert(task, t`Update started for repository ${data.name}`)
-              : {
-                  variant: 'success',
-                  title: t`Updated repository ${data.name}`,
-                },
+            await patchRepository({
+              RepositoryAPI: AnsibleRepositoryAPI,
+              item,
+              edited: data,
+            }),
           );
           goToRepository();
           return;
         }
 
-        const { distributionError } = await createRepository({
+        const result = await createRepository({
           RepositoryAPI: AnsibleRepositoryAPI,
           DistributionAPI: AnsibleDistributionAPI,
           data,
           distribution,
         });
 
-        if (distributionError) {
-          queueAlert({
-            variant: 'danger',
-            title: t`Repository "${data.name}" was created. The distribution "${data.name}" was not created: ${distributionError}`,
-          });
-        } else {
-          queueAlert({
-            variant: 'success',
-            title: t`Successfully created repository ${data.name}`,
-          });
-          if (distribution) {
-            const { basePath } = distribution;
-            queueAlert({
-              variant: 'success',
-              title: t`Created distribution "${data.name}" at base path ${basePath}.`,
-            });
-          }
-        }
+        createAlerts(data.name, distribution, result).forEach(queueAlert);
         goToRepository();
       } catch (e) {
         setState({ errorMessages: saveErrorMessages(e) });

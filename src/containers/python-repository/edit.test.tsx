@@ -280,20 +280,20 @@ describe('creating a Python repository', () => {
 });
 
 describe('editing a Python repository', () => {
-  beforeEach(serveSupportingLists);
+  const existing = repository({
+    name: 'existing',
+    pulp_href: REPOSITORY_HREF,
+    retain_repo_versions: null,
+    allow_package_substitution: false,
+  });
 
-  it('sends one PUT to the repository and offers no distribution', async () => {
-    const existing = repository({
-      name: 'existing',
-      pulp_href: REPOSITORY_HREF,
-      retain_repo_versions: null,
-      allow_package_substitution: false,
-    });
+  beforeEach(() => {
+    serveSupportingLists();
     server.use(
       listOf(`${API}/repositories/python/python/`, [existing], {
         matching: (row, query) => row.name === query.get('name'),
       }).handler,
-      http.put(
+      http.patch(
         `*${API}/repositories/python/python/:id/`,
         async ({ request }) => {
           repositoryBodies.push(
@@ -303,17 +303,22 @@ describe('editing a Python repository', () => {
         },
       ),
     );
+  });
+
+  const substitution = () =>
+    screen.getByRole('checkbox', {
+      name: /Allow same-filename packages with different contents/,
+    });
+
+  it('sends one PATCH with only the changed field and offers no distribution', async () => {
     const { user } = renderEdit('/python/repositories/edit/existing');
 
     await screen.findByDisplayValue('existing');
     expect(
       screen.queryByRole('checkbox', { name: /Create a distribution/ }),
     ).toBeNull();
-    expect(
-      screen.getByRole('checkbox', {
-        name: /Allow same-filename packages with different contents/,
-      }),
-    ).not.toBeChecked();
+    expect(substitution()).not.toBeChecked();
+    await user.click(substitution());
     await user.click(save());
 
     await waitFor(() =>
@@ -322,11 +327,26 @@ describe('editing a Python repository', () => {
       ),
     );
     expect(writes()).toStrictEqual([
-      `PUT ${API}/repositories/python/python/00000000-0000-4000-8000-0000000000aa/`,
+      `PATCH ${API}/repositories/python/python/00000000-0000-4000-8000-0000000000aa/`,
     ]);
-    expect(repositoryBodies[0]).toMatchObject({
-      allow_package_substitution: false,
-    });
+    expect(repositoryBodies).toStrictEqual([
+      { allow_package_substitution: true },
+    ]);
     expect(screen.queryByText(/Created distribution/)).toBeNull();
+  });
+
+  it('sends no request when nothing was changed', async () => {
+    const { user } = renderEdit('/python/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('where')).toBeInTheDocument(),
+    );
+    expect(writes()).toStrictEqual([]);
+    expect(
+      screen.getByText(/Nothing changed in repository existing/),
+    ).toBeInTheDocument();
   });
 });
