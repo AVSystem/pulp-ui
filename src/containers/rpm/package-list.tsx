@@ -1,7 +1,7 @@
 import { msg, t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { RPMPackageAPI } from 'src/api';
-import { LazyRepositories, ListItemActions, ListPage } from 'src/components';
+import { RPMPackageAPI } from 'src/api/rpm-package';
+import { ListItemActions, ListPage } from 'src/components';
 
 interface RPMPackage {
   name: string;
@@ -28,7 +28,7 @@ const RPMPackageList = ListPage<RPMPackage>({
   noDataDescription: msg`Packages will appear once created.`,
   noDataTitle: msg`No packages yet`,
   query: ({ params }) => RPMPackageAPI.list(params),
-  renderTableRow(item: RPMPackage, index: number, _actionContext) {
+  renderTableRow(item: RPMPackage, _index: number, _actionContext) {
     const { name, version, arch, pulp_href } = item;
 
     // TODO download rpm
@@ -37,13 +37,10 @@ const RPMPackageList = ListPage<RPMPackage>({
     ); */
 
     return (
-      <Tr key={index}>
+      <Tr key={pulp_href}>
         <Td>{name}</Td>
         <Td>{version}</Td>
         <Td>{arch}</Td>
-        <Td>
-          <LazyRepositories plugin='rpm' content_href={pulp_href} />
-        </Td>
         <ListItemActions kebabItems={kebabItems} />
       </Tr>
     );
@@ -63,11 +60,6 @@ const RPMPackageList = ListPage<RPMPackage>({
       title: msg`Arch`,
       type: 'none',
       id: 'arch',
-    },
-    {
-      title: msg`Repository`,
-      type: 'none',
-      id: 'repository',
     },
   ],
   title: msg`Packages`,
