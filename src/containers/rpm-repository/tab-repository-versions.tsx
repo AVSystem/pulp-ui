@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import { Table, Td, Th, Tr } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { repositoryVersionRevertAction } from 'src/actions/repository-version-revert';
 import { RPMRepositoryAPI } from 'src/api';
 import {
   DateComponent,
@@ -20,6 +21,8 @@ interface TabProps {
     state: { params };
     hasPermission: (string) => boolean;
     hasObjectPermission: (string) => boolean;
+    // loads the repository page again
+    query: () => void;
   };
 }
 
@@ -95,9 +98,17 @@ const BaseVersion = ({
   );
 };
 
+const revertAction = repositoryVersionRevertAction(RPMRepositoryAPI);
+
 export const RepositoryVersionsTab = ({
   item,
-  actionContext: { addAlert, state, hasPermission, hasObjectPermission },
+  actionContext: {
+    addAlert,
+    state,
+    hasPermission,
+    hasObjectPermission,
+    query: reloadPage,
+  },
 }: TabProps) => {
   const pulpId = parsePulpIDFromURL(item.pulp_href);
   const latest_href = item.latest_version_href;
@@ -210,6 +221,7 @@ export const RepositoryVersionsTab = ({
         state: modalState,
         setState: setModalState,
         query: queryList,
+        reloadPage,
         hasPermission,
         hasObjectPermission, // needs item=repository, not repository version
       }}
@@ -217,7 +229,7 @@ export const RepositoryVersionsTab = ({
       defaultSort={'-pulp_created'}
       errorTitle={t`Repository versions could not be displayed.`}
       filterConfig={null}
-      listItemActions={[]}
+      listItemActions={[revertAction]}
       noDataButton={null}
       noDataDescription={t`Repository versions will appear once the repository is modified.`}
       noDataTitle={t`No repository versions yet`}

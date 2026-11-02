@@ -26,6 +26,8 @@ interface TabProps {
     state: { params };
     hasPermission: (string) => boolean;
     hasObjectPermission: (string) => boolean;
+    // loads the repository page again
+    query: () => void;
   };
 }
 
@@ -184,7 +186,13 @@ const BaseVersion = ({
 
 export const RepositoryVersionsTab = ({
   item,
-  actionContext: { addAlert, state, hasPermission, hasObjectPermission },
+  actionContext: {
+    addAlert,
+    state,
+    hasPermission,
+    hasObjectPermission,
+    query: reloadPage,
+  },
 }: TabProps) => {
   const pulpId = parsePulpIDFromURL(item.pulp_href);
   const latest_href = item.latest_version_href;
@@ -307,6 +315,7 @@ export const RepositoryVersionsTab = ({
         state: modalState,
         setState: setModalState,
         query: queryList,
+        reloadPage,
         hasPermission,
         hasObjectPermission, // needs item=repository, not repository version
       }}
