@@ -38,7 +38,7 @@ import {
 
 // Plugins whose remotes offer a download policy in this form. pulp_file and
 // pulp_deb accept the same three policies; add them here once tested.
-const PLUGINS_WITH_POLICY = ['rpm'];
+const PLUGINS_WITH_POLICY = ['python', 'rpm'];
 
 interface IProps {
   allowEditName?: boolean;

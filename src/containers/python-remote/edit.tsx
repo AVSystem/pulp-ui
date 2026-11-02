@@ -13,7 +13,9 @@ const initialRemote: PythonRemoteType = {
   proxy_url: null,
   download_concurrency: null,
   rate_limit: null,
-
+  // pulp_python's own default; set here so the form's display fallback never
+  // decides what is sent
+  policy: 'on_demand',
   hidden_fields: [
     'client_key',
     'proxy_username',
