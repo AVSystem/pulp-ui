@@ -199,6 +199,33 @@ export const RepositoryForm = ({
         t`Retained number of versions`,
         t`In order to retain all versions, leave this field blank.`,
       )}
+      {plugin === 'rpm' && (
+        <>
+          {numericField(
+            'retain_package_versions',
+            t`Versions kept per package`,
+            t`How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions.`,
+          )}
+          {formGroup(
+            'autopublish',
+            t`Autopublish`,
+            t`Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content.`,
+            <>
+              <Checkbox
+                id='autopublish'
+                isChecked={!!repository['autopublish']}
+                onChange={(_event, value) =>
+                  updateRepository({ ...repository, autopublish: value })
+                }
+                label={t`Publish new versions automatically`}
+              />
+              <FormFieldHelper>
+                {t`A ticked box publishes every new version, so any distribution serving this repository offers it.`}
+              </FormFieldHelper>
+            </>,
+          )}
+        </>
+      )}
 
       {formGroup(
         'distributions',
@@ -270,19 +297,24 @@ export const RepositoryForm = ({
         </>,
       )}
 
-      {formGroup(
-        'private',
-        t`Make private`,
-        t`Make the repository private.`,
-        <Checkbox
-          id='private'
-          isChecked={repository.private}
-          label={t`Make private`}
-          onChange={(_event, value) =>
-            updateRepository({ ...repository, private: value })
-          }
-        />,
-      )}
+      {
+        // only ansible repositories have a private flag; the other plugins
+        // would send a field their serializer does not have
+        plugin === 'ansible' &&
+          formGroup(
+            'private',
+            t`Make private`,
+            t`Make the repository private.`,
+            <Checkbox
+              id='private'
+              isChecked={repository.private}
+              label={t`Make private`}
+              onChange={(_event, value) =>
+                updateRepository({ ...repository, private: value })
+              }
+            />,
+          )
+      }
 
       {formGroup(
         'remote',

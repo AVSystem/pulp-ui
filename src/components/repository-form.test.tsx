@@ -30,6 +30,9 @@ beforeEach(() => {
   settings.reservedPrefixes = [];
   server.use(
     listOf(`${API}/remotes/file/file/`, []).handler,
+    listOf(`${API}/remotes/deb/apt/`, []).handler,
+    listOf(`${API}/remotes/rpm/rpm/`, []).handler,
+    listOf(`${API}/remotes/ansible/collection/`, []).handler,
     listOf(`${API}/distributions/file/file/`, []).handler,
     listOf(`${API}/publications/file/file/`, []).handler,
     http.get(`*${API}/status/`, () =>
@@ -52,11 +55,13 @@ function Harness({
   onSave,
   errorMessages = {},
   initial = {},
+  plugin = 'file',
 }: {
   isNew: boolean;
   onSave: Save;
   errorMessages?: Record<string, string>;
   initial?: Record<string, unknown>;
+  plugin?: 'ansible' | 'deb' | 'file' | 'rpm';
 }) {
   const [repository, setRepository] = useState({
     name: isNew ? '' : 'existing',
@@ -77,7 +82,7 @@ function Harness({
       isNew={isNew}
       onCancel={() => undefined}
       onSave={onSave as never}
-      plugin='file'
+      plugin={plugin}
       repository={repository as never}
       updateRepository={setRepository as never}
     />
@@ -294,5 +299,42 @@ describe('repository form, saving', () => {
     });
 
     expect(onSave).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('repository form, plugin specific fields', () => {
+  it.each(['file', 'deb', 'rpm'] as const)(
+    'offers no private checkbox for a %s repository',
+    async (plugin) => {
+      renderWithProviders(<Harness isNew onSave={vi.fn()} plugin={plugin} />);
+
+      await screen.findByRole('textbox', { name: /Name/ });
+
+      expect(
+        screen.queryByRole('checkbox', { name: /Make private/ }),
+      ).toBeNull();
+    },
+  );
+
+  it('offers the private checkbox for an ansible repository', async () => {
+    renderWithProviders(<Harness isNew onSave={vi.fn()} plugin='ansible' />);
+
+    expect(
+      await screen.findByRole('checkbox', { name: /Make private/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers autopublish unticked on the RPM add form and not on the file one', async () => {
+    const rpm = renderWithProviders(
+      <Harness isNew onSave={vi.fn()} plugin='rpm' />,
+    );
+
+    const box = await screen.findByRole('checkbox', { name: /Publish new/ });
+    expect(box).not.toBeChecked();
+    rpm.unmount();
+
+    renderWithProviders(<Harness isNew onSave={vi.fn()} plugin='file' />);
+    await screen.findByRole('textbox', { name: /Name/ });
+    expect(screen.queryByRole('checkbox', { name: /Publish new/ })).toBeNull();
   });
 });
