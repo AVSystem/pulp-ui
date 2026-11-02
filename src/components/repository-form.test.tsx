@@ -40,6 +40,7 @@ beforeEach(() => {
     listOf(`${API}/remotes/deb/apt/`, []).handler,
     listOf(`${API}/remotes/rpm/rpm/`, []).handler,
     listOf(`${API}/remotes/ansible/collection/`, []).handler,
+    listOf(`${API}/remotes/python/python/`, []).handler,
     listOf(`${API}/distributions/file/file/`, []).handler,
     listOf(`${API}/publications/file/file/`, []).handler,
     http.get(`*${API}/status/`, () =>
@@ -68,7 +69,7 @@ function Harness({
   onSave: Save;
   errorMessages?: Record<string, string>;
   initial?: Record<string, unknown>;
-  plugin?: 'ansible' | 'deb' | 'file' | 'rpm';
+  plugin?: 'ansible' | 'deb' | 'file' | 'python' | 'rpm';
 }) {
   const [repository, setRepository] = useState({
     name: isNew ? '' : 'existing',
@@ -436,19 +437,30 @@ describe('repository form, plugin specific fields', () => {
     ).toBeInTheDocument();
   });
 
-  it('offers autopublish unticked on the RPM add form and not on the file one', async () => {
-    const rpm = renderWithProviders(
-      <Harness isNew onSave={vi.fn()} plugin='rpm' />,
-    );
+  it.each(['file', 'deb', 'rpm'] as const)(
+    'offers autopublish unticked on the add form of a %s repository, with a line explaining it',
+    async (plugin) => {
+      renderWithProviders(<Harness isNew onSave={vi.fn()} plugin={plugin} />);
 
-    const box = await screen.findByRole('checkbox', { name: /Publish new/ });
-    expect(box).not.toBeChecked();
-    rpm.unmount();
+      const box = await screen.findByRole('checkbox', { name: /Publish new/ });
+      expect(box).not.toBeChecked();
+      expect(
+        screen.getByText(/A ticked box publishes every new version/),
+      ).toBeInTheDocument();
+    },
+  );
 
-    renderWithProviders(<Harness isNew onSave={vi.fn()} plugin='file' />);
-    await screen.findByRole('textbox', { name: /Name/ });
-    expect(screen.queryByRole('checkbox', { name: /Publish new/ })).toBeNull();
-  });
+  it.each(['python', 'ansible'] as const)(
+    'offers no autopublish for a %s repository',
+    async (plugin) => {
+      renderWithProviders(<Harness isNew onSave={vi.fn()} plugin={plugin} />);
+
+      await screen.findByRole('textbox', { name: /Name/ });
+      expect(
+        screen.queryByRole('checkbox', { name: /Publish new/ }),
+      ).toBeNull();
+    },
+  );
 });
 
 describe('repository form, remote choices', () => {

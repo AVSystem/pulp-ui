@@ -8,13 +8,16 @@ import {
   Switch,
 } from '@patternfly/react-core';
 import { useEffect, useState } from 'react';
-import { HelpButton, Spinner } from 'src/components';
+import { FormFieldHelper, HelpButton, Spinner } from 'src/components';
 
 interface IProps {
   closeAction: () => null;
   // Which way the mirror switch starts. Plugins disagree: pulp_deb's API defaults
   // a sync to not mirroring, where ansible and file have always offered to.
   defaultMirror?: boolean;
+  // When given, the mirror switch stays off and cannot be turned on, and the
+  // text says why; used where the server refuses a mirror sync.
+  mirrorLockedReason?: string;
   // pulp_python's sync has no optimize option
   showOptimize?: boolean;
   syncAction: (syncParams) => Promise<void>;
@@ -28,6 +31,7 @@ export const SyncModal = ({
   closeAction,
   defaultMirror = true,
   defaultSyncPolicy,
+  mirrorLockedReason,
   syncPolicies,
   showOptimize = true,
   syncAction,
@@ -61,7 +65,11 @@ export const SyncModal = ({
             key='sync'
             onClick={() => {
               setPending(true);
-              syncAction(syncParams)
+              syncAction(
+                mirrorLockedReason
+                  ? { ...syncParams, mirror: false }
+                  : syncParams,
+              )
                 .then(closeAction)
                 .finally(() => setPending(false));
             }}
@@ -113,13 +121,17 @@ export const SyncModal = ({
           }
         >
           <Switch
-            isChecked={syncParams.mirror}
+            isChecked={syncParams.mirror && !mirrorLockedReason}
+            isDisabled={!!mirrorLockedReason}
             onChange={(_event, mirror) =>
               setSyncParams({ ...syncParams, mirror })
             }
             label={t`Content not present in remote repository will be removed from the local repository`}
             labelOff={t`Sync will only add missing content`}
           />
+          {mirrorLockedReason && (
+            <FormFieldHelper>{mirrorLockedReason}</FormFieldHelper>
+          )}
         </FormGroup>
       )}
       <br />
