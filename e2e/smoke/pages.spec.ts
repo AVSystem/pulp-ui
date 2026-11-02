@@ -55,6 +55,29 @@ test.describe('pages of a signed-in session', () => {
     await expect(page.locator('#architectures')).toBeVisible();
   });
 
+  test('RPM repositories', async ({ page }) => {
+    await page.goto('rpm/repositories');
+    await expect(title(page, 'Repositories')).toBeVisible();
+    await expect(page.getByText('No repositories yet')).toBeVisible();
+
+    // pulp_rpm repositories carry publishing and retention settings the other
+    // plugins have no use for, and a new one must not publish until asked to
+    await page.getByRole('button', { name: 'Add repository' }).click();
+    await expect(page.locator('#autopublish')).not.toBeChecked();
+    await expect(page.locator('#retain_package_versions')).toBeVisible();
+  });
+
+  test('RPM remotes', async ({ page }) => {
+    await page.goto('rpm/remotes');
+    await expect(title(page, 'Remotes')).toBeVisible();
+    await expect(page.getByText('No remotes yet')).toBeVisible();
+
+    // the download policy decides whether packages are fetched during sync or
+    // on first request, so an RPM remote offers it in the form
+    await page.getByRole('button', { name: 'Add remote' }).click();
+    await expect(page.locator('#policy')).toBeVisible();
+  });
+
   test('RPM packages', async ({ page }) => {
     await page.goto('rpm/rpms');
     await expect(title(page, 'Packages')).toBeVisible();
