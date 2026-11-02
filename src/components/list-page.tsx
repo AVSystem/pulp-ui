@@ -25,10 +25,11 @@ import {
   closeAlert,
 } from 'src/components';
 import { type ActionType } from '../actions/action';
-import { jsxErrorMessage } from '../utilities/fail-alerts';
 import { filterIsSet } from '../utilities/filter-is-set';
 import { ParamHelper } from '../utilities/param-helper';
+import { requestErrorDescription } from '../utilities/request-error';
 import { type RouteProps, withRouter } from '../utilities/with-router';
+import { ListErrorState } from './list-error-state';
 
 interface IState<T> {
   params: {
@@ -39,6 +40,8 @@ interface IState<T> {
   items: T[];
   itemCount: number;
   alerts: AlertType[];
+  // why the last load failed; null while the list is loading or loaded
+  error: ReactNode;
   unauthorized: boolean;
   inputText: string;
   selectedFilter: string;
@@ -47,6 +50,7 @@ interface IState<T> {
 // states:
 // loading - initial state, only Main + spinner, header and alerts
 // unauthorized - only EmptyStateUnauthorized, header and alerts
+// error - the load failed, only ListErrorState with a retry, header and alerts
 // noData - no data at all, EmptyStateNoData with possible buttons
 // !items.length - no visible data but a filter is on, EmptyStateFilter with a clear filters button, CompoundFilter + AppliedFilters
 // (data) - also renders SortTable
@@ -153,6 +157,9 @@ export const ListPage = function <T>({
     static displayName = displayName;
     static contextType = AppContext;
 
+    // number of the latest load; the answer of an older load is ignored
+    private latestQuery = 0;
+
     constructor(props) {
       super(props);
 
@@ -171,6 +178,7 @@ export const ListPage = function <T>({
 
       this.state = {
         alerts: [],
+        error: null,
         inputText: '',
         itemCount: 0,
         items: [],
@@ -194,7 +202,7 @@ export const ListPage = function <T>({
     }
 
     render() {
-      const { alerts, itemCount, items, loading, params, unauthorized } =
+      const { alerts, error, itemCount, items, loading, params, unauthorized } =
         this.state;
 
       const localizedFilterConfig = filterConfig({ state: this.state }) || [];
@@ -250,6 +258,14 @@ export const ListPage = function <T>({
           {renderModals?.(actionContext)}
           {unauthorized ? (
             <EmptyStateUnauthorized />
+          ) : error && !loading ? (
+            <Main>
+              <ListErrorState
+                title={i18n._(errorTitle)}
+                message={error}
+                onRetry={() => this.query()}
+              />
+            </Main>
           ) : noData && !loading ? (
             <EmptyStateNoData
               button={<>{noDataButton?.(null, actionContext)}</>}
@@ -377,9 +393,15 @@ export const ListPage = function <T>({
     }
 
     private query() {
-      this.setState({ loading: true }, () => {
+      const current = ++this.latestQuery;
+
+      this.setState({ loading: true, error: null }, () => {
         query({ params: this.state.params })
           .then((result) => {
+            if (current !== this.latestQuery) {
+              return;
+            }
+
             this.setState({
               items: result.data.results,
               itemCount: result.data.count,
@@ -387,16 +409,15 @@ export const ListPage = function <T>({
             });
           })
           .catch((e) => {
-            const { status, statusText } = e.response;
+            if (current !== this.latestQuery) {
+              return;
+            }
+
             this.setState({
               loading: false,
               items: [],
               itemCount: 0,
-            });
-            this.addAlert({
-              title: i18n._(errorTitle),
-              variant: 'danger',
-              description: jsxErrorMessage(status, statusText),
+              error: requestErrorDescription(e),
             });
           });
       });

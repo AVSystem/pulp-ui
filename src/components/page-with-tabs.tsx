@@ -21,15 +21,18 @@ import {
   NotFound,
   closeAlert,
 } from 'src/components';
+import { ParamHelper, type RouteProps, withRouter } from 'src/utilities';
 import {
-  ParamHelper,
-  type RouteProps,
-  jsxErrorMessage,
-  withRouter,
-} from 'src/utilities';
+  requestErrorDescription,
+  requestErrorStatus,
+} from '../utilities/request-error';
+import { ListErrorState } from './list-error-state';
 
 interface IState<T> {
   alerts: AlertType[];
+  // why the last load failed, with its HTTP status when it had one; null
+  // while the object is loading or loaded
+  error: { description: ReactNode; status: number | null } | null;
   item: T;
   loading: boolean;
   params: {
@@ -41,6 +44,8 @@ interface IState<T> {
 // states:
 // loading - initial state, only Main + spinner, header and alerts
 // unauthorized - only EmptyStateUnauthorized, header and alerts
+// notFound - the load answered 404, NotFound
+// error - any other failed load, header and ListErrorState with a retry
 // (data) - renders detail
 
 interface PageWithTabsParams<T> {
@@ -90,6 +95,9 @@ export const PageWithTabs = function <
     static displayName = displayName;
     static contextType = AppContext;
 
+    // number of the latest load; the answer of an older load is ignored
+    private latestQuery = 0;
+
     constructor(props) {
       super(props);
 
@@ -101,6 +109,7 @@ export const PageWithTabs = function <
 
       this.state = {
         alerts: [],
+        error: null,
         item: null,
         loading: true,
         unauthorized: false,
@@ -129,7 +138,7 @@ export const PageWithTabs = function <
 
     render() {
       const { routeParams } = this.props;
-      const { alerts, item, loading, params, unauthorized } = this.state;
+      const { alerts, error, item, loading, params, unauthorized } = this.state;
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
@@ -146,6 +155,35 @@ export const PageWithTabs = function <
 
       const name = item?.name || routeParams.name;
       const tab = params.tab || 'details';
+
+      if (!loading && !unauthorized && !item && error && error.status !== 404) {
+        return (
+          <>
+            <AlertList
+              alerts={alerts}
+              closeAlert={(i) =>
+                closeAlert(i, {
+                  alerts,
+                  setAlerts: (alerts) => this.setState({ alerts }),
+                })
+              }
+            />
+            <BaseHeader
+              title={name}
+              breadcrumbs={
+                <Breadcrumbs links={breadcrumbs({ name, tab, params })} />
+              }
+            />
+            <Main>
+              <ListErrorState
+                title={i18n._(errorTitle)}
+                message={error.description}
+                onRetry={() => this.query()}
+              />
+            </Main>
+          </>
+        );
+      }
 
       if (!loading && !unauthorized && !item) {
         return (
@@ -246,25 +284,32 @@ export const PageWithTabs = function <
 
     private query() {
       const { name } = this.props.routeParams;
+      const current = ++this.latestQuery;
 
-      this.setState({ loading: true }, () => {
+      this.setState({ loading: true, error: null }, () => {
         query({ name })
           .then((item) => {
+            if (current !== this.latestQuery) {
+              return;
+            }
+
             this.setState({
               item,
               loading: false,
             });
           })
           .catch((e) => {
-            const { status, statusText } = e.response;
+            if (current !== this.latestQuery) {
+              return;
+            }
+
             this.setState({
               loading: false,
               item: null,
-            });
-            this.addAlert({
-              title: i18n._(errorTitle),
-              variant: 'danger',
-              description: jsxErrorMessage(status, statusText),
+              error: {
+                description: requestErrorDescription(e),
+                status: requestErrorStatus(e),
+              },
             });
           });
       });

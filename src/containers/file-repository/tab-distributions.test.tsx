@@ -105,15 +105,16 @@ describe('file repository Distributions tab', () => {
     ).toBeInTheDocument();
   });
 
-  it('reports a failed distribution load in an alert instead of listing nothing silently', async () => {
+  it('shows a failed distribution load as an error state instead of listing nothing silently', async () => {
     const { addAlert } = renderTab([], 'Error 500 - the server failed');
 
-    await screen.findByText(/No distribution serves this repository/);
-
-    expect(addAlert).toHaveBeenCalledTimes(1);
-    expect(addAlert.mock.calls[0][0]).toMatchObject({
-      variant: 'danger',
-      description: 'Error 500 - the server failed',
-    });
+    expect(
+      await screen.findByText('Error 500 - the server failed'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No distribution serves this repository/),
+    ).not.toBeInTheDocument();
+    expect(addAlert).not.toHaveBeenCalled();
   });
 });

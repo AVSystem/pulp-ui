@@ -55,6 +55,7 @@ export { LanguageSwitcher } from './language-switcher';
 export { LazyDistributions } from './lazy-distributions';
 export { LazyRepositories } from './lazy-repositories';
 export { LinkTabs, type LinkTabsProps } from './link-tabs';
+export { ListErrorState } from './list-error-state';
 export { ListItemActions } from './list-item-actions';
 export {
   ListPage,
