@@ -30,6 +30,9 @@ interface IProps<T> {
     hasObjectPermission?;
     hasPermission;
     query;
+    // loads the page around the list again, for an action that changes
+    // what the page shows
+    reloadPage?: () => void;
     setState?;
     state?;
   };
