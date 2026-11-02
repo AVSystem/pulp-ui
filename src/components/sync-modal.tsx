@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import {
+  Alert,
   Button,
   FormGroup,
   FormSelect,
@@ -8,7 +9,15 @@ import {
   Switch,
 } from '@patternfly/react-core';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { FormFieldHelper, HelpButton, Spinner } from 'src/components';
+import { Paths, formatPath } from 'src/paths';
+import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
+import {
+  type IRunningTask,
+  type SyncPlugin,
+  runningTask,
+} from '../utilities/running-sync';
 
 interface IProps {
   closeAction: () => null;
@@ -18,6 +27,11 @@ interface IProps {
   // When given, the mirror switch stays off and cannot be turned on, and the
   // text says why; used where the server refuses a mirror sync.
   mirrorLockedReason?: string;
+  // With the repository and its plugin the dialog asks, once per opening,
+  // whether a sync is already queued or running, and disables Sync while one
+  // is. Without them nothing is checked.
+  plugin?: SyncPlugin;
+  repositoryHref?: string;
   // pulp_python's sync has no optimize option
   showOptimize?: boolean;
   syncAction: (syncParams) => Promise<void>;
@@ -27,11 +41,21 @@ interface IProps {
   defaultSyncPolicy?: string;
 }
 
+// What the check for a running sync found. A failed check leaves Sync usable,
+// because the server queues a second sync behind the first.
+type RunningCheck =
+  | { status: 'pending' }
+  | { status: 'idle' }
+  | { status: 'failed' }
+  | { status: 'found'; task: IRunningTask };
+
 export const SyncModal = ({
   closeAction,
   defaultMirror = true,
   defaultSyncPolicy,
   mirrorLockedReason,
+  plugin,
+  repositoryHref,
   syncPolicies,
   showOptimize = true,
   syncAction,
@@ -53,9 +77,41 @@ export const SyncModal = ({
     });
   }, [name, defaultMirror, defaultSyncPolicy]);
 
+  const [check, setCheck] = useState<RunningCheck>({ status: 'pending' });
+
+  useEffect(() => {
+    if (!repositoryHref || !plugin) {
+      setCheck({ status: 'idle' });
+      return;
+    }
+
+    // An answer for a repository the dialog has since left must not show.
+    let current = true;
+    setCheck({ status: 'pending' });
+    runningTask(repositoryHref, plugin)
+      .then((found) => {
+        if (current) {
+          setCheck(
+            found ? { status: 'found', task: found } : { status: 'idle' },
+          );
+        }
+      })
+      .catch(() => {
+        if (current) {
+          setCheck({ status: 'failed' });
+        }
+      });
+
+    return () => {
+      current = false;
+    };
+  }, [repositoryHref, plugin]);
+
   if (!name) {
     return null;
   }
+
+  const found = check.status === 'found' ? check.task : null;
 
   return (
     <Modal
@@ -74,7 +130,7 @@ export const SyncModal = ({
                 .finally(() => setPending(false));
             }}
             variant='primary'
-            isDisabled={pending}
+            isDisabled={pending || !!found}
           >
             {t`Sync`}
             {pending && <Spinner size='sm' />}
@@ -89,6 +145,14 @@ export const SyncModal = ({
       title={t`Sync repository "${name}"`}
       variant='medium'
     >
+      {found && <RunningTaskAlert task={found} />}
+      {check.status === 'failed' && (
+        <Alert
+          isInline
+          title={t`Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish.`}
+          variant='info'
+        />
+      )}
       {syncPolicies ? (
         <FormGroup
           label={t`Sync policy`}
@@ -158,5 +222,31 @@ export const SyncModal = ({
         </>
       )}
     </Modal>
+  );
+};
+
+const RunningTaskAlert = ({ task }: { task: IRunningTask }) => {
+  const queued = task.state === 'waiting';
+  let title: string;
+  if (task.isSync) {
+    title = queued
+      ? t`A sync of this repository is already queued.`
+      : t`A sync of this repository is already running.`;
+  } else {
+    title = queued
+      ? t`Another task is already queued for this repository: ${task.name}`
+      : t`Another task is already running for this repository: ${task.name}`;
+  }
+
+  return (
+    <Alert isInline title={title} variant='warning'>
+      <Link
+        to={formatPath(Paths.core.task.detail, {
+          task: parsePulpIDFromURL(task.pulp_href),
+        })}
+      >
+        {t`View the task`}
+      </Link>
+    </Alert>
   );
 };
