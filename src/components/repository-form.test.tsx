@@ -10,7 +10,12 @@ import { RepositoryForm } from './repository-form';
 // The configuration is loaded once when the application starts, so a test that
 // needs a different one replaces the module. The reserved prefixes are a
 // made-up list, not those of any deployment.
-const settings = vi.hoisted(() => ({ reservedPrefixes: [] as string[] }));
+// null stands for the fallback the application installs when the configuration
+// could not be loaded; undefined for a served configuration that does not
+// mention the list at all.
+const settings = vi.hoisted(() => ({
+  reservedPrefixes: [] as string[] | null | undefined,
+}));
 
 vi.mock('src/ui-config', () => ({
   configPromise: Promise.resolve(),
@@ -19,7 +24,9 @@ vi.mock('src/ui-config', () => ({
     return {
       API_BASE_PATH: '/pulp/api/v3/',
       UI_BASE_PATH: '/ui/',
-      RESERVED_BASE_PATH_PREFIXES: settings.reservedPrefixes,
+      ...(settings.reservedPrefixes === undefined
+        ? {}
+        : { RESERVED_BASE_PATH_PREFIXES: settings.reservedPrefixes }),
     };
   },
 }));
@@ -306,6 +313,63 @@ describe('repository form, reserved base paths', () => {
 
     expect(screen.queryByText(/are reserved on this server/)).toBeNull();
     expect(saveButton()).toBeEnabled();
+  });
+});
+
+describe('repository form, reserved base paths that are unknown', () => {
+  const unknownReason = /reserved base paths of this server could not be read/;
+
+  it.each([
+    ['the configuration fell back to its defaults', null],
+    ['the served configuration does not list them', undefined],
+  ])(
+    'disables the distribution option with a reason when %s',
+    async (_case, prefixes) => {
+      settings.reservedPrefixes = prefixes;
+
+      renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+      expect(
+        await screen.findByRole('checkbox', { name: /Create a distribution/ }),
+      ).toBeDisabled();
+      expect(screen.getByText(unknownReason)).toBeInTheDocument();
+    },
+  );
+
+  it('still lets a repository be saved without a distribution', async () => {
+    settings.reservedPrefixes = null;
+    const onSave = vi.fn();
+    const { user } = renderWithProviders(<Harness isNew onSave={onSave} />);
+
+    await user.click(await screen.findByRole('button', { name: 'Save' }));
+
+    expect(onSave).toHaveBeenCalledWith({ distribution: null });
+  });
+
+  it('offers the distribution option when the deployment lists no reserved prefix', async () => {
+    settings.reservedPrefixes = [];
+
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+    const box = await screen.findByRole('checkbox', {
+      name: /Create a distribution/,
+    });
+
+    expect(box).toBeEnabled();
+    expect(screen.queryByText(unknownReason)).toBeNull();
+
+    await user.click(box);
+    await user.type(basePathInput(), 'any/path');
+
+    expect(saveButton()).toBeEnabled();
+  });
+
+  it('does not offer the option on the edit form, so the reason is not shown there', async () => {
+    settings.reservedPrefixes = null;
+
+    renderWithProviders(<Harness isNew={false} onSave={vi.fn()} />);
+
+    await screen.findByRole('button', { name: 'Save' });
+    expect(screen.queryByText(unknownReason)).toBeNull();
   });
 });
 
