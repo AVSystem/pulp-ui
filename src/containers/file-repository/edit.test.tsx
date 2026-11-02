@@ -163,6 +163,27 @@ describe('creating a file repository', () => {
     await waitFor(() => expect(save()).toBeEnabled());
   });
 
+  it('shows the server message under Name when the name is already taken', async () => {
+    server.use(
+      http.post(`*${API}/repositories/file/file/`, () =>
+        HttpResponse.json(
+          { name: ['This field must be unique.'] },
+          { status: 400 },
+        ),
+      ),
+    );
+    const { user } = renderEdit('/file/repositories/edit/_');
+
+    await user.type(await nameInput(), 'tools');
+    await user.click(save());
+
+    expect(
+      await screen.findByText('This field must be unique.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('where')).toBeNull();
+    await waitFor(() => expect(save()).toBeEnabled());
+  });
+
   it('sends one repository POST for a double click on Save', async () => {
     let release: () => void = () => undefined;
     const held = new Promise<void>((resolve) => {

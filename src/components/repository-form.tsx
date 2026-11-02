@@ -53,7 +53,7 @@ export const RepositoryForm = ({
   repository,
   updateRepository,
 }: IProps) => {
-  const requiredFields = [];
+  const requiredFields = ['name'];
   const disabledFields = allowEditName ? [] : ['name'];
 
   const formGroup = (fieldName, label, helperText, children) => (
@@ -283,7 +283,11 @@ export const RepositoryForm = ({
               isChecked={createDistribution}
               onChange={(_event, value) => setCreateDistribution(value)}
               isDisabled={reservedUnknown}
-              label={t`Create a distribution for this repository`}
+              label={
+                repository.name
+                  ? t`Create a distribution "${repository.name}" for this repository`
+                  : t`Create a distribution for this repository`
+              }
               id='create_distribution'
             />
             {reservedUnknown ? (
