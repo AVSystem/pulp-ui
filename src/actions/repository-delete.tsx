@@ -45,6 +45,8 @@ export const repositoryDeleteAction = (
             return result;
           }}
           name={state.deleteModalOpen.name}
+          plugin={plugin}
+          pulpHref={state.deleteModalOpen.pulp_href}
         />
       ) : null,
     onClick: (

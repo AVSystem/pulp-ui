@@ -226,3 +226,23 @@ export function task(overrides: Partial<ITask> = {}): ITask {
     ...overrides,
   };
 }
+
+export interface IContentGuard {
+  pulp_href: string;
+  name: string;
+  pulp_created: string;
+  [field: string]: unknown;
+}
+
+// A content guard as the server returns it from the combined contentguards
+// list.
+export function contentGuard(
+  overrides: Partial<IContentGuard> = {},
+): IContentGuard {
+  return {
+    pulp_href: href('contentguards/core/rbac'),
+    name: `guard-${sequence}`,
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    ...overrides,
+  };
+}
