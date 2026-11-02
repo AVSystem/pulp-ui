@@ -61,7 +61,12 @@ const DISTRIBUTIONS = [
   'distributions/rpm/rpm/',
   'distributions/python/pypi/',
 ];
-const PUBLICATIONS = ['publications/file/file/'];
+const PUBLICATIONS = [
+  'publications/file/file/',
+  'publications/deb/apt/',
+  'publications/rpm/rpm/',
+  'publications/python/pypi/',
+];
 const REPOSITORIES = [
   'repositories/file/file/',
   'repositories/deb/apt/',
