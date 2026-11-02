@@ -134,7 +134,9 @@ export const RepositoryForm = ({
     (problem === 'slash' &&
       t`A base path cannot start or end with a slash or contain two slashes in a row.`) ||
     (problem === 'characters' &&
-      t`A base path may contain only letters, digits, "-", "_" and "/".`) ||
+      t`A base path cannot contain spaces, "?" or "#".`) ||
+    (problem === 'dots' &&
+      t`A base path cannot contain a "." or ".." segment.`) ||
     (reserved &&
       t`Base paths starting with "${reserved}" are reserved on this server. Choose another base path.`) ||
     errorMessages['base_path'] ||

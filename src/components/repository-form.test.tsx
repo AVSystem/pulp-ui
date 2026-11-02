@@ -208,6 +208,54 @@ describe('repository form, retained versions', () => {
   });
 });
 
+describe('repository form, base path rules', () => {
+  async function tickAndType(path: string) {
+    const rendered = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+    await rendered.user.click(
+      await screen.findByRole('checkbox', { name: /Create a distribution/ }),
+    );
+    await rendered.user.type(basePathInput(), path);
+    return rendered;
+  }
+
+  it('accepts a base path with a dot, a plus sign and a tilde', async () => {
+    await tickAndType('tools-1.0/a+b~c');
+
+    expect(screen.queryByText(/A base path cannot/)).toBeNull();
+    expect(saveButton()).toBeEnabled();
+  });
+
+  it('keeps the dot when the base path follows a repository name', async () => {
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    await user.type(
+      await screen.findByRole('textbox', { name: /Name/ }),
+      'tools-1.0',
+    );
+    await user.click(distributionBox());
+
+    expect(basePathInput()).toHaveValue('tools-1.0');
+  });
+
+  it('refuses a space and blocks Save with a reason', async () => {
+    await tickAndType('a b');
+
+    expect(
+      screen.getByText('A base path cannot contain spaces, "?" or "#".'),
+    ).toBeInTheDocument();
+    expect(saveButton()).toBeDisabled();
+  });
+
+  it('refuses a dot segment and blocks Save with a reason', async () => {
+    await tickAndType('a/../b');
+
+    expect(
+      screen.getByText('A base path cannot contain a "." or ".." segment.'),
+    ).toBeInTheDocument();
+    expect(saveButton()).toBeDisabled();
+  });
+});
+
 describe('repository form, reserved base paths', () => {
   async function tickAndType(path: string) {
     const rendered = renderWithProviders(<Harness isNew onSave={vi.fn()} />);

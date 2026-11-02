@@ -12,16 +12,30 @@ describe('sanitizeBasePath', () => {
     expect(sanitizeBasePath('deb-ragnarok')).toBe('deb-ragnarok');
   });
 
+  it('keeps a version number with its dot', () => {
+    expect(sanitizeBasePath('tools-1.0')).toBe('tools-1.0');
+  });
+
+  it('keeps every character the server accepts', () => {
+    expect(sanitizeBasePath('a+b~c@d_e')).toBe('a+b~c@d_e');
+  });
+
+  it('keeps non-ASCII letters', () => {
+    expect(sanitizeBasePath('za\u017c\u00f3\u0142\u0107')).toBe(
+      'za\u017c\u00f3\u0142\u0107',
+    );
+  });
+
   it('replaces a space with an underscore', () => {
     expect(sanitizeBasePath('My Repo')).toBe('My_Repo');
   });
 
-  it('replaces an emoji with one underscore, not two', () => {
-    expect(sanitizeBasePath('repo \ud83d\ude00')).toBe('repo__');
+  it('replaces only the forbidden characters of a name and keeps the dot', () => {
+    expect(sanitizeBasePath('tools 1.0?')).toBe('tools_1.0_');
   });
 
-  it('replaces every non-ASCII letter with one underscore', () => {
-    expect(sanitizeBasePath('za\u017c\u00f3\u0142\u0107')).toBe('za____');
+  it('replaces a hash, a tab and a line break', () => {
+    expect(sanitizeBasePath('a#b\tc\nd')).toBe('a_b_c_d');
   });
 
   it('collapses repeated slashes and strips leading and trailing ones', () => {
@@ -34,29 +48,44 @@ describe('sanitizeBasePath', () => {
 });
 
 describe('basePathProblem', () => {
+  it.each([
+    'tools-1.0',
+    'a+b',
+    'a~b',
+    'user@x',
+    'za\u017c\u00f3\u0142\u0107',
+    'deep/a.b/c',
+    '.hidden',
+    'a..b',
+    'deb/x',
+  ])('accepts %s', (path) => {
+    expect(basePathProblem(path)).toBeNull();
+  });
+
   it('reports an empty path', () => {
     expect(basePathProblem('')).toBe('empty');
   });
 
-  it('reports a leading slash', () => {
-    expect(basePathProblem('/a')).toBe('slash');
-  });
+  it.each(['/a', 'a/', 'a//b', '/'])(
+    'reports a misplaced slash in %j',
+    (path) => {
+      expect(basePathProblem(path)).toBe('slash');
+    },
+  );
 
-  it('reports a trailing slash', () => {
-    expect(basePathProblem('a/')).toBe('slash');
-  });
+  it.each(['a b', 'a\tb', 'a\nb', 'a?b', 'a#b'])(
+    'reports a whitespace or reserved character in %j',
+    (path) => {
+      expect(basePathProblem(path)).toBe('characters');
+    },
+  );
 
-  it('reports a doubled slash', () => {
-    expect(basePathProblem('a//b')).toBe('slash');
-  });
-
-  it('reports a character outside the allowed set', () => {
-    expect(basePathProblem('a b')).toBe('characters');
-  });
-
-  it('accepts a nested path', () => {
-    expect(basePathProblem('deb/x')).toBeNull();
-  });
+  it.each(['.', '..', './x', 'x/..', 'a/./b', 'a/../b'])(
+    'reports a dot segment in %j',
+    (path) => {
+      expect(basePathProblem(path)).toBe('dots');
+    },
+  );
 });
 
 describe('basePathAncestors', () => {
