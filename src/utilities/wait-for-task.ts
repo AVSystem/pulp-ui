@@ -8,36 +8,52 @@ interface Options {
   waitMs?: number;
 }
 
-export function waitForTask(task, options: Options = {}) {
-  // default to starting with a 2s wait, increasing the wait time 1.5x each time, with max 10 attempts
+// The task was still waiting or running when the polling gave up. It is not a
+// failure: the task may finish later, so callers must not report the work as
+// failed or undone.
+export class TaskPending extends Error {
+  taskHref: string;
+
+  constructor(taskHref: string, attempts: number) {
+    super(t`Giving up waiting for task after ${attempts} attempts.`);
+    Object.setPrototypeOf(this, TaskPending.prototype);
+    this.name = 'TaskPending';
+    this.taskHref = taskHref;
+  }
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Polls a task until it has completed. Rejects with the task's error
+// description when it failed, was skipped or was canceled, and with a
+// TaskPending when it is still unfinished after the last attempt.
+export async function waitForTask(task, options: Options = {}) {
+  // default to starting with a 2s wait, increasing the wait time 1.5x each time, with max 10 retries
   // 2000, 1.5, 10 = ~226s ; 500, 1.5, 10 = ~57s
   const { waitMs = 2000, multiplier = 1.5, bailAfter = 10 } = options;
+  const failing = ['skipped', 'failed', 'canceled'];
 
-  return TaskAPI.get(task).then((result) => {
-    const failing = ['skipped', 'failed', 'canceled'];
+  let wait = waitMs;
+  for (let attempt = 1; ; attempt++) {
+    const { data } = await TaskAPI.get(task);
 
-    if (failing.includes(result.data.state)) {
+    if (failing.includes(data.state)) {
       return Promise.reject(
-        result.data.error?.description ?? t`Task failed without error message.`,
+        data.error?.description ?? t`Task failed without error message.`,
       );
     }
 
-    if (result.data.state !== 'completed') {
-      if (!bailAfter) {
-        return Promise.reject(
-          new Error(t`Giving up waiting for task after 10 attempts.`),
-        );
-      }
-
-      return new Promise((r) => setTimeout(r, waitMs)).then(() =>
-        waitForTask(task, {
-          ...options,
-          waitMs: Math.round(waitMs * multiplier),
-          bailAfter: bailAfter - 1,
-        }),
-      );
+    if (data.state === 'completed') {
+      return;
     }
-  });
+
+    if (attempt > bailAfter) {
+      throw new TaskPending(data.pulp_href, attempt);
+    }
+
+    await sleep(wait);
+    wait = Math.round(wait * multiplier);
+  }
 }
 
 export function waitForTaskUrl(taskUrl, options = {}) {

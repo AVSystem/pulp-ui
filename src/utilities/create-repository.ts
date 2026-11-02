@@ -1,8 +1,10 @@
 import { t } from '@lingui/core/macro';
+import { type AlertType } from 'src/components/alert-list';
 import { distributionConflicts } from './distribution-availability';
 import { type ErrorMessagesType, mapErrorMessages } from './map-error-messages';
 import { requestErrorStatus } from './request-error';
-import { waitForTaskUrl } from './wait-for-task';
+import { taskAlert } from './task-alert';
+import { TaskPending, waitForTaskUrl } from './wait-for-task';
 
 // Thrown before anything is written: the requested name or base path is taken
 // or could not be checked. `errors` is keyed by form field, with `__nofield`
@@ -21,8 +23,11 @@ export class CreateBlocked extends Error {
 export interface CreateRepositoryResult {
   repositoryHref: string;
   // why the requested distribution does not exist; null when it was not
-  // requested or was created
+  // requested, was created or is still being created
   distributionError: string | null;
+  // href of the task that creates the requested distribution when it had not
+  // finished by the time the wait gave up; null otherwise
+  distributionPending: string | null;
 }
 
 interface CreateRepositoryParams {
@@ -127,7 +132,11 @@ export async function createRepository({
   const repositoryHref: string = repository.pulp_href;
 
   if (!distribution) {
-    return { repositoryHref, distributionError: null };
+    return {
+      repositoryHref,
+      distributionError: null,
+      distributionPending: null,
+    };
   }
 
   try {
@@ -138,8 +147,60 @@ export async function createRepository({
     });
     await waitForTaskUrl(created.task);
   } catch (e) {
-    return { repositoryHref, distributionError: failureReason(e) };
+    // an unfinished task may still create the distribution: it is neither
+    // reported as failed nor created again
+    if (e instanceof TaskPending) {
+      return {
+        repositoryHref,
+        distributionError: null,
+        distributionPending: e.taskHref,
+      };
+    }
+    return {
+      repositoryHref,
+      distributionError: failureReason(e),
+      distributionPending: null,
+    };
   }
 
-  return { repositoryHref, distributionError: null };
+  return { repositoryHref, distributionError: null, distributionPending: null };
+}
+
+// The alerts an edit page raises after a create: the repository, and for a
+// requested distribution whether it exists, failed, or is still being created.
+export function createAlerts(
+  name: string,
+  distribution: { basePath: string } | null,
+  { distributionError, distributionPending }: CreateRepositoryResult,
+): AlertType[] {
+  if (distributionError) {
+    return [
+      {
+        variant: 'danger',
+        title: t`Repository "${name}" was created. The distribution "${name}" was not created: ${distributionError}`,
+      },
+    ];
+  }
+
+  if (distributionPending) {
+    return [
+      taskAlert(
+        distributionPending,
+        t`Repository "${name}" was created. The distribution "${name}" is still being created and is not served yet.`,
+        'warning',
+      ),
+    ];
+  }
+
+  const alerts: AlertType[] = [
+    { variant: 'success', title: t`Successfully created repository ${name}` },
+  ];
+  if (distribution) {
+    const { basePath } = distribution;
+    alerts.push({
+      variant: 'success',
+      title: t`Created distribution "${name}" at base path ${basePath}.`,
+    });
+  }
+  return alerts;
 }

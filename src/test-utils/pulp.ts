@@ -194,3 +194,22 @@ export function remote(overrides: Partial<IRemote> = {}): IRemote {
     ...overrides,
   };
 }
+
+export interface ITask {
+  pulp_href: string;
+  state: string;
+  error: { description: string } | null;
+  pulp_created: string;
+  [field: string]: unknown;
+}
+
+// A task as the server returns it; the state defaults to a finished one.
+export function task(overrides: Partial<ITask> = {}): ITask {
+  return {
+    pulp_href: href('tasks'),
+    state: 'completed',
+    error: null,
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    ...overrides,
+  };
+}
