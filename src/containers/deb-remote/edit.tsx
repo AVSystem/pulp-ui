@@ -3,6 +3,7 @@ import { DebRemoteAPI, type DebRemoteType } from 'src/api';
 import { Page, RemoteForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { saveErrorMessages } from 'src/utilities/create-repository';
 
 const initialRemote: DebRemoteType = {
   name: '',
@@ -116,14 +117,7 @@ const DebRemoteEdit = Page<DebRemoteType>({
             }),
           );
         })
-        .catch(({ response: { data } }) =>
-          setState({
-            errorMessages: {
-              __nofield: data.non_field_errors || data.detail,
-              ...data,
-            },
-          }),
-        );
+        .catch((e) => setState({ errorMessages: saveErrorMessages(e) }));
     };
 
     const closeModal = () => {
