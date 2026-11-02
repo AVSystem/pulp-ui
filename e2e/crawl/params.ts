@@ -46,6 +46,10 @@ const NAMED_LISTS: Record<string, string> = {
   '/file/remotes': 'remotes/file/file/',
   '/ansible/repositories': 'repositories/ansible/ansible/',
   '/ansible/remotes': 'remotes/ansible/collection/',
+  '/rpm/repositories': 'repositories/rpm/rpm/',
+  '/rpm/remotes': 'remotes/rpm/rpm/',
+  '/python/repositories': 'repositories/python/python/',
+  '/python/remotes': 'remotes/python/python/',
 };
 
 function isCollectionRoute(route: CrawlRoute): boolean {

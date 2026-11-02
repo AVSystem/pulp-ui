@@ -31,6 +31,22 @@ test('a deep link to a list page survives a reload', async ({ page }) => {
 test.describe('sessions of their own', () => {
   test.use({ storageState: signedOut });
 
+  // A test that signed in leaves a live session on the server unless it is
+  // ended: end whatever session the context still holds, through the menu the
+  // way a person does, and check the server dropped it.
+  test.afterEach(async ({ page, context }) => {
+    const open = async () =>
+      (await context.cookies()).some(({ name }) => name === 'sessionid');
+    if (!(await open())) {
+      return;
+    }
+    await page.goto('status');
+    await expect(page.locator(userMenu)).toBeVisible();
+    await logOutThroughMenu(page);
+    await expect(page.locator(loginMenuItem)).toBeVisible();
+    expect(await open(), 'the session cookie after the sign out').toBe(false);
+  });
+
   test('signing in through the form keeps the session out of reach of scripts and stores no credential', async ({
     page,
     context,
@@ -169,6 +185,36 @@ test.describe('sessions of their own', () => {
 
     expect(new URL(page.url()).origin).toBe(origin());
     expect(wentElsewhere).toEqual([]);
+  });
+
+  test('signing out on a list page with a query and signing in again lands on the same address', async ({
+    page,
+    context,
+  }) => {
+    const { username, password } = account('admin');
+    await apiLogin(context);
+
+    const query = '?page_size=20&sort=-name&page=1';
+    await page.goto(`deb/repositories${query}`);
+    await expect(title(page, 'Repositories')).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`deb/repositories\\${query}$`));
+
+    await logOutThroughMenu(page);
+    await expect(page.locator(loginMenuItem)).toBeVisible();
+
+    // the application asks for the sign in again once the page needs the
+    // server; a reload of the same address does that
+    await page.goto(`deb/repositories${query}`);
+    await expect(page.locator(loginForm)).toBeVisible();
+    await submitLoginForm(page, username, password);
+
+    await expect(title(page, 'Repositories')).toBeVisible();
+    const landed = new URL(page.url());
+    expect(landed.pathname).toMatch(/\/ui\/deb\/repositories\/?$/);
+    expect(
+      Object.fromEntries(landed.searchParams),
+      'the query after signing in again',
+    ).toEqual({ page_size: '20', sort: '-name', page: '1' });
   });
 
   test('logging out ends the server session', async ({ page, context }) => {

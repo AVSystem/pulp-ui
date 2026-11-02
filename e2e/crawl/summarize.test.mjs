@@ -35,6 +35,7 @@ function report(route, slug, theme, viewport, run, extra = {}) {
     account: 'admin',
     title: 'T',
     errorBoundary: false,
+    signedIn: true,
     loadMs: 5,
     settled: true,
     screenshot: `${slug}.${theme}.${viewport}.png`,

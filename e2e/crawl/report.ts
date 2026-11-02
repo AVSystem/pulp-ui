@@ -60,6 +60,10 @@ export interface ScreenReport {
   account: Role;
   title: string;
   errorBoundary: boolean;
+  // Whether the page showed the signed-in user's menu. A screen that rendered
+  // signed out (an expired or unusable session) shows the login page and says
+  // nothing about the screen it was meant to visit.
+  signedIn: boolean;
   loadMs: number;
   // False when the page still showed a spinner or kept the network busy at
   // the end of the wait.

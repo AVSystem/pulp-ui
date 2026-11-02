@@ -25,6 +25,7 @@ export const REQUIRED_FIELDS = [
   'account',
   'title',
   'errorBoundary',
+  'signedIn',
   'loadMs',
   'screenshot',
   'consoleErrors',
