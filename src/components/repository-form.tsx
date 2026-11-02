@@ -126,15 +126,26 @@ export const RepositoryForm = ({
   }, [isNew, createDistribution, plugin]);
 
   const problem = createDistribution ? basePathProblem(basePath) : null;
+  // The deployment's list of reserved prefixes is known only when the
+  // configuration holds an array (an empty one reserves nothing). Without it
+  // the form does not guess: it offers no distribution. The server stays the
+  // authority on what is allowed; this check only keeps a create from starting
+  // and then failing on a path the server refuses.
+  const reservedPrefixes = Array.isArray(config?.RESERVED_BASE_PATH_PREFIXES)
+    ? (config.RESERVED_BASE_PATH_PREFIXES as string[])
+    : null;
+  const reservedUnknown = reservedPrefixes === null;
   const reserved = createDistribution
-    ? reservedPrefixFor(basePath, config?.RESERVED_BASE_PATH_PREFIXES)
+    ? reservedPrefixFor(basePath, reservedPrefixes)
     : null;
   const basePathError =
     (problem === 'empty' && t`Enter a base path.`) ||
     (problem === 'slash' &&
       t`A base path cannot start or end with a slash or contain two slashes in a row.`) ||
     (problem === 'characters' &&
-      t`A base path may contain only letters, digits, "-", "_" and "/".`) ||
+      t`A base path cannot contain spaces, "?" or "#".`) ||
+    (problem === 'dots' &&
+      t`A base path cannot contain a "." or ".." segment.`) ||
     (reserved &&
       t`Base paths starting with "${reserved}" are reserved on this server. Choose another base path.`) ||
     errorMessages['base_path'] ||
@@ -266,9 +277,15 @@ export const RepositoryForm = ({
             <Checkbox
               isChecked={createDistribution}
               onChange={(_event, value) => setCreateDistribution(value)}
+              isDisabled={reservedUnknown}
               label={t`Create a distribution for this repository`}
               id='create_distribution'
             />
+            {reservedUnknown ? (
+              <FormFieldHelper variant='warning'>
+                {t`The reserved base paths of this server could not be read, so a distribution cannot be created here.`}
+              </FormFieldHelper>
+            ) : null}
             {createDistribution ? (
               <FormGroup
                 fieldId='base_path'

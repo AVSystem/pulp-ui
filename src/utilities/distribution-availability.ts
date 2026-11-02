@@ -1,5 +1,6 @@
 import { GenericDistributionAPI } from '../api/generic-pulp';
 import { basePathAncestors, isUnderBasePath } from './base-path-rules';
+import { listAll } from './list-all';
 
 export interface DistributionRef {
   name: string;
@@ -20,10 +21,11 @@ const FIELDS = 'name,base_path,pulp_href';
 // created: names and base paths are unique across every plugin, and a base
 // path may not equal, contain or sit under another one. The server stays
 // authoritative; this only avoids leaving a repository behind without its
-// distribution. The nested-below query matches anywhere in the path and is
-// filtered here to real descendants, so a path that merely contains the text
-// elsewhere is not reported. Errors propagate: a check that could not run is
-// not a check that passed.
+// distribution. The nested-below query matches anywhere in the path, so every
+// page of it is read and filtered here to real descendants: a path that merely
+// contains the text elsewhere is not reported, and a descendant is found
+// wherever it sits in the list. Errors propagate: a check that could not run
+// is not a check that passed.
 export async function distributionConflicts(
   name: string,
   basePath: string,
@@ -35,10 +37,9 @@ export async function distributionConflicts(
       fields: FIELDS,
       page_size: 10,
     }),
-    GenericDistributionAPI.list({
+    listAll<DistributionRef>((params) => GenericDistributionAPI.list(params), {
       base_path__contains: `${basePath}/`,
       fields: FIELDS,
-      page_size: 100,
     }),
   ]);
 
@@ -47,9 +48,7 @@ export async function distributionConflicts(
   const byName = sameName.data.results[0];
   const byPath =
     sameOrAncestor.data.results[0] ||
-    nested.data.results.find((result) =>
-      isUnderBasePath(result.base_path, basePath),
-    );
+    nested.find((result) => isUnderBasePath(result.base_path, basePath));
 
   return {
     name: byName ? pick(byName) : null,

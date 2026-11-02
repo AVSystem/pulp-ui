@@ -11,6 +11,7 @@ import {
   servedState,
 } from './distribution-serving';
 import { errorMessage } from './fail-alerts';
+import { listAll } from './list-all';
 import { plugin2api } from './plugin-repository-base-path';
 
 // Every distribution that serves a repository, with the URL the server
@@ -51,8 +52,6 @@ interface PublicationRecord {
   repository_version?: string | null;
 }
 
-const PAGE_SIZE = 500;
-
 // Publication endpoints per plugin. A deb distribution may serve either kind
 // of publication. Ansible and Python serve the repository directly, so they
 // have no publication endpoint to scan.
@@ -89,24 +88,6 @@ function distributionFields(plugin: RepositoryDistributionPlugin): string {
       ? [...COMMON_FIELDS, 'client_url']
       : [...COMMON_FIELDS, 'base_url', 'publication']
   ).join(',');
-}
-
-// Reads every page of a list endpoint. An error on any page rejects, so a
-// partial list is never mistaken for a complete one.
-async function listAll<T>(
-  list: (params) => Promise<{ data: { count: number; results: T[] } }>,
-  params: Record<string, unknown>,
-): Promise<T[]> {
-  const collected: T[] = [];
-
-  for (let page = 1; ; page++) {
-    const { data } = await list({ ...params, page, page_size: PAGE_SIZE });
-    collected.push(...data.results);
-
-    if (data.results.length < PAGE_SIZE || collected.length >= data.count) {
-      return collected;
-    }
-  }
 }
 
 function bindingOf(

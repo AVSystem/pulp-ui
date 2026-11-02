@@ -8,6 +8,7 @@ export const defaultHandlers = [
     HttpResponse.json({
       API_BASE_PATH: '/pulp/api/v3/',
       UI_BASE_PATH: '/ui/',
+      RESERVED_BASE_PATH_PREFIXES: [],
     }),
   ),
   // Nobody is signed in unless a test says otherwise.

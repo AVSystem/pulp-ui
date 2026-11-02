@@ -1,21 +1,28 @@
-// Base path rules for distributions. They mirror the server's base path
-// validation (exact, case-sensitive comparison; a path may not equal, contain
-// or sit under another distribution's path), so the form can refuse a conflict
-// before anything is created instead of leaving a repository without its
-// distribution. Functions return codes, never translated text.
+// Base path rules for distributions. They mirror the server's relative path
+// rule and its conflict check (exact, case-sensitive comparison; a path may not
+// equal, contain or sit under another distribution's path), so the form can
+// refuse a bad base path before anything is created instead of leaving a
+// repository without its distribution. The server refuses a path when it is
+// empty, contains whitespace, '?' or '#', or has an empty, '.' or '..' segment;
+// everything else, including dots, '+', '~', '@' and non-ASCII letters, is
+// accepted. The server stays the authority: this only avoids a half-done
+// create. Functions return codes, never translated text.
 
-export type BasePathProblem = 'empty' | 'slash' | 'characters';
+export type BasePathProblem = 'empty' | 'slash' | 'characters' | 'dots';
 
-const DISALLOWED = /[^-a-zA-Z0-9_/]/;
+// whitespace and the two characters that would start a query or a fragment in
+// the served URL
+const FORBIDDEN = /[\s?#]/;
 
 function isAllowed(character: string): boolean {
-  return !DISALLOWED.test(character);
+  return !FORBIDDEN.test(character);
 }
 
-// Turns free text (for example a repository name) into a valid base path:
-// every code point outside [-a-zA-Z0-9_/] becomes one underscore, repeated
-// slashes collapse and leading or trailing slashes are dropped. Iterating by
-// code point keeps an emoji from turning into two underscores.
+// Turns free text (for example a repository name) into a base path: every
+// whitespace, '?' and '#' becomes one underscore and everything else is kept,
+// repeated slashes collapse and leading or trailing slashes are dropped.
+// Iterating by code point keeps a character outside the basic plane in one
+// piece.
 export function sanitizeBasePath(text: string): string {
   return Array.from(text)
     .map((character) => (isAllowed(character) ? character : '_'))
@@ -33,8 +40,11 @@ export function basePathProblem(path: string): BasePathProblem | null {
   if (path.startsWith('/') || path.endsWith('/') || path.includes('//')) {
     return 'slash';
   }
-  if (Array.from(path).some((character) => !isAllowed(character))) {
+  if (FORBIDDEN.test(path)) {
     return 'characters';
+  }
+  if (path.split('/').some((segment) => segment === '.' || segment === '..')) {
+    return 'dots';
   }
   return null;
 }
