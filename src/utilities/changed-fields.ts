@@ -1,12 +1,15 @@
-// A value as it is compared: an emptied text field and a missing field both
-// mean "no value", and objects (labels) are compared by content, not by the
-// order their keys happen to be in.
+// A value as it is compared: an emptied text field, a missing field and an
+// object without keys (no labels) all mean "no value", and objects are
+// compared by content, not by the order their keys happen to be in.
 function comparable(value: unknown): string {
   if (value === undefined || value === null || value === '') {
     return 'null';
   }
 
   if (typeof value === 'object') {
+    if (!Array.isArray(value) && !Object.keys(value).length) {
+      return 'null';
+    }
     return JSON.stringify(value, (_key, v) =>
       v && typeof v === 'object' && !Array.isArray(v)
         ? Object.fromEntries(

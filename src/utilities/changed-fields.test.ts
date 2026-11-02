@@ -38,6 +38,19 @@ describe('changedFields', () => {
     ).toStrictEqual({ pulp_labels: { a: '1', b: '3' } });
   });
 
+  it('treats no labels at all and an empty labels object as the same', () => {
+    expect(changedFields({}, { pulp_labels: {} })).toStrictEqual({});
+    expect(
+      changedFields({ pulp_labels: null }, { pulp_labels: {} }),
+    ).toStrictEqual({});
+  });
+
+  it('returns an empty labels object when the last label was removed', () => {
+    expect(
+      changedFields({ pulp_labels: { a: '1' } }, { pulp_labels: {} }),
+    ).toStrictEqual({ pulp_labels: {} });
+  });
+
   it('returns the labels object when a label was removed', () => {
     expect(
       changedFields(
