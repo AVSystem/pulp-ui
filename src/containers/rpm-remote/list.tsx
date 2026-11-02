@@ -20,7 +20,7 @@ const listItemActions = [
 
 const RPMRemoteList = ListPage<RPMRemoteType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'RPMRemoteList',
   errorTitle: msg`Remotes could not be displayed.`,
   filterConfig: () => [

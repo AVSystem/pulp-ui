@@ -20,7 +20,7 @@ const listItemActions = [
 
 const FileRemoteList = ListPage<FileRemoteType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'FileRemoteList',
   errorTitle: msg`Remotes could not be displayed.`,
   filterConfig: () => [

@@ -20,7 +20,7 @@ const listItemActions = [
 
 const DebRemoteList = ListPage<DebRemoteType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'DebRemoteList',
   errorTitle: msg`Remotes could not be displayed.`,
   filterConfig: () => [
