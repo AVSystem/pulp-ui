@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { distribution, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -30,6 +31,7 @@ function renderTab(
   name = 'tools',
 ) {
   const addAlert = vi.fn();
+  const query = vi.fn();
   const item = {
     ...repository({ name }),
     distributions,
@@ -40,12 +42,13 @@ function renderTab(
       item={item as never}
       actionContext={{
         addAlert,
+        query,
         state: { params: {} },
         hasPermission: () => true,
       }}
     />,
   );
-  return { addAlert };
+  return { addAlert, query };
 }
 
 describe('file repository Distributions tab', () => {
@@ -133,5 +136,14 @@ describe('file repository Distributions tab', () => {
       screen.queryByText(/No distribution serves this repository/),
     ).not.toBeInTheDocument();
     expect(addAlert).not.toHaveBeenCalled();
+  });
+
+  it('asks the page to load again when Retry is pressed, because the page loaded the distributions', async () => {
+    const { query } = renderTab([], 'Error 500 - the server failed');
+
+    const retry = await screen.findByRole('button', { name: 'Retry' });
+    await userEvent.click(retry);
+
+    expect(query).toHaveBeenCalledTimes(1);
   });
 });

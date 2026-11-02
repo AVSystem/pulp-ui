@@ -16,6 +16,8 @@ interface TabProps {
   };
   actionContext: {
     addAlert: (alert) => void;
+    // loads the repository page again, with its distributions
+    query?: () => void;
     state: { params };
     hasPermission;
   };
@@ -29,7 +31,7 @@ export const rpmRemoteCommand = (name: string, url: string): string =>
 
 export const DistributionsTab = ({
   item,
-  actionContext: { addAlert, hasPermission },
+  actionContext: { addAlert, hasPermission, query: reloadPage },
 }: TabProps) => {
   // The page loaded every distribution serving the repository (bound to it,
   // to one of its publications or to one of its versions), so the list is cut
@@ -96,6 +98,8 @@ export const DistributionsTab = ({
       ]}
       noDataDescription={t`Clients cannot download its content until a distribution serves it.`}
       noDataTitle={t`No distribution serves this repository`}
+      // a failed load came from the page, so only the page can load it again
+      onRetry={reloadPage}
       query={query}
       renderTableRow={renderTableRow}
       sortHeaders={[
