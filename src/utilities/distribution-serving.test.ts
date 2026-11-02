@@ -12,6 +12,7 @@ describe('SERVES_FROM_PUBLICATION', () => {
       ansible: false,
       deb: true,
       file: true,
+      python: false,
       rpm: true,
     });
   });
