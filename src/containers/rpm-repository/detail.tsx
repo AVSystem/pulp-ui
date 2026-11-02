@@ -1,19 +1,17 @@
 import { msg, t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
+import { rpmRepositoryDeleteAction } from 'src/actions/rpm-repository-delete';
+import { rpmRepositoryEditAction } from 'src/actions/rpm-repository-edit';
+import { rpmRepositorySyncAction } from 'src/actions/rpm-repository-sync';
+import { RPMRemoteAPI, type RPMRemoteType } from 'src/api/rpm-remote';
 import {
-  rpmRepositoryDeleteAction,
-  rpmRepositoryEditAction,
-  rpmRepositorySyncAction,
-} from 'src/actions';
-import {
-  RPMRemoteAPI,
-  type RPMRemoteType,
   RPMRepositoryAPI,
   type RPMRepositoryType,
-} from 'src/api';
+} from 'src/api/rpm-repository';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { lastSyncStatus, lastSynced, parsePulpIDFromURL } from 'src/utilities';
+import { lastSyncStatus, lastSynced } from 'src/utilities/last-sync-task';
+import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import {
   type RepositoryDistribution,
   distributionsLoadError,

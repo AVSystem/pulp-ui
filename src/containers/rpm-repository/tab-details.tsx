@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Link } from 'react-router';
-import { type RPMRemoteType, type RPMRepositoryType } from 'src/api';
+import { type RPMRemoteType } from 'src/api/rpm-remote';
+import { type RPMRepositoryType } from 'src/api/rpm-repository';
 import { Details, PulpLabels } from 'src/components';
 import { DistributionURLs } from 'src/components/distribution-url';
 import { Paths, formatPath } from 'src/paths';

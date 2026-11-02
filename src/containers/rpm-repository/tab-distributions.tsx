@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { type RPMRepositoryType } from 'src/api';
+import { type RPMRepositoryType } from 'src/api/rpm-repository';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import {
