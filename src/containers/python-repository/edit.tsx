@@ -1,17 +1,23 @@
 import { msg, t } from '@lingui/core/macro';
+import { PythonDistributionAPI } from 'src/api/python-distribution';
 import {
-  PythonDistributionAPI,
   PythonRepositoryAPI,
   type PythonRepositoryType,
-} from 'src/api';
+} from 'src/api/python-repository';
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import {
+  createRepository,
+  saveErrorMessages,
+} from 'src/utilities/create-repository';
+import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
+import { taskAlert } from 'src/utilities/task-alert';
 
+// retain_repo_versions null keeps every version of a new repository
 const initialRepository: PythonRepositoryType = {
   name: '',
   description: '',
-  retain_repo_versions: 1,
+  retain_repo_versions: null,
   pulp_labels: {},
   remote: null,
 };
@@ -41,21 +47,15 @@ const PythonRepositoryEdit = Page<PythonRepositoryType>({
   }),
 
   render: (item, { navigate, queueAlert, state, setState }) => {
-    if (!state.repositoryToEdit) {
-      const repositoryToEdit = {
-        ...initialRepository,
-        ...item,
-      };
-      setState({ repositoryToEdit, errorMessages: {} });
-    }
+    // derived while rendering; the edited copy is stored on the first change
+    const repositoryToEdit = state.repositoryToEdit ?? {
+      ...initialRepository,
+      ...item,
+    };
+    const errorMessages = state.errorMessages ?? {};
 
-    const { repositoryToEdit, errorMessages } = state;
-    if (!repositoryToEdit) {
-      return null;
-    }
-
-    const saveRepository = ({ createDistribution }) => {
-      const { repositoryToEdit } = state;
+    const saveRepository = async ({ distribution }) => {
+      setState({ errorMessages: {} });
 
       const data = { ...repositoryToEdit };
 
@@ -66,91 +66,72 @@ const PythonRepositoryEdit = Page<PythonRepositoryType>({
         }
       });
 
-      if (item) {
-        delete data.last_sync_task;
-        delete data.last_synced_metadata_time;
-        delete data.latest_version_href;
-        delete data.pulp_created;
-        delete data.pulp_href;
-        delete data.versions_href;
-      }
-
       data.pulp_labels ||= {};
 
-      let promise = !item
-        ? PythonRepositoryAPI.create(data).then(({ data: newData }) => {
-            queueAlert({
-              variant: 'success',
-              title: t`Successfully created repository ${data.name}`,
-            });
+      const goToRepository = () => {
+        setState({ errorMessages: {}, repositoryToEdit: undefined });
+        navigate(
+          formatPath(Paths.python.repository.detail, { name: data.name }),
+        );
+      };
 
-            return newData.pulp_href;
-          })
-        : PythonRepositoryAPI.update(
+      try {
+        if (item) {
+          // editing never creates a distribution
+          delete data.last_sync_task;
+          delete data.last_synced_metadata_time;
+          delete data.latest_version_href;
+          delete data.pulp_created;
+          delete data.pulp_href;
+          delete data.versions_href;
+
+          const { data: task } = await PythonRepositoryAPI.update(
             parsePulpIDFromURL(item.pulp_href),
             data,
-          ).then(({ data: task }) => {
-            queueAlert(
-              taskAlert(task, t`Update started for repository ${data.name}`),
-            );
-
-            return item.pulp_href;
-          });
-
-      if (createDistribution) {
-        // only alphanumerics, slashes, underscores and dashes are allowed in base_path, transform anything else to _
-        const basePathTransform = (name) =>
-          name.replaceAll(/[^-a-zA-Z0-9_/]/g, '_');
-        let distributionName = data.name;
-
-        promise = promise
-          .then((pulp_href) =>
-            PythonDistributionAPI.create({
-              name: distributionName,
-              base_path: basePathTransform(distributionName),
-              repository: pulp_href,
-            }).catch(() => {
-              // if distribution already exists, try a numeric suffix to name & base_path
-              distributionName =
-                data.name + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-              return PythonDistributionAPI.create({
-                name: distributionName,
-                base_path: basePathTransform(distributionName),
-                repository: pulp_href,
-              });
-            }),
-          )
-          .then(({ data: task }) =>
-            queueAlert(
-              taskAlert(
-                task,
-                t`Creation started for distribution ${distributionName}`,
-              ),
-            ),
           );
+          // the server answers with the repository itself, not a task, when
+          // the update changes nothing
+          queueAlert(
+            task?.task
+              ? taskAlert(task, t`Update started for repository ${data.name}`)
+              : {
+                  variant: 'success',
+                  title: t`Updated repository ${data.name}`,
+                },
+          );
+          goToRepository();
+          return;
+        }
+
+        const { distributionError } = await createRepository({
+          RepositoryAPI: PythonRepositoryAPI,
+          DistributionAPI: PythonDistributionAPI,
+          data,
+          distribution,
+        });
+
+        if (distributionError) {
+          queueAlert({
+            variant: 'danger',
+            title: t`Repository "${data.name}" was created. The distribution "${data.name}" was not created: ${distributionError}`,
+          });
+        } else {
+          queueAlert({
+            variant: 'success',
+            title: t`Successfully created repository ${data.name}`,
+          });
+          if (distribution) {
+            const { basePath } = distribution;
+            queueAlert({
+              variant: 'success',
+              title: t`Created distribution "${data.name}" at base path ${basePath}.`,
+            });
+          }
+        }
+        goToRepository();
+      } catch (e) {
+        setState({ errorMessages: saveErrorMessages(e) });
       }
-
-      promise
-        .then(() => {
-          setState({
-            errorMessages: {},
-            repositoryToEdit: undefined,
-          });
-
-          navigate(
-            formatPath(Paths.python.repository.detail, {
-              name: data.name,
-            }),
-          );
-        })
-        .catch(({ response: { data } }) =>
-          setState({
-            errorMessages: {
-              __nofield: data.non_field_errors || data.detail,
-              ...data,
-            },
-          }),
-        );
     };
 
     const closeModal = () => {
@@ -168,6 +149,7 @@ const PythonRepositoryEdit = Page<PythonRepositoryType>({
       <RepositoryForm
         allowEditName={!item}
         errorMessages={errorMessages}
+        isNew={!item}
         onCancel={closeModal}
         onSave={saveRepository}
         plugin='python'
