@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { type FileRepositoryType } from 'src/api';
+import { type FileRepositoryType } from 'src/api/file-repository';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import {
   type RepositoryDistribution,
   listLoadedDistributions,
 } from 'src/utilities/repository-distributions';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 interface TabProps {
   item: FileRepositoryType & {
@@ -19,6 +20,11 @@ interface TabProps {
     hasPermission;
   };
 }
+
+// The command is pasted into a terminal, so the name and the URL are quoted as
+// shell words: a repository name is free text.
+export const fileRemoteCommand = (name: string, url: string): string =>
+  `pulp file remote create --name ${shellQuote(name)} --url ${shellQuote(`${url}PULP_MANIFEST`)}`;
 
 export const DistributionsTab = ({
   item,
@@ -34,9 +40,7 @@ export const DistributionsTab = ({
 
   // The manifest sits next to the content, at the distribution's URL.
   const cliConfig = (url: string | null) =>
-    url
-      ? `pulp file remote create --name "${item.name}" --url "${url}PULP_MANIFEST"`
-      : t`None`;
+    url ? fileRemoteCommand(item.name, url) : t`None`;
 
   const renderTableRow = (
     item: RepositoryDistribution,

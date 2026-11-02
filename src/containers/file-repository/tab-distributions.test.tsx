@@ -27,10 +27,11 @@ function loaded(
 function renderTab(
   distributions: RepositoryDistribution[],
   distributionsError: string | null = null,
+  name = 'tools',
 ) {
   const addAlert = vi.fn();
   const item = {
-    ...repository({ name: 'tools' }),
+    ...repository({ name }),
     distributions,
     distributionsError,
   };
@@ -63,7 +64,23 @@ describe('file repository Distributions tab', () => {
     expect(occurrences.length).toBeGreaterThanOrEqual(2);
 
     const cliLine = cells.getByText(/PULP_MANIFEST/);
-    expect(cliLine.textContent).toContain(`${url}PULP_MANIFEST`);
+    expect(cliLine.textContent).toContain(`'${url}PULP_MANIFEST'`);
+  });
+
+  it('single-quotes the name and the URL in the CLI line so a hostile name is pasted as data', async () => {
+    const url = 'https://pulp.example/pulp/content/served/tools/';
+    renderTab(
+      [loaded({ name: 'tools-dist', base_path: 'tools', url })],
+      null,
+      "a$(id)'b`id`",
+    );
+
+    const row = (await screen.findByText('tools-dist')).closest('tr');
+    const cliLine = within(row as HTMLElement).getByText(/PULP_MANIFEST/);
+
+    expect(cliLine.textContent).toBe(
+      `pulp file remote create --name 'a$(id)'\\''b\`id\`' --url '${url}PULP_MANIFEST'`,
+    );
   });
 
   it('shows no manifest line for a distribution the server gave no URL', async () => {
@@ -88,10 +105,10 @@ describe('file repository Distributions tab', () => {
     const second = screen.getByText('second').closest('tr');
 
     expect(first?.textContent).toContain(
-      'https://pulp.example/pulp/content/a/PULP_MANIFEST',
+      "'https://pulp.example/pulp/content/a/PULP_MANIFEST'",
     );
     expect(second?.textContent).toContain(
-      'https://pulp.example/pulp/content/b/PULP_MANIFEST',
+      "'https://pulp.example/pulp/content/b/PULP_MANIFEST'",
     );
   });
 
