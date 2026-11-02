@@ -22,10 +22,13 @@ import { crawlRoutes } from './routes';
 // the accessibility findings of axe, and a screenshot. The crawl only
 // navigates and reads. It never clicks, types or submits anything and sends no
 // request of its own besides loading the pages, so it changes nothing on the
-// deployment. Findings never fail a test; only a screen that cannot be crawled
-// does.
+// deployment. Findings never fail a test; only a screen that cannot be crawled,
+// or that rendered signed out, does.
 
 const API = '/pulp/api/';
+// The one screen that is meant to be seen without a session.
+const LOGIN_ROUTE = '/login';
+const USER_MENU = '[data-cy=user-dropdown]';
 const SETTLE_MS = 15_000;
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const account = crawlAccount();
@@ -154,6 +157,7 @@ for (const route of crawlRoutes()) {
     const errorBoundary =
       (await page.getByText('The stack trace is:').count()) > 0 ||
       (await page.getByText('Something went horribly wrong!').count()) > 0;
+    const signedIn = (await page.locator(USER_MENU).count()) > 0;
 
     const axe = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
 
@@ -184,6 +188,7 @@ for (const route of crawlRoutes()) {
       account,
       title: heading?.trim() || (await page.title()),
       errorBoundary,
+      signedIn,
       loadMs,
       settled,
       screenshot,
@@ -211,5 +216,15 @@ for (const route of crawlRoutes()) {
       run: process.env['PULP_UI_CRAWL_RUN'] ?? '',
       capturedAt: new Date().toISOString(),
     });
+
+    // A screen that rendered signed out is the login page, not the screen the
+    // route names; a crawl of it would report a clean page that was never
+    // looked at. The report is written first so the screen stays on record.
+    if (route.pattern !== LOGIN_ROUTE) {
+      expect(
+        signedIn,
+        `the user menu of the ${account} account is shown on ${route.pattern}`,
+      ).toBe(true);
+    }
   });
 }

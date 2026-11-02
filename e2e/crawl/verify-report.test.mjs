@@ -43,6 +43,7 @@ function screen(route, theme, viewport, slug) {
     account: 'admin',
     title: 'Status',
     errorBoundary: false,
+    signedIn: true,
     loadMs: 10,
     screenshot: `${slug}.${theme}.${viewport}.png`,
     consoleErrors: [],
