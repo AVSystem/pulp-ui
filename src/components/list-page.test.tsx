@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
+import { StrictMode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
@@ -270,5 +271,81 @@ describe('a list page that loads more than once', () => {
     await waitFor(() => expect(calls).toBe(3));
     expect(screen.getByText(/Error 503/)).toBeInTheDocument();
     expect(screen.queryByText('late')).not.toBeInTheDocument();
+  });
+});
+
+describe('a list page mounted in the development setup', () => {
+  it('shows one error state and no alert for a failing list under StrictMode', async () => {
+    server.use(failing(503, 'Service Unavailable'));
+    renderWithProviders(
+      <StrictMode>
+        <AppContextProvider>
+          <ThingList />
+        </AppContextProvider>
+      </StrictMode>,
+    );
+
+    expect(await screen.findByText(/Error 503/)).toBeInTheDocument();
+    expect(errorStates()).toHaveLength(1);
+    expect(screen.getAllByText(/Error 503/)).toHaveLength(1);
+    expect(screen.getAllByText('Things could not be displayed.')).toHaveLength(
+      1,
+    );
+  });
+
+  it('shows the rows once under StrictMode', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    renderWithProviders(
+      <StrictMode>
+        <AppContextProvider>
+          <ThingList />
+        </AppContextProvider>
+      </StrictMode>,
+    );
+
+    expect(await screen.findAllByText('alpha')).toHaveLength(1);
+  });
+
+  it('sends exactly one list request when it mounts', async () => {
+    const { handler, queries } = listOf(THINGS, rows('alpha'));
+    server.use(handler);
+    renderList();
+
+    await screen.findByText('alpha');
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(queries).toHaveLength(1);
+  });
+
+  it('sends exactly one list request when it mounts and the list fails', async () => {
+    let requests = 0;
+    server.use(
+      http.get(`*${THINGS}`, () => {
+        requests += 1;
+        return HttpResponse.error();
+      }),
+    );
+    renderList();
+
+    await screen.findByRole('button', { name: 'Retry' });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(requests).toBe(1);
+  });
+
+  it('sends one more request for each Retry and none on its own', async () => {
+    let requests = 0;
+    server.use(
+      http.get(`*${THINGS}`, () => {
+        requests += 1;
+        return HttpResponse.error();
+      }),
+    );
+    const { user } = renderList();
+    await screen.findByRole('button', { name: 'Retry' });
+
+    await user.click(retry());
+    await waitFor(() => expect(requests).toBe(2));
+    await screen.findByRole('button', { name: 'Retry' });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    expect(requests).toBe(2);
   });
 });
