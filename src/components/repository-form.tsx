@@ -210,14 +210,19 @@ export const RepositoryForm = ({
             'autopublish',
             t`Autopublish`,
             t`Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content.`,
-            <Checkbox
-              id='autopublish'
-              isChecked={!!repository['autopublish']}
-              onChange={(_event, value) =>
-                updateRepository({ ...repository, autopublish: value })
-              }
-              label={t`Publish new versions automatically`}
-            />,
+            <>
+              <Checkbox
+                id='autopublish'
+                isChecked={!!repository['autopublish']}
+                onChange={(_event, value) =>
+                  updateRepository({ ...repository, autopublish: value })
+                }
+                label={t`Publish new versions automatically`}
+              />
+              <FormFieldHelper>
+                {t`A ticked box publishes every new version, so any distribution serving this repository offers it.`}
+              </FormFieldHelper>
+            </>,
           )}
         </>
       )}
