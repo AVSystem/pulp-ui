@@ -1,10 +1,26 @@
 import { failureReason } from './create-repository';
 import { parsePulpIDFromURL } from './parse-pulp-id';
 import {
+  type RepositoryDistribution,
   type RepositoryDistributionPlugin,
   repositoryDistributions,
 } from './repository-distributions';
-import { TaskPending, waitForTaskUrl } from './wait-for-task';
+import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
+
+// Nothing was sent: the distributions of the repository could not be listed.
+// It is the only rejection of deleteRepositoryWithDistributions a caller may
+// report as "nothing was deleted"; any other rejection happened after deletes
+// may have been sent. `cause` is the error of the listing.
+export class DeleteNotStarted extends Error {
+  cause: unknown;
+
+  constructor(cause: unknown) {
+    super('The distributions of the repository could not be listed.');
+    Object.setPrototypeOf(this, DeleteNotStarted.prototype);
+    this.name = 'DeleteNotStarted';
+    this.cause = cause;
+  }
+}
 
 // How many distribution deletes are in flight at once.
 export const DELETE_CONCURRENCY = 4;
@@ -14,6 +30,9 @@ export interface DeleteRepositoryParams {
   RepositoryAPI: { delete: (id: string) => Promise<{ data }> };
   DistributionAPI: { delete: (id: string) => Promise<{ data }> };
   repository: { name: string; pulp_href: string };
+  // the distributions the user was shown and confirmed; exactly these are
+  // deleted, and only while they still serve the repository
+  shown: { name: string; pulp_href: string }[];
   // how long to wait for each task, see waitForTask
   wait?: { bailAfter?: number; multiplier?: number; waitMs?: number };
 }
@@ -25,6 +44,12 @@ export interface DeleteRepositoryResult {
   failed: { name: string; reason: string }[];
   // distributions whose delete task had not finished when the wait gave up
   pending: { name: string; taskHref: string }[];
+  // names of distributions that serve the repository now but were not among
+  // the ones shown, so they were not deleted
+  unlisted: string[];
+  // distributions whose delete was accepted but whose task status could not be
+  // read, so it is not known whether they are gone
+  unknown: { name: string; taskHref: string }[];
   repositoryDeleted: boolean;
   // why the repository delete was refused or failed, once every distribution
   // was removed; null otherwise
@@ -32,12 +57,16 @@ export interface DeleteRepositoryResult {
   // href of the repository delete task when it had not finished when the wait
   // gave up; null otherwise
   repositoryPending: string | null;
+  // href of the repository delete task when its status could not be read;
+  // null otherwise
+  repositoryUnknown: string | null;
 }
 
 type DistributionOutcome =
   | { name: string; status: 'removed' }
   | { name: string; status: 'failed'; reason: string }
-  | { name: string; status: 'pending'; taskHref: string };
+  | { name: string; status: 'pending'; taskHref: string }
+  | { name: string; status: 'unknown'; taskHref: string };
 
 // Runs the jobs with at most `limit` in flight at once. A job must not reject.
 async function runBounded<T, R>(
@@ -62,8 +91,9 @@ async function runBounded<T, R>(
 }
 
 // Sends a delete and waits for its task. Resolves when the object is gone,
-// rejects with the refusal or the task failure, and with a TaskPending when the
-// task is still running after the wait.
+// rejects with the refusal or the task failure, with a TaskPending when the
+// task is still running after the wait, and with a TaskUnknown when the task
+// status could not be read.
 async function deleteAndWait(
   remove: () => Promise<{ data }>,
   wait: DeleteRepositoryParams['wait'],
@@ -74,28 +104,49 @@ async function deleteAndWait(
   }
 }
 
-// Removes a repository together with every distribution that serves it. The
-// distributions of the repository are looked up in full, so none is missed or
-// left pointing at a repository that no longer exists, and they are removed
-// first. The repository is removed only once every one of them is gone: a
-// listing that failed, a delete that was refused or failed, or a task still
-// running keeps the repository, and the result says what happened to each
-// distribution. A listing error rejects before anything is deleted.
+// Removes a repository together with the distributions that serve it and that
+// the user was shown. The distributions of the repository are looked up in
+// full, so none is missed or left pointing at a repository that no longer
+// exists, and they are removed first. The repository is removed only once
+// every one of them is gone: a delete that was refused or failed, a task still
+// running or unreadable, or a distribution that was not shown keeps the
+// repository, and the result says what happened to each distribution. A
+// listing error rejects with DeleteNotStarted before anything is deleted.
 export async function deleteRepositoryWithDistributions({
   plugin,
   RepositoryAPI,
   DistributionAPI,
   repository,
+  shown,
   wait,
 }: DeleteRepositoryParams): Promise<DeleteRepositoryResult> {
-  const distributions = await repositoryDistributions(
-    plugin,
-    repository.pulp_href,
-    { complete: true },
+  let distributions: RepositoryDistribution[];
+  try {
+    distributions = await repositoryDistributions(
+      plugin,
+      repository.pulp_href,
+      {
+        complete: true,
+      },
+    );
+  } catch (e) {
+    throw new DeleteNotStarted(e);
+  }
+
+  // The listing is read again now, so a distribution that no longer serves
+  // the repository is left alone, and one that was created or pointed at the
+  // repository since the dialog listed them is reported instead of deleted
+  // without the user having seen it.
+  const shownHrefs = new Set(shown.map(({ pulp_href }) => pulp_href));
+  const toDelete = distributions.filter(({ pulp_href }) =>
+    shownHrefs.has(pulp_href),
   );
+  const unlisted = distributions
+    .filter(({ pulp_href }) => !shownHrefs.has(pulp_href))
+    .map(({ name }) => name);
 
   const outcomes = await runBounded(
-    distributions,
+    toDelete,
     DELETE_CONCURRENCY,
     async ({ name, pulp_href }): Promise<DistributionOutcome> => {
       try {
@@ -105,6 +156,9 @@ export async function deleteRepositoryWithDistributions({
         );
         return { name, status: 'removed' };
       } catch (e) {
+        if (e instanceof TaskUnknown) {
+          return { name, status: 'unknown', taskHref: e.taskHref };
+        }
         return e instanceof TaskPending
           ? { name, status: 'pending', taskHref: e.taskHref }
           : { name, status: 'failed', reason: failureReason(e) };
@@ -116,9 +170,12 @@ export async function deleteRepositoryWithDistributions({
     removed: [],
     failed: [],
     pending: [],
+    unknown: [],
+    unlisted,
     repositoryDeleted: false,
     repositoryError: null,
     repositoryPending: null,
+    repositoryUnknown: null,
   };
 
   outcomes.forEach((outcome) => {
@@ -126,12 +183,19 @@ export async function deleteRepositoryWithDistributions({
       result.removed.push(outcome.name);
     } else if (outcome.status === 'failed') {
       result.failed.push({ name: outcome.name, reason: outcome.reason });
+    } else if (outcome.status === 'unknown') {
+      result.unknown.push({ name: outcome.name, taskHref: outcome.taskHref });
     } else {
       result.pending.push({ name: outcome.name, taskHref: outcome.taskHref });
     }
   });
 
-  if (result.failed.length || result.pending.length) {
+  if (
+    result.failed.length ||
+    result.pending.length ||
+    result.unknown.length ||
+    result.unlisted.length
+  ) {
     return result;
   }
 
@@ -142,7 +206,9 @@ export async function deleteRepositoryWithDistributions({
     );
     result.repositoryDeleted = true;
   } catch (e) {
-    if (e instanceof TaskPending) {
+    if (e instanceof TaskUnknown) {
+      result.repositoryUnknown = e.taskHref;
+    } else if (e instanceof TaskPending) {
       result.repositoryPending = e.taskHref;
     } else {
       result.repositoryError = failureReason(e);

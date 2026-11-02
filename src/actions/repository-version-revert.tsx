@@ -5,7 +5,11 @@ import { Spinner } from '../components/patternfly-wrappers/l10n';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
-import { TaskPending, waitForTaskUrl } from '../utilities/wait-for-task';
+import {
+  TaskPending,
+  TaskUnknown,
+  waitForTaskUrl,
+} from '../utilities/wait-for-task';
 import { Action } from './action';
 
 // What the action needs of a plugin's repository API: a request that makes a
@@ -93,7 +97,16 @@ export const repositoryVersionRevertAction = (RepositoryAPI: RevertAPI) => {
     try {
       await waitForTaskUrl(task);
     } catch (e) {
-      if (e instanceof TaskPending) {
+      if (e instanceof TaskUnknown) {
+        // the request was accepted and the revert may well have been done
+        addAlert(
+          taskAlert(
+            e.taskHref,
+            t`The outcome of the revert of repository "${repositoryName}" is unknown, because the task status could not be read. Check the task.`,
+            'warning',
+          ),
+        );
+      } else if (e instanceof TaskPending) {
         // the task may still complete: it is neither reported as failed nor
         // is the page reloaded behind it
         addAlert(

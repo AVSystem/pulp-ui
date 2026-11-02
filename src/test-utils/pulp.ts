@@ -191,10 +191,12 @@ export interface IPublication {
 export function publication(
   overrides: Partial<IPublication> = {},
 ): IPublication {
+  // the server always names the version a publication was made from
+  const repository = overrides.repository ?? null;
   return {
     pulp_href: href('publications/file/file'),
-    repository: null,
-    repository_version: null,
+    repository,
+    repository_version: repository ? `${repository}versions/0/` : null,
     pulp_created: '2000-01-01T00:00:00.000000Z',
     ...overrides,
   };

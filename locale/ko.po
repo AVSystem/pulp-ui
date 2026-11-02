@@ -4576,6 +4576,10 @@ msgstr "찾을 수 없음"
 msgid "Not removed"
 msgstr ""
 
+#: src/components/delete-repository-modal.tsx
+msgid "Not removed, not shown when this dialog opened"
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Not reported"
 msgstr ""
@@ -4728,6 +4732,10 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ostree sync"
+msgstr ""
+
+#: src/components/delete-repository-modal.tsx
+msgid "Outcome unknown, check the task"
 msgstr ""
 
 #: src/components/role-import-form.tsx
@@ -5802,6 +5810,10 @@ msgstr ""
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
+msgstr ""
+
+#: src/utilities/create-repository.ts
+msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
 #: src/utilities/repository-remove-collection.ts
@@ -7129,6 +7141,10 @@ msgstr "선택한 컬렉션이 이 네임스페이스와 일치하지 않습니�
 msgid "The collection you have selected doesn't appear to match {0}"
 msgstr "선택한 컬렉션이 {0}와/과 일치하지 않습니다"
 
+#: src/components/delete-repository-modal.tsx
+msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+msgstr ""
+
 #: src/components/repository-form.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr ""
@@ -7169,6 +7185,14 @@ msgstr "다음 역할이 다음 그룹에 적용됩니다: <0>{0}</0>"
 #. placeholder {0}: user.username
 #: src/components/preview-roles.tsx
 msgid "The following roles will be applied to user: <0>{0}</0>"
+msgstr ""
+
+#: src/components/delete-repository-modal.tsx
+msgid "The outcome of removing the repository is unknown. Check the task:"
+msgstr ""
+
+#: src/actions/repository-version-revert.tsx
+msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -7238,6 +7262,10 @@ msgstr "선택한 역할이 이 특정 네임스페이스에 추가됩니다."
 
 #: src/containers/login/login.tsx
 msgid "The server could not be reached: {message}"
+msgstr ""
+
+#: src/utilities/wait-for-task.ts
+msgid "The status of the task could not be read."
 msgstr ""
 
 #: src/containers/token/token-insights.tsx

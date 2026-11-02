@@ -12,7 +12,11 @@ import {
   task,
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
-import { deleteRepositoryWithDistributions } from './delete-repository';
+import {
+  DeleteNotStarted,
+  deleteRepositoryWithDistributions,
+} from './delete-repository';
+import { repositoryDistributions } from './repository-distributions';
 
 const API = '/pulp/api/v3';
 const DISTRIBUTIONS = `${API}/distributions/file/file/`;
@@ -123,12 +127,22 @@ function serve({
   };
 }
 
-const run = (repo: { name: string; pulp_href: string }) =>
+// Runs the delete for the distributions the dialog would have shown, unless
+// the test says what was shown.
+const run = async (
+  repo: { name: string; pulp_href: string },
+  shown?: { name: string; pulp_href: string }[],
+) =>
   deleteRepositoryWithDistributions({
     plugin: 'file',
     RepositoryAPI: FileRepositoryAPI,
     DistributionAPI: FileDistributionAPI,
     repository: repo,
+    shown:
+      shown ??
+      (await repositoryDistributions('file', repo.pulp_href, {
+        complete: true,
+      })),
     wait: fast,
   });
 
@@ -185,7 +199,7 @@ describe('deleteRepositoryWithDistributions', () => {
       publications: [repoPublication],
     });
 
-    const result = await run(repo);
+    const result = await run(repo, serving);
 
     expect(result).toMatchObject({
       removed: [
@@ -303,9 +317,12 @@ describe('deleteRepositoryWithDistributions', () => {
         },
       ],
       pending: [],
+      unknown: [],
+      unlisted: [],
       repositoryDeleted: false,
       repositoryError: null,
       repositoryPending: null,
+      repositoryUnknown: null,
     });
     expect(sent.deletes).not.toContain(repo.pulp_href);
   });
@@ -331,6 +348,121 @@ describe('deleteRepositoryWithDistributions', () => {
     ]);
     expect(result.repositoryDeleted).toBe(false);
     expect(sent.deletes).not.toContain(repo.pulp_href);
+  });
+
+  it('reports an unknown outcome, not a failure, for a distribution whose task status cannot be read, and keeps the repository', async () => {
+    const repo = repository();
+    const first = distribution({
+      base_path: 'a-first',
+      repository: repo.pulp_href,
+    });
+    const unreadable = distribution({
+      base_path: 'b-unreadable',
+      repository: repo.pulp_href,
+    });
+    const sent = serve({ distributions: [first, unreadable] });
+    server.use(
+      http.get(`*${API}/tasks/${idOf(unreadable.pulp_href)}/`, () =>
+        HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+      ),
+    );
+
+    const result = await run(repo);
+
+    expect(result.removed).toStrictEqual(['a-first']);
+    expect(result.failed).toStrictEqual([]);
+    expect(result.unknown).toStrictEqual([
+      {
+        name: 'b-unreadable',
+        taskHref: `${API}/tasks/${idOf(unreadable.pulp_href)}/`,
+      },
+    ]);
+    expect(result.repositoryDeleted).toBe(false);
+    expect(sent.deletes).not.toContain(repo.pulp_href);
+  });
+
+  it('reports an unknown outcome for the repository delete when its task status cannot be read', async () => {
+    const repo = repository();
+    serve({ distributions: [] });
+    server.use(
+      http.get(`*${API}/tasks/${idOf(repo.pulp_href)}/`, () =>
+        HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+      ),
+    );
+
+    const result = await run(repo);
+
+    expect(result.repositoryDeleted).toBe(false);
+    expect(result.repositoryError).toBeNull();
+    expect(result.repositoryUnknown).toBe(
+      `${API}/tasks/${idOf(repo.pulp_href)}/`,
+    );
+  });
+
+  it('does not delete a distribution that was not shown, reports it, deletes the shown ones and keeps the repository', async () => {
+    const repo = repository();
+    const shown = distribution({
+      base_path: 'a-shown',
+      repository: repo.pulp_href,
+    });
+    const late = distribution({
+      base_path: 'b-created-later',
+      repository: repo.pulp_href,
+    });
+    const sent = serve({ distributions: [shown, late] });
+
+    const result = await run(repo, [shown]);
+
+    expect(result.removed).toStrictEqual(['a-shown']);
+    expect(result.unlisted).toStrictEqual(['b-created-later']);
+    expect(result.repositoryDeleted).toBe(false);
+    expect(sent.deletes).toStrictEqual([shown.pulp_href]);
+  });
+
+  it('leaves alone a shown distribution that no longer serves the repository', async () => {
+    const repo = repository();
+    const other = repository();
+    const stays = distribution({
+      base_path: 'a-stays',
+      repository: repo.pulp_href,
+    });
+    const moved = distribution({
+      base_path: 'b-moved',
+      repository: other.pulp_href,
+    });
+    const sent = serve({ distributions: [stays, moved] });
+
+    const result = await run(repo, [stays, moved]);
+
+    expect(result.removed).toStrictEqual(['a-stays']);
+    expect(sent.deletes).not.toContain(moved.pulp_href);
+    expect(result.repositoryDeleted).toBe(true);
+  });
+
+  it('never deletes a distribution of another repository when the server ignores the repository filter', async () => {
+    const repo = repository();
+    const other = repository();
+    const ours = distribution({
+      base_path: 'a-ours',
+      repository: repo.pulp_href,
+    });
+    const foreign = distribution({
+      base_path: 'b-foreign',
+      repository: other.pulp_href,
+    });
+    const sent = serve({ distributions: [ours, foreign] });
+    // the lists answer with every row of the plugin
+    server.use(
+      listOf(DISTRIBUTIONS, [ours, foreign], { pageSize: 1000 }).handler,
+      listOf(PUBLICATIONS, [], { pageSize: 1000 }).handler,
+    );
+
+    const result = await run(repo, [ours]);
+
+    expect(sent.deletes).toStrictEqual([ours.pulp_href, repo.pulp_href]);
+    expect(result.removed).toStrictEqual(['a-ours']);
+    expect(result.unlisted).toStrictEqual([]);
+    expect(result.repositoryDeleted).toBe(true);
   });
 
   it('says why the repository itself was not removed once every distribution is gone', async () => {
@@ -361,7 +493,10 @@ describe('deleteRepositoryWithDistributions', () => {
       ),
     );
 
-    await expect(run(repo)).rejects.toMatchObject({
+    const outcome = await run(repo, []).catch((e: unknown) => e);
+
+    expect(outcome).toBeInstanceOf(DeleteNotStarted);
+    expect((outcome as DeleteNotStarted).cause).toMatchObject({
       response: { status: 500 },
     });
     expect(sent.deletes).toStrictEqual([]);

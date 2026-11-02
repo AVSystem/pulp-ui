@@ -7,6 +7,9 @@ interface IProps {
   cancelAction: () => void;
   children?: ReactNode;
   deleteAction: () => void;
+  // Keeps Cancel, the close button and Escape from closing the dialog, for a
+  // dialog that must stay on screen until a running operation has reported.
+  isCancelDisabled?: boolean;
   isDisabled?: boolean;
   isRemove?: boolean;
   title: string;
@@ -19,6 +22,7 @@ export const DeleteModal = ({
   cancelAction,
   children,
   deleteAction,
+  isCancelDisabled,
   isDisabled,
   isRemove,
   title,
@@ -39,12 +43,18 @@ export const DeleteModal = ({
             {spinner && <Spinner size='sm' />}
           </Button>
         </div>,
-        <Button key='cancel' onClick={cancelAction} variant='link'>
+        <Button
+          key='cancel'
+          onClick={cancelAction}
+          variant='link'
+          isDisabled={isCancelDisabled}
+        >
           {t`Cancel`}
         </Button>,
       ]}
       isOpen
-      onClose={cancelAction}
+      onClose={isCancelDisabled ? undefined : cancelAction}
+      showClose={!isCancelDisabled}
       title={title}
       titleIconVariant='warning'
       variant={variant}

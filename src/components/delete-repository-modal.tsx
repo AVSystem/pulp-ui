@@ -14,7 +14,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Paths, formatPath } from 'src/paths';
 import { ContentGuardAPI } from '../api/content-guard';
-import { type DeleteRepositoryResult } from '../utilities/delete-repository';
+import {
+  DeleteNotStarted,
+  type DeleteRepositoryResult,
+} from '../utilities/delete-repository';
 import { listAll } from '../utilities/list-all';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import {
@@ -28,10 +31,14 @@ import { DistributionURL } from './distribution-url';
 
 interface IProps {
   closeAction: () => void;
-  // Resolves with what was removed, rejects when the distributions could not
-  // be listed (nothing was deleted then). The caller closes the dialog when the
+  // Resolves with what was removed, rejects with DeleteNotStarted when the
+  // distributions could not be listed (nothing was deleted then). Any other
+  // rejection is an unexpected error that may have come after deletes. The caller closes the dialog when the
   // repository is gone; a repository that was kept stays on screen here.
-  deleteAction: () => Promise<DeleteRepositoryResult>;
+  // `shown` is the listing the dialog displayed; exactly these are deleted.
+  deleteAction: (
+    shown: RepositoryDistribution[],
+  ) => Promise<DeleteRepositoryResult>;
   name: string;
   plugin: RepositoryDistributionPlugin;
   pulpHref: string;
@@ -111,7 +118,10 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
   <Alert
     isInline
     title={
-      result.failed.length || result.pending.length
+      result.failed.length ||
+      result.pending.length ||
+      result.unknown.length ||
+      result.unlisted.length
         ? t`The repository was kept because not every distribution was removed.`
         : t`The distributions were removed but the repository was kept.`
     }
@@ -157,6 +167,32 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
         </List>
       </>
     ) : null}
+    {result.unknown.length ? (
+      <>
+        <Text>
+          <strong>{t`Outcome unknown, check the task`}</strong>
+        </Text>
+        <List>
+          {result.unknown.map(({ name, taskHref }) => (
+            <ListItem key={name}>
+              {name} - <Link to={taskLink(taskHref)}>{t`task`}</Link>
+            </ListItem>
+          ))}
+        </List>
+      </>
+    ) : null}
+    {result.unlisted.length ? (
+      <>
+        <Text>
+          <strong>{t`Not removed, not shown when this dialog opened`}</strong>
+        </Text>
+        <List>
+          {result.unlisted.map((name) => (
+            <ListItem key={name}>{name}</ListItem>
+          ))}
+        </List>
+      </>
+    ) : null}
     {result.repositoryError ? (
       <Text>{t`The repository could not be removed: ${result.repositoryError}`}</Text>
     ) : null}
@@ -164,6 +200,12 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
       <Text>
         {t`The repository is still being removed:`}{' '}
         <Link to={taskLink(result.repositoryPending)}>{t`task`}</Link>
+      </Text>
+    ) : null}
+    {result.repositoryUnknown ? (
+      <Text>
+        {t`The outcome of removing the repository is unknown. Check the task:`}{' '}
+        <Link to={taskLink(result.repositoryUnknown)}>{t`task`}</Link>
       </Text>
     ) : null}
   </Alert>
@@ -180,7 +222,10 @@ export const DeleteRepositoryModal = ({
   const [deleting, setDeleting] = useState(false);
   const [typedName, setTypedName] = useState('');
   const [kept, setKept] = useState<DeleteRepositoryResult | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<{
+    message: string;
+    nothingDeleted: boolean;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -210,10 +255,16 @@ export const DeleteRepositoryModal = ({
     setDeleting(true);
     setDeleteError(null);
     try {
-      const result = await deleteAction();
+      const result = await deleteAction(
+        listing.status === 'ready' ? listing.distributions : [],
+      );
       setKept(result.repositoryDeleted ? null : result);
     } catch (e) {
-      setDeleteError(distributionsLoadError(e));
+      setDeleteError(
+        e instanceof DeleteNotStarted
+          ? { message: distributionsLoadError(e.cause), nothingDeleted: true }
+          : { message: distributionsLoadError(e), nothingDeleted: false },
+      );
     } finally {
       setDeleting(false);
     }
@@ -224,6 +275,7 @@ export const DeleteRepositoryModal = ({
       spinner={deleting}
       cancelAction={closeAction}
       deleteAction={confirm}
+      isCancelDisabled={deleting}
       isDisabled={
         deleting ||
         listing.status !== 'ready' ||
@@ -274,10 +326,14 @@ export const DeleteRepositoryModal = ({
       {deleteError ? (
         <Alert
           isInline
-          title={t`The distributions of this repository could not be listed, so nothing was deleted.`}
+          title={
+            deleteError.nothingDeleted
+              ? t`The distributions of this repository could not be listed, so nothing was deleted.`
+              : t`The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again.`
+          }
           variant='danger'
         >
-          {deleteError}
+          {deleteError.message}
         </Alert>
       ) : null}
 

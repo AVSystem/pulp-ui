@@ -11,7 +11,10 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { type DeleteRepositoryResult } from '../utilities/delete-repository';
+import {
+  DeleteNotStarted,
+  type DeleteRepositoryResult,
+} from '../utilities/delete-repository';
 import { DeleteRepositoryModal } from './delete-repository-modal';
 
 const API = '/pulp/api/v3';
@@ -23,9 +26,12 @@ const kept = (
   removed: [],
   failed: [],
   pending: [],
+  unknown: [],
+  unlisted: [],
   repositoryDeleted: false,
   repositoryError: null,
   repositoryPending: null,
+  repositoryUnknown: null,
   ...overrides,
 });
 
@@ -207,6 +213,42 @@ describe('the delete repository dialog', () => {
     finish(kept({ repositoryDeleted: true }));
   });
 
+  it('keeps Cancel, the close button and Escape from closing the dialog while the deletes run, and shows the report after a partial failure', async () => {
+    serve([]);
+    let finish: (result: DeleteRepositoryResult) => void;
+    const deleteAction = vi.fn(
+      () =>
+        new Promise<DeleteRepositoryResult>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const { closeAction, user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await waitFor(() => expect(deleteButton()).toBeDisabled());
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(closeAction).not.toHaveBeenCalled();
+
+    finish(
+      kept({
+        removed: ['removed-one'],
+        failed: [{ name: 'refused-one', reason: 'no' }],
+      }),
+    );
+
+    await screen.findByText(/The repository was kept/);
+    expect(screen.getByText('removed-one')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(closeAction).toHaveBeenCalledTimes(1);
+  });
+
   it('stays open after a partial failure and says what was removed, what failed with the reason, what is still being removed and that the repository was kept', async () => {
     serve([]);
     const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000aa/`;
@@ -244,6 +286,55 @@ describe('the delete repository dialog', () => {
     expect(closeAction).not.toHaveBeenCalled();
   });
 
+  it('says the outcome is unknown, with the task link, for a delete whose task status could not be read', async () => {
+    serve([]);
+    const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000cc/`;
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(
+        kept({ unknown: [{ name: 'unreadable-one', taskHref }] }),
+      );
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await screen.findByText(/The repository was kept/);
+    expect(screen.getByText('Outcome unknown, check the task')).toBeVisible();
+    expect(screen.getByText(/unreadable-one/)).toBeInTheDocument();
+    expect(screen.queryByText('Not removed')).toBeNull();
+    expect(screen.getByRole('link', { name: 'task' })).toHaveAttribute(
+      'href',
+      '/tasks/detail/00000000-0000-4000-8000-0000000000cc/',
+    );
+  });
+
+  it('hands the listing it showed to the delete and reports a distribution that was not shown', async () => {
+    const repo = repository({ name: REPO_NAME });
+    const shown = boundTo(repo, { base_path: 'a-shown', name: 'a-shown' });
+    serve([shown]);
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(
+        kept({ removed: ['a-shown'], unlisted: ['b-created-later'] }),
+      );
+    const { user } = renderModal({ deleteAction, repo });
+    await screen.findByText('a-shown');
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await screen.findByText(/The repository was kept/);
+    expect(deleteAction).toHaveBeenCalledWith([
+      expect.objectContaining({ pulp_href: shown.pulp_href, name: 'a-shown' }),
+    ]);
+    expect(
+      screen.getByText('Not removed, not shown when this dialog opened'),
+    ).toBeVisible();
+    expect(screen.getByText('b-created-later')).toBeInTheDocument();
+  });
+
   it('shows the reason and keeps Delete disabled when the distributions cannot be listed', async () => {
     server.use(
       http.get(`*${API}/distributions/file/file/`, () =>
@@ -262,9 +353,11 @@ describe('the delete repository dialog', () => {
 
   it('says nothing was deleted when the distributions cannot be listed at confirmation', async () => {
     serve([]);
-    const deleteAction = vi
-      .fn()
-      .mockRejectedValue({ response: { status: 500, statusText: 'Server' } });
+    const deleteAction = vi.fn().mockRejectedValue(
+      new DeleteNotStarted({
+        response: { status: 500, statusText: 'Server' },
+      }),
+    );
     const { user } = renderModal({ deleteAction });
     await screen.findByText(/No distribution serves this repository/);
 
@@ -272,5 +365,22 @@ describe('the delete repository dialog', () => {
     await user.click(deleteButton());
 
     await screen.findByText(/so nothing was deleted/);
+    expect(screen.getByText(/^Error 500/)).toBeInTheDocument();
+  });
+
+  it('does not claim nothing was deleted when the delete fails with an error other than a failed listing', async () => {
+    serve([]);
+    const deleteAction = vi
+      .fn()
+      .mockRejectedValue(new Error('navigation exploded'));
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await screen.findByText(/may already have been removed/);
+    expect(screen.getByText('navigation exploded')).toBeInTheDocument();
+    expect(screen.queryByText(/so nothing was deleted/)).toBeNull();
   });
 });

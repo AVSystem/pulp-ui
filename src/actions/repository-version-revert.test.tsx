@@ -235,6 +235,27 @@ describe.each(PLUGINS)(
       expect(reload).not.toHaveBeenCalled();
     });
 
+    it('says the outcome is unknown, with the task link, when the task status cannot be read, and does not claim it failed', async () => {
+      const { user, reload } = setup(plugin);
+      server.use(
+        http.get(TASK_URL, () =>
+          HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+        ),
+      );
+
+      await openRevert(user, '1');
+      await confirmRevert(user);
+
+      await alerts().findByText(/outcome of the revert .* is unknown/);
+      const list = screen.getByRole('list', { name: 'alerts' });
+      const link = within(list).getAllByRole('link', { name: /detail page/ });
+      expect(link.at(-1)?.getAttribute('href')).toContain(
+        '00000000-0000-4000-8000-0000000000aa',
+      );
+      expect(alerts().queryByText(/Failed to revert/)).toBeNull();
+      expect(reload).not.toHaveBeenCalled();
+    });
+
     it("shows the server's reason when the request is refused and closes the dialog", async () => {
       const { user, reload, polls, repo } = setup(plugin);
       server.use(

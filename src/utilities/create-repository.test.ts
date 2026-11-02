@@ -227,6 +227,7 @@ describe('createRepository', () => {
         repositoryHref: REPOSITORY_HREF,
         distributionError: null,
         distributionPending: null,
+        distributionUnknown: null,
       });
       expect(posts().map((r) => r.path)).toStrictEqual([
         '/pulp/api/v3/repositories/file/file/',
@@ -253,6 +254,7 @@ describe('createRepository', () => {
         repositoryHref: REPOSITORY_HREF,
         distributionError: null,
         distributionPending: null,
+        distributionUnknown: null,
       });
       expect(posts().map((r) => r.path)).toStrictEqual([
         '/pulp/api/v3/repositories/file/file/',
@@ -298,6 +300,29 @@ describe('createRepository', () => {
       expect(seen.filter((r) => r.method === 'DELETE')).toStrictEqual([]);
     });
 
+    it('reports an unknown outcome with the task, not a failure, when the task status cannot be read', async () => {
+      serveExistingDistributions([]);
+      serveRepositoryCreate();
+      serveDistributionCreate(() =>
+        HttpResponse.json({ task: TASK_HREF }, { status: 202 }),
+      );
+      server.use(
+        http.get('*/pulp/api/v3/tasks/:id/', () =>
+          HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+        ),
+      );
+
+      const result = await create({ basePath: BASE_PATH });
+
+      expect(result).toStrictEqual({
+        repositoryHref: REPOSITORY_HREF,
+        distributionError: null,
+        distributionPending: null,
+        distributionUnknown: TASK_HREF,
+      });
+      expect(requestsOf('POST', '/distributions/file/file/')).toHaveLength(1);
+    });
+
     it('reports the distribution as still being created, not as failed, when its task outlives the wait', async () => {
       vi.useFakeTimers({ toFake: ['setTimeout'] });
       try {
@@ -316,6 +341,7 @@ describe('createRepository', () => {
           repositoryHref: REPOSITORY_HREF,
           distributionError: null,
           distributionPending: TASK_HREF,
+          distributionUnknown: null,
         });
         expect(requestsOf('POST', '/distributions/file/file/')).toHaveLength(1);
         expect(seen.filter((r) => r.method === 'DELETE')).toStrictEqual([]);

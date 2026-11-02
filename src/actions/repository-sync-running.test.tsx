@@ -1,10 +1,12 @@
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { TaskAPI } from '../api/task';
 import { debRepositorySyncAction } from './deb-repository-sync';
+import { fileRepositorySyncAction } from './file-repository-sync';
 import { pythonRepositorySyncAction } from './python-repository-sync';
 import { rpmRepositorySyncAction } from './rpm-repository-sync';
 
@@ -39,6 +41,11 @@ function Harness({
 }
 
 describe.each([
+  [
+    'file',
+    fileRepositorySyncAction,
+    'pulp_file.app.tasks.synchronizing.synchronize',
+  ],
   [
     'deb',
     debRepositorySyncAction,
@@ -77,7 +84,29 @@ describe.each([
     expect(queries.queries[0].get('exclusive_resources')).toBe(item.pulp_href);
   });
 
+  it('asks only for waiting and running tasks of the repository', async () => {
+    const queries = listOf(`${API}/tasks/`, []);
+    server.use(queries.handler);
+    const item = repository({
+      remote: `${API}/remotes/x/y/00000000-0000-4000-8000-0000000000b1/`,
+    });
+    const { user } = renderWithProviders(
+      <Harness action={action} item={item} />,
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Sync' }));
+    await screen.findByRole('dialog');
+
+    await vi.waitFor(() => expect(queries.queries).toHaveLength(1));
+    expect(queries.queries[0].get('state__in')).toBe('waiting,running');
+    expect(queries.queries[0].get('exclusive_resources')).toBe(item.pulp_href);
+  });
+
   it('keeps Sync enabled when no task holds the repository', async () => {
+    // The check is awaited to the end, so the assertions below see its
+    // outcome: an answer naming a running task would show the warning and
+    // disable Sync, which is what the first test of this file expects.
+    const list = vi.spyOn(TaskAPI, 'list');
     const queries = listOf(`${API}/tasks/`, []);
     server.use(queries.handler);
     const item = repository({
@@ -89,8 +118,18 @@ describe.each([
 
     await user.click(await screen.findByRole('button', { name: 'Sync' }));
     const dialog = await screen.findByRole('dialog');
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(1));
+    await act(async () => {
+      await list.mock.results[0].value;
+    });
 
-    await vi.waitFor(() => expect(queries.queries).toHaveLength(1));
+    expect(
+      within(dialog).queryByText(/already (queued|running)/),
+    ).not.toBeInTheDocument();
+    expect(
+      within(dialog).queryByText(/Another task is already/),
+    ).not.toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: /^Sync/ })).toBeEnabled();
+    list.mockRestore();
   });
 });
