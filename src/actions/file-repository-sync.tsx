@@ -12,15 +12,21 @@ export const fileRepositorySyncAction = Action({
     state.syncModalOpen ? (
       <SyncModal
         closeAction={() => setState({ syncModalOpen: null })}
+        defaultMirror={!state.syncModalOpen.autopublish}
+        mirrorLockedReason={
+          state.syncModalOpen.autopublish
+            ? t`Mirroring cannot be combined with autopublish, so this sync only adds missing content.`
+            : undefined
+        }
         syncAction={(syncParams) =>
           syncRepository(state.syncModalOpen, { addAlert, query }, syncParams)
         }
         name={state.syncModalOpen.name}
       />
     ) : null,
-  onClick: ({ name, pulp_href }, { setState }) =>
+  onClick: ({ autopublish, name, pulp_href }, { setState }) =>
     setState({
-      syncModalOpen: { name, pulp_href },
+      syncModalOpen: { autopublish: !!autopublish, name, pulp_href },
     }),
   visible: (_item, { hasPermission }) =>
     hasPermission('file.change_collectionremote'),
@@ -38,9 +44,14 @@ export const fileRepositorySyncAction = Action({
   },
 });
 
-function syncRepository({ name, pulp_href }, { addAlert, query }, syncParams) {
+function syncRepository(
+  { autopublish, name, pulp_href },
+  { addAlert, query },
+  syncParams,
+) {
   const pulpId = parsePulpIDFromURL(pulp_href);
-  return FileRepositoryAPI.sync(pulpId, syncParams || { mirror: true })
+  // pulp_file refuses a mirror sync of a repository that autopublishes.
+  return FileRepositoryAPI.sync(pulpId, syncParams || { mirror: !autopublish })
     .then(({ data }) => {
       addAlert(taskAlert(data.task, t`Sync started for repository "${name}".`));
 

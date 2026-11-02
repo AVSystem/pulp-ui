@@ -56,4 +56,6 @@ export class RemoteType {
   }[];
   last_sync_task: LastSyncType;
   download_concurrency: number;
+  max_retries?: number | null;
+  total_timeout?: number | null;
 }

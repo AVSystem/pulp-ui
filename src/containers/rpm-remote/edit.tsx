@@ -14,7 +14,10 @@ const initialRemote: RPMRemoteType = {
   proxy_url: null,
   download_concurrency: null,
   rate_limit: null,
-  policy: 'immediate',
+  // A new remote fetches content when a client asks for it instead of
+  // downloading a whole upstream at the first sync; the form's display
+  // fallback never decides what is sent.
+  policy: 'on_demand',
   hidden_fields: [
     'client_key',
     'proxy_username',

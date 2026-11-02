@@ -36,9 +36,10 @@ import {
   validateURLHelper,
 } from 'src/utilities';
 
-// Plugins whose remotes offer a download policy in this form. pulp_file and
-// pulp_deb accept the same three policies; add them here once tested.
-const PLUGINS_WITH_POLICY = ['python', 'rpm'];
+// Plugins whose remotes offer a download policy in this form. Ansible
+// collection remotes accept only immediate, and container registries have no
+// policy, so neither is listed and neither ever sends one.
+const PLUGINS_WITH_POLICY = ['deb', 'file', 'python', 'rpm'];
 
 interface IProps {
   allowEditName?: boolean;
@@ -352,7 +353,7 @@ export class RemoteForm extends Component<IProps, IState> {
             label={t`Download policy`}
             labelIcon={
               <HelpButton
-                content={t`Immediate downloads all packages during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each package the first time a client requests it. Streamed passes packages through to clients without storing them.`}
+                content={t`Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it.`}
               />
             }
             isRequired={requiredFields.includes('policy')}
@@ -369,7 +370,8 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormFieldHelper
               variant={'policy' in errorMessages ? 'error' : 'default'}
             >
-              {errorMessages['policy']}
+              {errorMessages['policy'] ??
+                t`On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it.`}
             </FormFieldHelper>
           </FormGroup>
         )}
@@ -1290,6 +1292,74 @@ export class RemoteForm extends Component<IProps, IState> {
                 {t`Must be an integer.`}
               </FormFieldHelper>
             </FormGroup>
+
+            {plugin !== 'container' && (
+              <>
+                <FormGroup
+                  fieldId={'total_timeout'}
+                  label={t`Total timeout`}
+                  labelIcon={
+                    <HelpButton
+                      content={t`Total time in seconds allowed for one download, including connecting and reading. Decimals such as 2.5 are accepted.`}
+                    />
+                  }
+                >
+                  <TextInput
+                    id='total_timeout'
+                    type='number'
+                    min={0}
+                    step='any'
+                    value={remote.total_timeout ?? ''}
+                    validated={
+                      'total_timeout' in errorMessages ? 'error' : 'default'
+                    }
+                    onChange={(_event, value) =>
+                      this.updateRemote(value, 'total_timeout')
+                    }
+                  />
+                  <FormFieldHelper
+                    variant={
+                      'total_timeout' in errorMessages ? 'error' : 'default'
+                    }
+                  >
+                    {errorMessages['total_timeout'] ??
+                      t`Seconds. Leave empty to use the server default.`}
+                  </FormFieldHelper>
+                </FormGroup>
+
+                <FormGroup
+                  fieldId={'max_retries'}
+                  label={t`Retries`}
+                  labelIcon={
+                    <HelpButton
+                      content={t`How many times a failed download is tried again before the sync gives up.`}
+                    />
+                  }
+                >
+                  <TextInput
+                    id='max_retries'
+                    type='number'
+                    min={0}
+                    step={1}
+                    value={remote.max_retries ?? ''}
+                    validated={
+                      'max_retries' in errorMessages ? 'error' : 'default'
+                    }
+                    onChange={(_event, value) =>
+                      this.updateRemote(value, 'max_retries')
+                    }
+                  />
+                  <FormFieldHelper
+                    variant={
+                      'max_retries' in errorMessages ? 'error' : 'default'
+                    }
+                  >
+                    {errorMessages['max_retries'] ??
+                      t`A whole number. Leave empty to use the server default.`}
+                  </FormFieldHelper>
+                </FormGroup>
+              </>
+            )}
           </div>
         </ExpandableSection>
         {errorMessages['__nofield'] ? (
@@ -1346,13 +1416,23 @@ export class RemoteForm extends Component<IProps, IState> {
   private updateRemote(value, field) {
     const { remote } = this.props;
 
-    const numericFields = ['download_concurrency', 'rate_limit'];
+    // An emptied numeric field is sent as null so the server default applies.
+    // The timeout is a decimal number of seconds and must not be truncated.
+    const numericFields = ['download_concurrency', 'rate_limit', 'max_retries'];
+    const decimalFields = ['total_timeout'];
     if (numericFields.includes(field)) {
       value = Number.isInteger(value)
         ? value
         : Number.isNaN(parseInt(value, 10))
           ? null
           : parseInt(value, 10);
+    } else if (decimalFields.includes(field)) {
+      value =
+        typeof value === 'number'
+          ? value
+          : Number.isNaN(parseFloat(value))
+            ? null
+            : parseFloat(value);
     }
 
     this.props.updateRemote({ ...remote, [field]: value });

@@ -213,6 +213,11 @@ export const RepositoryForm = ({
             t`Versions kept per package`,
             t`How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions.`,
           )}
+        </>
+      )}
+
+      {['file', 'deb', 'rpm'].includes(plugin) && (
+        <>
           {formGroup(
             'autopublish',
             t`Autopublish`,

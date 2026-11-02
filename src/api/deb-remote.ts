@@ -9,7 +9,9 @@ export interface DebRemoteType {
   download_concurrency: number;
   gpgkey: string;
   ignore_missing_package_indices?: boolean;
+  max_retries?: number | null;
   name: string;
+  policy?: string;
   proxy_url: string;
   pulp_href?: string;
   rate_limit: number;
@@ -17,19 +19,17 @@ export interface DebRemoteType {
   sync_sources?: boolean;
   sync_udebs?: boolean;
   tls_validation: boolean;
+  total_timeout?: number | null;
   url: string;
 
   // connect_timeout
   // headers
-  // max_retries
-  // policy
   // prn
   // pulp_created
   // pulp_labels
   // pulp_last_updated
   // sock_connect_timeout
   // sock_read_timeout
-  // total_timeout
 
   hidden_fields: {
     is_set: boolean;
