@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { UserAPI, type UserType } from 'src/api';
 import { DeleteModal } from 'src/components';
 import { useUserContext } from 'src/user-context';
-import { jsxErrorMessage, mapErrorMessages } from 'src/utilities';
+import { mapErrorMessages } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+  requestErrorText,
+} from 'src/utilities/request-error';
 
 interface IProps {
   addAlert: (message, variant, description?) => void;
@@ -52,7 +57,9 @@ export const DeleteUserModal = ({
         addAlert(
           t`User "${user.username}" could not be deleted.`,
           'danger',
-          mapErrorMessages(err)['__nofield'],
+          requestErrorStatus(err) === null
+            ? requestErrorText(err)
+            : mapErrorMessages(err)['__nofield'],
         );
         closeModal(false);
       })
@@ -68,8 +75,7 @@ export const DeleteUserModal = ({
         waitForDeleteConfirm();
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
-        if (err.response.status === 404) {
+        if (requestErrorStatus(err) === 404) {
           addAlert(
             t`User "${user.username}" has been successfully deleted.`,
             'success',
@@ -79,7 +85,7 @@ export const DeleteUserModal = ({
           addAlert(
             t`User "${user.username}" could not be deleted.`,
             'danger',
-            jsxErrorMessage(status, statusText),
+            requestErrorDescription(err),
           );
         }
 

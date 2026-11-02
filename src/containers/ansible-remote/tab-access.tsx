@@ -10,11 +10,8 @@ import {
 } from 'src/api';
 import { AccessTab } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import {
-  assignRoles,
-  jsxErrorMessage,
-  parsePulpIDFromURL,
-} from 'src/utilities';
+import { assignRoles, parsePulpIDFromURL } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface UserType {
   username: string;
@@ -91,11 +88,11 @@ export const RemoteAccessTab = ({
         });
         query();
       })
-      .catch(({ response: { status, statusText } }) => {
+      .catch((e) => {
         addAlert({
           title: alertFailure,
           variant: 'danger',
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(e),
         });
       })
       .finally(() => {

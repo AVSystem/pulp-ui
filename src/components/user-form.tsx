@@ -16,7 +16,8 @@ import {
   HelpButton,
   Typeahead,
 } from 'src/components';
-import { type ErrorMessagesType, jsxErrorMessage } from 'src/utilities';
+import { type ErrorMessagesType } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IProps {
   errorMessages: ErrorMessagesType;
@@ -205,13 +206,12 @@ export const UserForm = ({
     GroupAPI.list({ name__contains: name, page_size: 5 })
       .then((result) => setSearchGroups(result.data.results))
       .catch((e) => {
-        const { status, statusText } = e.response;
         setFormErrors({
           ...formErrors,
           groups: {
             variant: 'danger',
             title: t`Groups list could not be displayed.`,
-            description: jsxErrorMessage(status, statusText),
+            description: requestErrorDescription(e),
           },
         });
       });
