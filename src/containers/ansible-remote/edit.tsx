@@ -93,6 +93,9 @@ const AnsibleRemoteEdit = Page<AnsibleRemoteType>({
       }
 
       delete data.my_permissions;
+      // Collection remotes accept only the immediate policy and the form
+      // offers none, so the value the server returned is never sent back.
+      delete data.policy;
 
       // api requires traling slash, fix the trivial case
       if (data.url && !data.url.includes('?') && !data.url.endsWith('/')) {
