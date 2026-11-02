@@ -17,6 +17,8 @@ export const debRepositorySyncAction = Action({
       <SyncModal
         closeAction={() => setState({ syncModalOpen: null })}
         defaultMirror={MIRROR_BY_DEFAULT}
+        plugin='deb'
+        repositoryHref={state.syncModalOpen.pulp_href}
         syncAction={(syncParams) =>
           syncRepository(state.syncModalOpen, { addAlert, query }, syncParams)
         }
@@ -29,16 +31,9 @@ export const debRepositorySyncAction = Action({
     }),
   visible: (_item, { hasPermission }) =>
     hasPermission('deb.change_aptrepository'),
-  disabled: ({ remote, last_sync_task }) => {
+  disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;
-    }
-
-    if (
-      last_sync_task &&
-      ['running', 'waiting'].includes(last_sync_task.state)
-    ) {
-      return t`Sync task is already queued.`;
     }
   },
 });

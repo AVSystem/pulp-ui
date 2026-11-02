@@ -25,6 +25,8 @@ export const rpmRepositorySyncAction = Action({
         closeAction={() => setState({ syncModalOpen: null })}
         defaultSyncPolicy={DEFAULT_SYNC_POLICY}
         syncPolicies={syncPolicies()}
+        plugin='rpm'
+        repositoryHref={state.syncModalOpen.pulp_href}
         syncAction={(syncParams) =>
           syncRepository(state.syncModalOpen, { addAlert, query }, syncParams)
         }
@@ -37,16 +39,9 @@ export const rpmRepositorySyncAction = Action({
     }),
   visible: (_item, { hasPermission }) =>
     hasPermission('rpm.change_rpmrepository'),
-  disabled: ({ remote, last_sync_task }) => {
+  disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;
-    }
-
-    if (
-      last_sync_task &&
-      ['running', 'waiting'].includes(last_sync_task.state)
-    ) {
-      return t`Sync task is already queued.`;
     }
   },
 });

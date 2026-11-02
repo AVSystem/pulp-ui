@@ -1,5 +1,4 @@
 import { msg, t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
 import { pythonRepositoryDeleteAction } from 'src/actions/python-repository-delete';
 import { pythonRepositoryEditAction } from 'src/actions/python-repository-edit';
 import { pythonRepositorySyncAction } from 'src/actions/python-repository-sync';
@@ -10,7 +9,6 @@ import {
 } from 'src/api/python-repository';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { lastSyncStatus, lastSynced } from 'src/utilities/last-sync-task';
 import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import {
   type RepositoryDistribution,
@@ -58,16 +56,6 @@ const PythonRepositoryDetail = PageWithTabs<
     pythonRepositorySyncAction,
     pythonRepositoryDeleteAction,
   ],
-  headerDetails: (item) => (
-    <>
-      {item?.last_sync_task && (
-        <p className='pulp-m-truncated'>
-          <Trans>Last updated from registry {lastSynced(item)}</Trans>{' '}
-          {lastSyncStatus(item)}
-        </p>
-      )}
-    </>
-  ),
   listUrl: formatPath(Paths.python.repository.list),
   query: ({ name }) =>
     PythonRepositoryAPI.list({ name, page_size: 1 })

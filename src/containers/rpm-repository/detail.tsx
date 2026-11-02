@@ -1,5 +1,4 @@
 import { msg, t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
 import { rpmRepositoryDeleteAction } from 'src/actions/rpm-repository-delete';
 import { rpmRepositoryEditAction } from 'src/actions/rpm-repository-edit';
 import { rpmRepositorySyncAction } from 'src/actions/rpm-repository-sync';
@@ -10,7 +9,6 @@ import {
 } from 'src/api/rpm-repository';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { lastSyncStatus, lastSynced } from 'src/utilities/last-sync-task';
 import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import {
   type RepositoryDistribution,
@@ -58,16 +56,6 @@ const RPMRepositoryDetail = PageWithTabs<
     rpmRepositorySyncAction,
     rpmRepositoryDeleteAction,
   ],
-  headerDetails: (item) => (
-    <>
-      {item?.last_sync_task && (
-        <p className='pulp-m-truncated'>
-          <Trans>Last updated from registry {lastSynced(item)}</Trans>{' '}
-          {lastSyncStatus(item)}
-        </p>
-      )}
-    </>
-  ),
   listUrl: formatPath(Paths.rpm.repository.list),
   query: ({ name }) =>
     RPMRepositoryAPI.list({ name, page_size: 1 })
