@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { type DebRepositoryType } from 'src/api';
+import { type DebRepositoryType } from 'src/api/deb-repository';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import {
   type RepositoryDistribution,
   listLoadedDistributions,
 } from 'src/utilities/repository-distributions';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 interface TabProps {
   item: DebRepositoryType & {
@@ -20,6 +21,12 @@ interface TabProps {
   };
 }
 
+// A deb remote requires `distributions`, so unlike the file equivalent this
+// cannot be a complete command without knowing which suites to sync. The name
+// and the URL are quoted as shell words: a repository name is free text.
+export const debRemoteCommand = (name: string, url: string): string =>
+  `pulp deb remote create --name ${shellQuote(name)} --url ${shellQuote(url)} --distributions '<suite>'`;
+
 export const DistributionsTab = ({
   item,
   actionContext: { addAlert, hasPermission },
@@ -32,12 +39,8 @@ export const DistributionsTab = ({
       ? Promise.reject(item.distributionsError)
       : Promise.resolve(listLoadedDistributions(item.distributions, params));
 
-  // A deb remote requires `distributions`, so unlike the file equivalent this
-  // cannot be a complete command without knowing which suites to sync.
   const cliConfig = (url: string | null) =>
-    url
-      ? `pulp deb remote create --name "${item.name}" --url "${url}" --distributions "<suite>"`
-      : t`None`;
+    url ? debRemoteCommand(item.name, url) : t`None`;
 
   const renderTableRow = (
     item: RepositoryDistribution,

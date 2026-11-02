@@ -1,5 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
+import { debRemoteCommand } from 'src/containers/deb-repository/tab-distributions';
+import { fileRemoteCommand } from 'src/containers/file-repository/tab-distributions';
+import { pipInstallCommand } from 'src/containers/python-repository/tab-distributions';
+import { rpmRemoteCommand } from 'src/containers/rpm-repository/tab-distributions';
 import { shellQuote } from './shell-quote';
 
 // What a POSIX shell makes of the quoted word, printed as raw bytes.
@@ -39,5 +43,47 @@ describe('shellQuote', () => {
     ['the empty string', ''],
   ])('reaches the shell as exactly the same data for %s', (_label, value) => {
     expect(throughShell(value)).toBe(value);
+  });
+});
+
+// A repository name is free text and the URL comes from the server, so every
+// copy-paste command of the Distributions tabs quotes each value it holds.
+describe('Distributions tab commands', () => {
+  const hostile = "a$(id)'b`id`";
+  const quotedHostile = "'a$(id)'\\''b`id`'";
+  const url = 'https://pulp.example/pulp/content/served/tools/';
+
+  it.each([
+    [
+      'file',
+      fileRemoteCommand(hostile, url),
+      `pulp file remote create --name ${quotedHostile} --url '${url}PULP_MANIFEST'`,
+    ],
+    [
+      'deb',
+      debRemoteCommand(hostile, url),
+      `pulp deb remote create --name ${quotedHostile} --url '${url}' --distributions '<suite>'`,
+    ],
+    [
+      'rpm',
+      rpmRemoteCommand(hostile, url),
+      `pulp rpm remote create --name ${quotedHostile} --url '${url}'`,
+    ],
+    [
+      'python',
+      pipInstallCommand("https://pulp.example/a$(id)'b/"),
+      "pip install --index-url 'https://pulp.example/a$(id)'\\''b/simple/' <package>",
+    ],
+  ])(
+    'quotes the name and URL of the %s command',
+    (_plugin, actual, expected) => {
+      expect(actual).toBe(expected);
+    },
+  );
+
+  it('adds the missing slash before the simple index of a python distribution', () => {
+    expect(pipInstallCommand('https://pulp.example/x')).toBe(
+      "pip install --index-url 'https://pulp.example/x/simple/' <package>",
+    );
   });
 });

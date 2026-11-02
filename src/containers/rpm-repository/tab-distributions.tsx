@@ -7,6 +7,7 @@ import {
   type RepositoryDistribution,
   listLoadedDistributions,
 } from 'src/utilities/repository-distributions';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 interface TabProps {
   item: RPMRepositoryType & {
@@ -20,6 +21,12 @@ interface TabProps {
   };
 }
 
+// An RPM remote only needs the URL the server reports for the distribution.
+// The name and the URL are quoted as shell words: a repository name is free
+// text.
+export const rpmRemoteCommand = (name: string, url: string): string =>
+  `pulp rpm remote create --name ${shellQuote(name)} --url ${shellQuote(url)}`;
+
 export const DistributionsTab = ({
   item,
   actionContext: { addAlert, hasPermission },
@@ -32,11 +39,8 @@ export const DistributionsTab = ({
       ? Promise.reject(item.distributionsError)
       : Promise.resolve(listLoadedDistributions(item.distributions, params));
 
-  // An RPM remote only needs the URL the server reports for the distribution.
   const cliConfig = (url: string | null) =>
-    url
-      ? `pulp rpm remote create --name "${item.name}" --url "${url}"`
-      : t`None`;
+    url ? rpmRemoteCommand(item.name, url) : t`None`;
 
   const renderTableRow = (
     item: RepositoryDistribution,

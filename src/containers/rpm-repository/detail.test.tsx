@@ -185,7 +185,7 @@ describe('RPM repository Distributions tab', () => {
         /pulp rpm remote create/,
       );
       expect(line.textContent).toBe(
-        `pulp rpm remote create --name "zz-test-rpm" --url "https://pulp.example/served/${name}/"`,
+        `pulp rpm remote create --name 'zz-test-rpm' --url 'https://pulp.example/served/${name}/'`,
       );
     }
     expect(screen.queryByText('zz-foreign')).toBeNull();

@@ -136,7 +136,7 @@ describe('Python repository Distributions tab', () => {
       expect(row).not.toBeNull();
       const line = within(row as HTMLElement).getByText(/pip install/);
       expect(line.textContent).toBe(
-        `pip install --index-url https://pulp.example/served/${name}/simple/ <package>`,
+        `pip install --index-url 'https://pulp.example/served/${name}/simple/' <package>`,
       );
     }
     expect(screen.queryByText('zz-foreign')).toBeNull();
