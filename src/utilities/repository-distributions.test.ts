@@ -283,4 +283,38 @@ describe('repositoryDistributions', () => {
       expect(found[0].served).toBe(false);
     });
   });
+
+  describe('python', () => {
+    it('lists the distributions of the python endpoint and treats a repository-bound one as served without any publication', async () => {
+      const repo = repository();
+      const python = listOf(
+        '/pulp/api/v3/distributions/python/pypi/',
+        [
+          distribution({
+            base_path: 'index',
+            base_url: 'https://pulp.example/pypi/index/',
+            repository: repo.pulp_href,
+          }),
+        ],
+        {
+          pageSize: 1000,
+          matching: (row, query) =>
+            query.has('repository') ? ofRepository(row, query) : true,
+        },
+      );
+      server.use(python.handler);
+
+      const found = await repositoryDistributions('python', repo.pulp_href);
+
+      expect(
+        found.map(({ name, url, served }) => ({ name, url, served })),
+      ).toStrictEqual([
+        {
+          name: 'index',
+          url: 'https://pulp.example/pypi/index/',
+          served: true,
+        },
+      ]);
+    });
+  });
 });

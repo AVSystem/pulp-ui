@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { distribution, listOf, page, publication, repository } from './pulp';
+import {
+  distribution,
+  listOf,
+  page,
+  publication,
+  remote,
+  repository,
+} from './pulp';
 import { server } from './server';
 
 const REPOSITORIES = '/pulp/api/v3/repositories/file/file/';
@@ -110,5 +117,14 @@ describe('builders', () => {
 
     expect(first.repository_version).toBe('/v/1/');
     expect(first.pulp_href).not.toBe(second.pulp_href);
+  });
+
+  it('remote carries its url and policy and takes overrides', () => {
+    const built = remote({ name: 'index', policy: 'streamed' });
+
+    expect(built.name).toBe('index');
+    expect(built.policy).toBe('streamed');
+    expect(built.url).toBe('https://pulp.example/index/');
+    expect(built.pulp_href).toMatch(/^\/pulp\/api\/v3\/remotes\//);
   });
 });

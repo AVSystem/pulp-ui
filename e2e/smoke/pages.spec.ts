@@ -55,6 +55,39 @@ test.describe('pages of a signed-in session', () => {
     await expect(page.locator('#architectures')).toBeVisible();
   });
 
+  test('Python repositories', async ({ page }) => {
+    await page.goto('python/repositories');
+    await expect(title(page, 'Repositories')).toBeVisible();
+    await expect(page.getByText('No repositories yet')).toBeVisible();
+
+    // pulp_python repositories can refuse package substitution, so the form
+    // carries settings the other plugins have no use for
+    await page.getByRole('button', { name: 'Add repository' }).click();
+    await expect(page.locator('#allow_package_substitution')).toBeVisible();
+    await expect(page.locator('#error_on_reject')).toBeVisible();
+  });
+
+  test('Python remotes', async ({ page }) => {
+    await page.goto('python/remotes');
+    await expect(title(page, 'Remotes')).toBeVisible();
+    await expect(page.getByText('No remotes yet')).toBeVisible();
+
+    // a Python remote filters what it syncs by project, package type and
+    // platform, and offers the download policy
+    await page.getByRole('button', { name: 'Add remote' }).click();
+    await expect(page.locator('#includes')).toBeVisible();
+    await expect(page.locator('#excludes')).toBeVisible();
+    await expect(page.locator('#keep_latest_packages')).toBeVisible();
+    await expect(page.locator('#package_types_sdist')).toBeVisible();
+    await expect(page.locator('#policy')).toHaveValue('on_demand');
+  });
+
+  test('Python packages', async ({ page }) => {
+    await page.goto('python/packages');
+    await expect(title(page, 'Packages')).toBeVisible();
+    await expect(page.getByText('No packages yet')).toBeVisible();
+  });
+
   test('RPM repositories', async ({ page }) => {
     await page.goto('rpm/repositories');
     await expect(title(page, 'Repositories')).toBeVisible();

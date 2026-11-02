@@ -159,3 +159,38 @@ export function publication(
     ...overrides,
   };
 }
+
+export interface IRemote {
+  pulp_href: string;
+  name: string;
+  url: string;
+  policy: string;
+  pulp_created: string;
+  [field: string]: unknown;
+}
+
+// A remote as the server returns it: the secret fields are not carried, only
+// listed under hidden_fields with whether a value is set.
+export function remote(overrides: Partial<IRemote> = {}): IRemote {
+  return {
+    pulp_href: href('remotes/file/file'),
+    name: `remote-${sequence}`,
+    url: 'https://pulp.example/index/',
+    policy: 'immediate',
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    tls_validation: true,
+    ca_cert: null,
+    client_cert: null,
+    proxy_url: null,
+    download_concurrency: null,
+    rate_limit: null,
+    hidden_fields: [
+      'client_key',
+      'proxy_username',
+      'proxy_password',
+      'username',
+      'password',
+    ].map((field) => ({ name: field, is_set: false })),
+    ...overrides,
+  };
+}
