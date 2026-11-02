@@ -6,14 +6,15 @@
 export type ServedState = 'served' | 'not-served';
 
 // Whether a plugin's distributions need a publication to serve content.
-// Ansible serves from the repository version directly.
+// Ansible and Python serve from the repository version directly.
 export const SERVES_FROM_PUBLICATION: Record<
-  'ansible' | 'deb' | 'file' | 'rpm',
+  'ansible' | 'deb' | 'file' | 'python' | 'rpm',
   boolean
 > = {
   ansible: false,
   deb: true,
   file: true,
+  python: false,
   rpm: true,
 };
 

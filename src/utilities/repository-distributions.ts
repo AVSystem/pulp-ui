@@ -16,7 +16,8 @@ import { plugin2api } from './plugin-repository-base-path';
 // Every distribution that serves a repository, with the URL the server
 // reports for it and whether the content app answers with content.
 
-export type RepositoryDistributionPlugin = 'ansible' | 'deb' | 'file' | 'rpm';
+export type RepositoryDistributionPlugin =
+  'ansible' | 'deb' | 'file' | 'python' | 'rpm';
 
 export interface RepositoryDistribution {
   pulp_href: string;
@@ -53,7 +54,8 @@ interface PublicationRecord {
 const PAGE_SIZE = 500;
 
 // Publication endpoints per plugin. A deb distribution may serve either kind
-// of publication. Ansible serves without publications.
+// of publication. Ansible and Python serve the repository directly, so they
+// have no publication endpoint to scan.
 const PUBLICATION_APIS: Record<
   RepositoryDistributionPlugin,
   {
@@ -65,6 +67,7 @@ const PUBLICATION_APIS: Record<
   ansible: [],
   deb: [DebPublicationAPI, DebVerbatimPublicationAPI],
   file: [FilePublicationAPI],
+  python: [],
   rpm: [RPMPublicationAPI],
 };
 
