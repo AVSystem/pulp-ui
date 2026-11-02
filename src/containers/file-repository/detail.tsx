@@ -1,5 +1,4 @@
 import { msg, t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
 import {
   fileRepositoryDeleteAction,
   fileRepositoryEditAction,
@@ -13,7 +12,7 @@ import {
 } from 'src/api';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { lastSyncStatus, lastSynced, parsePulpIDFromURL } from 'src/utilities';
+import { parsePulpIDFromURL } from 'src/utilities';
 import {
   type RepositoryDistribution,
   distributionsLoadError,
@@ -54,16 +53,6 @@ const FileRepositoryDetail = PageWithTabs<
     fileRepositorySyncAction,
     fileRepositoryDeleteAction,
   ],
-  headerDetails: (item) => (
-    <>
-      {item?.last_sync_task && (
-        <p className='pulp-m-truncated'>
-          <Trans>Last updated from registry {lastSynced(item)}</Trans>{' '}
-          {lastSyncStatus(item)}
-        </p>
-      )}
-    </>
-  ),
   listUrl: formatPath(Paths.file.repository.list),
   query: ({ name }) =>
     FileRepositoryAPI.list({ name, page_size: 1 })

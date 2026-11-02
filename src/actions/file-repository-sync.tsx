@@ -18,6 +18,8 @@ export const fileRepositorySyncAction = Action({
             ? t`Mirroring cannot be combined with autopublish, so this sync only adds missing content.`
             : undefined
         }
+        plugin='file'
+        repositoryHref={state.syncModalOpen.pulp_href}
         syncAction={(syncParams) =>
           syncRepository(state.syncModalOpen, { addAlert, query }, syncParams)
         }
@@ -30,16 +32,9 @@ export const fileRepositorySyncAction = Action({
     }),
   visible: (_item, { hasPermission }) =>
     hasPermission('file.change_collectionremote'),
-  disabled: ({ remote, last_sync_task }) => {
+  disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;
-    }
-
-    if (
-      last_sync_task &&
-      ['running', 'waiting'].includes(last_sync_task.state)
-    ) {
-      return t`Sync task is already queued.`;
     }
   },
 });

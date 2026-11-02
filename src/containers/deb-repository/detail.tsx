@@ -1,5 +1,4 @@
 import { msg, t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
 import {
   debRepositoryDeleteAction,
   debRepositoryEditAction,
@@ -13,7 +12,7 @@ import {
 } from 'src/api';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { lastSyncStatus, lastSynced, parsePulpIDFromURL } from 'src/utilities';
+import { parsePulpIDFromURL } from 'src/utilities';
 import {
   type RepositoryDistribution,
   distributionsLoadError,
@@ -59,16 +58,6 @@ const DebRepositoryDetail = PageWithTabs<
     debRepositorySyncAction,
     debRepositoryDeleteAction,
   ],
-  headerDetails: (item) => (
-    <>
-      {item?.last_sync_task && (
-        <p className='pulp-m-truncated'>
-          <Trans>Last updated from registry {lastSynced(item)}</Trans>{' '}
-          {lastSyncStatus(item)}
-        </p>
-      )}
-    </>
-  ),
   listUrl: formatPath(Paths.deb.repository.list),
   query: ({ name }) =>
     DebRepositoryAPI.list({ name, page_size: 1 })
