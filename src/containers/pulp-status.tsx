@@ -21,12 +21,8 @@ import {
   Main,
   closeAlert,
 } from 'src/components';
-import {
-  type RouteProps,
-  getHumanSize,
-  jsxErrorMessage,
-  withRouter,
-} from 'src/utilities';
+import { type RouteProps, getHumanSize, withRouter } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -325,14 +321,13 @@ class PulpStatus extends Component<RouteProps, IState> {
         this.setState({ status: data });
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.setState({
           alerts: [
             ...this.state.alerts,
             {
               variant: 'danger',
               title: t`Failed to load status`,
-              description: jsxErrorMessage(status, statusText),
+              description: requestErrorDescription(e),
             },
           ],
         });

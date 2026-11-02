@@ -41,11 +41,11 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   translateTask,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import './task.scss';
 
 interface IState {
@@ -476,7 +476,6 @@ export class TaskListView extends Component<RouteProps, IState> {
         this.queryTasks();
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.setState({
           loading: true,
           cancelModalVisible: false,
@@ -485,7 +484,7 @@ export class TaskListView extends Component<RouteProps, IState> {
             {
               variant: 'danger',
               title: t`Task "${name}" could not be stopped.`,
-              description: jsxErrorMessage(status, statusText),
+              description: requestErrorDescription(e),
             },
           ],
         });
@@ -503,7 +502,6 @@ export class TaskListView extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState({
             loading: false,
             items: [],
@@ -513,7 +511,7 @@ export class TaskListView extends Component<RouteProps, IState> {
               {
                 variant: 'danger',
                 title: t`Tasks list could not be displayed.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               },
             ],
           });

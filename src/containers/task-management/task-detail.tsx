@@ -33,13 +33,13 @@ import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import {
   type RouteProps,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   parsePulpResource,
   translatePulpResourceToURL,
   translateTask,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import './task.scss';
 
 interface IState {
@@ -404,7 +404,6 @@ class TaskDetail extends Component<RouteProps, IState> {
         this.loadContent();
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.setState({
           loading: true,
           cancelModalVisible: false,
@@ -413,7 +412,7 @@ class TaskDetail extends Component<RouteProps, IState> {
             {
               variant: 'danger',
               title: t`Task "${taskName}" could not be stopped.`,
-              description: jsxErrorMessage(status, statusText),
+              description: requestErrorDescription(e),
             },
           ],
         });

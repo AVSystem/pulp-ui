@@ -16,13 +16,16 @@ import { Paths, formatPath } from 'src/paths';
 import {
   type ErrorMessagesType,
   type RouteProps,
-  jsxErrorMessage,
   mapNetworkErrors,
   parsePulpIDFromURL,
   translateLockedRole,
   validateInput,
   withRouter,
 } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -91,12 +94,11 @@ class EditRole extends Component<RouteProps, IState> {
         });
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.setState({ notFound: true });
         this.addAlert(
           t`Role "${this.state.role.name}" could not be displayed.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       });
   }
@@ -225,18 +227,17 @@ class EditRole extends Component<RouteProps, IState> {
           this.setState({ redirect: formatPath(Paths.core.role.list) }),
         )
         .catch((err) => {
-          const { status, statusText } = err.response;
-          if (err.response.status === 400) {
+          if (requestErrorStatus(err) === 400) {
             const errors = mapNetworkErrors(err);
 
             this.setState({ saving: false, errorMessages: errors });
-          } else if (status === 404) {
+          } else {
             this.setState({
               errorMessages: {},
               alerts: this.state.alerts.concat({
                 variant: 'danger',
                 title: t`Changes to role "${name}" could not be saved.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(err),
               }),
               saving: false,
             });

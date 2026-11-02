@@ -38,11 +38,11 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   translateLockedRole,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IState {
   roles: RoleType[];
@@ -348,11 +348,10 @@ export class RoleList extends Component<RouteProps, IState> {
         ),
       )
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.addAlert(
           t`Role "${name}" could not be deleted.`,
           'danger',
-          jsxErrorMessage(status, statusText),
+          requestErrorDescription(e),
         );
       })
       .then(() => {
@@ -431,7 +430,6 @@ export class RoleList extends Component<RouteProps, IState> {
           });
         })
         .catch((err) => {
-          const { status, statusText } = err.response;
           this.setState({
             roleCount: 0,
             loading: false,
@@ -439,7 +437,7 @@ export class RoleList extends Component<RouteProps, IState> {
           this.addAlert(
             t`Roles list could not be displayed.`,
             'danger',
-            jsxErrorMessage(status, statusText),
+            requestErrorDescription(err),
           );
         });
     });

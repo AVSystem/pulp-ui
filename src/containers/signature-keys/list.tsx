@@ -30,9 +30,9 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IState {
   params: {
@@ -258,7 +258,6 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState({
             loading: false,
             items: [],
@@ -267,7 +266,7 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
           this.addAlert({
             title: t`Signature keys could not be displayed.`,
             variant: 'danger',
-            description: jsxErrorMessage(status, statusText),
+            description: requestErrorDescription(e),
           });
         });
     });

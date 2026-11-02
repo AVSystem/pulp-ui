@@ -41,10 +41,10 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IState {
   params: {
@@ -316,7 +316,6 @@ class GroupList extends Component<RouteProps, IState> {
         }),
       )
       .catch((e) => {
-        const { status, statusText } = e.response;
         this.setState({
           deleteModalVisible: false,
           selectedGroup: null,
@@ -325,7 +324,7 @@ class GroupList extends Component<RouteProps, IState> {
             {
               variant: 'danger',
               title: t`Users list could not be displayed.`,
-              description: jsxErrorMessage(status, statusText),
+              description: requestErrorDescription(e),
             },
           ],
         });
@@ -489,7 +488,6 @@ class GroupList extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState({
             groups: [],
             itemCount: 0,
@@ -499,7 +497,7 @@ class GroupList extends Component<RouteProps, IState> {
               {
                 variant: 'danger',
                 title: t`Groups list could not be displayed.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               },
             ],
           });

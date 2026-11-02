@@ -6,11 +6,14 @@ import { type AlertType, Main, RoleForm, RoleHeader } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import {
   type RouteProps,
-  jsxErrorMessage,
   mapNetworkErrors,
   validateInput,
   withRouter,
 } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 interface IState {
   saving: boolean;
@@ -118,22 +121,20 @@ class RoleCreate extends Component<RouteProps, IState> {
           }),
         )
         .catch((err) => {
-          const { status, statusText } = err.response;
-
-          if (status === 400) {
+          if (requestErrorStatus(err) === 400) {
             const errors = mapNetworkErrors(err);
 
             this.setState({
               saving: false,
               errorMessages: errors,
             });
-          } else if (status === 404) {
+          } else {
             this.setState({
               errorMessages: {},
               alerts: this.state.alerts.concat({
                 variant: 'danger',
                 title: t`Role "${this.state.name}" could not be created.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(err),
               }),
               saving: false,
             });
