@@ -106,6 +106,33 @@ export function repository(overrides: Partial<IRepository> = {}): IRepository {
   };
 }
 
+export interface IRepositoryVersion {
+  pulp_href: string;
+  pulp_created: string;
+  number: number;
+  repository: string;
+  base_version: string | null;
+  content_summary: { added: object; removed: object; present: object };
+}
+
+// A version of the given repository; its href starts with the repository's
+// own href, the way the server builds it.
+export function repositoryVersion(
+  repo: { pulp_href: string },
+  number: number,
+  overrides: Partial<IRepositoryVersion> = {},
+): IRepositoryVersion {
+  return {
+    pulp_href: `${repo.pulp_href}versions/${number}/`,
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    number,
+    repository: repo.pulp_href,
+    base_version: null,
+    content_summary: { added: {}, removed: {}, present: {} },
+    ...overrides,
+  };
+}
+
 export interface IDistribution {
   pulp_href: string;
   name: string;
