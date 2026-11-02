@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { distribution, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -27,10 +28,12 @@ function loaded(
 function renderTab(
   distributions: RepositoryDistribution[],
   distributionsError: string | null = null,
+  name = 'tools',
 ) {
   const addAlert = vi.fn();
+  const query = vi.fn();
   const item = {
-    ...repository({ name: 'tools' }),
+    ...repository({ name }),
     distributions,
     distributionsError,
   };
@@ -39,12 +42,13 @@ function renderTab(
       item={item as never}
       actionContext={{
         addAlert,
+        query,
         state: { params: {} },
         hasPermission: () => true,
       }}
     />,
   );
-  return { addAlert };
+  return { addAlert, query };
 }
 
 describe('file repository Distributions tab', () => {
@@ -63,7 +67,23 @@ describe('file repository Distributions tab', () => {
     expect(occurrences.length).toBeGreaterThanOrEqual(2);
 
     const cliLine = cells.getByText(/PULP_MANIFEST/);
-    expect(cliLine.textContent).toContain(`${url}PULP_MANIFEST`);
+    expect(cliLine.textContent).toContain(`'${url}PULP_MANIFEST'`);
+  });
+
+  it('single-quotes the name and the URL in the CLI line so a hostile name is pasted as data', async () => {
+    const url = 'https://pulp.example/pulp/content/served/tools/';
+    renderTab(
+      [loaded({ name: 'tools-dist', base_path: 'tools', url })],
+      null,
+      "a$(id)'b`id`",
+    );
+
+    const row = (await screen.findByText('tools-dist')).closest('tr');
+    const cliLine = within(row as HTMLElement).getByText(/PULP_MANIFEST/);
+
+    expect(cliLine.textContent).toBe(
+      `pulp file remote create --name 'a$(id)'\\''b\`id\`' --url '${url}PULP_MANIFEST'`,
+    );
   });
 
   it('shows no manifest line for a distribution the server gave no URL', async () => {
@@ -88,10 +108,10 @@ describe('file repository Distributions tab', () => {
     const second = screen.getByText('second').closest('tr');
 
     expect(first?.textContent).toContain(
-      'https://pulp.example/pulp/content/a/PULP_MANIFEST',
+      "'https://pulp.example/pulp/content/a/PULP_MANIFEST'",
     );
     expect(second?.textContent).toContain(
-      'https://pulp.example/pulp/content/b/PULP_MANIFEST',
+      "'https://pulp.example/pulp/content/b/PULP_MANIFEST'",
     );
   });
 
@@ -116,5 +136,14 @@ describe('file repository Distributions tab', () => {
       screen.queryByText(/No distribution serves this repository/),
     ).not.toBeInTheDocument();
     expect(addAlert).not.toHaveBeenCalled();
+  });
+
+  it('asks the page to load again when Retry is pressed, because the page loaded the distributions', async () => {
+    const { query } = renderTab([], 'Error 500 - the server failed');
+
+    const retry = await screen.findByRole('button', { name: 'Retry' });
+    await userEvent.click(retry);
+
+    expect(query).toHaveBeenCalledTimes(1);
   });
 });

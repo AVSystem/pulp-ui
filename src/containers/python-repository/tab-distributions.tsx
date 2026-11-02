@@ -10,6 +10,7 @@ import {
   type RepositoryDistribution,
   listLoadedDistributions,
 } from 'src/utilities/repository-distributions';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 interface TabProps {
   item: PythonRepositoryType & {
@@ -25,6 +26,12 @@ interface TabProps {
     hasPermission;
   };
 }
+
+// pip looks for packages in the simple index under the URL the server reports
+// for the distribution. The URL is quoted as a shell word; the package name is
+// left for the reader to fill in.
+export const pipInstallCommand = (url: string): string =>
+  `pip install --index-url ${shellQuote(`${url.endsWith('/') ? url : `${url}/`}simple/`)} <package>`;
 
 export const DistributionsTab = ({
   item,
@@ -44,12 +51,8 @@ export const DistributionsTab = ({
       ? Promise.reject(item.distributionsError)
       : Promise.resolve(listLoadedDistributions(item.distributions, params));
 
-  // pip looks for packages in the simple index under the URL the server
-  // reports for the distribution.
   const cliConfig = (url: string | null) =>
-    url
-      ? `pip install --index-url ${url.endsWith('/') ? url : `${url}/`}simple/ <package>`
-      : t`None`;
+    url ? pipInstallCommand(url) : t`None`;
 
   const renderTableRow = (
     item: RepositoryDistribution,

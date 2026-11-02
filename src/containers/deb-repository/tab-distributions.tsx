@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { type DebRepositoryType } from 'src/api';
+import { type DebRepositoryType } from 'src/api/deb-repository';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import {
   type RepositoryDistribution,
   listLoadedDistributions,
 } from 'src/utilities/repository-distributions';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 interface TabProps {
   item: DebRepositoryType & {
@@ -15,14 +16,22 @@ interface TabProps {
   };
   actionContext: {
     addAlert: (alert) => void;
+    // loads the repository page again, with its distributions
+    query?: () => void;
     state: { params };
     hasPermission;
   };
 }
 
+// A deb remote requires `distributions`, so unlike the file equivalent this
+// cannot be a complete command without knowing which suites to sync. The name
+// and the URL are quoted as shell words: a repository name is free text.
+export const debRemoteCommand = (name: string, url: string): string =>
+  `pulp deb remote create --name ${shellQuote(name)} --url ${shellQuote(url)} --distributions '<suite>'`;
+
 export const DistributionsTab = ({
   item,
-  actionContext: { addAlert, hasPermission },
+  actionContext: { addAlert, hasPermission, query: reloadPage },
 }: TabProps) => {
   // The page loaded every distribution serving the repository (bound to it,
   // to one of its publications or to one of its versions), so the list is cut
@@ -32,12 +41,8 @@ export const DistributionsTab = ({
       ? Promise.reject(item.distributionsError)
       : Promise.resolve(listLoadedDistributions(item.distributions, params));
 
-  // A deb remote requires `distributions`, so unlike the file equivalent this
-  // cannot be a complete command without knowing which suites to sync.
   const cliConfig = (url: string | null) =>
-    url
-      ? `pulp deb remote create --name "${item.name}" --url "${url}" --distributions "<suite>"`
-      : t`None`;
+    url ? debRemoteCommand(item.name, url) : t`None`;
 
   const renderTableRow = (
     item: RepositoryDistribution,
@@ -95,6 +100,8 @@ export const DistributionsTab = ({
       ]}
       noDataDescription={t`Clients cannot download its content until a distribution serves it.`}
       noDataTitle={t`No distribution serves this repository`}
+      // a failed load came from the page, so only the page can load it again
+      onRetry={reloadPage}
       query={query}
       renderTableRow={renderTableRow}
       sortHeaders={[

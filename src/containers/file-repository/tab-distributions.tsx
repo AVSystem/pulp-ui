@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { type FileRepositoryType } from 'src/api';
+import { type FileRepositoryType } from 'src/api/file-repository';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import {
   type RepositoryDistribution,
   listLoadedDistributions,
 } from 'src/utilities/repository-distributions';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 interface TabProps {
   item: FileRepositoryType & {
@@ -15,14 +16,21 @@ interface TabProps {
   };
   actionContext: {
     addAlert: (alert) => void;
+    // loads the repository page again, with its distributions
+    query?: () => void;
     state: { params };
     hasPermission;
   };
 }
 
+// The command is pasted into a terminal, so the name and the URL are quoted as
+// shell words: a repository name is free text.
+export const fileRemoteCommand = (name: string, url: string): string =>
+  `pulp file remote create --name ${shellQuote(name)} --url ${shellQuote(`${url}PULP_MANIFEST`)}`;
+
 export const DistributionsTab = ({
   item,
-  actionContext: { addAlert, hasPermission },
+  actionContext: { addAlert, hasPermission, query: reloadPage },
 }: TabProps) => {
   // The page loaded every distribution serving the repository (bound to it,
   // to one of its publications or to one of its versions), so the list is cut
@@ -34,9 +42,7 @@ export const DistributionsTab = ({
 
   // The manifest sits next to the content, at the distribution's URL.
   const cliConfig = (url: string | null) =>
-    url
-      ? `pulp file remote create --name "${item.name}" --url "${url}PULP_MANIFEST"`
-      : t`None`;
+    url ? fileRemoteCommand(item.name, url) : t`None`;
 
   const renderTableRow = (
     item: RepositoryDistribution,
@@ -92,6 +98,8 @@ export const DistributionsTab = ({
       ]}
       noDataDescription={t`Clients cannot download its content until a distribution serves it.`}
       noDataTitle={t`No distribution serves this repository`}
+      // a failed load came from the page, so only the page can load it again
+      onRetry={reloadPage}
       query={query}
       renderTableRow={renderTableRow}
       sortHeaders={[
