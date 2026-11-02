@@ -51,7 +51,7 @@ describe('listAll', () => {
     const served = listOf(DISTRIBUTIONS, rows(5), { pageSize: 2 });
     let requests = 0;
     server.use(
-      http.get(`*${DISTRIBUTIONS}`, (info) => {
+      http.get(`*${DISTRIBUTIONS}`, () => {
         requests += 1;
         return requests === 2
           ? HttpResponse.json({}, { status: 500 })
