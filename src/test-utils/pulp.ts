@@ -140,6 +140,19 @@ export function distribution(
   };
 }
 
+// A Python distribution as the server returns it: the pull-through remote and
+// the upload permission come with it.
+export function pythonDistribution(
+  overrides: Partial<IDistribution> = {},
+): IDistribution {
+  return distribution({
+    pulp_href: href('distributions/python/pypi'),
+    remote: null,
+    allow_uploads: true,
+    ...overrides,
+  });
+}
+
 export interface IPublication {
   pulp_href: string;
   repository: string | null;

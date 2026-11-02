@@ -42,6 +42,9 @@ interface IProps<T> {
   noDataButton?: (item, actionContext) => ReactNode;
   noDataDescription: string;
   noDataTitle: string;
+  // Loads again after a failed load. Without it the list repeats its own
+  // query, which is not enough when the failed data came from the page.
+  onRetry?: () => void;
   query: Query<T>;
   renderTableRow: RenderTableRow<T>;
   sortHeaders: LocalizedSortHeaders;
@@ -59,6 +62,7 @@ export function DetailList<T>({
   noDataButton,
   noDataDescription,
   noDataTitle,
+  onRetry,
   query,
   renderTableRow,
   sortHeaders,
@@ -134,6 +138,10 @@ export function DetailList<T>({
           title={errorTitle}
           message={error}
           onRetry={() => {
+            if (onRetry) {
+              onRetry();
+              return;
+            }
             setLoading(true);
             setAttempt((n) => n + 1);
           }}
