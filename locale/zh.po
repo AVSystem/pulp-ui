@@ -4730,6 +4730,10 @@ msgstr ""
 msgid "Ostree sync"
 msgstr ""
 
+#: src/components/delete-repository-modal.tsx
+msgid "Outcome unknown, check the task"
+msgstr ""
+
 #: src/components/role-import-form.tsx
 #~ msgid "Overrides any galaxy_info.namespace metadata"
 #~ msgstr ""
@@ -5802,6 +5806,10 @@ msgstr ""
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
+msgstr ""
+
+#: src/utilities/create-repository.ts
+msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
 #: src/utilities/repository-remove-collection.ts
@@ -7171,6 +7179,14 @@ msgstr "以下角色将应用到组：<0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr ""
 
+#: src/components/delete-repository-modal.tsx
+msgid "The outcome of removing the repository is unknown. Check the task:"
+msgstr ""
+
+#: src/actions/repository-version-revert.tsx
+msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
 msgstr "同步时用于身份验证的密码。"
@@ -7238,6 +7254,10 @@ msgstr "所选角色将添加到此特定命名空间中。"
 
 #: src/containers/login/login.tsx
 msgid "The server could not be reached: {message}"
+msgstr ""
+
+#: src/utilities/wait-for-task.ts
+msgid "The status of the task could not be read."
 msgstr ""
 
 #: src/containers/token/token-insights.tsx

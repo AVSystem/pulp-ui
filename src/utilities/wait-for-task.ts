@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { config } from 'src/ui-config';
 import { TaskAPI } from '../api/task';
 import { parsePulpIDFromURL } from './parse-pulp-id';
 
@@ -22,11 +23,27 @@ export class TaskPending extends Error {
   }
 }
 
+// The task's status could not be read (a proxy error, a dropped connection, a
+// refused status request). The request that started the task was accepted, so
+// the work may well have been done: callers must neither report it as failed
+// nor as still running, only that the outcome is unknown and where to look. It
+// is a TaskPending, so a caller that does not tell the two apart still avoids
+// claiming a failure.
+export class TaskUnknown extends TaskPending {
+  constructor(taskHref: string) {
+    super(taskHref, 0);
+    Object.setPrototypeOf(this, TaskUnknown.prototype);
+    this.name = 'TaskUnknown';
+    this.message = t`The status of the task could not be read.`;
+  }
+}
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Polls a task until it has completed. Rejects with the task's error
-// description when it failed, was skipped or was canceled, and with a
-// TaskPending when it is still unfinished after the last attempt.
+// description when it failed, was skipped or was canceled, with a TaskPending
+// when it is still unfinished after the last attempt, and with a TaskUnknown
+// when a status request failed.
 export async function waitForTask(task, options: Options = {}) {
   // default to starting with a 2s wait, increasing the wait time 1.5x each time, with max 10 retries
   // 2000, 1.5, 10 = ~226s ; 500, 1.5, 10 = ~57s
@@ -35,7 +52,12 @@ export async function waitForTask(task, options: Options = {}) {
 
   let wait = waitMs;
   for (let attempt = 1; ; attempt++) {
-    const { data } = await TaskAPI.get(task);
+    let data;
+    try {
+      ({ data } = await TaskAPI.get(task));
+    } catch {
+      throw new TaskUnknown(`${config.API_BASE_PATH}tasks/${task}/`);
+    }
 
     if (failing.includes(data.state)) {
       return Promise.reject(

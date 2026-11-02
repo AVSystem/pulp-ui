@@ -4,7 +4,7 @@ import { distributionConflicts } from './distribution-availability';
 import { type ErrorMessagesType, mapErrorMessages } from './map-error-messages';
 import { requestErrorStatus } from './request-error';
 import { taskAlert } from './task-alert';
-import { TaskPending, waitForTaskUrl } from './wait-for-task';
+import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
 
 // Thrown before anything is written: the requested name or base path is taken
 // or could not be checked. `errors` is keyed by form field, with `__nofield`
@@ -28,6 +28,10 @@ export interface CreateRepositoryResult {
   // href of the task that creates the requested distribution when it had not
   // finished by the time the wait gave up; null otherwise
   distributionPending: string | null;
+  // href of the task that creates the requested distribution when its status
+  // could not be read, so it is not known whether the distribution exists;
+  // null otherwise
+  distributionUnknown: string | null;
 }
 
 interface CreateRepositoryParams {
@@ -136,6 +140,7 @@ export async function createRepository({
       repositoryHref,
       distributionError: null,
       distributionPending: null,
+      distributionUnknown: null,
     };
   }
 
@@ -149,21 +154,36 @@ export async function createRepository({
   } catch (e) {
     // an unfinished task may still create the distribution: it is neither
     // reported as failed nor created again
+    if (e instanceof TaskUnknown) {
+      return {
+        repositoryHref,
+        distributionError: null,
+        distributionPending: null,
+        distributionUnknown: e.taskHref,
+      };
+    }
     if (e instanceof TaskPending) {
       return {
         repositoryHref,
         distributionError: null,
         distributionPending: e.taskHref,
+        distributionUnknown: null,
       };
     }
     return {
       repositoryHref,
       distributionError: failureReason(e),
       distributionPending: null,
+      distributionUnknown: null,
     };
   }
 
-  return { repositoryHref, distributionError: null, distributionPending: null };
+  return {
+    repositoryHref,
+    distributionError: null,
+    distributionPending: null,
+    distributionUnknown: null,
+  };
 }
 
 // The alerts an edit page raises after a create: the repository, and for a
@@ -171,7 +191,11 @@ export async function createRepository({
 export function createAlerts(
   name: string,
   distribution: { basePath: string } | null,
-  { distributionError, distributionPending }: CreateRepositoryResult,
+  {
+    distributionError,
+    distributionPending,
+    distributionUnknown,
+  }: CreateRepositoryResult,
 ): AlertType[] {
   if (distributionError) {
     return [
@@ -179,6 +203,16 @@ export function createAlerts(
         variant: 'danger',
         title: t`Repository "${name}" was created. The distribution "${name}" was not created: ${distributionError}`,
       },
+    ];
+  }
+
+  if (distributionUnknown) {
+    return [
+      taskAlert(
+        distributionUnknown,
+        t`Repository "${name}" was created. The outcome of creating the distribution "${name}" is unknown, because the task status could not be read. Check the task.`,
+        'warning',
+      ),
     ];
   }
 

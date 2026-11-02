@@ -2,7 +2,12 @@ import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { task } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
-import { TaskPending, waitForTask, waitForTaskUrl } from './wait-for-task';
+import {
+  TaskPending,
+  TaskUnknown,
+  waitForTask,
+  waitForTaskUrl,
+} from './wait-for-task';
 
 const TASK_ID = '00000000-0000-4000-8000-0000000000bb';
 const TASK_HREF = `/pulp/api/v3/tasks/${TASK_ID}/`;
@@ -101,6 +106,37 @@ describe('waitForTask', () => {
     await waitForTask(TASK_ID, { ...fast, bailAfter: 0 }).catch(() => null);
 
     expect(polls).toBe(1);
+  });
+});
+
+describe('waitForTask when the status cannot be read', () => {
+  it('rejects with TaskUnknown carrying the task href, not with the error of the request', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/tasks/:id/', () =>
+        HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+      ),
+    );
+
+    const outcome = await waitForTask(TASK_ID, fast).catch((e: unknown) => e);
+
+    expect(outcome).toBeInstanceOf(TaskUnknown);
+    expect(outcome).toBeInstanceOf(TaskPending);
+    expect((outcome as TaskUnknown).taskHref).toBe(TASK_HREF);
+  });
+
+  it('rejects with TaskUnknown when a later poll fails after earlier ones answered', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/tasks/:id/', () => {
+        polls += 1;
+        return polls < 2
+          ? HttpResponse.json(task({ pulp_href: TASK_HREF, state: 'running' }))
+          : HttpResponse.json({ detail: 'gone' }, { status: 503 });
+      }),
+    );
+
+    const outcome = await waitForTask(TASK_ID, fast).catch((e: unknown) => e);
+
+    expect(outcome).toBeInstanceOf(TaskUnknown);
   });
 });
 

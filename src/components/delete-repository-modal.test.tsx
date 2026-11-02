@@ -23,9 +23,11 @@ const kept = (
   removed: [],
   failed: [],
   pending: [],
+  unknown: [],
   repositoryDeleted: false,
   repositoryError: null,
   repositoryPending: null,
+  repositoryUnknown: null,
   ...overrides,
 });
 
@@ -242,6 +244,30 @@ describe('the delete repository dialog', () => {
     );
     expect(deleteButton()).toBeDisabled();
     expect(closeAction).not.toHaveBeenCalled();
+  });
+
+  it('says the outcome is unknown, with the task link, for a delete whose task status could not be read', async () => {
+    serve([]);
+    const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000cc/`;
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(
+        kept({ unknown: [{ name: 'unreadable-one', taskHref }] }),
+      );
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await screen.findByText(/The repository was kept/);
+    expect(screen.getByText('Outcome unknown, check the task')).toBeVisible();
+    expect(screen.getByText(/unreadable-one/)).toBeInTheDocument();
+    expect(screen.queryByText('Not removed')).toBeNull();
+    expect(screen.getByRole('link', { name: 'task' })).toHaveAttribute(
+      'href',
+      '/tasks/detail/00000000-0000-4000-8000-0000000000cc/',
+    );
   });
 
   it('shows the reason and keeps Delete disabled when the distributions cannot be listed', async () => {

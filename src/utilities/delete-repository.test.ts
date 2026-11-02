@@ -303,9 +303,11 @@ describe('deleteRepositoryWithDistributions', () => {
         },
       ],
       pending: [],
+      unknown: [],
       repositoryDeleted: false,
       repositoryError: null,
       repositoryPending: null,
+      repositoryUnknown: null,
     });
     expect(sent.deletes).not.toContain(repo.pulp_href);
   });
@@ -331,6 +333,55 @@ describe('deleteRepositoryWithDistributions', () => {
     ]);
     expect(result.repositoryDeleted).toBe(false);
     expect(sent.deletes).not.toContain(repo.pulp_href);
+  });
+
+  it('reports an unknown outcome, not a failure, for a distribution whose task status cannot be read, and keeps the repository', async () => {
+    const repo = repository();
+    const first = distribution({
+      base_path: 'a-first',
+      repository: repo.pulp_href,
+    });
+    const unreadable = distribution({
+      base_path: 'b-unreadable',
+      repository: repo.pulp_href,
+    });
+    const sent = serve({ distributions: [first, unreadable] });
+    server.use(
+      http.get(`*${API}/tasks/${idOf(unreadable.pulp_href)}/`, () =>
+        HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+      ),
+    );
+
+    const result = await run(repo);
+
+    expect(result.removed).toStrictEqual(['a-first']);
+    expect(result.failed).toStrictEqual([]);
+    expect(result.unknown).toStrictEqual([
+      {
+        name: 'b-unreadable',
+        taskHref: `${API}/tasks/${idOf(unreadable.pulp_href)}/`,
+      },
+    ]);
+    expect(result.repositoryDeleted).toBe(false);
+    expect(sent.deletes).not.toContain(repo.pulp_href);
+  });
+
+  it('reports an unknown outcome for the repository delete when its task status cannot be read', async () => {
+    const repo = repository();
+    serve({ distributions: [] });
+    server.use(
+      http.get(`*${API}/tasks/${idOf(repo.pulp_href)}/`, () =>
+        HttpResponse.json({ detail: 'bad gateway' }, { status: 502 }),
+      ),
+    );
+
+    const result = await run(repo);
+
+    expect(result.repositoryDeleted).toBe(false);
+    expect(result.repositoryError).toBeNull();
+    expect(result.repositoryUnknown).toBe(
+      `${API}/tasks/${idOf(repo.pulp_href)}/`,
+    );
   });
 
   it('says why the repository itself was not removed once every distribution is gone', async () => {

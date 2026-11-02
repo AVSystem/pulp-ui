@@ -111,7 +111,7 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
   <Alert
     isInline
     title={
-      result.failed.length || result.pending.length
+      result.failed.length || result.pending.length || result.unknown.length
         ? t`The repository was kept because not every distribution was removed.`
         : t`The distributions were removed but the repository was kept.`
     }
@@ -157,6 +157,20 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
         </List>
       </>
     ) : null}
+    {result.unknown.length ? (
+      <>
+        <Text>
+          <strong>{t`Outcome unknown, check the task`}</strong>
+        </Text>
+        <List>
+          {result.unknown.map(({ name, taskHref }) => (
+            <ListItem key={name}>
+              {name} - <Link to={taskLink(taskHref)}>{t`task`}</Link>
+            </ListItem>
+          ))}
+        </List>
+      </>
+    ) : null}
     {result.repositoryError ? (
       <Text>{t`The repository could not be removed: ${result.repositoryError}`}</Text>
     ) : null}
@@ -164,6 +178,12 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
       <Text>
         {t`The repository is still being removed:`}{' '}
         <Link to={taskLink(result.repositoryPending)}>{t`task`}</Link>
+      </Text>
+    ) : null}
+    {result.repositoryUnknown ? (
+      <Text>
+        {t`The outcome of removing the repository is unknown. Check the task:`}{' '}
+        <Link to={taskLink(result.repositoryUnknown)}>{t`task`}</Link>
       </Text>
     ) : null}
   </Alert>

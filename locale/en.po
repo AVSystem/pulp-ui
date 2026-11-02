@@ -4731,6 +4731,10 @@ msgstr "Ostree modify content"
 msgid "Ostree sync"
 msgstr "Ostree sync"
 
+#: src/components/delete-repository-modal.tsx
+msgid "Outcome unknown, check the task"
+msgstr "Outcome unknown, check the task"
+
 #: src/components/role-import-form.tsx
 #~ msgid "Overrides any galaxy_info.namespace metadata"
 #~ msgstr "Overrides any galaxy_info.namespace metadata"
@@ -5804,6 +5808,10 @@ msgstr "Repository \"{name}\" was created. The distribution \"{name}\" is still 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
 msgstr "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
+
+#: src/utilities/create-repository.ts
+msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
+msgstr "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 
 #: src/utilities/repository-remove-collection.ts
 msgid "Repository {repoName} not found."
@@ -7172,6 +7180,14 @@ msgstr "The following roles will be applied to group: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "The following roles will be applied to user: <0>{0}</0>"
 
+#: src/components/delete-repository-modal.tsx
+msgid "The outcome of removing the repository is unknown. Check the task:"
+msgstr "The outcome of removing the repository is unknown. Check the task:"
+
+#: src/actions/repository-version-revert.tsx
+msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
+msgstr "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
+
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
 msgstr "The password to be used for authentication when syncing."
@@ -7240,6 +7256,10 @@ msgstr "The selected roles will be added to this specific namespace."
 #: src/containers/login/login.tsx
 msgid "The server could not be reached: {message}"
 msgstr "The server could not be reached: {message}"
+
+#: src/utilities/wait-for-task.ts
+msgid "The status of the task could not be read."
+msgstr "The status of the task could not be read."
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."

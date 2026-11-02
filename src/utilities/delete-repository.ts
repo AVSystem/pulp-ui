@@ -4,7 +4,7 @@ import {
   type RepositoryDistributionPlugin,
   repositoryDistributions,
 } from './repository-distributions';
-import { TaskPending, waitForTaskUrl } from './wait-for-task';
+import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
 
 // How many distribution deletes are in flight at once.
 export const DELETE_CONCURRENCY = 4;
@@ -25,6 +25,9 @@ export interface DeleteRepositoryResult {
   failed: { name: string; reason: string }[];
   // distributions whose delete task had not finished when the wait gave up
   pending: { name: string; taskHref: string }[];
+  // distributions whose delete was accepted but whose task status could not be
+  // read, so it is not known whether they are gone
+  unknown: { name: string; taskHref: string }[];
   repositoryDeleted: boolean;
   // why the repository delete was refused or failed, once every distribution
   // was removed; null otherwise
@@ -32,12 +35,16 @@ export interface DeleteRepositoryResult {
   // href of the repository delete task when it had not finished when the wait
   // gave up; null otherwise
   repositoryPending: string | null;
+  // href of the repository delete task when its status could not be read;
+  // null otherwise
+  repositoryUnknown: string | null;
 }
 
 type DistributionOutcome =
   | { name: string; status: 'removed' }
   | { name: string; status: 'failed'; reason: string }
-  | { name: string; status: 'pending'; taskHref: string };
+  | { name: string; status: 'pending'; taskHref: string }
+  | { name: string; status: 'unknown'; taskHref: string };
 
 // Runs the jobs with at most `limit` in flight at once. A job must not reject.
 async function runBounded<T, R>(
@@ -62,8 +69,9 @@ async function runBounded<T, R>(
 }
 
 // Sends a delete and waits for its task. Resolves when the object is gone,
-// rejects with the refusal or the task failure, and with a TaskPending when the
-// task is still running after the wait.
+// rejects with the refusal or the task failure, with a TaskPending when the
+// task is still running after the wait, and with a TaskUnknown when the task
+// status could not be read.
 async function deleteAndWait(
   remove: () => Promise<{ data }>,
   wait: DeleteRepositoryParams['wait'],
@@ -105,6 +113,9 @@ export async function deleteRepositoryWithDistributions({
         );
         return { name, status: 'removed' };
       } catch (e) {
+        if (e instanceof TaskUnknown) {
+          return { name, status: 'unknown', taskHref: e.taskHref };
+        }
         return e instanceof TaskPending
           ? { name, status: 'pending', taskHref: e.taskHref }
           : { name, status: 'failed', reason: failureReason(e) };
@@ -116,9 +127,11 @@ export async function deleteRepositoryWithDistributions({
     removed: [],
     failed: [],
     pending: [],
+    unknown: [],
     repositoryDeleted: false,
     repositoryError: null,
     repositoryPending: null,
+    repositoryUnknown: null,
   };
 
   outcomes.forEach((outcome) => {
@@ -126,12 +139,14 @@ export async function deleteRepositoryWithDistributions({
       result.removed.push(outcome.name);
     } else if (outcome.status === 'failed') {
       result.failed.push({ name: outcome.name, reason: outcome.reason });
+    } else if (outcome.status === 'unknown') {
+      result.unknown.push({ name: outcome.name, taskHref: outcome.taskHref });
     } else {
       result.pending.push({ name: outcome.name, taskHref: outcome.taskHref });
     }
   });
 
-  if (result.failed.length || result.pending.length) {
+  if (result.failed.length || result.pending.length || result.unknown.length) {
     return result;
   }
 
@@ -142,7 +157,9 @@ export async function deleteRepositoryWithDistributions({
     );
     result.repositoryDeleted = true;
   } catch (e) {
-    if (e instanceof TaskPending) {
+    if (e instanceof TaskUnknown) {
+      result.repositoryUnknown = e.taskHref;
+    } else if (e instanceof TaskPending) {
       result.repositoryPending = e.taskHref;
     } else {
       result.repositoryError = failureReason(e);
