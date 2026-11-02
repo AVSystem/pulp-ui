@@ -16,6 +16,7 @@ import {
   DeleteNotStarted,
   deleteRepositoryWithDistributions,
 } from './delete-repository';
+import { repositoryDistributions } from './repository-distributions';
 
 const API = '/pulp/api/v3';
 const DISTRIBUTIONS = `${API}/distributions/file/file/`;
@@ -126,12 +127,22 @@ function serve({
   };
 }
 
-const run = (repo: { name: string; pulp_href: string }) =>
+// Runs the delete for the distributions the dialog would have shown, unless
+// the test says what was shown.
+const run = async (
+  repo: { name: string; pulp_href: string },
+  shown?: { name: string; pulp_href: string }[],
+) =>
   deleteRepositoryWithDistributions({
     plugin: 'file',
     RepositoryAPI: FileRepositoryAPI,
     DistributionAPI: FileDistributionAPI,
     repository: repo,
+    shown:
+      shown ??
+      (await repositoryDistributions('file', repo.pulp_href, {
+        complete: true,
+      })),
     wait: fast,
   });
 
@@ -188,7 +199,7 @@ describe('deleteRepositoryWithDistributions', () => {
       publications: [repoPublication],
     });
 
-    const result = await run(repo);
+    const result = await run(repo, serving);
 
     expect(result).toMatchObject({
       removed: [
@@ -307,6 +318,7 @@ describe('deleteRepositoryWithDistributions', () => {
       ],
       pending: [],
       unknown: [],
+      unlisted: [],
       repositoryDeleted: false,
       repositoryError: null,
       repositoryPending: null,
@@ -387,6 +399,72 @@ describe('deleteRepositoryWithDistributions', () => {
     );
   });
 
+  it('does not delete a distribution that was not shown, reports it, deletes the shown ones and keeps the repository', async () => {
+    const repo = repository();
+    const shown = distribution({
+      base_path: 'a-shown',
+      repository: repo.pulp_href,
+    });
+    const late = distribution({
+      base_path: 'b-created-later',
+      repository: repo.pulp_href,
+    });
+    const sent = serve({ distributions: [shown, late] });
+
+    const result = await run(repo, [shown]);
+
+    expect(result.removed).toStrictEqual(['a-shown']);
+    expect(result.unlisted).toStrictEqual(['b-created-later']);
+    expect(result.repositoryDeleted).toBe(false);
+    expect(sent.deletes).toStrictEqual([shown.pulp_href]);
+  });
+
+  it('leaves alone a shown distribution that no longer serves the repository', async () => {
+    const repo = repository();
+    const other = repository();
+    const stays = distribution({
+      base_path: 'a-stays',
+      repository: repo.pulp_href,
+    });
+    const moved = distribution({
+      base_path: 'b-moved',
+      repository: other.pulp_href,
+    });
+    const sent = serve({ distributions: [stays, moved] });
+
+    const result = await run(repo, [stays, moved]);
+
+    expect(result.removed).toStrictEqual(['a-stays']);
+    expect(sent.deletes).not.toContain(moved.pulp_href);
+    expect(result.repositoryDeleted).toBe(true);
+  });
+
+  it('never deletes a distribution of another repository when the server ignores the repository filter', async () => {
+    const repo = repository();
+    const other = repository();
+    const ours = distribution({
+      base_path: 'a-ours',
+      repository: repo.pulp_href,
+    });
+    const foreign = distribution({
+      base_path: 'b-foreign',
+      repository: other.pulp_href,
+    });
+    const sent = serve({ distributions: [ours, foreign] });
+    // the lists answer with every row of the plugin
+    server.use(
+      listOf(DISTRIBUTIONS, [ours, foreign], { pageSize: 1000 }).handler,
+      listOf(PUBLICATIONS, [], { pageSize: 1000 }).handler,
+    );
+
+    const result = await run(repo, [ours]);
+
+    expect(sent.deletes).toStrictEqual([ours.pulp_href, repo.pulp_href]);
+    expect(result.removed).toStrictEqual(['a-ours']);
+    expect(result.unlisted).toStrictEqual([]);
+    expect(result.repositoryDeleted).toBe(true);
+  });
+
   it('says why the repository itself was not removed once every distribution is gone', async () => {
     const repo = repository();
     const only = distribution({
@@ -415,7 +493,7 @@ describe('deleteRepositoryWithDistributions', () => {
       ),
     );
 
-    const outcome = await run(repo).catch((e: unknown) => e);
+    const outcome = await run(repo, []).catch((e: unknown) => e);
 
     expect(outcome).toBeInstanceOf(DeleteNotStarted);
     expect((outcome as DeleteNotStarted).cause).toMatchObject({

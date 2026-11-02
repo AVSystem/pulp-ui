@@ -4577,6 +4577,10 @@ msgstr "Not found"
 msgid "Not removed"
 msgstr "Not removed"
 
+#: src/components/delete-repository-modal.tsx
+msgid "Not removed, not shown when this dialog opened"
+msgstr "Not removed, not shown when this dialog opened"
+
 #: src/containers/pulp-status.tsx
 msgid "Not reported"
 msgstr "Not reported"

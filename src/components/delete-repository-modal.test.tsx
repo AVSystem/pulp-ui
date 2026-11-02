@@ -27,6 +27,7 @@ const kept = (
   failed: [],
   pending: [],
   unknown: [],
+  unlisted: [],
   repositoryDeleted: false,
   repositoryError: null,
   repositoryPending: null,
@@ -307,6 +308,31 @@ describe('the delete repository dialog', () => {
       'href',
       '/tasks/detail/00000000-0000-4000-8000-0000000000cc/',
     );
+  });
+
+  it('hands the listing it showed to the delete and reports a distribution that was not shown', async () => {
+    const repo = repository({ name: REPO_NAME });
+    const shown = boundTo(repo, { base_path: 'a-shown', name: 'a-shown' });
+    serve([shown]);
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(
+        kept({ removed: ['a-shown'], unlisted: ['b-created-later'] }),
+      );
+    const { user } = renderModal({ deleteAction, repo });
+    await screen.findByText('a-shown');
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await screen.findByText(/The repository was kept/);
+    expect(deleteAction).toHaveBeenCalledWith([
+      expect.objectContaining({ pulp_href: shown.pulp_href, name: 'a-shown' }),
+    ]);
+    expect(
+      screen.getByText('Not removed, not shown when this dialog opened'),
+    ).toBeVisible();
+    expect(screen.getByText('b-created-later')).toBeInTheDocument();
   });
 
   it('shows the reason and keeps Delete disabled when the distributions cannot be listed', async () => {

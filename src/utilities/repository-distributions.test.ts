@@ -48,6 +48,51 @@ function serveFile(
 }
 
 describe('repositoryDistributions', () => {
+  it('keeps only rows that name the repository themselves when the server ignores the repository filter', async () => {
+    const repo = repository();
+    const other = repository();
+    const repoPublication = publication({
+      repository: repo.pulp_href,
+      repository_version: `${repo.pulp_href}versions/1/`,
+    });
+    const otherPublication = publication({
+      repository: other.pulp_href,
+      repository_version: `${other.pulp_href}versions/1/`,
+    });
+    const ours = distribution({
+      base_path: 'ours',
+      repository: repo.pulp_href,
+    });
+    const oursByPublication = distribution({
+      base_path: 'ours-by-publication',
+      publication: repoPublication.pulp_href,
+    });
+    const foreign = [
+      distribution({ base_path: 'foreign', repository: other.pulp_href }),
+      distribution({
+        base_path: 'foreign-by-publication',
+        publication: otherPublication.pulp_href,
+      }),
+      distribution({ base_path: 'foreign-unbound' }),
+    ];
+    // neither list applies the repository filter
+    server.use(
+      listOf(FILE_DISTRIBUTIONS, [...foreign, ours, oursByPublication], {
+        pageSize: 1000,
+      }).handler,
+      listOf(FILE_PUBLICATIONS, [repoPublication, otherPublication], {
+        pageSize: 1000,
+      }).handler,
+    );
+
+    const found = await repositoryDistributions('file', repo.pulp_href);
+
+    expect(found.map(({ name }) => name)).toStrictEqual([
+      'ours',
+      'ours-by-publication',
+    ]);
+  });
+
   it('finds the distributions bound to the repository, to one of its publications and to one of its versions, each with the server base_url', async () => {
     const repo = repository();
     const other = repository();

@@ -30,7 +30,7 @@ export const repositoryDeleteAction = (
         <DeleteRepositoryModal
           key={state.deleteModalOpen.pulp_href}
           closeAction={() => setState({ deleteModalOpen: null })}
-          deleteAction={async () => {
+          deleteAction={async (shown) => {
             const { name, pulp_href } = state.deleteModalOpen;
             // Rejects only with DeleteNotStarted: from here on the dialog
             // reads a rejection as "nothing was deleted".
@@ -39,6 +39,7 @@ export const repositoryDeleteAction = (
               RepositoryAPI,
               DistributionAPI,
               repository: { name, pulp_href },
+              shown,
             });
 
             if (result.repositoryDeleted) {

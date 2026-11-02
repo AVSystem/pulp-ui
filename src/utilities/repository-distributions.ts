@@ -148,14 +148,24 @@ export async function repositoryDistributions(
       : Promise.resolve([]),
   ]);
 
+  // The server filters are not trusted: Pulp ignores a query parameter a
+  // plugin does not know, so a missing `repository` filter would answer with
+  // every distribution and publication of the plugin. Only rows that name this
+  // repository themselves are kept, because the result is what gets deleted.
+  const ownPublications = publications.filter(
+    (publication) =>
+      repositoryOfVersion(publication.repository_version) === repositoryHref,
+  );
   const publicationHrefs = new Set(
-    publications.map((publication) => publication.pulp_href),
+    ownPublications.map((publication) => publication.pulp_href),
   );
   const serving = new Map<string, DistributionRecord>();
 
-  bound.forEach((distribution) =>
-    serving.set(distribution.pulp_href, distribution),
-  );
+  bound
+    .filter((distribution) => distribution.repository === repositoryHref)
+    .forEach((distribution) =>
+      serving.set(distribution.pulp_href, distribution),
+    );
   scanned
     .filter(
       (distribution) =>
@@ -174,7 +184,7 @@ export async function repositoryDistributions(
       base_path: distribution.base_path,
       url: distributionUrl(distribution),
       served:
-        servedState(distribution, servesFromPublication, publications) ===
+        servedState(distribution, servesFromPublication, ownPublications) ===
         'served',
       binding: bindingOf(distribution),
       content_guard: distribution.content_guard ?? null,

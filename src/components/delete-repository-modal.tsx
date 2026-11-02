@@ -35,7 +35,10 @@ interface IProps {
   // distributions could not be listed (nothing was deleted then). Any other
   // rejection is an unexpected error that may have come after deletes. The caller closes the dialog when the
   // repository is gone; a repository that was kept stays on screen here.
-  deleteAction: () => Promise<DeleteRepositoryResult>;
+  // `shown` is the listing the dialog displayed; exactly these are deleted.
+  deleteAction: (
+    shown: RepositoryDistribution[],
+  ) => Promise<DeleteRepositoryResult>;
   name: string;
   plugin: RepositoryDistributionPlugin;
   pulpHref: string;
@@ -115,7 +118,10 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
   <Alert
     isInline
     title={
-      result.failed.length || result.pending.length || result.unknown.length
+      result.failed.length ||
+      result.pending.length ||
+      result.unknown.length ||
+      result.unlisted.length
         ? t`The repository was kept because not every distribution was removed.`
         : t`The distributions were removed but the repository was kept.`
     }
@@ -171,6 +177,18 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
             <ListItem key={name}>
               {name} - <Link to={taskLink(taskHref)}>{t`task`}</Link>
             </ListItem>
+          ))}
+        </List>
+      </>
+    ) : null}
+    {result.unlisted.length ? (
+      <>
+        <Text>
+          <strong>{t`Not removed, not shown when this dialog opened`}</strong>
+        </Text>
+        <List>
+          {result.unlisted.map((name) => (
+            <ListItem key={name}>{name}</ListItem>
           ))}
         </List>
       </>
@@ -237,7 +255,9 @@ export const DeleteRepositoryModal = ({
     setDeleting(true);
     setDeleteError(null);
     try {
-      const result = await deleteAction();
+      const result = await deleteAction(
+        listing.status === 'ready' ? listing.distributions : [],
+      );
       setKept(result.repositoryDeleted ? null : result);
     } catch (e) {
       setDeleteError(
