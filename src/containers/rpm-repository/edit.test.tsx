@@ -298,27 +298,30 @@ describe('creating an RPM repository', () => {
 });
 
 describe('editing an RPM repository', () => {
-  beforeEach(serveSupportingLists);
+  const existing = repository({
+    name: 'existing',
+    pulp_href: REPOSITORY_HREF,
+    retain_repo_versions: null,
+    retain_package_versions: 2,
+    autopublish: true,
+  });
 
-  it('sends one PUT to the repository and offers no distribution', async () => {
-    const existing = repository({
-      name: 'existing',
-      pulp_href: REPOSITORY_HREF,
-      retain_repo_versions: null,
-      retain_package_versions: 2,
-      autopublish: true,
-    });
+  beforeEach(() => {
+    serveSupportingLists();
     server.use(
       listOf(`${API}/repositories/rpm/rpm/`, [existing], {
         matching: (row, query) => row.name === query.get('name'),
       }).handler,
-      http.put(`*${API}/repositories/rpm/rpm/:id/`, async ({ request }) => {
+      http.patch(`*${API}/repositories/rpm/rpm/:id/`, async ({ request }) => {
         repositoryBodies.push(
           (await request.json()) as Record<string, unknown>,
         );
         return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
       }),
     );
+  });
+
+  it('sends one PATCH with only the changed field and offers no distribution', async () => {
     const { user } = renderEdit('/rpm/repositories/edit/existing');
 
     await screen.findByDisplayValue('existing');
@@ -327,6 +330,7 @@ describe('editing an RPM repository', () => {
     ).toBeNull();
     expect(autopublish()).toBeChecked();
     expect(packageVersionsInput()).toHaveValue(2);
+    await user.click(autopublish());
     await user.click(save());
 
     await waitFor(() =>
@@ -335,12 +339,37 @@ describe('editing an RPM repository', () => {
       ),
     );
     expect(writes()).toStrictEqual([
-      `PUT ${API}/repositories/rpm/rpm/00000000-0000-4000-8000-0000000000aa/`,
+      `PATCH ${API}/repositories/rpm/rpm/00000000-0000-4000-8000-0000000000aa/`,
     ]);
-    expect(repositoryBodies[0]).toMatchObject({
-      autopublish: true,
-      retain_package_versions: 2,
-    });
+    expect(repositoryBodies).toStrictEqual([{ autopublish: false }]);
     expect(screen.queryByText(/Created distribution/)).toBeNull();
+  });
+
+  it('sends 0 when the package versions field was emptied, because the server has no null for it', async () => {
+    const { user } = renderEdit('/rpm/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.clear(packageVersionsInput());
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('where')).toBeInTheDocument(),
+    );
+    expect(repositoryBodies).toStrictEqual([{ retain_package_versions: 0 }]);
+  });
+
+  it('sends no request when nothing was changed', async () => {
+    const { user } = renderEdit('/rpm/repositories/edit/existing');
+
+    await screen.findByDisplayValue('existing');
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('where')).toBeInTheDocument(),
+    );
+    expect(writes()).toStrictEqual([]);
+    expect(
+      screen.getByText(/Nothing changed in repository existing/),
+    ).toBeInTheDocument();
   });
 });

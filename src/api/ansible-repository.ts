@@ -78,6 +78,9 @@ export const AnsibleRepositoryAPI = {
   removeRole: (id: string, role) =>
     base.http.post(`repositories/ansible/ansible/${id}/remove_role/`, role),
 
+  patch: (id: string, data) =>
+    base.http.patch(`repositories/ansible/ansible/${id}/`, data),
+
   revert: (id: string, version_href) =>
     base.http.post(`repositories/ansible/ansible/${id}/modify/`, {
       base_version: version_href,
@@ -85,9 +88,6 @@ export const AnsibleRepositoryAPI = {
 
   sync: (id: string, body = {}) =>
     base.http.post(`repositories/ansible/ansible/${id}/sync/`, body),
-
-  update: (id: string, data) =>
-    base.http.put(`repositories/ansible/ansible/${id}/`, data),
 };
 
 export type { AnsibleRepositoryType };

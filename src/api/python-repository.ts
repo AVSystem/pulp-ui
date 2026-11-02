@@ -25,6 +25,9 @@ export const PythonRepositoryAPI = {
   listVersions: (id: string, params?) =>
     base.list(`repositories/python/python/${id}/versions/`, params),
 
+  patch: (id: string, data) =>
+    base.http.patch(`repositories/python/python/${id}/`, data),
+
   revert: (id: string, version_href) =>
     base.http.post(`repositories/python/python/${id}/modify/`, {
       base_version: version_href,
@@ -32,9 +35,6 @@ export const PythonRepositoryAPI = {
 
   sync: (id: string, body = {}) =>
     base.http.post(`repositories/python/python/${id}/sync/`, body),
-
-  update: (id: string, data) =>
-    base.http.put(`repositories/python/python/${id}/`, data),
 };
 
 export type { PythonRepositoryType };
