@@ -160,18 +160,79 @@ describe('repository form, distribution option', () => {
 
   it('asks for a distribution at the typed base path only when the box is ticked', async () => {
     const onSave = vi.fn();
-    const { user } = renderWithProviders(<Harness isNew onSave={onSave} />);
+    const { user } = renderWithProviders(
+      <Harness isNew onSave={onSave} initial={{ name: 'tools' }} />,
+    );
 
     await user.click(await screen.findByRole('button', { name: 'Save' }));
     expect(onSave).toHaveBeenLastCalledWith({ distribution: null });
 
     await user.click(distributionBox());
+    await user.clear(basePathInput());
     await user.type(basePathInput(), 'tools/stable');
     await user.click(saveButton());
 
     expect(onSave).toHaveBeenLastCalledWith({
       distribution: { basePath: 'tools/stable' },
     });
+  });
+});
+
+describe('repository form, name and distribution label', () => {
+  it('marks Name required and disables Save while Name is empty', async () => {
+    renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    expect(await screen.findByRole('textbox', { name: /Name/ })).toBeRequired();
+    expect(saveButton()).toBeDisabled();
+  });
+
+  it('enables Save once a name is typed', async () => {
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    await user.type(await screen.findByRole('textbox', { name: /Name/ }), 'a');
+
+    expect(saveButton()).toBeEnabled();
+  });
+
+  it('words the distribution label generically while Name is empty', async () => {
+    renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    expect(
+      await screen.findByRole('checkbox', {
+        name: 'Create a distribution for this repository',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the typed name verbatim in the distribution label, quotes and non-ASCII letters included', async () => {
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    await user.type(
+      await screen.findByRole('textbox', { name: /Name/ }),
+      "O'Brien-\u017c\u00f3\u0142w",
+    );
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Create a distribution "O\'Brien-\u017c\u00f3\u0142w" for this repository',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows markup typed into Name as plain text', async () => {
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    await user.type(
+      await screen.findByRole('textbox', { name: /Name/ }),
+      '<b>x</b>',
+    );
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Create a distribution "<b>x</b>" for this repository',
+      }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('label b')).toBeNull();
   });
 });
 
@@ -218,10 +279,13 @@ describe('repository form, retained versions', () => {
 
 describe('repository form, base path rules', () => {
   async function tickAndType(path: string) {
-    const rendered = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+    const rendered = renderWithProviders(
+      <Harness isNew onSave={vi.fn()} initial={{ name: 'zz-test-repo' }} />,
+    );
     await rendered.user.click(
       await screen.findByRole('checkbox', { name: /Create a distribution/ }),
     );
+    await rendered.user.clear(basePathInput());
     await rendered.user.type(basePathInput(), path);
     return rendered;
   }
@@ -266,10 +330,13 @@ describe('repository form, base path rules', () => {
 
 describe('repository form, reserved base paths', () => {
   async function tickAndType(path: string) {
-    const rendered = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+    const rendered = renderWithProviders(
+      <Harness isNew onSave={vi.fn()} initial={{ name: 'zz-test-repo' }} />,
+    );
     await rendered.user.click(
       await screen.findByRole('checkbox', { name: /Create a distribution/ }),
     );
+    await rendered.user.clear(basePathInput());
     await rendered.user.type(basePathInput(), path);
     return rendered;
   }
@@ -340,7 +407,9 @@ describe('repository form, reserved base paths that are unknown', () => {
   it('still lets a repository be saved without a distribution', async () => {
     settings.reservedPrefixes = null;
     const onSave = vi.fn();
-    const { user } = renderWithProviders(<Harness isNew onSave={onSave} />);
+    const { user } = renderWithProviders(
+      <Harness isNew onSave={onSave} initial={{ name: 'tools' }} />,
+    );
 
     await user.click(await screen.findByRole('button', { name: 'Save' }));
 
@@ -350,7 +419,9 @@ describe('repository form, reserved base paths that are unknown', () => {
   it('offers the distribution option when the deployment lists no reserved prefix', async () => {
     settings.reservedPrefixes = [];
 
-    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+    const { user } = renderWithProviders(
+      <Harness isNew onSave={vi.fn()} initial={{ name: 'tools' }} />,
+    );
     const box = await screen.findByRole('checkbox', {
       name: /Create a distribution/,
     });
@@ -359,6 +430,7 @@ describe('repository form, reserved base paths that are unknown', () => {
     expect(screen.queryByText(unknownReason)).toBeNull();
 
     await user.click(box);
+    await user.clear(basePathInput());
     await user.type(basePathInput(), 'any/path');
 
     expect(saveButton()).toBeEnabled();
@@ -389,7 +461,9 @@ describe('repository form, saving', () => {
 
   it('calls the save handler once for a double click and keeps Save disabled until it ends', async () => {
     const { onSave, finish } = pendingSave();
-    const { user } = renderWithProviders(<Harness isNew onSave={onSave} />);
+    const { user } = renderWithProviders(
+      <Harness isNew onSave={onSave} initial={{ name: 'tools' }} />,
+    );
 
     await screen.findByRole('button', { name: 'Save' });
     await user.dblClick(saveButton());
@@ -403,7 +477,9 @@ describe('repository form, saving', () => {
 
   it('calls the save handler once when the second click arrives before the page has re-rendered', async () => {
     const { onSave } = pendingSave();
-    renderWithProviders(<Harness isNew onSave={onSave} />);
+    renderWithProviders(
+      <Harness isNew onSave={onSave} initial={{ name: 'tools' }} />,
+    );
 
     const button = await screen.findByRole('button', { name: 'Save' });
     act(() => {

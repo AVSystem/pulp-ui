@@ -20,7 +20,7 @@ const listItemActions = [
 
 const PythonRemoteList = ListPage<PythonRemoteType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'PythonRemoteList',
   errorTitle: msg`Remotes could not be displayed.`,
   filterConfig: () => [

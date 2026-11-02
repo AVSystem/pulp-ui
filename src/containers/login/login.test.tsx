@@ -208,4 +208,52 @@ describe('login page', () => {
     );
     expect(screen.queryByText('Status page')).not.toBeInTheDocument();
   });
+
+  it('a next path with a query string lands on exactly that URL after sign-in', async () => {
+    acceptLogin();
+
+    const { user } = renderLogin(
+      `/login/?next=${encodeURIComponent('/file/repositories?page=2&sort=name')}`,
+    );
+    await signIn(user, 'zoe', 'secret');
+
+    expect(await screen.findByTestId('location')).toHaveTextContent(
+      /^\/file\/repositories\?page=2&sort=name$/,
+    );
+  });
+
+  it('encoded characters in the next query string come back byte for byte', async () => {
+    acceptLogin();
+    const target = '/file/repositories?name=%C5%BC&q=a%26b';
+
+    const { user } = renderLogin(`/login/?next=${encodeURIComponent(target)}`);
+    await signIn(user, 'zoe', 'secret');
+
+    expect(await screen.findByTestId('location')).toHaveTextContent(
+      new RegExp(`^${target.replace(/[?]/g, '\\?')}$`),
+    );
+  });
+
+  it('a query string never changes the origin of the target: a query holding a host stays on the path', async () => {
+    acceptLogin();
+    const target = '/x?y=//evil.example';
+
+    const { user } = renderLogin(`/login/?next=${encodeURIComponent(target)}`);
+    await signIn(user, 'zoe', 'secret');
+
+    const shown = (await screen.findByTestId('location')).textContent ?? '';
+    expect(shown.startsWith('/x?')).toBe(true);
+    expect(shown).toBe(target);
+  });
+
+  it('a next path pointing at the login page with a query is ignored', async () => {
+    acceptLogin();
+
+    const { user } = renderLogin(
+      `/login/?next=${encodeURIComponent('/login/?next=/x')}`,
+    );
+    await signIn(user, 'zoe', 'secret');
+
+    await screen.findByText('Status page');
+  });
 });

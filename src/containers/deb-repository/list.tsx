@@ -44,7 +44,7 @@ const typeaheadQuery = ({ inputText, selectedFilter, setState }) => {
 
 const DebRepositoryList = ListPage<DebRepositoryType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'DebRepositoryList',
   errorTitle: msg`Repositories could not be displayed.`,
   filterConfig: ({ state: { remotes } }) => [

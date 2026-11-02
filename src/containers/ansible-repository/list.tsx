@@ -47,7 +47,7 @@ const typeaheadQuery = ({ inputText, selectedFilter, setState }) => {
 
 const AnsibleRepositoryList = ListPage<AnsibleRepositoryType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'AnsibleRepositoryList',
   errorTitle: msg`Repositories could not be displayed.`,
   filterConfig: ({ state: { remotes } }) => [

@@ -44,7 +44,7 @@ const typeaheadQuery = ({ inputText, selectedFilter, setState }) => {
 
 const PythonRepositoryList = ListPage<PythonRepositoryType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'PythonRepositoryList',
   errorTitle: msg`Repositories could not be displayed.`,
   filterConfig: ({ state: { remotes } }) => [

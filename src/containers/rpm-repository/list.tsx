@@ -40,7 +40,7 @@ const typeaheadQuery = ({ inputText, selectedFilter, setState }) => {
 
 const RPMRepositoryList = ListPage<RPMRepositoryType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'RPMRepositoryList',
   errorTitle: msg`Repositories could not be displayed.`,
   filterConfig: ({ state: { remotes } }) => [

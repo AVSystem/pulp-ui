@@ -29,7 +29,7 @@ const listItemActions = [
 
 const AnsibleRemoteList = ListPage<AnsibleRemoteType>({
   defaultPageSize: 10,
-  defaultSort: '-pulp_created',
+  defaultSort: 'name',
   displayName: 'AnsibleRemoteList',
   errorTitle: msg`Remotes could not be displayed.`,
   filterConfig: () => [
