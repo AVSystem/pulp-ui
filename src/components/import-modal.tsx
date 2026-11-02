@@ -29,6 +29,7 @@ import {
   closeAlert,
 } from 'src/components';
 import { repositoryBasePath } from 'src/utilities';
+import { requestErrorText } from 'src/utilities/request-error';
 import './import-modal.scss';
 
 enum Status {
@@ -428,7 +429,9 @@ export class ImportModal extends Component<IProps, IState> {
         // If request was canceled by the user
         if (!axios.isCancel(errors)) {
           // Upload fails
-          if (errors.response.data.errors) {
+          if (!errors.response) {
+            errorMessage = requestErrorText(errors);
+          } else if (errors.response.data?.errors) {
             const messages = [];
             for (const err of errors.response.data.errors) {
               messages.push(

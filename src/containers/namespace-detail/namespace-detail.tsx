@@ -46,11 +46,14 @@ import {
   canSignNamespace,
   filterIsSet,
   getRepoURL,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   waitForTask,
   withRouter,
 } from 'src/utilities';
+import {
+  requestErrorDescription,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 interface UserType {
   username: string;
@@ -209,11 +212,11 @@ export class NamespaceDetail extends Component<RouteProps, IState> {
         });
         this.load(); // ensure reload() sets users/groups: null to trigger loading spinner
       })
-      .catch(({ response: { status, statusText } }) => {
+      .catch((e) => {
         this.addAlert({
           title: alertFailure,
           variant: 'danger',
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(e),
         });
       })
       .finally(() => {
@@ -757,7 +760,7 @@ export class NamespaceDetail extends Component<RouteProps, IState> {
       })
       .catch((error) => {
         // The request failed in the first place
-        this.addAlert(errorAlert(error.response.status));
+        this.addAlert(errorAlert(requestErrorStatus(error) ?? undefined));
         this.setState({
           isOpenSignModal: false,
         });
@@ -978,7 +981,6 @@ export class NamespaceDetail extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState(
             {
               isOpenNamespaceModal: false,
@@ -989,7 +991,7 @@ export class NamespaceDetail extends Component<RouteProps, IState> {
               this.addAlert({
                 variant: 'danger',
                 title: t`Namespace "${name}" could not be deleted.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               });
             },
           );

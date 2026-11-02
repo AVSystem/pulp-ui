@@ -4,7 +4,8 @@ import { Checkbox, Text } from '@patternfly/react-core';
 import { useState } from 'react';
 import { ExecutionEnvironmentAPI } from 'src/api';
 import { DeleteModal } from 'src/components';
-import { jsxErrorMessage, waitForTask } from 'src/utilities';
+import { waitForTask } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IProps {
   closeAction: () => void;
@@ -74,13 +75,12 @@ function deleteContainer(
       });
     })
     .catch((e) => {
-      const { status, statusText } = e.response;
       setConfirmDelete(false);
       setIsDeletionPending(false);
       addAlert(
         t`Container "${selectedItem}" could not be deleted.`,
         'danger',
-        jsxErrorMessage(status, statusText),
+        requestErrorDescription(e),
       );
       closeAction();
     });

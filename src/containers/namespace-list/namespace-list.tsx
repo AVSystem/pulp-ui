@@ -21,12 +21,8 @@ import {
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import {
-  ParamHelper,
-  type RouteProps,
-  filterIsSet,
-  jsxErrorMessage,
-} from 'src/utilities';
+import { ParamHelper, type RouteProps, filterIsSet } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import './namespace-list.scss';
 
 interface IState {
@@ -107,7 +103,6 @@ export class NamespaceList extends Component<IProps, IState> {
           }
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState(
             {
               namespaces: [],
@@ -118,7 +113,7 @@ export class NamespaceList extends Component<IProps, IState> {
               this.addAlert({
                 variant: 'danger',
                 title: t`Namespaces list could not be displayed.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               }),
           );
         });
@@ -307,7 +302,6 @@ export class NamespaceList extends Component<IProps, IState> {
           });
         })
         .catch((e) => {
-          const { status, statusText } = e.response;
           this.setState(
             {
               namespaces: [],
@@ -318,7 +312,7 @@ export class NamespaceList extends Component<IProps, IState> {
               this.addAlert({
                 variant: 'danger',
                 title: t`Namespaces list could not be displayed.`,
-                description: jsxErrorMessage(status, statusText),
+                description: requestErrorDescription(e),
               }),
           );
         });

@@ -33,11 +33,11 @@ import {
   ParamHelper,
   type RouteProps,
   filterIsSet,
-  jsxErrorMessage,
   parsePulpIDFromURL,
   waitForTask,
   withRouter,
 } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import './search.scss';
 
 interface IState {
@@ -343,7 +343,6 @@ class Search extends Component<RouteProps, IState> {
         });
       })
       .catch((err) => {
-        const { status, statusText } = err.response;
         this.setState({
           alerts: [
             ...this.state.alerts,
@@ -352,7 +351,7 @@ class Search extends Component<RouteProps, IState> {
               title: !collection.deprecated
                 ? t`Collection "${name}" could not be deprecated.`
                 : t`Collection "${name}" could not be undeprecated.`,
-              description: jsxErrorMessage(status, statusText),
+              description: requestErrorDescription(err),
             },
           ],
         });

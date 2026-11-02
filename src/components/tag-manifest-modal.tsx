@@ -28,6 +28,7 @@ import {
   Spinner,
 } from 'src/components';
 import { parsePulpIDFromURL } from 'src/utilities';
+import { requestErrorText } from 'src/utilities/request-error';
 
 interface IState {
   tagsToAdd: string[];
@@ -226,14 +227,19 @@ export class TagManifestModal extends Component<IProps, IState> {
   }
 
   private handleFailedTag = (tag, error, operation) => {
+    const data = error?.response?.data;
     let msg = undefined;
 
-    if (error.response.data['tag']) {
-      msg = error.response.data.tag.join(' ');
+    if (!error?.response) {
+      msg = requestErrorText(error);
     }
 
-    if (error.response.data['detail']) {
-      msg = error.response.data['detail'];
+    if (data?.['tag']) {
+      msg = data.tag.join(' ');
+    }
+
+    if (data?.['detail']) {
+      msg = data['detail'];
     }
 
     this.props.onAlert({

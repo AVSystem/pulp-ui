@@ -23,6 +23,7 @@ import {
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { jsxErrorMessage } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import './collection-info.scss';
 
 interface IProps extends CollectionVersionSearch {
@@ -202,11 +203,10 @@ function download(
       downloadLinkRef.current.click();
     })
     .catch((e) => {
-      const { status, statusText } = e.response;
       addAlert(
         'danger',
         t`Collection "${name}" could not be downloaded.`,
-        jsxErrorMessage(status, statusText),
+        requestErrorDescription(e),
       );
     });
 }
