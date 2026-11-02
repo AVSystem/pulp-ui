@@ -7137,6 +7137,10 @@ msgstr "La collection que vous avez sélectionnée ne correspond pas à cet espa
 msgid "The collection you have selected doesn't appear to match {0}"
 msgstr "La collection que vous avez sélectionnée ne semble pas correspondre à {0}"
 
+#: src/components/delete-repository-modal.tsx
+msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+msgstr ""
+
 #: src/components/repository-form.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr ""

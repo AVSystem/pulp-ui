@@ -11,7 +11,10 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { type DeleteRepositoryResult } from '../utilities/delete-repository';
+import {
+  DeleteNotStarted,
+  type DeleteRepositoryResult,
+} from '../utilities/delete-repository';
 import { DeleteRepositoryModal } from './delete-repository-modal';
 
 const API = '/pulp/api/v3';
@@ -324,9 +327,11 @@ describe('the delete repository dialog', () => {
 
   it('says nothing was deleted when the distributions cannot be listed at confirmation', async () => {
     serve([]);
-    const deleteAction = vi
-      .fn()
-      .mockRejectedValue({ response: { status: 500, statusText: 'Server' } });
+    const deleteAction = vi.fn().mockRejectedValue(
+      new DeleteNotStarted({
+        response: { status: 500, statusText: 'Server' },
+      }),
+    );
     const { user } = renderModal({ deleteAction });
     await screen.findByText(/No distribution serves this repository/);
 
@@ -334,5 +339,22 @@ describe('the delete repository dialog', () => {
     await user.click(deleteButton());
 
     await screen.findByText(/so nothing was deleted/);
+    expect(screen.getByText(/^Error 500/)).toBeInTheDocument();
+  });
+
+  it('does not claim nothing was deleted when the delete fails with an error other than a failed listing', async () => {
+    serve([]);
+    const deleteAction = vi
+      .fn()
+      .mockRejectedValue(new Error('navigation exploded'));
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await screen.findByText(/may already have been removed/);
+    expect(screen.getByText('navigation exploded')).toBeInTheDocument();
+    expect(screen.queryByText(/so nothing was deleted/)).toBeNull();
   });
 });

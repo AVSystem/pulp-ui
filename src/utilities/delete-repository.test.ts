@@ -12,7 +12,10 @@ import {
   task,
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
-import { deleteRepositoryWithDistributions } from './delete-repository';
+import {
+  DeleteNotStarted,
+  deleteRepositoryWithDistributions,
+} from './delete-repository';
 
 const API = '/pulp/api/v3';
 const DISTRIBUTIONS = `${API}/distributions/file/file/`;
@@ -412,7 +415,10 @@ describe('deleteRepositoryWithDistributions', () => {
       ),
     );
 
-    await expect(run(repo)).rejects.toMatchObject({
+    const outcome = await run(repo).catch((e: unknown) => e);
+
+    expect(outcome).toBeInstanceOf(DeleteNotStarted);
+    expect((outcome as DeleteNotStarted).cause).toMatchObject({
       response: { status: 500 },
     });
     expect(sent.deletes).toStrictEqual([]);

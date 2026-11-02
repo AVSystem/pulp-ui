@@ -14,7 +14,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Paths, formatPath } from 'src/paths';
 import { ContentGuardAPI } from '../api/content-guard';
-import { type DeleteRepositoryResult } from '../utilities/delete-repository';
+import {
+  DeleteNotStarted,
+  type DeleteRepositoryResult,
+} from '../utilities/delete-repository';
 import { listAll } from '../utilities/list-all';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import {
@@ -28,8 +31,9 @@ import { DistributionURL } from './distribution-url';
 
 interface IProps {
   closeAction: () => void;
-  // Resolves with what was removed, rejects when the distributions could not
-  // be listed (nothing was deleted then). The caller closes the dialog when the
+  // Resolves with what was removed, rejects with DeleteNotStarted when the
+  // distributions could not be listed (nothing was deleted then). Any other
+  // rejection is an unexpected error that may have come after deletes. The caller closes the dialog when the
   // repository is gone; a repository that was kept stays on screen here.
   deleteAction: () => Promise<DeleteRepositoryResult>;
   name: string;
@@ -200,7 +204,10 @@ export const DeleteRepositoryModal = ({
   const [deleting, setDeleting] = useState(false);
   const [typedName, setTypedName] = useState('');
   const [kept, setKept] = useState<DeleteRepositoryResult | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<{
+    message: string;
+    nothingDeleted: boolean;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -233,7 +240,11 @@ export const DeleteRepositoryModal = ({
       const result = await deleteAction();
       setKept(result.repositoryDeleted ? null : result);
     } catch (e) {
-      setDeleteError(distributionsLoadError(e));
+      setDeleteError(
+        e instanceof DeleteNotStarted
+          ? { message: distributionsLoadError(e.cause), nothingDeleted: true }
+          : { message: distributionsLoadError(e), nothingDeleted: false },
+      );
     } finally {
       setDeleting(false);
     }
@@ -295,10 +306,14 @@ export const DeleteRepositoryModal = ({
       {deleteError ? (
         <Alert
           isInline
-          title={t`The distributions of this repository could not be listed, so nothing was deleted.`}
+          title={
+            deleteError.nothingDeleted
+              ? t`The distributions of this repository could not be listed, so nothing was deleted.`
+              : t`The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again.`
+          }
           variant='danger'
         >
-          {deleteError}
+          {deleteError.message}
         </Alert>
       ) : null}
 

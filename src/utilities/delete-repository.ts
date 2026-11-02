@@ -1,10 +1,26 @@
 import { failureReason } from './create-repository';
 import { parsePulpIDFromURL } from './parse-pulp-id';
 import {
+  type RepositoryDistribution,
   type RepositoryDistributionPlugin,
   repositoryDistributions,
 } from './repository-distributions';
 import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
+
+// Nothing was sent: the distributions of the repository could not be listed.
+// It is the only rejection of deleteRepositoryWithDistributions a caller may
+// report as "nothing was deleted"; any other rejection happened after deletes
+// may have been sent. `cause` is the error of the listing.
+export class DeleteNotStarted extends Error {
+  cause: unknown;
+
+  constructor(cause: unknown) {
+    super('The distributions of the repository could not be listed.');
+    Object.setPrototypeOf(this, DeleteNotStarted.prototype);
+    this.name = 'DeleteNotStarted';
+    this.cause = cause;
+  }
+}
 
 // How many distribution deletes are in flight at once.
 export const DELETE_CONCURRENCY = 4;
@@ -88,7 +104,8 @@ async function deleteAndWait(
 // first. The repository is removed only once every one of them is gone: a
 // listing that failed, a delete that was refused or failed, or a task still
 // running keeps the repository, and the result says what happened to each
-// distribution. A listing error rejects before anything is deleted.
+// distribution. A listing error rejects with DeleteNotStarted before anything
+// is deleted.
 export async function deleteRepositoryWithDistributions({
   plugin,
   RepositoryAPI,
@@ -96,11 +113,18 @@ export async function deleteRepositoryWithDistributions({
   repository,
   wait,
 }: DeleteRepositoryParams): Promise<DeleteRepositoryResult> {
-  const distributions = await repositoryDistributions(
-    plugin,
-    repository.pulp_href,
-    { complete: true },
-  );
+  let distributions: RepositoryDistribution[];
+  try {
+    distributions = await repositoryDistributions(
+      plugin,
+      repository.pulp_href,
+      {
+        complete: true,
+      },
+    );
+  } catch (e) {
+    throw new DeleteNotStarted(e);
+  }
 
   const outcomes = await runBounded(
     distributions,

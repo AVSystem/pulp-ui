@@ -65,33 +65,40 @@ function Harness({
   );
 }
 
+// Serves a file plugin with no distributions, accepts the repository delete
+// and holds the answer of its task until the returned function is called.
+function serveDelete(): () => void {
+  let release: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  server.use(
+    listOf(`${API}/distributions/file/file/`, []).handler,
+    listOf(`${API}/publications/file/file/`, []).handler,
+    http.delete(`*${API}/repositories/file/file/:id/`, () =>
+      HttpResponse.json(
+        { task: `${API}/tasks/00000000-0000-4000-8000-0000000000dd/` },
+        { status: 202 },
+      ),
+    ),
+    http.get(`*${API}/tasks/:id/`, async () => {
+      await gate;
+      return HttpResponse.json(
+        task({
+          pulp_href: `${API}/tasks/00000000-0000-4000-8000-0000000000dd/`,
+          state: 'completed',
+        }),
+      );
+    }),
+  );
+  return () => release();
+}
+
 describe('the Delete action of a repository', () => {
   it('closes only its own dialog when a delete that outlived it finishes after another repository dialog was opened', async () => {
     const first = repository({ name: 'zz-first' });
     const second = repository({ name: 'zz-second' });
-    let release: () => void;
-    const gate = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    server.use(
-      listOf(`${API}/distributions/file/file/`, []).handler,
-      listOf(`${API}/publications/file/file/`, []).handler,
-      http.delete(`*${API}/repositories/file/file/:id/`, () =>
-        HttpResponse.json(
-          { task: `${API}/tasks/00000000-0000-4000-8000-0000000000dd/` },
-          { status: 202 },
-        ),
-      ),
-      http.get(`*${API}/tasks/:id/`, async () => {
-        await gate;
-        return HttpResponse.json(
-          task({
-            pulp_href: `${API}/tasks/00000000-0000-4000-8000-0000000000dd/`,
-            state: 'completed',
-          }),
-        );
-      }),
-    );
+    const release = serveDelete();
     const addAlert = vi.fn();
     const { user } = renderWithProviders(
       <Harness first={first} second={second} addAlert={addAlert} />,
@@ -119,5 +126,29 @@ describe('the Delete action of a repository', () => {
 
     expect(screen.getByText('zz-second')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('does not report a failed delete, and still closes its dialog, when a page update fails after the repository was removed', async () => {
+    const first = repository({ name: 'zz-first' });
+    const second = repository({ name: 'zz-second' });
+    serveDelete()();
+    const addAlert = vi.fn(() => {
+      throw new Error('alerts are broken');
+    });
+    const { user } = renderWithProviders(
+      <Harness first={first} second={second} addAlert={addAlert} />,
+    );
+
+    await screen.findByText(/No distribution serves this repository/);
+    await user.type(
+      screen.getByLabelText(/Type the repository name/),
+      'zz-first',
+    );
+    await user.click(screen.getByRole('button', { name: /^Delete/ }));
+
+    await waitFor(() => expect(addAlert).toHaveBeenCalled());
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByText(/so nothing was deleted/)).toBeNull();
+    expect(screen.queryByText(/unexpected error/)).toBeNull();
   });
 });
