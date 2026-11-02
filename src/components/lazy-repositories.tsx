@@ -1,10 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { MaybeLink, Spinner, Tooltip } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { errorMessage, plugin2api } from 'src/utilities';
+import { plugin2api } from 'src/utilities';
+import { requestErrorText } from 'src/utilities/request-error';
 
 export const LazyRepositories = ({
   content_href,
@@ -38,10 +39,9 @@ export const LazyRepositories = ({
         setLoading(false);
       })
       .catch((e) => {
-        const { status, statusText } = e.response;
         setRepositories(prepend || []);
         setCount(null);
-        setError(errorMessage(status, statusText));
+        setError(requestErrorText(e));
         setLoading(false);
       });
   };
@@ -94,8 +94,8 @@ export const LazyRepositories = ({
     errorElement
   ) : (
     <>
-      {repositories?.map?.(({ name }, index) => (
-        <>
+      {repositories?.map?.(({ name, pulp_href }, index) => (
+        <Fragment key={pulp_href ?? name}>
           {index ? ', ' : ''}
           <MaybeLink
             to={
@@ -106,7 +106,7 @@ export const LazyRepositories = ({
           >
             {name}
           </MaybeLink>
-        </>
+        </Fragment>
       ))}
       {!repositories?.length ? (emptyText ?? '---') : null}
       {count > repositories?.length ? (

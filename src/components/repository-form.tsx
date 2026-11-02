@@ -20,16 +20,13 @@ import {
   Typeahead,
 } from 'src/components';
 import { config } from 'src/ui-config';
-import {
-  type ErrorMessagesType,
-  errorMessage,
-  plugin2api,
-} from 'src/utilities';
+import { type ErrorMessagesType, plugin2api } from 'src/utilities';
 import {
   basePathProblem,
   reservedPrefixFor,
   sanitizeBasePath,
 } from 'src/utilities/base-path-rules';
+import { requestErrorText } from 'src/utilities/request-error';
 
 interface IProps {
   allowEditName: boolean;
@@ -178,9 +175,8 @@ export const RepositoryForm = ({
         setRemotes(data.results.map((r) => ({ ...r, id: r.pulp_href }))),
       )
       .catch((e) => {
-        const { status, statusText } = e.response;
         setRemotes([]);
-        setRemotesError(errorMessage(status, statusText));
+        setRemotesError(requestErrorText(e));
       });
   };
 

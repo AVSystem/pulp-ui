@@ -338,3 +338,32 @@ describe('repository form, plugin specific fields', () => {
     expect(screen.queryByRole('checkbox', { name: /Publish new/ })).toBeNull();
   });
 });
+
+describe('repository form, remote choices', () => {
+  it('shows a readable message instead of a spinner when the remotes request gets no answer', async () => {
+    server.use(
+      http.get(`*${API}/remotes/file/file/`, () => HttpResponse.error()),
+    );
+
+    renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    expect(
+      await screen.findByText(/Failed to load remotes: Network Error/),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('keeps the status line in the message when the server answers an error', async () => {
+    server.use(
+      http.get(`*${API}/remotes/file/file/`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Broken' }),
+      ),
+    );
+
+    renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    expect(
+      await screen.findByText(/Failed to load remotes: Error 500/),
+    ).toBeInTheDocument();
+  });
+});

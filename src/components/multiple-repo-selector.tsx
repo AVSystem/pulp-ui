@@ -27,7 +27,7 @@ import {
   SortTable,
   Spinner,
 } from 'src/components';
-import { jsxErrorMessage } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 
 interface IProps {
   addAlert: (alert: AlertType) => void;
@@ -70,11 +70,11 @@ export const MultipleRepoSelector = (props: IProps) => {
         setRepositoryList(results);
         setItemsCount(count);
       })
-      .catch(({ response: { status, statusText } }) =>
+      .catch((e) =>
         props.addAlert({
           title: t`Failed to load repositories.`,
           variant: 'danger',
-          description: jsxErrorMessage(status, statusText),
+          description: requestErrorDescription(e),
         }),
       )
       .finally(() => setLoading(false));
