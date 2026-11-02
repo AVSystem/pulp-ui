@@ -4,6 +4,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
+import { listOf, remote, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import FileRemoteEdit from './edit';
@@ -80,5 +81,48 @@ describe('saving a new file remote that the server does not accept', () => {
     await fillAndSave(user, 'tools', 'https://pulp.example/files/');
 
     expect(await screen.findByText('Not allowed here.')).toBeInTheDocument();
+  });
+});
+
+describe('download policy of a file remote', () => {
+  it('creates a new remote with the on demand policy unless the user picks another', async () => {
+    let body: Record<string, unknown> | undefined;
+    server.use(
+      http.post(`*${API}/remotes/file/file/`, async ({ request }) => {
+        body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(remote(), { status: 201 });
+      }),
+    );
+    const { user } = renderEdit('/file/remotes/edit/_');
+
+    expect(
+      await screen.findByRole('combobox', { name: /Download policy/ }),
+    ).toHaveValue('on_demand');
+    await fillAndSave(user, 'tools', 'https://pulp.example/files/');
+
+    expect(await screen.findByTestId('where')).toBeInTheDocument();
+    expect(body).toMatchObject({ name: 'tools', policy: 'on_demand' });
+  });
+
+  it('shows the stored policy of an existing remote and sends it back unchanged', async () => {
+    const stored = remote({ name: 'tools', policy: 'immediate' });
+    let body: Record<string, unknown> | undefined;
+    server.use(
+      listOf(`${API}/remotes/file/file/`, [stored]).handler,
+      http.put(`*${stored.pulp_href}`, async ({ request }) => {
+        body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ task: task().pulp_href }, { status: 202 });
+      }),
+    );
+    const { user } = renderEdit('/file/remotes/edit/tools');
+
+    expect(
+      await screen.findByRole('combobox', { name: /Download policy/ }),
+    ).toHaveValue('immediate');
+    await waitFor(() => expect(save()).toBeEnabled());
+    await user.click(save());
+
+    expect(await screen.findByTestId('where')).toBeInTheDocument();
+    expect(body).toMatchObject({ name: 'tools', policy: 'immediate' });
   });
 });

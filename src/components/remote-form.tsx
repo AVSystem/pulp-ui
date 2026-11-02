@@ -36,9 +36,10 @@ import {
   validateURLHelper,
 } from 'src/utilities';
 
-// Plugins whose remotes offer a download policy in this form. pulp_file and
-// pulp_deb accept the same three policies; add them here once tested.
-const PLUGINS_WITH_POLICY = ['python', 'rpm'];
+// Plugins whose remotes offer a download policy in this form. Ansible
+// collection remotes accept only immediate, and container registries have no
+// policy, so neither is listed and neither ever sends one.
+const PLUGINS_WITH_POLICY = ['file', 'python', 'rpm'];
 
 interface IProps {
   allowEditName?: boolean;
@@ -352,7 +353,7 @@ export class RemoteForm extends Component<IProps, IState> {
             label={t`Download policy`}
             labelIcon={
               <HelpButton
-                content={t`Immediate downloads all packages during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each package the first time a client requests it. Streamed passes packages through to clients without storing them.`}
+                content={t`Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it.`}
               />
             }
             isRequired={requiredFields.includes('policy')}
@@ -369,7 +370,8 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormFieldHelper
               variant={'policy' in errorMessages ? 'error' : 'default'}
             >
-              {errorMessages['policy']}
+              {errorMessages['policy'] ??
+                t`On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it.`}
             </FormFieldHelper>
           </FormGroup>
         )}
