@@ -297,24 +297,24 @@ export const RepositoryForm = ({
         </>,
       )}
 
-      {plugin !== 'rpm' &&
-        formGroup(
-          // putting the plugin check here because private repositories
-          // aren't an RPM concept. It's worth noting that (to my knowledge)
-          // Ansible Galaxy is the only thing that would need the private flag
-          // NP - 2026
-          'private',
-          t`Make private`,
-          t`Make the repository private.`,
-          <Checkbox
-            id='private'
-            isChecked={repository.private}
-            label={t`Make private`}
-            onChange={(_event, value) =>
-              updateRepository({ ...repository, private: value })
-            }
-          />,
-        )}
+      {
+        // only ansible repositories have a private flag; the other plugins
+        // would send a field their serializer does not have
+        plugin === 'ansible' &&
+          formGroup(
+            'private',
+            t`Make private`,
+            t`Make the repository private.`,
+            <Checkbox
+              id='private'
+              isChecked={repository.private}
+              label={t`Make private`}
+              onChange={(_event, value) =>
+                updateRepository({ ...repository, private: value })
+              }
+            />,
+          )
+      }
 
       {formGroup(
         'remote',
