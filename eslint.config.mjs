@@ -9,6 +9,9 @@ import tsEslint from 'typescript-eslint';
 // REF: https://nodejs.org/api/esm.html#json-modules
 import pkg from './package.json' with { type: 'json' };
 
+const RESPONSE_MESSAGE =
+  'A failed request may have no response (network error, CORS failure). Read the status and text through requestErrorStatus, requestErrorText or requestErrorDescription instead of destructuring the response.';
+
 export default defineConfig([
   jsEslint.configs.recommended,
   tsEslint.configs.recommended,
@@ -113,6 +116,34 @@ export default defineConfig([
     files: ['e2e/**/*.ts', 'playwright.config.ts'],
     languageOptions: {
       globals: { ...globals.node },
+    },
+  },
+  {
+    // A request that never got an answer (network error, CORS failure) has no
+    // response, so destructuring it inside a catch handler throws from the
+    // handler itself. The request error helpers are the one place that reads
+    // the response of a caught error.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/utilities/request-error.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "VariableDeclarator[id.type='ObjectPattern'][init.type='MemberExpression'][init.property.name='response']",
+          message: RESPONSE_MESSAGE,
+        },
+        {
+          selector:
+            "VariableDeclarator[id.type='ObjectPattern'][init.type='ChainExpression'][init.expression.property.name='response']",
+          message: RESPONSE_MESSAGE,
+        },
+        {
+          selector:
+            ":function > ObjectPattern.params > Property[key.name='response'][value.type='ObjectPattern']",
+          message: RESPONSE_MESSAGE,
+        },
+      ],
     },
   },
   {

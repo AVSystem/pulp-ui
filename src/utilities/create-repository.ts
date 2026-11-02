@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { distributionConflicts } from './distribution-availability';
 import { type ErrorMessagesType, mapErrorMessages } from './map-error-messages';
+import { requestErrorStatus } from './request-error';
 import { waitForTaskUrl } from './wait-for-task';
 
 // Thrown before anything is written: the requested name or base path is taken
@@ -39,8 +40,9 @@ export function failureReason(e): string {
     return e;
   }
 
-  if (e?.response) {
-    const { status, statusText } = e.response;
+  const status = requestErrorStatus(e);
+  if (status !== null) {
+    const statusText = e.response.statusText;
     let messages: string[] = [];
     try {
       messages = Object.entries(mapErrorMessages(e))
