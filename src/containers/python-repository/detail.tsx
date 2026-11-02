@@ -1,31 +1,33 @@
 import { msg, t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
+import { pythonRepositoryDeleteAction } from 'src/actions/python-repository-delete';
+import { pythonRepositoryEditAction } from 'src/actions/python-repository-edit';
+import { pythonRepositorySyncAction } from 'src/actions/python-repository-sync';
+import { PythonRemoteAPI, type PythonRemoteType } from 'src/api/python-remote';
 import {
-  pythonRepositoryDeleteAction,
-  pythonRepositoryEditAction,
-  pythonRepositorySyncAction,
-} from 'src/actions';
-import {
-  PythonRemoteAPI,
-  type PythonRemoteType,
   PythonRepositoryAPI,
   type PythonRepositoryType,
-} from 'src/api';
+} from 'src/api/python-repository';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { lastSyncStatus, lastSynced } from 'src/utilities/last-sync-task';
+import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import {
-  lastSyncStatus,
-  lastSynced,
-  parsePulpIDFromURL,
-  pluginRepositoryBasePath,
-} from 'src/utilities';
+  type RepositoryDistribution,
+  distributionsLoadError,
+  repositoryDistributions,
+} from 'src/utilities/repository-distributions';
 import { DetailsTab } from './tab-details';
 import { DistributionsTab } from './tab-distributions';
 import { PackagesTab } from './tab-packages';
 import { RepositoryVersionsTab } from './tab-repository-versions';
 
 const PythonRepositoryDetail = PageWithTabs<
-  PythonRepositoryType & { remote?: PythonRemoteType }
+  PythonRepositoryType & {
+    distributions?: RepositoryDistribution[];
+    distributionsError?: string | null;
+    remote?: PythonRemoteType;
+  }
 >({
   breadcrumbs: ({ name, tab, params: { repositoryVersion } }) => {
     const crumbs = [
@@ -78,27 +80,28 @@ const PythonRepositoryDetail = PageWithTabs<
           return Promise.reject({ response: { status: 404 } });
         }
 
-        const err = (val) => (e) => {
-          console.error(e);
-          return val;
-        };
-
         return Promise.all([
-          // the plugin-aware variant, so the Python distribution endpoint is the
-          // one consulted
-          pluginRepositoryBasePath(
-            'python',
-            repository.name,
-            repository.pulp_href,
-          ).catch(err(null)),
+          // a failed load reaches the page as a visible message, never as an
+          // empty list
+          repositoryDistributions('python', repository.pulp_href).then(
+            (distributions) => ({ distributions, distributionsError: null }),
+            (e) => {
+              console.error(e);
+              return {
+                distributions: [] as RepositoryDistribution[],
+                distributionsError: distributionsLoadError(e),
+              };
+            },
+          ),
           repository.remote
             ? PythonRemoteAPI.get(parsePulpIDFromURL(repository.remote))
                 .then(({ data }) => data)
                 .catch(() => null)
             : null,
-        ]).then(([distroBasePath, remote]) => ({
+        ]).then(([{ distributions, distributionsError }, remote]) => ({
           ...repository,
-          distroBasePath,
+          distributions,
+          distributionsError,
           remote,
         }));
       }),
@@ -108,10 +111,10 @@ const PythonRepositoryDetail = PageWithTabs<
       'repository-versions': (
         <RepositoryVersionsTab item={item} actionContext={actionContext} />
       ),
-      packages: <PackagesTab item={item} actionContext={actionContext} />,
       distributions: (
         <DistributionsTab item={item} actionContext={actionContext} />
       ),
+      packages: <PackagesTab item={item} actionContext={actionContext} />,
     })[tab],
   tabs: (tab, name) => [
     {
