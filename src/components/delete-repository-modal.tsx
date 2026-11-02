@@ -1,12 +1,15 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Text } from '@patternfly/react-core';
+import { Alert, FormGroup, Text, TextInput } from '@patternfly/react-core';
 import { useState } from 'react';
-import { DeleteModal } from 'src/components';
+import { type DeleteRepositoryResult } from '../utilities/delete-repository';
+import { DeleteModal } from './delete-modal';
 
 interface IProps {
   closeAction: () => void;
-  deleteAction: () => void;
+  // Resolves with what was removed. The caller closes the dialog when the
+  // repository is gone; a repository that was kept stays on screen here.
+  deleteAction: () => Promise<DeleteRepositoryResult>;
   name: string;
 }
 
@@ -15,7 +18,9 @@ export const DeleteRepositoryModal = ({
   deleteAction,
   name,
 }: IProps) => {
-  const [pending, setPending] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [typedName, setTypedName] = useState('');
+  const [kept, setKept] = useState<DeleteRepositoryResult | null>(null);
 
   if (!name) {
     return null;
@@ -23,16 +28,18 @@ export const DeleteRepositoryModal = ({
 
   return (
     <DeleteModal
-      spinner={pending}
-      cancelAction={() => {
-        setPending(false);
-        closeAction();
+      spinner={deleting}
+      cancelAction={closeAction}
+      deleteAction={async () => {
+        setDeleting(true);
+        try {
+          const result = await deleteAction();
+          setKept(result.repositoryDeleted ? null : result);
+        } finally {
+          setDeleting(false);
+        }
       }}
-      deleteAction={() => {
-        setPending(false);
-        deleteAction();
-      }}
-      isDisabled={pending}
+      isDisabled={deleting || typedName !== name}
       title={t`Delete repository?`}
     >
       <Text>
@@ -42,6 +49,21 @@ export const DeleteRepositoryModal = ({
           repository.
         </Trans>
       </Text>
+      <FormGroup
+        fieldId='delete-repository-name'
+        label={t`Type the repository name to confirm`}
+      >
+        <TextInput
+          id='delete-repository-name'
+          isDisabled={deleting}
+          onChange={(_event, value) => setTypedName(value)}
+          type='text'
+          value={typedName}
+        />
+      </FormGroup>
+      {kept ? (
+        <Alert isInline title={t`The repository was kept.`} variant='danger' />
+      ) : null}
     </DeleteModal>
   );
 };
