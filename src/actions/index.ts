@@ -27,6 +27,7 @@ export { fileRepositoryCreateAction } from './file-repository-create';
 export { fileRepositoryDeleteAction } from './file-repository-delete';
 export { fileRepositoryEditAction } from './file-repository-edit';
 export { fileRepositorySyncAction } from './file-repository-sync';
+export { pythonDistributionEditAction } from './python-distribution-edit';
 export { pythonRemoteCreateAction } from './python-remote-create';
 export { pythonRemoteDeleteAction } from './python-remote-delete';
 export { pythonRemoteEditAction } from './python-remote-edit';

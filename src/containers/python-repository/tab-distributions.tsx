@@ -1,8 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
+import { type ActionType } from 'src/actions/action';
+import { pythonDistributionEditAction } from 'src/actions/python-distribution-edit';
 import { type PythonRepositoryType } from 'src/api/python-repository';
 import { ClipboardCopy, DateComponent, DetailList } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
+import { ListItemActions } from 'src/components/list-item-actions';
 import {
   type RepositoryDistribution,
   listLoadedDistributions,
@@ -17,6 +20,7 @@ interface TabProps {
     addAlert: (alert) => void;
     // loads the repository page again, with its distributions
     query?: () => void;
+    setState?: (state) => void;
     state: { params };
     hasPermission;
   };
@@ -24,7 +28,13 @@ interface TabProps {
 
 export const DistributionsTab = ({
   item,
-  actionContext: { addAlert, hasPermission, query: reloadPage },
+  actionContext: {
+    addAlert,
+    hasPermission,
+    query: reloadPage,
+    setState,
+    state: pageState,
+  },
 }: TabProps) => {
   // The page loaded every distribution serving the repository (bound to it,
   // to one of its publications or to one of its versions), so the list is cut
@@ -44,9 +54,13 @@ export const DistributionsTab = ({
   const renderTableRow = (
     item: RepositoryDistribution,
     index: number,
-    _actionContext,
+    actionContext,
+    listItemActions: ActionType[],
   ) => {
     const { name, base_path, pulp_created, url } = item;
+    const kebabItems = listItemActions.map((action) =>
+      action.dropdownItem(item, actionContext),
+    );
 
     return (
       <Tr key={index}>
@@ -68,6 +82,7 @@ export const DistributionsTab = ({
             {cliConfig(url)}
           </ClipboardCopy>
         </Td>
+        <ListItemActions kebabItems={kebabItems} />
       </Tr>
     );
   };
@@ -76,7 +91,11 @@ export const DistributionsTab = ({
     <DetailList<RepositoryDistribution>
       actionContext={{
         addAlert,
-        query,
+        // the actions reload the whole page, because the distributions of the
+        // list were loaded by the page
+        query: reloadPage,
+        setState,
+        state: pageState,
         hasPermission,
         hasObjectPermission: (_p: string): boolean => true,
       }}
@@ -93,6 +112,7 @@ export const DistributionsTab = ({
           title: t`Base path`,
         },
       ]}
+      listItemActions={[pythonDistributionEditAction]}
       noDataDescription={t`Clients cannot download its content until a distribution serves it.`}
       noDataTitle={t`No distribution serves this repository`}
       // a failed load came from the page, so only the page can load it again
