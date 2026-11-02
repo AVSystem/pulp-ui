@@ -20,8 +20,9 @@ import {
   SortTable,
 } from 'src/components';
 import { type ActionType } from '../actions/action';
-import { handleHttpError } from '../utilities/fail-alerts';
 import { filterIsSet } from '../utilities/filter-is-set';
+import { requestErrorDescription } from '../utilities/request-error';
+import { ListErrorState } from './list-error-state';
 
 interface IProps<T> {
   actionContext: {
@@ -63,7 +64,6 @@ export function DetailList<T>({
   sortHeaders,
   title,
 }: IProps<T>) {
-  const { addAlert } = actionContext;
   const [items, setItems] = useState<T[]>([]);
   const [params, setParams] = useState({
     page: 1,
@@ -73,16 +73,40 @@ export function DetailList<T>({
   const [inputText, setInputText] = useState('');
   const [itemCount, setItemCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  // why the last load failed; null while the list is loading or loaded
+  const [error, setError] = useState<ReactNode>(null);
+  // counts the retries asked for, so the same parameters load again
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    // a load that is no longer the current one must not change the list
+    let current = true;
+
+    setError(null);
     query({ params })
       .then(({ data: { count, results } }) => {
-        setItems(results);
-        setItemCount(count);
+        if (current) {
+          setItems(results);
+          setItemCount(count);
+        }
       })
-      .catch(handleHttpError(errorTitle, () => setItems([]), addAlert))
-      .then(() => setLoading(false));
-  }, [params]);
+      .catch((e) => {
+        if (current) {
+          setItems([]);
+          setItemCount(0);
+          setError(requestErrorDescription(e));
+        }
+      })
+      .then(() => {
+        if (current) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      current = false;
+    };
+  }, [params, attempt]);
 
   const renderModals = (actionContext) => (
     <>
@@ -105,7 +129,16 @@ export function DetailList<T>({
   return (
     <>
       {renderModals?.(actionContext)}
-      {noData && !loading ? (
+      {error && !loading ? (
+        <ListErrorState
+          title={errorTitle}
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setAttempt((n) => n + 1);
+          }}
+        />
+      ) : noData && !loading ? (
         <EmptyStateNoData
           button={<>{noDataButton?.(null, actionContext)}</>}
           description={noDataDescription}
