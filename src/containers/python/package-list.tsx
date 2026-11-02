@@ -1,7 +1,7 @@
 import { msg, t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { PythonPackageAPI } from 'src/api';
-import { LazyRepositories, ListPage } from 'src/components';
+import { PythonPackageAPI } from 'src/api/python-package';
+import { ListPage } from 'src/components';
 
 interface PythonPackage {
   name: string;
@@ -28,7 +28,7 @@ const PythonPackageList = ListPage<PythonPackage>({
       ...params,
     }),
   renderTableRow(item: PythonPackage, index: number) {
-    const { name, version, packagetype, filename, pulp_href } = item;
+    const { name, version, packagetype, filename } = item;
 
     return (
       <Tr key={index}>
@@ -36,9 +36,6 @@ const PythonPackageList = ListPage<PythonPackage>({
         <Td>{version}</Td>
         <Td>{packagetype}</Td>
         <Td>{filename}</Td>
-        <Td>
-          <LazyRepositories plugin='python' content_href={pulp_href} />
-        </Td>
       </Tr>
     );
   },
@@ -47,7 +44,6 @@ const PythonPackageList = ListPage<PythonPackage>({
     { title: msg`Version`, type: 'none', id: 'version' },
     { title: msg`Type`, type: 'none', id: 'packagetype' },
     { title: msg`File`, type: 'none', id: 'filename' },
-    { title: msg`Repository`, type: 'none', id: 'repository' },
   ],
   title: msg`Packages`,
 });
