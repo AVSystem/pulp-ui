@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { title } from '../support/sign-in';
 import {
-  ALLOW_MISSING_PLUGINS_VARIABLE,
   failureShown,
   listPages,
   missingExpectedPlugins,
@@ -20,7 +19,7 @@ test.beforeAll(async () => {
   }
   expect(
     await missingExpectedPlugins(),
-    `plugins the server does not run (set ${ALLOW_MISSING_PLUGINS_VARIABLE} to skip their pages)`,
+    'plugins the server does not run (set PULP_UI_E2E_ALLOW_MISSING_PLUGINS to skip their pages)',
   ).toEqual([]);
 });
 
