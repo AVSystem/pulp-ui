@@ -244,6 +244,7 @@ export const DeleteRepositoryModal = ({
       spinner={deleting}
       cancelAction={closeAction}
       deleteAction={confirm}
+      isCancelDisabled={deleting}
       isDisabled={
         deleting ||
         listing.status !== 'ready' ||

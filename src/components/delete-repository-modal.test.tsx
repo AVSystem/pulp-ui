@@ -209,6 +209,42 @@ describe('the delete repository dialog', () => {
     finish(kept({ repositoryDeleted: true }));
   });
 
+  it('keeps Cancel, the close button and Escape from closing the dialog while the deletes run, and shows the report after a partial failure', async () => {
+    serve([]);
+    let finish: (result: DeleteRepositoryResult) => void;
+    const deleteAction = vi.fn(
+      () =>
+        new Promise<DeleteRepositoryResult>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const { closeAction, user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    await waitFor(() => expect(deleteButton()).toBeDisabled());
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(closeAction).not.toHaveBeenCalled();
+
+    finish(
+      kept({
+        removed: ['removed-one'],
+        failed: [{ name: 'refused-one', reason: 'no' }],
+      }),
+    );
+
+    await screen.findByText(/The repository was kept/);
+    expect(screen.getByText('removed-one')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(closeAction).toHaveBeenCalledTimes(1);
+  });
+
   it('stays open after a partial failure and says what was removed, what failed with the reason, what is still being removed and that the repository was kept', async () => {
     serve([]);
     const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000aa/`;

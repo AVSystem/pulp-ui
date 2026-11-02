@@ -38,7 +38,14 @@ export const repositoryDeleteAction = (
                   ? t`Removed distributions: ${result.removed.join(', ')}`
                   : undefined,
               });
-              setState({ deleteModalOpen: null });
+              // The run may outlive the dialog it started from (the page was
+              // left and another repository's dialog opened since), so only
+              // the dialog of this repository is closed.
+              setState((current) =>
+                current?.deleteModalOpen?.pulp_href === pulp_href
+                  ? { deleteModalOpen: null }
+                  : null,
+              );
               listQuery();
             }
 
