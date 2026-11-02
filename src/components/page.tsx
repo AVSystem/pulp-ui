@@ -18,10 +18,14 @@ import {
   Main,
   closeAlert,
 } from 'src/components';
-import { type RouteProps, jsxErrorMessage, withRouter } from 'src/utilities';
+import { type RouteProps, withRouter } from 'src/utilities';
+import { requestErrorDescription } from '../utilities/request-error';
+import { ListErrorState } from './list-error-state';
 
 interface IState<T> {
   alerts: AlertType[];
+  // why the last load failed; null while the object is loading or loaded
+  error: ReactNode;
   item: T;
   loading: boolean;
   unauthorized: boolean;
@@ -30,7 +34,9 @@ interface IState<T> {
 // states:
 // loading - initial state, only Main + spinner, header and alerts
 // unauthorized - only EmptyStateUnauthorized, header and alerts
-// (data) - renders detail
+// error - the load failed, header and ListErrorState with a retry; render is
+//   never called, so a form for an existing object is not shown without it
+// (data) - renders detail, or the form of a new object when the route has no name
 
 interface PageParams<T> {
   breadcrumbs: ({ name }) => { url?: string; name: string }[];
@@ -78,11 +84,15 @@ export const Page = function <
     static displayName = displayName;
     static contextType = AppContext;
 
+    // number of the latest load; the answer of an older load is ignored
+    private latestQuery = 0;
+
     constructor(props) {
       super(props);
 
       this.state = {
         alerts: [],
+        error: null,
         item: null,
         loading: true,
         unauthorized: false,
@@ -94,23 +104,26 @@ export const Page = function <
       (this.context as IAppContextType).setAlerts([]);
 
       // condition check after query, for object permissions
-      this.query().then((item) => {
-        const actionContext = {
-          ...(this.context as IAppContextType),
-          hasObjectPermission: (permission) =>
-            item?.my_permissions?.includes?.(permission),
-        };
+      this.query()
+        .then((item) => {
+          const actionContext = {
+            ...(this.context as IAppContextType),
+            hasObjectPermission: (permission) =>
+              item?.my_permissions?.includes?.(permission),
+          };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (condition && !condition(actionContext as any)) {
-          this.setState({ loading: false, unauthorized: true });
-        }
-      });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (condition && !condition(actionContext as any)) {
+            this.setState({ loading: false, unauthorized: true });
+          }
+        })
+        // the failure is already shown as the error state
+        .catch(() => undefined);
     }
 
     render() {
       const { routeParams } = this.props;
-      const { alerts, item, loading, unauthorized } = this.state;
+      const { alerts, error, item, loading, unauthorized } = this.state;
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
@@ -119,7 +132,9 @@ export const Page = function <
         hasPermission: (this.context as IAppContextType).hasPermission,
         listQuery: () => this.props.navigate(listUrl),
         navigate: this.props.navigate,
-        query: () => this.query(),
+        // a failed reload is shown as the error state, so callers that do not
+        // wait for the result never see a rejection
+        query: () => this.query().catch(() => undefined),
         queueAlert: (this.context as IAppContextType).queueAlert,
         setState: (s) => this.setState(s),
         state: this.state,
@@ -171,6 +186,15 @@ export const Page = function <
             <Main>
               {loading ? (
                 <LoadingSpinner />
+              ) : error ? (
+                <ListErrorState
+                  title={i18n._(errorTitle)}
+                  message={error}
+                  onRetry={() => {
+                    // a failure is shown as the error state again
+                    this.query().catch(() => undefined);
+                  }}
+                />
               ) : (
                 <section
                   className='pulp-section'
@@ -185,36 +209,38 @@ export const Page = function <
       );
     }
 
-    private query() {
+    private query(): Promise<T> {
       const { name } = transformParams(this.props.routeParams);
 
       if (!name) {
-        this.setState({ loading: false });
+        this.latestQuery += 1;
+        this.setState({ loading: false, error: null });
         return Promise.resolve(null);
       }
 
+      const current = ++this.latestQuery;
+
       return new Promise((resolve, reject) => {
-        this.setState({ loading: true }, () => {
+        this.setState({ loading: true, error: null }, () => {
           query({ name })
             .then((item) => {
-              this.setState({
-                item,
-                loading: false,
-              });
+              if (current === this.latestQuery) {
+                this.setState({
+                  item,
+                  loading: false,
+                });
+              }
               resolve(item);
             })
             .catch((e) => {
-              const { status, statusText } = e.response;
-              this.setState({
-                loading: false,
-                item: null,
-              });
-              this.addAlert({
-                title: i18n._(errorTitle),
-                variant: 'danger',
-                description: jsxErrorMessage(status, statusText),
-              });
-              reject();
+              if (current === this.latestQuery) {
+                this.setState({
+                  loading: false,
+                  item: null,
+                  error: requestErrorDescription(e),
+                });
+              }
+              reject(e);
             });
         });
       });
