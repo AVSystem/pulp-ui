@@ -1,10 +1,11 @@
 import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { listOf } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { config } from 'src/ui-config';
 import { dataRoutes } from './app-routes';
 
 // The guarded routes of the application, without the lazily loaded layout
@@ -92,5 +93,57 @@ describe('route guard', () => {
     expect(screen.getByTestId('location')).toHaveTextContent(
       `/login/?next=${encodeURIComponent(PROTECTED_PATH)}`,
     );
+  });
+
+  it('a protected route sends its full return URL, query string included, to the login page', async () => {
+    const target = '/signature-keys?page=2&sort=name';
+    renderWithProviders(<Routed />, { route: target });
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      `/login/?next=${encodeURIComponent(target)}`,
+    );
+  });
+
+  it('a protected route without a query string sends the bare path, with no trailing question mark', async () => {
+    renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+    const shown = screen.getByTestId('location').textContent ?? '';
+    expect(shown).toBe(`/login/?next=${encodeURIComponent(PROTECTED_PATH)}`);
+    expect(decodeURIComponent(shown)).not.toContain('?next=/signature-keys?');
+  });
+
+  it('a protected route keeps encoded characters in the query string byte for byte', async () => {
+    const target = '/signature-keys?name=%C5%BC&q=a%26b';
+    renderWithProviders(<Routed />, { route: target });
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+    const shown = screen.getByTestId('location').textContent ?? '';
+    const next = new URL(shown, 'https://ui.example').searchParams.get('next');
+    expect(next).toBe(target);
+  });
+
+  describe('with an external login address', () => {
+    afterEach(() => {
+      config.UI_EXTERNAL_LOGIN_URI = null;
+      vi.restoreAllMocks();
+    });
+
+    it('a protected route passes the path with its query string to the external login address', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, {
+        route: '/signature-keys?page=2&sort=name',
+      });
+
+      await waitFor(() => expect(replace).toHaveBeenCalledTimes(1));
+      expect(replace).toHaveBeenCalledWith(
+        `https://login.example/start?next=${encodeURIComponent('/ui/signature-keys?page=2&sort=name')}`,
+      );
+    });
   });
 });

@@ -423,7 +423,9 @@ const AuthHandler = ({
   path,
 }: IRouteConfig) => {
   const { user, status, endReason } = useUserContext();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  // The whole address the user asked for, so signing in lands on it.
+  const returnPath = `${pathname}${search}`;
 
   if (status === 'checking' && !noAuth) {
     // Redirecting before the session check answers would make every reload of
@@ -434,7 +436,7 @@ const AuthHandler = ({
   if (!user && !noAuth) {
     // NOTE: also update LoginLink when changing this
     if (config.UI_EXTERNAL_LOGIN_URI) {
-      window.location.replace(loginURL(pathname));
+      window.location.replace(loginURL(returnPath));
       return null;
     }
 
@@ -443,7 +445,7 @@ const AuthHandler = ({
         to={formatPath(
           Paths.meta.login,
           {},
-          { next: pathname, ...(endReason ? { reason: endReason } : {}) },
+          { next: returnPath, ...(endReason ? { reason: endReason } : {}) },
         )}
       />
     );
