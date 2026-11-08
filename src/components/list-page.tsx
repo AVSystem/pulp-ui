@@ -105,7 +105,7 @@ interface ListPageParams<T> {
 }
 
 export const ListPage = function <T>({
-  // { featureFlags, settings, user } => bool
+  // receives the app context (user, hasPermission, ...) => bool
   condition,
   // component name for debugging
   displayName,

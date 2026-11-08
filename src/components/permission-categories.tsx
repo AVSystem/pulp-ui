@@ -1,7 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Flex, FlexItem } from '@patternfly/react-core';
 import { type ModelPermissionsType } from 'src/api';
-import { useAppContext } from 'src/app-context';
 import { PermissionChipSelector } from 'src/components';
 
 interface IProps {
@@ -41,21 +40,7 @@ export const PermissionCategories = ({
   showCustom,
   showEmpty,
 }: IProps) => {
-  const { featureFlags } = useAppContext();
-  const showUserManagement = !featureFlags.external_authentication;
-
-  // show user/group permissions by default
-  const userManagementFilter = (permission) =>
-    showUserManagement ||
-    ![
-      'galaxy.delete_user',
-      'galaxy.add_user',
-      'galaxy.change_user',
-      'galaxy.delete_group',
-      'galaxy.add_group',
-    ].includes(permission);
-  const allPermissions =
-    Object.keys(model_permissions).filter(userManagementFilter);
+  const allPermissions = Object.keys(model_permissions);
 
   const groups = knownPermissionsAndCategories(
     model_permissions,
@@ -67,9 +52,9 @@ export const PermissionCategories = ({
         ...groups,
         {
           label: t`Custom permissions`,
-          allPermissions: permissions
-            .filter(userManagementFilter)
-            .filter((permission) => !allPermissions.includes(permission)),
+          allPermissions: permissions.filter(
+            (permission) => !allPermissions.includes(permission),
+          ),
         },
       ]
     : groups;
