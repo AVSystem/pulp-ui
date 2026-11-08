@@ -37,22 +37,8 @@ export function formatPath(
   return params ? `${url}?${ParamHelper.getQueryString(params)}` : url;
 }
 
-// handle long/short EE routes:
-// (path, container: 'namespaced/name') -> (path, { namespace: 'namespaced', container: 'name' })
-// (path, container: 'simple') -> (path, { container: 'simple' })
-// see also containerName
-export function formatEEPath(path, data, params?) {
-  if (data.container?.includes('/')) {
-    const [namespace, container] = data.container.split('/');
-    return formatPath(path, { ...data, namespace, container }, params);
-  }
-
-  return formatPath(path, data, params);
-}
-
 export const Paths = {
   ansible: {
-    approvals: '/ansible/approvals',
     collection: {
       content_docs:
         '/ansible/collections/content_docs/:repo/:namespace/:collection/:type/:name',
@@ -66,15 +52,11 @@ export const Paths = {
         '/ansible/collections/docs_index/:repo/:namespace/:collection',
       docs_page:
         '/ansible/collections/docs_page/:repo/:namespace/:collection/:page',
-      imports: '/ansible/collections/imports/:repo/:namespace/:collection',
       list: '/ansible/collections',
     },
-    imports: '/ansible/my-imports',
     namespace: {
       detail: '/ansible/namespaces/detail/:namespace',
-      edit: '/ansible/namespaces/edit/:namespace',
       list: '/ansible/namespaces',
-      mine: '/ansible/my-namespaces',
     },
     remote: {
       detail: '/ansible/remotes/detail/:name',

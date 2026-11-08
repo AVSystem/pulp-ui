@@ -1,25 +1,17 @@
-export { ActivitiesAPI } from './activities';
 export { AnsibleDistributionAPI } from './ansible-distribution';
 export { AnsibleRemoteAPI, type AnsibleRemoteType } from './ansible-remote';
 export {
   AnsibleRepositoryAPI,
   type AnsibleRepositoryType,
 } from './ansible-repository';
-export { CertificateUploadAPI } from './certificate-upload';
-export { CollectionAPI } from './collection';
 export { CollectionVersionAPI } from './collection-version';
 export {
   ContainerDistributionAPI,
   ContainerPullThroughDistributionAPI,
 } from './container-distribution';
-export { ContainerTagAPI } from './container-tag';
 export { DebDistributionAPI } from './deb-distribution';
 export { DebRemoteAPI, type DebRemoteType } from './deb-remote';
 export { DebRepositoryAPI, type DebRepositoryType } from './deb-repository';
-export { ExecutionEnvironmentAPI } from './execution-environment';
-export { ExecutionEnvironmentNamespaceAPI } from './execution-environment-namespace';
-export { ExecutionEnvironmentRegistryAPI } from './execution-environment-registry';
-export { ExecutionEnvironmentRemoteAPI } from './execution-environment-remote';
 export { FileContentAPI } from './file-content';
 export { FileDistributionAPI } from './file-distribution';
 export { FilePublicationAPI } from './file-publication';
@@ -34,11 +26,8 @@ export {
   GenericRepositoryAPI,
   GenericRepositoryVersionAPI,
 } from './generic-pulp';
-export { getCancelToken } from './get-cancel-token';
 export { GroupAPI } from './group';
 export { GroupRoleAPI } from './group-role';
-export { ImportAPI } from './import';
-export { NamespaceAPI } from './namespace';
 export { OrphanCleanupAPI } from './orphan-cleanup';
 export { PulpLoginAPI } from './pulp-login';
 export { PulpStatusAPI } from './pulp-status';
@@ -53,19 +42,6 @@ export {
   type ContentSummaryType,
   type DocsBlobType,
 } from './response-types/collection';
-export {
-  type ContainerManifestType,
-  type ContainerRepositoryType,
-} from './response-types/execution-environment';
-export {
-  type ImportDetailType,
-  type ImportListType,
-} from './response-types/import';
-export {
-  type NamespaceLinkType,
-  type NamespaceListType,
-  type NamespaceType,
-} from './response-types/namespace';
 export { type GroupObjectPermissionType } from './response-types/permissions';
 export { PulpStatus } from './response-types/pulp';
 export { type RemoteType } from './response-types/remote';
@@ -93,10 +69,7 @@ export { RPMPackageAPI } from './rpm-package';
 export { RPMDistributionAPI } from './rpm-distribution';
 export { RPMRemoteAPI, type RPMRemoteType } from './rpm-remote';
 export { RPMRepositoryAPI, type RPMRepositoryType } from './rpm-repository';
-export { SignCollectionAPI } from './sign-collections';
-export { SignContainersAPI } from './sign-containers';
 export { SigningServiceAPI, type SigningServiceType } from './signing-service';
-export { TagAPI } from './tag';
 export { TaskAPI } from './task';
 export { TaskPurgeAPI } from './task-purge';
 export { UserAPI } from './user';
