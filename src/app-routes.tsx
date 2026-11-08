@@ -10,59 +10,17 @@ import {
   LoadingPage,
   NotFound,
 } from 'src/components';
+import { lazyScreen } from 'src/components/lazy-screen';
 import { ListErrorState } from 'src/components/list-error-state';
 import { Main } from 'src/components/main';
 import { PluginNotInstalled } from 'src/components/plugin-not-installed';
-import {
-  AboutProject,
-  AnsibleRemoteDetail,
-  AnsibleRemoteEdit,
-  AnsibleRemoteList,
-  AnsibleRepositoryDetail,
-  AnsibleRepositoryEdit,
-  AnsibleRepositoryList,
-  DebRemoteDetail,
-  DebRemoteEdit,
-  DebRemoteList,
-  DebRepositoryDetail,
-  DebRepositoryEdit,
-  DebRepositoryList,
-  EditRole,
-  EditUser,
-  FileRemoteDetail,
-  FileRemoteEdit,
-  FileRemoteList,
-  FileRepositoryDetail,
-  FileRepositoryEdit,
-  FileRepositoryList,
-  GroupDetail,
-  GroupList,
-  LoginPage,
-  PulpStatus,
-  PythonPackageList,
-  PythonRemoteDetail,
-  PythonRemoteEdit,
-  PythonRemoteList,
-  PythonRepositoryDetail,
-  PythonRepositoryEdit,
-  PythonRepositoryList,
-  RPMPackageList,
-  RPMRemoteDetail,
-  RPMRemoteEdit,
-  RPMRemoteList,
-  RPMRepositoryDetail,
-  RPMRepositoryEdit,
-  RPMRepositoryList,
-  RoleCreate,
-  RoleList,
-  SignatureKeysList,
-  TaskDetail,
-  TaskListView,
-  UserCreate,
-  UserDetail,
-  UserList,
-  UserProfile,
-} from 'src/containers';
+import AboutProject from 'src/containers/about-project';
+import AnsibleRemoteDetail from 'src/containers/ansible-remote/detail';
+import AnsibleRemoteEdit from 'src/containers/ansible-remote/edit';
+import AnsibleRemoteList from 'src/containers/ansible-remote/list';
+import AnsibleRepositoryDetail from 'src/containers/ansible-repository/detail';
+import AnsibleRepositoryEdit from 'src/containers/ansible-repository/edit';
+import AnsibleRepositoryList from 'src/containers/ansible-repository/list';
 import {
   CollectionsComingSoon,
   ContainersComingSoon,
@@ -70,12 +28,81 @@ import {
   RemoteRegistriesComingSoon,
   SearchComingSoon,
 } from 'src/containers/coming-soon-screens';
+import DebRemoteDetail from 'src/containers/deb-remote/detail';
+import DebRemoteEdit from 'src/containers/deb-remote/edit';
+import DebRemoteList from 'src/containers/deb-remote/list';
+import DebRepositoryDetail from 'src/containers/deb-repository/detail';
+import DebRepositoryEdit from 'src/containers/deb-repository/edit';
+import DebRepositoryList from 'src/containers/deb-repository/list';
+import GroupDetail from 'src/containers/group-management/group-detail';
+import GroupList from 'src/containers/group-management/group-list';
+import LoginPage from 'src/containers/login/login';
+import PulpStatus from 'src/containers/pulp-status';
+import PythonRemoteDetail from 'src/containers/python-remote/detail';
+import PythonRemoteEdit from 'src/containers/python-remote/edit';
+import PythonRemoteList from 'src/containers/python-remote/list';
+import PythonRepositoryDetail from 'src/containers/python-repository/detail';
+import PythonRepositoryEdit from 'src/containers/python-repository/edit';
+import PythonRepositoryList from 'src/containers/python-repository/list';
+import PythonPackageList from 'src/containers/python/package-list';
+import RoleCreate from 'src/containers/role-management/role-create';
+import EditRole from 'src/containers/role-management/role-edit';
+import RoleList from 'src/containers/role-management/role-list';
+import RPMRemoteDetail from 'src/containers/rpm-remote/detail';
+import RPMRemoteEdit from 'src/containers/rpm-remote/edit';
+import RPMRemoteList from 'src/containers/rpm-remote/list';
+import RPMRepositoryDetail from 'src/containers/rpm-repository/detail';
+import RPMRepositoryEdit from 'src/containers/rpm-repository/edit';
+import RPMRepositoryList from 'src/containers/rpm-repository/list';
+import RPMPackageList from 'src/containers/rpm/package-list';
+import UserProfile from 'src/containers/settings/user-profile';
+import SignatureKeysList from 'src/containers/signature-keys/list';
+import TaskDetail from 'src/containers/task-management/task-detail';
+import TaskListView from 'src/containers/task-management/task-list-view';
+import UserCreate from 'src/containers/user-management/user-create';
+import UserDetail from 'src/containers/user-management/user-detail';
+import EditUser from 'src/containers/user-management/user-edit';
+import UserList from 'src/containers/user-management/user-list';
 import { Paths, formatPath } from 'src/paths';
 import { usePlugins } from 'src/plugins';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
 import { requestErrorDescription } from 'src/utilities/request-error';
 import { useUserContext } from './user-context';
+
+// Screens that are fetched when they are first shown, one chunk per section.
+// Import each screen from its own file: a barrel would put every screen back
+// into the entry.
+const FileRemoteDetail = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/detail'),
+);
+const FileRemoteEdit = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/edit'),
+);
+const FileRemoteList = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/list'),
+);
+const FileRepositoryDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "file" */ 'src/containers/file-repository/detail'
+    ),
+);
+const FileRepositoryEdit = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "file" */ 'src/containers/file-repository/edit'
+    ),
+);
+const FileRepositoryList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "file" */ 'src/containers/file-repository/list'
+    ),
+);
 
 interface IRouteConfig {
   beta?: boolean;
