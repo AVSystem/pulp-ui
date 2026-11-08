@@ -1,12 +1,21 @@
 import { screen, within } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { AppContextProvider } from 'src/app-context';
+import { AppContext, AppContextProvider } from 'src/app-context';
 import { remote as remoteBuilder } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { RemoteForm } from './remote-form';
 
 type Plugin = 'ansible' | 'container' | 'deb' | 'file' | 'python' | 'rpm';
+
+const hiddenFields = [
+  'client_key',
+  'proxy_username',
+  'proxy_password',
+  'username',
+  'password',
+  'token',
+].map((name) => ({ name, is_set: false }));
 
 // The form is controlled, so a small parent keeps the remote the way the edit
 // pages do and hands the latest value to onSave.
@@ -24,14 +33,7 @@ function Harness({
     ...(plugin === 'deb' ? { distributions: 'stable' } : {}),
     ...(plugin === 'ansible'
       ? {
-          hidden_fields: [
-            'client_key',
-            'proxy_username',
-            'proxy_password',
-            'username',
-            'password',
-            'token',
-          ].map((name) => ({ name, is_set: false })),
+          hidden_fields: hiddenFields,
         }
       : {}),
     ...initial,
@@ -228,5 +230,54 @@ describe('remote form, total timeout and retries', () => {
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({ total_timeout: 0.5, max_retries: 0 }),
     );
+  });
+});
+
+// The app context carries the alerts, the user and the permission check only;
+// no flag decides whether a plugin field is offered.
+function renderWithBareContext(plugin: Plugin) {
+  return renderWithProviders(
+    <AppContext.Provider
+      value={{
+        alerts: [],
+        hasPermission: () => true,
+        queueAlert: () => undefined,
+        setAlerts: () => undefined,
+        user: null,
+      }}
+    >
+      <RemoteForm
+        allowEditName
+        closeModal={() => undefined}
+        errorMessages={{}}
+        plugin={plugin}
+        remote={
+          {
+            ...remoteBuilder({ name: 'tools' }),
+            ...(plugin === 'ansible' ? { hidden_fields: hiddenFields } : {}),
+          } as never
+        }
+        saveRemote={() => undefined}
+        showMain
+        updateRemote={() => undefined}
+      />
+    </AppContext.Provider>,
+  );
+}
+
+describe('remote form, signed only', () => {
+  it('offers the signed only switch for an ansible remote whatever the app context carries', async () => {
+    renderWithBareContext('ansible');
+
+    expect(
+      await screen.findByText('Download only signed collections'),
+    ).toBeInTheDocument();
+  });
+
+  it('does not offer the signed only switch for a file remote', async () => {
+    renderWithBareContext('file');
+
+    await screen.findByRole('textbox', { name: /Name/ });
+    expect(screen.queryByText('Download only signed collections')).toBeNull();
   });
 });

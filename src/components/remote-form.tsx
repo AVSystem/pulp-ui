@@ -22,7 +22,7 @@ import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { Component, type ReactNode } from 'react';
 import { type RemoteType } from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+import { AppContext } from 'src/app-context';
 import {
   Alert,
   ExternalLink,
@@ -266,8 +266,6 @@ export class RemoteForm extends Component<IProps, IState> {
   ) {
     const { errorMessages, plugin, remote } = this.props;
     const { filenames } = this.state;
-    const { collection_signing } = (this.context as IAppContextType)
-      .featureFlags;
 
     const docsAnsibleLink = (
       <ExternalLink href='https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#install-multiple-collections-with-a-requirements-file'>
@@ -708,7 +706,7 @@ export class RemoteForm extends Component<IProps, IState> {
           </>
         ) : null}
 
-        {!disabledFields.includes('signed_only') && collection_signing ? (
+        {!disabledFields.includes('signed_only') ? (
           <FormGroup
             fieldId={'signed_only'}
             label={t`Download only signed collections`}
