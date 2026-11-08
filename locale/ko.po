@@ -658,6 +658,10 @@ msgstr ""
 #~ msgid "Ansible Lightspeed settings"
 #~ msgstr "Ansible Lightspeed 설정"
 
+#: src/containers/coming-soon-screens.tsx
+msgid "Ansible repositories"
+msgstr ""
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
 #~ msgstr ""
@@ -734,7 +738,6 @@ msgid "Approval status:"
 msgstr "승인 상태:"
 
 #: src/containers/approvals/approvals.tsx
-#: src/menu.tsx
 msgid "Approvals"
 msgstr ""
 
@@ -1387,6 +1390,7 @@ msgstr "컬렉션을 수정하면 컬렉션 버전이 표시됩니다."
 #~ msgstr "ID인 컬렉션 {0}을/를 찾을 수 없음."
 
 #: src/containers/ansible-repository/detail.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/multi-search.tsx
 #: src/containers/search/search.tsx
@@ -1542,6 +1546,7 @@ msgid "Container repository name"
 msgstr "컨테이너 리포지터리 이름"
 
 #: src/components/execution-environment-header.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #: src/containers/search/multi-search.tsx
@@ -3582,7 +3587,6 @@ msgstr "로그 가져오기"
 
 #: src/containers/my-imports/my-imports.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-#: src/menu.tsx
 msgid "Imports"
 msgstr "가져오기"
 
@@ -4184,6 +4188,7 @@ msgstr "네임스페이스 이름은 영숫자와 밑줄로 제한되며 최소 
 #: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/collection-detail/collection-docs.tsx
 #: src/containers/collection-detail/collection-import-log.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/namespace-list/namespace-list.tsx
@@ -5195,6 +5200,10 @@ msgstr ""
 #~ msgid "Pulp Core Version"
 #~ msgstr ""
 
+#: src/components/coming-soon.tsx
+msgid "Pulp documentation"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 msgid "Pulp export"
 msgstr ""
@@ -5540,6 +5549,7 @@ msgstr "원격을 표시할 수 없습니다."
 msgid "Remote name"
 msgstr "원격 이름"
 
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/execution-environment/registry-list.tsx
 #: src/menu.tsx
 msgid "Remote registries"
@@ -6203,6 +6213,7 @@ msgid "Scroll to end"
 msgstr "끝까지 스크롤"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/search/multi-search.tsx
 #: src/menu.tsx
 msgid "Search"
@@ -7451,6 +7462,10 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
+msgstr ""
+
+#: src/components/coming-soon.tsx
+msgid "This screen is not available in this UI yet."
 msgstr ""
 
 #: src/components/tag-manifest-modal.tsx

@@ -66,7 +66,6 @@ function standaloneMenu() {
         }),
         menuItem(t`Namespaces`, {
           url: formatPath(Paths.ansible.namespace.list),
-          alternativeUrls: [altPath(Paths.ansible.namespace.mine)],
           condition: BROKEN,
         }),
         menuItem(t`Repositories`, {
@@ -74,14 +73,6 @@ function standaloneMenu() {
         }),
         menuItem(t`Remotes`, {
           url: formatPath(Paths.ansible.remote.list),
-        }),
-        menuItem(t`Approvals`, {
-          url: formatPath(Paths.ansible.approvals),
-          condition: BROKEN,
-        }),
-        menuItem(t`Imports`, {
-          url: formatPath(Paths.ansible.imports),
-          condition: BROKEN,
         }),
       ],
     ),

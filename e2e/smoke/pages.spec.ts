@@ -35,6 +35,23 @@ test.describe('pages of a signed-in session', () => {
     });
   }
 
+  // A screen that needs an API this UI does not use yet says so instead of
+  // failing.
+  test('Search shows the placeholder', async ({ page }) => {
+    await page.goto('search');
+    await expect(title(page, 'Search')).toBeVisible();
+    await expect(
+      page.getByText('This screen is not available in this UI yet.'),
+    ).toBeVisible();
+  });
+
+  // Workflows of the galaxy_ng server have no screen here, so their addresses
+  // lead to the page for unknown routes.
+  test('a removed galaxy workflow shows the 404 page', async ({ page }) => {
+    await page.goto('ansible/approvals');
+    await expect(title(page, '404 - Page not found')).toBeVisible();
+  });
+
   // The throwaway Pulp starts empty, so the empty states are shown.
   test('Deb repositories', async ({ page }) => {
     await page.goto('deb/repositories');
