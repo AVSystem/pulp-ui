@@ -22,7 +22,6 @@ interface TabProps {
   item: AnsibleRepositoryType;
   actionContext: {
     addAlert: (alert) => void;
-    featureFlags;
     hasPermission;
     state: { params };
     user;

@@ -66,7 +66,7 @@ export const PageWithTabs = function <
 >({
   // ({ name }) => [{ url?, name }]
   breadcrumbs,
-  // { featureFlags, settings, user } => bool
+  // receives the app context (user, hasPermission, ...) => bool
   condition,
   // component name for debugging
   displayName,
