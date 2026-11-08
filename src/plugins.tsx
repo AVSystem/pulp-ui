@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -63,9 +64,9 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
     load(true);
   }, [load]);
 
+  const value = useMemo(() => ({ ...plugins, retry }), [plugins, retry]);
+
   return (
-    <PluginsContext.Provider value={{ ...plugins, retry }}>
-      {children}
-    </PluginsContext.Provider>
+    <PluginsContext.Provider value={value}>{children}</PluginsContext.Provider>
   );
 };
