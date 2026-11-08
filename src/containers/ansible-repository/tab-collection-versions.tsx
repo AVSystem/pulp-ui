@@ -30,7 +30,8 @@ export const CollectionVersionsTab = ({
   // key of the list never goes on the request.
   // @ts-expect-error: TS2525: Initializer provides no value for this binding element and the binding element has no default value.
   const query = ({ params } = {}) => {
-    const { sort: _sort, ...rest } = { ...params };
+    const rest = { ...params };
+    delete rest.sort;
 
     return CollectionVersionAPI.list({
       ...rest,
