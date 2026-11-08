@@ -1365,7 +1365,6 @@ msgstr "컬렉션을 수정하면 컬렉션 버전이 표시됩니다."
 #~ msgid "Collection with id {0} not found."
 #~ msgstr "ID인 컬렉션 {0}을/를 찾을 수 없음."
 
-#: src/containers/ansible-repository/detail.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx
 msgid "Collections"
@@ -3694,8 +3693,8 @@ msgstr "키 지문"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
-msgid "Keywords"
-msgstr "키워드"
+#~ msgid "Keywords"
+#~ msgstr "키워드"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -3989,6 +3988,7 @@ msgstr "정수여야 합니다."
 msgid "My profile"
 msgstr "내 프로필"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/group-modal.tsx
 #: src/components/list-page.test.tsx
 #: src/components/remote-form.tsx
@@ -3997,6 +3997,7 @@ msgstr "내 프로필"
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
+#: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
@@ -5687,8 +5688,8 @@ msgstr "생성된 리포지토리가 나타납니다."
 #~ msgstr "repository"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Repository"
-msgstr "리포지토리"
+#~ msgid "Repository"
+#~ msgstr "리포지토리"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6549,12 +6550,12 @@ msgstr "처음부터 시작"
 
 #. placeholder {0}: repository.name
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
-msgstr "\"{0}\"에서 리포지토리 \"{repositoryName}\"에 {namespace}.{name} v{version}을/를 추가하기 시작했습니다."
+#~ msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
+#~ msgstr "\"{0}\"에서 리포지토리 \"{repositoryName}\"에 {namespace}.{name} v{version}을/를 추가하기 시작했습니다."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
-#~ msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Started at"

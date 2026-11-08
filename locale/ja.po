@@ -1365,7 +1365,6 @@ msgstr "コレクションが変更されると、コレクションのバージ
 #~ msgid "Collection with id {0} not found."
 #~ msgstr "ID {0} 付きコレクションが見つかりません。"
 
-#: src/containers/ansible-repository/detail.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx
 msgid "Collections"
@@ -3694,8 +3693,8 @@ msgstr "鍵のフィンガープリント"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
-msgid "Keywords"
-msgstr "キーワード"
+#~ msgid "Keywords"
+#~ msgstr "キーワード"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -3989,6 +3988,7 @@ msgstr "整数でなければなりません。"
 msgid "My profile"
 msgstr "自分のプロファイル"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/group-modal.tsx
 #: src/components/list-page.test.tsx
 #: src/components/remote-form.tsx
@@ -3997,6 +3997,7 @@ msgstr "自分のプロファイル"
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
+#: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
@@ -5687,8 +5688,8 @@ msgstr "リポジトリーが作成されると表示されます。"
 #~ msgstr "repository"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Repository"
-msgstr "リポジトリー"
+#~ msgid "Repository"
+#~ msgstr "リポジトリー"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6549,12 +6550,12 @@ msgstr "ゼロから始めます"
 
 #. placeholder {0}: repository.name
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
-msgstr "\"{0}\" to repository \"{repositoryName}\" から {namespace}.{name} v{version} の追加を開始しました。"
+#~ msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
+#~ msgstr "\"{0}\" to repository \"{repositoryName}\" から {namespace}.{name} v{version} の追加を開始しました。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
-#~ msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Started at"

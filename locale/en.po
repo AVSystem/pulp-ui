@@ -1366,7 +1366,6 @@ msgstr "Collection versions will appear once the collection is modified."
 #~ msgid "Collection with id {0} not found."
 #~ msgstr "Collection with id {0} not found."
 
-#: src/containers/ansible-repository/detail.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx
 msgid "Collections"
@@ -3695,8 +3694,8 @@ msgstr "Key fingerprint"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
-msgid "Keywords"
-msgstr "Keywords"
+#~ msgid "Keywords"
+#~ msgstr "Keywords"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -3990,6 +3989,7 @@ msgstr "Must be an integer."
 msgid "My profile"
 msgstr "My profile"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/group-modal.tsx
 #: src/components/list-page.test.tsx
 #: src/components/remote-form.tsx
@@ -3998,6 +3998,7 @@ msgstr "My profile"
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
+#: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
@@ -5688,8 +5689,8 @@ msgstr "Repositories will appear once created."
 #~ msgstr "repository"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Repository"
-msgstr "Repository"
+#~ msgid "Repository"
+#~ msgstr "Repository"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6550,12 +6551,12 @@ msgstr "Start from scratch"
 
 #. placeholder {0}: repository.name
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
-msgstr "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
+#~ msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
+#~ msgstr "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
-#~ msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Started at"

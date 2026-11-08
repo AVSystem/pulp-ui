@@ -123,4 +123,22 @@ describe('the collection versions tab of an ansible repository', () => {
     });
     await waitFor(() => expect(alerts).toHaveLength(1));
   });
+
+  it('still opens the add collection dialog after a removal dialog was cancelled', async () => {
+    const { user } = setup([row()]);
+    const created = await screen.findByText('ns.col v1.0.0');
+    const tableRow = created.closest('tr') as HTMLElement;
+
+    await user.click(within(tableRow).getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Remove' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    await user.click(screen.getByRole('button', { name: 'Add collection' }));
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Select a collection' }),
+    ).toBeTruthy();
+  });
 });

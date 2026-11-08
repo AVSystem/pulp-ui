@@ -1365,7 +1365,6 @@ msgstr "修改集合后会出现集合版本。"
 #~ msgid "Collection with id {0} not found."
 #~ msgstr "未找到 ID 为 {0} 的集合。"
 
-#: src/containers/ansible-repository/detail.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx
 msgid "Collections"
@@ -3694,8 +3693,8 @@ msgstr "密钥指纹"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
-msgid "Keywords"
-msgstr "关键字"
+#~ msgid "Keywords"
+#~ msgstr "关键字"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -3989,6 +3988,7 @@ msgstr "必须是整数。"
 msgid "My profile"
 msgstr "我的配置集"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/group-modal.tsx
 #: src/components/list-page.test.tsx
 #: src/components/remote-form.tsx
@@ -3997,6 +3997,7 @@ msgstr "我的配置集"
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
+#: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
@@ -5687,8 +5688,8 @@ msgstr "仓库在创建后会出现。"
 #~ msgstr "repository"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Repository"
-msgstr "仓库"
+#~ msgid "Repository"
+#~ msgstr "仓库"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6549,12 +6550,12 @@ msgstr "从头开始"
 
 #. placeholder {0}: repository.name
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
-msgstr "已开始的将 {namespace}.{name} v{version} 从 \"{0}\" 添加到仓库 \"{repositoryName}\"。"
+#~ msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
+#~ msgstr "已开始的将 {namespace}.{name} v{version} 从 \"{0}\" 添加到仓库 \"{repositoryName}\"。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
-#~ msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Started at"
