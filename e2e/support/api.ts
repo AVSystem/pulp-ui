@@ -72,6 +72,7 @@ const REPOSITORIES = [
   'repositories/deb/apt/',
   'repositories/rpm/rpm/',
   'repositories/python/python/',
+  'repositories/ansible/ansible/',
 ];
 const REMOTES = [
   'remotes/file/file/',
