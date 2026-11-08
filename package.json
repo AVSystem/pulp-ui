@@ -4,6 +4,13 @@
   "license": "Apache-2.0",
   "author": "Martin Hradil, Zita Pospisil Nemeckova",
   "private": true,
+  "sideEffects": [
+    "*.css",
+    "*.scss",
+    "./src/entrypoint.tsx",
+    "./src/l10n.ts",
+    "./src/darkmode.ts"
+  ],
   "dependencies": {
     "@babel/runtime": "^8.0.7",
     "@lingui/core": "^6.9.1",

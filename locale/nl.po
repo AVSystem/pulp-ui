@@ -5409,6 +5409,10 @@ msgstr ""
 #~ msgid "Released <0/>"
 #~ msgstr "Heeft <0/> vrijgegeven"
 
+#: src/components/lazy-screen.tsx
+msgid "Reload"
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
@@ -7351,6 +7355,10 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
+msgstr ""
+
+#: src/components/lazy-screen.tsx
+msgid "This screen could not be loaded"
 msgstr ""
 
 #: src/components/coming-soon.tsx

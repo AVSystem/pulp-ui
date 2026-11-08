@@ -10,59 +10,11 @@ import {
   LoadingPage,
   NotFound,
 } from 'src/components';
+import { lazyScreen } from 'src/components/lazy-screen';
 import { ListErrorState } from 'src/components/list-error-state';
 import { Main } from 'src/components/main';
 import { PluginNotInstalled } from 'src/components/plugin-not-installed';
-import {
-  AboutProject,
-  AnsibleRemoteDetail,
-  AnsibleRemoteEdit,
-  AnsibleRemoteList,
-  AnsibleRepositoryDetail,
-  AnsibleRepositoryEdit,
-  AnsibleRepositoryList,
-  DebRemoteDetail,
-  DebRemoteEdit,
-  DebRemoteList,
-  DebRepositoryDetail,
-  DebRepositoryEdit,
-  DebRepositoryList,
-  EditRole,
-  EditUser,
-  FileRemoteDetail,
-  FileRemoteEdit,
-  FileRemoteList,
-  FileRepositoryDetail,
-  FileRepositoryEdit,
-  FileRepositoryList,
-  GroupDetail,
-  GroupList,
-  LoginPage,
-  PulpStatus,
-  PythonPackageList,
-  PythonRemoteDetail,
-  PythonRemoteEdit,
-  PythonRemoteList,
-  PythonRepositoryDetail,
-  PythonRepositoryEdit,
-  PythonRepositoryList,
-  RPMPackageList,
-  RPMRemoteDetail,
-  RPMRemoteEdit,
-  RPMRemoteList,
-  RPMRepositoryDetail,
-  RPMRepositoryEdit,
-  RPMRepositoryList,
-  RoleCreate,
-  RoleList,
-  SignatureKeysList,
-  TaskDetail,
-  TaskListView,
-  UserCreate,
-  UserDetail,
-  UserList,
-  UserProfile,
-} from 'src/containers';
+import AboutProject from 'src/containers/about-project';
 import {
   CollectionsComingSoon,
   ContainersComingSoon,
@@ -70,12 +22,259 @@ import {
   RemoteRegistriesComingSoon,
   SearchComingSoon,
 } from 'src/containers/coming-soon-screens';
+import LoginPage from 'src/containers/login/login';
 import { Paths, formatPath } from 'src/paths';
 import { usePlugins } from 'src/plugins';
+import Root from 'src/routes/root';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
 import { requestErrorDescription } from 'src/utilities/request-error';
 import { useUserContext } from './user-context';
+
+// Every screen of a plugin section or core group is fetched when it is first
+// shown, one chunk per section or group, so the entry holds only the shell, the
+// sign-in and gate code and the small static pages. Import each screen from its
+// own file: a barrel would put every screen back into the entry.
+const AnsibleRemoteDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "ansible" */ 'src/containers/ansible-remote/detail'
+    ),
+);
+const AnsibleRemoteEdit = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "ansible" */ 'src/containers/ansible-remote/edit'
+    ),
+);
+const AnsibleRemoteList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "ansible" */ 'src/containers/ansible-remote/list'
+    ),
+);
+const AnsibleRepositoryDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "ansible" */ 'src/containers/ansible-repository/detail'
+    ),
+);
+const AnsibleRepositoryEdit = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "ansible" */ 'src/containers/ansible-repository/edit'
+    ),
+);
+const AnsibleRepositoryList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "ansible" */ 'src/containers/ansible-repository/list'
+    ),
+);
+const DebRemoteDetail = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "deb" */ 'src/containers/deb-remote/detail'),
+);
+const DebRemoteEdit = lazyScreen(
+  () => import(/* webpackChunkName: "deb" */ 'src/containers/deb-remote/edit'),
+);
+const DebRemoteList = lazyScreen(
+  () => import(/* webpackChunkName: "deb" */ 'src/containers/deb-remote/list'),
+);
+const DebRepositoryDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "deb" */ 'src/containers/deb-repository/detail'
+    ),
+);
+const DebRepositoryEdit = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "deb" */ 'src/containers/deb-repository/edit'),
+);
+const DebRepositoryList = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "deb" */ 'src/containers/deb-repository/list'),
+);
+const FileRemoteDetail = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/detail'),
+);
+const FileRemoteEdit = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/edit'),
+);
+const FileRemoteList = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/list'),
+);
+const FileRepositoryDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "file" */ 'src/containers/file-repository/detail'
+    ),
+);
+const FileRepositoryEdit = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "file" */ 'src/containers/file-repository/edit'
+    ),
+);
+const FileRepositoryList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "file" */ 'src/containers/file-repository/list'
+    ),
+);
+const GroupDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "groups" */ 'src/containers/group-management/group-detail'
+    ),
+);
+const GroupList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "groups" */ 'src/containers/group-management/group-list'
+    ),
+);
+const PulpStatus = lazyScreen(
+  () => import(/* webpackChunkName: "status" */ 'src/containers/pulp-status'),
+);
+const RoleCreate = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "roles" */ 'src/containers/role-management/role-create'
+    ),
+);
+const EditRole = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "roles" */ 'src/containers/role-management/role-edit'
+    ),
+);
+const RoleList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "roles" */ 'src/containers/role-management/role-list'
+    ),
+);
+const PythonRemoteDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python-remote/detail'
+    ),
+);
+const PythonRemoteEdit = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python-remote/edit'
+    ),
+);
+const PythonRemoteList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python-remote/list'
+    ),
+);
+const PythonRepositoryDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python-repository/detail'
+    ),
+);
+const PythonRepositoryEdit = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python-repository/edit'
+    ),
+);
+const PythonRepositoryList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python-repository/list'
+    ),
+);
+const PythonPackageList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/containers/python/package-list'
+    ),
+);
+const RPMPackageList = lazyScreen(
+  () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm/package-list'),
+);
+const RPMRemoteDetail = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-remote/detail'),
+);
+const RPMRemoteEdit = lazyScreen(
+  () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-remote/edit'),
+);
+const RPMRemoteList = lazyScreen(
+  () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-remote/list'),
+);
+const RPMRepositoryList = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-repository/list'),
+);
+const RPMRepositoryEdit = lazyScreen(
+  () =>
+    import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-repository/edit'),
+);
+const RPMRepositoryDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "rpm" */ 'src/containers/rpm-repository/detail'
+    ),
+);
+const UserProfile = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "users" */ 'src/containers/settings/user-profile'
+    ),
+);
+const SignatureKeysList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "signature-keys" */ 'src/containers/signature-keys/list'
+    ),
+);
+const TaskDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "tasks" */ 'src/containers/task-management/task-detail'
+    ),
+);
+const TaskListView = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "tasks" */ 'src/containers/task-management/task-list-view'
+    ),
+);
+const UserCreate = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "users" */ 'src/containers/user-management/user-create'
+    ),
+);
+const UserDetail = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "users" */ 'src/containers/user-management/user-detail'
+    ),
+);
+const EditUser = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "users" */ 'src/containers/user-management/user-edit'
+    ),
+);
+const UserList = lazyScreen(
+  () =>
+    import(
+      /* webpackChunkName: "users" */ 'src/containers/user-management/user-list'
+    ),
+);
 
 interface IRouteConfig {
   beta?: boolean;
@@ -525,20 +724,10 @@ const appRoutes = () =>
     ...rest,
   }));
 
-const convert = (m) => {
-  const {
-    default: Component,
-    clientLoader: loader,
-    clientAction: action,
-    ...rest
-  } = m;
-  return { ...rest, loader, action, Component };
-};
-
 export const dataRoutes = [
   {
     id: 'root',
-    lazy: () => import('src/routes/root').then((m) => convert(m)),
+    Component: Root,
     children: [
       {
         errorElement: <ErrorBoundary />,
