@@ -32,9 +32,9 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
   // arrives after the provider is gone, is ignored.
   const latest = useRef(0);
 
-  const load = useCallback(() => {
+  const load = useCallback((fresh = false) => {
     const current = ++latest.current;
-    plugin_versions().then(
+    plugin_versions({ fresh }).then(
       (list) => {
         if (current === latest.current) {
           setPlugins({
@@ -60,7 +60,7 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
 
   const retry = useCallback(() => {
     setPlugins({ state: 'loading' });
-    load();
+    load(true);
   }, [load]);
 
   return (
