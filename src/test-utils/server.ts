@@ -15,6 +15,21 @@ export const defaultHandlers = [
   http.get('*/pulp/api/v3/login/', () =>
     HttpResponse.json({ detail: 'Not authenticated.' }, { status: 401 }),
   ),
+  // The plugins every route of the application needs.
+  http.get('*/pulp/api/v3/status/', () =>
+    HttpResponse.json({
+      versions: [
+        'core',
+        'file',
+        'certguard',
+        'ansible',
+        'container',
+        'deb',
+        'python',
+        'rpm',
+      ].map((component) => ({ component, version: '3.0.0' })),
+    }),
+  ),
 ];
 
 export const server = setupServer(...defaultHandlers);

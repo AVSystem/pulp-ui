@@ -17,14 +17,20 @@ server.listen({ onUnhandledRequest: 'error' });
 // Requests made while the configuration module loads have settled before the
 // first test body runs, so request code that reads the configuration never
 // sees it unset.
+let resetPluginVersionsCache: () => void = () => undefined;
 beforeAll(async () => {
   const { configPromise } = await import('src/ui-config');
   await configPromise;
+  // Imported here for the same reason: the module reads the configuration.
+  ({ resetPluginVersionsCache } = await import('src/utilities/plugin-version'));
 });
 
 // Handlers added by one test never leak into the next one.
 afterEach(() => {
   server.resetHandlers();
+  // The installed plugins are cached for the page's lifetime; a test must not
+  // inherit the answer of the one before it.
+  resetPluginVersionsCache();
   cleanup();
   window.localStorage.clear();
   window.sessionStorage.clear();

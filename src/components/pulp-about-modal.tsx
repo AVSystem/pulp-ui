@@ -7,12 +7,12 @@ import {
   TextListItemVariants,
   TextListVariants,
 } from '@patternfly/react-core';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { DateComponent, ExternalLink, MaybeLink } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { usePlugins } from 'src/plugins';
 import { config } from 'src/ui-config';
-import { plugin_versions } from 'src/utilities';
 import PulpLogo from 'static/images/pulp_logo.png';
 
 // The fork's public repository; version tags and commits are linked from here.
@@ -32,24 +32,12 @@ interface IProps {
   username: string;
 }
 
-interface IApplicationInfo {
-  pulp_core_version?: string;
-}
-
 export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
-  const [applicationInfo, setApplicationInfo] = useState<IApplicationInfo>({});
-
-  useEffect(() => {
-    plugin_versions().then((arr) =>
-      setApplicationInfo({
-        pulp_core_version: arr.find((p) => p.name == 'core').version,
-      }),
-    );
-  }, []);
-
-  const {
-    pulp_core_version, // e.g. 3.65.0
-  } = applicationInfo;
+  const plugins = usePlugins();
+  // e.g. 3.65.0; unknown until the server has answered and when it could not
+  // be read
+  const pulp_core_version =
+    plugins.state === 'ready' ? plugins.versions.get('core') : undefined;
 
   const ui_hash = UI_BUILD_INFO?.hash;
   const ui_sha = ui_hash?.slice(0, 12);
@@ -72,7 +60,7 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
         <TextList component={TextListVariants.dl}>
           <Label>{t`Pulp core version`}</Label>
           <Value>
-            {pulp_core_version?.includes('.dev') ? (
+            {!pulp_core_version || pulp_core_version.includes('.dev') ? (
               pulp_core_version
             ) : (
               <ExternalLink

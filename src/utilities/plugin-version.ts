@@ -1,4 +1,3 @@
-import { satisfies } from 'compare-versions';
 import { PulpStatusAPI } from '../api/pulp-status';
 
 interface PluginVersion {
@@ -6,48 +5,43 @@ interface PluginVersion {
   version: string;
 }
 
-interface PluginRequirement {
-  name: string;
-  feature?: string;
-  specifier?: string;
-}
-
-const cache = {
+const cache: { promise: Promise<unknown> | null; time: number } = {
   promise: null,
   time: 0,
 };
 
-const cached = (fn) => {
-  // expires after 5 minutes
-  if (!cache.promise || cache.time + 300000 < Date.now()) {
+// Keeps one answer for 5 minutes and hands it to every caller meanwhile. A
+// failed answer is dropped as soon as it fails, so the next call asks the
+// server again instead of repeating the failure. fresh skips the cached answer.
+const cached = (fn: () => Promise<unknown>, fresh = false) => {
+  if (fresh || !cache.promise || cache.time + 300000 < Date.now()) {
     cache.time = Date.now();
-    cache.promise = fn();
+    const promise = fn().catch((error) => {
+      // A newer request may have replaced this one already.
+      if (cache.promise === promise) {
+        cache.promise = null;
+      }
+      throw error;
+    });
+    cache.promise = promise;
   }
 
   return cache.promise;
 };
 
-export function plugin_versions(): Promise<PluginVersion[]> {
-  return cached(() => PulpStatusAPI.get()).then(({ data }) =>
+// Forgets the cached answer, so the next call asks the server again.
+export function resetPluginVersionsCache() {
+  cache.promise = null;
+  cache.time = 0;
+}
+
+export function plugin_versions({
+  fresh = false,
+}: { fresh?: boolean } = {}): Promise<PluginVersion[]> {
+  return cached(() => PulpStatusAPI.get(), fresh).then(({ data }: { data }) =>
     data.versions.map(({ component, version }) => ({
       name: component,
       version: version,
     })),
   );
-}
-
-export function has_plugins(
-  plugin_requirements: PluginRequirement[],
-): Promise<boolean> {
-  return plugin_versions().then((versions) => {
-    const map_versions = new Map(
-      versions.map(({ name, version }) => [name, version]),
-    );
-    const present = (req) =>
-      map_versions.has(req.name) &&
-      (req.specifier
-        ? satisfies(map_versions.get(req.name), req.specifier)
-        : true);
-    return plugin_requirements.every(present);
-  });
 }

@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { Banner, Flex, FlexItem } from '@patternfly/react-core';
 import WrenchIcon from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
@@ -9,6 +10,9 @@ import {
   LoadingPage,
   NotFound,
 } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
+import { Main } from 'src/components/main';
+import { PluginNotInstalled } from 'src/components/plugin-not-installed';
 import {
   AboutProject,
   AnsibleRemoteDetail,
@@ -67,8 +71,10 @@ import {
   SearchComingSoon,
 } from 'src/containers/coming-soon-screens';
 import { Paths, formatPath } from 'src/paths';
+import { usePlugins } from 'src/plugins';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import { useUserContext } from './user-context';
 
 interface IRouteConfig {
@@ -76,36 +82,46 @@ interface IRouteConfig {
   component: ElementType;
   noAuth?: boolean;
   path: string;
+  // The component name the server reports for the plugin the route belongs
+  // to. Routes without one belong to Pulp core.
+  plugin?: string;
 }
 
 const routes: IRouteConfig[] = [
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.activities,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.access,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.manifest,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.images,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.detail,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.list,
+    plugin: 'container',
   },
   {
     component: RemoteRegistriesComingSoon,
     path: Paths.container.remote.list,
+    plugin: 'container',
   },
   {
     component: TaskListView,
@@ -143,74 +159,92 @@ const routes: IRouteConfig[] = [
   {
     component: AnsibleRemoteDetail,
     path: Paths.ansible.remote.detail,
+    plugin: 'ansible',
   },
   {
     component: AnsibleRemoteEdit,
     path: Paths.ansible.remote.edit,
+    plugin: 'ansible',
   },
   {
     component: AnsibleRemoteList,
     path: Paths.ansible.remote.list,
+    plugin: 'ansible',
   },
   {
     component: AnsibleRepositoryDetail,
     path: Paths.ansible.repository.detail,
+    plugin: 'ansible',
   },
   {
     component: AnsibleRepositoryEdit,
     path: Paths.ansible.repository.edit,
+    plugin: 'ansible',
   },
   {
     component: AnsibleRepositoryList,
     path: Paths.ansible.repository.list,
+    plugin: 'ansible',
   },
   {
     component: DebRemoteDetail,
     path: Paths.deb.remote.detail,
+    plugin: 'deb',
   },
   {
     component: DebRemoteEdit,
     path: Paths.deb.remote.edit,
+    plugin: 'deb',
   },
   {
     component: DebRemoteList,
     path: Paths.deb.remote.list,
+    plugin: 'deb',
   },
   {
     component: DebRepositoryDetail,
     path: Paths.deb.repository.detail,
+    plugin: 'deb',
   },
   {
     component: DebRepositoryEdit,
     path: Paths.deb.repository.edit,
+    plugin: 'deb',
   },
   {
     component: DebRepositoryList,
     path: Paths.deb.repository.list,
+    plugin: 'deb',
   },
   {
     component: FileRemoteDetail,
     path: Paths.file.remote.detail,
+    plugin: 'file',
   },
   {
     component: FileRemoteEdit,
     path: Paths.file.remote.edit,
+    plugin: 'file',
   },
   {
     component: FileRemoteList,
     path: Paths.file.remote.list,
+    plugin: 'file',
   },
   {
     component: FileRepositoryDetail,
     path: Paths.file.repository.detail,
+    plugin: 'file',
   },
   {
     component: FileRepositoryEdit,
     path: Paths.file.repository.edit,
+    plugin: 'file',
   },
   {
     component: FileRepositoryList,
     path: Paths.file.repository.list,
+    plugin: 'file',
   },
   {
     component: UserProfile,
@@ -244,6 +278,7 @@ const routes: IRouteConfig[] = [
   {
     component: NamespacesComingSoon,
     path: Paths.ansible.namespace.list,
+    plugin: 'ansible',
   },
   {
     component: LoginPage,
@@ -253,38 +288,47 @@ const routes: IRouteConfig[] = [
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.docs_page,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.docs_index,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.content_docs,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.content_list,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.distributions,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.dependencies,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.detail,
+    plugin: 'ansible',
   },
   {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.list,
+    plugin: 'ansible',
   },
   {
     component: NamespacesComingSoon,
     path: Paths.ansible.namespace.detail,
+    plugin: 'ansible',
   },
   {
     component: PulpStatus,
@@ -303,59 +347,73 @@ const routes: IRouteConfig[] = [
   {
     component: PythonPackageList,
     path: Paths.python.package.list,
+    plugin: 'python',
   },
   {
     component: PythonRemoteDetail,
     path: Paths.python.remote.detail,
+    plugin: 'python',
   },
   {
     component: PythonRemoteEdit,
     path: Paths.python.remote.edit,
+    plugin: 'python',
   },
   {
     component: PythonRemoteList,
     path: Paths.python.remote.list,
+    plugin: 'python',
   },
   {
     component: PythonRepositoryDetail,
     path: Paths.python.repository.detail,
+    plugin: 'python',
   },
   {
     component: PythonRepositoryEdit,
     path: Paths.python.repository.edit,
+    plugin: 'python',
   },
   {
     component: PythonRepositoryList,
     path: Paths.python.repository.list,
+    plugin: 'python',
   },
   {
     component: RPMPackageList,
     path: Paths.rpm.package.list,
+    plugin: 'rpm',
     beta: true,
   },
   {
     component: RPMRepositoryList,
     path: Paths.rpm.repository.list,
+    plugin: 'rpm',
   },
   {
     component: RPMRepositoryEdit,
     path: Paths.rpm.repository.edit,
+    plugin: 'rpm',
   },
   {
     component: RPMRepositoryDetail,
     path: Paths.rpm.repository.detail,
+    plugin: 'rpm',
   },
   {
     component: RPMRemoteDetail,
     path: Paths.rpm.remote.detail,
+    plugin: 'rpm',
   },
   {
     component: RPMRemoteEdit,
     path: Paths.rpm.remote.edit,
+    plugin: 'rpm',
   },
   {
     component: RPMRemoteList,
     path: Paths.rpm.remote.list,
+    plugin: 'rpm',
   },
 ];
 
@@ -364,8 +422,10 @@ const AuthHandler = ({
   component: Component,
   noAuth,
   path,
+  plugin,
 }: IRouteConfig) => {
   const { user, status, endReason } = useUserContext();
+  const plugins = usePlugins();
   const { pathname, search } = useLocation();
   // The whole address the user asked for, so signing in lands on it.
   const returnPath = `${pathname}${search}`;
@@ -392,6 +452,34 @@ const AuthHandler = ({
         )}
       />
     );
+  }
+
+  // Which screens are offered is a matter of presentation: Pulp decides who
+  // may read or write on every request. Only an answer from the server that
+  // lacks the plugin means it is not installed; while the answer is pending or
+  // failed nothing is known about it.
+  if (plugin) {
+    if (plugins.state === 'loading') {
+      return <LoadingPage />;
+    }
+
+    if (plugins.state === 'error') {
+      return (
+        <Main>
+          <section className='pulp-section'>
+            <ListErrorState
+              title={t`Could not read the installed plugins`}
+              message={requestErrorDescription(plugins.error)}
+              onRetry={plugins.retry}
+            />
+          </section>
+        </Main>
+      );
+    }
+
+    if (!plugins.versions.has(plugin)) {
+      return <PluginNotInstalled plugin={plugin} />;
+    }
   }
 
   const banner = beta ? (
@@ -423,13 +511,14 @@ const AuthHandler = ({
 };
 
 const appRoutes = () =>
-  routes.map(({ beta, component, noAuth, path, ...rest }) => ({
+  routes.map(({ beta, component, noAuth, path, plugin, ...rest }) => ({
     element: (
       <AuthHandler
         beta={beta}
         component={component}
         noAuth={noAuth}
         path={path}
+        plugin={plugin}
       />
     ),
     path: path,

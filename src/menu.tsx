@@ -1,11 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { Nav, NavExpandable, NavItem } from '@patternfly/react-core';
 import { reject, some } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { ExternalLink, NavList } from 'src/components';
-import { plugin_versions } from 'src/utilities';
 import { Paths, formatPath } from './paths';
+import { usePlugins } from './plugins';
 import { useUserContext } from './user-context';
 
 const menuItem = (name, options = {}) => ({
@@ -292,18 +292,16 @@ function Menu({
   );
 }
 
-function usePlugins() {
-  const [plugins, setPlugins] = useState({});
+// The installed plugins as the menu conditions read them: component name to
+// version, empty until the server has answered and when it could not be read.
+function useInstalledPlugins(): Record<string, string> {
+  const plugins = usePlugins();
+  const versions = plugins.state === 'ready' ? plugins.versions : null;
 
-  useEffect(() => {
-    plugin_versions().then((arr) =>
-      setPlugins(
-        Object.fromEntries(arr.map(({ name, version }) => [name, version])),
-      ),
-    );
-  }, []);
-
-  return plugins;
+  return useMemo(
+    () => (versions ? Object.fromEntries(versions) : {}),
+    [versions],
+  );
 }
 
 export const PulpMenu = () => {
@@ -314,7 +312,7 @@ export const PulpMenu = () => {
 
   const { user } = useUserContext();
 
-  const plugins = usePlugins();
+  const plugins = useInstalledPlugins();
 
   useEffect(() => {
     setMenu(standaloneMenu());
