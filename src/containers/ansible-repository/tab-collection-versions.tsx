@@ -1,19 +1,15 @@
 import { t } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { ansibleRepositoryCollectionVersionAddAction } from '../../actions/ansible-repository-collection-version-add';
+import { ansibleRepositoryCollectionVersionRemoveAction } from '../../actions/ansible-repository-collection-version-remove';
+import { type AnsibleRepositoryType } from '../../api/ansible-repository';
 import {
-  ansibleRepositoryCollectionVersionAddAction,
-  ansibleRepositoryCollectionVersionRemoveAction,
-} from 'src/actions';
-import {
-  type AnsibleRepositoryType,
+  type AnsibleCollectionVersion,
   CollectionVersionAPI,
-  type CollectionVersionSearch,
-} from 'src/api';
-import { DetailList, ListItemActions } from 'src/components';
-import { Paths, formatPath } from 'src/paths';
-import { parsePulpIDFromURL } from 'src/utilities';
+} from '../../api/collection-version';
+import { DetailList } from '../../components/detail-list';
+import { ListItemActions } from '../../components/list-item-actions';
 
 interface TabProps {
   item: AnsibleRepositoryType;
@@ -28,16 +24,17 @@ export const CollectionVersionsTab = ({
   item,
   actionContext: { addAlert, hasPermission },
 }: TabProps) => {
+  // The list of the plain content endpoint knows the filters namespace, name,
+  // version, q and tags and the repository version filters; any other key is
+  // answered with "Invalid Filter". The columns are not sortable, so the sort
+  // key of the list never goes on the request.
   // @ts-expect-error: TS2525: Initializer provides no value for this binding element and the binding element has no default value.
   const query = ({ params } = {}) => {
-    const newParams = { ...params };
-    newParams.ordering = newParams.sort;
-    delete newParams.sort;
+    const { sort: _sort, ...rest } = { ...params };
 
-    const repository = parsePulpIDFromURL(item.pulp_href);
     return CollectionVersionAPI.list({
-      repository,
-      ...newParams,
+      ...rest,
+      repository_version: item.latest_version_href,
     }).then(({ data: { count, results } }) => ({
       data: { count, results },
     }));
@@ -47,15 +44,12 @@ export const CollectionVersionsTab = ({
   useEffect(() => setModalState((ms) => ({ ...ms, repository: item })), [item]);
 
   const renderTableRow = (
-    item: CollectionVersionSearch,
+    item: AnsibleCollectionVersion,
     index: number,
     actionContext,
     listItemActions,
   ) => {
-    const {
-      collection_version: { name, namespace, version, description },
-      repository,
-    } = item;
+    const { name, namespace, version, description } = item;
 
     const kebabItems = listItemActions.map((action) =>
       action.dropdownItem(item, actionContext),
@@ -64,21 +58,7 @@ export const CollectionVersionsTab = ({
     return (
       <Tr key={index}>
         <Td>
-          <Link
-            to={formatPath(
-              Paths.ansible.collection.detail,
-              {
-                repo: repository.name,
-                namespace,
-                collection: name,
-              },
-              {
-                version,
-              },
-            )}
-          >
-            {namespace}.{name} v{version}
-          </Link>
+          {namespace}.{name} v{version}
         </Td>
         <Td>{description}</Td>
         <ListItemActions kebabItems={kebabItems} />
@@ -87,7 +67,7 @@ export const CollectionVersionsTab = ({
   };
 
   return (
-    <DetailList<CollectionVersionSearch>
+    <DetailList<AnsibleCollectionVersion>
       actionContext={{
         addAlert,
         state: modalState,
@@ -98,16 +78,15 @@ export const CollectionVersionsTab = ({
           item?.my_permissions?.includes?.(p),
       }}
       defaultPageSize={10}
-      defaultSort={'name'}
       errorTitle={t`Collection versions could not be displayed.`}
       filterConfig={[
         {
-          id: 'keywords',
-          title: t`Keywords`,
-        },
-        {
           id: 'namespace',
           title: t`Namespace`,
+        },
+        {
+          id: 'name',
+          title: t`Name`,
         },
       ]}
       headerActions={[ansibleRepositoryCollectionVersionAddAction]}
