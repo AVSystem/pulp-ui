@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { type ComponentType, type JSX, Suspense, lazy } from 'react';
+import { type ComponentType, Suspense, lazy } from 'react';
 import { ListErrorState } from 'src/components/list-error-state';
 import { LoadingPage } from 'src/components/loading-page';
 import { Main } from 'src/components/main';
