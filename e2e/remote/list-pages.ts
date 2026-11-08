@@ -1,5 +1,6 @@
-import { type Page } from '@playwright/test';
+import { type Page, expect } from '@playwright/test';
 import { apiContext } from '../support/api';
+import { title } from '../support/sign-in';
 
 // Every list page of the application, with the plugin that has to be installed
 // on the server for the page to make sense (null for pages of Pulp core) and
@@ -10,15 +11,26 @@ import { apiContext } from '../support/api';
 // expected to fail with that reason, so it still runs and the run reports it
 // the day the page works. `viewerRefused` marks a page the limited account may
 // not read: the server answers it with 403.
+//
+// `outcome` names a page that is deliberately not a working screen: a
+// placeholder that says the screen is not available yet, or the not-found page
+// of a route that no longer exists. Such a page must show exactly that, with no
+// failed request and no request to an endpoint that only galaxy_ng serves.
+// For these entries `title` is the heading the page shows.
+
+export type Outcome = 'placeholder' | 'not-found';
 
 export interface ListPage {
   name: string;
   path: string;
   plugin: string | null;
   title: string;
+  outcome?: Outcome;
   viewerRefused?: boolean;
   knownDefect?: { admin?: string; viewer?: string };
 }
+
+const NOT_FOUND_TITLE = '404 - Page not found';
 
 export const listPages: ListPage[] = [
   { name: 'Status', path: 'status', plugin: null, title: 'Status' },
@@ -61,12 +73,7 @@ export const listPages: ListPage[] = [
     path: 'search',
     plugin: null,
     title: 'Search',
-    knownDefect: {
-      admin:
-        'The page crashes into the error boundary: it builds a link without the repository name it needs.',
-      viewer:
-        'The page crashes into the error boundary: it builds a link without the repository name it needs.',
-    },
+    outcome: 'placeholder',
   },
   {
     name: 'Ansible repositories',
@@ -85,70 +92,49 @@ export const listPages: ListPage[] = [
     path: 'ansible/collections',
     plugin: 'ansible',
     title: 'Collections',
-    knownDefect: {
-      admin:
-        'The page crashes into the error boundary: it reads the namespace of a collection that the server does not return.',
-    },
+    outcome: 'placeholder',
   },
   {
     name: 'Ansible namespaces',
     path: 'ansible/namespaces',
     plugin: 'ansible',
     title: 'Namespaces',
-    knownDefect: {
-      admin:
-        'The list cannot be loaded: it calls an endpoint that exists only on galaxy_ng and shows a 404 error alert.',
-      viewer:
-        'The list cannot be loaded: it calls an endpoint that exists only on galaxy_ng and shows a 404 error alert.',
-    },
+    outcome: 'placeholder',
   },
   {
     name: 'Ansible my namespaces',
     path: 'ansible/my-namespaces',
     plugin: 'ansible',
-    title: 'Namespaces',
-    knownDefect: {
-      admin:
-        'The list cannot be loaded: it calls an endpoint that exists only on galaxy_ng and shows a 404 error alert.',
-      viewer:
-        'The list cannot be loaded: it calls an endpoint that exists only on galaxy_ng and shows a 404 error alert.',
-    },
+    title: NOT_FOUND_TITLE,
+    outcome: 'not-found',
   },
   {
     name: 'Ansible approvals',
     path: 'ansible/approvals',
     plugin: 'ansible',
-    title: 'Approvals',
-    knownDefect: {
-      admin:
-        'The page is an empty under-construction placeholder with no title.',
-      viewer:
-        'The page is an empty under-construction placeholder with no title.',
-    },
+    title: NOT_FOUND_TITLE,
+    outcome: 'not-found',
   },
   {
     name: 'Ansible imports',
     path: 'ansible/my-imports',
     plugin: 'ansible',
-    title: 'Imports',
-    knownDefect: {
-      admin:
-        'The page loads namespaces from an endpoint that exists only on galaxy_ng and shows a 404 error alert.',
-      viewer:
-        'The page loads namespaces from an endpoint that exists only on galaxy_ng and shows a 404 error alert.',
-    },
+    title: NOT_FOUND_TITLE,
+    outcome: 'not-found',
   },
   {
     name: 'Container repositories',
     path: 'container/containers',
     plugin: 'container',
     title: 'Containers',
+    outcome: 'placeholder',
   },
   {
     name: 'Container remote registries',
     path: 'container/remotes',
     plugin: 'container',
     title: 'Remote registries',
+    outcome: 'placeholder',
   },
   {
     name: 'Deb repositories',
@@ -236,14 +222,17 @@ export async function missingExpectedPlugins(): Promise<string[]> {
   return EXPECTED_PLUGINS.filter((plugin) => !present.has(plugin));
 }
 
-// Skip reason for a page whose plugin the server does not run, or null. The
-// pages of an expected plugin are skipped only when the run allows it; every
-// other plugin (container) is optional.
+// Skip reason for a page whose plugin the server does not run, or null. Only
+// the pages of an expected plugin are skipped, and only when the run allows
+// it. A page of an optional plugin (container) is never skipped: the
+// application says the plugin is not installed, and absentOptionalPlugin names
+// that case.
 export async function missingPlugin(entry: ListPage): Promise<string | null> {
-  if (!entry.plugin) {
-    return null;
-  }
-  if (EXPECTED_PLUGINS.includes(entry.plugin) && !missingPluginsAllowed()) {
+  if (
+    !entry.plugin ||
+    !EXPECTED_PLUGINS.includes(entry.plugin) ||
+    !missingPluginsAllowed()
+  ) {
     return null;
   }
   return (await installedPlugins()).has(entry.plugin)
@@ -251,16 +240,35 @@ export async function missingPlugin(entry: ListPage): Promise<string | null> {
     : `the ${entry.plugin} plugin is not installed on this server`;
 }
 
-// What a page did while it loaded: uncaught errors, and the answers of the
-// API that were errors.
+// The plugin of a page when that plugin is optional and the server does not
+// report it, otherwise null. The page then shows the not-installed page in
+// place of its screen.
+export async function absentOptionalPlugin(
+  entry: ListPage,
+): Promise<string | null> {
+  if (!entry.plugin || EXPECTED_PLUGINS.includes(entry.plugin)) {
+    return null;
+  }
+  return (await installedPlugins()).has(entry.plugin) ? null : entry.plugin;
+}
+
+// What a page did while it loaded: uncaught errors, the paths of the API
+// requests it sent, and the answers of the API that were errors.
 export interface PageWatch {
   errors: string[];
+  requests: string[];
   failed: { url: string; status: number }[];
 }
 
 export function watchPage(page: Page): PageWatch {
-  const watch: PageWatch = { errors: [], failed: [] };
+  const watch: PageWatch = { errors: [], requests: [], failed: [] };
   page.on('pageerror', (error) => watch.errors.push(error.message));
+  page.on('request', (request) => {
+    const { pathname } = new URL(request.url());
+    if (pathname.startsWith('/pulp/api/')) {
+      watch.requests.push(pathname);
+    }
+  });
   page.on('response', (response) => {
     const { pathname } = new URL(response.url());
     if (pathname.startsWith('/pulp/api/') && response.status() >= 400) {
@@ -276,4 +284,52 @@ export function failureShown(page: Page) {
   return page
     .locator('.pf-v5-c-alert.pf-m-danger')
     .or(page.getByRole('button', { name: 'Retry', exact: true }));
+}
+
+// A request path that only a galaxy_ng server answers: its internal UI API,
+// or its collection API, which is a second v3/ below the API root.
+export function galaxyOnly(pathname: string): boolean {
+  return /\/_ui\//.test(pathname) || pathname.startsWith('/pulp/api/v3/v3/');
+}
+
+// The page of an entry is on screen: the not-installed page when the plugin
+// is optional and absent, otherwise the entry's title, and for a placeholder
+// its sentence.
+export async function expectPageShown(
+  page: Page,
+  entry: ListPage,
+  notInstalled: string | null,
+): Promise<void> {
+  if (notInstalled) {
+    await expect(title(page, 'Plugin not installed')).toBeVisible();
+    await expect(
+      page.getByText(
+        `The ${notInstalled} plugin is not installed on this Pulp server.`,
+      ),
+    ).toBeVisible();
+    return;
+  }
+  await expect(title(page, entry.title)).toBeVisible();
+  if (entry.outcome === 'placeholder') {
+    await expect(
+      page.getByText('This screen is not available in this UI yet.'),
+    ).toBeVisible();
+  }
+}
+
+// A placeholder, a not-found page and a not-installed page load nothing of
+// their own: no failed answer, and no request to a galaxy-only endpoint.
+export function expectNothingLoaded(
+  watch: PageWatch,
+  entry: ListPage,
+  notInstalled: string | null,
+): void {
+  if (!entry.outcome && !notInstalled) {
+    return;
+  }
+  expect(watch.failed, 'API requests of the page that failed').toEqual([]);
+  expect(
+    watch.requests.filter(galaxyOnly),
+    'requests of the page to endpoints only galaxy_ng serves',
+  ).toEqual([]);
 }

@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { title } from '../support/sign-in';
 import {
+  absentOptionalPlugin,
+  expectNothingLoaded,
+  expectPageShown,
   failureShown,
   listPages,
   missingPlugin,
@@ -12,6 +15,8 @@ import {
 // is refused by the server with 403; it may show the title, or say so with an
 // error, but an error of any other kind (404, 500, no answer) is a fault of
 // the page. Neither may ever meet the error boundary or an uncaught error.
+// A placeholder, a not-found page and a not-installed page are shown to this
+// account exactly as to the admin.
 
 for (const entry of listPages) {
   const how = entry.viewerRefused
@@ -22,6 +27,7 @@ for (const entry of listPages) {
     test.skip(absent !== null, absent ?? '');
     test.fail(!!entry.knownDefect?.viewer, entry.knownDefect?.viewer ?? '');
 
+    const notInstalled = await absentOptionalPlugin(entry);
     const watch = watchPage(page);
 
     await page.goto(entry.path);
@@ -30,7 +36,7 @@ for (const entry of listPages) {
         title(page, entry.title).or(failureShown(page)).first(),
       ).toBeVisible();
     } else {
-      await expect(title(page, entry.title)).toBeVisible();
+      await expectPageShown(page, entry, notInstalled);
     }
     await page.waitForLoadState('networkidle');
 
@@ -40,6 +46,7 @@ for (const entry of listPages) {
     if (!entry.viewerRefused) {
       await expect(failureShown(page)).toHaveCount(0);
       expect(watch.failed, 'API requests of the page that failed').toEqual([]);
+      expectNothingLoaded(watch, entry, notInstalled);
       return;
     }
 
