@@ -27,6 +27,12 @@ const cached = (fn) => {
   return cache.promise;
 };
 
+// Forgets the cached answer, so the next call asks the server again.
+export function resetPluginVersionsCache() {
+  cache.promise = null;
+  cache.time = 0;
+}
+
 export function plugin_versions(): Promise<PluginVersion[]> {
   return cached(() => PulpStatusAPI.get()).then(({ data }) =>
     data.versions.map(({ component, version }) => ({

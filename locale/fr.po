@@ -4894,6 +4894,10 @@ msgstr ""
 msgid "Plugin"
 msgstr "Plugin"
 
+#: src/components/plugin-not-installed.tsx
+msgid "Plugin not installed"
+msgstr ""
+
 #: src/components/helper-text/helper-text.tsx
 #~ msgid "popover example"
 #~ msgstr "exemple de popover"
@@ -6569,6 +6573,7 @@ msgstr "État"
 msgid "States:"
 msgstr ""
 
+#: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/menu.tsx
@@ -6962,6 +6967,10 @@ msgstr "Les tâches apparaîtront une fois créées."
 #: src/loaders/standalone/layout.tsx
 #~ msgid "Thanks for trying out the new and improved Galaxy, please share your feedback on <0>forum.ansible.com</0>."
 #~ msgstr ""
+
+#: src/components/plugin-not-installed.tsx
+msgid "The {plugin} plugin is not installed on this Pulp server."
+msgstr ""
 
 #: src/loaders/insights/loader.tsx
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."

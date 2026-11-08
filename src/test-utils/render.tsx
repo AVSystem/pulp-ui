@@ -4,6 +4,7 @@ import { type RenderOptions, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type ReactElement, type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
+import { PluginsProvider } from 'src/plugins';
 import { UserContextProvider } from 'src/user-context';
 
 interface IRenderOptions extends Omit<RenderOptions, 'wrapper'> {
@@ -23,7 +24,9 @@ export function renderWithProviders(
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <I18nProvider i18n={i18n}>
       <UserContextProvider>
-        <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+        <PluginsProvider>
+          <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+        </PluginsProvider>
       </UserContextProvider>
     </I18nProvider>
   );

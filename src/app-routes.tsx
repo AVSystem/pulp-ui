@@ -9,6 +9,7 @@ import {
   LoadingPage,
   NotFound,
 } from 'src/components';
+import { PluginNotInstalled } from 'src/components/plugin-not-installed';
 import {
   AboutProject,
   AnsibleRemoteDetail,
@@ -67,6 +68,7 @@ import {
   SearchComingSoon,
 } from 'src/containers/coming-soon-screens';
 import { Paths, formatPath } from 'src/paths';
+import { usePlugins } from 'src/plugins';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
 import { useUserContext } from './user-context';
@@ -76,36 +78,46 @@ interface IRouteConfig {
   component: ElementType;
   noAuth?: boolean;
   path: string;
+  // The component name the server reports for the plugin the route belongs
+  // to. Routes without one belong to Pulp core.
+  plugin?: string;
 }
 
 const routes: IRouteConfig[] = [
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.activities,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.access,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.manifest,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.images,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.detail,
+    plugin: 'container',
   },
   {
     component: ContainersComingSoon,
     path: Paths.container.repository.list,
+    plugin: 'container',
   },
   {
     component: RemoteRegistriesComingSoon,
     path: Paths.container.remote.list,
+    plugin: 'container',
   },
   {
     component: TaskListView,
@@ -364,8 +376,10 @@ const AuthHandler = ({
   component: Component,
   noAuth,
   path,
+  plugin,
 }: IRouteConfig) => {
   const { user, status, endReason } = useUserContext();
+  const plugins = usePlugins();
   const { pathname, search } = useLocation();
   // The whole address the user asked for, so signing in lands on it.
   const returnPath = `${pathname}${search}`;
@@ -392,6 +406,12 @@ const AuthHandler = ({
         )}
       />
     );
+  }
+
+  // Which screens are offered is a matter of presentation: Pulp decides who
+  // may read or write on every request.
+  if (plugin && plugins.state === 'ready' && !plugins.versions.has(plugin)) {
+    return <PluginNotInstalled plugin={plugin} />;
   }
 
   const banner = beta ? (
@@ -423,13 +443,14 @@ const AuthHandler = ({
 };
 
 const appRoutes = () =>
-  routes.map(({ beta, component, noAuth, path, ...rest }) => ({
+  routes.map(({ beta, component, noAuth, path, plugin, ...rest }) => ({
     element: (
       <AuthHandler
         beta={beta}
         component={component}
         noAuth={noAuth}
         path={path}
+        plugin={plugin}
       />
     ),
     path: path,
