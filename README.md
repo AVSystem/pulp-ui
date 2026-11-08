@@ -149,6 +149,17 @@ npm run build
 The production build is written to `dist/`. It needs no environment variables inside a git
 checkout.
 
+CI measures the initial load, the gzip size of every script and stylesheet that `dist/index.html`
+names, against the limit in `config/bundle-budget.json`, and reports every other chunk in the job
+log and the job summary. After a build the same numbers are available locally:
+
+```sh
+node scripts/bundle-size.mjs --budget config/bundle-budget.json
+```
+
+The check fails when the initial load is over the limit. Raising the limit is a reviewed change of
+`config/bundle-budget.json` in a pull request.
+
 ### Unit tests
 
 ```sh
