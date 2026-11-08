@@ -24,7 +24,6 @@ msgstr ""
 msgid "(default)"
 msgstr ""
 
-#: src/components/collection-header.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
@@ -38,12 +37,12 @@ msgid "(more)"
 msgstr ""
 
 #: src/components/collection-header.tsx
-msgid "(signed)"
-msgstr "(署名済み)"
+#~ msgid "(signed)"
+#~ msgstr "(署名済み)"
 
 #: src/components/collection-header.tsx
-msgid "(unsigned)"
-msgstr "(未署名)"
+#~ msgid "(unsigned)"
+#~ msgstr "(未署名)"
 
 #: src/components/remote-form.tsx
 msgid "(uploaded)"
@@ -56,8 +55,8 @@ msgstr "{0, plural, one {Failed to add collection to repository \"{repositoryNam
 
 #. placeholder {0}: namespace.name
 #: src/components/partner-header.tsx
-msgid "{0} logo"
-msgstr "{0} ロゴ"
+#~ msgid "{0} logo"
+#~ msgstr "{0} ロゴ"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "{0} released {1}"
@@ -69,8 +68,8 @@ msgstr "{0} ロゴ"
 
 #. placeholder {0}: this.props.containerRepository.name
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "{0} was added"
-msgstr "{0} が追加されました"
+#~ msgid "{0} was added"
+#~ msgstr "{0} が追加されました"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "{0} will be deleted."
@@ -85,8 +84,8 @@ msgid "{alertType} alert:"
 msgstr ""
 
 #: src/components/collection-header.tsx
-msgid "{collectionName}'s versions."
-msgstr "{collectionName} のバージョン。"
+#~ msgid "{collectionName}'s versions."
+#~ msgstr "{collectionName} のバージョン。"
 
 #: src/components/cards/collection-card.tsx
 #: src/components/cards/namespace-card.tsx
@@ -97,20 +96,20 @@ msgstr "{collectionName} のバージョン。"
 #~ msgstr "{company} ロゴ"
 
 #: src/components/numeric-label.tsx
-msgid "{count, plural, one {Dependency} other {Dependencies}}"
-msgstr "{count, plural, one {Dependency} other {Dependencies}}"
+#~ msgid "{count, plural, one {Dependency} other {Dependencies}}"
+#~ msgstr "{count, plural, one {Dependency} other {Dependencies}}"
 
 #: src/components/numeric-label.tsx
-msgid "{count, plural, one {Module} other {Modules}}"
-msgstr "{count, plural, one {Module} other {Modules}}"
+#~ msgid "{count, plural, one {Module} other {Modules}}"
+#~ msgstr "{count, plural, one {Module} other {Modules}}"
 
 #: src/components/numeric-label.tsx
-msgid "{count, plural, one {Plugin} other {Plugins}}"
-msgstr "{count, plural, one {Plugin} other {Plugins}}"
+#~ msgid "{count, plural, one {Plugin} other {Plugins}}"
+#~ msgstr "{count, plural, one {Plugin} other {Plugins}}"
 
 #: src/components/numeric-label.tsx
-msgid "{count, plural, one {Role} other {Roles}}"
-msgstr "{count, plural, one {Role} other {Roles}}"
+#~ msgid "{count, plural, one {Role} other {Roles}}"
+#~ msgstr "{count, plural, one {Role} other {Roles}}"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{count} more"
@@ -125,8 +124,8 @@ msgid "{currentLanguage} (current)"
 msgstr ""
 
 #: src/components/download-count.tsx
-msgid "{downloadCount} downloads"
-msgstr ""
+#~ msgid "{downloadCount} downloads"
+#~ msgstr ""
 
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} Downloads"
@@ -141,13 +140,13 @@ msgid "{n, plural, one {# byte} other {# bytes}}"
 msgstr "{n, plural, one {# byte} other {# bytes}}"
 
 #: src/components/collection-filter.ts
-msgid "{name} ({count})"
-msgstr ""
+#~ msgid "{name} ({count})"
+#~ msgstr ""
 
 #: src/components/namespace-card.tsx
 #: src/components/namespace-list-item.tsx
-msgid "{name} logo"
-msgstr ""
+#~ msgid "{name} logo"
+#~ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "{name} will be cancelled."
@@ -160,8 +159,8 @@ msgstr "{name} は実行を停止します。"
 #: src/components/collection-card.tsx
 #: src/components/collection-header.tsx
 #: src/components/collection-list-item.tsx
-msgid "{nsTitle} logo"
-msgstr ""
+#~ msgid "{nsTitle} logo"
+#~ msgstr ""
 
 #: src/components/role-header.tsx
 #~ msgid "{subTitle}"
@@ -182,29 +181,29 @@ msgid "{title} steps"
 msgstr "{title} ステップ"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "<0/> was added"
-msgstr "<0/> が追加されました"
+#~ msgid "<0/> was added"
+#~ msgstr "<0/> が追加されました"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "<0/> was added to <1/>"
-msgstr "<0/> が <1/> に追加されました"
+#~ msgid "<0/> was added to <1/>"
+#~ msgstr "<0/> が <1/> に追加されました"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "<0/> was moved to <1/> from <2/>"
-msgstr "<0/> が <2/> から <1/> に移動されました"
+#~ msgid "<0/> was moved to <1/> from <2/>"
+#~ msgstr "<0/> が <2/> から <1/> に移動されました"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "<0/> was removed"
-msgstr "<0/> が削除されました"
+#~ msgid "<0/> was removed"
+#~ msgstr "<0/> が削除されました"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "<0/> was removed from <1/>"
-msgstr "<0/> が <1/> から削除されました"
+#~ msgid "<0/> was removed from <1/>"
+#~ msgstr "<0/> が <1/> から削除されました"
 
 #. placeholder {0}: remoteToEdit.name
 #: src/containers/execution-environment/registry-list.tsx
-msgid "<0>{0}</0> will be deleted."
-msgstr "<0>{0}</0> が削除されます。"
+#~ msgid "<0>{0}</0> will be deleted."
+#~ msgstr "<0>{0}</0> が削除されます。"
 
 #. placeholder {0}: user.username
 #: src/components/delete-user-modal.tsx
@@ -232,8 +231,8 @@ msgstr "<0>{name}</0> は完全に削除されます。"
 #~ msgstr "<0>注記:</0> ansible-galaxy を使用したコレクションのインストールは、ansible 2.9+ でのみサポートされます"
 
 #: src/components/collection-info.tsx
-msgid "<0>Note:</0> Installing collections with ansible-galaxy is only supported in ansible-core>=2.13.9"
-msgstr ""
+#~ msgid "<0>Note:</0> Installing collections with ansible-galaxy is only supported in ansible-core>=2.13.9"
+#~ msgstr ""
 
 #: src/components/execution-environment/publish-to-controller-modal.tsx
 #~ msgid "<0>Note:</0> The following links may be blocked by your browser. Copy and paste the external link manually."
@@ -244,8 +243,8 @@ msgstr ""
 #~ msgstr "<0>Note:</0> The following links may be blocked by your browser. Copy and paste the link manually."
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "<0>Note:</0> Use this URL to configure ansible-galaxy to upload collections to this namespace. More information on ansible-galaxy configurations can be found <1>here</1>."
-msgstr "<0>Note:</0> Use this URL to configure ansible-galaxy to upload collections to this namespace. More information on ansible-galaxy configurations can be found <1>here</1>."
+#~ msgid "<0>Note:</0> Use this URL to configure ansible-galaxy to upload collections to this namespace. More information on ansible-galaxy configurations can be found <1>here</1>."
+#~ msgstr "<0>Note:</0> Use this URL to configure ansible-galaxy to upload collections to this namespace. More information on ansible-galaxy configurations can be found <1>here</1>."
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "<0>Note:</0> Use this URL to configure ansible-galaxy to upload collections to this namespace. More information on ansible-galaxy configurations can be found <1>here</1><2> </2><3/>."
@@ -326,8 +325,8 @@ msgid "A sync of this repository is already running."
 msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
-msgid "A tag may contain lowercase and uppercase ASCII alphabetic characters, digits, underscores, periods, and dashes. A tag must not start with a period, underscore, or a dash."
-msgstr "タグには、小文字、大文字、小文字、数字、アンダースコア、ピリオド、およびダッシュを含めることができます。ただし、ピリオド、アンダースコア、またはダッシュで開始しないでください。"
+#~ msgid "A tag may contain lowercase and uppercase ASCII alphabetic characters, digits, underscores, periods, and dashes. A tag must not start with a period, underscore, or a dash."
+#~ msgstr "タグには、小文字、大文字、小文字、数字、アンダースコア、ピリオド、およびダッシュを含めることができます。ただし、ピリオド、アンダースコア、またはダッシュで開始しないでください。"
 
 #: src/containers/search/search.tsx
 #~ msgid "A tech preview of the new Automation Hub user interface can be found <0>here</0>."
@@ -350,11 +349,9 @@ msgstr "情報"
 msgid "About project"
 msgstr ""
 
-#: src/components/execution-environment-header.tsx
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/group-management/group-detail.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Access"
 msgstr "アクセス"
 
@@ -363,25 +360,22 @@ msgstr "アクセス"
 #~ msgstr "Active user profile \"{0}\" could not be displayed."
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "Activities"
-msgstr "アクティビティー"
+#~ msgid "Activities"
+#~ msgstr "アクティビティー"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "Activities will appear once you push something"
-msgstr "項目をプッシュするとアクティビティーが表示されます"
+#~ msgid "Activities will appear once you push something"
+#~ msgstr "項目をプッシュするとアクティビティーが表示されます"
 
 #: src/components/execution-environment-header.tsx
-msgid "Activity"
-msgstr "アクティビティー"
+#~ msgid "Activity"
+#~ msgstr "アクティビティー"
 
-#: src/components/container-repository-form.tsx
-#: src/components/tag-manifest-modal.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-remote/edit.tsx
 #: src/containers/deb-repository/edit.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #: src/containers/file-remote/edit.tsx
 #: src/containers/file-repository/edit.tsx
 #: src/containers/group-management/group-detail.tsx
@@ -393,8 +387,8 @@ msgid "Add"
 msgstr "追加"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
-msgid "Add a README with instructions for using this container."
-msgstr "このコンテナーの使用手順を記載した README を追加します。"
+#~ msgid "Add a README with instructions for using this container."
+#~ msgstr "このコンテナーの使用手順を記載した README を追加します。"
 
 #: src/components/role-form.tsx
 msgid "Add a role description here"
@@ -422,8 +416,8 @@ msgstr "コレクションの追加"
 
 #: src/components/container-repository-form.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Add container"
-msgstr ""
+#~ msgid "Add container"
+#~ msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Add container distribution"
@@ -463,12 +457,12 @@ msgid "Add new repository"
 msgstr "新しいリポジトリーの追加"
 
 #: src/components/tag-manifest-modal.tsx
-msgid "Add new tag"
-msgstr "新規タグの追加"
+#~ msgid "Add new tag"
+#~ msgstr "新規タグの追加"
 
 #: src/components/tag-manifest-modal.tsx
-msgid "Add new tag to image"
-msgstr "新規タグのイメージへの追加"
+#~ msgid "Add new tag to image"
+#~ msgstr "新規タグのイメージへの追加"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Add or remove"
@@ -487,8 +481,8 @@ msgid "Add remote"
 msgstr "リモートの追加"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Add remote registry"
-msgstr "リモートレジストリーの追加"
+#~ msgid "Add remote registry"
+#~ msgstr "リモートレジストリーの追加"
 
 #: src/actions/ansible-repository-create.tsx
 #: src/actions/deb-repository-create.tsx
@@ -513,12 +507,12 @@ msgstr "選択したユーザーのグループへの追加"
 #~ msgstr "Add synclist"
 
 #: src/components/container-repository-form.tsx
-msgid "Add tag(s) to exclude"
-msgstr "除外するタグの追加"
+#~ msgid "Add tag(s) to exclude"
+#~ msgstr "除外するタグの追加"
 
 #: src/components/container-repository-form.tsx
-msgid "Add tag(s) to include"
-msgstr "含めるタグの追加"
+#~ msgid "Add tag(s) to include"
+#~ msgstr "含めるタグの追加"
 
 #: src/constants.tsx
 #~ msgid "Add user"
@@ -554,7 +548,6 @@ msgstr ""
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/file-repository/tab-details.tsx
-#: src/containers/namespace-list/namespace-list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
@@ -574,8 +567,8 @@ msgid "All projects"
 msgstr ""
 
 #: src/components/import-modal.tsx
-msgid "All repos"
-msgstr ""
+#~ msgid "All repos"
+#~ msgstr ""
 
 #: src/components/import-modal.tsx
 #~ msgid "All Repos"
@@ -672,8 +665,8 @@ msgstr ""
 #~ msgstr "API Error: {0}"
 
 #: src/utilities/repo-signing.ts
-msgid "API error: {ex}"
-msgstr ""
+#~ msgid "API error: {ex}"
+#~ msgstr ""
 
 #: src/utilities/repo-signing.ts
 #~ msgid "API Error: {ex}"
@@ -681,8 +674,8 @@ msgstr ""
 
 #: src/components/collection-header.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "API error: {status}"
-msgstr ""
+#~ msgid "API error: {status}"
+#~ msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/components/collection-header.tsx
@@ -694,8 +687,8 @@ msgstr ""
 #~ msgstr "API Error: 500"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "API error: Failed to set deprecation."
-msgstr ""
+#~ msgid "API error: Failed to set deprecation."
+#~ msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "API Error: Failed to set deprecation."
@@ -704,8 +697,8 @@ msgstr ""
 #. placeholder {0}: err.status
 #. placeholder {0}: errors.response.status
 #: src/components/import-modal.tsx
-msgid "API error. Status code: {0}"
-msgstr "API エラー。ステータスコード: {0}"
+#~ msgid "API error. Status code: {0}"
+#~ msgstr "API エラー。ステータスコード: {0}"
 
 #: src/containers/token/token.tsx
 #: src/menu.tsx
@@ -734,29 +727,29 @@ msgstr "API エラー。ステータスコード: {0}"
 #~ msgstr "承認に失敗しました。"
 
 #: src/components/import-console.tsx
-msgid "Approval status:"
-msgstr "承認状態:"
+#~ msgid "Approval status:"
+#~ msgstr "承認状態:"
 
 #: src/containers/approvals/approvals.tsx
-msgid "Approvals"
-msgstr ""
+#~ msgid "Approvals"
+#~ msgstr ""
 
 #: src/components/approval-row.tsx
-msgid "Approve"
-msgstr "承認"
+#~ msgid "Approve"
+#~ msgstr "承認"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Approve, reject and sync collections from remotes."
 msgstr "リモートからのコレクションを承認、拒否、同期します。"
 
 #: src/components/import-console.tsx
-msgid "approved"
-msgstr "承認"
+#~ msgid "approved"
+#~ msgstr "承認"
 
 #: src/components/approval-row.tsx
 #: src/containers/approvals/approvals.tsx
-msgid "Approved"
-msgstr "承認済"
+#~ msgid "Approved"
+#~ msgstr "承認済"
 
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
@@ -831,12 +824,12 @@ msgid "Autopublish"
 msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Available matching collections"
-msgstr ""
+#~ msgid "Available matching collections"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Available matching containers"
-msgstr ""
+#~ msgid "Available matching containers"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Available matching execution environments"
@@ -847,8 +840,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Available matching namespaces"
-msgstr ""
+#~ msgid "Available matching namespaces"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Available matching role namespaces"
@@ -865,7 +858,6 @@ msgstr "戻る"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
@@ -946,26 +938,16 @@ msgstr "CA 証明書"
 #: src/actions/python-distribution-edit.tsx
 #: src/actions/repository-version-revert.tsx
 #: src/components/confirm-modal.tsx
-#: src/components/container-repository-form.tsx
 #: src/components/delete-modal.tsx
 #: src/components/group-modal.tsx
-#: src/components/import-modal.tsx
-#: src/components/multi-repo-modal.tsx
-#: src/components/namespace-modal.tsx
 #: src/components/orphan-cleanup-task-modal.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/remote-form.tsx
 #: src/components/repair-task-modal.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
-#: src/components/sign-all-certificates-modal.tsx
-#: src/components/sign-single-certificate-modal.tsx
-#: src/components/tag-manifest-modal.tsx
-#: src/components/upload-signature-modal.tsx
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
-#: src/containers/edit-namespace/edit-namespace.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #: src/containers/group-management/group-detail.tsx
 msgid "Cancel"
 msgstr "取り消し"
@@ -980,46 +962,46 @@ msgstr "取り消し済み"
 #~ msgstr "コレクションの依存関係が<0/>削除されるまで<1/>名前空間は削除できません"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Cannot delete non-empty namespace"
-msgstr ""
+#~ msgid "Cannot delete non-empty namespace"
+#~ msgstr ""
 
 #: src/utilities/delete-collection.tsx
 #~ msgid "Cannot delete until collections <0/>that depend on this collection <1/>have been deleted."
 #~ msgstr "このコレクションに依存する<0/>コレクションが削除されるまで<1/>削除できません。"
 
 #: src/components/collection-dropdown.tsx
-msgid "Cannot delete until collections that depend on this collection have been deleted."
-msgstr ""
+#~ msgid "Cannot delete until collections that depend on this collection have been deleted."
+#~ msgstr ""
 
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
 #: src/components/collection-header.tsx
-msgid "Certificate for collection \"{0} {1} v{2}\" has been successfully uploaded."
-msgstr "コレクション \"{0} {1} v{2}\" の証明書が正常にアップロードされました。"
+#~ msgid "Certificate for collection \"{0} {1} v{2}\" has been successfully uploaded."
+#~ msgstr "コレクション \"{0} {1} v{2}\" の証明書が正常にアップロードされました。"
 
 #: src/containers/approvals/approvals.tsx
-msgid "Certificate for collection \"{namespace} {name} v{version}\" has been successfully uploaded."
-msgstr "コレクション \"{namespace} {name} v{version}\" の証明書が正常にアップロードされました。"
+#~ msgid "Certificate for collection \"{namespace} {name} v{version}\" has been successfully uploaded."
+#~ msgstr "コレクション \"{namespace} {name} v{version}\" の証明書が正常にアップロードされました。"
 
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
 #: src/containers/approvals/approvals.tsx
-msgid "Certification status for collection \"{0} {1} v{2}\" has been successfully updated."
-msgstr "コレクション \"{0} {1} v{2}\" の認定ステータスが正常に更新されました。"
+#~ msgid "Certification status for collection \"{0} {1} v{2}\" has been successfully updated."
+#~ msgstr "コレクション \"{0} {1} v{2}\" の認定ステータスが正常に更新されました。"
 
 #: src/components/approve-modal.tsx
-msgid "Certification status for collection \"{namespace} {name} v{version}\" has been successfully updated."
-msgstr ""
+#~ msgid "Certification status for collection \"{namespace} {name} v{version}\" has been successfully updated."
+#~ msgstr ""
 
 #: src/components/repository-badge.tsx
 #~ msgid "Certified"
 #~ msgstr "認定済み"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "Change"
-msgstr "変更"
+#~ msgid "Change"
+#~ msgstr "変更"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Change and upload collections to namespaces."
@@ -1100,8 +1082,8 @@ msgstr ""
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
 #: src/containers/approvals/approvals.tsx
-msgid "Changes to certification status for collection \"{0} {1} v{2}\" could not be saved."
-msgstr "コレクション \"{0} {1} v{2}\" の認定ステータスへの変更を保存できませんでした。"
+#~ msgid "Changes to certification status for collection \"{0} {1} v{2}\" could not be saved."
+#~ msgstr "コレクション \"{0} {1} v{2}\" の認定ステータスへの変更を保存できませんでした。"
 
 #. placeholder {0}: this.state.selectedGroup.name
 #: src/containers/group-management/group-list.tsx
@@ -1110,8 +1092,8 @@ msgstr "グループ \"{0}\" への変更を保存できませんでした。"
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
-msgid "Changes to namespace \"{0}\" could not be saved."
-msgstr "名前空間 \"{0}\" への変更を保存できませんでした。"
+#~ msgid "Changes to namespace \"{0}\" could not be saved."
+#~ msgstr "名前空間 \"{0}\" への変更を保存できませんでした。"
 
 #: src/containers/role-management/role-edit.tsx
 msgid "Changes to role \"{name}\" could not be saved."
@@ -1148,10 +1130,8 @@ msgid "Clear all filters"
 msgstr "すべてのフィルターの解除"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "CLI configuration"
 msgstr "CLI 設定"
@@ -1202,37 +1182,35 @@ msgid "Code"
 msgstr "コード"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/collection-usedby-dependencies-list.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/approvals/approvals.tsx
 msgid "Collection"
 msgstr "コレクション"
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/collection-header.tsx
-msgid "Collection \"{0} v{collectionVersion}\" could not be deleted."
-msgstr "コレクション \"{0} v{collectionVersion}\" を削除できませんでした。"
+#~ msgid "Collection \"{0} v{collectionVersion}\" could not be deleted."
+#~ msgstr "コレクション \"{0} v{collectionVersion}\" を削除できませんでした。"
 
 #. placeholder {0}: collection.collection_version.name
 #: src/utilities/delete-collection.ts
-msgid "Collection \"{0}\" could not be deleted."
-msgstr "コレクション \"{0}\" を削除できませんでした。"
+#~ msgid "Collection \"{0}\" could not be deleted."
+#~ msgstr "コレクション \"{0}\" を削除できませんでした。"
 
 #. placeholder {0}: collection.collection_version.name
 #: src/components/collection-header.tsx
-msgid "Collection \"{0}\" could not be deprecated."
-msgstr "コレクション \"{0}\" を非推奨化できませんでした。"
+#~ msgid "Collection \"{0}\" could not be deprecated."
+#~ msgstr "コレクション \"{0}\" を非推奨化できませんでした。"
 
 #. placeholder {0}: collection.collection_version.name
 #: src/components/collection-header.tsx
-msgid "Collection \"{0}\" could not be undeprecated."
-msgstr "コレクション \"{0}\" の非推奨化を解除できませんでした。"
+#~ msgid "Collection \"{0}\" could not be undeprecated."
+#~ msgstr "コレクション \"{0}\" の非推奨化を解除できませんでした。"
 
 #. placeholder {0}: collection.collection_version.name
 #: src/utilities/delete-collection.ts
-msgid "Collection \"{0}\" has been successfully deleted."
-msgstr ""
+#~ msgid "Collection \"{0}\" has been successfully deleted."
+#~ msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Collection \"{0}\" has been successfully deprecated."
@@ -1247,44 +1225,44 @@ msgstr ""
 #~ msgstr "Collection \"{name} v{collectionVersion}\" could not be deleted."
 
 #: src/components/collection-header.tsx
-msgid "Collection \"{name} v{collectionVersion}\" has been successfully deleted."
-msgstr "コレクション \"{name} v{collectionVersion}\" が正常に削除されました。"
+#~ msgid "Collection \"{name} v{collectionVersion}\" has been successfully deleted."
+#~ msgstr "コレクション \"{name} v{collectionVersion}\" が正常に削除されました。"
 
 #: src/utilities/delete-collection.tsx
 #~ msgid "Collection \"{name}\" could not be deleted."
 #~ msgstr "Collection \"{name}\" could not be deleted."
 
 #: src/containers/search/search.tsx
-msgid "Collection \"{name}\" could not be deprecated."
-msgstr "コレクション \"{name}\" を非推奨化できませんでした。"
+#~ msgid "Collection \"{name}\" could not be deprecated."
+#~ msgstr "コレクション \"{name}\" を非推奨化できませんでした。"
 
 #: src/components/collection-info.tsx
-msgid "Collection \"{name}\" could not be downloaded."
-msgstr "コレクション \"{name}\" をダウンロードできませんでした。"
+#~ msgid "Collection \"{name}\" could not be downloaded."
+#~ msgstr "コレクション \"{name}\" をダウンロードできませんでした。"
 
 #: src/containers/search/search.tsx
-msgid "Collection \"{name}\" could not be undeprecated."
-msgstr "コレクション \"{name}\" の非推奨化を解除できませんでした。"
+#~ msgid "Collection \"{name}\" could not be undeprecated."
+#~ msgstr "コレクション \"{name}\" の非推奨化を解除できませんでした。"
 
 #: src/utilities/delete-collection.tsx
 #~ msgid "Collection \"{name}\" has been successfully deleted."
 #~ msgstr "コレクション \"{name}\" が正常に削除されました。"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Collection \"{name}\" has been successfully deprecated."
-msgstr "コレクション \"{name}\" が正常に非推奨化されました。"
+#~ msgid "Collection \"{name}\" has been successfully deprecated."
+#~ msgstr "コレクション \"{name}\" が正常に非推奨化されました。"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Collection \"{name}\" has been successfully undeprecated."
-msgstr "コレクション \"{name}\" の非推奨化が正常に解除されました。"
+#~ msgid "Collection \"{name}\" has been successfully undeprecated."
+#~ msgstr "コレクション \"{name}\" の非推奨化が正常に解除されました。"
 
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Collection {0}.{1} v{2} could not be copied."
 #~ msgstr ""
 
 #: src/components/copy-collection-to-repository-modal.tsx
-msgid "Collection {namespace}.{name} v{version} could not be copied."
-msgstr ""
+#~ msgid "Collection {namespace}.{name} v{version} could not be copied."
+#~ msgstr ""
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Collection count"
@@ -1295,20 +1273,20 @@ msgstr ""
 #~ msgstr "Collection count for \"{distributionPath}\" could not be displayed."
 
 #: src/containers/collection-detail/collection-distributions.tsx
-msgid "Collection distributions"
-msgstr "コレクションのディストリビューション"
+#~ msgid "Collection distributions"
+#~ msgstr "コレクションのディストリビューション"
 
 #: src/containers/collection-detail/collection-dependencies.tsx
-msgid "Collection does not have any dependencies."
-msgstr "コレクションには依存関係が何もありません。"
+#~ msgid "Collection does not have any dependencies."
+#~ msgstr "コレクションには依存関係が何もありません。"
 
 #: src/components/collection-dependencies-list.tsx
-msgid "Collection does not have dependencies."
-msgstr "コレクションには依存関係がありません。"
+#~ msgid "Collection does not have dependencies."
+#~ msgstr "コレクションには依存関係がありません。"
 
 #: src/containers/collection-detail/collection-distributions.tsx
-msgid "Collection doesn't have any distribution assigned."
-msgstr "コレクションにはディストリビューションが割り当てられていません。"
+#~ msgid "Collection doesn't have any distribution assigned."
+#~ msgstr "コレクションにはディストリビューションが割り当てられていません。"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Collection failed to be removed from those repositories: {0}"
@@ -1319,12 +1297,12 @@ msgstr "コレクションにはディストリビューションが割り当て
 #~ msgstr "コレクションは、拒否されたリポジトリーまたはステージングリポジトリーになければなりません。"
 
 #: src/components/collection-usedby-dependencies-list.tsx
-msgid "Collection is not being used by any collection."
-msgstr "コレクションはどのコレクションでも使用されていません。"
+#~ msgid "Collection is not being used by any collection."
+#~ msgstr "コレクションはどのコレクションでも使用されていません。"
 
 #: src/containers/approvals/approvals.tsx
-msgid "Collection name"
-msgstr ""
+#~ msgid "Collection name"
+#~ msgstr ""
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Collection Name"
@@ -1347,19 +1325,17 @@ msgstr ""
 #~ msgstr "Collection repositories could not be displayed."
 
 #: src/components/import-modal.tsx
-msgid "Collection upload canceled"
-msgstr "コレクションのアップロードが取り消されました"
+#~ msgid "Collection upload canceled"
+#~ msgstr "コレクションのアップロードが取り消されました"
 
 #: src/components/collection-dependencies-list/collection-dependencies-list.tsx
 #~ msgid "Collection version {0} was not found in the system. You must upload it."
 #~ msgstr "Collection version {0} was not found in the system. You must upload it."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/collection-header.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/approvals/approvals.tsx
 msgid "Collection versions"
 msgstr "コレクションのバージョン"
 
@@ -1391,9 +1367,6 @@ msgstr "コレクションが変更されると、コレクションのバージ
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
-#: src/containers/search/multi-search.tsx
-#: src/containers/search/search.tsx
 #: src/menu.tsx
 msgid "Collections"
 msgstr "コレクション"
@@ -1405,12 +1378,12 @@ msgstr ""
 #: src/containers/approvals/approvals.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/search.tsx
-msgid "Collections will appear once uploaded"
-msgstr "コレクションはアップロードされると表示されます"
+#~ msgid "Collections will appear once uploaded"
+#~ msgstr "コレクションはアップロードされると表示されます"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
-msgid "Command"
-msgstr "コマンド"
+#~ msgid "Command"
+#~ msgstr "コマンド"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Comments"
@@ -1426,8 +1399,8 @@ msgstr "コミュニティー"
 
 #: src/components/collection-content-list.tsx
 #: src/containers/collection-detail/collection-docs.tsx
-msgid "Community collections do not have docs nor content counts, but all content gets synchronized"
-msgstr "コミュニティーコレクションにはドキュメントやコンテンツ数はありませんが、すべてのコンテンツが同期されます"
+#~ msgid "Community collections do not have docs nor content counts, but all content gets synchronized"
+#~ msgstr "コミュニティーコレクションにはドキュメントやコンテンツ数はありませんが、すべてのコンテンツが同期されます"
 
 #: src/actions/ansible-repository-sync.tsx
 msgid "Community content will never be synced if the remote is set to only sync signed content. You can <0>edit the {name} remote</0> to change it."
@@ -1446,10 +1419,9 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/namespace-form.tsx
-msgid "Company name"
-msgstr "会社名"
+#~ msgid "Company name"
+#~ msgstr "会社名"
 
-#: src/components/import-list.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -1499,36 +1471,36 @@ msgstr "詳細は、組織の管理者にお問い合わせください。"
 
 #. placeholder {0}: form.name
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Container \"{0}\" has been added successfully."
-msgstr ""
+#~ msgid "Container \"{0}\" has been added successfully."
+#~ msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Container \"{name}\" could not be indexed."
-msgstr ""
+#~ msgid "Container \"{name}\" could not be indexed."
+#~ msgstr ""
 
 #: src/components/delete-execution-environment-modal.tsx
-msgid "Container \"{selectedItem}\" could not be deleted."
-msgstr ""
+#~ msgid "Container \"{selectedItem}\" could not be deleted."
+#~ msgstr ""
 
 #: src/components/delete-execution-environment-modal.tsx
-msgid "Container \"{selectedItem}\" has been successfully deleted."
-msgstr ""
+#~ msgid "Container \"{selectedItem}\" has been successfully deleted."
+#~ msgstr ""
 
 #: src/utilities/repo-signing.ts
-msgid "Container must be synchronized with remote repository first."
-msgstr "最初にコンテナーをリモートリポジトリーと同期する必要があります。"
+#~ msgid "Container must be synchronized with remote repository first."
+#~ msgstr "最初にコンテナーをリモートリポジトリーと同期する必要があります。"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Container names can only contain alphanumeric characters, \".\", \"_\", \"-\" and a up to one \"/\"."
 #~ msgstr "コンテナー名には、英数字、「.」、「_」、「-」、および 1 つまでの「/」しか使用することができません。"
 
 #: src/components/container-repository-form.tsx
-msgid "Container names can only contain alphanumeric characters, \".\", \"_\", \"-\" and zero or one \"/\"."
-msgstr ""
+#~ msgid "Container names can only contain alphanumeric characters, \".\", \"_\", \"-\" and zero or one \"/\"."
+#~ msgstr ""
 
 #: src/components/container-repository-form.tsx
-msgid "Container namespace"
-msgstr "コンテナーの名前空間"
+#~ msgid "Container namespace"
+#~ msgstr "コンテナーの名前空間"
 
 #: src/components/execution-environment-header/execution-environment-header.tsx
 #: src/containers/execution-environment-list/execution_environment_list.tsx
@@ -1538,25 +1510,21 @@ msgstr "コンテナーの名前空間"
 #~ msgstr "Container Registry"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Container registry type"
-msgstr "コンテナーレジストリータイプ"
+#~ msgid "Container registry type"
+#~ msgstr "コンテナーレジストリータイプ"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Container repository name"
-msgstr "コンテナーリポジトリー名"
+#~ msgid "Container repository name"
+#~ msgstr "コンテナーリポジトリー名"
 
-#: src/components/execution-environment-header.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
-#: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
-#: src/containers/search/multi-search.tsx
 #: src/menu.tsx
 msgid "Containers"
 msgstr "Containers"
 
 #: src/containers/collection-detail/collection-content.tsx
-msgid "Content"
-msgstr "コンテンツ"
+#~ msgid "Content"
+#~ msgstr "コンテンツ"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1603,8 +1571,8 @@ msgid "Content settings"
 msgstr ""
 
 #: src/components/collection-header.tsx
-msgid "Contents"
-msgstr "コンテンツ"
+#~ msgid "Contents"
+#~ msgstr "コンテンツ"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Controller name"
@@ -1644,16 +1612,16 @@ msgid "Copy to clipboard"
 msgstr "クリップボードにコピーする"
 
 #: src/components/collection-dropdown.tsx
-msgid "Copy version {version} to repositories"
-msgstr ""
+#~ msgid "Copy version {version} to repositories"
+#~ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Copyable input"
 msgstr ""
 
 #: src/components/import-console.tsx
-msgid "could not be determined yet"
-msgstr "まだ判断できません"
+#~ msgid "could not be determined yet"
+#~ msgstr "まだ判断できません"
 
 #: src/components/sync-modal.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
@@ -1664,8 +1632,8 @@ msgid "Could not check whether the name and base path are free: {reason}. Nothin
 msgstr ""
 
 #: src/containers/collection-detail/collection-import-log.tsx
-msgid "Could not load import log"
-msgstr "インポートログを読み込むことができませんでした"
+#~ msgid "Could not load import log"
+#~ msgstr "インポートログを読み込むことができませんでした"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Could not update the certification status for {0}.{1}.{2}."
@@ -1684,9 +1652,7 @@ msgstr "Count"
 #~ msgstr "CRC public key"
 
 #: src/components/group-modal.tsx
-#: src/components/namespace-modal.tsx
 #: src/containers/group-management/group-list.tsx
-#: src/containers/namespace-list/namespace-list.tsx
 #: src/containers/user-management/user-list.tsx
 msgid "Create"
 msgstr "作成"
@@ -1714,8 +1680,8 @@ msgid "Create a group"
 msgstr "グループの作成"
 
 #: src/components/namespace-modal.tsx
-msgid "Create a new namespace"
-msgstr "新規名前空間の作成"
+#~ msgid "Create a new namespace"
+#~ msgstr "新規名前空間の作成"
 
 #: src/containers/role-management/role-create.tsx
 msgid "Create a new role"
@@ -1766,10 +1732,7 @@ msgid "Create, delete and change collection namespaces. Upload and delete collec
 msgstr "コレクションの名前空間を作成、削除、および変更します。コレクションをアップロードおよび削除します。リモートからのコレクションを同期します。コレクションを承認および拒否します。"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
-#: src/containers/execution-environment/registry-list.tsx
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
@@ -1851,20 +1814,20 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
-msgid "Current tags"
-msgstr "現在のタグ"
+#~ msgid "Current tags"
+#~ msgstr "現在のタグ"
 
 #: src/containers/pulp-status.tsx
 msgid "Current task"
 msgstr ""
 
 #: src/components/container-repository-form.tsx
-msgid "Currently excluded tags"
-msgstr "現在除外されているタグ"
+#~ msgid "Currently excluded tags"
+#~ msgstr "現在除外されているタグ"
 
 #: src/components/container-repository-form.tsx
-msgid "Currently included tags"
-msgstr "現在含まれているタグ"
+#~ msgid "Currently included tags"
+#~ msgstr "現在含まれているタグ"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Custom"
@@ -1895,12 +1858,12 @@ msgid "Database connection"
 msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "Date"
-msgstr "日付"
+#~ msgid "Date"
+#~ msgstr "日付"
 
 #: src/containers/approvals/approvals.tsx
-msgid "Date created"
-msgstr "作成日"
+#~ msgid "Date created"
+#~ msgstr "作成日"
 
 #: src/utilities/translate-task.ts
 msgid "Debian copy content"
@@ -1937,10 +1900,6 @@ msgstr ""
 #: src/actions/repository-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 #: src/components/delete-modal.tsx
-#: src/containers/execution-environment-detail/base.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
-#: src/containers/execution-environment/registry-list.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/role-management/role-list.tsx
@@ -1963,20 +1922,20 @@ msgstr "削除"
 #~ msgstr ""
 
 #: src/components/collection-dropdown.tsx
-msgid "Delete collection from system"
-msgstr ""
+#~ msgid "Delete collection from system"
+#~ msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Delete collection remote"
 #~ msgstr "Delete collection remote"
 
 #: src/components/delete-collection-modal.tsx
-msgid "Delete collection version?"
-msgstr "コレクションのバージョンを削除しますか?"
+#~ msgid "Delete collection version?"
+#~ msgstr "コレクションのバージョンを削除しますか?"
 
 #: src/components/delete-collection-modal.tsx
-msgid "Delete collection?"
-msgstr "コレクションを削除しますか?"
+#~ msgid "Delete collection?"
+#~ msgstr "コレクションを削除しますか?"
 
 #: src/constants.tsx
 #~ msgid "Delete container distribution"
@@ -1991,8 +1950,8 @@ msgstr "コレクションを削除しますか?"
 #~ msgstr "Delete container repository"
 
 #: src/components/delete-execution-environment-modal.tsx
-msgid "Delete container?"
-msgstr "コンテナーを削除しますか?"
+#~ msgid "Delete container?"
+#~ msgstr "コンテナーを削除しますか?"
 
 #: src/constants.tsx
 #~ msgid "Delete container's distribution"
@@ -2023,24 +1982,24 @@ msgid "Delete group?"
 msgstr "グループを削除しますか?"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Delete image?"
-msgstr "イメージを削除しますか?"
+#~ msgid "Delete image?"
+#~ msgstr "イメージを削除しますか?"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Delete namespace"
-msgstr "名前空間の削除"
+#~ msgid "Delete namespace"
+#~ msgstr "名前空間の削除"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Delete namespace?"
-msgstr "名前空間を削除しますか?"
+#~ msgid "Delete namespace?"
+#~ msgstr "名前空間を削除しますか?"
 
 #: src/constants.tsx
 #~ msgid "Delete remote registry"
 #~ msgstr "Delete remote registry"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Delete remote registry?"
-msgstr "リモートレジストリーを削除しますか?"
+#~ msgid "Delete remote registry?"
+#~ msgstr "リモートレジストリーを削除しますか?"
 
 #: src/components/delete-remote-modal.tsx
 msgid "Delete remote?"
@@ -2092,8 +2051,8 @@ msgstr "ユーザーを削除しますか?"
 #~ msgstr ""
 
 #: src/components/collection-dropdown.tsx
-msgid "Delete version {version} from system"
-msgstr ""
+#~ msgid "Delete version {version} from system"
+#~ msgstr ""
 
 #: src/components/delete-modal/delete-collection-modal.tsx
 #~ msgid "Deleting <0>{0} v{collectionVersion}</0> and its data will be lost and this will cause the entire collection to be deleted."
@@ -2129,26 +2088,26 @@ msgstr ""
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
-msgid "Deleting collection <0>{0}</0>."
-msgstr ""
+#~ msgid "Deleting collection <0>{0}</0>."
+#~ msgstr ""
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
-msgid "Deleting collection version <0>{0} v{collectionVersion}</0>."
-msgstr ""
+#~ msgid "Deleting collection version <0>{0} v{collectionVersion}</0>."
+#~ msgstr ""
 
 #: src/components/delete-execution-environment-modal.tsx
-msgid "Deleting environment <0>{selectedItem}</0>."
-msgstr ""
+#~ msgid "Deleting environment <0>{selectedItem}</0>."
+#~ msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Deleting image <0>{digest}</0>."
-msgstr ""
+#~ msgid "Deleting image <0>{digest}</0>."
+#~ msgstr ""
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Deleting namespace <0>{0}</0>."
-msgstr ""
+#~ msgid "Deleting namespace <0>{0}</0>."
+#~ msgstr ""
 
 #: src/components/delete-user-modal.tsx
 #~ msgid "Deleting super users is not allowed."
@@ -2164,42 +2123,38 @@ msgstr "自分自身は削除できません。"
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-dependencies.tsx
-msgid "Dependencies"
-msgstr "依存関係"
+#~ msgid "Dependencies"
+#~ msgstr "依存関係"
 
 #: src/utilities/delete-collection.ts
-msgid "Dependencies for collection \"{name}\" could not be displayed."
-msgstr "コレクション \"{name}\" の依存関係を表示できませんでした。"
+#~ msgid "Dependencies for collection \"{name}\" could not be displayed."
+#~ msgstr "コレクション \"{name}\" の依存関係を表示できませんでした。"
 
 #: src/components/collection-header.tsx
-msgid "Dependent collections"
-msgstr "依存するコレクション"
+#~ msgid "Dependent collections"
+#~ msgstr "依存するコレクション"
 
 #: src/containers/collection-detail/collection-dependencies.tsx
-msgid "Dependent collections could not be displayed."
-msgstr "依存するコレクションを表示できませんでした。"
+#~ msgid "Dependent collections could not be displayed."
+#~ msgstr "依存するコレクションを表示できませんでした。"
 
 #: src/components/collection-dropdown.tsx
-msgid "Deprecate"
-msgstr "非推奨"
+#~ msgid "Deprecate"
+#~ msgstr "非推奨"
 
 #: src/components/deprecated-tag.tsx
-msgid "DEPRECATED"
-msgstr "非推奨"
+#~ msgid "DEPRECATED"
+#~ msgstr "非推奨"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Deprecation status update starting for collection \"{0}\"."
 #~ msgstr "Deprecation status update starting for collection \"{0}\"."
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Deprecation status update starting for collection \"{name}\"."
-msgstr "コレクション \"{name}\" の非推奨ステータスの更新が開始されています。"
+#~ msgid "Deprecation status update starting for collection \"{name}\"."
+#~ msgstr "コレクション \"{name}\" の非推奨ステータスの更新が開始されています。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/collection-content-list.tsx
-#: src/components/container-repository-form.tsx
-#: src/components/multiple-repo-selector.tsx
-#: src/components/namespace-form.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/role-list-table.tsx
@@ -2208,7 +2163,6 @@ msgstr "コレクション \"{name}\" の非推奨ステータスの更新が開
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/python-repository/tab-details.tsx
@@ -2225,8 +2179,8 @@ msgstr "説明"
 
 #. placeholder {0}: selectedRepos.length
 #: src/components/multiple-repo-selector.tsx
-msgid "Deselect all ({0} items)"
-msgstr "すべての選択を解除 ({0} 項目)"
+#~ msgid "Deselect all ({0} items)"
+#~ msgstr "すべての選択を解除 ({0} 項目)"
 
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Deselect all ({itemsCount} items)"
@@ -2234,12 +2188,12 @@ msgstr "すべての選択を解除 ({0} 項目)"
 
 #. placeholder {0}: repositoryList.length
 #: src/components/multiple-repo-selector.tsx
-msgid "Deselect page ({0} items)"
-msgstr "ページの選択を解除 ({0} 項目)"
+#~ msgid "Deselect page ({0} items)"
+#~ msgstr "ページの選択を解除 ({0} 項目)"
 
 #: src/components/execution-environment-header.tsx
-msgid "Detail"
-msgstr "詳細"
+#~ msgid "Detail"
+#~ msgstr "詳細"
 
 #: src/components/role-form.tsx
 #: src/containers/ansible-remote/detail.tsx
@@ -2260,8 +2214,8 @@ msgstr "詳細"
 #~ msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Digest"
-msgstr "ダイジェスト"
+#~ msgid "Digest"
+#~ msgstr "ダイジェスト"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Digital accessibility"
@@ -2289,12 +2243,10 @@ msgstr "無効化"
 #~ msgid "Distribution URL"
 #~ msgstr "Distribution URL"
 
-#: src/components/collection-header.tsx
 #: src/components/remote-form.tsx
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/deb-remote/list.tsx
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/detail.tsx
@@ -2330,12 +2282,9 @@ msgid "Docs dropdown"
 msgstr ""
 
 #: src/components/collection-header.tsx
-msgid "Docs site"
-msgstr "ドキュメントのサイト"
+#~ msgid "Docs site"
+#~ msgstr "ドキュメントのサイト"
 
-#: src/components/collection-header.tsx
-#: src/containers/collection-detail/collection-docs.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/layout.tsx
 msgid "Documentation"
 msgstr "ドキュメント"
@@ -2356,14 +2305,13 @@ msgstr "ドキュメント"
 msgid "Domain enabled"
 msgstr ""
 
-#: src/components/import-console.tsx
 #: src/containers/task-management/task-detail.tsx
 msgid "Done"
 msgstr "完了"
 
 #: src/components/collection-info.tsx
-msgid "Download"
-msgstr "Download"
+#~ msgid "Download"
+#~ msgstr "Download"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Download {0} tarball"
@@ -2408,8 +2356,8 @@ msgstr "同時実行のダウンロード"
 #~ msgstr ""
 
 #: src/components/download-count.tsx
-msgid "Download count is the sum of all versions' download counts"
-msgstr ""
+#~ msgid "Download count is the sum of all versions' download counts"
+#~ msgstr ""
 
 #: src/containers/signature-keys/list.tsx
 msgid "Download key"
@@ -2440,8 +2388,8 @@ msgid "Download requirements YAML"
 msgstr "要件 YAML のダウンロード"
 
 #: src/components/collection-info.tsx
-msgid "Download tarball"
-msgstr "tarball のダウンロード"
+#~ msgid "Download tarball"
+#~ msgstr "tarball のダウンロード"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Drag a file here or browse to upload"
@@ -2482,11 +2430,6 @@ msgstr "ドロップダウン"
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-remote/edit.tsx
 #: src/containers/deb-repository/edit.tsx
-#: src/containers/edit-namespace/edit-namespace.tsx
-#: src/containers/execution-environment-detail/base.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
-#: src/containers/execution-environment/registry-list.tsx
 #: src/containers/file-remote/edit.tsx
 #: src/containers/file-repository/edit.tsx
 #: src/containers/python-remote/edit.tsx
@@ -2502,12 +2445,12 @@ msgid "Edit"
 msgstr "編集"
 
 #: src/components/container-repository-form.tsx
-msgid "Edit container"
-msgstr ""
+#~ msgid "Edit container"
+#~ msgstr ""
 
 #: src/containers/edit-namespace/edit-namespace.tsx
-msgid "Edit details"
-msgstr "詳細の編集"
+#~ msgid "Edit details"
+#~ msgstr "詳細の編集"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Edit distribution"
@@ -2526,24 +2469,24 @@ msgid "Edit in YAML editor"
 msgstr "YAML エディターでの編集"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Edit namespace"
-msgstr "名前空間の編集"
+#~ msgid "Edit namespace"
+#~ msgstr "名前空間の編集"
 
 #: src/components/remote-form.tsx
 msgid "Edit remote"
 msgstr "リモートの編集"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Edit remote registry"
-msgstr "リモートレジストリーの編集"
+#~ msgid "Edit remote registry"
+#~ msgstr "リモートレジストリーの編集"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Edit repository"
 #~ msgstr "Edit repository"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
-msgid "Edit resources"
-msgstr "リソースの編集"
+#~ msgid "Edit resources"
+#~ msgstr "リソースの編集"
 
 #: src/containers/role-management/role-edit.tsx
 msgid "Edit role permissions"
@@ -2591,8 +2534,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
-msgid "Environment"
-msgstr "環境"
+#~ msgid "Environment"
+#~ msgstr "環境"
 
 #: src/utilities/fail-alerts.tsx
 msgid "Error {statusCode} - {statusText}"
@@ -2651,8 +2594,8 @@ msgstr "グループの削除エラー。"
 #~ msgstr "Error editing group."
 
 #: src/containers/my-imports/my-imports.tsx
-msgid "Error fetching import from API"
-msgstr "API からのインポート取得エラー"
+#~ msgid "Error fetching import from API"
+#~ msgstr "API からのインポート取得エラー"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Error getting collection's dependencies."
@@ -2671,8 +2614,8 @@ msgstr ""
 #~ msgstr "Error loading collection repositories."
 
 #: src/containers/approvals/approvals.tsx
-msgid "Error loading collections."
-msgstr "コレクションの読み込み中にエラーが発生しました。"
+#~ msgid "Error loading collections."
+#~ msgstr "コレクションの読み込み中にエラーが発生しました。"
 
 #: src/components/execution-environment/publish-to-controller-modal.tsx
 #~ msgid "Error loading Controllers"
@@ -2683,8 +2626,8 @@ msgstr "コレクションの読み込み中にエラーが発生しました。
 #~ msgstr "Error loading dependent collections."
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Error loading environments."
-msgstr "環境の読み込みエラー。"
+#~ msgid "Error loading environments."
+#~ msgstr "環境の読み込みエラー。"
 
 #: src/containers/group-management/group-detail.tsx
 #~ msgid "Error loading group."
@@ -2719,12 +2662,12 @@ msgstr "環境の読み込みエラー。"
 #~ msgstr ""
 
 #: src/components/import-modal.tsx
-msgid "Error loading repositories."
-msgstr ""
+#~ msgid "Error loading repositories."
+#~ msgstr ""
 
 #: src/containers/approvals/approvals.tsx
-msgid "Error loading repository with label {pipeline}."
-msgstr "ラベル {pipeline} の付いたリポジトリーのロード中にエラーが発生しました。"
+#~ msgid "Error loading repository with label {pipeline}."
+#~ msgstr "ラベル {pipeline} の付いたリポジトリーのロード中にエラーが発生しました。"
 
 #: src/components/execution-environment/publish-to-controller-modal.tsx
 #~ msgid "Error loading tags"
@@ -2750,8 +2693,8 @@ msgid "Error message"
 msgstr "エラーメッセージ"
 
 #: src/components/import-console.tsx
-msgid "Error message:"
-msgstr "エラーメッセージ:"
+#~ msgid "Error message:"
+#~ msgstr "エラーメッセージ:"
 
 #: src/containers/group-management/group-detail.tsx
 #~ msgid "Error removing user from a group."
@@ -2767,8 +2710,8 @@ msgstr "エラーメッセージ:"
 #~ msgstr "Error updating users."
 
 #: src/components/container-repository-form.tsx
-msgid "Error when saving registry."
-msgstr "レジストリーの保存中にエラーが発生しました。"
+#~ msgid "Error when saving registry."
+#~ msgstr "レジストリーの保存中にエラーが発生しました。"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "ERROR while parsing: {0}"
@@ -2869,8 +2812,6 @@ msgstr ""
 msgid "Fail the whole version if any package is rejected"
 msgstr ""
 
-#: src/components/import-console.tsx
-#: src/components/import-list.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -2878,24 +2819,24 @@ msgid "Failed"
 msgstr "失敗"
 
 #: src/components/tag-manifest-modal.tsx
-msgid "Failed to {operation} tag \"{tag}\"."
-msgstr "タグ \"{tag}\" の {operation} に失敗しました。"
+#~ msgid "Failed to {operation} tag \"{tag}\"."
+#~ msgstr "タグ \"{tag}\" の {operation} に失敗しました。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #~ msgid "Failed to add {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 #~ msgstr "Failed to add {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
 #: src/components/approve-modal.tsx
-msgid "Failed to approve collection."
-msgstr "コレクションの承認に失敗しました。"
+#~ msgid "Failed to approve collection."
+#~ msgstr "コレクションの承認に失敗しました。"
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Failed to change provider namespace."
 #~ msgstr ""
 
 #: src/components/copy-collection-to-repository-modal.tsx
-msgid "Failed to copy collection version."
-msgstr ""
+#~ msgid "Failed to copy collection version."
+#~ msgstr ""
 
 #: src/components/role-import-form.tsx
 #: src/components/role-namespace-modal.tsx
@@ -2976,8 +2917,8 @@ msgid "Failed to load repositories: {error}"
 msgstr "リポジトリーの読み込みに失敗しました: {error}"
 
 #: src/components/multiple-repo-selector.tsx
-msgid "Failed to load repositories."
-msgstr "リポジトリーの読み込みに失敗しました。"
+#~ msgid "Failed to load repositories."
+#~ msgstr "リポジトリーの読み込みに失敗しました。"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Failed to load role content"
@@ -3029,8 +2970,8 @@ msgstr ""
 #~ msgstr "Failed to opt out of Wisdom."
 
 #: src/components/multi-repo-modal.tsx
-msgid "Failed to query repositories."
-msgstr ""
+#~ msgid "Failed to query repositories."
+#~ msgstr ""
 
 #: src/actions/ansible-repository-collection-version-remove.tsx
 msgid "Failed to remove {namespace}.{name} v{version} from repository \"{repositoryName}\"."
@@ -3065,20 +3006,20 @@ msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "リポジトリー \"{repositoryName}\" をバージョン \"{number}\" へ戻せませんでした"
 
 #: src/containers/search/multi-search.tsx
-msgid "Failed to search collections ({keywords})"
-msgstr ""
+#~ msgid "Failed to search collections ({keywords})"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Failed to search containers ({keywords})"
-msgstr ""
+#~ msgid "Failed to search containers ({keywords})"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Failed to search execution environments ({keywords})"
 #~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Failed to search namespaces ({keywords})"
-msgstr ""
+#~ msgid "Failed to search namespaces ({keywords})"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Failed to search role namespaces ({keywords})"
@@ -3089,20 +3030,20 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Failed to sign all collections."
-msgstr "すべてのコレクションの署名に失敗しました。"
+#~ msgid "Failed to sign all collections."
+#~ msgstr "すべてのコレクションの署名に失敗しました。"
 
 #: src/components/collection-header.tsx
-msgid "Failed to sign all versions in the collection."
-msgstr "コレクションのすべてのバージョンの署名に失敗しました。"
+#~ msgid "Failed to sign all versions in the collection."
+#~ msgstr "コレクションのすべてのバージョンの署名に失敗しました。"
 
 #: src/utilities/repo-signing.ts
-msgid "Failed to sign the container version."
-msgstr "コンテナーバージョンに署名できませんでした。"
+#~ msgid "Failed to sign the container version."
+#~ msgstr "コンテナーバージョンに署名できませんでした。"
 
 #: src/components/collection-header.tsx
-msgid "Failed to sign the version."
-msgstr "バージョンへの署名に失敗しました。"
+#~ msgid "Failed to sign the version."
+#~ msgstr "バージョンへの署名に失敗しました。"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -3166,13 +3107,13 @@ msgstr "{0} 別にフィルター"
 #~ msgstr "Find a group"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Find containers in this registry"
-msgstr ""
+#~ msgid "Find containers in this registry"
+#~ msgstr ""
 
 #: src/components/collection-content-list.tsx
 #: src/components/table-of-contents.tsx
-msgid "Find content"
-msgstr "コンテンツの検索"
+#~ msgid "Find content"
+#~ msgstr "コンテンツの検索"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Find execution environments in this registry"
@@ -3180,8 +3121,8 @@ msgstr "コンテンツの検索"
 
 #: src/components/collection-content-list.tsx
 #: src/components/table-of-contents.tsx
-msgid "find-content"
-msgstr "find-content"
+#~ msgid "find-content"
+#~ msgstr "find-content"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -3198,8 +3139,8 @@ msgid "First name"
 msgstr "名"
 
 #: src/components/import-console.tsx
-msgid "Follow logs"
-msgstr "ログのフォロー"
+#~ msgid "Follow logs"
+#~ msgstr "ログのフォロー"
 
 #: src/components/sync-modal.tsx
 msgid "Force a sync to happen."
@@ -3287,8 +3228,8 @@ msgstr ""
 #~ msgstr "10 回試行した後に、タスクの待機を中止します。"
 
 #: src/components/collection-info.tsx
-msgid "Go to documentation"
-msgstr "ドキュメントに移動"
+#~ msgid "Go to documentation"
+#~ msgstr "ドキュメントに移動"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to first page"
@@ -3319,8 +3260,6 @@ msgstr "グループ"
 #. placeholder {0}: group.name
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group \"{0}\" could not be added to \"{name}\"."
 msgstr "グループ \"{0}\" を \"{name}\" に追加できませんでした。"
 
@@ -3336,16 +3275,12 @@ msgstr ""
 #. placeholder {0}: group.name
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group \"{0}\" could not be removed from \"{name}\"."
 msgstr "グループ \"{0}\" を \"{name}\" から削除できませんでした。"
 
 #. placeholder {0}: group.name
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group \"{0}\" has been successfully added to \"{name}\"."
 msgstr "グループ \"{0}\" が \"{name}\" に正常に追加されました。"
 
@@ -3358,24 +3293,18 @@ msgstr "グループ \"{0}\" が正常に削除されました。"
 #. placeholder {0}: group.name
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group \"{0}\" has been successfully removed from \"{name}\"."
 msgstr "グループ \"{0}\" は \"{name}\" から正常に削除されました。"
 
 #. placeholder {0}: group.name
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group \"{0}\" roles could not be update in \"{name}\"."
 msgstr "グループ \"{0}\" のロールを \"{name}\" で更新することができませんでした。"
 
 #. placeholder {0}: group.name
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group \"{0}\" roles successfully updated in \"{name}\"."
 msgstr "グループ \"{0}\" のロールが \"{name}\" に正常に更新されました。"
 
@@ -3394,13 +3323,12 @@ msgstr "グループ {0}"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "Group {group}"
 msgstr "グループ {group}"
 
 #: src/components/execution-environment-header.tsx
-msgid "Group {groupId}"
-msgstr "グループ {groupId}"
+#~ msgid "Group {groupId}"
+#~ msgstr "グループ {groupId}"
 
 #: src/containers/group-management/group-detail.tsx
 msgid "Group could not be displayed."
@@ -3466,8 +3394,8 @@ msgid "Hide password"
 msgstr ""
 
 #: src/components/download-signature-grid-item.tsx
-msgid "Hide the signature"
-msgstr "署名の非表示"
+#~ msgid "Hide the signature"
+#~ msgstr "署名の非表示"
 
 #: src/components/remote-form.tsx
 msgid "How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions."
@@ -3485,8 +3413,8 @@ msgstr ""
 #: src/components/delete-execution-environment-modal.tsx
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "I understand that this action cannot be undone."
-msgstr "この操作は元に戻せないことを理解しています。"
+#~ msgid "I understand that this action cannot be undone."
+#~ msgstr "この操作は元に戻せないことを理解しています。"
 
 #: src/components/sync-modal.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
@@ -3513,25 +3441,25 @@ msgid "If you populate this requirements file, this remote will only sync collec
 msgstr "この要件ファイルに入力すると、このリモートはこのファイルからのコレクションのみを同期します。それ以外の場合は、すべてのコレクションが同期されます。"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Image \"{digest}\" could not be deleted."
-msgstr "イメージ \"{digest}\" を削除できませんでした。"
+#~ msgid "Image \"{digest}\" could not be deleted."
+#~ msgstr "イメージ \"{digest}\" を削除できませんでした。"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Image \"{digest}\" has been successfully deleted."
-msgstr "イメージ \"{digest}\" が正常に削除されました。"
+#~ msgid "Image \"{digest}\" has been successfully deleted."
+#~ msgstr "イメージ \"{digest}\" が正常に削除されました。"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
-msgid "Image layers"
-msgstr "イメージレイヤー"
+#~ msgid "Image layers"
+#~ msgstr "イメージレイヤー"
 
 #: src/components/execution-environment-header.tsx
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Images"
-msgstr "イメージ"
+#~ msgid "Images"
+#~ msgstr "イメージ"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Images will appear once uploaded"
-msgstr "アップロード後にイメージが表示されます"
+#~ msgid "Images will appear once uploaded"
+#~ msgstr "アップロード後にイメージが表示されます"
 
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "immediate"
@@ -3563,8 +3491,8 @@ msgstr ""
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-import-log.tsx
-msgid "Import log"
-msgstr "ログのインポート"
+#~ msgid "Import log"
+#~ msgstr "ログのインポート"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Import new version"
@@ -3587,8 +3515,8 @@ msgstr "ログのインポート"
 
 #: src/containers/my-imports/my-imports.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Imports"
-msgstr "インポート"
+#~ msgid "Imports"
+#~ msgstr "インポート"
 
 #: src/components/repository-form.tsx
 msgid "In order to retain all versions, leave this field blank."
@@ -3612,20 +3540,20 @@ msgid "Includes"
 msgstr ""
 
 #: src/components/container-repository-form.tsx
-msgid "Including all tags might transfer a lot of data."
-msgstr ""
+#~ msgid "Including all tags might transfer a lot of data."
+#~ msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Index containers"
-msgstr ""
+#~ msgid "Index containers"
+#~ msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Index execution environments"
 #~ msgstr "実行環境のインデックス作成"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Indexing containers is not supported"
-msgstr ""
+#~ msgid "Indexing containers is not supported"
+#~ msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Indexing execution environments in {name}"
@@ -3640,8 +3568,8 @@ msgstr ""
 #~ msgstr "Indexing failed for {name}"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Indexing started for container \"{name}\"."
-msgstr ""
+#~ msgid "Indexing started for container \"{name}\"."
+#~ msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Indexing started for execution environment \"{name}\"."
@@ -3657,8 +3585,8 @@ msgstr ""
 
 #: src/components/collection-header.tsx
 #: src/components/collection-info.tsx
-msgid "Install"
-msgstr "インストール"
+#~ msgid "Install"
+#~ msgstr "インストール"
 
 #: src/components/collection-detail/collection-info.tsx
 #~ msgid "Install Version"
@@ -3669,8 +3597,8 @@ msgid "Install with pip"
 msgstr ""
 
 #: src/components/collection-info.tsx
-msgid "Installation"
-msgstr "インストール"
+#~ msgid "Installation"
+#~ msgstr "インストール"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Installation:"
@@ -3693,30 +3621,29 @@ msgid "Installer packages will be synchronized"
 msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
-msgid "Instructions"
-msgstr "手順"
+#~ msgid "Instructions"
+#~ msgstr "手順"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
 #~ msgstr "Internal Server Error"
 
 #: src/components/import-modal.tsx
-msgid "Invalid file format: {detectedType} (expected: {acceptedTypes})."
-msgstr ""
+#~ msgid "Invalid file format: {detectedType} (expected: {acceptedTypes})."
+#~ msgstr ""
 
 #: src/components/import-modal/import-modal.tsx
 #~ msgid "Invalid file format."
 #~ msgstr "ファイル形式が無効です。"
 
 #: src/components/import-modal.tsx
-msgid "Invalid file name. Collections must be formatted as 'namespace-collection_name-1.0.0'"
-msgstr "ファイル名が無効です。コレクションの形式は 'namespace-collection_name-1.0.0' のようにする必要があります"
+#~ msgid "Invalid file name. Collections must be formatted as 'namespace-collection_name-1.0.0'"
+#~ msgstr "ファイル名が無効です。コレクションの形式は 'namespace-collection_name-1.0.0' のようにする必要があります"
 
 #: src/containers/login/login.tsx
 msgid "Invalid login credentials."
 msgstr "ログイン認証情報が無効です。"
 
-#: src/components/collection-header.tsx
 #: src/containers/about-project.tsx
 msgid "Issue tracker"
 msgstr "問題トラッカー"
@@ -3730,8 +3657,8 @@ msgstr "問題トラッカー"
 #~ msgstr "It's safe to close this window. These tasks will finish in the"
 
 #: src/components/tag-manifest-modal.tsx
-msgid "It's safe to close this window. These tasks will finish in the background."
-msgstr "このウィンドウを安全に閉じることができます。このタスクはバックグラウンドで完了されます。"
+#~ msgid "It's safe to close this window. These tasks will finish in the background."
+#~ msgstr "このウィンドウを安全に閉じることができます。このタスクはバックグラウンドで完了されます。"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Items per page"
@@ -3762,12 +3689,10 @@ msgstr "鍵のフィンガープリント"
 #~ msgstr ""
 
 #: src/containers/namespace-list/namespace-list.tsx
-msgid "keywords"
-msgstr "キーワード"
+#~ msgid "keywords"
+#~ msgstr "キーワード"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/collection-filter.ts
-#: src/components/multi-search-search.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 msgid "Keywords"
 msgstr "キーワード"
@@ -3792,8 +3717,8 @@ msgstr ""
 
 #: src/components/collection-filter.ts
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Last modified"
-msgstr "最終変更日時"
+#~ msgid "Last modified"
+#~ msgstr "最終変更日時"
 
 #: src/components/collection-list/collection-filter.ts
 #~ msgid "Last Modified"
@@ -3808,18 +3733,15 @@ msgstr "姓"
 #~ msgid "Last synced"
 #~ msgstr "最終同期"
 
-#: src/containers/execution-environment/registry-list.tsx
 #: src/containers/pulp-status.tsx
 msgid "Last updated"
 msgstr "最終更新日時"
 
 #: src/components/collection-header.tsx
-msgid "Last updated <0/>"
-msgstr "最終更新日時 <0/>"
+#~ msgid "Last updated <0/>"
+#~ msgstr "最終更新日時 <0/>"
 
 #. placeholder {0}: lastSynced(item)
-#. placeholder {0}: lastSynced({ last_sync_task })
-#: src/components/execution-environment-header.tsx
 #: src/containers/ansible-repository/detail.tsx
 msgid "Last updated from registry {0}"
 msgstr "レジストリー {0} からの最終更新"
@@ -3834,8 +3756,8 @@ msgid "Latest versions kept per package"
 msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Layers"
-msgstr "レイヤー"
+#~ msgid "Layers"
+#~ msgstr "レイヤー"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Learn more"
@@ -3880,8 +3802,8 @@ msgstr "レイヤー"
 #~ msgstr "レガシーロール"
 
 #: src/components/collection-info.tsx
-msgid "License"
-msgstr "ライセンス"
+#~ msgid "License"
+#~ msgstr "ライセンス"
 
 #: src/components/darkmode-switcher.tsx
 msgid "Light"
@@ -3892,17 +3814,17 @@ msgid "Limits total download rate in requests per second."
 msgstr "1 秒あたりの要求の合計ダウンロード速度を制限します。"
 
 #: src/components/namespace-form.tsx
-msgid "Link text"
-msgstr "リンクテキスト"
+#~ msgid "Link text"
+#~ msgstr "リンクテキスト"
 
 #: src/components/namespace-form.tsx
-msgid "Link URL"
-msgstr "リンク URL"
+#~ msgid "Link URL"
+#~ msgstr "リンク URL"
 
 #: src/components/collection-list.tsx
 #: src/containers/search/search.tsx
-msgid "List of collections"
-msgstr ""
+#~ msgid "List of collections"
+#~ msgstr ""
 
 #: src/containers/search/search.tsx
 #: src/components/collection-list.tsx
@@ -3948,8 +3870,8 @@ msgstr ""
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/search/multi-search.tsx
-msgid "Local"
-msgstr "ローカル"
+#~ msgid "Local"
+#~ msgstr "ローカル"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Log in"
@@ -3970,8 +3892,8 @@ msgid "Login"
 msgstr "ログイン"
 
 #: src/components/namespace-form.tsx
-msgid "Logo URL"
-msgstr "ロゴ URL"
+#~ msgid "Logo URL"
+#~ msgstr "ロゴ URL"
 
 #: src/layout.tsx
 msgid "Logout"
@@ -3999,16 +3921,16 @@ msgstr "コレクションリモートを管理します。"
 
 #: src/components/tag-manifest-modal.tsx
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Manage tags"
-msgstr "タグの管理"
+#~ msgid "Manage tags"
+#~ msgstr "タグの管理"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Manage tokens"
 #~ msgstr "Manage tokens"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
-msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
-msgstr "マニフェストリストはこの画面ではサポートされていません。<0>Images</0> タブを使用してマニフェスト一覧の詳細を確認してください。"
+#~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
+#~ msgstr "マニフェストリストはこの画面ではサポートされていません。<0>Images</0> タブを使用してマニフェスト一覧の詳細を確認してください。"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
@@ -4059,24 +3981,16 @@ msgstr "整数でなければなりません。"
 #~ msgstr "自分のインポート"
 
 #: src/containers/namespace-list/namespace-list.tsx
-msgid "My namespaces"
-msgstr "自分の名前空間"
+#~ msgid "My namespaces"
+#~ msgstr "自分の名前空間"
 
 #: src/containers/settings/user-profile.tsx
 #: src/layout.tsx
 msgid "My profile"
 msgstr "自分のプロファイル"
 
-#: src/components/collection-content-list.tsx
-#: src/components/collection-filter.ts
-#: src/components/collection-usedby-dependencies-list.tsx
-#: src/components/container-repository-form.tsx
 #: src/components/group-modal.tsx
-#: src/components/import-list.tsx
 #: src/components/list-page.test.tsx
-#: src/components/multiple-repo-selector.tsx
-#: src/components/namespace-form.tsx
-#: src/components/namespace-modal.tsx
 #: src/components/remote-form.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
@@ -4084,13 +3998,9 @@ msgstr "自分のプロファイル"
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
-#: src/containers/execution-environment/registry-list.tsx
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
-#: src/containers/namespace-list/namespace-list.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-packages.tsx
@@ -4106,40 +4016,37 @@ msgstr "名前"
 #~ msgstr "Name can only contain [A-Za-z0-9_]"
 
 #: src/components/namespace-modal.tsx
-msgid "Name can only contain letters and numbers"
-msgstr "名前に使用できるのは文字と数字だけです"
+#~ msgid "Name can only contain letters and numbers"
+#~ msgstr "名前に使用できるのは文字と数字だけです"
 
 #: src/components/namespace-modal.tsx
-msgid "Name cannot begin with '_'"
-msgstr "名前は '_' で開始できません"
+#~ msgid "Name cannot begin with '_'"
+#~ msgstr "名前は '_' で開始できません"
 
 #: src/components/namespace-modal.tsx
-msgid "Name must be longer than 2 characters"
-msgstr "名前は 2 文字以上にする必要があります"
+#~ msgid "Name must be longer than 2 characters"
+#~ msgstr "名前は 2 文字以上にする必要があります"
 
 #: src/components/namespace-form.tsx
-msgid "Name must not be empty."
-msgstr "名前を空白にすることはできません。"
+#~ msgid "Name must not be empty."
+#~ msgstr "名前を空白にすることはできません。"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "namespace"
 #~ msgstr "namespace"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/collection-filter.ts
-#: src/components/import-list.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
-#: src/containers/approvals/approvals.tsx
 msgid "Namespace"
 msgstr "名前空間"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Namespace \"{name}\" could not be deleted."
-msgstr "名前空間 \"{name}\" を削除できませんでした。"
+#~ msgid "Namespace \"{name}\" could not be deleted."
+#~ msgstr "名前空間 \"{name}\" を削除できませんでした。"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Namespace \"{name}\" has been successfully deleted."
-msgstr "名前空間 \"{name}\" が正常に削除されました。"
+#~ msgid "Namespace \"{name}\" has been successfully deleted."
+#~ msgstr "名前空間 \"{name}\" が正常に削除されました。"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Namespace <0>{name}</0> is opted in to Ansible Lightspeed."
@@ -4166,12 +4073,12 @@ msgstr "名前空間 \"{name}\" が正常に削除されました。"
 #~ msgstr ""
 
 #: src/components/namespace-modal.tsx
-msgid "Namespace name"
-msgstr "名前空間の名前"
+#~ msgid "Namespace name"
+#~ msgstr "名前空間の名前"
 
 #: src/components/namespace-modal.tsx
-msgid "Namespace names are limited to alphanumeric characters and underscores, must have a minimum length of 2 characters and cannot start with an ‘_’."
-msgstr "名前空間の名前に使用できるのは、英数字とアンダースコアのみで、最低でも 2 文字以上使用する必要があります。また ‘_’ で開始できません。"
+#~ msgid "Namespace names are limited to alphanumeric characters and underscores, must have a minimum length of 2 characters and cannot start with an ‘_’."
+#~ msgstr "名前空間の名前に使用できるのは、英数字とアンダースコアのみで、最低でも 2 文字以上使用する必要があります。また ‘_’ で開始できません。"
 
 #: src/components/namespace-form/namespace-form.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -4182,29 +4089,19 @@ msgstr "名前空間の名前に使用できるのは、英数字とアンダー
 #~ msgid "Namespace successfully edited."
 #~ msgstr "Namespace successfully edited."
 
-#: src/containers/collection-detail/collection-content.tsx
-#: src/containers/collection-detail/collection-dependencies.tsx
-#: src/containers/collection-detail/collection-detail.tsx
-#: src/containers/collection-detail/collection-distributions.tsx
-#: src/containers/collection-detail/collection-docs.tsx
-#: src/containers/collection-detail/collection-import-log.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/containers/edit-namespace/edit-namespace.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
-#: src/containers/namespace-list/namespace-list.tsx
-#: src/containers/search/multi-search.tsx
 #: src/menu.tsx
 msgid "Namespaces"
 msgstr "名前空間"
 
 #: src/components/import-list.tsx
 #: src/containers/namespace-list/namespace-list.tsx
-msgid "Namespaces list could not be displayed."
-msgstr "名前空間リストを表示できませんでした。"
+#~ msgid "Namespaces list could not be displayed."
+#~ msgstr "名前空間リストを表示できませんでした。"
 
 #: src/containers/namespace-list/namespace-list.tsx
-msgid "Namespaces will appear once created"
-msgstr "名前空間は作成後に表示されます"
+#~ msgid "Namespaces will appear once created"
+#~ msgstr "名前空間は作成後に表示されます"
 
 #: src/containers/legacy-namespaces/legacy-namespaces.tsx
 #~ msgid "Namespaces will appear once created or roles are imported"
@@ -4212,24 +4109,24 @@ msgstr "名前空間は作成後に表示されます"
 
 #: src/components/approval-row.tsx
 #: src/containers/approvals/approvals.tsx
-msgid "Needs review"
-msgstr "レビューが必要"
+#~ msgid "Needs review"
+#~ msgstr "レビューが必要"
 
 #: src/containers/approvals/approvals.tsx
 #~ msgid "Needs Review"
 #~ msgstr "レビューが必要"
 
 #: src/components/approval-row.tsx
-msgid "Needs signature and review"
-msgstr "署名とレビューが必要"
+#~ msgid "Needs signature and review"
+#~ msgstr "署名とレビューが必要"
 
 #: src/containers/ansible-repository/list.tsx
 msgid "never synced"
 msgstr ""
 
 #: src/components/import-modal.tsx
-msgid "New collection"
-msgstr "新規コレクション"
+#~ msgid "New collection"
+#~ msgstr "新規コレクション"
 
 #: src/components/import-modal/import-modal.tsx
 #~ msgid "New version of {0}"
@@ -4237,22 +4134,21 @@ msgstr "新規コレクション"
 
 #. placeholder {0}: collection.name
 #: src/components/import-modal.tsx
-msgid "New version of {namespace}.{0}"
-msgstr ""
+#~ msgid "New version of {namespace}.{0}"
+#~ msgstr ""
 
 #: src/components/wizard-modal.tsx
 msgid "Next"
 msgstr "次へ"
 
-#: src/components/tag-manifest-modal.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
 msgid "No"
 msgstr "不可"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-msgid "No activities yet"
-msgstr "まだアクティビティーはありません"
+#~ msgid "No activities yet"
+#~ msgstr "まだアクティビティーはありません"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "No alternatives specified."
@@ -4286,25 +4182,25 @@ msgstr "コレクションバージョンはまだありません"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/search.tsx
-msgid "No collections yet"
-msgstr "まだコレクションはありません"
+#~ msgid "No collections yet"
+#~ msgstr "まだコレクションはありません"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "No container repositories yet"
-msgstr "まだコンテナーリポジトリーはありません"
+#~ msgid "No container repositories yet"
+#~ msgstr "まだコンテナーリポジトリーはありません"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "利用可能なコントローラーがありません"
 
 #: src/containers/my-imports/my-imports.tsx
-msgid "No data"
-msgstr "データなし"
+#~ msgid "No data"
+#~ msgstr "データなし"
 
 #: src/components/collection-dependencies-list.tsx
 #: src/containers/collection-detail/collection-dependencies.tsx
-msgid "No dependencies"
-msgstr "依存関係なし"
+#~ msgid "No dependencies"
+#~ msgstr "依存関係なし"
 
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
@@ -4322,16 +4218,16 @@ msgid "No distributions created"
 msgstr ""
 
 #: src/containers/collection-detail/collection-distributions.tsx
-msgid "No distributions yet"
-msgstr "ディストリビューションはまだありません"
+#~ msgid "No distributions yet"
+#~ msgstr "ディストリビューションはまだありません"
 
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
 msgstr "まだグループはありません"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "No images yet"
-msgstr "まだイメージはありません"
+#~ msgid "No images yet"
+#~ msgstr "まだイメージはありません"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "No import logs for role id {0}"
@@ -4342,24 +4238,24 @@ msgstr "まだイメージはありません"
 #~ msgstr ""
 
 #: src/components/import-list.tsx
-msgid "No imports"
-msgstr "インポートなし"
+#~ msgid "No imports"
+#~ msgstr "インポートなし"
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "No local repositories yet"
 #~ msgstr "No local repositories yet"
 
 #: src/containers/approvals/approvals.tsx
-msgid "No managed collections yet"
-msgstr "まだ管理コレクションはありません"
+#~ msgid "No managed collections yet"
+#~ msgstr "まだ管理コレクションはありません"
 
 #: src/containers/search/multi-search.tsx
-msgid "No matching collections found."
-msgstr ""
+#~ msgid "No matching collections found."
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "No matching containers found."
-msgstr ""
+#~ msgid "No matching containers found."
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "No matching execution environments found."
@@ -4374,8 +4270,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "No matching namespaces found."
-msgstr ""
+#~ msgid "No matching namespaces found."
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "No matching role namespaces found."
@@ -4387,16 +4283,16 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/import-list.tsx
-msgid "No namespace selected."
-msgstr "名前空間が選択されていません。"
+#~ msgid "No namespace selected."
+#~ msgstr "名前空間が選択されていません。"
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "No namespaces found"
 #~ msgstr ""
 
 #: src/containers/namespace-list/namespace-list.tsx
-msgid "No namespaces yet"
-msgstr "まだ名前空間はありません"
+#~ msgid "No namespaces yet"
+#~ msgstr "まだ名前空間はありません"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
@@ -4421,8 +4317,8 @@ msgid "No permissions"
 msgstr "パーミッションなし"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
-msgid "No README"
-msgstr "README なし"
+#~ msgid "No README"
+#~ msgstr "README なし"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "No reason specified."
@@ -4433,8 +4329,8 @@ msgid "no remote"
 msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "No remote registries yet"
-msgstr "リモートレジストリーなし"
+#~ msgid "No remote registries yet"
+#~ msgstr "リモートレジストリーなし"
 
 #: src/containers/repositories/repository-list.tsx
 #~ msgid "No remote repositories yet"
@@ -4494,8 +4390,8 @@ msgid "No task group"
 msgstr "タスクグループなし"
 
 #: src/components/import-console.tsx
-msgid "No task messages available"
-msgstr "利用可能なタスクメッセージはありません"
+#~ msgid "No task messages available"
+#~ msgstr "利用可能なタスクメッセージはありません"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "No tasks yet"
@@ -4515,14 +4411,13 @@ msgid "No users yet"
 msgstr "まだユーザーはありません"
 
 #: src/components/collection-dependencies-list.tsx
-msgid "No version of {fqn} exists that matches {version_range}."
-msgstr "{version_range} に一致する {fqn} のバージョンはありません。"
+#~ msgid "No version of {fqn} exists that matches {version_range}."
+#~ msgstr "{version_range} に一致する {fqn} のバージョンはありません。"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "No versions"
 #~ msgstr "バージョンなし"
 
-#: src/components/container-repository-form.tsx
 #: src/components/copy-url.tsx
 #: src/components/distribution-url.tsx
 #: src/components/pulp-labels.tsx
@@ -4569,7 +4464,6 @@ msgstr ""
 
 #: src/components/permission-chip-selector.tsx
 #: src/components/typeahead.tsx
-#: src/containers/collection-detail/collection-docs.tsx
 msgid "Not found"
 msgstr "見つかりません"
 
@@ -4590,8 +4484,8 @@ msgid "Not reported"
 msgstr ""
 
 #: src/components/collection-usedby-dependencies-list.tsx
-msgid "Not required for use by other collections"
-msgstr "他のコレクションでの使用には必要ありません"
+#~ msgid "Not required for use by other collections"
+#~ msgstr "他のコレクションでの使用には必要ありません"
 
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
@@ -4720,8 +4614,8 @@ msgid "Orphan protection time:"
 msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "OS / Arch"
-msgstr "OS / アーキテクチャー"
+#~ msgid "OS / Arch"
+#~ msgstr "OS / アーキテクチャー"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree child upload"
@@ -4964,36 +4858,36 @@ msgstr ""
 #~ msgstr "Please finish editing permissions first."
 
 #: src/components/import-modal.tsx
-msgid "Please note that these repositories are not filtered by permissions. Upload may fail without the right permissions."
-msgstr ""
+#~ msgid "Please note that these repositories are not filtered by permissions. Upload may fail without the right permissions."
+#~ msgstr ""
 
 #: src/components/import-modal/import-modal.tsx
 #~ msgid "Please note that those repositories are not filtered by permission, if operation fail, you don't have it."
 #~ msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Please select a repository filter"
-msgstr "リポジトリーフィルターを選択してください"
+#~ msgid "Please select a repository filter"
+#~ msgstr "リポジトリーフィルターを選択してください"
 
 #: src/components/upload-signature-modal.tsx
-msgid "Please select a signature file to upload."
-msgstr "アップロードする署名ファイルを選択してください。"
+#~ msgid "Please select a signature file to upload."
+#~ msgstr "アップロードする署名ファイルを選択してください。"
 
 #: src/components/import-modal.tsx
-msgid "Please select no more than one file."
-msgstr "ファイルを 1 つだけ選択してください。"
+#~ msgid "Please select no more than one file."
+#~ msgstr "ファイルを 1 つだけ選択してください。"
 
 #: src/components/namespace-form.tsx
-msgid "Please use a jpeg or png; svg images are not supported."
-msgstr ""
+#~ msgid "Please use a jpeg or png; svg images are not supported."
+#~ msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Please, check it running the command:"
 #~ msgstr ""
 
 #: src/components/namespace-modal.tsx
-msgid "Please, provide the namespace name"
-msgstr "名前空間名を記入してください"
+#~ msgid "Please, provide the namespace name"
+#~ msgstr "名前空間名を記入してください"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Plugin"
@@ -5009,7 +4903,6 @@ msgid "Pre-releases"
 msgstr ""
 
 #: src/components/access-tab.tsx
-#: src/components/markdown-editor.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Preview"
 msgstr "プレビュー"
@@ -5072,8 +4965,8 @@ msgstr ""
 
 #: src/components/collection-card.tsx
 #: src/components/collection-list-item.tsx
-msgid "Provided by <0>{nsTitle}</0>"
-msgstr ""
+#~ msgid "Provided by <0>{nsTitle}</0>"
+#~ msgstr ""
 
 #: src/containers/ansible-role/namespace-list.tsx
 #~ msgid "Provider"
@@ -5109,24 +5002,24 @@ msgid "Publish upstream release fields"
 msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Published"
-msgstr "公開"
+#~ msgid "Published"
+#~ msgstr "公開"
 
 #: src/constants.tsx
 #~ msgid "Pull distribution"
 #~ msgstr "Pull distribution"
 
 #: src/components/container-repository-form.tsx
-msgid "Pull only latest?"
-msgstr ""
+#~ msgid "Pull only latest?"
+#~ msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Pull private containers"
 #~ msgstr "Pull private containers"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
-msgid "Pull this image"
-msgstr "このイメージのプル"
+#~ msgid "Pull this image"
+#~ msgstr "このイメージのプル"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Pull-through remote"
@@ -5349,8 +5242,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Push container images"
-msgstr "コンテナーイメージのプッシュ"
+#~ msgid "Push container images"
+#~ msgstr "コンテナーイメージのプッシュ"
 
 #: src/constants.tsx
 #~ msgid "Push distribution"
@@ -5422,12 +5315,12 @@ msgstr "レート制限"
 #~ msgstr "レート制限"
 
 #: src/components/markdown-editor.tsx
-msgid "Raw Markdown"
-msgstr "ロー形式の Markdown"
+#~ msgid "Raw Markdown"
+#~ msgstr "ロー形式の Markdown"
 
 #: src/components/table-of-contents.tsx
-msgid "Readme"
-msgstr "Readme"
+#~ msgid "Readme"
+#~ msgstr "Readme"
 
 #: src/components/ratings.tsx
 #~ msgid "Ready for production"
@@ -5435,8 +5328,8 @@ msgstr "Readme"
 
 #. placeholder {0}: r.data.state
 #: src/components/tag-manifest-modal.tsx
-msgid "Reason: task {0}"
-msgstr "理由: タスク {0}"
+#~ msgid "Reason: task {0}"
+#~ msgstr "理由: タスク {0}"
 
 #: src/utilities/translate-task.ts
 msgid "Recursive add content"
@@ -5459,37 +5352,37 @@ msgid "Redis connection"
 msgstr ""
 
 #: src/components/container-repository-form.tsx
-msgid "Registries list could not be displayed."
-msgstr "レジストリーリストを表示できませんでした。"
+#~ msgid "Registries list could not be displayed."
+#~ msgstr "レジストリーリストを表示できませんでした。"
 
 #: src/components/container-repository-form.tsx
-msgid "Registry"
-msgstr "レジストリー"
+#~ msgid "Registry"
+#~ msgstr "レジストリー"
 
 #: src/utilities/translate-task.ts
 msgid "Registry sync"
 msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Registry sync status"
-msgstr "レジストリーの同期ステータス"
+#~ msgid "Registry sync status"
+#~ msgstr "レジストリーの同期ステータス"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Registry URL"
-msgstr "レジストリー URL"
+#~ msgid "Registry URL"
+#~ msgstr "レジストリー URL"
 
 #: src/components/approval-row.tsx
-msgid "Reject"
-msgstr "拒否"
+#~ msgid "Reject"
+#~ msgstr "拒否"
 
 #: src/components/import-console.tsx
-msgid "rejected"
-msgstr "拒否"
+#~ msgid "rejected"
+#~ msgstr "拒否"
 
 #: src/components/approval-row.tsx
 #: src/containers/approvals/approvals.tsx
-msgid "Rejected"
-msgstr "拒否"
+#~ msgid "Rejected"
+#~ msgstr "拒否"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Rejection failed."
@@ -5512,14 +5405,12 @@ msgstr "拒否"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/file-repository/list.tsx
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/containers/search/multi-search.tsx
 msgid "Remote"
 msgstr "リモート"
 
@@ -5550,7 +5441,6 @@ msgid "Remote name"
 msgstr "リモート名"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/containers/execution-environment/registry-list.tsx
 #: src/menu.tsx
 msgid "Remote registries"
 msgstr ""
@@ -5560,16 +5450,16 @@ msgstr ""
 #~ msgstr "リモートレジストリー"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Remote registry \"{name}\" could not be deleted."
-msgstr "リモートレジストリー \"{name}\" を削除できませんでした。"
+#~ msgid "Remote registry \"{name}\" could not be deleted."
+#~ msgstr "リモートレジストリー \"{name}\" を削除できませんでした。"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Remote registry \"{name}\" could not be synced."
-msgstr "リモートレジストリー \"{name}\" を同期できませんでした。"
+#~ msgid "Remote registry \"{name}\" could not be synced."
+#~ msgstr "リモートレジストリー \"{name}\" を同期できませんでした。"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Remote registry \"{name}\" has been successfully deleted."
-msgstr "リモートレジストリー \"{name}\" が正常に削除されました。"
+#~ msgid "Remote registry \"{name}\" has been successfully deleted."
+#~ msgstr "リモートレジストリー \"{name}\" が正常に削除されました。"
 
 #: src/containers/repositories/repository-list.tsx
 #~ msgid "Remote repositories will appear once added"
@@ -5641,8 +5531,8 @@ msgid "Remove"
 msgstr "削除"
 
 #: src/components/collection-dropdown.tsx
-msgid "Remove collection from repository"
-msgstr ""
+#~ msgid "Remove collection from repository"
+#~ msgstr ""
 
 #: src/actions/ansible-repository-collection-version-remove.tsx
 msgid "Remove collection version?"
@@ -5682,8 +5572,8 @@ msgid "Remove user from group?"
 msgstr "グループからユーザーを削除しますか?"
 
 #: src/components/collection-dropdown.tsx
-msgid "Remove version {version} from repository"
-msgstr ""
+#~ msgid "Remove version {version} from repository"
+#~ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "Removed"
@@ -5700,13 +5590,13 @@ msgstr ""
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
-msgid "Removing collection <0>{0}</0> from repository <1>{deleteFromRepo}</1>."
-msgstr ""
+#~ msgid "Removing collection <0>{0}</0> from repository <1>{deleteFromRepo}</1>."
+#~ msgstr ""
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
-msgid "Removing collection version <0>{0} v{collectionVersion}</0> from repository <1>{deleteFromRepo}</1>."
-msgstr ""
+#~ msgid "Removing collection version <0>{0} v{collectionVersion}</0> from repository <1>{deleteFromRepo}</1>."
+#~ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair"
@@ -5741,8 +5631,8 @@ msgid "Repair task"
 msgstr ""
 
 #: src/components/collection-header.tsx
-msgid "Repo"
-msgstr "リポジトリー"
+#~ msgid "Repo"
+#~ msgstr "リポジトリー"
 
 #: src/containers/repositories/repository-list.tsx
 #~ msgid "Repo Management"
@@ -5752,7 +5642,6 @@ msgstr "リポジトリー"
 #~ msgid "Repo URL"
 #~ msgstr "Repo URL"
 
-#: src/components/multiple-repo-selector.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
@@ -5798,11 +5687,6 @@ msgstr "リポジトリーが作成されると表示されます。"
 #~ msgstr "repository"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/collection-filter.ts
-#: src/components/import-modal.tsx
-#: src/components/multiple-repo-selector.tsx
-#: src/components/repository-badge.tsx
-#: src/containers/approvals/approvals.tsx
 msgid "Repository"
 msgstr "リポジトリー"
 
@@ -5827,8 +5711,8 @@ msgid "Repository \"{name}\" was created. The outcome of creating the distributi
 msgstr ""
 
 #: src/utilities/repository-remove-collection.ts
-msgid "Repository {repoName} not found."
-msgstr "リポジトリー {repoName} が見つかりません。"
+#~ msgid "Repository {repoName} not found."
+#~ msgstr "リポジトリー {repoName} が見つかりません。"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
@@ -5909,8 +5793,8 @@ msgstr "リポジトリーが変更されると、リポジトリーのバージ
 #~ msgstr ""
 
 #: src/components/collection-info.tsx
-msgid "Requires Ansible"
-msgstr "Ansible が必要です"
+#~ msgid "Requires Ansible"
+#~ msgstr "Ansible が必要です"
 
 #: src/containers/python-repository/tab-packages.tsx
 msgid "Requires Python"
@@ -5934,8 +5818,8 @@ msgid "Reset to browser defaults"
 msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Resources"
-msgstr "リソース"
+#~ msgid "Resources"
+#~ msgstr "リソース"
 
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
@@ -6152,7 +6036,6 @@ msgstr ""
 #~ msgid "Ruby Gems sync"
 #~ msgstr ""
 
-#: src/components/import-list.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 msgid "Running"
@@ -6163,15 +6046,11 @@ msgstr "実行中"
 #~ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
-#: src/components/container-repository-form.tsx
 #: src/components/group-modal.tsx
 #: src/components/remote-form.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
-#: src/components/tag-manifest-modal.tsx
 #: src/components/user-form.tsx
-#: src/containers/edit-namespace/edit-namespace.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail.tsx
 msgid "Save"
 msgstr "保存"
 
@@ -6179,8 +6058,8 @@ msgstr "保存"
 #. placeholder {0}: repo.name
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Saved changes to container \"{0}\"."
-msgstr ""
+#~ msgid "Saved changes to container \"{0}\"."
+#~ msgstr ""
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -6193,8 +6072,8 @@ msgstr ""
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
-msgid "Saved changes to namespace \"{0}\"."
-msgstr "名前空間 \"{0}\" への変更を保存しました。"
+#~ msgid "Saved changes to namespace \"{0}\"."
+#~ msgstr "名前空間 \"{0}\" への変更を保存しました。"
 
 #: src/containers/settings/user-profile.tsx
 msgid "Saved changes to user \"{username}\"."
@@ -6209,12 +6088,11 @@ msgid "Scroll foward"
 msgstr ""
 
 #: src/components/import-console.tsx
-msgid "Scroll to end"
-msgstr "最後までスクロール"
+#~ msgid "Scroll to end"
+#~ msgstr "最後までスクロール"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/containers/search/multi-search.tsx
 #: src/menu.tsx
 msgid "Search"
 msgstr ""
@@ -6252,7 +6130,6 @@ msgstr "このタスクのステータスについては、タスク管理の <0
 #~ msgstr "See the task management <0>detail page</0>for the status of this task."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#: src/components/multi-repo-modal.tsx
 msgid "Select"
 msgstr "選択"
 
@@ -6265,8 +6142,8 @@ msgid "Select a group"
 msgstr "タグの選択"
 
 #: src/components/container-repository-form.tsx
-msgid "Select a registry"
-msgstr "レジストリーの選択"
+#~ msgid "Select a registry"
+#~ msgstr "レジストリーの選択"
 
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
@@ -6290,12 +6167,12 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/collection-header.tsx
-msgid "Select collection version"
-msgstr "コレクションバージョンの選択"
+#~ msgid "Select collection version"
+#~ msgstr "コレクションバージョンの選択"
 
 #: src/components/import-modal.tsx
-msgid "Select file"
-msgstr "ファイルの選択"
+#~ msgid "Select file"
+#~ msgstr "ファイルの選択"
 
 #: src/components/user-form.tsx
 msgid "Select groups"
@@ -6310,25 +6187,25 @@ msgid "Select language"
 msgstr ""
 
 #: src/components/import-list.tsx
-msgid "Select namespace"
-msgstr "名前空間の選択"
+#~ msgid "Select namespace"
+#~ msgstr "名前空間の選択"
 
 #: src/components/multiple-repo-selector.tsx
-msgid "Select page"
-msgstr ""
+#~ msgid "Select page"
+#~ msgstr ""
 
 #. placeholder {0}: repositoryList.length
 #: src/components/multiple-repo-selector.tsx
-msgid "Select page ({0} items)"
-msgstr "ページの選択 ({0} 項目)"
+#~ msgid "Select page ({0} items)"
+#~ msgstr "ページの選択 ({0} 項目)"
 
 #: src/components/permission-chip-selector.tsx
 msgid "Select permissions"
 msgstr "パーミッションの選択"
 
 #: src/components/multi-repo-modal.tsx
-msgid "Select repositories"
-msgstr "リポジトリーの選択"
+#~ msgid "Select repositories"
+#~ msgstr "リポジトリーの選択"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6340,8 +6217,8 @@ msgid "Select users"
 msgstr "ユーザーの選択"
 
 #: src/components/multiple-repo-selector.tsx
-msgid "Selected"
-msgstr "選択済み"
+#~ msgid "Selected"
+#~ msgstr "選択済み"
 
 #: src/components/select-group.tsx
 msgid "Selected group"
@@ -6392,12 +6269,12 @@ msgid "Show advanced options"
 msgstr "詳細オプションの表示"
 
 #: src/containers/search/multi-search.tsx
-msgid "Show all collections"
-msgstr ""
+#~ msgid "Show all collections"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Show all containers"
-msgstr ""
+#~ msgid "Show all containers"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Show all execution environments"
@@ -6408,8 +6285,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Show all namespaces"
-msgstr ""
+#~ msgid "Show all namespaces"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Show all role namespaces"
@@ -6438,20 +6315,20 @@ msgid "Show more"
 msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Show more collections"
-msgstr ""
+#~ msgid "Show more collections"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Show more containers"
-msgstr ""
+#~ msgid "Show more containers"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Show more execution environments"
 #~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
-msgid "Show more namespaces"
-msgstr ""
+#~ msgid "Show more namespaces"
+#~ msgstr ""
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Show more role namespaces"
@@ -6466,38 +6343,38 @@ msgid "Show password"
 msgstr ""
 
 #: src/components/download-signature-grid-item.tsx
-msgid "Show the signature"
-msgstr "署名の表示"
+#~ msgid "Show the signature"
+#~ msgstr "署名の表示"
 
 #: src/components/collection-content-list.tsx
-msgid "Showing:"
-msgstr "表示:"
+#~ msgid "Showing:"
+#~ msgstr "表示:"
 
 #: src/components/sign-single-certificate-modal.tsx
 #: src/containers/execution-environment-detail/base.tsx
-msgid "Sign"
-msgstr "署名"
+#~ msgid "Sign"
+#~ msgstr "署名"
 
 #: src/components/sign-all-certificates-modal.tsx
-msgid "Sign all"
-msgstr "すべて署名する"
+#~ msgid "Sign all"
+#~ msgstr "すべて署名する"
 
 #: src/components/sign-all-certificates-modal.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Sign all collections"
-msgstr "すべてのコレクションへの署名"
+#~ msgid "Sign all collections"
+#~ msgstr "すべてのコレクションへの署名"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Sign all collections in {repository}"
-msgstr "{repository} ですべてのコレクションに署名します"
+#~ msgid "Sign all collections in {repository}"
+#~ msgstr "{repository} ですべてのコレクションに署名します"
 
 #: src/components/approval-row.tsx
-msgid "Sign and approve"
-msgstr "署名および承認"
+#~ msgid "Sign and approve"
+#~ msgstr "署名および承認"
 
 #: src/components/collection-dropdown.tsx
-msgid "Sign collection"
-msgstr ""
+#~ msgid "Sign collection"
+#~ msgstr ""
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Sign entire collection"
@@ -6508,8 +6385,8 @@ msgstr ""
 #~ msgstr "sign state"
 
 #: src/components/collection-filter.ts
-msgid "Sign state"
-msgstr "署名状態"
+#~ msgid "Sign state"
+#~ msgstr "署名状態"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Sign version {0}"
@@ -6517,16 +6394,16 @@ msgstr "署名状態"
 
 #: src/components/collection-dropdown.tsx
 #: src/components/sign-single-certificate-modal.tsx
-msgid "Sign version {version}"
-msgstr "バージョン {version} に署名する"
+#~ msgid "Sign version {version}"
+#~ msgstr "バージョン {version} に署名する"
 
 #: src/layout.tsx
 msgid "Sign-out did not complete"
 msgstr ""
 
 #: src/components/download-signature-grid-item.tsx
-msgid "Signature"
-msgstr "署名"
+#~ msgid "Signature"
+#~ msgstr "署名"
 
 #: src/containers/signature-keys/list.tsx
 #: src/menu.tsx
@@ -6546,8 +6423,8 @@ msgid "Signature keys will appear once created."
 msgstr "署名鍵が作成されると表示されます。"
 
 #: src/components/collection-info.tsx
-msgid "Signatures could not be loaded."
-msgstr "署名を読み込めませんでした。"
+#~ msgid "Signatures could not be loaded."
+#~ msgstr "署名を読み込めませんでした。"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "signed"
@@ -6555,67 +6432,67 @@ msgstr "署名を読み込めませんでした。"
 
 #: src/components/collection-filter.ts
 #: src/components/signature-badge.tsx
-msgid "Signed"
-msgstr "署名済み"
+#~ msgid "Signed"
+#~ msgstr "署名済み"
 
 #: src/components/approval-row.tsx
-msgid "Signed and approved"
-msgstr "署名済みおよび承認済み"
+#~ msgid "Signed and approved"
+#~ msgstr "署名済みおよび承認済み"
 
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "署名済みのみ"
 
 #: src/components/sign-all-certificates-modal.tsx
-msgid "Signed version(s)"
-msgstr "署名済みバージョン"
+#~ msgid "Signed version(s)"
+#~ msgstr "署名済みバージョン"
 
 #: src/components/approve-modal.tsx
 #: src/components/copy-collection-to-repository-modal.tsx
-msgid "Signing service {signingServiceName} not found"
-msgstr "署名サービス {signingServiceName} が見つかりません"
+#~ msgid "Signing service {signingServiceName} not found"
+#~ msgstr "署名サービス {signingServiceName} が見つかりません"
 
 #: src/components/sign-all-certificates-modal.tsx
-msgid "Signing service selector:"
-msgstr "署名サービスセレクター:"
+#~ msgid "Signing service selector:"
+#~ msgstr "署名サービスセレクター:"
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Signing started for all collections in namespace \"{0}\"."
-msgstr "名前空間 \"{0}\" のすべてのコレクションで署名を開始しました。"
+#~ msgid "Signing started for all collections in namespace \"{0}\"."
+#~ msgstr "名前空間 \"{0}\" のすべてのコレクションで署名を開始しました。"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Signing started for all versions in collection \"{0}\""
 #~ msgstr "Signing started for all versions in collection \"{0}\""
 
 #: src/components/collection-header.tsx
-msgid "Signing started for all versions in collection \"{name}\""
-msgstr "コレクション \"{name}\" のすべてのバージョンで署名を開始しました"
+#~ msgid "Signing started for all versions in collection \"{name}\""
+#~ msgstr "コレクション \"{name}\" のすべてのバージョンで署名を開始しました"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Signing started for collection \"{0} v{1}\"."
 #~ msgstr "Signing started for collection \"{0} v{1}\"."
 
 #: src/components/collection-header.tsx
-msgid "Signing started for collection \"{name} v{version}\"."
-msgstr "コレクション \"{name} v{version}\" の署名を開始しました。"
+#~ msgid "Signing started for collection \"{name} v{version}\"."
+#~ msgstr "コレクション \"{name} v{version}\" の署名を開始しました。"
 
 #. placeholder {0}: item.name
 #: src/utilities/repo-signing.ts
-msgid "Signing started for container \"{0}\"."
-msgstr "コンテナー \"{0}\" の署名が開始されました。"
+#~ msgid "Signing started for container \"{0}\"."
+#~ msgstr "コンテナー \"{0}\" の署名が開始されました。"
 
 #: src/components/remote-form.tsx
 msgid "Single sign on URL."
 msgstr "シングルサインオン URL。"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Size"
-msgstr "サイズ"
+#~ msgid "Size"
+#~ msgstr "サイズ"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
-msgid "Size: {size}"
-msgstr "サイズ: {size}"
+#~ msgid "Size: {size}"
+#~ msgstr "サイズ: {size}"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Skip them"
@@ -6626,8 +6503,8 @@ msgid "Skipped"
 msgstr ""
 
 #: src/components/sort.tsx
-msgid "Sort results"
-msgstr "結果のソート"
+#~ msgid "Sort results"
+#~ msgstr "結果のソート"
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be skipped"
@@ -6646,8 +6523,8 @@ msgstr "SSO URL"
 #~ msgstr "ステージング"
 
 #: src/components/import-modal.tsx
-msgid "Staging repos"
-msgstr ""
+#~ msgid "Staging repos"
+#~ msgstr ""
 
 #: src/components/import-modal.tsx
 #~ msgid "Staging Repos"
@@ -6667,8 +6544,8 @@ msgstr "ゼロから始めます"
 
 #. placeholder {0}: repository.name
 #: src/components/copy-collection-to-repository-modal.tsx
-msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repo}\"."
-msgstr ""
+#~ msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repo}\"."
+#~ msgstr ""
 
 #. placeholder {0}: repository.name
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -6691,8 +6568,6 @@ msgstr "状態"
 msgid "States:"
 msgstr ""
 
-#: src/components/import-list.tsx
-#: src/containers/approvals/approvals.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/menu.tsx
@@ -6700,8 +6575,8 @@ msgid "Status"
 msgstr "ステータス"
 
 #: src/components/import-console.tsx
-msgid "Status:"
-msgstr "ステータス:"
+#~ msgid "Status:"
+#~ msgstr "ステータス:"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Still being removed"
@@ -6848,14 +6723,14 @@ msgstr "同期"
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Sync failed for {name}"
-msgstr "{name} の同期に失敗しました"
+#~ msgid "Sync failed for {name}"
+#~ msgstr "{name} の同期に失敗しました"
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Sync from registry"
-msgstr "レジストリーからの同期"
+#~ msgid "Sync from registry"
+#~ msgstr "レジストリーからの同期"
 
 #: src/containers/execution-environment/registry-list.tsx
 #: src/containers/execution-environment-detail/base.tsx
@@ -6902,8 +6777,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "Sync started for container \"{name}\"."
-msgstr ""
+#~ msgid "Sync started for container \"{name}\"."
+#~ msgstr ""
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "Sync started for execution environment \"{name}\"."
@@ -6911,8 +6786,8 @@ msgstr ""
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment/registry-list.tsx
-msgid "Sync started for remote registry \"{name}\"."
-msgstr "リモートレジストリー \"{name}\" の同期が開始されました。"
+#~ msgid "Sync started for remote registry \"{name}\"."
+#~ msgstr "リモートレジストリー \"{name}\" の同期が開始されました。"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -6972,8 +6847,8 @@ msgstr ""
 
 #: src/components/collection-filter.ts
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-msgid "Tag"
-msgstr "タグ"
+#~ msgid "Tag"
+#~ msgstr "タグ"
 
 #: src/utilities/translate-task.ts
 msgid "Tag image"
@@ -7049,8 +6924,8 @@ msgstr "タスク名"
 
 #. placeholder {0}: tag.tag
 #: src/components/tag-manifest-modal.tsx
-msgid "Task to change tag \"{0}\" could not be completed."
-msgstr "タグ \"{0}\" を変更するタスクを完了できませんでした。"
+#~ msgid "Task to change tag \"{0}\" could not be completed."
+#~ msgstr "タグ \"{0}\" を変更するタスクを完了できませんでした。"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7076,8 +6951,8 @@ msgstr "タスクは作成後に表示されます。"
 
 #. placeholder {0}: errorMessages['links__name']
 #: src/components/namespace-form.tsx
-msgid "Text: {0}"
-msgstr "テキスト: {0}"
+#~ msgid "Text: {0}"
+#~ msgstr "テキスト: {0}"
 
 #: src/loaders/standalone/layout.tsx
 #~ msgid "Thanks for trying out the new and improved Beta Galaxy, please share your feedback on <0>github.com/ansible/galaxy_ng/discussions</0>."
@@ -7099,19 +6974,19 @@ msgstr ""
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
 #: src/components/collection-header.tsx
-msgid "The certificate for \"{0} {1} v{2}\" could not be saved."
-msgstr "\"{0} {1} v{2}\" の証明書を保存できませんでした。"
+#~ msgid "The certificate for \"{0} {1} v{2}\" could not be saved."
+#~ msgstr "\"{0} {1} v{2}\" の証明書を保存できませんでした。"
 
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
 #: src/components/collection-header.tsx
-msgid "The certificate for \"{0} {1} v{2}\" is being uploaded."
-msgstr "\"{0} {1} v{2}\" の証明書をアップロードしています。"
+#~ msgid "The certificate for \"{0} {1} v{2}\" is being uploaded."
+#~ msgstr "\"{0} {1} v{2}\" の証明書をアップロードしています。"
 
 #: src/containers/approvals/approvals.tsx
-msgid "The certificate for \"{namespace} {name} v{version}\" could not be saved."
-msgstr "\"{namespace} {name} v{version}\" の証明書を保存できませんでした。"
+#~ msgid "The certificate for \"{namespace} {name} v{version}\" could not be saved."
+#~ msgstr "\"{namespace} {name} v{version}\" の証明書を保存できませんでした。"
 
 #: src/components/repository-form.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
@@ -7119,38 +6994,38 @@ msgstr ""
 
 #. placeholder {0}: collection.collection_version.name
 #: src/components/collection-header.tsx
-msgid "The collection \"{0}\" has been successfully deprecated."
-msgstr "コレクション \"{0}\" が正常に非推奨化されました。"
+#~ msgid "The collection \"{0}\" has been successfully deprecated."
+#~ msgstr "コレクション \"{0}\" が正常に非推奨化されました。"
 
 #. placeholder {0}: collection.collection_version.name
 #: src/components/collection-header.tsx
-msgid "The collection \"{0}\" has been successfully undeprecated."
-msgstr "コレクション \"{0}\" の非推奨化が正常に解除されました。"
+#~ msgid "The collection \"{0}\" has been successfully undeprecated."
+#~ msgstr "コレクション \"{0}\" の非推奨化が正常に解除されました。"
 
 #: src/containers/search/search.tsx
-msgid "The collection \"{name}\" has been successfully deprecated."
-msgstr "コレクション \"{name}\" が正常に非推奨化されました。"
+#~ msgid "The collection \"{name}\" has been successfully deprecated."
+#~ msgstr "コレクション \"{name}\" が正常に非推奨化されました。"
 
 #: src/containers/search/search.tsx
-msgid "The collection \"{name}\" has been successfully undeprecated."
-msgstr "コレクション \"{name}\" の非推奨化が正常に解除されました。"
+#~ msgid "The collection \"{name}\" has been successfully undeprecated."
+#~ msgstr "コレクション \"{name}\" の非推奨化が正常に解除されました。"
 
 #: src/components/multi-repo-modal.tsx
-msgid "The collection exists in too many repositories. Some repositories may not be disabled and preselected correctly."
-msgstr ""
+#~ msgid "The collection exists in too many repositories. Some repositories may not be disabled and preselected correctly."
+#~ msgstr ""
 
 #: src/components/delete-collection-modal.tsx
 #~ msgid "The collection will be deleted only from repository {deleteFromRepo}."
 #~ msgstr ""
 
 #: src/components/import-modal.tsx
-msgid "The collection you have selected does not match this namespace."
-msgstr "選択したコレクションは、この名前空間と一致しません。"
+#~ msgid "The collection you have selected does not match this namespace."
+#~ msgstr "選択したコレクションは、この名前空間と一致しません。"
 
 #. placeholder {0}: collection.name
 #: src/components/import-modal.tsx
-msgid "The collection you have selected doesn't appear to match {0}"
-msgstr "選択したコレクションは、{0} と一致しないようです"
+#~ msgid "The collection you have selected doesn't appear to match {0}"
+#~ msgstr "選択したコレクションは、{0} と一致しないようです"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
@@ -7177,8 +7052,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/collection-detail/collection-docs.tsx
-msgid "The file is not available for this version of {collectionName}"
-msgstr "このファイルは、このバージョンの {collectionName} では使用できません"
+#~ msgid "The file is not available for this version of {collectionName}"
+#~ msgstr "このファイルは、このバージョンの {collectionName} では使用できません"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "The following legacy namespace will be opted in to Ansible Lightspeed:"
@@ -7256,8 +7131,8 @@ msgid "The selected roles will be added to this specific Ansible repository."
 msgstr "選択したロールは、この特定の Ansible リポジトリーに追加されます。"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-msgid "The selected roles will be added to this specific container."
-msgstr ""
+#~ msgid "The selected roles will be added to this specific container."
+#~ msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
 #~ msgid "The selected roles will be added to this specific Container."
@@ -7268,8 +7143,8 @@ msgstr ""
 #~ msgstr "選択したロールは、この特定の実行環境に追加されます。"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "The selected roles will be added to this specific namespace."
-msgstr "選択したロールは、この特定の名前空間に追加されます。"
+#~ msgid "The selected roles will be added to this specific namespace."
+#~ msgstr "選択したロールは、この特定の名前空間に追加されます。"
 
 #: src/containers/login/login.tsx
 msgid "The server could not be reached: {message}"
@@ -7360,8 +7235,8 @@ msgstr "このリポジトリーに関連付けられたリモートはありま
 #~ msgstr "There are no repos associated with this remote."
 
 #: src/components/import-list.tsx
-msgid "There have not been any imports on this namespace."
-msgstr "この名前空間へのインポートはありません。"
+#~ msgid "There have not been any imports on this namespace."
+#~ msgstr "この名前空間へのインポートはありません。"
 
 #: src/components/role-import-list.tsx
 #~ msgid "There have not been any imports."
@@ -7372,8 +7247,8 @@ msgid "There is no progress message."
 msgstr "進捗メッセージはありません。"
 
 #: src/containers/approvals/approvals.tsx
-msgid "There must be only one repository with pipeline=rejected."
-msgstr ""
+#~ msgid "There must be only one repository with pipeline=rejected."
+#~ msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 msgid "There's no resource record"
@@ -7405,24 +7280,24 @@ msgid "Things could not be displayed."
 msgstr ""
 
 #: src/containers/namespace-list/namespace-list.tsx
-msgid "This account is not set up to manage any namespaces"
-msgstr "このアカウントは、名前空間の管理設定がされていません"
+#~ msgid "This account is not set up to manage any namespaces"
+#~ msgstr "このアカウントは、名前空間の管理設定がされていません"
 
 #: src/components/signing/sign-all-certificates-modal.tsx
 #~ msgid "This action will affect <0>{numberOfAffected}</0> version(s)."
 #~ msgstr "This action will affect <0>{numberOfAffected}</0> version(s)."
 
 #: src/components/collection-header.tsx
-msgid "This collection has been deprecated."
-msgstr "このコレクションは非推奨になりました。"
+#~ msgid "This collection has been deprecated."
+#~ msgstr "このコレクションは非推奨になりました。"
 
 #: src/containers/collection-detail/collection-dependencies.tsx
-msgid "This collection is being used by"
-msgstr "このコレクションのユーザー:"
+#~ msgid "This collection is being used by"
+#~ msgstr "このコレクションのユーザー:"
 
 #: src/containers/collection-detail/collection-dependencies.tsx
-msgid "This collections requires the following collections for use"
-msgstr "このコレクションでは、以下のコレクションを使用する必要があります"
+#~ msgid "This collections requires the following collections for use"
+#~ msgstr "このコレクションでは、以下のコレクションを使用する必要があります"
 
 #: src/utilities/map-role-errors.ts
 msgid "This field can only contain letters and numbers"
@@ -7441,8 +7316,8 @@ msgstr "このフィールドは 2 文字以上にする必要があります"
 #~ msgstr "このフィールドは 'galaxy.' で始まる必要があります。"
 
 #: src/components/empty-state-under-construction.tsx
-msgid "This functionality is not yet finished. For mor information please go to Pulp page"
-msgstr ""
+#~ msgid "This functionality is not yet finished. For mor information please go to Pulp page"
+#~ msgstr ""
 
 #: src/components/delete-group-modal.tsx
 msgid "This group can include users"
@@ -7469,12 +7344,12 @@ msgid "This screen is not available in this UI yet."
 msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
-msgid "This tag already exists on another image. Do you want to move it to this image?"
-msgstr "このタグは別のイメージにすでに存在します。このイメージに移動してもよろしいですか?"
+#~ msgid "This tag already exists on another image. Do you want to move it to this image?"
+#~ msgstr "このタグは別のイメージにすでに存在します。このイメージに移動してもよろしいですか?"
 
 #: src/components/tag-manifest-modal.tsx
-msgid "This tag is already selected for this image. You cannot add it twice."
-msgstr "このタグはすでにこのイメージに対して選択されています。タグは 2 回追加できません。"
+#~ msgid "This tag is already selected for this image. You cannot add it twice."
+#~ msgstr "このタグはすでにこのイメージに対して選択されています。タグは 2 回追加できません。"
 
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
@@ -7502,8 +7377,8 @@ msgstr "TLS 検証"
 #~ msgstr ""
 
 #: src/components/collection-info.tsx
-msgid "To download this collection, configure your client to connect to one of the <0>distributions</0> of this repository."
-msgstr ""
+#~ msgid "To download this collection, configure your client to connect to one of the <0>distributions</0> of this repository."
+#~ msgstr ""
 
 #: src/components/collection-detail/collection-info.tsx
 #~ msgid "To download this collection, configure your client to connect to one of this repositories <0>distributions</0>."
@@ -7577,7 +7452,6 @@ msgstr ""
 #~ msgid "Try Red Hat Ansible Automation Platform"
 #~ msgstr ""
 
-#: src/components/collection-content-list.tsx
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
@@ -7597,20 +7471,20 @@ msgstr ""
 #~ msgstr "UI バージョン"
 
 #: src/components/collection-dropdown.tsx
-msgid "Undeprecate"
-msgstr "非推奨解除"
+#~ msgid "Undeprecate"
+#~ msgstr "非推奨解除"
 
 #: src/components/empty-state-under-construction.tsx
-msgid "Under construction"
-msgstr ""
+#~ msgid "Under construction"
+#~ msgstr ""
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Unformatted Documentation"
 #~ msgstr ""
 
 #: src/components/import-modal.tsx
-msgid "unknown"
-msgstr ""
+#~ msgid "unknown"
+#~ msgstr ""
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "unsigned"
@@ -7618,12 +7492,12 @@ msgstr ""
 
 #: src/components/collection-filter.ts
 #: src/components/signature-badge.tsx
-msgid "Unsigned"
-msgstr "未署名"
+#~ msgid "Unsigned"
+#~ msgstr "未署名"
 
 #: src/components/sign-all-certificates-modal.tsx
-msgid "Unsigned version(s)"
-msgstr "未署名バージョン"
+#~ msgid "Unsigned version(s)"
+#~ msgstr "未署名バージョン"
 
 #: src/utilities/translate-task.ts
 msgid "Untag image"
@@ -7662,12 +7536,12 @@ msgstr ""
 #~ msgstr "{0} を更新"
 
 #: src/components/collection-header.tsx
-msgid "updated <0/>"
-msgstr ""
+#~ msgid "updated <0/>"
+#~ msgstr ""
 
 #: src/components/collection-list-item.tsx
-msgid "Updated <0/>"
-msgstr "<0/> に更新"
+#~ msgid "Updated <0/>"
+#~ msgstr "<0/> に更新"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Updated distribution {name}"
@@ -7686,24 +7560,24 @@ msgstr ""
 
 #: src/components/import-modal.tsx
 #: src/components/upload-signature-modal.tsx
-msgid "Upload"
-msgstr "アップロード"
+#~ msgid "Upload"
+#~ msgstr "アップロード"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Upload and modify collections."
 msgstr "コレクションをアップロードして変更します。"
 
 #: src/components/import-modal.tsx
-msgid "Upload anyway?"
-msgstr ""
+#~ msgid "Upload anyway?"
+#~ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Upload code"
 #~ msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
-msgid "Upload collection"
-msgstr "コレクションのアップロード"
+#~ msgid "Upload collection"
+#~ msgstr "コレクションのアップロード"
 
 #: src/utilities/translate-task.ts
 msgid "Upload commit"
@@ -7712,13 +7586,13 @@ msgstr ""
 #: src/components/collection-dropdown.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/search.tsx
-msgid "Upload new version"
-msgstr "新規バージョンのアップロード"
+#~ msgid "Upload new version"
+#~ msgstr "新規バージョンのアップロード"
 
 #: src/components/approval-row.tsx
 #: src/components/upload-signature-modal.tsx
-msgid "Upload signature"
-msgstr "署名のアップロード"
+#~ msgid "Upload signature"
+#~ msgstr "署名のアップロード"
 
 #: src/constants.tsx
 #~ msgid "Upload to namespace"
@@ -7729,8 +7603,8 @@ msgid "Uploads"
 msgstr ""
 
 #: src/components/container-repository-form.tsx
-msgid "Upstream name"
-msgstr "アップストリーム名"
+#~ msgid "Upstream name"
+#~ msgstr "アップストリーム名"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/list.tsx
@@ -7755,13 +7629,13 @@ msgid "URL (preview): {url}"
 msgstr ""
 
 #: src/components/namespace-form.tsx
-msgid "URL must not be empty."
-msgstr "URL を空白にすることはできません。"
+#~ msgid "URL must not be empty."
+#~ msgstr "URL を空白にすることはできません。"
 
 #. placeholder {0}: errorMessages['links__url']
 #: src/components/namespace-form.tsx
-msgid "URL: {0}"
-msgstr "URL: {0}"
+#~ msgid "URL: {0}"
+#~ msgstr "URL: {0}"
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
@@ -7786,8 +7660,8 @@ msgstr "テンプレートの使用"
 #~ msgstr ""
 
 #: src/components/container-repository-form.tsx
-msgid "Use the namespace/name format for namespaced containers. Otherwise, use the library/name format."
-msgstr "名前空間を指定したコンテナーには名前空間/名前のフォーマットを使用します。それ以外の場合は、ライブラリー/名前のフォーマットを使用します。"
+#~ msgid "Use the namespace/name format for namespaced containers. Otherwise, use the library/name format."
+#~ msgstr "名前空間を指定したコンテナーには名前空間/名前のフォーマットを使用します。それ以外の場合は、ライブラリー/名前のフォーマットを使用します。"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Use the Server URL below to sync certified collections to the Red Hat Certified repository in your private Automation Hub. If you wish to sync validated content, you can add a remote with a server url pointed to the validated repo."
@@ -7838,8 +7712,8 @@ msgid "Used"
 msgstr ""
 
 #: src/components/namespace-form.tsx
-msgid "Useful links"
-msgstr "便利なリンク"
+#~ msgid "Useful links"
+#~ msgstr "便利なリンク"
 
 #: src/components/access-tab.tsx
 #: src/components/select-user.tsx
@@ -7849,8 +7723,6 @@ msgstr ""
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User \"{0}\" could not be added to \"{name}\"."
 msgstr ""
 
@@ -7868,8 +7740,6 @@ msgstr "ユーザー \"{0}\" を削除できませんでした。"
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User \"{0}\" could not be removed from \"{name}\"."
 msgstr ""
 
@@ -7881,8 +7751,6 @@ msgstr "ユーザー \"{0}\" をグループ \"{name}\" から削除できませ
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User \"{0}\" has been successfully added to \"{name}\"."
 msgstr ""
 
@@ -7900,8 +7768,6 @@ msgstr "ユーザー \"{0}\" が正常に削除されました。"
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User \"{0}\" has been successfully removed from \"{name}\"."
 msgstr ""
 
@@ -7917,16 +7783,12 @@ msgstr "ユーザー \"{0}\" がグループ \"{name}\" から正常に削除さ
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User \"{0}\" roles could not be update in \"{name}\"."
 msgstr ""
 
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
-#: src/containers/execution-environment-detail/execution-environment-detail-access.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User \"{0}\" roles successfully updated in \"{name}\"."
 msgstr ""
 
@@ -7937,7 +7799,6 @@ msgstr ""
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
-#: src/containers/namespace-detail/namespace-detail.tsx
 msgid "User {user}"
 msgstr ""
 
@@ -8044,9 +7905,6 @@ msgstr "ユーザーは作成後に表示されます"
 msgid "Verify checksums"
 msgstr ""
 
-#: src/components/collection-filter.ts
-#: src/components/collection-header.tsx
-#: src/containers/approvals/approvals.tsx
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
@@ -8071,8 +7929,8 @@ msgid "Version number"
 msgstr "バージョンナンバー"
 
 #: src/components/import-console.tsx
-msgid "Version:"
-msgstr "バージョン:"
+#~ msgid "Version:"
+#~ msgstr "バージョン:"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/deb-repository/detail.tsx
@@ -8104,8 +7962,8 @@ msgstr ""
 #~ msgstr "View collection remote"
 
 #: src/components/namespace-card.tsx
-msgid "View collections"
-msgstr "コレクションの表示"
+#~ msgid "View collections"
+#~ msgstr "コレクションの表示"
 
 #: src/constants.tsx
 #~ msgid "View container's namespace"
@@ -8124,8 +7982,8 @@ msgstr "コレクションの表示"
 #~ msgstr "View group"
 
 #: src/components/approval-row.tsx
-msgid "View import logs"
-msgstr ""
+#~ msgid "View import logs"
+#~ msgstr ""
 
 #: src/components/approval-row.tsx
 #~ msgid "View Import Logs"
@@ -8134,8 +7992,8 @@ msgstr ""
 #: src/components/collection-card.tsx
 #: src/components/collection-header.tsx
 #: src/components/namespace-card.tsx
-msgid "View more"
-msgstr "詳細表示"
+#~ msgid "View more"
+#~ msgstr "詳細表示"
 
 #: src/constants.tsx
 #~ msgid "View private containers"
@@ -8179,26 +8037,23 @@ msgstr "ユーザーを表示、追加、削除、および変更します。"
 #~ msgid "View, and cancel any task."
 #~ msgstr "タスクを表示およびキャンセルします。"
 
-#: src/components/import-list.tsx
 #: src/containers/task-management/task-list-view.tsx
 msgid "Waiting"
 msgstr "待機中"
 
 #: src/components/tag-manifest-modal.tsx
-msgid "Waiting for {pendingTasks} task(s) to finish."
-msgstr "{pendingTasks} タスクが完了するのを待機中。"
+#~ msgid "Waiting for {pendingTasks} task(s) to finish."
+#~ msgstr "{pendingTasks} タスクが完了するのを待機中。"
 
 #: src/components/import-console.tsx
-msgid "waiting for approval"
-msgstr "承認待ち"
+#~ msgid "waiting for approval"
+#~ msgstr "承認待ち"
 
 #: src/components/import-console.tsx
-msgid "waiting for import to finish"
-msgstr "インポートの完了を待機中"
+#~ msgid "waiting for import to finish"
+#~ msgstr "インポートの完了を待機中"
 
-#: src/components/collection-content-list.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
-#: src/containers/collection-detail/collection-docs.tsx
 msgid "Warning"
 msgstr "警告"
 
@@ -8211,8 +8066,8 @@ msgstr "お探しのページは見つかりませんでした!"
 #~ msgstr "We use a number of keys to sign our software packages. The necessary public keys are included in the relevant products and are used to automatically verify software updates. You can also verify the packages manually using the keys on this page. More information can be found <0>here.</0>"
 
 #: src/components/collection-header.tsx
-msgid "Website"
-msgstr "Web サイト"
+#~ msgid "Website"
+#~ msgstr "Web サイト"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Welcome to Beta Galaxy"
@@ -8297,7 +8152,6 @@ msgstr ""
 #: src/components/orphan-cleanup-task-modal.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/repair-task-modal.tsx
-#: src/components/tag-manifest-modal.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
 msgid "Yes"
@@ -8335,16 +8189,16 @@ msgstr ""
 #~ msgstr "You are about to sign <0>{numberOfAffected}</0> version(s) under <1>{name}</1>."
 
 #: src/components/sign-all-certificates-modal.tsx
-msgid "You are about to sign <0>all versions</0> under <1>{name}</1>."
-msgstr "<1>{name}</1> の下の <0>すべてのバージョン</0> に署名しようとしています。"
+#~ msgid "You are about to sign <0>all versions</0> under <1>{name}</1>."
+#~ msgstr "<1>{name}</1> の下の <0>すべてのバージョン</0> に署名しようとしています。"
 
 #: src/components/signing/sign-all-certificates-modal.tsx
 #~ msgid "You are about to sign <0>all</0> versions under <1>{name}</1>."
 #~ msgstr "You are about to sign <0>all</0> versions under <1>{name}</1>."
 
 #: src/components/sign-single-certificate-modal.tsx
-msgid "You are about to sign <0>version {version}</0> under <1>{name}</1>."
-msgstr "<1>{name}</1> として <0>バージョン {version}</0> に署名しようとしています。"
+#~ msgid "You are about to sign <0>version {version}</0> under <1>{name}</1>."
+#~ msgstr "<1>{name}</1> として <0>バージョン {version}</0> に署名しようとしています。"
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "You are an SSO user."
@@ -8363,20 +8217,20 @@ msgstr ""
 #~ msgstr "ここでカスタムマークダウンを入力して、プロファイルのリソースタブをカスタマイズできます。"
 
 #: src/components/resources-form.tsx
-msgid "You can can customize the Resources tab on your profile by entering custom Markdown here."
-msgstr ""
+#~ msgid "You can can customize the Resources tab on your profile by entering custom Markdown here."
+#~ msgstr ""
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 msgid "You can edit this repository to create a distribution."
 msgstr ""
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
-msgid "You currently have no container repositories. Add a container repository via the CLI to get started."
-msgstr "現在、コンテナーリポジトリーはありません。開始するには、CLI でコンテナーリポジトリーを追加します。"
+#~ msgid "You currently have no container repositories. Add a container repository via the CLI to get started."
+#~ msgstr "現在、コンテナーリポジトリーはありません。開始するには、CLI でコンテナーリポジトリーを追加します。"
 
 #: src/containers/execution-environment/registry-list.tsx
-msgid "You currently have no remote registries."
-msgstr "現在、リモートレジストリーがありません。"
+#~ msgid "You currently have no remote registries."
+#~ msgstr "現在、リモートレジストリーがありません。"
 
 #: src/components/empty-state-unauthorized.tsx
 #~ msgid "You do not have access to Automation Hub"
@@ -8404,16 +8258,16 @@ msgstr "ユーザーを表示するパーミッションがありません。"
 
 #: src/components/collection-header.tsx
 #: src/containers/search/search.tsx
-msgid "You don't have rights to do this operation."
-msgstr "この操作を行う権限がありません。"
+#~ msgid "You don't have rights to do this operation."
+#~ msgstr "この操作を行う権限がありません。"
 
 #: src/components/collection-info.tsx
 #~ msgid "You have to be logged in to be able to download the tarball."
 #~ msgstr "tarball をダウンロードするには、ログインしている必要があります。"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
-msgid "You have unsaved changes"
-msgstr "変更が保存されていません"
+#~ msgid "You have unsaved changes"
+#~ msgstr "変更が保存されていません"
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
