@@ -436,3 +436,173 @@ describe('routes of a plugin the server does not report', () => {
     expect(shown.join(' ')).not.toContain('sha256');
   });
 });
+
+// Holds the answer to GET status/ until the test releases it.
+function holdStatus() {
+  let release: () => void = () => undefined;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  server.use(
+    http.get('*/pulp/api/v3/status/', async () => {
+      await gate;
+      return HttpResponse.json({
+        versions: ALL_PLUGINS.map((component) => ({
+          component,
+          version: '3.0.0',
+        })),
+      });
+    }),
+  );
+  return release;
+}
+
+// Answers status/ with a failure first and the given plugins afterwards, and
+// counts the requests.
+function failStatusOnce(afterwards: string[]) {
+  const counter = { requests: 0 };
+  server.use(
+    http.get('*/pulp/api/v3/status/', () => {
+      counter.requests += 1;
+      if (counter.requests === 1) {
+        return HttpResponse.json({ detail: 'Failed.' }, { status: 500 });
+      }
+      return HttpResponse.json({
+        versions: afterwards.map((component) => ({
+          component,
+          version: '3.0.0',
+        })),
+      });
+    }),
+  );
+  return counter;
+}
+
+describe('plugin routes while the installed plugins are unknown', () => {
+  it('a signed-out user is sent to the login page whatever status answers', async () => {
+    const release = holdStatus();
+
+    renderWithProviders(<Routed />, { route: '/rpm/repositories' });
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      `/login/?next=${encodeURIComponent('/rpm/repositories')}`,
+    );
+    release();
+  });
+
+  it('a plugin route shows the loading page, not a verdict, while status is pending', async () => {
+    signIn();
+    const release = holdStatus();
+
+    renderWithProviders(<Routed />, { route: '/ansible/collections' });
+
+    expect(await screen.findByRole('progressbar')).toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.queryByText(/is not installed/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('This screen is not available in this UI yet.'),
+    ).not.toBeInTheDocument();
+
+    release();
+    expect(
+      await screen.findByRole('heading', { name: 'Collections', level: 1 }),
+    ).toBeVisible();
+  });
+
+  it('a failed status shows the error state, never not installed, and Retry asks again', async () => {
+    signIn();
+    const counter = failStatusOnce(ALL_PLUGINS);
+    const { user } = renderWithProviders(<Routed />, {
+      route: '/ansible/collections',
+    });
+
+    expect(
+      await screen.findByText('Could not read the installed plugins'),
+    ).toBeVisible();
+    expect(screen.queryByText(/is not installed/)).not.toBeInTheDocument();
+    expect(counter.requests).toBe(1);
+
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Collections', level: 1 }),
+    ).toBeVisible();
+    expect(counter.requests).toBe(2);
+    expect(
+      screen.queryByText('Could not read the installed plugins'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('Retry reports the plugin as not installed once the server answers without it', async () => {
+    signIn();
+    failStatusOnce(WITHOUT_CONTAINER);
+    const { user } = renderWithProviders(<Routed />, {
+      route: '/container/containers',
+    });
+
+    await user.click(await screen.findByRole('button', { name: 'Retry' }));
+
+    expect(
+      await screen.findByText(
+        'The container plugin is not installed on this Pulp server.',
+      ),
+    ).toBeVisible();
+  });
+
+  it.each([
+    ['ansible', '/ansible/repositories'],
+    ['deb', '/deb/repositories'],
+    ['file', '/file/repositories'],
+    ['python', '/python/repositories'],
+    ['rpm', '/rpm/repositories'],
+    ['ansible', '/ansible/namespaces'],
+    ['rpm', '/rpm/remotes/edit/r1'],
+  ])(
+    'the %s plugin is reported as not installed on %s when status lacks it',
+    async (plugin, path) => {
+      signIn();
+      reportPlugins(ALL_PLUGINS.filter((name) => name !== plugin));
+
+      renderWithProviders(<Routed />, { route: path });
+
+      expect(
+        await screen.findByText(
+          `The ${plugin} plugin is not installed on this Pulp server.`,
+        ),
+      ).toBeVisible();
+    },
+  );
+
+  it('core routes and search render while status fails', async () => {
+    signIn();
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({ detail: 'Failed.' }, { status: 500 }),
+      ),
+      listOf('/pulp/api/v3/signing-services/', []).handler,
+      listOf('/pulp/api/v3/tasks/', []).handler,
+    );
+
+    const keys = renderWithProviders(<Routed />, { route: '/signature-keys' });
+    expect(
+      await screen.findByRole('heading', { name: 'Signature keys' }),
+    ).toBeVisible();
+    keys.unmount();
+
+    const tasks = renderWithProviders(<Routed />, { route: '/tasks' });
+    expect(
+      await screen.findByRole('heading', { name: 'Task management' }),
+    ).toBeVisible();
+    tasks.unmount();
+
+    renderWithProviders(<Routed />, { route: '/search' });
+    expect(
+      await screen.findByRole('heading', { name: 'Search', level: 1 }),
+    ).toBeVisible();
+    expect(
+      screen.queryByText('Could not read the installed plugins'),
+    ).not.toBeInTheDocument();
+  });
+});
