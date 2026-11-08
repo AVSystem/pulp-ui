@@ -67,6 +67,17 @@ jobs:
             exit 1
           fi
 
+      # The production build is needed only for the size measurement; the
+      # browser smoke test builds its own copy.
+      - name: 'Build UI for the bundle size'
+        run: npm run build
+
+      # Fails when the first-visit download (what index.html names, gzip)
+      # exceeds the limit in config/bundle-budget.json, and lists every other
+      # chunk in the log and the job summary.
+      - name: 'Bundle size'
+        run: node scripts/bundle-size.mjs --budget config/bundle-budget.json
+
   merge-commits:
     # Only a pull request has a range to check; on main the merge commit that
     # brought the pull request in is expected.
