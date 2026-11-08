@@ -5196,6 +5196,10 @@ msgstr "Pulp core version"
 #~ msgid "Pulp Core Version"
 #~ msgstr "Pulp Core Version"
 
+#: src/components/coming-soon.tsx
+msgid "Pulp documentation"
+msgstr "Pulp documentation"
+
 #: src/utilities/translate-task.ts
 msgid "Pulp export"
 msgstr "Pulp export"
@@ -6204,6 +6208,7 @@ msgid "Scroll to end"
 msgstr "Scroll to end"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/search/multi-search.tsx
 #: src/menu.tsx
 msgid "Search"
@@ -7453,6 +7458,10 @@ msgstr "This page is under construction and some features may be broken. You can
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
 msgstr "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
+
+#: src/components/coming-soon.tsx
+msgid "This screen is not available in this UI yet."
+msgstr "This screen is not available in this UI yet."
 
 #: src/components/tag-manifest-modal.tsx
 msgid "This tag already exists on another image. Do you want to move it to this image?"

@@ -147,3 +147,62 @@ describe('route guard', () => {
     });
   });
 });
+
+// Answers the session check as a signed-in user.
+function signIn() {
+  server.use(
+    http.get('*/pulp/api/v3/login/', () =>
+      HttpResponse.json({
+        username: 'zoe',
+        pulp_href: '/pulp/api/v3/users/1/',
+      }),
+    ),
+  );
+}
+
+// The paths of every request the page sends while the callback runs.
+function recordRequests() {
+  const paths: string[] = [];
+  const onStart = ({ request }: { request: Request }) => {
+    paths.push(new URL(request.url).pathname);
+  };
+  server.events.on('request:start', onStart);
+  return {
+    paths,
+    stop: () => server.events.removeListener('request:start', onStart),
+  };
+}
+
+describe('placeholder screens', () => {
+  it('the search route shows the placeholder with a link to the documentation', async () => {
+    signIn();
+    const requests = recordRequests();
+
+    renderWithProviders(<Routed />, { route: '/search' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Search', level: 1 }),
+    ).toBeVisible();
+    expect(
+      screen.getByText('This screen is not available in this UI yet.'),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('link', { name: /Pulp documentation/ }),
+    ).toHaveAttribute('href', 'https://pulpproject.org/pulp-cli/');
+
+    requests.stop();
+    // Only the session check and the configuration file are requested.
+    expect(
+      requests.paths.filter((path) => !path.endsWith('/pulp-ui-config.json')),
+    ).toEqual(['/pulp/api/v3/login/']);
+  });
+
+  it('the search route sends a signed-out user to the login page first', async () => {
+    renderWithProviders(<Routed />, { route: '/search' });
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      `/login/?next=${encodeURIComponent('/search')}`,
+    );
+  });
+});

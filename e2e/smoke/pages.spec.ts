@@ -35,6 +35,16 @@ test.describe('pages of a signed-in session', () => {
     });
   }
 
+  // A screen that needs an API this UI does not use yet says so instead of
+  // failing.
+  test('Search shows the placeholder', async ({ page }) => {
+    await page.goto('search');
+    await expect(title(page, 'Search')).toBeVisible();
+    await expect(
+      page.getByText('This screen is not available in this UI yet.'),
+    ).toBeVisible();
+  });
+
   // The throwaway Pulp starts empty, so the empty states are shown.
   test('Deb repositories', async ({ page }) => {
     await page.goto('deb/repositories');

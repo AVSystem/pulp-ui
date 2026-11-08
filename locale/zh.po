@@ -5195,6 +5195,10 @@ msgstr ""
 #~ msgid "Pulp Core Version"
 #~ msgstr ""
 
+#: src/components/coming-soon.tsx
+msgid "Pulp documentation"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 msgid "Pulp export"
 msgstr ""
@@ -6203,6 +6207,7 @@ msgid "Scroll to end"
 msgstr "滚动至末尾"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/search/multi-search.tsx
 #: src/menu.tsx
 msgid "Search"
@@ -7451,6 +7456,10 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
+msgstr ""
+
+#: src/components/coming-soon.tsx
+msgid "This screen is not available in this UI yet."
 msgstr ""
 
 #: src/components/tag-manifest-modal.tsx

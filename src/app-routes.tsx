@@ -49,7 +49,6 @@ import {
   GroupDetail,
   GroupList,
   LoginPage,
-  MultiSearch,
   MyImports,
   MyNamespaces,
   NamespaceDetail,
@@ -80,6 +79,7 @@ import {
   UserList,
   UserProfile,
 } from 'src/containers';
+import { SearchComingSoon } from 'src/containers/coming-soon-screens';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
@@ -348,9 +348,8 @@ const routes: IRouteConfig[] = [
     noAuth: true,
   },
   {
-    component: MultiSearch,
+    component: SearchComingSoon,
     path: Paths.meta.search,
-    beta: true,
   },
   {
     component: AboutProject,
