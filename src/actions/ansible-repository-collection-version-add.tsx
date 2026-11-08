@@ -2,12 +2,11 @@ import { msg, plural, t } from '@lingui/core/macro';
 import { Button, Checkbox, Modal } from '@patternfly/react-core';
 import { Td, Tr } from '@patternfly/react-table';
 import { useState } from 'react';
+import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import {
-  AnsibleRepositoryAPI,
-  type AnsibleRepositoryType,
-} from '../api/ansible-repository';
-import { CollectionVersionAPI } from '../api/collection-version';
-import { type CollectionVersionSearch } from '../api/response-types/collection';
+  type AnsibleCollectionVersion,
+  CollectionVersionAPI,
+} from '../api/collection-version';
 import {
   AlertList,
   type AlertType,
@@ -21,27 +20,23 @@ import { Action } from './action';
 
 const add = (
   { repositoryHref, repositoryName },
-  collections,
+  collections: AnsibleCollectionVersion[],
   { addAlert, setState, query },
 ) => {
   const pulpId = parsePulpIDFromURL(repositoryHref);
-  const collectionVersionHrefs = collections.map(
-    (c) => c.collection_version.pulp_href,
-  );
+  const collectionVersionHrefs = collections.map((c) => c.pulp_href);
   return AnsibleRepositoryAPI.addContent(pulpId, collectionVersionHrefs)
     .then(({ data }) => {
-      collections.map(
-        ({ collection_version: { name, namespace, version }, repository }) => {
-          addAlert(
-            taskAlert(
-              data.task,
-              t`Started adding ${namespace}.${name} v${version} from "${repository.name}" to repository "${repositoryName}".`,
-            ),
-          );
-          setState((ms) => ({ ...ms, addCollectionVersionModal: null }));
-          query({});
-        },
-      );
+      collections.forEach(({ name, namespace, version }) => {
+        addAlert(
+          taskAlert(
+            data.task,
+            t`Started adding ${namespace}.${name} v${version} to repository "${repositoryName}".`,
+          ),
+        );
+      });
+      setState((ms) => ({ ...ms, addCollectionVersionModal: null }));
+      query({});
     })
     .catch(
       handleHttpError(
@@ -55,81 +50,63 @@ const add = (
     );
 };
 
-function pushToOrFilterOutCollections(
-  selectedCollection: CollectionVersionSearch,
-  collections: CollectionVersionSearch[],
-): CollectionVersionSearch[] {
-  // check if collection is already selected
-  const selectedItem = collections.find(
-    ({ collection_version: cv, repository }) =>
-      cv.pulp_href === selectedCollection.collection_version.pulp_href &&
-      repository.pulp_href === selectedCollection.repository.pulp_href,
-  );
-
-  // if collection is not selected, add it to selected items
-  if (!selectedItem) {
-    return [...collections, selectedCollection];
-  }
-
-  // unselect collection
-  return collections.filter(
-    ({ collection_version: cv, repository }) =>
-      cv.pulp_href !== selectedCollection.collection_version.pulp_href ||
-      repository.pulp_href !== selectedCollection.repository.pulp_href,
-  );
+// Selects the collection version, or unselects it when it is selected already.
+function toggleCollection(
+  clicked: AnsibleCollectionVersion,
+  collections: AnsibleCollectionVersion[],
+): AnsibleCollectionVersion[] {
+  return collections.some(({ pulp_href }) => pulp_href === clicked.pulp_href)
+    ? collections.filter(({ pulp_href }) => pulp_href !== clicked.pulp_href)
+    : [...collections, clicked];
 }
 
 const AddCollectionVersionModal = ({
   addAction,
   closeAction,
-  sourceRepository,
 }: {
   addAction: (selected) => void;
   closeAction: () => void;
-  sourceRepository: AnsibleRepositoryType;
 }) => {
   const [alerts, setAlerts] = useState([]);
-  const [selected, setSelected] = useState<CollectionVersionSearch[]>([]);
+  const [selected, setSelected] = useState<AnsibleCollectionVersion[]>([]);
 
   const addAlert = (alert: AlertType) => {
     setAlerts([...alerts, alert]);
   };
 
+  // The plain content endpoint answers a filter it does not know with
+  // "Invalid Filter", so the sort key of the list never goes on the request.
   // @ts-expect-error: TS2525: Initializer provides no value for this binding element and the binding element has no default value.
-  const query = ({ params } = {}) => CollectionVersionAPI.list(params);
+  const query = ({ params } = {}) => {
+    const rest = { ...params };
+    delete rest.sort;
+    return CollectionVersionAPI.list(rest);
+  };
 
   const [modalState, setModalState] = useState({});
 
-  const renderTableRow = (item: CollectionVersionSearch, index: number) => {
-    const {
-      collection_version: { name, namespace, version, description },
-      repository,
-    } = item;
-
-    const isCollectionInRepo =
-      sourceRepository.pulp_href === repository.pulp_href;
+  const renderTableRow = (item: AnsibleCollectionVersion, index: number) => {
+    const { name, namespace, version, description } = item;
 
     return (
       <Tr
-        onClick={() =>
-          setSelected(pushToOrFilterOutCollections(item, selected))
-        }
+        onClick={() => setSelected(toggleCollection(item, selected))}
         key={index}
       >
         <Td>
           <Checkbox
             aria-label={`${namespace}.${name} v${version}`}
             id={`collection-${index}`}
-            isChecked={isCollectionInRepo || selected.includes(item)}
+            isChecked={selected.some(
+              ({ pulp_href }) => pulp_href === item.pulp_href,
+            )}
             name={`collection-${index}`}
-            isDisabled={isCollectionInRepo}
           />
         </Td>
         <Td>
           {namespace}.{name} v{version}
         </Td>
         <Td>{description}</Td>
-        <Td>{repository.name}</Td>
       </Tr>
     );
   };
@@ -155,7 +132,7 @@ const AddCollectionVersionModal = ({
       variant='large'
     >
       <section className='modal-body' data-cy='modal-body'>
-        <DetailList<CollectionVersionSearch>
+        <DetailList<AnsibleCollectionVersion>
           actionContext={{
             addAlert,
             state: modalState,
@@ -166,20 +143,15 @@ const AddCollectionVersionModal = ({
             },
           }}
           defaultPageSize={10}
-          defaultSort={'name'}
           errorTitle={t`Collection versions could not be displayed.`}
           filterConfig={[
-            {
-              id: 'keywords',
-              title: t`Keywords`,
-            },
             {
               id: 'namespace',
               title: t`Namespace`,
             },
             {
-              id: 'repository_name',
-              title: t`Repository`,
+              id: 'name',
+              title: t`Name`,
             },
           ]}
           noDataDescription={t`Collection versions will appear once a collection is uploaded.`}
@@ -202,11 +174,6 @@ const AddCollectionVersionModal = ({
               type: 'none',
               id: 'col2',
             },
-            {
-              title: t`Repository`,
-              type: 'none',
-              id: 'col3',
-            },
           ]}
           title={t`Collection versions`}
         />
@@ -225,7 +192,7 @@ export const ansibleRepositoryCollectionVersionAddAction = Action({
   modal: ({ addAlert, state, setState, query }) =>
     state.addCollectionVersionModal ? (
       <AddCollectionVersionModal
-        addAction={(collections: CollectionVersionSearch[]) => {
+        addAction={(collections: AnsibleCollectionVersion[]) => {
           add(state.addCollectionVersionModal, collections, {
             addAlert,
             setState,
@@ -235,7 +202,6 @@ export const ansibleRepositoryCollectionVersionAddAction = Action({
         closeAction={() =>
           setState((ms) => ({ ...ms, addCollectionVersionModal: null }))
         }
-        sourceRepository={state.repository}
       />
     ) : null,
   onClick: (

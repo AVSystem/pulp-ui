@@ -27,13 +27,13 @@ const remove = (
           t`Removal of ${namespace}.${name} v${version} from repository "${repositoryName}" started.`,
         ),
       );
-      setState({ removeCollectionVersionModal: null });
+      setState((ms) => ({ ...ms, removeCollectionVersionModal: null }));
       query();
     })
     .catch(
       handleHttpError(
         t`Failed to remove ${namespace}.${name} v${version} from repository "${repositoryName}".`,
-        () => setState({ removeCollectionVersionModal: null }),
+        () => setState((ms) => ({ ...ms, removeCollectionVersionModal: null })),
         addAlert,
       ),
     );
@@ -93,7 +93,9 @@ export const ansibleRepositoryCollectionVersionRemoveAction = Action({
   modal: ({ addAlert, state, setState, query }) =>
     state.removeCollectionVersionModal ? (
       <RemoveCollectionVersionModal
-        closeAction={() => setState({ removeCollectionVersionModal: null })}
+        closeAction={() =>
+          setState((ms) => ({ ...ms, removeCollectionVersionModal: null }))
+        }
         deleteAction={() =>
           remove(state.removeCollectionVersionModal, {
             addAlert,
@@ -108,23 +110,21 @@ export const ansibleRepositoryCollectionVersionRemoveAction = Action({
       />
     ) : null,
   onClick: (
+    { namespace, name, version, pulp_href: collectionVersionHref },
     {
-      collection_version: {
-        namespace,
-        name,
-        version,
-        pulp_href: collectionVersionHref,
+      state: {
+        repository: { name: repositoryName, pulp_href: repositoryHref },
       },
-      repository: { name: repositoryName, pulp_href: repositoryHref },
+      setState,
     },
-    { setState },
   ) =>
-    setState({
+    setState((ms) => ({
+      ...ms,
       removeCollectionVersionModal: {
         collection: { namespace, name, version },
         repositoryName,
         repositoryHref,
         collectionVersionHref,
       },
-    }),
+    })),
 });

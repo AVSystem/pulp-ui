@@ -1365,7 +1365,6 @@ msgstr "Las versiones de la colección aparecerán cuando se modifique la colecc
 #~ msgid "Collection with id {0} not found."
 #~ msgstr "No se encontró ninguna colección con el id {0}."
 
-#: src/containers/ansible-repository/detail.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx
 msgid "Collections"
@@ -3694,8 +3693,8 @@ msgstr "Huella digital de la clave"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
-msgid "Keywords"
-msgstr "Palabras clave"
+#~ msgid "Keywords"
+#~ msgstr "Palabras clave"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -3989,6 +3988,7 @@ msgstr "Debe ser un número entero."
 msgid "My profile"
 msgstr "Mi perfil"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/group-modal.tsx
 #: src/components/list-page.test.tsx
 #: src/components/remote-form.tsx
@@ -3997,6 +3997,7 @@ msgstr "Mi perfil"
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
+#: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
@@ -5687,8 +5688,8 @@ msgstr "Los repositorios aparecerán una vez creados."
 #~ msgstr "repository"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Repository"
-msgstr "Repositorio"
+#~ msgid "Repository"
+#~ msgstr "Repositorio"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6549,12 +6550,12 @@ msgstr "Empezar de cero"
 
 #. placeholder {0}: repository.name
 #: src/actions/ansible-repository-collection-version-add.tsx
-msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
-msgstr "Se ha iniciado la adición de la versión {namespace}.{name} v{version} desde \"{0}\" al repositorio \"{repositoryName}\"."
+#~ msgid "Started adding {namespace}.{name} v{version} from \"{0}\" to repository \"{repositoryName}\"."
+#~ msgstr "Se ha iniciado la adición de la versión {namespace}.{name} v{version} desde \"{0}\" al repositorio \"{repositoryName}\"."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
-#~ msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgid "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
+msgstr "Started adding {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Started at"
