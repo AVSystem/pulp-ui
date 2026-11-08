@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { title } from '../support/sign-in';
 import {
+  absentOptionalPlugin,
+  expectNothingLoaded,
+  expectPageShown,
   failureShown,
   listPages,
   missingExpectedPlugins,
@@ -11,7 +13,11 @@ import {
 
 // Every list page of every installed plugin, and of Pulp core, opens for the
 // admin account with its title, without the error boundary, without an error
-// alert or error state and without an uncaught error in the page.
+// alert or error state and without an uncaught error in the page. A screen
+// this UI does not have shows its placeholder, a route that no longer exists
+// shows the not-found page, and a page of an optional plugin the server does
+// not run says the plugin is not installed; none of them sends a failing
+// request or a request to an endpoint only galaxy_ng serves.
 
 test.beforeAll(async () => {
   if (missingPluginsAllowed()) {
@@ -30,14 +36,16 @@ for (const entry of listPages) {
     // runs anyway: the run reports it the day the page works
     test.fail(!!entry.knownDefect?.admin, entry.knownDefect?.admin ?? '');
 
+    const notInstalled = await absentOptionalPlugin(entry);
     const watch = watchPage(page);
 
     await page.goto(entry.path);
-    await expect(title(page, entry.title)).toBeVisible();
+    await expectPageShown(page, entry, notInstalled);
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByText('The stack trace is:')).toHaveCount(0);
     await expect(failureShown(page)).toHaveCount(0);
     expect(watch.errors, 'uncaught errors of the page').toEqual([]);
+    expectNothingLoaded(watch, entry, notInstalled);
   });
 }
