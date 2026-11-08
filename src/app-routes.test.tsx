@@ -2,7 +2,9 @@ import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { listOf } from 'src/test-utils/pulp';
+import { AppContextProvider } from 'src/app-context';
+import RootRoute from 'src/routes/root';
+import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { config } from 'src/ui-config';
@@ -604,5 +606,58 @@ describe('plugin routes while the installed plugins are unknown', () => {
     expect(
       screen.queryByText('Could not read the installed plugins'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('lazily loaded screens', () => {
+  it('keeps the layout in the entry: the root route is static', () => {
+    expect(dataRoutes[0]).toMatchObject({ id: 'root', Component: RootRoute });
+    expect(dataRoutes[0]).not.toHaveProperty('lazy');
+  });
+
+  it('shows the status screen on a deep link while signed out', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({
+          versions: [{ component: 'core', version: '3.0.0' }],
+          content_settings: {
+            content_origin: 'https://content.example',
+            content_path_prefix: '/pulp/content/',
+          },
+          database_connection: { connected: true },
+          redis_connection: { connected: true },
+          domain_enabled: false,
+          online_workers: [],
+          online_api_apps: [],
+          online_content_apps: [],
+        }),
+      ),
+    );
+
+    renderWithProviders(<Routed />, { route: '/status' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Status' }),
+    ).toBeVisible();
+  });
+
+  it('shows a plugin section screen on a deep link once its code has loaded', async () => {
+    signIn();
+    server.use(
+      listOf('/pulp/api/v3/repositories/file/file/', [
+        repository({ name: 'zz-test-repo' }),
+      ]).handler,
+      listOf('/pulp/api/v3/remotes/file/file/', []).handler,
+      listOf('/pulp/api/v3/distributions/file/file/', []).handler,
+    );
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: '/file/repositories' },
+    );
+
+    expect(await screen.findByText('zz-test-repo')).toBeVisible();
   });
 });
