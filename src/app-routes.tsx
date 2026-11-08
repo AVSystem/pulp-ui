@@ -17,29 +17,14 @@ import {
   AnsibleRepositoryDetail,
   AnsibleRepositoryEdit,
   AnsibleRepositoryList,
-  Approvals,
-  CollectionContent,
-  CollectionDependencies,
-  CollectionDetail,
-  CollectionDistributions,
-  CollectionDocs,
-  CollectionImportLog,
   DebRemoteDetail,
   DebRemoteEdit,
   DebRemoteList,
   DebRepositoryDetail,
   DebRepositoryEdit,
   DebRepositoryList,
-  EditNamespace,
   EditRole,
   EditUser,
-  ExecutionEnvironmentDetail,
-  ExecutionEnvironmentDetailAccess,
-  ExecutionEnvironmentDetailActivities,
-  ExecutionEnvironmentDetailImages,
-  ExecutionEnvironmentList,
-  ExecutionEnvironmentManifest,
-  ExecutionEnvironmentRegistryList,
   FileRemoteDetail,
   FileRemoteEdit,
   FileRemoteList,
@@ -49,10 +34,6 @@ import {
   GroupDetail,
   GroupList,
   LoginPage,
-  MyImports,
-  MyNamespaces,
-  NamespaceDetail,
-  Partners,
   PulpStatus,
   PythonPackageList,
   PythonRemoteDetail,
@@ -70,7 +51,6 @@ import {
   RPMRepositoryList,
   RoleCreate,
   RoleList,
-  Search,
   SignatureKeysList,
   TaskDetail,
   TaskListView,
@@ -79,7 +59,13 @@ import {
   UserList,
   UserProfile,
 } from 'src/containers';
-import { SearchComingSoon } from 'src/containers/coming-soon-screens';
+import {
+  CollectionsComingSoon,
+  ContainersComingSoon,
+  NamespacesComingSoon,
+  RemoteRegistriesComingSoon,
+  SearchComingSoon,
+} from 'src/containers/coming-soon-screens';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
@@ -94,39 +80,32 @@ interface IRouteConfig {
 
 const routes: IRouteConfig[] = [
   {
-    component: ExecutionEnvironmentDetailActivities,
+    component: ContainersComingSoon,
     path: Paths.container.repository.activities,
-    beta: true,
   },
   {
-    component: ExecutionEnvironmentDetailAccess,
+    component: ContainersComingSoon,
     path: Paths.container.repository.access,
-    beta: true,
   },
   {
-    component: ExecutionEnvironmentManifest,
+    component: ContainersComingSoon,
     path: Paths.container.repository.manifest,
-    beta: true,
   },
   {
-    component: ExecutionEnvironmentDetailImages,
+    component: ContainersComingSoon,
     path: Paths.container.repository.images,
-    beta: true,
   },
   {
-    component: ExecutionEnvironmentDetail,
+    component: ContainersComingSoon,
     path: Paths.container.repository.detail,
-    beta: true,
   },
   {
-    component: ExecutionEnvironmentList,
+    component: ContainersComingSoon,
     path: Paths.container.repository.list,
-    beta: true,
   },
   {
-    component: ExecutionEnvironmentRegistryList,
+    component: RemoteRegistriesComingSoon,
     path: Paths.container.remote.list,
-    beta: true,
   },
   {
     component: TaskListView,
@@ -263,24 +242,8 @@ const routes: IRouteConfig[] = [
     beta: true,
   },
   {
-    component: Approvals,
-    path: Paths.ansible.approvals,
-    beta: true,
-  },
-  {
-    component: Partners,
+    component: NamespacesComingSoon,
     path: Paths.ansible.namespace.list,
-    beta: true,
-  },
-  {
-    component: EditNamespace,
-    path: Paths.ansible.namespace.edit,
-    beta: true,
-  },
-  {
-    component: MyNamespaces,
-    path: Paths.ansible.namespace.mine,
-    beta: true,
   },
   {
     component: LoginPage,
@@ -288,59 +251,40 @@ const routes: IRouteConfig[] = [
     noAuth: true,
   },
   {
-    component: CollectionDocs,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.docs_page,
-    beta: true,
   },
   {
-    component: CollectionDocs,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.docs_index,
-    beta: true,
   },
   {
-    component: CollectionDocs,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.content_docs,
-    beta: true,
   },
   {
-    component: CollectionContent,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.content_list,
-    beta: true,
   },
   {
-    component: CollectionImportLog,
-    path: Paths.ansible.collection.imports,
-    beta: true,
-  },
-  {
-    component: CollectionDistributions,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.distributions,
-    beta: true,
   },
   {
-    component: CollectionDependencies,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.dependencies,
-    beta: true,
   },
   {
-    component: CollectionDetail,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.detail,
-    beta: true,
   },
   {
-    component: Search,
+    component: CollectionsComingSoon,
     path: Paths.ansible.collection.list,
-    beta: true,
   },
   {
-    component: MyImports,
-    path: Paths.ansible.imports,
-    beta: true,
-  },
-  {
-    component: NamespaceDetail,
+    component: NamespacesComingSoon,
     path: Paths.ansible.namespace.detail,
-    beta: true,
   },
   {
     component: PulpStatus,

@@ -658,6 +658,10 @@ msgstr ""
 #~ msgid "Ansible Lightspeed settings"
 #~ msgstr "Ansible Lightspeed-instellingen"
 
+#: src/containers/coming-soon-screens.tsx
+msgid "Ansible repositories"
+msgstr ""
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
 #~ msgstr ""
@@ -734,7 +738,6 @@ msgid "Approval status:"
 msgstr "Goedkeuringsstatus:"
 
 #: src/containers/approvals/approvals.tsx
-#: src/menu.tsx
 msgid "Approvals"
 msgstr ""
 
@@ -1387,6 +1390,7 @@ msgstr "Collectieversies verschijnen zodra de collectie is gewijzigd."
 #~ msgstr "Collectie met ID {0} niet gevonden."
 
 #: src/containers/ansible-repository/detail.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/multi-search.tsx
 #: src/containers/search/search.tsx
@@ -1542,6 +1546,7 @@ msgid "Container repository name"
 msgstr "Naam container-repository"
 
 #: src/components/execution-environment-header.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #: src/containers/search/multi-search.tsx
@@ -3582,7 +3587,6 @@ msgstr "Logboek importeren"
 
 #: src/containers/my-imports/my-imports.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-#: src/menu.tsx
 msgid "Imports"
 msgstr "Invoer"
 
@@ -4184,6 +4188,7 @@ msgstr "Namespace-namen zijn beperkt tot alfanumerieke tekens en underscores, mo
 #: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/collection-detail/collection-docs.tsx
 #: src/containers/collection-detail/collection-import-log.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/namespace-list/namespace-list.tsx
@@ -5544,6 +5549,7 @@ msgstr "Afstand kan niet worden weergegeven."
 msgid "Remote name"
 msgstr "Externe naam"
 
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/execution-environment/registry-list.tsx
 #: src/menu.tsx
 msgid "Remote registries"

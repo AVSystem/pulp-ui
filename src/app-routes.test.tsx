@@ -206,3 +206,142 @@ describe('placeholder screens', () => {
     );
   });
 });
+
+const ANSIBLE_COUNTERPART = '/ansible/repositories/';
+const ANSIBLE_DOCS = 'https://pulpproject.org/pulp_ansible/';
+const CONTAINER_DOCS = 'https://pulpproject.org/pulp_container/';
+
+// Every route that stands in for a screen planned to return: the address
+// opened, the heading shown, the link to the working screen (if any) and the
+// documentation link.
+const placeholderRoutes: {
+  path: string;
+  heading: string;
+  counterpart?: string;
+  docs: string;
+}[] = [
+  ...[
+    '/ansible/collections',
+    '/ansible/collections/detail/r/ns/c',
+    '/ansible/collections/content/r/ns/c',
+    '/ansible/collections/content_docs/r/ns/c/module/m',
+    '/ansible/collections/docs_index/r/ns/c',
+    '/ansible/collections/docs_page/r/ns/c/p',
+    '/ansible/collections/distributions/r/ns/c',
+    '/ansible/collections/dependencies/r/ns/c',
+  ].map((path) => ({
+    path,
+    heading: 'Collections',
+    counterpart: ANSIBLE_COUNTERPART,
+    docs: ANSIBLE_DOCS,
+  })),
+  ...['/ansible/namespaces', '/ansible/namespaces/detail/ns'].map((path) => ({
+    path,
+    heading: 'Namespaces',
+    counterpart: ANSIBLE_COUNTERPART,
+    docs: ANSIBLE_DOCS,
+  })),
+  ...[
+    '/container/containers',
+    '/container/containers/detail/c',
+    '/container/containers/images/ns/c',
+    '/container/containers/activity/c',
+    '/container/containers/access/c',
+    '/container/containers/manifest/ns/c/sha256:0',
+  ].map((path) => ({
+    path,
+    heading: 'Containers',
+    docs: CONTAINER_DOCS,
+  })),
+  {
+    path: '/container/remotes',
+    heading: 'Remote registries',
+    docs: CONTAINER_DOCS,
+  },
+];
+
+// Segments of the addresses above that a placeholder must never show.
+const ADDRESS_PARAMETERS = ['ns', 'c', 'r', 'm', 'p', 'sha256:0'];
+
+describe('placeholder screens of the planned features', () => {
+  it.each(placeholderRoutes)(
+    '$path shows the $heading placeholder and sends no request of its own',
+    async ({ path, heading, counterpart, docs }) => {
+      signIn();
+      const requests = recordRequests();
+
+      renderWithProviders(<Routed />, { route: path });
+
+      expect(
+        await screen.findByRole('heading', { name: heading, level: 1 }),
+      ).toBeVisible();
+      expect(
+        screen.getByText('This screen is not available in this UI yet.'),
+      ).toBeVisible();
+      expect(
+        screen.getByRole('link', { name: /Pulp documentation/ }),
+      ).toHaveAttribute('href', docs);
+      if (counterpart) {
+        expect(
+          screen.getByRole('link', { name: 'Ansible repositories' }),
+        ).toHaveAttribute('href', counterpart);
+      } else {
+        expect(screen.getAllByRole('link')).toHaveLength(1);
+      }
+
+      requests.stop();
+      expect(
+        requests.paths.filter((p) => !p.endsWith('/pulp-ui-config.json')),
+      ).toEqual(['/pulp/api/v3/login/']);
+    },
+  );
+
+  it.each(placeholderRoutes.filter(({ path }) => path.split('/').length > 3))(
+    '$path shows none of the parameters of its address',
+    async ({ path }) => {
+      signIn();
+
+      renderWithProviders(<Routed />, { route: path });
+      await screen.findByText('This screen is not available in this UI yet.');
+
+      // The location line of the test harness is the only text that may
+      // repeat the address.
+      const shown = Array.from(
+        document.querySelectorAll('body *:not([data-testid=location])'),
+      )
+        .filter((element) => element.children.length === 0)
+        .map((element) => element.textContent?.trim() ?? '');
+      for (const parameter of ADDRESS_PARAMETERS) {
+        expect(shown).not.toContain(parameter);
+      }
+      expect(shown.join(' ')).not.toContain('sha256');
+    },
+  );
+});
+
+describe('routes of removed galaxy_ng workflows', () => {
+  it.each([
+    '/ansible/approvals',
+    '/ansible/my-namespaces',
+    '/ansible/namespaces/edit/ns',
+    '/ansible/my-imports',
+    '/ansible/collections/imports/r/ns/c',
+  ])('%s shows the 404 page', async (path) => {
+    signIn();
+    const requests = recordRequests();
+
+    renderWithProviders(<Routed />, { route: path });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: '404 - Page not found',
+        level: 1,
+      }),
+    ).toBeVisible();
+
+    requests.stop();
+    expect(
+      requests.paths.filter((p) => !p.endsWith('/pulp-ui-config.json')),
+    ).toEqual(['/pulp/api/v3/login/']);
+  });
+});

@@ -659,6 +659,10 @@ msgstr "Ansible copy content"
 #~ msgid "Ansible Lightspeed settings"
 #~ msgstr "Ansible Lightspeed settings"
 
+#: src/containers/coming-soon-screens.tsx
+msgid "Ansible repositories"
+msgstr "Ansible repositories"
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
 #~ msgstr "AnsibleFest"
@@ -735,7 +739,6 @@ msgid "Approval status:"
 msgstr "Approval status:"
 
 #: src/containers/approvals/approvals.tsx
-#: src/menu.tsx
 msgid "Approvals"
 msgstr "Approvals"
 
@@ -1388,6 +1391,7 @@ msgstr "Collection versions will appear once the collection is modified."
 #~ msgstr "Collection with id {0} not found."
 
 #: src/containers/ansible-repository/detail.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/multi-search.tsx
 #: src/containers/search/search.tsx
@@ -1543,6 +1547,7 @@ msgid "Container repository name"
 msgstr "Container repository name"
 
 #: src/components/execution-environment-header.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #: src/containers/search/multi-search.tsx
@@ -3583,7 +3588,6 @@ msgstr "Import log"
 
 #: src/containers/my-imports/my-imports.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
-#: src/menu.tsx
 msgid "Imports"
 msgstr "Imports"
 
@@ -4185,6 +4189,7 @@ msgstr "Namespace names are limited to alphanumeric characters and underscores, 
 #: src/containers/collection-detail/collection-distributions.tsx
 #: src/containers/collection-detail/collection-docs.tsx
 #: src/containers/collection-detail/collection-import-log.tsx
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/namespace-list/namespace-list.tsx
@@ -5545,6 +5550,7 @@ msgstr "Remote could not be displayed."
 msgid "Remote name"
 msgstr "Remote name"
 
+#: src/containers/coming-soon-screens.tsx
 #: src/containers/execution-environment/registry-list.tsx
 #: src/menu.tsx
 msgid "Remote registries"
