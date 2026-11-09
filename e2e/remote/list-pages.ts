@@ -184,7 +184,8 @@ export const listPages: ListPage[] = [
 ];
 
 // The components the server reports in status/ versions, read once per
-// worker.
+// worker. A failed read is not kept, so the next test asks again instead of
+// failing with the same error.
 let installed: Promise<Set<string>> | undefined;
 
 export function installedPlugins(): Promise<Set<string>> {
@@ -199,7 +200,10 @@ export function installedPlugins(): Promise<Set<string>> {
     } finally {
       await api.dispose();
     }
-  })();
+  })().catch((error) => {
+    installed = undefined;
+    throw error;
+  });
   return installed;
 }
 
