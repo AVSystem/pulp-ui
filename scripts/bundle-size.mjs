@@ -16,8 +16,9 @@
 // The budget file is JSON: { "initialGzipBytes": <integer> }.
 //
 // Exit status: 0 within the budget, 1 over it, 2 when index.html, an asset it
-// names or the budget file is missing or invalid, or an asset path would leave
-// the dist folder. When GITHUB_STEP_SUMMARY names a file, the report is
+// names or the budget file is missing or invalid, an asset path would leave
+// the dist folder, or index.html names a script or stylesheet outside a js or
+// css folder. When GITHUB_STEP_SUMMARY names a file, the report is
 // appended to it as Markdown.
 import { appendFileSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -31,9 +32,11 @@ class InputError extends Error {}
 
 /**
  * The initial assets named by a page: the path of every script src and link
- * href that ends in .js or .css and sits under a js or css folder, as a path
- * relative to the dist folder ("js/App.<hash>.js"), in page order, once each.
- * Handles quoted and unquoted attribute values.
+ * href that ends in .js or .css, as a path relative to the dist folder
+ * ("js/App.<hash>.js"), in page order, once each. Handles quoted and unquoted
+ * attribute values. Throws InputError for a script or stylesheet outside a js
+ * or css folder: leaving it out would make the total smaller than what a first
+ * visit downloads while the check stays green.
  */
 export function parseAssets(html) {
   const found = [];
@@ -44,7 +47,12 @@ export function parseAssets(html) {
       continue;
     }
     const tail = /(?:^|\/)((?:js|css)\/.*)$/.exec(value);
-    if (tail && !found.includes(tail[1])) {
+    if (!tail) {
+      throw new InputError(
+        `index.html names ${value}, which is not under a js or css folder`,
+      );
+    }
+    if (!found.includes(tail[1])) {
       found.push(tail[1]);
     }
   }
