@@ -7007,6 +7007,10 @@ msgstr "The base path \"{basePath}\" is already used by or overlaps the distribu
 #~ msgid "The certificate for \"{namespace} {name} v{version}\" could not be saved."
 #~ msgstr "The certificate for \"{namespace} {name} v{version}\" could not be saved."
 
+#: src/actions/repository-content-task.ts
+msgid "The change to repository \"{repositoryName}\" is still running."
+msgstr "The change to repository \"{repositoryName}\" is still running."
+
 #: src/components/repository-form.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
 msgstr "The client URL is shown on the repository page once the distribution exists."
@@ -7095,6 +7099,10 @@ msgstr "The following roles will be applied to user: <0>{0}</0>"
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "The outcome of removing the repository is unknown. Check the task:"
+
+#: src/actions/repository-content-task.ts
+msgid "The outcome of the change to repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
+msgstr "The outcome of the change to repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 
 #: src/actions/repository-version-revert.tsx
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."

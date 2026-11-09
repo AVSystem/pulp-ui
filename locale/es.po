@@ -7006,6 +7006,10 @@ msgstr ""
 #~ msgid "The certificate for \"{namespace} {name} v{version}\" could not be saved."
 #~ msgstr "No se ha podido guardar el certificado de \"{namespace} {name} v{version}\"."
 
+#: src/actions/repository-content-task.ts
+msgid "The change to repository \"{repositoryName}\" is still running."
+msgstr ""
+
 #: src/components/repository-form.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
 msgstr ""
@@ -7093,6 +7097,10 @@ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
+msgstr ""
+
+#: src/actions/repository-content-task.ts
+msgid "The outcome of the change to repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
 #: src/actions/repository-version-revert.tsx

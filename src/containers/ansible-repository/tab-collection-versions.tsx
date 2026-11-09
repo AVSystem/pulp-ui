@@ -17,12 +17,14 @@ interface TabProps {
     addAlert: (alert) => void;
     state: { params };
     hasPermission;
+    // loads the repository page again
+    query: () => void;
   };
 }
 
 export const CollectionVersionsTab = ({
   item,
-  actionContext: { addAlert, hasPermission },
+  actionContext: { addAlert, hasPermission, query: reloadPage },
 }: TabProps) => {
   // The list of the plain content endpoint knows the filters namespace, name,
   // version, q and tags and the repository version filters; any other key is
@@ -74,6 +76,7 @@ export const CollectionVersionsTab = ({
         state: modalState,
         setState: setModalState,
         query,
+        reloadPage,
         hasPermission,
         hasObjectPermission: (p: string): boolean =>
           item?.my_permissions?.includes?.(p),

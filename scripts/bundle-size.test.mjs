@@ -64,10 +64,14 @@ describe('parseAssets', () => {
     expect(parseAssets(html)).toEqual(['js/App.abc.js', 'css/App.def.css']);
   });
 
-  it('ignores scripts and links that are not under a js or css folder', () => {
-    const html =
-      '<script src=/static/pulp_ui/other/x.js></script><link href=/static/pulp_ui/x.css rel=stylesheet>';
-    expect(parseAssets(html)).toEqual([]);
+  it('rejects a script that is not under a js or css folder', () => {
+    const html = '<script src=/static/pulp_ui/other/x.js></script>';
+    expect(() => parseAssets(html)).toThrow(/other\/x\.js.*not under/);
+  });
+
+  it('rejects a stylesheet that is not under a js or css folder', () => {
+    const html = '<link href=/static/pulp_ui/x.css rel=stylesheet>';
+    expect(() => parseAssets(html)).toThrow(/x\.css.*not under/);
   });
 });
 
@@ -206,6 +210,19 @@ describe('command line', () => {
     write('index.html', '<script src=/static/pulp_ui/js/../../x.js></script>');
     const res = run(['--budget', writeBudget(100000), '--dist', dist]);
     expect(res.status).toBe(2);
+  });
+
+  it('exits 2 when index.html names a script outside a js or css folder', () => {
+    write(
+      'index.html',
+      INDEX_UNQUOTED.replace(
+        '</head>',
+        '<script src=/static/pulp_ui/runtime.js></script></head>',
+      ),
+    );
+    const res = run(['--budget', writeBudget(100000), '--dist', dist]);
+    expect(res.status).toBe(2);
+    expect(res.stderr).toMatch(/runtime\.js/);
   });
 
   it('exits 2 for a missing budget file, a non-numeric limit and a missing argument', () => {

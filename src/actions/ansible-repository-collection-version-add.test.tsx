@@ -1,8 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode, useState } from 'react';
-import { describe, expect, it } from 'vitest';
-import { listOf, repository } from 'src/test-utils/pulp';
+import { describe, expect, it, vi } from 'vitest';
+import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { ansibleRepositoryCollectionVersionAddAction } from './ansible-repository-collection-version-add';
@@ -23,7 +23,13 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 
 // The page around the dialog: it holds the state the repository tab holds,
 // opens the dialog for the repository and shows the alerts the dialog raises.
-function Page({ repo }: { repo: { name: string; pulp_href: string } }) {
+function Page({
+  repo,
+  reloadPage,
+}: {
+  repo: { name: string; pulp_href: string };
+  reloadPage: () => void;
+}) {
   const [state, setState] = useState({
     repository: repo,
     addCollectionVersionModal: {
@@ -44,7 +50,7 @@ function Page({ repo }: { repo: { name: string; pulp_href: string } }) {
         addAlert: (alert) => setAlerts((all) => [...all, alert]),
         listQuery: () => undefined,
         query: () => undefined,
-        reloadPage: () => undefined,
+        reloadPage,
         setState,
         state,
       })}
@@ -52,9 +58,16 @@ function Page({ repo }: { repo: { name: string; pulp_href: string } }) {
   );
 }
 
-// Serves the collection versions of the server and records the modify
-// requests.
-function setup(rows: object[]) {
+// Serves the collection versions of the server, records the modify requests
+// and answers the task of a modify with the given state. A modify answers
+// after `modifyDelay` milliseconds.
+function setup(
+  rows: object[],
+  {
+    taskState = 'completed',
+    modifyDelay = 0,
+  }: { taskState?: string; modifyDelay?: number } = {},
+) {
   const repo = repository({
     name: 'r1',
     pulp_href: `${API}/repositories/ansible/ansible/00000000-0000-4000-8000-0000000000a1/`,
@@ -71,14 +84,27 @@ function setup(rows: object[]) {
           path: new URL(request.url).pathname,
           body: await request.json(),
         });
+        await new Promise((resolve) => setTimeout(resolve, modifyDelay));
         return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
       },
     ),
+    http.get(`*${TASK_HREF}`, () =>
+      HttpResponse.json(
+        task({
+          pulp_href: TASK_HREF,
+          state: taskState,
+          error: taskState === 'failed' ? { description: 'Task broke.' } : null,
+        }),
+      ),
+    ),
+  );
+  const reloadPage = vi.fn();
+
+  const view = renderWithProviders(
+    <Page repo={repo} reloadPage={reloadPage} />,
   );
 
-  const view = renderWithProviders(<Page repo={repo} />);
-
-  return { repo, queries: list.queries, modifies, ...view };
+  return { repo, queries: list.queries, modifies, reloadPage, ...view };
 }
 
 const selectButton = () => screen.getByRole('button', { name: 'Select' });
@@ -132,5 +158,39 @@ describe('the add collection dialog of an ansible repository', () => {
     await user.click(label);
     expect(selectButton()).toBeDisabled();
     expect(modifies).toEqual([]);
+  });
+
+  it('reloads the page once the task of the add is done', async () => {
+    const { user, reloadPage } = setup([row()]);
+
+    await user.click(await screen.findByText('ns.col v1.0.0'));
+    await user.click(selectButton());
+
+    await waitFor(() => expect(reloadPage).toHaveBeenCalledTimes(1));
+  });
+
+  it('reports a failed task and keeps the page as it is', async () => {
+    const { user, reloadPage } = setup([row()], { taskState: 'failed' });
+
+    await user.click(await screen.findByText('ns.col v1.0.0'));
+    await user.click(selectButton());
+
+    const alerts = within(screen.getByRole('list', { name: 'alerts' }));
+    expect(
+      await alerts.findByText('Failed to add collection to repository "r1".'),
+    ).toBeTruthy();
+    expect(reloadPage).not.toHaveBeenCalled();
+  });
+
+  it('sends one add request when Select is clicked twice', async () => {
+    const { user, modifies } = setup([row()], { modifyDelay: 200 });
+
+    await user.click(await screen.findByText('ns.col v1.0.0'));
+    const select = selectButton();
+    await user.click(select);
+    await user.click(select);
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(modifies).toHaveLength(1);
   });
 });

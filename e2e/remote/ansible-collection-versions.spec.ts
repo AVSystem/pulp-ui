@@ -134,11 +134,9 @@ test('adding a collection version shows it in the tab and removing it empties th
   ).toBeVisible();
   await expect.poll(latestVersion, { timeout: 60_000 }).toBe(1);
 
-  // the tab lists the content of the version the repository had when the page
-  // loaded, so the page is loaded again to see the new version
-  await page.goto(tabUrl());
+  // the tab follows the task and lists the new version without a page load
   const added = page.getByRole('row').filter({ hasText: label() });
-  await expect(added).toBeVisible();
+  await expect(added).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText(EMPTY_STATE)).toHaveCount(0);
 
   await added.locator('[data-cy=kebab-toggle] button').click();
@@ -152,8 +150,7 @@ test('adding a collection version shows it in the tab and removing it empties th
   ).toBeVisible();
   await expect.poll(latestVersion, { timeout: 60_000 }).toBe(2);
 
-  await page.goto(tabUrl());
-  await expect(page.getByText(EMPTY_STATE)).toBeVisible();
+  await expect(page.getByText(EMPTY_STATE)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByRole('row').filter({ hasText: label() })).toHaveCount(
     0,
   );
