@@ -17,38 +17,53 @@ import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
+import { reloadAfterContentTask } from './repository-content-task';
 
-const add = (
+// Adds the collection versions to the repository, then reloads the page once
+// the task is done so the tab lists the new latest version.
+async function add(
   { repositoryHref, repositoryName },
   collections: AnsibleCollectionVersion[],
-  { addAlert, setState, query },
-) => {
+  { addAlert, setState, reloadPage },
+) {
   const pulpId = parsePulpIDFromURL(repositoryHref);
   const collectionVersionHrefs = collections.map((c) => c.pulp_href);
-  return AnsibleRepositoryAPI.addContent(pulpId, collectionVersionHrefs)
-    .then(({ data }) => {
-      collections.forEach(({ name, namespace, version }) => {
-        addAlert(
-          taskAlert(
-            data.task,
-            t`Started adding ${namespace}.${name} v${version} to repository "${repositoryName}".`,
-          ),
-        );
-      });
-      setState((ms) => ({ ...ms, addCollectionVersionModal: null }));
-      query({});
-    })
-    .catch(
-      handleHttpError(
-        plural(collections.length, {
-          one: `Failed to add collection to repository "${repositoryName}".`,
-          other: `Failed to add collections to repository "${repositoryName}".`,
-        }),
-        () => setState((ms) => ({ ...ms, addCollectionVersionModal: null })),
-        addAlert,
+  const failed = handleHttpError(
+    plural(collections.length, {
+      one: `Failed to add collection to repository "${repositoryName}".`,
+      other: `Failed to add collections to repository "${repositoryName}".`,
+    }),
+    () => setState((ms) => ({ ...ms, addCollectionVersionModal: null })),
+    addAlert,
+  );
+
+  let task;
+  try {
+    ({
+      data: { task },
+    } = await AnsibleRepositoryAPI.addContent(pulpId, collectionVersionHrefs));
+  } catch (e) {
+    failed(e);
+    return;
+  }
+
+  collections.forEach(({ name, namespace, version }) => {
+    addAlert(
+      taskAlert(
+        task,
+        t`Started adding ${namespace}.${name} v${version} to repository "${repositoryName}".`,
       ),
     );
-};
+  });
+  setState((ms) => ({ ...ms, addCollectionVersionModal: null }));
+
+  await reloadAfterContentTask(task, {
+    addAlert,
+    failed,
+    reloadPage,
+    repositoryName,
+  });
+}
 
 // Selects the collection version, or unselects it when it is selected already.
 function toggleCollection(
@@ -64,10 +79,12 @@ const AddCollectionVersionModal = ({
   addAction,
   closeAction,
 }: {
-  addAction: (selected) => void;
+  addAction: (selected) => Promise<void>;
   closeAction: () => void;
 }) => {
   const [alerts, setAlerts] = useState([]);
+  // set while the add request runs, so a second click cannot send it again
+  const [pending, setPending] = useState(false);
   const [selected, setSelected] = useState<AnsibleCollectionVersion[]>([]);
 
   const addAlert = (alert: AlertType) => {
@@ -116,9 +133,13 @@ const AddCollectionVersionModal = ({
       actions={[
         <Button
           key='confirm'
-          onClick={() => addAction(selected)}
+          onClick={() => {
+            setPending(true);
+            addAction(selected).finally(() => setPending(false));
+          }}
           variant='primary'
-          isDisabled={!selected.length}
+          isDisabled={!selected.length || pending}
+          isLoading={pending}
         >
           {t`Select`}
         </Button>,
@@ -189,16 +210,16 @@ const AddCollectionVersionModal = ({
 
 export const ansibleRepositoryCollectionVersionAddAction = Action({
   title: msg`Add collection`,
-  modal: ({ addAlert, state, setState, query }) =>
+  modal: ({ addAlert, state, setState, reloadPage }) =>
     state.addCollectionVersionModal ? (
       <AddCollectionVersionModal
-        addAction={(collections: AnsibleCollectionVersion[]) => {
+        addAction={(collections: AnsibleCollectionVersion[]) =>
           add(state.addCollectionVersionModal, collections, {
             addAlert,
             setState,
-            query,
-          });
-        }}
+            reloadPage,
+          })
+        }
         closeAction={() =>
           setState((ms) => ({ ...ms, addCollectionVersionModal: null }))
         }

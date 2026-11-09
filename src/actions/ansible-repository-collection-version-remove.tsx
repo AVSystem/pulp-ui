@@ -8,36 +8,54 @@ import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
+import { reloadAfterContentTask } from './repository-content-task';
 
-const remove = (
+// Removes the collection version from the repository, then reloads the page
+// once the task is done so the tab lists the new latest version.
+async function remove(
   {
     collection: { namespace, name, version },
     collectionVersionHref,
     repositoryHref,
     repositoryName,
   },
-  { addAlert, setState, query },
-) => {
+  { addAlert, setState, reloadPage },
+) {
   const pulpId = parsePulpIDFromURL(repositoryHref);
-  return AnsibleRepositoryAPI.removeContent(pulpId, collectionVersionHref)
-    .then(({ data }) => {
-      addAlert(
-        taskAlert(
-          data.task,
-          t`Removal of ${namespace}.${name} v${version} from repository "${repositoryName}" started.`,
-        ),
-      );
-      setState((ms) => ({ ...ms, removeCollectionVersionModal: null }));
-      query();
-    })
-    .catch(
-      handleHttpError(
-        t`Failed to remove ${namespace}.${name} v${version} from repository "${repositoryName}".`,
-        () => setState((ms) => ({ ...ms, removeCollectionVersionModal: null })),
-        addAlert,
-      ),
-    );
-};
+  const failed = handleHttpError(
+    t`Failed to remove ${namespace}.${name} v${version} from repository "${repositoryName}".`,
+    () => setState((ms) => ({ ...ms, removeCollectionVersionModal: null })),
+    addAlert,
+  );
+
+  let task;
+  try {
+    ({
+      data: { task },
+    } = await AnsibleRepositoryAPI.removeContent(
+      pulpId,
+      collectionVersionHref,
+    ));
+  } catch (e) {
+    failed(e);
+    return;
+  }
+
+  addAlert(
+    taskAlert(
+      task,
+      t`Removal of ${namespace}.${name} v${version} from repository "${repositoryName}" started.`,
+    ),
+  );
+  setState((ms) => ({ ...ms, removeCollectionVersionModal: null }));
+
+  await reloadAfterContentTask(task, {
+    addAlert,
+    failed,
+    reloadPage,
+    repositoryName,
+  });
+}
 
 const RemoveCollectionVersionModal = ({
   name,
@@ -48,12 +66,13 @@ const RemoveCollectionVersionModal = ({
   deleteAction,
 }: {
   closeAction: () => void;
-  deleteAction: () => void;
+  deleteAction: () => Promise<void>;
   name: string;
   namespace: string;
   repositoryName: string;
   version: string;
 }) => {
+  // set while the remove request runs, so a second click cannot send it again
   const [pending, setPending] = useState(false);
 
   if (!name) {
@@ -63,13 +82,10 @@ const RemoveCollectionVersionModal = ({
   return (
     <DeleteModal
       spinner={pending}
-      cancelAction={() => {
-        setPending(false);
-        closeAction();
-      }}
+      cancelAction={closeAction}
       deleteAction={() => {
-        setPending(false);
-        deleteAction();
+        setPending(true);
+        deleteAction().finally(() => setPending(false));
       }}
       isDisabled={pending}
       isRemove
@@ -90,7 +106,7 @@ const RemoveCollectionVersionModal = ({
 
 export const ansibleRepositoryCollectionVersionRemoveAction = Action({
   title: msg`Remove`,
-  modal: ({ addAlert, state, setState, query }) =>
+  modal: ({ addAlert, state, setState, reloadPage }) =>
     state.removeCollectionVersionModal ? (
       <RemoveCollectionVersionModal
         closeAction={() =>
@@ -100,7 +116,7 @@ export const ansibleRepositoryCollectionVersionRemoveAction = Action({
           remove(state.removeCollectionVersionModal, {
             addAlert,
             setState,
-            query,
+            reloadPage,
           })
         }
         name={state.removeCollectionVersionModal.collection.name}
