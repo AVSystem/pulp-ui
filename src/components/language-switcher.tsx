@@ -1,8 +1,5 @@
 import { t } from '@lingui/core/macro';
-import {
-  DropdownItem,
-  DropdownSeparator,
-} from '@patternfly/react-core/deprecated';
+import { Divider, DropdownItem } from '@patternfly/react-core';
 import { StatefulDropdown } from 'src/components';
 import { availableLanguages, language, languageNames } from 'src/l10n';
 
@@ -21,20 +18,20 @@ export function LanguageSwitcher(_props) {
             ? t`${currentLanguage} (current)`
             : t`${currentLanguage} (browser default)`}
         </DropdownItem>,
-        <DropdownSeparator key='separator1' />,
+        <Divider component='li' key='separator1' />,
         ...availableLanguages.map((lang) => (
           <DropdownItem
             key={lang}
-            href={`?lang=${lang}`}
+            to={`?lang=${lang}`}
             isDisabled={lang === language}
           >
             {languageNames[lang] || lang}
           </DropdownItem>
         )),
-        <DropdownSeparator key='separator2' />,
+        <Divider component='li' key='separator2' />,
         <DropdownItem
           key='unset'
-          href='?lang='
+          to='?lang='
           isDisabled={!window.localStorage.override_l10n}
         >
           {t`Reset to browser defaults`}

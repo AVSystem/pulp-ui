@@ -1,13 +1,13 @@
 import { t } from '@lingui/core/macro';
 import {
   Button,
+  DropdownItem,
   Label,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Link, Navigate } from 'react-router';
@@ -318,16 +318,16 @@ class UserList extends Component<RouteProps, IState> {
       dropdownItems.push(
         <DropdownItem
           key='edit'
-          component={
-            <Link
-              to={formatPath(Paths.core.user.edit, {
+          onClick={() =>
+            this.props.navigate(
+              formatPath(Paths.core.user.edit, {
                 user_id: user.id,
-              })}
-            >
-              {t`Edit`}
-            </Link>
+              }),
+            )
           }
-        />,
+        >
+          {t`Edit`}
+        </DropdownItem>,
       );
     }
 

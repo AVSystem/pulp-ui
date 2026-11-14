@@ -1,5 +1,7 @@
 import { t } from '@lingui/core/macro';
 import {
+  Divider,
+  DropdownItem,
   Masthead,
   MastheadBrand,
   MastheadContent,
@@ -11,18 +13,13 @@ import {
   PageSidebarBody,
   PageToggleButton,
 } from '@patternfly/react-core';
-import {
-  DropdownItem,
-  DropdownSeparator,
-} from '@patternfly/react-core/deprecated';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
 import { type ReactNode, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   AlertList,
   type AlertType,
   DarkmodeSwitcher,
-  ExternalLink,
   LanguageSwitcher,
   LoginLink,
   PulpAboutModal,
@@ -42,13 +39,12 @@ const DocsDropdown = ({ showAbout }: { showAbout: () => void }) => (
     items={[
       <DropdownItem
         key='documentation'
-        component={
-          <ExternalLink
-            href='https://docs.pulpproject.org/'
-            variant='menu'
-          >{t`Documentation`}</ExternalLink>
-        }
-      />,
+        to='https://docs.pulpproject.org/'
+        isExternalLink
+        rel='nofollow noopener noreferrer'
+      >
+        {t`Documentation`}
+      </DropdownItem>,
       <DropdownItem key='about' onClick={() => showAbout()}>
         {t`About`}
       </DropdownItem>,
@@ -63,29 +59,37 @@ const UserDropdown = ({
 }: {
   username: string;
   logout: () => void;
-}) => (
-  <StatefulDropdown
-    ariaLabel={t`User dropdown`}
-    data-cy='user-dropdown'
-    defaultText={username}
-    items={[
-      <DropdownItem isDisabled key='username'>
-        {t`Username: ${username}`}
-      </DropdownItem>,
-      <DropdownSeparator key='separator' />,
-      <DropdownItem
-        key='profile'
-        component={
-          <Link to={formatPath(Paths.core.user.profile)}>{t`My profile`}</Link>
-        }
-      />,
-      <DropdownItem key='logout' aria-label={'logout'} onClick={() => logout()}>
-        {t`Logout`}
-      </DropdownItem>,
-    ]}
-    toggleType='dropdown'
-  />
-);
+}) => {
+  const navigate = useNavigate();
+
+  return (
+    <StatefulDropdown
+      ariaLabel={t`User dropdown`}
+      data-cy='user-dropdown'
+      defaultText={username}
+      items={[
+        <DropdownItem isDisabled key='username'>
+          {t`Username: ${username}`}
+        </DropdownItem>,
+        <Divider component='li' key='separator' />,
+        <DropdownItem
+          key='profile'
+          onClick={() => navigate(formatPath(Paths.core.user.profile))}
+        >
+          {t`My profile`}
+        </DropdownItem>,
+        <DropdownItem
+          key='logout'
+          aria-label={'logout'}
+          onClick={() => logout()}
+        >
+          {t`Logout`}
+        </DropdownItem>,
+      ]}
+      toggleType='dropdown'
+    />
+  );
+};
 
 export const Layout = ({ children }: { children: ReactNode }) => {
   const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);

@@ -2,12 +2,12 @@ import { t } from '@lingui/core/macro';
 import {
   Button,
   ButtonVariant,
+  DropdownItem,
   InputGroup,
   InputGroupItem,
   TextInput,
 } from '@patternfly/react-core';
 import {
-  DropdownItem,
   Select,
   SelectGroup,
   SelectOption,

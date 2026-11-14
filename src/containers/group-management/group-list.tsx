@@ -1,12 +1,12 @@
 import { t } from '@lingui/core/macro';
 import {
   Button,
+  DropdownItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Link, Navigate } from 'react-router';
