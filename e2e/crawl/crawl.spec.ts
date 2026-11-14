@@ -132,25 +132,19 @@ for (const route of crawlRoutes()) {
     await page
       .waitForLoadState('networkidle', { timeout: SETTLE_MS })
       .catch(() => (settled = false));
-    await page
-      .waitForFunction(
-        () => !document.querySelector('.pf-v5-c-spinner'),
-        null,
-        {
-          timeout: SETTLE_MS,
-        },
-      )
+    await expect(page.getByRole('progressbar'))
+      .toHaveCount(0, { timeout: SETTLE_MS })
       .catch(() => (settled = false));
     const loadMs = Date.now() - started;
 
     const dark = await page.evaluate(() =>
-      document.documentElement.classList.contains('pf-v5-theme-dark'),
+      document.documentElement.classList.contains('pf-v6-theme-dark'),
     );
     expect(dark, `the page is in the ${theme} theme`).toBe(theme === 'dark');
 
     // A page that crashed shows no title; the lookup must not wait for one.
     const heading = await page
-      .locator('.pf-v5-c-title')
+      .getByRole('heading', { level: 1 })
       .first()
       .textContent({ timeout: 1000 })
       .catch(() => null);
