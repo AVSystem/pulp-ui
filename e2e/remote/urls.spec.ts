@@ -109,7 +109,7 @@ async function expectUrlsAndLabels(
   await page.goto(`deb/repositories/detail/${repositoryName}`);
   await expect(title(page, repositoryName)).toBeVisible();
 
-  const details = page.locator('.pf-v5-c-description-list__group', {
+  const details = page.locator('.pf-v6-c-description-list__group', {
     hasText: 'Repository URL',
   });
   for (const { base_url } of distributions) {

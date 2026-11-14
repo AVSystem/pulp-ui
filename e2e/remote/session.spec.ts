@@ -268,6 +268,6 @@ test.describe('sessions of their own', () => {
 
     await expect(page.locator(loginMenuItem)).toBeVisible();
     await expect(page.locator(userMenu)).toHaveCount(0);
-    await expect(page.locator('.pf-v5-c-alert')).toHaveCount(0);
+    await expect(page.locator('.pf-v6-c-alert')).toHaveCount(0);
   });
 });

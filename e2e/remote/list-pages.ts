@@ -286,7 +286,7 @@ export function watchPage(page: Page): PageWatch {
 // state with its Retry button.
 export function failureShown(page: Page) {
   return page
-    .locator('.pf-v5-c-alert.pf-m-danger')
+    .locator('.pf-v6-c-alert.pf-m-danger')
     .or(page.getByRole('button', { name: 'Retry', exact: true }));
 }
 

@@ -39,7 +39,7 @@ test('after logging out in one tab, the other tab is refused by the server and r
   // the login page, both are a correct way to say the session is gone.
   await expect(tabB.getByText('The stack trace is:')).toHaveCount(0);
   await expect(
-    tabB.locator('.pf-v5-c-alert, #pf-login-username-id').first(),
+    tabB.locator('.pf-v6-c-alert, #pf-login-username-id').first(),
   ).toBeVisible();
 
   await tabB.reload();

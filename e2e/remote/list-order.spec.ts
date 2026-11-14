@@ -46,11 +46,11 @@ test('the file repository add form marks Name as required and keeps Save disable
   await page.goto('file/repositories/edit/_');
   await expect(title(page, 'Add new repository')).toBeVisible();
 
-  const nameGroup = page.locator('.pf-v5-c-form__group', {
+  const nameGroup = page.locator('.pf-v6-c-form__group', {
     has: page.locator('#name'),
   });
   await expect(
-    nameGroup.locator('.pf-v5-c-form__label-required'),
+    nameGroup.locator('.pf-v6-c-form__label-required'),
     'the required marker of Name',
   ).toBeVisible();
 
