@@ -3,16 +3,143 @@
 // they are set on the same class behind a :root prefix: the extra specificity
 // holds whichever order the stylesheets load in. No literal color lives here.
 
-// top bar
+// Frame geometry. The page is a grid of a 264px sidebar column and the main
+// container below a full-width top bar; the main container sits flat on the
+// page ground instead of floating as a rounded card.
+:root .pf-v6-c-page {
+  --pf-v6-c-page__sidebar--Width--base: 16.5rem;
+  --pf-v6-c-page__sidebar--MarginInlineEnd: 0;
+  --pf-v6-c-page__sidebar--PaddingBlockEnd: 0;
+  --pf-v6-c-page__sidebar--BorderInlineEndWidth: 1px;
+  --pf-v6-c-page__sidebar--BorderInlineEndColor: var(--pulp-line);
+  --pf-v6-c-page__sidebar--BackgroundColor: var(--pulp-nav);
+  --pf-v6-c-page__sidebar--xl--BackgroundColor: var(--pulp-nav);
+  --pf-v6-c-page__main-container--BackgroundColor: var(--pulp-bg);
+  --pf-v6-c-page__main-container--BackdropFilter: none;
+  --pf-v6-c-page__main-container--AlignSelf: stretch;
+  --pf-v6-c-page__main-container--MaxHeight: 100%;
+  --pf-v6-c-page__main-container--MarginInlineStart: 0;
+  --pf-v6-c-page__main-container--MarginInlineEnd: 0;
+  --pf-v6-c-page__main-container--BorderRadius: 0;
+  --pf-v6-c-page__main-container--BorderBlockStartWidth: 0;
+  --pf-v6-c-page__main-container--BorderBlockEndWidth: 0;
+  --pf-v6-c-page__main-container--BorderInlineStartWidth: 0;
+  --pf-v6-c-page__main-container--BorderInlineEndWidth: 0;
+}
+
+// The sidebar body is the part that scrolls; a footer below it stays put.
+:root .pf-v6-c-page__sidebar-main {
+  min-height: 0;
+}
+
+// top bar: 64px high with a line under it
 :root .pf-v6-c-masthead {
   --pf-v6-c-masthead--BackgroundColor: var(--pulp-bg);
   --pf-v6-c-masthead--BorderColor: var(--pulp-line);
 }
 
-// sidebar, below and above the breakpoint where PatternFly swaps variables
-:root .pf-v6-c-page {
-  --pf-v6-c-page__sidebar--BackgroundColor: var(--pulp-nav);
-  --pf-v6-c-page__sidebar--xl--BackgroundColor: var(--pulp-nav);
+:root .pf-v6-c-masthead.pulp-masthead {
+  --pf-v6-c-masthead--PaddingBlock: 0;
+  --pf-v6-c-masthead--PaddingInline: 1.5rem;
+  --pf-v6-c-masthead__logo--Width: auto;
+  --pf-v6-c-masthead__logo--MaxHeight: none;
+  --pf-v6-c-masthead__main--MarginInlineEnd: var(--pf-t--global--spacer--md);
+  box-sizing: border-box;
+  block-size: 4rem;
+  align-items: center;
+  border-block-end: 1px solid var(--pulp-line);
+
+  .pf-v6-c-masthead__main {
+    min-width: 0;
+  }
+
+  .pf-v6-c-masthead__brand {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .pf-v6-c-masthead__content {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+}
+
+.pulp-masthead__spacer {
+  flex-grow: 1;
+}
+
+// The left cell of the top bar. With the sidebar open on a wide screen it is
+// exactly as wide as the sidebar and continues its background, so the two read
+// as one column.
+@media (min-width: 75rem) {
+  :root .pf-v6-c-masthead.pulp-masthead.pulp-framed {
+    --pf-v6-c-masthead--PaddingInlineStart: 0;
+
+    .pf-v6-c-masthead__main {
+      box-sizing: border-box;
+      align-self: stretch;
+      padding-inline: 1rem;
+      margin-inline-end: 0;
+      overflow: hidden;
+      background-color: var(--pulp-nav);
+      border-inline-end: 1px solid var(--pulp-line);
+    }
+
+    .pf-v6-c-masthead__toggle {
+      display: none;
+    }
+
+    .pf-v6-c-masthead__content {
+      padding-inline-start: 1.5rem;
+    }
+  }
+}
+
+// logo, wordmark and host as one link
+:root .pulp-brand {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  min-width: 0;
+  color: var(--pulp-text);
+  text-decoration: none;
+}
+
+.pulp-brand__logo {
+  flex: none;
+  inline-size: 30px;
+  block-size: 25px;
+  object-fit: contain;
+}
+
+.pulp-brand__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pulp-brand__name {
+  font-family: var(--pf-t--global--font--family--heading);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--pulp-text);
+}
+
+.pulp-brand__host {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--pulp-text-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// the host moves to the sidebar footer below the width of the persistent sidebar
+@media (max-width: calc(75rem - 1px)) {
+  .pulp-brand__host {
+    display: none;
+  }
 }
 
 // navigation: hover is a sunken tint, the current item a blue tint

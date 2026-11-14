@@ -334,7 +334,7 @@ export const PulpMenu = () => {
   };
 
   return (
-    <Nav onToggle={(_event, data) => onToggle(data)}>
+    <Nav aria-label={t`Main`} onToggle={(_event, data) => onToggle(data)}>
       <NavList>
         <Menu
           items={menu}

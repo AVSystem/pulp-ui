@@ -1,8 +1,8 @@
 import { Outlet, useNavigation } from 'react-router';
 import { AppContextProvider } from 'src/app-context';
 import { LoadingSpinner, UIVersion } from 'src/components';
-import { Layout } from 'src/layout';
 import { PluginsProvider } from 'src/plugins';
+import { Shell } from 'src/shell/shell';
 import { UserContextProvider } from 'src/user-context';
 
 export default function Root() {
@@ -13,10 +13,10 @@ export default function Root() {
     <UserContextProvider>
       <AppContextProvider>
         <PluginsProvider>
-          <Layout>
+          <Shell>
             {isNavigating && <LoadingSpinner />}
             <Outlet />
-          </Layout>
+          </Shell>
           <UIVersion />
         </PluginsProvider>
       </AppContextProvider>

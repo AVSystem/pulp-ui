@@ -341,7 +341,7 @@ msgstr "A ticked box publishes every new version, so any distribution serving th
 msgid "A whole number. Leave empty to use the server default."
 msgstr "A whole number. Leave empty to use the server default."
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "About"
 msgstr "About"
 
@@ -524,8 +524,8 @@ msgstr "Add selected users to group"
 #~ msgstr "Add user"
 
 #: src/containers/group-management/group-detail.tsx
-msgid "add-user-modal"
-msgstr "add-user-modal"
+#~ msgid "add-user-modal"
+#~ msgstr "add-user-modal"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
@@ -1181,6 +1181,10 @@ msgstr "close"
 msgid "Close"
 msgstr "Close"
 
+#: src/shell/shell.tsx
+msgid "Close navigation"
+msgstr "Close navigation"
+
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
 msgstr "Close YAML editor"
@@ -1188,6 +1192,10 @@ msgstr "Close YAML editor"
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
 msgstr "Code"
+
+#: src/shell/shell.tsx
+msgid "Collapse sidebar"
+msgstr "Collapse sidebar"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
@@ -2292,7 +2300,7 @@ msgstr "Distributions could not be loaded: {error}"
 msgid "Distributions of {0} repositories cannot be looked up"
 msgstr "Distributions of {0} repositories cannot be looked up"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Docs dropdown"
 msgstr "Docs dropdown"
 
@@ -2300,7 +2308,7 @@ msgstr "Docs dropdown"
 #~ msgid "Docs site"
 #~ msgstr "Docs site"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -2806,6 +2814,10 @@ msgstr "Excludes"
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Execution Environments"
 #~ msgstr "Execution Environments"
+
+#: src/shell/shell.tsx
+msgid "Expand sidebar"
+msgstr "Expand sidebar"
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Expiration"
@@ -3910,9 +3922,13 @@ msgstr "Login"
 #~ msgid "Logo URL"
 #~ msgstr "Logo URL"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Logout"
 msgstr "Logout"
+
+#: src/menu.tsx
+msgid "Main"
+msgstr "Main"
 
 #: src/components/repository-form.tsx
 msgid "Make private"
@@ -4000,7 +4016,7 @@ msgstr "Must be an integer."
 #~ msgstr "My namespaces"
 
 #: src/containers/settings/user-profile.tsx
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "My profile"
 msgstr "My profile"
 
@@ -4583,6 +4599,10 @@ msgstr "Only perform the sync if changes are reported by the remote server. To f
 #: src/components/ansible-role/role-import-form.tsx
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
 #~ msgstr "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
+
+#: src/shell/shell.tsx
+msgid "Open navigation"
+msgstr "Open navigation"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
@@ -5176,6 +5196,10 @@ msgstr "Pulp type"
 #: src/containers/login/login.tsx
 #~ msgid "Pulp UI is currently using HTTP Basic Authentication. Your credentials will be stored in your browser's sessionStorage or localStorage, in plain text."
 #~ msgstr "Pulp UI is currently using HTTP Basic Authentication. Your credentials will be stored in your browser's sessionStorage or localStorage, in plain text."
+
+#: src/shell/shell.tsx
+msgid "Pulp, {host}"
+msgstr "Pulp, {host}"
 
 #: src/constants.tsx
 #~ msgid "Pulpcore: Add and remove"
@@ -6426,7 +6450,7 @@ msgstr "Show password"
 #~ msgid "Sign version {version}"
 #~ msgstr "Sign version {version}"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Sign-out did not complete"
 msgstr "Sign-out did not complete"
 
@@ -6526,6 +6550,10 @@ msgstr "Single sign on URL."
 #: src/containers/python-repository/tab-details.tsx
 msgid "Skip them"
 msgstr "Skip them"
+
+#: src/shell/shell.tsx
+msgid "Skip to content"
+msgstr "Skip to content"
 
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
@@ -7868,7 +7896,7 @@ msgstr "User access"
 msgid "User details"
 msgstr "User details"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "User dropdown"
 msgstr "User dropdown"
 
@@ -7903,7 +7931,7 @@ msgstr "Username"
 #~ msgid "Username: {0}"
 #~ msgstr "Username: {0}"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Username: {username}"
 msgstr "Username: {username}"
 
@@ -8254,7 +8282,7 @@ msgstr "You are about to remove <0>{username}</0> from <1>{name}</1>.<2/>This wi
 #~ msgid "You are an SSO user. Your token will expire <0/>."
 #~ msgstr "You are an SSO user. Your token will expire <0/>."
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "You are still signed in."
 msgstr "You are still signed in."
 

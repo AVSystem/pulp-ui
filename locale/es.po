@@ -340,7 +340,7 @@ msgstr ""
 msgid "A whole number. Leave empty to use the server default."
 msgstr ""
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "About"
 msgstr "Acerca de"
 
@@ -523,8 +523,8 @@ msgstr "Añadir los usuarios seleccionados al grupo"
 #~ msgstr "Add user"
 
 #: src/containers/group-management/group-detail.tsx
-msgid "add-user-modal"
-msgstr "add-user-modal"
+#~ msgid "add-user-modal"
+#~ msgstr "add-user-modal"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
@@ -1180,6 +1180,10 @@ msgstr ""
 msgid "Close"
 msgstr "Cerrar"
 
+#: src/shell/shell.tsx
+msgid "Close navigation"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
 msgstr "Cerrar el editor YAML"
@@ -1187,6 +1191,10 @@ msgstr "Cerrar el editor YAML"
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
 msgstr "Código"
+
+#: src/shell/shell.tsx
+msgid "Collapse sidebar"
+msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
@@ -2291,7 +2299,7 @@ msgstr ""
 msgid "Distributions of {0} repositories cannot be looked up"
 msgstr ""
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Docs dropdown"
 msgstr ""
 
@@ -2299,7 +2307,7 @@ msgstr ""
 #~ msgid "Docs site"
 #~ msgstr "Sitio de Docs"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Documentation"
 msgstr "Documentación"
 
@@ -2805,6 +2813,10 @@ msgstr ""
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Execution Environments"
 #~ msgstr "Entornos de ejecución"
+
+#: src/shell/shell.tsx
+msgid "Expand sidebar"
+msgstr ""
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Expiration"
@@ -3909,9 +3921,13 @@ msgstr "Inicio de sesión"
 #~ msgid "Logo URL"
 #~ msgstr "URL del logotipo"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Logout"
 msgstr "Finalización de la sesión"
+
+#: src/menu.tsx
+msgid "Main"
+msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "Make private"
@@ -3999,7 +4015,7 @@ msgstr "Debe ser un número entero."
 #~ msgstr "Mis espacios de nombres"
 
 #: src/containers/settings/user-profile.tsx
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "My profile"
 msgstr "Mi perfil"
 
@@ -4582,6 +4598,10 @@ msgstr ""
 #: src/components/ansible-role/role-import-form.tsx
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
 #~ msgstr ""
+
+#: src/shell/shell.tsx
+msgid "Open navigation"
+msgstr ""
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
@@ -5175,6 +5195,10 @@ msgstr "Tipo de Pulp"
 #: src/containers/login/login.tsx
 #~ msgid "Pulp UI is currently using HTTP Basic Authentication. Your credentials will be stored in your browser's sessionStorage or localStorage, in plain text."
 #~ msgstr ""
+
+#: src/shell/shell.tsx
+msgid "Pulp, {host}"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Pulpcore: Add and remove"
@@ -6425,7 +6449,7 @@ msgstr ""
 #~ msgid "Sign version {version}"
 #~ msgstr "Versión de la firma {version}"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Sign-out did not complete"
 msgstr ""
 
@@ -6524,6 +6548,10 @@ msgstr "URL de inicio de sesión único."
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Skip them"
+msgstr ""
+
+#: src/shell/shell.tsx
+msgid "Skip to content"
 msgstr ""
 
 #: src/components/purge-task-modal.tsx
@@ -7867,7 +7895,7 @@ msgstr ""
 msgid "User details"
 msgstr "Detalles del usuario"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "User dropdown"
 msgstr ""
 
@@ -7902,7 +7930,7 @@ msgstr "Usuario"
 #~ msgid "Username: {0}"
 #~ msgstr "Nombre de usuario: {0}"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Username: {username}"
 msgstr ""
 
@@ -8253,7 +8281,7 @@ msgstr ""
 #~ msgid "You are an SSO user. Your token will expire <0/>."
 #~ msgstr "Usted es un usuario SSO. Su token expirará <0/>."
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "You are still signed in."
 msgstr ""
 
