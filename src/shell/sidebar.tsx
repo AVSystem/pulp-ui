@@ -4,6 +4,7 @@ import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-ico
 import { useContext } from 'react';
 import { PulpMenu } from 'src/menu';
 import { usePlugins } from 'src/plugins';
+import { CommandPalette } from './command-palette';
 
 // Where the browser remembers whether the sidebar was left open or collapsed.
 export const SIDEBAR_STORAGE_KEY = 'pulp-sidebar';
@@ -92,6 +93,7 @@ function SidebarFooter() {
 export const SidebarContent = () => (
   <>
     <PageSidebarBody className='pulp-sidebar__menu'>
+      <CommandPalette />
       <PulpMenu />
     </PageSidebarBody>
     <SidebarFooter />

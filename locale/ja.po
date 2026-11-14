@@ -48,6 +48,11 @@ msgstr ""
 msgid "(uploaded)"
 msgstr "(アップロード済み)"
 
+#. placeholder {0}: results.length
+#: src/shell/command-palette.tsx
+msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
+msgstr ""
+
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
@@ -1221,6 +1226,10 @@ msgstr ""
 msgid "Close YAML editor"
 msgstr "YAML エディターを閉じます"
 
+#: src/shell/command-palette.tsx
+msgid "Cmd K"
+msgstr ""
+
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
 msgstr "コード"
@@ -1834,6 +1843,10 @@ msgstr "作成日時"
 #: src/containers/file-repository/edit.tsx
 #~ msgid "Creation started for distribution {distributionName}"
 #~ msgstr "ディストリビューション {distributionName} の作成が開始しました"
+
+#: src/shell/command-palette.tsx
+msgid "Ctrl K"
+msgstr ""
 
 #: src/utilities/translate-task.ts
 #~ msgid "Curate all synclist repositories"
@@ -3293,6 +3306,10 @@ msgstr ""
 #: src/utilities/wait-for-task.ts
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "10 回試行した後に、タスクの待機を中止します。"
+
+#: src/shell/command-palette.tsx
+msgid "Go to"
+msgstr ""
 
 #: src/components/collection-info.tsx
 #~ msgid "Go to documentation"
@@ -5941,6 +5958,10 @@ msgstr ""
 #~ msgid "Resources"
 #~ msgstr "リソース"
 
+#: src/shell/command-palette.tsx
+msgid "Results"
+msgstr ""
+
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
 msgstr "保持バージョン数"
@@ -6236,6 +6257,18 @@ msgstr ""
 #: src/containers/namespace-list/namespace-list.tsx
 #~ msgid "Search my namespaces"
 #~ msgstr "Search my namespaces"
+
+#: src/shell/command-palette.tsx
+msgid "Search or go to"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Search or go to..."
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Search screens and repositories"
+msgstr ""
 
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
@@ -7659,6 +7692,10 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Untag image"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Up and Down to move, Enter to open, Esc to close"
 msgstr ""
 
 #: src/utilities/translate-task.ts

@@ -49,6 +49,11 @@ msgstr "(more)"
 msgid "(uploaded)"
 msgstr "(uploaded)"
 
+#. placeholder {0}: results.length
+#: src/shell/command-palette.tsx
+msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
+msgstr "{0, plural, =0 {No results} one {# result} other {# results}}"
+
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
@@ -1222,6 +1227,10 @@ msgstr "Close notifications"
 msgid "Close YAML editor"
 msgstr "Close YAML editor"
 
+#: src/shell/command-palette.tsx
+msgid "Cmd K"
+msgstr "Cmd K"
+
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
 msgstr "Code"
@@ -1835,6 +1844,10 @@ msgstr "Created on"
 #: src/containers/file-repository/edit.tsx
 #~ msgid "Creation started for distribution {distributionName}"
 #~ msgstr "Creation started for distribution {distributionName}"
+
+#: src/shell/command-palette.tsx
+msgid "Ctrl K"
+msgstr "Ctrl K"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Curate all synclist repositories"
@@ -3294,6 +3307,10 @@ msgstr "Giving up waiting for task after {attempts} attempts."
 #: src/utilities/wait-for-task.ts
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "Giving up waiting for task after 10 attempts."
+
+#: src/shell/command-palette.tsx
+msgid "Go to"
+msgstr "Go to"
 
 #: src/components/collection-info.tsx
 #~ msgid "Go to documentation"
@@ -5942,6 +5959,10 @@ msgstr "Reset to browser defaults"
 #~ msgid "Resources"
 #~ msgstr "Resources"
 
+#: src/shell/command-palette.tsx
+msgid "Results"
+msgstr "Results"
+
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
 msgstr "Retained number of versions"
@@ -6237,6 +6258,18 @@ msgstr "Search"
 #: src/containers/namespace-list/namespace-list.tsx
 #~ msgid "Search my namespaces"
 #~ msgstr "Search my namespaces"
+
+#: src/shell/command-palette.tsx
+msgid "Search or go to"
+msgstr "Search or go to"
+
+#: src/shell/command-palette.tsx
+msgid "Search or go to..."
+msgstr "Search or go to..."
+
+#: src/shell/command-palette.tsx
+msgid "Search screens and repositories"
+msgstr "Search screens and repositories"
 
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
@@ -7661,6 +7694,10 @@ msgstr "UI version"
 #: src/utilities/translate-task.ts
 msgid "Untag image"
 msgstr "Untag image"
+
+#: src/shell/command-palette.tsx
+msgid "Up and Down to move, Enter to open, Esc to close"
+msgstr "Up and Down to move, Enter to open, Esc to close"
 
 #: src/utilities/translate-task.ts
 msgid "Update collection remote"
