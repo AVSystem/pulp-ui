@@ -113,6 +113,78 @@
   }
 }
 
+// The account toggle: a 36px pill holding a round avatar and the username.
+:root .pulp-account {
+  --pf-v6-c-menu-toggle--BackgroundColor: var(--pulp-surface);
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-menu-toggle--expanded--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-menu-toggle--Color: var(--pulp-text);
+  --pf-v6-c-menu-toggle--hover--Color: var(--pulp-text);
+  --pf-v6-c-menu-toggle--expanded--Color: var(--pulp-text);
+  --pf-v6-c-menu-toggle--BorderRadius: 999px;
+  --pf-v6-c-menu-toggle--PaddingBlockStart: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: 0.25rem;
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: 0.625rem;
+  --pf-v6-c-menu-toggle--FontSize: 14px;
+  box-sizing: border-box;
+  block-size: 2.25rem;
+  min-width: 2.25rem;
+  max-width: 14rem;
+  border: 1px solid var(--pulp-line);
+  border-radius: 999px;
+  background-color: var(--pulp-surface);
+  color: var(--pulp-text);
+
+  &::before {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+
+  .pf-v6-c-menu-toggle__button {
+    column-gap: 0.5rem;
+  }
+
+  // the pill has no arrow: the menu is announced by the button itself
+  .pf-v6-c-menu-toggle__controls {
+    display: none;
+  }
+
+  .pf-v6-c-menu-toggle__text {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    min-width: 0;
+  }
+}
+
+.pulp-account__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  background-color: var(--pulp-primary-soft);
+  color: var(--pulp-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pulp-account__name {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--pulp-text);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 // The trail takes the room the action group leaves.
 .pulp-topbar__crumbs {
   flex: 1 1 0;

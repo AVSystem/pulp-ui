@@ -57,4 +57,20 @@ describe('login link', () => {
       `${EXTERNAL_LOGIN}?next=${encodeURIComponent('/ui/deb/repositories?name=%C5%BC&q=a//b')}`,
     );
   });
+
+  it('keeps the same button element when the page renders again', () => {
+    const { rerender } = renderWithProviders(<LoginLink button />, {
+      route: '/status',
+    });
+    const before = screen.getByRole('link', { name: 'Login' });
+
+    rerender(<LoginLink button />);
+
+    expect(screen.getByRole('link', { name: 'Login' })).toBe(before);
+    expect(before).toHaveClass('pf-m-primary');
+    expect(before).toHaveAttribute(
+      'href',
+      `/login/?next=${encodeURIComponent('/status')}`,
+    );
+  });
 });

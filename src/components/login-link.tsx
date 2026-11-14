@@ -1,9 +1,17 @@
 import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
+import { type ComponentPropsWithoutRef, type ElementType } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import { loginURL } from '../utilities/login-url';
+
+// A module-level component, so the button keeps the same element between
+// renders instead of being replaced each time.
+const RouterLink = ({
+  to,
+  ...props
+}: ComponentPropsWithoutRef<typeof Link>) => <Link {...props} to={to} />;
 
 interface IProps {
   button?: boolean;
@@ -29,7 +37,8 @@ export const LoginLink = ({ button }: IProps) => {
 
   return button ? (
     <Button
-      component={(props) => <Link {...props} to={to} />}
+      component={RouterLink as ElementType}
+      {...{ to }}
       variant='primary'
     >{t`Login`}</Button>
   ) : (

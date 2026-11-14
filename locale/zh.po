@@ -360,6 +360,14 @@ msgstr ""
 msgid "Access"
 msgstr "访问"
 
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr ""
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr ""
+
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
 msgstr ""
@@ -3930,7 +3938,7 @@ msgstr "登录"
 #~ msgid "Logo URL"
 #~ msgstr "徽标 URL"
 
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "退出"
 
@@ -4028,7 +4036,7 @@ msgstr "必须是整数。"
 #~ msgstr "我的命名空间"
 
 #: src/containers/settings/user-profile.tsx
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "我的配置集"
 
@@ -6510,6 +6518,10 @@ msgstr "签名密钥在创建后会显示。"
 #~ msgid "Signed and approved"
 #~ msgstr "已签名并批准"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr ""
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "仅包括签发的"
@@ -7925,8 +7937,8 @@ msgid "User details"
 msgstr "用户详情"
 
 #: src/shell/shell.tsx
-msgid "User dropdown"
-msgstr ""
+#~ msgid "User dropdown"
+#~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7960,8 +7972,8 @@ msgstr "用户名"
 #~ msgstr "用户名：{0}"
 
 #: src/shell/shell.tsx
-msgid "Username: {username}"
-msgstr ""
+#~ msgid "Username: {username}"
+#~ msgstr ""
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"

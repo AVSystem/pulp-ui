@@ -360,6 +360,14 @@ msgstr ""
 msgid "Access"
 msgstr "Toegang"
 
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr ""
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr ""
+
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
 msgstr ""
@@ -3930,7 +3938,7 @@ msgstr "Inloggen"
 #~ msgid "Logo URL"
 #~ msgstr "Logo URL"
 
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "Afmelden"
 
@@ -4028,7 +4036,7 @@ msgstr "Moet een geheel getal zijn."
 #~ msgstr "Mijn namespaces"
 
 #: src/containers/settings/user-profile.tsx
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "Mijn profiel"
 
@@ -6510,6 +6518,10 @@ msgstr "Handtekeningensleutels verschijnen zodra ze zijn aangemaakt."
 #~ msgid "Signed and approved"
 #~ msgstr "Ondertekend en goedgekeurd"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr ""
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "Alleen ondertekend"
@@ -7925,8 +7937,8 @@ msgid "User details"
 msgstr "Gebruikersdetails"
 
 #: src/shell/shell.tsx
-msgid "User dropdown"
-msgstr ""
+#~ msgid "User dropdown"
+#~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7960,8 +7972,8 @@ msgstr "Gebruikersnaam"
 #~ msgstr "Gebruikersnaam: {0}"
 
 #: src/shell/shell.tsx
-msgid "Username: {username}"
-msgstr ""
+#~ msgid "Username: {username}"
+#~ msgstr ""
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"

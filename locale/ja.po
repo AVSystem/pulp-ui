@@ -360,6 +360,14 @@ msgstr ""
 msgid "Access"
 msgstr "アクセス"
 
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr ""
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr ""
+
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
 msgstr ""
@@ -3930,7 +3938,7 @@ msgstr "ログイン"
 #~ msgid "Logo URL"
 #~ msgstr "ロゴ URL"
 
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "ログアウト"
 
@@ -4028,7 +4036,7 @@ msgstr "整数でなければなりません。"
 #~ msgstr "自分の名前空間"
 
 #: src/containers/settings/user-profile.tsx
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "自分のプロファイル"
 
@@ -6510,6 +6518,10 @@ msgstr "署名鍵が作成されると表示されます。"
 #~ msgid "Signed and approved"
 #~ msgstr "署名済みおよび承認済み"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr ""
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "署名済みのみ"
@@ -7925,8 +7937,8 @@ msgid "User details"
 msgstr "エラーの詳細"
 
 #: src/shell/shell.tsx
-msgid "User dropdown"
-msgstr ""
+#~ msgid "User dropdown"
+#~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7960,8 +7972,8 @@ msgstr "ユーザー名"
 #~ msgstr "ユーザー名: {0}"
 
 #: src/shell/shell.tsx
-msgid "Username: {username}"
-msgstr ""
+#~ msgid "Username: {username}"
+#~ msgstr ""
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"

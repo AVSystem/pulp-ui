@@ -360,6 +360,14 @@ msgstr ""
 msgid "Access"
 msgstr "액세스"
 
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr ""
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr ""
+
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
 msgstr ""
@@ -3930,7 +3938,7 @@ msgstr "로그인"
 #~ msgid "Logo URL"
 #~ msgstr "로고 URL"
 
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "로그 아웃"
 
@@ -4028,7 +4036,7 @@ msgstr "정수여야 합니다."
 #~ msgstr "내 네임스페이스"
 
 #: src/containers/settings/user-profile.tsx
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "내 프로필"
 
@@ -6510,6 +6518,10 @@ msgstr "서명 키가 생성된 후 표시됩니다."
 #~ msgid "Signed and approved"
 #~ msgstr "서명 및 승인됨"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr ""
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "서명된 항목만 포함"
@@ -7925,8 +7937,8 @@ msgid "User details"
 msgstr "사용자 세부 정보"
 
 #: src/shell/shell.tsx
-msgid "User dropdown"
-msgstr ""
+#~ msgid "User dropdown"
+#~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7960,8 +7972,8 @@ msgstr "사용자 이름"
 #~ msgstr "사용자 이름: {0}"
 
 #: src/shell/shell.tsx
-msgid "Username: {username}"
-msgstr ""
+#~ msgid "Username: {username}"
+#~ msgstr ""
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"

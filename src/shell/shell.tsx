@@ -1,7 +1,5 @@
 import { t } from '@lingui/core/macro';
 import {
-  Divider,
-  DropdownItem,
   Masthead,
   MastheadBrand,
   MastheadContent,
@@ -14,63 +12,25 @@ import {
   SkipToContent,
 } from '@patternfly/react-core';
 import { type ComponentPropsWithoutRef, type ReactNode, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import {
   AlertList,
   type AlertType,
   LanguageSwitcher,
   LoginLink,
   PulpAboutModal,
-  StatefulDropdown,
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useUserContext } from 'src/user-context';
 import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
+import { AccountMenu } from './account-menu';
 import { BreadcrumbBar, BreadcrumbSlotProvider } from './breadcrumb-slot';
 import { HelpMenu } from './help-menu';
 import { SidebarContent, initialSidebarOpen, useSidebar } from './sidebar';
 import { ThemeMenu } from './theme-menu';
 
 export const MAIN_CONTENT_ID = 'main-content';
-
-const UserDropdown = ({
-  username,
-  logout,
-}: {
-  username: string;
-  logout: () => void;
-}) => {
-  const navigate = useNavigate();
-
-  return (
-    <StatefulDropdown
-      ariaLabel={t`User dropdown`}
-      data-cy='user-dropdown'
-      defaultText={username}
-      items={[
-        <DropdownItem isDisabled key='username'>
-          {t`Username: ${username}`}
-        </DropdownItem>,
-        <Divider component='li' key='separator' />,
-        <DropdownItem
-          key='profile'
-          onClick={() => navigate(formatPath(Paths.core.user.profile))}
-        >
-          {t`My profile`}
-        </DropdownItem>,
-        <DropdownItem
-          key='logout'
-          aria-label={'logout'}
-          onClick={() => logout()}
-        >
-          {t`Logout`}
-        </DropdownItem>,
-      ]}
-      toggleType='dropdown'
-    />
-  );
-};
 
 // A router link that carries the class and attributes PatternFly puts on its
 // logo, so the whole brand cell is one link to the Status screen.
@@ -143,9 +103,9 @@ const ShellMasthead = ({
           <ThemeMenu />
           <LanguageSwitcher />
           {username ? (
-            <UserDropdown username={username} logout={signOut} />
+            <AccountMenu username={username} logout={signOut} />
           ) : (
-            <LoginLink />
+            <LoginLink button />
           )}
         </div>
       </MastheadContent>

@@ -361,6 +361,14 @@ msgstr "About Pulp UI"
 msgid "Access"
 msgstr "Access"
 
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr "Account"
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr "Account menu for {username}"
+
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
 msgstr "Actions"
@@ -3931,7 +3939,7 @@ msgstr "Login"
 #~ msgid "Logo URL"
 #~ msgstr "Logo URL"
 
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "Logout"
 
@@ -4029,7 +4037,7 @@ msgstr "Must be an integer."
 #~ msgstr "My namespaces"
 
 #: src/containers/settings/user-profile.tsx
-#: src/shell/shell.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "My profile"
 
@@ -6511,6 +6519,10 @@ msgstr "Signature keys will appear once created."
 #~ msgid "Signed and approved"
 #~ msgstr "Signed and approved"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr "Signed in as {username}"
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "Signed only"
@@ -7926,8 +7938,8 @@ msgid "User details"
 msgstr "User details"
 
 #: src/shell/shell.tsx
-msgid "User dropdown"
-msgstr "User dropdown"
+#~ msgid "User dropdown"
+#~ msgstr "User dropdown"
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7961,8 +7973,8 @@ msgstr "Username"
 #~ msgstr "Username: {0}"
 
 #: src/shell/shell.tsx
-msgid "Username: {username}"
-msgstr "Username: {username}"
+#~ msgid "Username: {username}"
+#~ msgstr "Username: {username}"
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"
