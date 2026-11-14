@@ -356,6 +356,10 @@ msgstr "About project"
 msgid "Access"
 msgstr "Access"
 
+#: src/components/stateful-dropdown.tsx
+msgid "Actions"
+msgstr "Actions"
+
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Active user profile \"{0}\" could not be displayed."
 #~ msgstr "Active user profile \"{0}\" could not be displayed."
@@ -3147,8 +3151,8 @@ msgstr "First name"
 #~ msgstr "Follow logs"
 
 #: src/components/sync-modal.tsx
-msgid "Force a sync to happen."
-msgstr "Force a sync to happen."
+#~ msgid "Force a sync to happen."
+#~ msgstr "Force a sync to happen."
 
 #: src/components/role-import-form.tsx
 #~ msgid "Found"
@@ -3609,16 +3613,16 @@ msgstr "Install with pip"
 #~ msgstr "Installation:"
 
 #: src/components/remote-form.tsx
-msgid "Installer files will be skipped"
-msgstr "Installer files will be skipped"
+#~ msgid "Installer files will be skipped"
+#~ msgstr "Installer files will be skipped"
 
 #: src/components/remote-form.tsx
 msgid "Installer files will be synchronized"
 msgstr "Installer files will be synchronized"
 
 #: src/components/remote-form.tsx
-msgid "Installer packages will be skipped"
-msgstr "Installer packages will be skipped"
+#~ msgid "Installer packages will be skipped"
+#~ msgstr "Installer packages will be skipped"
 
 #: src/components/remote-form.tsx
 msgid "Installer packages will be synchronized"
@@ -6521,8 +6525,8 @@ msgstr "Skipped"
 #~ msgstr "Sort results"
 
 #: src/components/remote-form.tsx
-msgid "Source packages will be skipped"
-msgstr "Source packages will be skipped"
+#~ msgid "Source packages will be skipped"
+#~ msgstr "Source packages will be skipped"
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be synchronized"
@@ -6833,8 +6837,8 @@ msgid "Sync udebs"
 msgstr "Sync udebs"
 
 #: src/components/sync-modal.tsx
-msgid "Sync will only add missing content"
-msgstr "Sync will only add missing content"
+#~ msgid "Sync will only add missing content"
+#~ msgstr "Sync will only add missing content"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Synced"

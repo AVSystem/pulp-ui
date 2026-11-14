@@ -355,6 +355,10 @@ msgstr ""
 msgid "Access"
 msgstr "액세스"
 
+#: src/components/stateful-dropdown.tsx
+msgid "Actions"
+msgstr ""
+
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Active user profile \"{0}\" could not be displayed."
 #~ msgstr "Active user profile \"{0}\" could not be displayed."
@@ -3146,8 +3150,8 @@ msgstr "이름"
 #~ msgstr "로그 추적"
 
 #: src/components/sync-modal.tsx
-msgid "Force a sync to happen."
-msgstr ""
+#~ msgid "Force a sync to happen."
+#~ msgstr ""
 
 #: src/components/role-import-form.tsx
 #~ msgid "Found"
@@ -3608,16 +3612,16 @@ msgstr ""
 #~ msgstr "설치:"
 
 #: src/components/remote-form.tsx
-msgid "Installer files will be skipped"
-msgstr ""
+#~ msgid "Installer files will be skipped"
+#~ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer files will be synchronized"
 msgstr ""
 
 #: src/components/remote-form.tsx
-msgid "Installer packages will be skipped"
-msgstr ""
+#~ msgid "Installer packages will be skipped"
+#~ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer packages will be synchronized"
@@ -6520,8 +6524,8 @@ msgstr ""
 #~ msgstr "결과 정렬"
 
 #: src/components/remote-form.tsx
-msgid "Source packages will be skipped"
-msgstr ""
+#~ msgid "Source packages will be skipped"
+#~ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be synchronized"
@@ -6832,8 +6836,8 @@ msgid "Sync udebs"
 msgstr ""
 
 #: src/components/sync-modal.tsx
-msgid "Sync will only add missing content"
-msgstr ""
+#~ msgid "Sync will only add missing content"
+#~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Synced"
