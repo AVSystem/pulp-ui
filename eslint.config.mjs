@@ -95,6 +95,21 @@ export default defineConfig([
               message: 'Import from src/components instead.',
               name: '@patternfly/react-core',
             },
+            {
+              name: '@patternfly/react-core/deprecated',
+              message:
+                'Use the PatternFly 6 component; the deprecated entry point is not used.',
+            },
+          ],
+          patterns: [
+            {
+              group: [
+                '@patternfly/react-core/deprecated/**',
+                '@patternfly/react-core/dist/*/deprecated/**',
+              ],
+              message:
+                'Use the PatternFly 6 component; the deprecated entry point is not used.',
+            },
           ],
         },
       ],
@@ -169,9 +184,12 @@ export default defineConfig([
     },
   },
   {
+    // The barrel list has its own rule name: a block that sets the options of
+    // no-restricted-imports would replace the PatternFly list above for every
+    // file under src.
     files: ['src/**/**/*.{js,jsx,ts,tsx}'],
     rules: {
-      'no-restricted-imports': [
+      '@typescript-eslint/no-restricted-imports': [
         'warn',
         {
           paths: [

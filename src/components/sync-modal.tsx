@@ -1,6 +1,5 @@
 import { t } from '@lingui/core/macro';
 import {
-  Alert,
   Button,
   FormGroup,
   FormSelect,
@@ -13,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { useEffect, useId, useState } from 'react';
 import { Link } from 'react-router';
-import { FormFieldHelper, HelpButton, Spinner } from 'src/components';
+import { Alert, FormFieldHelper, HelpButton, Spinner } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import {

@@ -1,13 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
-  Alert,
   Content,
   FormGroup,
   Label,
   List,
   ListItem,
-  Spinner,
   TextInput,
 } from '@patternfly/react-core';
 import { useEffect, useState } from 'react';
@@ -28,6 +26,7 @@ import {
 } from '../utilities/repository-distributions';
 import { DeleteModal } from './delete-modal';
 import { DistributionURL } from './distribution-url';
+import { Alert, Spinner } from './patternfly-wrappers/l10n';
 
 interface IProps {
   closeAction: () => void;
