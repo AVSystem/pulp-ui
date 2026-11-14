@@ -12,6 +12,16 @@ import pkg from './package.json' with { type: 'json' };
 const RESPONSE_MESSAGE =
   'A failed request may have no response (network error, CORS failure). Read the status and text through requestErrorStatus, requestErrorText or requestErrorDescription instead of destructuring the response.';
 
+// Colors come from src/theme/tokens.scss only. A literal color, a PatternFly
+// palette, dark or temporary variable and a PatternFly 5 name in a component
+// escape the theme swap and the contrast checks.
+const COLOR_MESSAGE =
+  'Colors come from src/theme/tokens.scss only: use a --pulp-* token or a PatternFly 6 semantic token, and a PatternFly 6 component or class map instead of a hand-written class.';
+const COLOR_LITERAL = String.raw`/#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix)\(|--pf-t--color--|--pf-t--global--dark--|--pf-t--temp--|pf-v5-/`;
+const COLOR_PROPS =
+  '/^(color|background|backgroundColor|borderColor|border|borderTop|borderBottom|borderLeft|borderRight|outline|outlineColor|fill|stroke|boxShadow|textDecorationColor|caretColor)$/';
+const SAFE_VALUE = String.raw`/^(var\(--(pulp|pf-t--global)-|inherit$|transparent$|currentColor$|initial$|unset$|none$|0$)/i`;
+
 export default defineConfig([
   jsEslint.configs.recommended,
   tsEslint.configs.recommended,
@@ -142,6 +152,18 @@ export default defineConfig([
           selector:
             ":function > ObjectPattern.params > Property[key.name='response'][value.type='ObjectPattern']",
           message: RESPONSE_MESSAGE,
+        },
+        {
+          selector: `Literal[value=${COLOR_LITERAL}]`,
+          message: COLOR_MESSAGE,
+        },
+        {
+          selector: `TemplateElement[value.raw=${COLOR_LITERAL}]`,
+          message: COLOR_MESSAGE,
+        },
+        {
+          selector: `JSXAttribute[name.name='style'] Property[key.name=${COLOR_PROPS}] > Literal[value!=${SAFE_VALUE}]`,
+          message: COLOR_MESSAGE,
         },
       ],
     },

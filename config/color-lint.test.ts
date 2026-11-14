@@ -4,9 +4,10 @@
 // PatternFly palette and numeric-tier variables and PatternFly 5 names in every
 // stylesheet and component, and leaves src/theme/tokens.scss as the one file
 // that may hold them.
+import { ESLint } from 'eslint';
 import { resolve } from 'node:path';
 import stylelint from 'stylelint';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const CONFIG = resolve(ROOT, '.stylelintrc.json');
@@ -92,5 +93,112 @@ describe('stylelint color rules', () => {
   it('still applies the other stylesheet rules', async () => {
     const found = await problems('.a { --Bad_Name: 1px; }');
     expect(found.map((w) => w.rule)).toContain('custom-property-pattern');
+  });
+});
+
+describe('eslint color rules', () => {
+  let eslint: ESLint;
+
+  beforeAll(() => {
+    eslint = new ESLint({ cwd: ROOT });
+  });
+
+  // The color-rule messages the configuration reports for the given source,
+  // linted as if it lived at the given path under the repository root.
+  async function reports(source: string, path = 'src/containers/page.tsx') {
+    const [result] = await eslint.lintText(source, {
+      filePath: resolve(ROOT, path),
+    });
+    return result.messages.filter(
+      (message) =>
+        message.ruleId === 'no-restricted-syntax' &&
+        /tokens\.scss/.test(message.message),
+    );
+  }
+
+  const rejected: [string, string][] = [
+    ['a hex color string', "export const c = '#ff0000';"],
+    [
+      'a hex color in a style',
+      "export const a = <div style={{ color: '#fff' }} />;",
+    ],
+    [
+      'a named color in a style',
+      "export const a = <div style={{ color: 'red' }} />;",
+    ],
+    [
+      'rgba() in a box shadow',
+      "export const a = <div style={{ boxShadow: '0 0 2px rgba(0, 0, 0, 0.2)' }} />;",
+    ],
+    [
+      'a palette variable in a style',
+      "export const a = <div style={{ color: 'var(--pf-t--color--blue--40)' }} />;",
+    ],
+    [
+      'a dark variable in a string',
+      "export const c = 'var(--pf-t--global--dark--background--color--100)';",
+    ],
+    [
+      'a PatternFly 5 class string',
+      "export const a = <div className='pf-v5-c-title' />;",
+    ],
+    [
+      'a template literal with the PatternFly 5 prefix',
+      'export const c = (x: string) => `pf-v5-c-${x}`;',
+    ],
+  ];
+
+  it.each(rejected)('reports %s', async (_name, source) => {
+    const found = await reports(source);
+    expect(found.length).toBeGreaterThan(0);
+    expect(found[0].message).toMatch(/--pulp-/);
+  });
+
+  const accepted: [string, string][] = [
+    [
+      'a Pulp token in a style',
+      "export const a = <div style={{ color: 'var(--pulp-text)' }} />;",
+    ],
+    [
+      'a semantic token in a style',
+      "export const a = <div style={{ background: 'var(--pf-t--global--background--color--primary--default)' }} />;",
+    ],
+    [
+      'inherit and a unitless number',
+      "export const a = <div style={{ color: 'inherit', flexGrow: 1 }} />;",
+    ],
+    [
+      'transparent and currentColor',
+      "export const a = <div style={{ background: 'transparent', borderColor: 'currentColor' }} />;",
+    ],
+    [
+      'a PatternFly 6 class string',
+      "export const a = <div className='pf-v6-c-title' />;",
+    ],
+  ];
+
+  it.each(accepted)('accepts %s', async (_name, source) => {
+    expect(await reports(source)).toEqual([]);
+  });
+
+  it('reports a color in a test file as well', async () => {
+    const found = await reports(
+      "export const c = '.pf-v5-c-spinner';",
+      'src/components/x.test.tsx',
+    );
+    expect(found.length).toBeGreaterThan(0);
+  });
+
+  it('keeps the response guard in force next to the color rules', async () => {
+    const [result] = await eslint.lintText(
+      'export const f = (api) => api.get().catch((e) => { const { status } = e.response; return status; });',
+      { filePath: resolve(ROOT, 'src/containers/page.tsx') },
+    );
+    const guard = result.messages.filter(
+      (message) =>
+        message.ruleId === 'no-restricted-syntax' &&
+        /requestErrorStatus/.test(message.message),
+    );
+    expect(guard).toHaveLength(1);
   });
 });
