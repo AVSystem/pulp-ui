@@ -13,11 +13,14 @@ import {
   FormSelectOption,
   InputGroup,
   InputGroupItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Switch,
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import formStyles from '@patternfly/react-styles/css/components/Form/form.mjs';
@@ -36,6 +39,9 @@ import {
   downloadString,
   validateURLHelper,
 } from 'src/utilities';
+
+// Names the dialog by its visible title.
+const REMOTE_MODAL_TITLE_ID = 'remote-form-modal-title';
 
 // Plugins whose remotes offer a download policy in this form. Ansible
 // collection remotes accept only immediate, and container registries have no
@@ -246,13 +252,24 @@ export class RemoteForm extends Component<IProps, IState> {
 
     return (
       <Modal
+        aria-labelledby={REMOTE_MODAL_TITLE_ID}
         isOpen={showModal}
-        title={title || t`Edit remote`}
         variant='small'
         onClose={() => closeModal()}
-        actions={[save, cancel]}
       >
-        {this.renderForm(requiredFields, disabledFields, { isCommunityRemote })}
+        <ModalHeader
+          labelId={REMOTE_MODAL_TITLE_ID}
+          title={title || t`Edit remote`}
+        />
+        <ModalBody>
+          {this.renderForm(requiredFields, disabledFields, {
+            isCommunityRemote,
+          })}
+        </ModalBody>
+        <ModalFooter>
+          {save}
+          {cancel}
+        </ModalFooter>
       </Modal>
     );
   }

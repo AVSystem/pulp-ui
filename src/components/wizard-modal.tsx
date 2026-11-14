@@ -1,6 +1,10 @@
 import { t } from '@lingui/core/macro';
-import { Wizard, WizardHeader, WizardStep } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Modal,
+  Wizard,
+  WizardHeader,
+  WizardStep,
+} from '@patternfly/react-core';
 import { type ReactNode } from 'react';
 
 interface IProps {
@@ -23,14 +27,7 @@ export const WizardModal = ({ onClose, onSave, steps, title }: IProps) => {
   };
 
   return (
-    <Modal
-      aria-label={title}
-      hasNoBodyWrapper
-      isOpen
-      onEscapePress={onClose}
-      showClose={false}
-      variant={ModalVariant.large}
-    >
+    <Modal aria-label={title} isOpen onEscapePress={onClose} variant='large'>
       <Wizard
         header={
           <WizardHeader

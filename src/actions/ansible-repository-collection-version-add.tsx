@@ -1,8 +1,14 @@
 import { msg, plural, t } from '@lingui/core/macro';
-import { Button, Checkbox } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Checkbox,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from '@patternfly/react-core';
 import { Td, Tr } from '@patternfly/react-table';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import {
   type AnsibleCollectionVersion,
@@ -83,6 +89,7 @@ const AddCollectionVersionModal = ({
   addAction: (selected) => Promise<void>;
   closeAction: () => void;
 }) => {
+  const labelId = useId();
   const [alerts, setAlerts] = useState([]);
   // set while the add request runs, so a second click cannot send it again
   const [pending, setPending] = useState(false);
@@ -131,7 +138,67 @@ const AddCollectionVersionModal = ({
 
   return (
     <Modal
-      actions={[
+      aria-labelledby={labelId}
+      isOpen
+      onClose={closeAction}
+      variant='large'
+    >
+      <ModalHeader labelId={labelId} title={t`Select a collection`} />
+      <ModalBody>
+        <section className='modal-body' data-cy='modal-body'>
+          <DetailList<AnsibleCollectionVersion>
+            actionContext={{
+              addAlert,
+              state: modalState,
+              setState: setModalState,
+              query,
+              hasPermission: () => {
+                throw 'unused';
+              },
+            }}
+            defaultPageSize={10}
+            errorTitle={t`Collection versions could not be displayed.`}
+            filterConfig={[
+              {
+                id: 'namespace',
+                title: t`Namespace`,
+              },
+              {
+                id: 'name',
+                title: t`Name`,
+              },
+            ]}
+            noDataDescription={t`Collection versions will appear once a collection is uploaded.`}
+            noDataTitle={t`No collection versions yet`}
+            query={query}
+            renderTableRow={renderTableRow}
+            sortHeaders={[
+              {
+                title: '',
+                type: 'none',
+                id: 'radio',
+              },
+              {
+                title: t`Collection`,
+                type: 'none',
+                id: 'col1',
+              },
+              {
+                title: t`Description`,
+                type: 'none',
+                id: 'col2',
+              },
+            ]}
+            title={t`Collection versions`}
+          />
+        </section>
+
+        <AlertList
+          alerts={alerts}
+          closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+        />
+      </ModalBody>
+      <ModalFooter>
         <Button
           key='confirm'
           onClick={() => {
@@ -143,68 +210,11 @@ const AddCollectionVersionModal = ({
           isLoading={pending}
         >
           {t`Select`}
-        </Button>,
+        </Button>
         <Button key='cancel' onClick={closeAction} variant='link'>
           {t`Cancel`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={closeAction}
-      title={t`Select a collection`}
-      variant='large'
-    >
-      <section className='modal-body' data-cy='modal-body'>
-        <DetailList<AnsibleCollectionVersion>
-          actionContext={{
-            addAlert,
-            state: modalState,
-            setState: setModalState,
-            query,
-            hasPermission: () => {
-              throw 'unused';
-            },
-          }}
-          defaultPageSize={10}
-          errorTitle={t`Collection versions could not be displayed.`}
-          filterConfig={[
-            {
-              id: 'namespace',
-              title: t`Namespace`,
-            },
-            {
-              id: 'name',
-              title: t`Name`,
-            },
-          ]}
-          noDataDescription={t`Collection versions will appear once a collection is uploaded.`}
-          noDataTitle={t`No collection versions yet`}
-          query={query}
-          renderTableRow={renderTableRow}
-          sortHeaders={[
-            {
-              title: '',
-              type: 'none',
-              id: 'radio',
-            },
-            {
-              title: t`Collection`,
-              type: 'none',
-              id: 'col1',
-            },
-            {
-              title: t`Description`,
-              type: 'none',
-              id: 'col2',
-            },
-          ]}
-          title={t`Collection versions`}
-        />
-      </section>
-
-      <AlertList
-        alerts={alerts}
-        closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
-      />
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

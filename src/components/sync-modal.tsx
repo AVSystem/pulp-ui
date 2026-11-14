@@ -5,10 +5,13 @@ import {
   FormGroup,
   FormSelect,
   FormSelectOption,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Switch,
 } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Link } from 'react-router';
 import { FormFieldHelper, HelpButton, Spinner } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
@@ -61,6 +64,7 @@ export const SyncModal = ({
   syncAction,
   name,
 }: IProps) => {
+  const labelId = useId();
   const [pending, setPending] = useState(false);
   const [syncParams, setSyncParams] = useState({
     mirror: defaultMirror,
@@ -115,7 +119,89 @@ export const SyncModal = ({
 
   return (
     <Modal
-      actions={[
+      aria-labelledby={labelId}
+      isOpen
+      onClose={closeAction}
+      variant='medium'
+    >
+      <ModalHeader labelId={labelId} title={t`Sync repository "${name}"`} />
+      <ModalBody>
+        {found && <RunningTaskAlert task={found} />}
+        {check.status === 'failed' && (
+          <Alert
+            isInline
+            title={t`Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish.`}
+            variant='info'
+          />
+        )}
+        {syncPolicies ? (
+          <FormGroup
+            label={t`Sync policy`}
+            fieldId='sync_policy'
+            labelHelp={
+              <HelpButton
+                content={t`Additive keeps everything already in the repository. Mirror content only removes what the remote no longer has. Mirror complete also reproduces the remote's metadata exactly, which kickstart trees need.`}
+              />
+            }
+          >
+            <FormSelect
+              id='sync_policy'
+              value={syncParams.sync_policy}
+              onChange={(_event, sync_policy) =>
+                setSyncParams({ ...syncParams, sync_policy })
+              }
+            >
+              {syncPolicies.map(({ id, label }) => (
+                <FormSelectOption key={id} value={id} label={label} />
+              ))}
+            </FormSelect>
+          </FormGroup>
+        ) : (
+          <FormGroup
+            label={t`Mirror`}
+            labelHelp={
+              <HelpButton
+                content={t`If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content.`}
+              />
+            }
+          >
+            <Switch
+              isChecked={syncParams.mirror && !mirrorLockedReason}
+              isDisabled={!!mirrorLockedReason}
+              onChange={(_event, mirror) =>
+                setSyncParams({ ...syncParams, mirror })
+              }
+              label={t`Content not present in remote repository will be removed from the local repository`}
+            />
+            {mirrorLockedReason && (
+              <FormFieldHelper>{mirrorLockedReason}</FormFieldHelper>
+            )}
+          </FormGroup>
+        )}
+        <br />
+        {showOptimize && (
+          <>
+            <FormGroup
+              label={t`Optimize`}
+              labelHelp={
+                <HelpButton
+                  content={t`Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option.`}
+                />
+              }
+            >
+              <Switch
+                isChecked={syncParams.optimize}
+                onChange={(_event, optimize) =>
+                  setSyncParams({ ...syncParams, optimize })
+                }
+                label={t`Only perform the sync if changes are reported by the remote server.`}
+              />
+            </FormGroup>
+            <br />
+          </>
+        )}
+      </ModalBody>
+      <ModalFooter>
         <div data-cy='sync-button' key='sync'>
           <Button
             key='sync'
@@ -135,90 +221,11 @@ export const SyncModal = ({
             {t`Sync`}
             {pending && <Spinner size='sm' />}
           </Button>
-        </div>,
+        </div>
         <Button key='close' onClick={closeAction} variant='link'>
           {t`Close`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={closeAction}
-      title={t`Sync repository "${name}"`}
-      variant='medium'
-    >
-      {found && <RunningTaskAlert task={found} />}
-      {check.status === 'failed' && (
-        <Alert
-          isInline
-          title={t`Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish.`}
-          variant='info'
-        />
-      )}
-      {syncPolicies ? (
-        <FormGroup
-          label={t`Sync policy`}
-          fieldId='sync_policy'
-          labelHelp={
-            <HelpButton
-              content={t`Additive keeps everything already in the repository. Mirror content only removes what the remote no longer has. Mirror complete also reproduces the remote's metadata exactly, which kickstart trees need.`}
-            />
-          }
-        >
-          <FormSelect
-            id='sync_policy'
-            value={syncParams.sync_policy}
-            onChange={(_event, sync_policy) =>
-              setSyncParams({ ...syncParams, sync_policy })
-            }
-          >
-            {syncPolicies.map(({ id, label }) => (
-              <FormSelectOption key={id} value={id} label={label} />
-            ))}
-          </FormSelect>
-        </FormGroup>
-      ) : (
-        <FormGroup
-          label={t`Mirror`}
-          labelHelp={
-            <HelpButton
-              content={t`If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content.`}
-            />
-          }
-        >
-          <Switch
-            isChecked={syncParams.mirror && !mirrorLockedReason}
-            isDisabled={!!mirrorLockedReason}
-            onChange={(_event, mirror) =>
-              setSyncParams({ ...syncParams, mirror })
-            }
-            label={t`Content not present in remote repository will be removed from the local repository`}
-          />
-          {mirrorLockedReason && (
-            <FormFieldHelper>{mirrorLockedReason}</FormFieldHelper>
-          )}
-        </FormGroup>
-      )}
-      <br />
-      {showOptimize && (
-        <>
-          <FormGroup
-            label={t`Optimize`}
-            labelHelp={
-              <HelpButton
-                content={t`Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option.`}
-              />
-            }
-          >
-            <Switch
-              isChecked={syncParams.optimize}
-              onChange={(_event, optimize) =>
-                setSyncParams({ ...syncParams, optimize })
-              }
-              label={t`Only perform the sync if changes are reported by the remote server.`}
-            />
-          </FormGroup>
-          <br />
-        </>
-      )}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

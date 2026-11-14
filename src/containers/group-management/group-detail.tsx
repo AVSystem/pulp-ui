@@ -4,12 +4,15 @@ import {
   Button,
   Content,
   DropdownItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Navigate } from 'react-router';
@@ -54,6 +57,9 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import GroupDetailRoleManagement from './group-detail-role-management/group-detail-role-management';
+
+// Names the add-users dialog by its visible title.
+const ADD_USER_MODAL_TITLE_ID = 'add-user-modal-title';
 
 interface IState {
   addModalVisible: boolean;
@@ -315,12 +321,81 @@ class GroupDetail extends Component<RouteProps, IState> {
         variant='large'
         onClose={close}
         isOpen
-        aria-label={t`add-user-modal`}
-        title={''}
-        header={
-          <Content component='h2'>{t`Add selected users to group`}</Content>
-        }
-        actions={[
+        aria-labelledby={ADD_USER_MODAL_TITLE_ID}
+      >
+        <ModalHeader
+          labelId={ADD_USER_MODAL_TITLE_ID}
+          title={t`Add selected users to group`}
+        />
+        <ModalBody>
+          <Typeahead
+            results={this.state.options}
+            loadResults={(name) =>
+              UserAPI.list({ username__contains: name, page_size: 1000 })
+                .then((result) => {
+                  let filteredUsers = [];
+                  result.data.data.forEach((user) => {
+                    filteredUsers.push({
+                      id: user.id,
+                      name: user.username,
+                    });
+                  });
+                  filteredUsers = filteredUsers.filter(
+                    (x) =>
+                      !this.state.selected.find((s) => s.name === x.name) &&
+                      !this.state.users.find((u) => u.id === x.id),
+                  );
+                  this.setState({
+                    options: filteredUsers,
+                  });
+                })
+                .catch((e) => {
+                  this.addAlert(
+                    t`Users list could not be displayed.`,
+                    'danger',
+                    requestErrorDescription(e),
+                  );
+                })
+            }
+            onSelect={(event, selection) => {
+              const selectedUser = this.state.options.find(
+                (x) => x.name === selection,
+              );
+              if (selectedUser) {
+                const newOptions = this.state.options.filter(
+                  (x) => x.name !== selection,
+                );
+                this.setState({
+                  selected: [...this.state.selected, selectedUser],
+                  options: newOptions,
+                });
+              } else {
+                const deselectedUser = this.state.selected.find(
+                  (x) => x.name === selection,
+                );
+                const newSelected = this.state.selected.filter(
+                  (x) => x.name !== selection,
+                );
+                this.setState({
+                  selected: newSelected,
+                  options: [...this.state.options, deselectedUser],
+                });
+              }
+            }}
+            placeholderText={t`Select users`}
+            selections={this.state.selected}
+            menuAppendTo={'parent'}
+            multiple
+            onClear={() =>
+              this.setState({
+                selected: [],
+                options: [...this.state.options, ...this.state.selected],
+              })
+            }
+            style={{ overflowY: 'auto', maxHeight: '350px' }}
+          />
+        </ModalBody>
+        <ModalFooter>
           <Button
             key='add'
             variant='primary'
@@ -332,78 +407,11 @@ class GroupDetail extends Component<RouteProps, IState> {
             }
           >
             {t`Add`}
-          </Button>,
+          </Button>
           <Button key='cancel' variant='link' onClick={close}>
             {t`Cancel`}
-          </Button>,
-        ]}
-      >
-        <Typeahead
-          results={this.state.options}
-          loadResults={(name) =>
-            UserAPI.list({ username__contains: name, page_size: 1000 })
-              .then((result) => {
-                let filteredUsers = [];
-                result.data.data.forEach((user) => {
-                  filteredUsers.push({
-                    id: user.id,
-                    name: user.username,
-                  });
-                });
-                filteredUsers = filteredUsers.filter(
-                  (x) =>
-                    !this.state.selected.find((s) => s.name === x.name) &&
-                    !this.state.users.find((u) => u.id === x.id),
-                );
-                this.setState({
-                  options: filteredUsers,
-                });
-              })
-              .catch((e) => {
-                this.addAlert(
-                  t`Users list could not be displayed.`,
-                  'danger',
-                  requestErrorDescription(e),
-                );
-              })
-          }
-          onSelect={(event, selection) => {
-            const selectedUser = this.state.options.find(
-              (x) => x.name === selection,
-            );
-            if (selectedUser) {
-              const newOptions = this.state.options.filter(
-                (x) => x.name !== selection,
-              );
-              this.setState({
-                selected: [...this.state.selected, selectedUser],
-                options: newOptions,
-              });
-            } else {
-              const deselectedUser = this.state.selected.find(
-                (x) => x.name === selection,
-              );
-              const newSelected = this.state.selected.filter(
-                (x) => x.name !== selection,
-              );
-              this.setState({
-                selected: newSelected,
-                options: [...this.state.options, deselectedUser],
-              });
-            }
-          }}
-          placeholderText={t`Select users`}
-          selections={this.state.selected}
-          menuAppendTo={'parent'}
-          multiple
-          onClear={() =>
-            this.setState({
-              selected: [],
-              options: [...this.state.options, ...this.state.selected],
-            })
-          }
-          style={{ overflowY: 'auto', maxHeight: '350px' }}
-        />
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   }

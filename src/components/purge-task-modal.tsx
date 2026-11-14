@@ -5,8 +5,12 @@ import {
   DatePicker,
   Form,
   FormGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
 } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import { useId } from 'react';
 import { Alert } from 'src/components';
 
 interface IProps {
@@ -18,10 +22,142 @@ interface IProps {
 
 export const PurgeTaskModal = (props: IProps) => {
   const { cancelAction, confirmAction, taskValue, updateTask } = props;
+  const labelId = useId();
+  const descriptorId = useId();
 
   return (
     <Modal
-      actions={[
+      aria-describedby={descriptorId}
+      aria-labelledby={labelId}
+      isOpen
+      onClose={cancelAction}
+      variant='medium'
+    >
+      <ModalHeader
+        description={t`Trigger an asynchronous task that deletes completed tasks that finished prior to a specified timestamp.`}
+        descriptorId={descriptorId}
+        labelId={labelId}
+        title={t`Purge task`}
+        titleIconVariant='info'
+      />
+      <ModalBody>
+        <Form>
+          <FormGroup fieldId={'finished_before'} label={t`Finished before:`}>
+            <DatePicker
+              appendTo={document.body}
+              validators={[
+                (value: Date) => {
+                  const today = new Date();
+                  //do not allow dates after today
+                  if (value > today) {
+                    return t`Latest allowed date is today.`;
+                  }
+                  return null;
+                },
+              ]}
+              value={taskValue.finished_before}
+              onChange={(_, value) =>
+                updateTask({ ...taskValue, finished_before: value })
+              }
+            />
+          </FormGroup>
+          <FormGroup fieldId={'states'} label={t`States:`}>
+            {taskValue.states.length === 0 && (
+              <Alert
+                variant='danger'
+                isInline
+                title={t`At least one state has to be selected.`}
+                ouiaId='DangerAlert'
+              />
+            )}
+            <Checkbox
+              id={'completed'}
+              isChecked={taskValue.states.includes('completed')}
+              onChange={(_, value) => {
+                if (value) {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.concat(['completed']),
+                  });
+                } else {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.filter(
+                      (state) => state !== 'completed',
+                    ),
+                  });
+                }
+              }}
+              label={t`Completed`}
+            />{' '}
+            <br />
+            <Checkbox
+              id={'skipped'}
+              isChecked={taskValue.states.includes('skipped')}
+              onChange={(_, value) => {
+                if (value) {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.concat(['skipped']),
+                  });
+                } else {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.filter(
+                      (state) => state !== 'skipped',
+                    ),
+                  });
+                }
+              }}
+              label={t`Skipped`}
+            />
+            <br />
+            <Checkbox
+              id={'failed'}
+              isChecked={taskValue.states.includes('failed')}
+              onChange={(_, value) => {
+                if (value) {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.concat(['failed']),
+                  });
+                } else {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.filter(
+                      (state) => state !== 'failed',
+                    ),
+                  });
+                }
+              }}
+              label={t`Failed`}
+            />
+            <br />
+            <Checkbox
+              id={'canceled'}
+              isChecked={taskValue.states.includes('canceled')}
+              onChange={(_, value) => {
+                if (value) {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.concat(['canceled']),
+                  });
+                } else {
+                  updateTask({
+                    ...taskValue,
+                    states: taskValue.states.filter(
+                      (state) => state !== 'canceled',
+                    ),
+                  });
+                }
+              }}
+              label={t`Canceled`}
+            />
+            <br />
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
         <Button
           key='confirm'
           onClick={confirmAction}
@@ -29,133 +165,11 @@ export const PurgeTaskModal = (props: IProps) => {
           isDisabled={taskValue.states.length === 0}
         >
           {t`Yes`}
-        </Button>,
+        </Button>
         <Button key='cancel' onClick={cancelAction} variant='link'>
           {t`Cancel`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={cancelAction}
-      title={t`Purge task`}
-      titleIconVariant='info'
-      variant='medium'
-      description={t`Trigger an asynchronous task that deletes completed tasks that finished prior to a specified timestamp.`}
-    >
-      <Form>
-        <FormGroup fieldId={'finished_before'} label={t`Finished before:`}>
-          <DatePicker
-            appendTo={document.body}
-            validators={[
-              (value: Date) => {
-                const today = new Date();
-                //do not allow dates after today
-                if (value > today) {
-                  return t`Latest allowed date is today.`;
-                }
-                return null;
-              },
-            ]}
-            value={taskValue.finished_before}
-            onChange={(_, value) =>
-              updateTask({ ...taskValue, finished_before: value })
-            }
-          />
-        </FormGroup>
-        <FormGroup fieldId={'states'} label={t`States:`}>
-          {taskValue.states.length === 0 && (
-            <Alert
-              variant='danger'
-              isInline
-              title={t`At least one state has to be selected.`}
-              ouiaId='DangerAlert'
-            />
-          )}
-          <Checkbox
-            id={'completed'}
-            isChecked={taskValue.states.includes('completed')}
-            onChange={(_, value) => {
-              if (value) {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.concat(['completed']),
-                });
-              } else {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.filter(
-                    (state) => state !== 'completed',
-                  ),
-                });
-              }
-            }}
-            label={t`Completed`}
-          />{' '}
-          <br />
-          <Checkbox
-            id={'skipped'}
-            isChecked={taskValue.states.includes('skipped')}
-            onChange={(_, value) => {
-              if (value) {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.concat(['skipped']),
-                });
-              } else {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.filter(
-                    (state) => state !== 'skipped',
-                  ),
-                });
-              }
-            }}
-            label={t`Skipped`}
-          />
-          <br />
-          <Checkbox
-            id={'failed'}
-            isChecked={taskValue.states.includes('failed')}
-            onChange={(_, value) => {
-              if (value) {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.concat(['failed']),
-                });
-              } else {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.filter(
-                    (state) => state !== 'failed',
-                  ),
-                });
-              }
-            }}
-            label={t`Failed`}
-          />
-          <br />
-          <Checkbox
-            id={'canceled'}
-            isChecked={taskValue.states.includes('canceled')}
-            onChange={(_, value) => {
-              if (value) {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.concat(['canceled']),
-                });
-              } else {
-                updateTask({
-                  ...taskValue,
-                  states: taskValue.states.filter(
-                    (state) => state !== 'canceled',
-                  ),
-                });
-              }
-            }}
-            label={t`Canceled`}
-          />
-          <br />
-        </FormGroup>
-      </Form>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };
