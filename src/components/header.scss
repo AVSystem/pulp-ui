@@ -24,11 +24,6 @@ $breakpoint-md: 1000px;
     flex-grow: 0;
   }
 
-  // Tabs isDisabled
-  .pf-v6-c-tabs__item.disabled .pf-v6-c-tabs__link {
-    cursor: not-allowed;
-  }
-
   .links {
     flex-grow: 1;
     display: flex;
