@@ -12,7 +12,7 @@ import {
 
 const loginForm = '#pf-login-username-id';
 const userMenu = '[data-cy=user-dropdown]';
-const loginMenuItem = '[data-cy=pulp-menu-item-Login]';
+const loginMenuItem = '[data-cy=pulp-menu-item-login]';
 
 // The first test runs on the shared session of the admin account that the setup
 // project saved. Every test after it starts from a context of its own: tests

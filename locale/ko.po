@@ -345,13 +345,13 @@ msgid "About"
 msgstr "정보"
 
 #: src/containers/about-project.tsx
-#: src/menu.tsx
 msgid "About project"
 msgstr ""
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/menu.tsx
 msgid "Access"
 msgstr "액세스"
 
@@ -1381,7 +1381,6 @@ msgstr "컬렉션을 수정하면 컬렉션 버전이 표시됩니다."
 #~ msgstr "ID인 컬렉션 {0}을/를 찾을 수 없음."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Collections"
 msgstr "컬렉션"
 
@@ -1532,13 +1531,12 @@ msgstr "자세한 내용은 조직 관리자에게 문의하십시오."
 #~ msgstr "컨테이너 리포지터리 이름"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Containers"
 msgstr "Containers"
 
-#: src/containers/collection-detail/collection-content.tsx
-#~ msgid "Content"
-#~ msgstr "콘텐츠"
+#: src/menu.tsx
+msgid "Content"
+msgstr "콘텐츠"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1650,6 +1648,7 @@ msgstr ""
 #~ msgstr "가져오기 로그를 로드할 수 없음"
 
 #: src/app-routes.tsx
+#: src/menu.tsx
 msgid "Could not read the installed plugins"
 msgstr ""
 
@@ -3098,6 +3097,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/menu.tsx
 msgid "File"
 msgstr ""
 
@@ -4122,7 +4122,6 @@ msgstr "네임스페이스"
 #~ msgstr "Namespace successfully edited."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Namespaces"
 msgstr "네임스페이스"
 
@@ -4603,6 +4602,10 @@ msgstr ""
 msgid "Open navigation"
 msgstr ""
 
+#: src/menu.tsx
+msgid "Operations"
+msgstr ""
+
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
 #~ msgstr "Ansible Lightspeed 선택"
@@ -4719,8 +4722,11 @@ msgstr ""
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/menu.tsx
 msgid "Packages"
+msgstr ""
+
+#: src/menu.tsx
+msgid "Packages and artifacts"
 msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
@@ -5492,7 +5498,6 @@ msgid "Remote name"
 msgstr "원격 이름"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Remote registries"
 msgstr ""
 
@@ -6068,8 +6073,8 @@ msgid "RPM prune packages"
 msgstr ""
 
 #: src/menu.tsx
-msgid "RPMs"
-msgstr ""
+#~ msgid "RPMs"
+#~ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
@@ -6145,7 +6150,6 @@ msgstr ""
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Search"
 msgstr ""
 
@@ -6458,7 +6462,6 @@ msgstr ""
 #~ msgstr "서명"
 
 #: src/containers/signature-keys/list.tsx
-#: src/menu.tsx
 msgid "Signature keys"
 msgstr "서명 키"
 
@@ -6507,6 +6510,10 @@ msgstr "서명 키가 생성된 후 표시됩니다."
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signing service selector:"
 #~ msgstr "서비스 선택기에 서명합니다:"
+
+#: src/menu.tsx
+msgid "Signing services"
+msgstr ""
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6627,7 +6634,6 @@ msgstr ""
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Status"
 msgstr "상태"
 
@@ -6966,7 +6972,6 @@ msgstr "작업 목록"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Task management"
 msgstr "작업 관리"
 
@@ -6983,6 +6988,10 @@ msgstr "작업 이름"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Task to change tag \"{0}\" could not be completed."
 #~ msgstr "\"{0}\" 태그를 변경하는 작업을 완료할 수 없습니다."
+
+#: src/menu.tsx
+msgid "Tasks"
+msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7884,8 +7893,8 @@ msgstr "사용자 <0>{username}</0>이/가 그룹 <1>{groupname}</1>에서 삭�
 #~ msgstr "User <0>{username}</0> will be removed from group<1>{groupname}</1>."
 
 #: src/menu.tsx
-msgid "User access"
-msgstr ""
+#~ msgid "User access"
+#~ msgstr ""
 
 #: src/menu.tsx
 #~ msgid "User Access"
@@ -7947,6 +7956,10 @@ msgstr ""
 #: src/menu.tsx
 msgid "Users"
 msgstr "사용자"
+
+#: src/menu.tsx
+msgid "Users and groups"
+msgstr ""
 
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
@@ -8199,6 +8212,10 @@ msgstr ""
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Wisdom settings"
 #~ msgstr "Wisdom settings"
+
+#: src/menu.tsx
+msgid "Workers and status"
+msgstr ""
 
 #: src/components/ratings.tsx
 #~ msgid "Works without change"

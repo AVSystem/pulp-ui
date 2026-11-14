@@ -346,13 +346,13 @@ msgid "About"
 msgstr "About"
 
 #: src/containers/about-project.tsx
-#: src/menu.tsx
 msgid "About project"
 msgstr "About project"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/menu.tsx
 msgid "Access"
 msgstr "Access"
 
@@ -1382,7 +1382,6 @@ msgstr "Collection versions will appear once the collection is modified."
 #~ msgstr "Collection with id {0} not found."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Collections"
 msgstr "Collections"
 
@@ -1533,13 +1532,12 @@ msgstr "Contact your organization administrator for more information."
 #~ msgstr "Container repository name"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Containers"
 msgstr "Containers"
 
-#: src/containers/collection-detail/collection-content.tsx
-#~ msgid "Content"
-#~ msgstr "Content"
+#: src/menu.tsx
+msgid "Content"
+msgstr "Content"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1651,6 +1649,7 @@ msgstr "Could not check whether the name and base path are free: {reason}. Nothi
 #~ msgstr "Could not load import log"
 
 #: src/app-routes.tsx
+#: src/menu.tsx
 msgid "Could not read the installed plugins"
 msgstr "Could not read the installed plugins"
 
@@ -3099,6 +3098,7 @@ msgstr "Fall back to defaults"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/menu.tsx
 msgid "File"
 msgstr "File"
 
@@ -4123,7 +4123,6 @@ msgstr "Namespace"
 #~ msgstr "Namespace successfully edited."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Namespaces"
 msgstr "Namespaces"
 
@@ -4604,6 +4603,10 @@ msgstr "Only perform the sync if changes are reported by the remote server. To f
 msgid "Open navigation"
 msgstr "Open navigation"
 
+#: src/menu.tsx
+msgid "Operations"
+msgstr "Operations"
+
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
 #~ msgstr "Opt in to Ansible Lightspeed"
@@ -4720,9 +4723,12 @@ msgstr "Package types to sync. Leave all unticked to sync every type."
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/menu.tsx
 msgid "Packages"
 msgstr "Packages"
+
+#: src/menu.tsx
+msgid "Packages and artifacts"
+msgstr "Packages and artifacts"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
@@ -5493,7 +5499,6 @@ msgid "Remote name"
 msgstr "Remote name"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Remote registries"
 msgstr "Remote registries"
 
@@ -6069,8 +6074,8 @@ msgid "RPM prune packages"
 msgstr "RPM prune packages"
 
 #: src/menu.tsx
-msgid "RPMs"
-msgstr "RPMs"
+#~ msgid "RPMs"
+#~ msgstr "RPMs"
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
@@ -6146,7 +6151,6 @@ msgstr "Scroll foward"
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Search"
 msgstr "Search"
 
@@ -6459,7 +6463,6 @@ msgstr "Sign-out did not complete"
 #~ msgstr "Signature"
 
 #: src/containers/signature-keys/list.tsx
-#: src/menu.tsx
 msgid "Signature keys"
 msgstr "Signature keys"
 
@@ -6508,6 +6511,10 @@ msgstr "Signature keys will appear once created."
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signing service selector:"
 #~ msgstr "Signing service selector:"
+
+#: src/menu.tsx
+msgid "Signing services"
+msgstr "Signing services"
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6628,7 +6635,6 @@ msgstr "States:"
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Status"
 msgstr "Status"
 
@@ -6967,7 +6973,6 @@ msgstr "Task list"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Task management"
 msgstr "Task management"
 
@@ -6984,6 +6989,10 @@ msgstr "Task name"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Task to change tag \"{0}\" could not be completed."
 #~ msgstr "Task to change tag \"{0}\" could not be completed."
+
+#: src/menu.tsx
+msgid "Tasks"
+msgstr "Tasks"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7885,8 +7894,8 @@ msgstr "User <0>{username}</0> will be removed from group <1>{groupname}</1>."
 #~ msgstr "User <0>{username}</0> will be removed from group<1>{groupname}</1>."
 
 #: src/menu.tsx
-msgid "User access"
-msgstr "User access"
+#~ msgid "User access"
+#~ msgstr "User access"
 
 #: src/menu.tsx
 #~ msgid "User Access"
@@ -7948,6 +7957,10 @@ msgstr "Username: {username}"
 #: src/menu.tsx
 msgid "Users"
 msgstr "Users"
+
+#: src/menu.tsx
+msgid "Users and groups"
+msgstr "Users and groups"
 
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
@@ -8200,6 +8213,10 @@ msgstr "Will verify that the checksum of all stored files matches what saved in 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Wisdom settings"
 #~ msgstr "Wisdom settings"
+
+#: src/menu.tsx
+msgid "Workers and status"
+msgstr "Workers and status"
 
 #: src/components/ratings.tsx
 #~ msgid "Works without change"

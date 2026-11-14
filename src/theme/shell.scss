@@ -10,6 +10,8 @@
   --pf-v6-c-page__sidebar--Width--base: 16.5rem;
   --pf-v6-c-page__sidebar--MarginInlineEnd: 0;
   --pf-v6-c-page__sidebar--PaddingBlockEnd: 0;
+  --pf-v6-c-page__sidebar-body--PaddingInlineStart: 0.5rem;
+  --pf-v6-c-page__sidebar-body--PaddingInlineEnd: 0.5rem;
   --pf-v6-c-page__sidebar--BorderInlineEndWidth: 1px;
   --pf-v6-c-page__sidebar--BorderInlineEndColor: var(--pulp-line);
   --pf-v6-c-page__sidebar--BackgroundColor: var(--pulp-nav);
@@ -142,10 +144,81 @@
   }
 }
 
-// navigation: hover is a sunken tint, the current item a blue tint
+// Navigation: 36px rows with 8px padding and radius, hover is a sunken tint and
+// the current entry a blue tint with a heavier label. Group labels are small
+// and quiet.
 :root .pf-v6-c-nav {
+  --pf-v6-c-nav--PaddingBlockStart: 0;
+  --pf-v6-c-nav--PaddingBlockEnd: 0.5rem;
+  --pf-v6-c-nav--RowGap: 0;
+  --pf-v6-c-nav__list--RowGap: 2px;
+  --pf-v6-c-nav__link--PaddingBlockStart: 0;
+  --pf-v6-c-nav__link--PaddingBlockEnd: 0;
+  --pf-v6-c-nav__link--PaddingInlineStart: 0.5rem;
+  --pf-v6-c-nav__link--PaddingInlineEnd: 0.5rem;
+  --pf-v6-c-nav__link--ColumnGap: 0.5rem;
+  --pf-v6-c-nav__link--AlignItems: center;
+  --pf-v6-c-nav__link--BorderRadius: var(--pf-t--global--border--radius--small);
+  --pf-v6-c-nav__link--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link--hover--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link--m-current--Color: var(--pulp-text);
   --pf-v6-c-nav__link--hover--BackgroundColor: var(--pulp-sunken);
   --pf-v6-c-nav__link--m-current--BackgroundColor: var(--pulp-nav-active);
+  --pf-v6-c-nav__link-icon--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link-icon--hover--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link--m-current__link-icon--Color: var(--pulp-text);
+  --pf-v6-c-nav__section-title--Color: var(--pulp-text-3);
+  --pf-v6-c-nav__section-title--FontSize: 12px;
+  --pf-v6-c-nav__section-title--FontWeight: 600;
+  --pf-v6-c-nav__section-title--PaddingBlockStart: 1rem;
+  --pf-v6-c-nav__section-title--PaddingBlockEnd: 0.25rem;
+  --pf-v6-c-nav__section-title--PaddingInlineStart: 0.5rem;
+  --pf-v6-c-nav__section-title--PaddingInlineEnd: 0.5rem;
+  // the current entry is marked by its tint, not by an accent bar
+  --pf-v6-c-nav__item--current--accent--ScaleY: 0;
+  --pf-v6-c-nav__subnav--PaddingInlineStart: 1.5rem;
+
+  .pf-v6-c-nav__link {
+    min-height: 2.25rem;
+    font-size: 14px;
+    font-weight: 400;
+
+    &:focus-visible {
+      outline: 2px solid var(--pulp-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  // the section holding the current screen reads heavier without a tint of
+  // its own: the screen inside it carries the highlight
+  .pf-v6-c-nav__item.pf-m-current > .pf-v6-c-nav__link,
+  .pf-v6-c-nav__link.pf-m-current {
+    font-weight: 600;
+  }
+
+  .pf-v6-c-nav__link-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    font-size: 16px;
+  }
+
+  .pf-v6-c-nav__link-text {
+    min-width: 0;
+  }
+
+  // the expand arrow centers on its row
+  .pf-v6-c-nav__toggle {
+    align-self: center;
+    transform: none;
+  }
+}
+
+// the plugin list could not be read: the error state sits in the menu
+:root .pulp-menu__error {
+  list-style: none;
 }
 
 // Status labels are soft chips: a tinted fill with the status color as text.

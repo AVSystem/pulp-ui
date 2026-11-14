@@ -29,7 +29,7 @@ test('after logging out in one tab, the other tab is refused by the server and r
   await logOutThroughMenu(tabA);
 
   // Tab B is not reloaded: it moves on to another list page inside the app.
-  await tabB.locator('[data-cy="pulp-menu-item-Task management"]').click();
+  await tabB.locator('[data-cy="pulp-menu-item-tasks"]').click();
 
   await expect
     .poll(() => answers, { message: 'the server refuses tab B' })

@@ -345,13 +345,13 @@ msgid "About"
 msgstr "Acerca de"
 
 #: src/containers/about-project.tsx
-#: src/menu.tsx
 msgid "About project"
 msgstr ""
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/menu.tsx
 msgid "Access"
 msgstr "Acceso"
 
@@ -1381,7 +1381,6 @@ msgstr "Las versiones de la colección aparecerán cuando se modifique la colecc
 #~ msgstr "No se encontró ninguna colección con el id {0}."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Collections"
 msgstr "Colecciones"
 
@@ -1532,13 +1531,12 @@ msgstr "Póngase en contacto con el administrador de su organización para obten
 #~ msgstr "Nombre del repositorio de contenedores"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Containers"
 msgstr "Containers"
 
-#: src/containers/collection-detail/collection-content.tsx
-#~ msgid "Content"
-#~ msgstr "Contenido"
+#: src/menu.tsx
+msgid "Content"
+msgstr "Contenido"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1650,6 +1648,7 @@ msgstr ""
 #~ msgstr "No se ha podido cargar el registro de importación"
 
 #: src/app-routes.tsx
+#: src/menu.tsx
 msgid "Could not read the installed plugins"
 msgstr ""
 
@@ -3098,6 +3097,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/menu.tsx
 msgid "File"
 msgstr ""
 
@@ -4122,7 +4122,6 @@ msgstr "Espacio de nombres"
 #~ msgstr "Namespace successfully edited."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Namespaces"
 msgstr "Espacios de nombres"
 
@@ -4603,6 +4602,10 @@ msgstr ""
 msgid "Open navigation"
 msgstr ""
 
+#: src/menu.tsx
+msgid "Operations"
+msgstr ""
+
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
 #~ msgstr "Integrar en Ansible Lightspeed"
@@ -4719,8 +4722,11 @@ msgstr ""
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/menu.tsx
 msgid "Packages"
+msgstr ""
+
+#: src/menu.tsx
+msgid "Packages and artifacts"
 msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
@@ -5492,7 +5498,6 @@ msgid "Remote name"
 msgstr "Nombre remoto"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Remote registries"
 msgstr ""
 
@@ -6068,8 +6073,8 @@ msgid "RPM prune packages"
 msgstr ""
 
 #: src/menu.tsx
-msgid "RPMs"
-msgstr ""
+#~ msgid "RPMs"
+#~ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
@@ -6145,7 +6150,6 @@ msgstr ""
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Search"
 msgstr ""
 
@@ -6458,7 +6462,6 @@ msgstr ""
 #~ msgstr "Firma"
 
 #: src/containers/signature-keys/list.tsx
-#: src/menu.tsx
 msgid "Signature keys"
 msgstr "Claves de firma"
 
@@ -6507,6 +6510,10 @@ msgstr "Las claves de firma aparecerán una vez creadas."
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signing service selector:"
 #~ msgstr "Selector del servicio de firmas:"
+
+#: src/menu.tsx
+msgid "Signing services"
+msgstr ""
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6627,7 +6634,6 @@ msgstr ""
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Status"
 msgstr "Estado"
 
@@ -6966,7 +6972,6 @@ msgstr "Lista de tareas"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Task management"
 msgstr "Gestión de tareas"
 
@@ -6983,6 +6988,10 @@ msgstr "Nombre de la tarea"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Task to change tag \"{0}\" could not be completed."
 #~ msgstr "No se ha podido completar la tarea de cambiar la etiqueta \"{0}\"."
+
+#: src/menu.tsx
+msgid "Tasks"
+msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7884,8 +7893,8 @@ msgstr "El usuario <0>{username}</0> se eliminará del grupo <1>{groupname}</1>.
 #~ msgstr "User <0>{username}</0> will be removed from group<1>{groupname}</1>."
 
 #: src/menu.tsx
-msgid "User access"
-msgstr ""
+#~ msgid "User access"
+#~ msgstr ""
 
 #: src/menu.tsx
 #~ msgid "User Access"
@@ -7947,6 +7956,10 @@ msgstr ""
 #: src/menu.tsx
 msgid "Users"
 msgstr "Usuarios"
+
+#: src/menu.tsx
+msgid "Users and groups"
+msgstr ""
 
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
@@ -8199,6 +8212,10 @@ msgstr ""
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Wisdom settings"
 #~ msgstr "Wisdom settings"
+
+#: src/menu.tsx
+msgid "Workers and status"
+msgstr ""
 
 #: src/components/ratings.tsx
 #~ msgid "Works without change"
