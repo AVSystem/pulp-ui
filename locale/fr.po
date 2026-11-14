@@ -188,6 +188,10 @@ msgstr "{name} va cesser de fonctionner."
 msgid "{title} steps"
 msgstr "{title} étapes"
 
+#: src/shell/notifications.tsx
+msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
+msgstr ""
+
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
 #~ msgstr "<0/> a été ajouté"
@@ -982,6 +986,10 @@ msgstr "Annuler"
 msgid "Canceled"
 msgstr "Annulé"
 
+#: src/shell/notifications.tsx
+msgid "Canceled {when}"
+msgstr ""
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
 #~ msgstr "Impossible de supprimer un espace de nom <0/> tant que les dépendances des collections n'ont pas été supprimées<1/>"
@@ -1203,6 +1211,10 @@ msgstr "Fermer"
 
 #: src/shell/shell.tsx
 msgid "Close navigation"
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Close notifications"
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -1461,6 +1473,10 @@ msgstr ""
 #: src/containers/task-management/task-list-view.tsx
 msgid "Completed"
 msgstr "Complété"
+
+#: src/shell/notifications.tsx
+msgid "Completed {when}"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -2863,6 +2879,10 @@ msgstr ""
 #: src/containers/task-management/task-list-view.tsx
 msgid "Failed"
 msgstr "Échec"
+
+#: src/shell/notifications.tsx
+msgid "Failed {when}"
+msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Failed to {operation} tag \"{tag}\"."
@@ -4281,6 +4301,10 @@ msgstr ""
 #~ msgid "No distributions yet"
 #~ msgstr "Pas encore de distribution"
 
+#: src/shell/notifications.tsx
+msgid "No finished tasks yet"
+msgstr ""
+
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
 msgstr "Aucun groupe à ajouter"
@@ -4573,6 +4597,14 @@ msgstr ""
 
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Notifications"
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Notifications could not be loaded."
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -5931,6 +5963,10 @@ msgstr ""
 
 #: src/components/list-error-state.tsx
 msgid "Retry"
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Retry loading notifications"
 msgstr ""
 
 #: src/components/render-plugin-doc.tsx
@@ -8071,9 +8107,9 @@ msgstr "Versions"
 msgid "Versions kept per package"
 msgstr ""
 
-#: src/constants.tsx
-#~ msgid "View all tasks"
-#~ msgstr "View all tasks"
+#: src/shell/notifications.tsx
+msgid "View all tasks"
+msgstr "View all tasks"
 
 #: src/utilities/translate-locked-role.ts
 msgid "View and cancel any task."
@@ -8401,6 +8437,10 @@ msgstr "Vous n'avez pas la permission d'afficher les utilisateurs."
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Your tasks appear here when they fail, complete or are canceled."
 msgstr ""
 
 #: src/containers/token/token-standalone.tsx

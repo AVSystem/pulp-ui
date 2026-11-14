@@ -11,7 +11,13 @@ import {
   PageToggleButton,
   SkipToContent,
 } from '@patternfly/react-core';
-import { type ComponentPropsWithoutRef, type ReactNode, useState } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useState,
+} from 'react';
 import { Link } from 'react-router';
 import {
   AlertList,
@@ -27,6 +33,12 @@ import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
 import { AccountMenu } from './account-menu';
 import { BreadcrumbBar, BreadcrumbSlotProvider } from './breadcrumb-slot';
 import { HelpMenu } from './help-menu';
+import {
+  NotificationBell,
+  NotificationPanel,
+  NotificationsProvider,
+  useNotificationsOpen,
+} from './notifications';
 import { SidebarContent, initialSidebarOpen, useSidebar } from './sidebar';
 import { ThemeMenu } from './theme-menu';
 
@@ -102,6 +114,7 @@ const ShellMasthead = ({
           <HelpMenu showAbout={showAbout} />
           <ThemeMenu />
           <LanguageSwitcher />
+          <NotificationBell />
           {username ? (
             <AccountMenu username={username} logout={signOut} />
           ) : (
@@ -113,8 +126,75 @@ const ShellMasthead = ({
   );
 };
 
+// The page itself, below the providers it reads from: the open state of the
+// notification panel is read here to expand it beside the content.
+const ShellPage = ({
+  username,
+  signOut,
+  startsOpen,
+  alerts,
+  setAlerts,
+  aboutModalVisible,
+  setAboutModalVisible,
+  children,
+}: {
+  username?: string;
+  signOut: () => void;
+  startsOpen: boolean;
+  alerts: AlertType[];
+  setAlerts: Dispatch<SetStateAction<AlertType[]>>;
+  aboutModalVisible: boolean;
+  setAboutModalVisible: (visible: boolean) => void;
+  children: ReactNode;
+}) => {
+  const notificationsOpen = useNotificationsOpen();
+
+  return (
+    <Page
+      isManagedSidebar
+      defaultManagedSidebarIsOpen={startsOpen}
+      masthead={
+        <ShellMasthead
+          username={username}
+          signOut={signOut}
+          showAbout={() => setAboutModalVisible(true)}
+        />
+      }
+      sidebar={
+        <PageSidebar>
+          <SidebarContent />
+        </PageSidebar>
+      }
+      // Always passed, so the page keeps one structure whether or not the user
+      // has a bell; the panel renders nothing when there is none.
+      notificationDrawer={<NotificationPanel />}
+      isNotificationDrawerExpanded={notificationsOpen}
+      skipToContent={
+        <SkipToContent href={`#${MAIN_CONTENT_ID}`}>
+          {t`Skip to content`}
+        </SkipToContent>
+      }
+      mainContainerId={MAIN_CONTENT_ID}
+    >
+      <AlertList
+        alerts={alerts}
+        closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
+      />
+      {children}
+      {aboutModalVisible ? (
+        <PulpAboutModal
+          isOpen
+          onClose={() => setAboutModalVisible(false)}
+          username={username}
+        />
+      ) : null}
+    </Page>
+  );
+};
+
 // The frame of every screen: top bar with the brand cell, sidebar with the
-// navigation, and the main container the routed screen renders into.
+// navigation, the notification panel and the main container the routed screen
+// renders into.
 export const Shell = ({ children }: { children: ReactNode }) => {
   const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);
   // Read once: the page only uses it when it starts.
@@ -143,42 +223,20 @@ export const Shell = ({ children }: { children: ReactNode }) => {
     );
 
   return (
-    <BreadcrumbSlotProvider>
-      <Page
-        isManagedSidebar
-        defaultManagedSidebarIsOpen={startsOpen}
-        masthead={
-          <ShellMasthead
-            username={username}
-            signOut={signOut}
-            showAbout={() => setAboutModalVisible(true)}
-          />
-        }
-        sidebar={
-          <PageSidebar>
-            <SidebarContent />
-          </PageSidebar>
-        }
-        skipToContent={
-          <SkipToContent href={`#${MAIN_CONTENT_ID}`}>
-            {t`Skip to content`}
-          </SkipToContent>
-        }
-        mainContainerId={MAIN_CONTENT_ID}
-      >
-        <AlertList
+    <NotificationsProvider enabled={!!user}>
+      <BreadcrumbSlotProvider>
+        <ShellPage
+          username={username}
+          signOut={signOut}
+          startsOpen={startsOpen}
           alerts={alerts}
-          closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
-        />
-        {children}
-        {aboutModalVisible ? (
-          <PulpAboutModal
-            isOpen
-            onClose={() => setAboutModalVisible(false)}
-            username={username}
-          />
-        ) : null}
-      </Page>
-    </BreadcrumbSlotProvider>
+          setAlerts={setAlerts}
+          aboutModalVisible={aboutModalVisible}
+          setAboutModalVisible={setAboutModalVisible}
+        >
+          {children}
+        </ShellPage>
+      </BreadcrumbSlotProvider>
+    </NotificationsProvider>
   );
 };

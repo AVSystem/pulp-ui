@@ -518,3 +518,23 @@
   background-color: var(--pulp-signal);
   color: var(--pulp-on-signal);
 }
+
+// The bell: the same 36px footprint as the other icon buttons, wider when it
+// shows a number.
+.pulp-topbar__bell {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+}
+
+// The panel: a link to the whole list under the title, the list scrolling
+// inside the panel.
+.pulp-notifications__all {
+  padding: 0 1.5rem 0.5rem;
+  font-size: 14px;
+}

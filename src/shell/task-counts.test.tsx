@@ -1,7 +1,15 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Link } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  type MockInstance,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { PulpMenu } from 'src/menu';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -70,17 +78,37 @@ async function renderMenu(route = '/repositories/file/repository/') {
 
 async function settle() {
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  });
+}
+
+let intervals: MockInstance<typeof setInterval>;
+
+// Runs the callback that was registered to fire every refresh period, as the
+// timer would after a minute.
+function refreshNow() {
+  const call = [...intervals.mock.calls]
+    .reverse()
+    .find(([, delay]) => delay === COUNT_REFRESH_MS);
+  if (!call) {
+    throw new Error('No refresh interval was registered');
+  }
+  act(() => {
+    (call[0] as () => void)();
   });
 }
 
 describe('task count pills', () => {
   beforeEach(() => {
-    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+    // Only the clock is faked: the polling of the test library and the mock
+    // server need real timers. The refresh interval is run by hand.
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2030-05-01T12:00:00.000Z'));
+    intervals = vi.spyOn(globalThis, 'setInterval');
   });
 
   afterEach(() => {
+    intervals.mockRestore();
     vi.useRealTimers();
     Reflect.deleteProperty(document, 'visibilityState');
   });
@@ -223,9 +251,7 @@ describe('task count pills', () => {
     await renderMenu();
     await waitFor(() => expect(queries).toHaveLength(2));
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(COUNT_REFRESH_MS);
-    });
+    refreshNow();
 
     await waitFor(() => expect(queries).toHaveLength(4));
   });
@@ -240,9 +266,7 @@ describe('task count pills', () => {
     await renderMenu();
     await waitFor(() => expect(queries).toHaveLength(2));
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(COUNT_REFRESH_MS * 3);
-    });
+    refreshNow();
     await settle();
 
     expect(queries).toHaveLength(2);

@@ -189,6 +189,10 @@ msgstr "{name} will stop running."
 msgid "{title} steps"
 msgstr "{title} steps"
 
+#: src/shell/notifications.tsx
+msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
+msgstr "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
+
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
 #~ msgstr "<0/> was added"
@@ -983,6 +987,10 @@ msgstr "Cancel"
 msgid "Canceled"
 msgstr "Canceled"
 
+#: src/shell/notifications.tsx
+msgid "Canceled {when}"
+msgstr "Canceled {when}"
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
 #~ msgstr "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1205,6 +1213,10 @@ msgstr "Close"
 #: src/shell/shell.tsx
 msgid "Close navigation"
 msgstr "Close navigation"
+
+#: src/shell/notifications.tsx
+msgid "Close notifications"
+msgstr "Close notifications"
 
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
@@ -1462,6 +1474,10 @@ msgstr "Community content will never be synced if this setting is enabled"
 #: src/containers/task-management/task-list-view.tsx
 msgid "Completed"
 msgstr "Completed"
+
+#: src/shell/notifications.tsx
+msgid "Completed {when}"
+msgstr "Completed {when}"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -2864,6 +2880,10 @@ msgstr "Fail the whole version if any package is rejected"
 #: src/containers/task-management/task-list-view.tsx
 msgid "Failed"
 msgstr "Failed"
+
+#: src/shell/notifications.tsx
+msgid "Failed {when}"
+msgstr "Failed {when}"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Failed to {operation} tag \"{tag}\"."
@@ -4282,6 +4302,10 @@ msgstr "No distributions created"
 #~ msgid "No distributions yet"
 #~ msgstr "No distributions yet"
 
+#: src/shell/notifications.tsx
+msgid "No finished tasks yet"
+msgstr "No finished tasks yet"
+
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
 msgstr "No groups yet"
@@ -4575,6 +4599,14 @@ msgstr "Nothing changed in distribution {name}."
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
 msgstr "Nothing changed in repository {name}."
+
+#: src/shell/notifications.tsx
+msgid "Notifications"
+msgstr "Notifications"
+
+#: src/shell/notifications.tsx
+msgid "Notifications could not be loaded."
+msgstr "Notifications could not be loaded."
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -5933,6 +5965,10 @@ msgstr "Retries"
 #: src/components/list-error-state.tsx
 msgid "Retry"
 msgstr "Retry"
+
+#: src/shell/notifications.tsx
+msgid "Retry loading notifications"
+msgstr "Retry loading notifications"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Return Values"
@@ -8072,9 +8108,9 @@ msgstr "Versions"
 msgid "Versions kept per package"
 msgstr "Versions kept per package"
 
-#: src/constants.tsx
-#~ msgid "View all tasks"
-#~ msgstr "View all tasks"
+#: src/shell/notifications.tsx
+msgid "View all tasks"
+msgstr "View all tasks"
 
 #: src/utilities/translate-locked-role.ts
 msgid "View and cancel any task."
@@ -8403,6 +8439,10 @@ msgstr "You don't have permission to display users."
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Your password was changed. Sign in with the new password."
+
+#: src/shell/notifications.tsx
+msgid "Your tasks appear here when they fail, complete or are canceled."
+msgstr "Your tasks appear here when they fail, complete or are canceled."
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Your token will expire <0/>."
