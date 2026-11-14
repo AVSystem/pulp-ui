@@ -29,6 +29,7 @@ import {
 import { Paths, formatPath } from 'src/paths';
 import { useUserContext } from 'src/user-context';
 import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
+import { BreadcrumbBar, BreadcrumbSlotProvider } from './breadcrumb-slot';
 import { SidebarContent, initialSidebarOpen, useSidebar } from './sidebar';
 
 export const MAIN_CONTENT_ID = 'main-content';
@@ -158,7 +159,7 @@ const ShellMasthead = ({
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
-        <span className='pulp-masthead__spacer' />
+        <BreadcrumbBar />
         <DarkmodeSwitcher />
         <LanguageSwitcher />
         <DocsDropdown showAbout={showAbout} />
@@ -202,40 +203,42 @@ export const Shell = ({ children }: { children: ReactNode }) => {
     );
 
   return (
-    <Page
-      isManagedSidebar
-      defaultManagedSidebarIsOpen={startsOpen}
-      masthead={
-        <ShellMasthead
-          username={username}
-          signOut={signOut}
-          showAbout={() => setAboutModalVisible(true)}
+    <BreadcrumbSlotProvider>
+      <Page
+        isManagedSidebar
+        defaultManagedSidebarIsOpen={startsOpen}
+        masthead={
+          <ShellMasthead
+            username={username}
+            signOut={signOut}
+            showAbout={() => setAboutModalVisible(true)}
+          />
+        }
+        sidebar={
+          <PageSidebar>
+            <SidebarContent />
+          </PageSidebar>
+        }
+        skipToContent={
+          <SkipToContent href={`#${MAIN_CONTENT_ID}`}>
+            {t`Skip to content`}
+          </SkipToContent>
+        }
+        mainContainerId={MAIN_CONTENT_ID}
+      >
+        <AlertList
+          alerts={alerts}
+          closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
         />
-      }
-      sidebar={
-        <PageSidebar>
-          <SidebarContent />
-        </PageSidebar>
-      }
-      skipToContent={
-        <SkipToContent href={`#${MAIN_CONTENT_ID}`}>
-          {t`Skip to content`}
-        </SkipToContent>
-      }
-      mainContainerId={MAIN_CONTENT_ID}
-    >
-      <AlertList
-        alerts={alerts}
-        closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
-      />
-      {children}
-      {aboutModalVisible ? (
-        <PulpAboutModal
-          isOpen
-          onClose={() => setAboutModalVisible(false)}
-          username={username}
-        />
-      ) : null}
-    </Page>
+        {children}
+        {aboutModalVisible ? (
+          <PulpAboutModal
+            isOpen
+            onClose={() => setAboutModalVisible(false)}
+            username={username}
+          />
+        ) : null}
+      </Page>
+    </BreadcrumbSlotProvider>
   );
 };

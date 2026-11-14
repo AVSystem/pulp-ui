@@ -71,8 +71,47 @@
   }
 }
 
-.pulp-masthead__spacer {
-  flex-grow: 1;
+// The trail takes the room the action group leaves.
+.pulp-topbar__crumbs {
+  flex: 1 1 0;
+  min-width: 200px;
+}
+
+:root .pulp-crumbs {
+  --pf-v6-c-breadcrumb--FontSize: 14px;
+  --pf-v6-c-breadcrumb__link--Color: var(--pulp-text-2);
+  --pf-v6-c-breadcrumb__link--hover--Color: var(--pulp-text);
+  --pf-v6-c-breadcrumb__item--m-current--Color: var(--pulp-text);
+  --pf-v6-c-breadcrumb__item-divider--Color: var(--pulp-text-3);
+  flex-wrap: nowrap;
+  min-width: 0;
+
+  .pf-v6-c-breadcrumb__list {
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .pf-v6-c-breadcrumb__item {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  // the earlier crumbs give way first; the current one keeps its room
+  .pf-v6-c-breadcrumb__item:not(:last-child) {
+    flex-shrink: 2;
+  }
+
+  .pf-v6-c-breadcrumb__item:last-child {
+    font-weight: 600;
+  }
+
+  .pf-v6-c-breadcrumb__link,
+  .pulp-crumb__text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 // The left cell of the top bar. With the sidebar open on a wide screen it is

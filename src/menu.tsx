@@ -273,6 +273,26 @@ const matches = (pathname: string, path: string) => {
   return visited === base || visited.startsWith(`${base}/`);
 };
 
+// The screen of the list that the visited address belongs to. When several
+// paths match (a list and a screen below it), the most specific one wins.
+export function currentScreen(
+  screens: IMenuScreen[],
+  pathname: string,
+): IMenuScreen | undefined {
+  let best: IMenuScreen | undefined;
+  let bestLength = -1;
+  for (const entry of screens) {
+    for (const path of [entry.path, ...entry.alternativePaths]) {
+      const length = normalize(path).length;
+      if (matches(pathname, path) && length > bestLength) {
+        best = entry;
+        bestLength = length;
+      }
+    }
+  }
+  return best;
+}
+
 function isCurrent(entry: IMenuEntry, pathname: string): boolean {
   if (entry.entries) {
     return entry.entries.some((child) => isCurrent(child, pathname));
