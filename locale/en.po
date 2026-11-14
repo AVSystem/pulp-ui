@@ -1126,6 +1126,7 @@ msgstr "Child tasks"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
+#: src/components/typeahead.tsx
 msgid "Clear"
 msgstr "Clear"
 
@@ -1171,6 +1172,7 @@ msgstr "Clients cannot download its content until a distribution serves it."
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/components/typeahead.tsx
 msgid "close"
 msgstr "close"
 
@@ -1821,6 +1823,10 @@ msgstr "Current page"
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Current provider namespace"
 #~ msgstr "Current provider namespace"
+
+#: src/components/typeahead.tsx
+msgid "Current selections"
+msgstr "Current selections"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Current tags"
@@ -4473,7 +4479,6 @@ msgstr "Not allowed"
 msgid "Not enabled"
 msgstr "Not enabled"
 
-#: src/components/permission-chip-selector.tsx
 #: src/components/typeahead.tsx
 msgid "Not found"
 msgstr "Not found"
@@ -4598,6 +4603,10 @@ msgstr "Only perform the sync if changes are reported by the remote server. To f
 #: src/components/sync-modal.tsx
 msgid "Optimize"
 msgstr "Optimize"
+
+#: src/components/typeahead.tsx
+msgid "Options"
+msgstr "Options"
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
@@ -6110,6 +6119,7 @@ msgstr "Scroll foward"
 #~ msgid "Scroll to end"
 #~ msgstr "Scroll to end"
 
+#: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx

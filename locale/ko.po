@@ -1125,6 +1125,7 @@ msgstr "하위 작업"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
+#: src/components/typeahead.tsx
 msgid "Clear"
 msgstr "지우기"
 
@@ -1170,6 +1171,7 @@ msgstr ""
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/components/typeahead.tsx
 msgid "close"
 msgstr ""
 
@@ -1820,6 +1822,10 @@ msgstr ""
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Current provider namespace"
 #~ msgstr ""
+
+#: src/components/typeahead.tsx
+msgid "Current selections"
+msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Current tags"
@@ -4472,7 +4478,6 @@ msgstr ""
 msgid "Not enabled"
 msgstr ""
 
-#: src/components/permission-chip-selector.tsx
 #: src/components/typeahead.tsx
 msgid "Not found"
 msgstr "찾을 수 없음"
@@ -4596,6 +4601,10 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "Optimize"
+msgstr ""
+
+#: src/components/typeahead.tsx
+msgid "Options"
 msgstr ""
 
 #: src/containers/pulp-status.tsx
@@ -6109,6 +6118,7 @@ msgstr ""
 #~ msgid "Scroll to end"
 #~ msgstr "끝까지 스크롤"
 
+#: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
 #: src/menu.tsx
