@@ -69,7 +69,7 @@ export const Action = ({
         <DropdownItem
           key={i18n._(title)}
           description={disabled(item, actionContext)}
-          isDisabled
+          isAriaDisabled
         >
           {i18n._(title)}
         </DropdownItem>
