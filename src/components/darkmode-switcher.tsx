@@ -5,13 +5,14 @@ import SunIcon from '@patternfly/react-icons/dist/esm/icons/sun-icon';
 import { useEffect, useState } from 'react';
 import { StatefulDropdown } from 'src/components';
 import {
+  followSystemTheme,
   getBrowserDefault,
   getUserChoice,
-  reflectPreference,
+  setUserChoice,
 } from 'src/darkmode';
 
 export function DarkmodeSwitcher(_props) {
-  const [userChoice, setUserChoice] = useState(getUserChoice());
+  const [userChoice, setChoice] = useState(getUserChoice());
   const [browserDefault, setBrowserDefault] = useState(getBrowserDefault());
 
   useEffect(() => {
@@ -28,12 +29,14 @@ export function DarkmodeSwitcher(_props) {
         .removeEventListener('change', onBrowserChange);
   }, []);
 
+  // shows the system theme while no explicit choice is stored
+  useEffect(() => followSystemTheme(), []);
+
   const isDark = (userChoice || browserDefault) === 'dark';
-  useEffect(() => reflectPreference(isDark ? 'dark' : 'light'), [isDark]);
 
   const set = (value: 'dark' | 'light' | null) => {
-    window.localStorage.setItem('pulp-darkmode', value);
     setUserChoice(value);
+    setChoice(value);
   };
 
   const currentOrDefault = (value) =>
