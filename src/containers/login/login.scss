@@ -1,0 +1,31 @@
+// The sign-in page keeps PatternFly's login layout and takes its colors,
+// radius and shadow from the theme tokens. The logo is dark artwork, so it
+// sits on a white chip to stay readable on the brand backdrop in both themes.
+
+// Declared with the page class so it outranks PatternFly's component variables
+// whichever order the stylesheets load in.
+.pf-v6-c-login.pulp-login {
+  background-color: var(--pulp-brand);
+  color: var(--pulp-brand-text);
+
+  --pf-v6-c-login__main--BackgroundColor: var(--pulp-surface);
+  --pf-v6-c-login__main--BorderRadius: var(
+    --pf-t--global--border--radius--medium
+  );
+  --pf-v6-c-login__main--BoxShadow: var(--pulp-shadow);
+}
+
+.pulp-login .pf-v6-c-login__header .pf-v6-c-brand {
+  box-sizing: content-box;
+  padding: var(--pf-t--global--spacer--sm);
+  border-radius: var(--pf-t--global--border--radius--medium);
+  background-color: var(--pulp-logo-chip);
+}
+
+.pulp-login .pf-v6-c-login__main {
+  color: var(--pulp-text);
+}
+
+.pulp-login__error {
+  color: var(--pulp-bad);
+}

@@ -10,6 +10,7 @@ import { useUserContext } from 'src/user-context';
 import { useQueryParams, withRouter } from 'src/utilities';
 import { safeNextPath } from 'src/utilities/safe-next-path';
 import PulpLogo from 'static/images/pulp_logo.png';
+import './login.scss';
 
 function PulpLoginPage(_props) {
   const { setUser } = useUserContext();
@@ -47,10 +48,7 @@ function PulpLoginPage(_props) {
 
   return (
     <LoginPage
-      style={{
-        backgroundColor:
-          'var(--pf-t--global--background--color--inverse--default)',
-      }}
+      className='pulp-login'
       loginTitle={t`Login`}
       brandImgSrc={PulpLogo}
     >
@@ -63,12 +61,7 @@ function PulpLoginPage(_props) {
               </FormFieldHelper>
             ) : null}
             {error ? (
-              <span
-                style={{
-                  color:
-                    'var(--pf-t--global--text--color--status--danger--default)',
-                }}
-              >
+              <span className='pulp-login__error'>
                 <ExclamationCircleIcon /> {error}
               </span>
             ) : null}
