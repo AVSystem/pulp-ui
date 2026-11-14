@@ -11,3 +11,4 @@ playwright-report/
 test-results/
 playwright/.auth/
 crawl-report/
+shell-report/
