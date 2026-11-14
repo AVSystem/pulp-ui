@@ -13,13 +13,11 @@ import {
   PageToggleButton,
   SkipToContent,
 } from '@patternfly/react-core';
-import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
 import { type ComponentPropsWithoutRef, type ReactNode, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
   AlertList,
   type AlertType,
-  DarkmodeSwitcher,
   LanguageSwitcher,
   LoginLink,
   PulpAboutModal,
@@ -30,31 +28,11 @@ import { Paths, formatPath } from 'src/paths';
 import { useUserContext } from 'src/user-context';
 import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
 import { BreadcrumbBar, BreadcrumbSlotProvider } from './breadcrumb-slot';
+import { HelpMenu } from './help-menu';
 import { SidebarContent, initialSidebarOpen, useSidebar } from './sidebar';
+import { ThemeMenu } from './theme-menu';
 
 export const MAIN_CONTENT_ID = 'main-content';
-
-const DocsDropdown = ({ showAbout }: { showAbout: () => void }) => (
-  <StatefulDropdown
-    ariaLabel={t`Docs dropdown`}
-    data-cy='docs-dropdown'
-    defaultText={<QuestionCircleIcon />}
-    items={[
-      <DropdownItem
-        key='documentation'
-        to='https://docs.pulpproject.org/'
-        isExternalLink
-        rel='nofollow noopener noreferrer'
-      >
-        {t`Documentation`}
-      </DropdownItem>,
-      <DropdownItem key='about' onClick={() => showAbout()}>
-        {t`About`}
-      </DropdownItem>,
-    ]}
-    toggleType='icon'
-  />
-);
 
 const UserDropdown = ({
   username,
@@ -160,14 +138,16 @@ const ShellMasthead = ({
       </MastheadMain>
       <MastheadContent>
         <BreadcrumbBar />
-        <DarkmodeSwitcher />
-        <LanguageSwitcher />
-        <DocsDropdown showAbout={showAbout} />
-        {username ? (
-          <UserDropdown username={username} logout={signOut} />
-        ) : (
-          <LoginLink />
-        )}
+        <div className='pulp-topbar__actions'>
+          <HelpMenu showAbout={showAbout} />
+          <ThemeMenu />
+          <LanguageSwitcher />
+          {username ? (
+            <UserDropdown username={username} logout={signOut} />
+          ) : (
+            <LoginLink />
+          )}
+        </div>
       </MastheadContent>
     </Masthead>
   );

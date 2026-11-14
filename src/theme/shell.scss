@@ -71,6 +71,48 @@
   }
 }
 
+// Help, theme, language and account, 8px apart.
+.pulp-topbar__actions {
+  display: flex;
+  flex: none;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+// The icon buttons of the top bar: 36px squares with a soft hover.
+:root .pulp-topbar__button {
+  --pf-v6-c-menu-toggle--Width: 2.25rem;
+  --pf-v6-c-menu-toggle--Height: 2.25rem;
+  --pf-v6-c-menu-toggle--PaddingBlockStart: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: 0;
+  --pf-v6-c-menu-toggle--BorderRadius: 8px;
+  --pf-v6-c-menu-toggle--Color: var(--pulp-text-2);
+  --pf-v6-c-menu-toggle--hover--Color: var(--pulp-text-2);
+  --pf-v6-c-menu-toggle--expanded--Color: var(--pulp-text-2);
+  --pf-v6-c-menu-toggle--BackgroundColor: transparent;
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-menu-toggle--expanded--BackgroundColor: var(--pulp-sunken);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  min-width: 2.25rem;
+  color: var(--pulp-text-2);
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+
+  .pf-v6-c-menu-toggle__icon,
+  .pf-v6-c-menu-toggle__text {
+    color: var(--pulp-text-2);
+  }
+}
+
 // The trail takes the room the action group leaves.
 .pulp-topbar__crumbs {
   flex: 1 1 0;

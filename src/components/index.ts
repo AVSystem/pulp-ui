@@ -6,7 +6,6 @@ export { type BreadcrumbType, Breadcrumbs } from './breadcrumbs';
 export { CompoundFilter, type FilterOption } from './compound-filter';
 export { ConfirmModal } from './confirm-modal';
 export { CopyURL } from './copy-url';
-export { DarkmodeSwitcher } from './darkmode-switcher';
 export { DataForm } from './data-form';
 export { DateComponent } from './date-component';
 export { DeleteGroupModal } from './delete-group-modal';

@@ -13,16 +13,16 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current, default)"
-msgstr ""
+#~ msgid "(current, default)"
+#~ msgstr ""
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current)"
-msgstr ""
+#~ msgid "(current)"
+#~ msgstr ""
 
 #: src/components/darkmode-switcher.tsx
-msgid "(default)"
-msgstr ""
+#~ msgid "(default)"
+#~ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -341,11 +341,16 @@ msgid "A whole number. Leave empty to use the server default."
 msgstr ""
 
 #: src/shell/shell.tsx
-msgid "About"
-msgstr "情報"
+#~ msgid "About"
+#~ msgstr "情報"
 
 #: src/containers/about-project.tsx
+#: src/shell/help-menu.tsx
 msgid "About project"
+msgstr ""
+
+#: src/shell/help-menu.tsx
+msgid "About Pulp UI"
 msgstr ""
 
 #: src/containers/ansible-remote/detail.tsx
@@ -1870,7 +1875,7 @@ msgstr "カスタムパーミッション"
 msgid "Danger"
 msgstr ""
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Dark"
 msgstr ""
 
@@ -2299,14 +2304,14 @@ msgid "Distributions of {0} repositories cannot be looked up"
 msgstr ""
 
 #: src/shell/shell.tsx
-msgid "Docs dropdown"
-msgstr ""
+#~ msgid "Docs dropdown"
+#~ msgstr ""
 
 #: src/components/collection-header.tsx
 #~ msgid "Docs site"
 #~ msgstr "ドキュメントのサイト"
 
-#: src/shell/shell.tsx
+#: src/shell/help-menu.tsx
 msgid "Documentation"
 msgstr "ドキュメント"
 
@@ -3399,6 +3404,10 @@ msgstr ""
 msgid "Has words"
 msgstr ""
 
+#: src/shell/help-menu.tsx
+msgid "Help"
+msgstr ""
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Help other Ansible users by sharing the awesome roles and collections you create."
 #~ msgstr ""
@@ -3831,7 +3840,7 @@ msgstr ""
 #~ msgid "License"
 #~ msgstr "ライセンス"
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Light"
 msgstr ""
 
@@ -3961,6 +3970,10 @@ msgstr "コレクションリモートを管理します。"
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "マニフェストリストはこの画面ではサポートされていません。<0>Images</0> タブを使用してマニフェスト一覧の詳細を確認してください。"
+
+#: src/shell/theme-menu.tsx
+msgid "Match system"
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
@@ -5868,7 +5881,6 @@ msgstr ""
 msgid "Reserve resources"
 msgstr "リソースの予約"
 
-#: src/components/darkmode-switcher.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Reset"
 msgstr ""
@@ -6772,12 +6784,12 @@ msgstr ""
 #~ msgstr "スーパーユーザーには、所属するグループに関係なく、すべてのシステムパーミッションが割り当てられています。"
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to dark mode"
-msgstr ""
+#~ msgid "Switch to dark mode"
+#~ msgstr ""
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to light mode"
-msgstr ""
+#~ msgid "Switch to light mode"
+#~ msgstr ""
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -7262,6 +7274,10 @@ msgstr "同期時に認証に使用するユーザー名。トークンを使用
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
+msgstr ""
+
+#: src/shell/theme-menu.tsx
+msgid "Theme"
 msgstr ""
 
 #: src/components/access-tab.tsx

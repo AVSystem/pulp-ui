@@ -28,6 +28,8 @@ interface IProps {
   isPlain?: boolean;
 
   ariaLabel?: string;
+  /** Extra class on the toggle button */
+  toggleClassName?: string;
   'data-cy'?: string;
 }
 
@@ -39,12 +41,14 @@ export const StatefulDropdown = ({
   defaultText,
   isPlain = true,
   ariaLabel,
+  toggleClassName,
   'data-cy': dataCy,
 }: IProps) => {
   const [isOpen, setOpen] = useState<boolean>(false);
 
   const toggleProps = {
     'aria-label': ariaLabel,
+    className: toggleClassName,
     'data-cy': dataCy,
     isExpanded: isOpen,
     onClick: () => setOpen(!isOpen),

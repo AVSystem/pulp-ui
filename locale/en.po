@@ -14,16 +14,16 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current, default)"
-msgstr "(current, default)"
+#~ msgid "(current, default)"
+#~ msgstr "(current, default)"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current)"
-msgstr "(current)"
+#~ msgid "(current)"
+#~ msgstr "(current)"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(default)"
-msgstr "(default)"
+#~ msgid "(default)"
+#~ msgstr "(default)"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -342,12 +342,17 @@ msgid "A whole number. Leave empty to use the server default."
 msgstr "A whole number. Leave empty to use the server default."
 
 #: src/shell/shell.tsx
-msgid "About"
-msgstr "About"
+#~ msgid "About"
+#~ msgstr "About"
 
 #: src/containers/about-project.tsx
+#: src/shell/help-menu.tsx
 msgid "About project"
 msgstr "About project"
+
+#: src/shell/help-menu.tsx
+msgid "About Pulp UI"
+msgstr "About Pulp UI"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
@@ -1871,7 +1876,7 @@ msgstr "Custom permissions"
 msgid "Danger"
 msgstr "Danger"
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Dark"
 msgstr "Dark"
 
@@ -2300,14 +2305,14 @@ msgid "Distributions of {0} repositories cannot be looked up"
 msgstr "Distributions of {0} repositories cannot be looked up"
 
 #: src/shell/shell.tsx
-msgid "Docs dropdown"
-msgstr "Docs dropdown"
+#~ msgid "Docs dropdown"
+#~ msgstr "Docs dropdown"
 
 #: src/components/collection-header.tsx
 #~ msgid "Docs site"
 #~ msgstr "Docs site"
 
-#: src/shell/shell.tsx
+#: src/shell/help-menu.tsx
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -3400,6 +3405,10 @@ msgstr "Guard: {guardName}"
 msgid "Has words"
 msgstr "Has words"
 
+#: src/shell/help-menu.tsx
+msgid "Help"
+msgstr "Help"
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Help other Ansible users by sharing the awesome roles and collections you create."
 #~ msgstr "Help other Ansible users by sharing the awesome roles and collections you create."
@@ -3832,7 +3841,7 @@ msgstr "Latest versions kept per package"
 #~ msgid "License"
 #~ msgstr "License"
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Light"
 msgstr "Light"
 
@@ -3962,6 +3971,10 @@ msgstr "Manage collection remotes."
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
+
+#: src/shell/theme-menu.tsx
+msgid "Match system"
+msgstr "Match system"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
@@ -5869,7 +5882,6 @@ msgstr "Requires Python"
 msgid "Reserve resources"
 msgstr "Reserve resources"
 
-#: src/components/darkmode-switcher.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Reset"
 msgstr "Reset"
@@ -6773,12 +6785,12 @@ msgstr "Summary"
 #~ msgstr "Super users have all system permissions regardless of what groups they are in."
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to dark mode"
-msgstr "Switch to dark mode"
+#~ msgid "Switch to dark mode"
+#~ msgstr "Switch to dark mode"
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to light mode"
-msgstr "Switch to light mode"
+#~ msgid "Switch to light mode"
+#~ msgstr "Switch to light mode"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -7264,6 +7276,10 @@ msgstr "The username to be used for authentication when syncing. This is not req
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
 msgstr "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
+
+#: src/shell/theme-menu.tsx
+msgid "Theme"
+msgstr "Theme"
 
 #: src/components/access-tab.tsx
 msgid "There are currently no groups assigned."
