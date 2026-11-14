@@ -734,6 +734,7 @@ export class RemoteForm extends Component<IProps, IState> {
               />
             ) : null}
             <Switch
+              aria-label={t`Download only signed collections`}
               id='signed_only'
               isChecked={!!remote.signed_only}
               onChange={(_event, value) =>
@@ -749,6 +750,7 @@ export class RemoteForm extends Component<IProps, IState> {
             label={t`Include all dependencies when syncing a collection.`}
           >
             <Switch
+              aria-label={t`Include all dependencies when syncing a collection.`}
               id='sync_dependencies'
               isChecked={!!remote.sync_dependencies}
               onChange={(_event, value) =>
