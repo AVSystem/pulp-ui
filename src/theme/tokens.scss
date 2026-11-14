@@ -1,0 +1,229 @@
+// The one place that holds literal colors. Every other stylesheet and every
+// component takes its color from a --pulp-* token below or from a PatternFly
+// semantic token that this file maps onto one, so a rebrand is an edit of the
+// values in the two palettes and nothing else.
+// The light palette is on :root and the dark palette on :root.pf-v6-theme-dark,
+// with exactly the same names in both: switching theme swaps the values only.
+// Every text pair of these palettes is held above WCAG AA by
+// config/token-contrast.test.ts, which reads the two blocks below.
+// This file loads after the PatternFly base stylesheet, so the mapping block
+// at the end wins in both themes.
+
+:root {
+  --pulp-bg: #f5f7fa;
+  --pulp-surface: #ffffff;
+  --pulp-raised: #ffffff;
+  --pulp-sunken: #eef2f6;
+  --pulp-nav: #f0f3f7;
+  --pulp-nav-active: #dde9f6;
+  --pulp-line: #dbe1e8;
+  --pulp-line-strong: #8290a1;
+  --pulp-text: #152030;
+  --pulp-text-2: #465466;
+  --pulp-text-3: #5d6a7b;
+  --pulp-primary: #2867a6;
+  --pulp-primary-hover: #1f548a;
+  --pulp-on-primary: #ffffff;
+  --pulp-primary-soft: #e4eefa;
+  --pulp-link: #2263a3;
+  --pulp-signal: #ff9507;
+  --pulp-on-signal: #2a1600;
+  --pulp-signal-soft: #fff0d9;
+  --pulp-signal-text: #9a4b00;
+  --pulp-ok: #1b7a33;
+  --pulp-ok-soft: #e2f3e6;
+  --pulp-bad: #b3261e;
+  --pulp-bad-soft: #fbe9e7;
+  --pulp-code: #f3f5f8;
+  --pulp-code-text: #1d2a3a;
+  --pulp-brand: #1d4c7d;
+  --pulp-brand-text: #d3e3f4;
+  --pulp-logo-chip: #ffffff;
+  --pulp-shadow:
+    0 1px 2px rgba(21, 32, 48, 0.06), 0 8px 24px rgba(21, 32, 48, 0.08);
+}
+
+:root.pf-v6-theme-dark {
+  --pulp-bg: #0d141d;
+  --pulp-surface: #131d29;
+  --pulp-raised: #182433;
+  --pulp-sunken: #0f1822;
+  --pulp-nav: #101923;
+  --pulp-nav-active: #1c3148;
+  --pulp-line: #243344;
+  --pulp-line-strong: #5a6f86;
+  --pulp-text: #e5ecf4;
+  --pulp-text-2: #b0bdcc;
+  --pulp-text-3: #8d9cae;
+  --pulp-primary: #5aa2e6;
+  --pulp-primary-hover: #7bb5ec;
+  --pulp-on-primary: #04111f;
+  --pulp-primary-soft: #16304a;
+  --pulp-link: #7ab6ee;
+  --pulp-signal: #ffa630;
+  --pulp-on-signal: #231200;
+  --pulp-signal-soft: #33240f;
+  --pulp-signal-text: #ffb957;
+  --pulp-ok: #5cc979;
+  --pulp-ok-soft: #12301d;
+  --pulp-bad: #ff8378;
+  --pulp-bad-soft: #3a1a1a;
+  --pulp-code: #0f1822;
+  --pulp-code-text: #d6e1ee;
+  --pulp-brand: #122a45;
+  --pulp-brand-text: #b9cde3;
+  --pulp-logo-chip: #ffffff;
+  --pulp-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+// PatternFly semantic tokens set to the Pulp tokens. The compound selector has
+// a higher specificity than PatternFly's own dark block, so these hold in both
+// themes without a per-theme copy.
+:root,
+:root.pf-v6-theme-dark {
+  // page ground, surfaces, floating layers
+  --pf-t--global--background--color--secondary--default: var(--pulp-bg);
+  --pf-t--global--background--color--primary--default: var(--pulp-surface);
+  --pf-t--global--background--color--control--default: var(--pulp-surface);
+  --pf-t--global--background--color--floating--default: var(--pulp-raised);
+  --pf-t--global--background--color--tertiary--default: var(--pulp-sunken);
+  --pf-t--global--background--color--action--plain--hover: var(--pulp-sunken);
+  --pf-t--global--background--color--action--plain--clicked: var(
+    --pulp-nav-active
+  );
+
+  // borders
+  --pf-t--global--border--color--default: var(--pulp-line);
+  --pf-t--global--border--color--subtle: var(--pulp-line);
+  --pf-t--global--border--color--main--default: var(--pulp-line);
+  --pf-t--global--border--color--control--default: var(--pulp-line-strong);
+
+  // text
+  --pf-t--global--text--color--regular: var(--pulp-text);
+  --pf-t--global--text--color--subtle: var(--pulp-text-2);
+  --pf-t--global--text--color--placeholder: var(--pulp-text-3);
+
+  // action blue: brand fills, brand text and icons, focus, information
+  --pf-t--global--color--brand--default: var(--pulp-primary);
+  --pf-t--global--text--color--brand--default: var(--pulp-primary);
+  --pf-t--global--icon--color--brand--default: var(--pulp-primary);
+  --pf-t--global--border--color--brand--default: var(--pulp-primary);
+  --pf-t--global--border--color--clicked: var(--pulp-primary);
+  --pf-t--global--color--status--info--default: var(--pulp-primary);
+  --pf-t--global--text--color--status--info--default: var(--pulp-primary);
+
+  --pf-t--global--color--brand--hover: var(--pulp-primary-hover);
+  --pf-t--global--color--brand--clicked: var(--pulp-primary-hover);
+  --pf-t--global--text--color--brand--hover: var(--pulp-primary-hover);
+  --pf-t--global--text--color--brand--clicked: var(--pulp-primary-hover);
+  --pf-t--global--icon--color--brand--hover: var(--pulp-primary-hover);
+  --pf-t--global--icon--color--brand--clicked: var(--pulp-primary-hover);
+  --pf-t--global--border--color--brand--hover: var(--pulp-primary-hover);
+  --pf-t--global--border--color--brand--clicked: var(--pulp-primary-hover);
+  --pf-t--global--text--color--link--hover: var(--pulp-primary-hover);
+  --pf-t--global--color--status--info--hover: var(--pulp-primary-hover);
+  --pf-t--global--color--status--info--clicked: var(--pulp-primary-hover);
+
+  --pf-t--global--text--color--on-brand--default: var(--pulp-on-primary);
+  --pf-t--global--text--color--on-brand--hover: var(--pulp-on-primary);
+  --pf-t--global--text--color--on-brand--clicked: var(--pulp-on-primary);
+  --pf-t--global--icon--color--on-brand--default: var(--pulp-on-primary);
+  --pf-t--global--icon--color--on-brand--hover: var(--pulp-on-primary);
+  --pf-t--global--icon--color--on-brand--clicked: var(--pulp-on-primary);
+
+  --pf-t--global--color--brand--subtle--default: var(--pulp-primary-soft);
+
+  --pf-t--global--text--color--link--default: var(--pulp-link);
+  --pf-t--global--text--color--link--visited: var(--pulp-link);
+
+  // attention: orange fills, never orange text on a surface
+  --pf-t--global--color--status--warning--default: var(--pulp-signal);
+  --pf-t--global--color--status--warning--hover: var(--pulp-signal);
+  --pf-t--global--color--status--warning--clicked: var(--pulp-signal);
+  --pf-t--global--border--color--status--warning--default: var(--pulp-signal);
+  --pf-t--global--icon--color--status--warning--default: var(--pulp-signal);
+  --pf-t--global--color--status--unread--attention--default: var(--pulp-signal);
+  --pf-t--global--color--status--unread--attention--hover: var(--pulp-signal);
+  --pf-t--global--color--status--unread--attention--clicked: var(--pulp-signal);
+  --pf-t--global--text--color--status--on-warning--default: var(
+    --pulp-on-signal
+  );
+  --pf-t--global--icon--color--status--on-warning--default: var(
+    --pulp-on-signal
+  );
+  --pf-t--global--text--color--status--unread--on-attention--default: var(
+    --pulp-on-signal
+  );
+  --pf-t--global--text--color--status--warning--default: var(
+    --pulp-signal-text
+  );
+
+  // success
+  --pf-t--global--color--status--success--default: var(--pulp-ok);
+  --pf-t--global--color--status--success--hover: var(--pulp-ok);
+  --pf-t--global--color--status--success--clicked: var(--pulp-ok);
+  --pf-t--global--text--color--status--success--default: var(--pulp-ok);
+  --pf-t--global--text--color--status--success--hover: var(--pulp-ok);
+  --pf-t--global--text--color--status--success--clicked: var(--pulp-ok);
+  --pf-t--global--icon--color--status--success--default: var(--pulp-ok);
+  --pf-t--global--icon--color--status--success--hover: var(--pulp-ok);
+  --pf-t--global--icon--color--status--success--clicked: var(--pulp-ok);
+  --pf-t--global--border--color--status--success--default: var(--pulp-ok);
+  --pf-t--global--border--color--status--success--hover: var(--pulp-ok);
+  --pf-t--global--border--color--status--success--clicked: var(--pulp-ok);
+
+  // danger
+  --pf-t--global--color--status--danger--default: var(--pulp-bad);
+  --pf-t--global--color--status--danger--hover: var(--pulp-bad);
+  --pf-t--global--color--status--danger--clicked: var(--pulp-bad);
+  --pf-t--global--text--color--status--danger--default: var(--pulp-bad);
+  --pf-t--global--text--color--status--danger--hover: var(--pulp-bad);
+  --pf-t--global--text--color--status--danger--clicked: var(--pulp-bad);
+  --pf-t--global--icon--color--status--danger--default: var(--pulp-bad);
+  --pf-t--global--icon--color--status--danger--hover: var(--pulp-bad);
+  --pf-t--global--icon--color--status--danger--clicked: var(--pulp-bad);
+  --pf-t--global--border--color--status--danger--default: var(--pulp-bad);
+  --pf-t--global--border--color--status--danger--hover: var(--pulp-bad);
+  --pf-t--global--border--color--status--danger--clicked: var(--pulp-bad);
+
+  // radius: buttons and form controls take the small radius, cards and
+  // modals the medium one
+  --pf-t--global--border--radius--small: 8px;
+  --pf-t--global--border--radius--medium: 12px;
+  --pf-t--global--border--radius--action--default: var(
+    --pf-t--global--border--radius--small
+  );
+  --pf-t--global--border--radius--action--plain--default: var(
+    --pf-t--global--border--radius--small
+  );
+  --pf-t--global--border--radius--control--default: var(
+    --pf-t--global--border--radius--small
+  );
+  --pf-t--global--border--radius--control--form-element: var(
+    --pf-t--global--border--radius--small
+  );
+
+  // elevation: one shadow for everything that floats
+  --pf-t--global--box-shadow--md: var(--pulp-shadow);
+  --pf-t--global--box-shadow--lg: var(--pulp-shadow);
+
+  // type scale: text uses only 12, 14, 18 and 28px
+  --pf-t--global--font--size--heading--h1: var(--pf-t--global--font--size--3xl);
+  --pf-t--global--font--size--heading--h2: var(--pf-t--global--font--size--lg);
+  --pf-t--global--font--size--heading--h3: var(--pf-t--global--font--size--lg);
+  --pf-t--global--font--size--heading--h4: var(
+    --pf-t--global--font--size--body--default
+  );
+  --pf-t--global--font--size--heading--h5: var(
+    --pf-t--global--font--size--body--default
+  );
+  --pf-t--global--font--size--heading--h6: var(
+    --pf-t--global--font--size--body--default
+  );
+  --pf-t--global--font--size--md: var(--pf-t--global--font--size--sm);
+  --pf-t--global--font--size--xl: var(--pf-t--global--font--size--lg);
+  --pf-t--global--font--size--2xl: var(--pf-t--global--font--size--3xl);
+  --pf-t--global--font--size--body--lg: var(
+    --pf-t--global--font--size--body--default
+  );
+}

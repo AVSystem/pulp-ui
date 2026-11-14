@@ -11,6 +11,8 @@ import { Alert, LoadingSpinner } from 'src/components';
 import { dataRoutes } from './app-routes';
 import './darkmode';
 import './l10n';
+import './theme/shell.scss';
+import './theme/tokens.scss';
 import { configFallback, configPromise } from './ui-config';
 
 // App entrypoint

@@ -1,0 +1,73 @@
+// PatternFly component variables that have no semantic token, set from the
+// Pulp tokens. PatternFly declares each of them on its component class, so
+// they are set on the same class behind a :root prefix: the extra specificity
+// holds whichever order the stylesheets load in. No literal color lives here.
+
+// top bar
+:root .pf-v6-c-masthead {
+  --pf-v6-c-masthead--BackgroundColor: var(--pulp-bg);
+  --pf-v6-c-masthead--BorderColor: var(--pulp-line);
+}
+
+// sidebar, below and above the breakpoint where PatternFly swaps variables
+:root .pf-v6-c-page {
+  --pf-v6-c-page__sidebar--BackgroundColor: var(--pulp-nav);
+  --pf-v6-c-page__sidebar--xl--BackgroundColor: var(--pulp-nav);
+}
+
+// navigation: hover is a sunken tint, the current item a blue tint
+:root .pf-v6-c-nav {
+  --pf-v6-c-nav__link--hover--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-nav__link--m-current--BackgroundColor: var(--pulp-nav-active);
+}
+
+// Status labels are soft chips: a tinted fill with the status color as text.
+// Only the status variants are set; PatternFly's own color variants read their
+// values from other variables and are left alone.
+:root .pf-v6-c-label {
+  --pf-v6-c-label--m-success--BackgroundColor: var(--pulp-ok-soft);
+  --pf-v6-c-label--m-success--Color: var(--pulp-ok);
+  --pf-v6-c-label--m-success__icon--Color: var(--pulp-ok);
+  --pf-v6-c-label--m-success--m-clickable--hover--BackgroundColor: var(
+    --pulp-ok-soft
+  );
+  --pf-v6-c-label--m-success--m-clickable--hover--Color: var(--pulp-ok);
+  --pf-v6-c-label--m-success--m-clickable--hover__icon--Color: var(--pulp-ok);
+
+  --pf-v6-c-label--m-danger--BackgroundColor: var(--pulp-bad-soft);
+  --pf-v6-c-label--m-danger--Color: var(--pulp-bad);
+  --pf-v6-c-label--m-danger__icon--Color: var(--pulp-bad);
+  --pf-v6-c-label--m-danger--m-clickable--hover--BackgroundColor: var(
+    --pulp-bad-soft
+  );
+  --pf-v6-c-label--m-danger--m-clickable--hover--Color: var(--pulp-bad);
+  --pf-v6-c-label--m-danger--m-clickable--hover__icon--Color: var(--pulp-bad);
+
+  --pf-v6-c-label--m-warning--BackgroundColor: var(--pulp-signal-soft);
+  --pf-v6-c-label--m-warning--Color: var(--pulp-signal-text);
+  --pf-v6-c-label--m-warning__icon--Color: var(--pulp-signal-text);
+  --pf-v6-c-label--m-warning--m-clickable--hover--BackgroundColor: var(
+    --pulp-signal-soft
+  );
+  --pf-v6-c-label--m-warning--m-clickable--hover--Color: var(
+    --pulp-signal-text
+  );
+  --pf-v6-c-label--m-warning--m-clickable--hover__icon--Color: var(
+    --pulp-signal-text
+  );
+
+  --pf-v6-c-label--m-info--BackgroundColor: var(--pulp-primary-soft);
+  --pf-v6-c-label--m-info--Color: var(--pulp-primary);
+  --pf-v6-c-label--m-info__icon--Color: var(--pulp-primary);
+  --pf-v6-c-label--m-info--m-clickable--hover--BackgroundColor: var(
+    --pulp-primary-soft
+  );
+  --pf-v6-c-label--m-info--m-clickable--hover--Color: var(--pulp-primary);
+  --pf-v6-c-label--m-info--m-clickable--hover__icon--Color: var(--pulp-primary);
+}
+
+// code surfaces
+:root .pf-v6-c-code-block {
+  --pf-v6-c-code-block--BackgroundColor: var(--pulp-code);
+  color: var(--pulp-code-text);
+}
