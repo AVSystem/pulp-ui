@@ -1,12 +1,6 @@
 import { t } from '@lingui/core/macro';
-import {
-  Button,
-  Form,
-  FormGroup,
-  Modal,
-  ModalVariant,
-  TextInput,
-} from '@patternfly/react-core';
+import { Button, Form, FormGroup, TextInput } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { useState } from 'react';
 import { FormFieldHelper } from 'src/components';
 import { type ErrorMessagesType } from 'src/utilities';

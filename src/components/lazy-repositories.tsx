@@ -76,9 +76,7 @@ export const LazyRepositories = ({
 
   const errorElement = error && (
     <Tooltip content={t`Failed to load repositories: ${error}`} key='empty'>
-      <Button variant='plain'>
-        <ExclamationCircleIcon />
-      </Button>
+      <Button icon={<ExclamationCircleIcon />} variant='plain' />
     </Tooltip>
   );
 

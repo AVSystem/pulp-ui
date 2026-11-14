@@ -682,7 +682,7 @@ const AuthHandler = ({
   }
 
   const banner = beta ? (
-    <Banner variant='blue'>
+    <Banner color='blue'>
       <Flex spaceItems={{ default: 'spaceItemsSm' }}>
         <FlexItem>
           <WrenchIcon />

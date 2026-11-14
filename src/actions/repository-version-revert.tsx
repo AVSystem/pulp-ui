@@ -1,5 +1,6 @@
 import { msg, t } from '@lingui/core/macro';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { useState } from 'react';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
 import { handleHttpError } from '../utilities/fail-alerts';

@@ -12,11 +12,10 @@ export const PulpDownloadButton = ({
 }) => {
   return (
     <Button
+      icon={<DownloadIcon />}
       variant='plain'
       aria-label={t`Download ${filename}`}
       onClick={() => downloadString(text, filename)}
-    >
-      <DownloadIcon />
-    </Button>
+    />
   );
 };

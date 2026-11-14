@@ -24,13 +24,13 @@ export const HelpButton = ({
     position={PopoverPosition.top}
   >
     <Button
+      icon={<OutlinedQuestionCircleIcon />}
       iconPosition='left'
       style={{ padding: 0 }}
       variant={prefix ? 'link' : 'plain'}
     >
       {prefix}
       {prefix ? ' ' : ''}
-      <OutlinedQuestionCircleIcon />
     </Button>
   </Popover>
 );

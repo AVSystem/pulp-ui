@@ -87,12 +87,11 @@ export const CompoundFilter = ({
       {renderInput()}
       <InputGroupItem>
         <Button
+          icon={<SearchIcon />}
           onClick={() => submitFilter()}
           variant={ButtonVariant.control}
           isDisabled={!inputText.trim().length}
-        >
-          <SearchIcon />
-        </Button>
+        ></Button>
       </InputGroupItem>
     </InputGroup>
   );

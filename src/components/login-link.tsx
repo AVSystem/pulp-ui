@@ -12,7 +12,7 @@ export const LoginLink = ({ button }: IProps) => {
   const { pathname, search } = useLocation();
   // The whole address the user is on, so signing in lands back on it.
   const returnPath = `${pathname}${search}`;
-  const className = button ? 'pf-v5-c-button pf-m-primary' : '';
+  const className = button ? 'pf-v6-c-button pf-m-primary' : '';
 
   // NOTE: also update AuthHandler#render (src/routes.tsx) when changing this
   if (config.UI_EXTERNAL_LOGIN_URI) {

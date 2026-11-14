@@ -1,12 +1,5 @@
 import { t } from '@lingui/core/macro';
-import {
-  AboutModal,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextListItemVariants,
-  TextListVariants,
-} from '@patternfly/react-core';
+import { AboutModal, Content, ContentVariants } from '@patternfly/react-core';
 import { type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { DateComponent, ExternalLink, MaybeLink } from 'src/components';
@@ -19,11 +12,11 @@ import PulpLogo from 'static/images/pulp_logo.png';
 const FORK_REPOSITORY_URL = 'https://github.com/AVSystem/pulp-ui';
 
 const Label = ({ children }: { children: ReactNode }) => (
-  <TextListItem component={TextListItemVariants.dt}>{children}</TextListItem>
+  <Content component={ContentVariants.dt}>{children}</Content>
 );
 
 const Value = ({ children }: { children: ReactNode }) => (
-  <TextListItem component={TextListItemVariants.dd}>{children}</TextListItem>
+  <Content component={ContentVariants.dd}>{children}</Content>
 );
 
 interface IProps {
@@ -56,8 +49,8 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
       onClose={onClose}
       productName='Pulp UI'
     >
-      <TextContent>
-        <TextList component={TextListVariants.dl}>
+      <Content>
+        <Content component={ContentVariants.dl}>
           <Label>{t`Pulp core version`}</Label>
           <Value>
             {!pulp_core_version || pulp_core_version.includes('.dev') ? (
@@ -132,8 +125,8 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
               </>
             ))}
           </Value>
-        </TextList>
-      </TextContent>
+        </Content>
+      </Content>
     </AboutModal>
   );
 };

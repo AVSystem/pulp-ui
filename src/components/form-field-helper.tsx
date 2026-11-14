@@ -16,10 +16,7 @@ export function FormFieldHelper({
   return (
     <FormHelperText>
       <HelperText>
-        <HelperTextItem
-          variant={variant as HelperTextItemProps['variant']}
-          hasIcon={['success', 'error', 'warning'].includes(variant)}
-        >
+        <HelperTextItem variant={variant as HelperTextItemProps['variant']}>
           {children}
         </HelperTextItem>
       </HelperText>

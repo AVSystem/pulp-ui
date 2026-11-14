@@ -3,6 +3,7 @@ import {
   Masthead,
   MastheadBrand,
   MastheadContent,
+  MastheadLogo,
   MastheadMain,
   MastheadToggle,
   Page,
@@ -14,7 +15,6 @@ import {
   DropdownItem,
   DropdownSeparator,
 } from '@patternfly/react-core/deprecated';
-import BarsIcon from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
 import { type ReactNode, useState } from 'react';
 import { Link } from 'react-router';
@@ -114,23 +114,23 @@ export const Layout = ({ children }: { children: ReactNode }) => {
 
   const Header = (
     <Masthead>
-      <MastheadToggle>
-        <PageToggleButton>
-          <BarsIcon />
-        </PageToggleButton>
-      </MastheadToggle>
       <MastheadMain>
+        <MastheadToggle>
+          <PageToggleButton isHamburgerButton></PageToggleButton>
+        </MastheadToggle>
         <MastheadBrand>
-          <Link to={formatPath(Paths.core.status)}>
-            <SmallLogo alt='Pulp UI' />
-          </Link>
-          <span
-            style={{
-              padding: '9px 0 0 4px',
-            }}
-          >
-            Pulp UI
-          </span>
+          <MastheadLogo>
+            <Link to={formatPath(Paths.core.status)}>
+              <SmallLogo alt='Pulp UI' />
+            </Link>
+            <span
+              style={{
+                padding: '9px 0 0 4px',
+              }}
+            >
+              Pulp UI
+            </span>
+          </MastheadLogo>
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
@@ -152,9 +152,10 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       <PageSidebarBody isFilled={false}>
         <small
           style={{
-            color: 'var(--pf-v5-global--Color--200)',
+            color:
+              'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--Color--200 */,
             display: 'block',
-            padding: '0 var(--pf-v5-global--spacer--md)',
+            padding: 'var(--pf-t--global--spacer--md)',
           }}
         >
           {`pulp-ui ${UI_BUILD_INFO?.version} (${UI_BUILD_INFO?.hash?.slice(0, 7)})`}
@@ -164,7 +165,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <Page isManagedSidebar header={Header} sidebar={Sidebar}>
+    <Page isManagedSidebar masthead={Header} sidebar={Sidebar}>
       <AlertList
         alerts={alerts}
         closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}

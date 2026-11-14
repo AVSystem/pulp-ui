@@ -5,9 +5,9 @@ import {
   FormGroup,
   FormSelect,
   FormSelectOption,
-  Modal,
   Switch,
 } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { FormFieldHelper, HelpButton, Spinner } from 'src/components';
@@ -157,7 +157,7 @@ export const SyncModal = ({
         <FormGroup
           label={t`Sync policy`}
           fieldId='sync_policy'
-          labelIcon={
+          labelHelp={
             <HelpButton
               content={t`Additive keeps everything already in the repository. Mirror content only removes what the remote no longer has. Mirror complete also reproduces the remote's metadata exactly, which kickstart trees need.`}
             />
@@ -178,7 +178,7 @@ export const SyncModal = ({
       ) : (
         <FormGroup
           label={t`Mirror`}
-          labelIcon={
+          labelHelp={
             <HelpButton
               content={t`If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content.`}
             />
@@ -191,7 +191,6 @@ export const SyncModal = ({
               setSyncParams({ ...syncParams, mirror })
             }
             label={t`Content not present in remote repository will be removed from the local repository`}
-            labelOff={t`Sync will only add missing content`}
           />
           {mirrorLockedReason && (
             <FormFieldHelper>{mirrorLockedReason}</FormFieldHelper>
@@ -203,7 +202,7 @@ export const SyncModal = ({
         <>
           <FormGroup
             label={t`Optimize`}
-            labelIcon={
+            labelHelp={
               <HelpButton
                 content={t`Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option.`}
               />
@@ -215,7 +214,6 @@ export const SyncModal = ({
                 setSyncParams({ ...syncParams, optimize })
               }
               label={t`Only perform the sync if changes are reported by the remote server.`}
-              labelOff={t`Force a sync to happen.`}
             />
           </FormGroup>
           <br />

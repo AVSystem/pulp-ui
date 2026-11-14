@@ -2,12 +2,12 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Alert,
+  Content,
   FormGroup,
   Label,
   List,
   ListItem,
   Spinner,
-  Text,
   TextInput,
 } from '@patternfly/react-core';
 import { useEffect, useState } from 'react';
@@ -129,9 +129,9 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
   >
     {result.removed.length ? (
       <>
-        <Text>
+        <Content component='p'>
           <strong>{t`Removed`}</strong>
-        </Text>
+        </Content>
         <List>
           {result.removed.map((name) => (
             <ListItem key={name}>{name}</ListItem>
@@ -141,9 +141,9 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
     ) : null}
     {result.failed.length ? (
       <>
-        <Text>
+        <Content component='p'>
           <strong>{t`Not removed`}</strong>
-        </Text>
+        </Content>
         <List>
           {result.failed.map(({ name, reason }) => (
             <ListItem key={name}>
@@ -155,9 +155,9 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
     ) : null}
     {result.pending.length ? (
       <>
-        <Text>
+        <Content component='p'>
           <strong>{t`Still being removed`}</strong>
-        </Text>
+        </Content>
         <List>
           {result.pending.map(({ name, taskHref }) => (
             <ListItem key={name}>
@@ -169,9 +169,9 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
     ) : null}
     {result.unknown.length ? (
       <>
-        <Text>
+        <Content component='p'>
           <strong>{t`Outcome unknown, check the task`}</strong>
-        </Text>
+        </Content>
         <List>
           {result.unknown.map(({ name, taskHref }) => (
             <ListItem key={name}>
@@ -183,9 +183,9 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
     ) : null}
     {result.unlisted.length ? (
       <>
-        <Text>
+        <Content component='p'>
           <strong>{t`Not removed, not shown when this dialog opened`}</strong>
-        </Text>
+        </Content>
         <List>
           {result.unlisted.map((name) => (
             <ListItem key={name}>{name}</ListItem>
@@ -194,19 +194,19 @@ const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
       </>
     ) : null}
     {result.repositoryError ? (
-      <Text>{t`The repository could not be removed: ${result.repositoryError}`}</Text>
+      <Content component='p'>{t`The repository could not be removed: ${result.repositoryError}`}</Content>
     ) : null}
     {result.repositoryPending ? (
-      <Text>
+      <Content component='p'>
         {t`The repository is still being removed:`}{' '}
         <Link to={taskLink(result.repositoryPending)}>{t`task`}</Link>
-      </Text>
+      </Content>
     ) : null}
     {result.repositoryUnknown ? (
-      <Text>
+      <Content component='p'>
         {t`The outcome of removing the repository is unknown. Check the task:`}{' '}
         <Link to={taskLink(result.repositoryUnknown)}>{t`task`}</Link>
-      </Text>
+      </Content>
     ) : null}
   </Alert>
 );
@@ -285,11 +285,11 @@ export const DeleteRepositoryModal = ({
       title={t`Delete repository?`}
       variant='medium'
     >
-      <Text>
+      <Content component='p'>
         <Trans>
           Are you sure you want to delete the repository <b>{name}</b>?
         </Trans>
-      </Text>
+      </Content>
 
       {listing.status === 'loading' ? (
         <Spinner size='md' aria-label={t`Loading distributions`} />
@@ -308,18 +308,18 @@ export const DeleteRepositoryModal = ({
       {listing.status === 'ready' && !kept ? (
         listing.distributions.length ? (
           <>
-            <Text>
+            <Content component='p'>
               {t`These distributions serve the repository. They are deleted with it, and their URLs stop working:`}
-            </Text>
+            </Content>
             <DistributionList
               distributions={listing.distributions}
               guardNames={listing.guardNames}
             />
           </>
         ) : (
-          <Text>
+          <Content component='p'>
             {t`No distribution serves this repository. Only the repository is deleted.`}
-          </Text>
+          </Content>
         )
       ) : null}
 

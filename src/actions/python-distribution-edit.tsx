@@ -1,11 +1,6 @@
 import { msg, t } from '@lingui/core/macro';
-import {
-  Button,
-  Checkbox,
-  Form,
-  FormGroup,
-  Modal,
-} from '@patternfly/react-core';
+import { Button, Checkbox, Form, FormGroup } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { useEffect, useState } from 'react';
 import { PythonDistributionAPI } from '../api/python-distribution';
 import { PythonRemoteAPI } from '../api/python-remote';

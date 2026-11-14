@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { type ReactNode } from 'react';
 import { Spinner } from 'src/components';
 

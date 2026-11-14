@@ -5,8 +5,8 @@ import {
   DatePicker,
   Form,
   FormGroup,
-  Modal,
 } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { Alert } from 'src/components';
 
 interface IProps {

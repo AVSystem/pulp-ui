@@ -13,11 +13,11 @@ import {
   FormSelectOption,
   InputGroup,
   InputGroupItem,
-  Modal,
   Switch,
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 import { Component, type ReactNode } from 'react';
@@ -325,7 +325,7 @@ export class RemoteForm extends Component<IProps, IState> {
         <FormGroup
           fieldId={'url'}
           label={t`URL`}
-          labelIcon={
+          labelHelp={
             <HelpButton content={t`The URL of an external content source.`} />
           }
           isRequired={requiredFields.includes('url')}
@@ -349,7 +349,7 @@ export class RemoteForm extends Component<IProps, IState> {
           <FormGroup
             fieldId={'policy'}
             label={t`Download policy`}
-            labelIcon={
+            labelHelp={
               <HelpButton
                 content={t`Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it.`}
               />
@@ -381,7 +381,7 @@ export class RemoteForm extends Component<IProps, IState> {
                 key={field}
                 fieldId={field}
                 label={field === 'includes' ? t`Includes` : t`Excludes`}
-                labelIcon={
+                labelHelp={
                   <HelpButton
                     content={
                       field === 'includes'
@@ -412,7 +412,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'prereleases'}
               label={t`Pre-releases`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Whether to include pre-release versions in the sync.`}
                 />
@@ -431,7 +431,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'package_types'}
               label={t`Package types`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Package types to sync. Leave all unticked to sync every type.`}
                 />
@@ -469,7 +469,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'keep_latest_packages'}
               label={t`Latest versions kept per package`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions.`}
                 />
@@ -501,7 +501,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'exclude_platforms'}
               label={t`Excluded platforms`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Platforms whose packages should not be synced.`}
                 />
@@ -532,7 +532,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'provenance'}
               label={t`Provenance`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Whether to also sync the provenance attestations published for packages.`}
                 />
@@ -555,7 +555,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'distributions'}
               label={t`Distributions`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Whitespace separated list of distributions (also known as suites) to sync, for example "bookworm bookworm-updates".`}
                 />
@@ -585,7 +585,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'components'}
               label={t`Components`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Whitespace separated list of components to sync, for example "main contrib". If none are supplied, all that are available will be synchronized.`}
                 />
@@ -610,7 +610,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'architectures'}
               label={t`Architectures`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Whitespace separated list of architectures to sync, for example "amd64 arm64". If none are supplied, all that are available will be synchronized.`}
                 />
@@ -637,7 +637,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'gpgkey'}
               label={t`GPG key`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe.`}
                 />
@@ -676,7 +676,6 @@ export class RemoteForm extends Component<IProps, IState> {
                   this.updateRemote(value, 'sync_sources')
                 }
                 label={t`Source packages will be synchronized`}
-                labelOff={t`Source packages will be skipped`}
               />
             </FormGroup>
 
@@ -688,7 +687,6 @@ export class RemoteForm extends Component<IProps, IState> {
                   this.updateRemote(value, 'sync_udebs')
                 }
                 label={t`Installer packages will be synchronized`}
-                labelOff={t`Installer packages will be skipped`}
               />
             </FormGroup>
 
@@ -700,7 +698,6 @@ export class RemoteForm extends Component<IProps, IState> {
                   this.updateRemote(value, 'sync_installer')
                 }
                 label={t`Installer files will be synchronized`}
-                labelOff={t`Installer files will be skipped`}
               />
             </FormGroup>
           </>
@@ -747,7 +744,7 @@ export class RemoteForm extends Component<IProps, IState> {
           <FormGroup
             fieldId={'token'}
             label={t`Token`}
-            labelIcon={
+            labelHelp={
               <HelpButton
                 content={t`Token for authenticating to the server URL.`}
               />
@@ -780,7 +777,7 @@ export class RemoteForm extends Component<IProps, IState> {
           <FormGroup
             fieldId={'auth_url'}
             label={t`SSO URL`}
-            labelIcon={<HelpButton content={t`Single sign on URL.`} />}
+            labelHelp={<HelpButton content={t`Single sign on URL.`} />}
             isRequired={requiredFields.includes('auth_url')}
           >
             <TextInput
@@ -803,7 +800,7 @@ export class RemoteForm extends Component<IProps, IState> {
           <FormGroup
             fieldId={'yaml'}
             label={t`YAML requirements`}
-            labelIcon={
+            labelHelp={
               <HelpButton
                 content={
                   <Trans>
@@ -840,6 +837,7 @@ export class RemoteForm extends Component<IProps, IState> {
               </FlexItem>
               <FlexItem>
                 <Button
+                  icon={<DownloadIcon />}
                   isDisabled={!this.props.remote.requirements_file}
                   onClick={() =>
                     downloadString(
@@ -849,9 +847,7 @@ export class RemoteForm extends Component<IProps, IState> {
                   }
                   variant='plain'
                   aria-label={t`Download requirements file`}
-                >
-                  <DownloadIcon />
-                </Button>
+                />
               </FlexItem>
             </Flex>
             <ExpandableSection
@@ -872,17 +868,19 @@ export class RemoteForm extends Component<IProps, IState> {
                     <>
                       <pre>{yamlTemplate}</pre>
                       <Button
+                        icon={t`Use template`}
                         variant='plain'
                         onClick={() =>
                           this.updateRemote(yamlTemplate, 'requirements_file')
                         }
-                      >{t`Use template`}</Button>
+                      />
                       <Button
+                        icon={t`Start from scratch`}
                         variant='plain'
                         onClick={() =>
                           this.updateRemote('\n', 'requirements_file')
                         }
-                      >{t`Start from scratch`}</Button>
+                      />
                     </>
                   ) : null}
                 </FlexItem>
@@ -902,7 +900,7 @@ export class RemoteForm extends Component<IProps, IState> {
           data-cy='username'
           fieldId={'username'}
           label={t`Username`}
-          labelIcon={
+          labelHelp={
             <HelpButton
               content={
                 disabledFields.includes('token')
@@ -941,7 +939,7 @@ export class RemoteForm extends Component<IProps, IState> {
           data-cy='password'
           fieldId={'password'}
           label={t`Password`}
-          labelIcon={
+          labelHelp={
             <HelpButton
               content={
                 disabledFields.includes('token')
@@ -978,7 +976,7 @@ export class RemoteForm extends Component<IProps, IState> {
           toggleTextExpanded={t`Hide advanced options`}
           toggleTextCollapsed={t`Show advanced options`}
         >
-          <div className='pf-v5-c-form'>
+          <div className='pf-v6-c-form'>
             <FormGroup
               fieldId={'proxy_url'}
               label={t`Proxy URL`}
@@ -1075,7 +1073,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'tls_validation'}
               label={t`TLS validation`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`If selected, TLS peer validation must be performed.`}
                 />
@@ -1101,7 +1099,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'client_key'}
               label={t`Client key`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`A PEM encoded private key used for authentication.`}
                 />
@@ -1136,7 +1134,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'client_cert'}
               label={t`Client certificate`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`A PEM encoded client certificate used for authentication.`}
                 />
@@ -1160,6 +1158,7 @@ export class RemoteForm extends Component<IProps, IState> {
                 </FlexItem>
                 <FlexItem>
                   <Button
+                    icon={<DownloadIcon />}
                     data-cy='client_cert'
                     isDisabled={!this.props.remote.client_cert}
                     onClick={() =>
@@ -1170,9 +1169,7 @@ export class RemoteForm extends Component<IProps, IState> {
                     }
                     variant='plain'
                     aria-label={t`Download client certification file`}
-                  >
-                    <DownloadIcon />
-                  </Button>
+                  />
                 </FlexItem>
               </Flex>
               <FormFieldHelper
@@ -1185,7 +1182,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'ca_cert'}
               label={t`CA certificate`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`A PEM encoded client certificate used for authentication.`}
                 />
@@ -1207,6 +1204,7 @@ export class RemoteForm extends Component<IProps, IState> {
                 </FlexItem>
                 <FlexItem>
                   <Button
+                    icon={<DownloadIcon />}
                     data-cy='ca_cert'
                     isDisabled={!this.props.remote.ca_cert}
                     onClick={() =>
@@ -1217,9 +1215,7 @@ export class RemoteForm extends Component<IProps, IState> {
                     }
                     variant='plain'
                     aria-label={t`Download CA certification file`}
-                  >
-                    <DownloadIcon />
-                  </Button>
+                  />
                 </FlexItem>
               </Flex>
               <FormFieldHelper
@@ -1232,7 +1228,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'download_concurrency'}
               label={t`Download concurrency`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Total number of simultaneous connections.`}
                 />
@@ -1265,7 +1261,7 @@ export class RemoteForm extends Component<IProps, IState> {
             <FormGroup
               fieldId={'rate_limit'}
               label={t`Rate limit`}
-              labelIcon={
+              labelHelp={
                 <HelpButton
                   content={t`Limits total download rate in requests per second.`}
                 />
@@ -1296,7 +1292,7 @@ export class RemoteForm extends Component<IProps, IState> {
                 <FormGroup
                   fieldId={'total_timeout'}
                   label={t`Total timeout`}
-                  labelIcon={
+                  labelHelp={
                     <HelpButton
                       content={t`Total time in seconds allowed for one download, including connecting and reading. Decimals such as 2.5 are accepted.`}
                     />
@@ -1328,7 +1324,7 @@ export class RemoteForm extends Component<IProps, IState> {
                 <FormGroup
                   fieldId={'max_retries'}
                   label={t`Retries`}
-                  labelIcon={
+                  labelHelp={
                     <HelpButton
                       content={t`How many times a failed download is tried again before the sync gives up.`}
                     />
@@ -1363,7 +1359,8 @@ export class RemoteForm extends Component<IProps, IState> {
         {errorMessages['__nofield'] ? (
           <span
             style={{
-              color: 'var(--pf-v5-global--danger-color--200)',
+              color:
+                'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--200 */,
             }}
           >
             {errorMessages['__nofield']}

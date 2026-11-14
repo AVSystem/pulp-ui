@@ -71,9 +71,12 @@ export const PulpLabels = ({
     <LabelGroup
       isEditable
       addLabelControl={
-        <Button variant='plain' aria-label='Create new label' onClick={onAdd}>
-          <PlusCircleIcon />
-        </Button>
+        <Button
+          icon={<PlusCircleIcon />}
+          variant='plain'
+          aria-label='Create new label'
+          onClick={onAdd}
+        />
       }
       style={{ alignItems: 'center' }}
     >

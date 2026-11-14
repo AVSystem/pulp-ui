@@ -37,7 +37,7 @@ export const DistributionURLs = ({
 }) => {
   if (error) {
     return (
-      <span className='pf-v5-u-danger-color-100'>
+      <span className='pf-v6-u-danger-color-100'>
         {t`Distributions could not be loaded: ${error}`}
       </span>
     );

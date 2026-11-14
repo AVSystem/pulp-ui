@@ -207,7 +207,7 @@ describe('the delete repository dialog', () => {
 
     await waitFor(() => expect(deleteButton()).toBeDisabled());
     expect(
-      deleteButton().querySelector('.pf-v5-c-spinner'),
+      deleteButton().querySelector('.pf-v6-c-spinner'),
     ).toBeInTheDocument();
 
     finish(kept({ repositoryDeleted: true }));

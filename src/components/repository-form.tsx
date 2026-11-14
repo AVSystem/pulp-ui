@@ -300,7 +300,7 @@ export const RepositoryForm = ({
                 fieldId='base_path'
                 label={t`Base path`}
                 isRequired
-                style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}
+                style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}
               >
                 <TextInput
                   id='base_path'
@@ -408,7 +408,8 @@ export const RepositoryForm = ({
             {remotesError ? (
               <span
                 style={{
-                  color: 'var(--pf-v5-global--danger-color--200)',
+                  color:
+                    'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--200 */,
                 }}
               >
                 {t`Failed to load remotes: ${remotesError}`}
@@ -422,7 +423,8 @@ export const RepositoryForm = ({
       {errorMessages['__nofield'] ? (
         <span
           style={{
-            color: 'var(--pf-v5-global--danger-color--200)',
+            color:
+              'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--200 */,
           }}
         >
           {errorMessages['__nofield']}

@@ -9,13 +9,12 @@ import {
   type ClipboardCopyProps,
   type FileUploadProps,
   type IconComponentProps,
+  Label,
   type LabelGroupProps,
   type LoginFormProps,
   type NavListProps,
   Alert as PFAlert,
   Breadcrumb as PFBreadcrumb,
-  Chip as PFChip,
-  ChipGroup as PFChipGroup,
   ClipboardCopy as PFCopy,
   ClipboardCopyButton as PFCopyButton,
   FileUpload as PFFileUpload,
@@ -59,11 +58,11 @@ export const Breadcrumb = (props: BreadcrumbProps) => (
 );
 
 export const Chip = (props: Omit<ChipProps, 'ref'>) => (
-  <PFChip closeBtnAriaLabel={t`close`} {...props} />
+  <Label variant='outline' closeBtnAriaLabel={t`close`} {...props} />
 );
 
 export const ChipGroup = (props: Omit<ChipGroupProps, 'ref'>) => (
-  <PFChipGroup
+  <PFLabelGroup
     collapsedText={t`${count} more`}
     expandedText={t`Show less`}
     {...props}

@@ -2,13 +2,12 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Button,
-  Modal,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
+import { DropdownItem, Modal } from '@patternfly/react-core/deprecated';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Navigate } from 'react-router';
@@ -317,7 +316,7 @@ class GroupDetail extends Component<RouteProps, IState> {
         aria-label={t`add-user-modal`}
         title={''}
         header={
-          <span className='pf-v5-c-content'>
+          <span className='pf-v6-c-content'>
             <h2>{t`Add selected users to group`}</h2>{' '}
           </span>
         }

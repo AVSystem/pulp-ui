@@ -1,11 +1,6 @@
 import { t } from '@lingui/core/macro';
-import {
-  Button,
-  Form,
-  FormGroup,
-  Modal,
-  NumberInput,
-} from '@patternfly/react-core';
+import { Button, Form, FormGroup, NumberInput } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { DateComponent, FormFieldHelper } from 'src/components';
 
 interface IProps {
