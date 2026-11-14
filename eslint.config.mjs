@@ -96,6 +96,11 @@ export default defineConfig([
               name: '@patternfly/react-core',
             },
             {
+              importNames: ['Table'],
+              message: 'Import Table from src/components instead.',
+              name: '@patternfly/react-table',
+            },
+            {
               name: '@patternfly/react-core/deprecated',
               message:
                 'Use the PatternFly 6 component; the deprecated entry point is not used.',
@@ -132,7 +137,10 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/components/patternfly-wrappers/*.{js,jsx,ts,tsx}'],
+    files: [
+      'src/components/patternfly-wrappers/*.{js,jsx,ts,tsx}',
+      'src/components/table.tsx',
+    ],
     rules: {
       'no-restricted-imports': 'off',
     },

@@ -7,7 +7,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Link, Navigate } from 'react-router';
 import {
@@ -33,6 +33,7 @@ import {
   Main,
   PulpPagination,
   SortTable,
+  Table,
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';

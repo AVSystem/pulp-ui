@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Table, Td, Th, Tr } from '@patternfly/react-table';
+import { Td, Th, Tr } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { repositoryVersionRevertAction } from 'src/actions/repository-version-revert';
@@ -10,6 +10,7 @@ import {
   Details,
   ListItemActions,
   Spinner,
+  Table,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL } from 'src/utilities';

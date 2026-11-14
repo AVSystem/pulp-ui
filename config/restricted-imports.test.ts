@@ -11,6 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const WRAPPER_MESSAGE = 'Import from src/components instead.';
+const TABLE_MESSAGE = 'Import Table from src/components instead.';
 
 let eslint: ESLint;
 
@@ -59,6 +60,48 @@ describe('the PatternFly import rule', () => {
       await reports(
         "import { Alert } from '@patternfly/react-core';\nexport const x = Alert;",
         'src/components/patternfly-wrappers/alert.tsx',
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('the table import rule', () => {
+  it('reports Table imported from react-table', async () => {
+    const found = await reports(
+      "import { Table } from '@patternfly/react-table';\nexport const x = Table;",
+    );
+
+    expect(found).toHaveLength(1);
+    expect(found[0].ruleId).toBe('no-restricted-imports');
+    expect(found[0].severity).toBe(2);
+    expect(found[0].message).toContain(TABLE_MESSAGE);
+  });
+
+  it('reports Table among other table parts', async () => {
+    const found = await reports(
+      "import { Table, Tbody, Td } from '@patternfly/react-table';\nexport const x = [Table, Tbody, Td];",
+    );
+
+    expect(found).toHaveLength(1);
+    expect(found[0].message).toContain(TABLE_MESSAGE);
+  });
+
+  it.each(['Thead', 'Tbody', 'Tr', 'Th', 'Td'])(
+    'accepts %s imported from react-table',
+    async (name) => {
+      expect(
+        await reports(
+          `import { ${name} } from '@patternfly/react-table';\nexport const x = ${name};`,
+        ),
+      ).toEqual([]);
+    },
+  );
+
+  it('lets the wrapper import the table it wraps', async () => {
+    expect(
+      await reports(
+        "import { Table } from '@patternfly/react-table';\nexport const x = Table;",
+        'src/components/table.tsx',
       ),
     ).toEqual([]);
   });
@@ -117,6 +160,7 @@ describe('the effective configuration of a source file', () => {
 
     expect(entry[0]).toBe(2);
     expect(text).toContain(WRAPPER_MESSAGE);
+    expect(text).toContain(TABLE_MESSAGE);
     expect(text).toContain('@patternfly/react-core/deprecated');
     expect(text).not.toContain('src/api');
   });

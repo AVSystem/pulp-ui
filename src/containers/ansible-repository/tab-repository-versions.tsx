@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { PageSection } from '@patternfly/react-core';
-import { Table, Td, Th, Tr } from '@patternfly/react-table';
+import { Td, Th, Tr } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { ansibleRepositoryVersionRevertAction } from 'src/actions';
@@ -15,6 +15,7 @@ import {
   Details,
   ListItemActions,
   Spinner,
+  Table,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';

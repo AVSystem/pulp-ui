@@ -12,7 +12,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Navigate } from 'react-router';
 import {
@@ -41,6 +41,7 @@ import {
   NotFound,
   PulpPagination,
   SortTable,
+  Table,
   Typeahead,
   closeAlert,
 } from 'src/components';

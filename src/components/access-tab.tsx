@@ -8,7 +8,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { sortBy } from 'lodash';
 import { Component } from 'react';
 import { Link } from 'react-router';
@@ -27,6 +27,7 @@ import {
   SelectUser,
   SortTable,
   Spinner,
+  Table,
   WizardModal,
 } from 'src/components';
 import { type RoleType } from '../api/response-types/role';

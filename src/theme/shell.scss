@@ -694,3 +694,10 @@
     display: none;
   }
 }
+
+// Tables keep their rows at every width. A table wider than its container
+// scrolls inside this box, so the page itself never scrolls sideways.
+.pulp-table-scroll {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}

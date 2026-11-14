@@ -92,6 +92,7 @@ export { SortTable } from './sort-table';
 export { StatefulDropdown } from './stateful-dropdown';
 export { StatusIndicator } from './status-indicator';
 export { SyncModal } from './sync-modal';
+export { Table } from './table';
 export { Typeahead } from './typeahead';
 export { UIVersion } from './ui-version';
 export { UserForm } from './user-form';
