@@ -63,3 +63,16 @@ describe('the build stamp commit', () => {
     expect(typeof config).toBe('function');
   });
 });
+
+describe('the emitted font files', () => {
+  it('carry a content hash in their names, so an older font file is never served under a newer name', () => {
+    const config = load('0123456789abcdef'.repeat(2) + '01234567')({
+      DEV_PROXY: {},
+    });
+    const rule = config.module.rules.find(
+      (item: { type?: string }) => item.type === 'asset/resource',
+    );
+
+    expect(rule.generator.filename).toMatch(/\[contenthash\]/);
+  });
+});
