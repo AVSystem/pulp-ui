@@ -95,6 +95,14 @@ msgstr ""
 #~ msgid "{company} logo"
 #~ msgstr "{company} logo"
 
+#: src/shell/task-counts.tsx
+msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
+msgstr ""
+
+#: src/shell/task-counts.tsx
+msgid "{count, plural, one {# running task} other {# running tasks}}"
+msgstr ""
+
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Dependency} other {Dependencies}}"
 #~ msgstr "{count, plural, one {Dependency} other {Dependencies}}"

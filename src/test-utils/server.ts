@@ -15,6 +15,11 @@ export const defaultHandlers = [
   http.get('*/pulp/api/v3/login/', () =>
     HttpResponse.json({ detail: 'Not authenticated.' }, { status: 401 }),
   ),
+  // The shell asks for the tasks it shows counts and notifications for; with no
+  // handler of a test, nobody has any.
+  http.get('*/pulp/api/v3/tasks/', () =>
+    HttpResponse.json({ count: 0, next: null, previous: null, results: [] }),
+  ),
   // The plugins every route of the application needs.
   http.get('*/pulp/api/v3/status/', () =>
     HttpResponse.json({

@@ -9,13 +9,18 @@ import ShieldAltIcon from '@patternfly/react-icons/dist/esm/icons/shield-alt-ico
 import TasksIcon from '@patternfly/react-icons/dist/esm/icons/tasks-icon';
 import UsersIcon from '@patternfly/react-icons/dist/esm/icons/users-icon';
 import navStyles from '@patternfly/react-styles/css/components/Nav/nav.mjs';
-import { type ComponentType, useMemo, useState } from 'react';
+import { type ComponentType, type ReactNode, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { NavList } from 'src/components';
 import { ListErrorState } from 'src/components/list-error-state';
 import { requestErrorDescription } from 'src/utilities/request-error';
 import { Paths, formatPath } from './paths';
 import { usePlugins } from './plugins';
+import {
+  TaskCountPills,
+  taskEntryName,
+  useTaskCounts,
+} from './shell/task-counts';
 import { useUserContext } from './user-context';
 
 // One screen the menu leads to, or one expandable section holding screens.
@@ -309,17 +314,62 @@ function EntryLink({
   entry: IMenuEntry;
   pathname: string;
 }) {
+  return entry.id === 'tasks' ? (
+    <TasksEntryLink entry={entry} pathname={pathname} />
+  ) : (
+    <EntryLinkView entry={entry} pathname={pathname} />
+  );
+}
+
+// The Tasks entry carries the counts of running and recently failed tasks.
+function TasksEntryLink({
+  entry,
+  pathname,
+}: {
+  entry: IMenuEntry;
+  pathname: string;
+}) {
+  const counts = useTaskCounts();
+
+  return (
+    <EntryLinkView
+      entry={entry}
+      pathname={pathname}
+      name={taskEntryName(entry.label, counts)}
+      end={<TaskCountPills {...counts} />}
+    />
+  );
+}
+
+function EntryLinkView({
+  entry,
+  pathname,
+  name,
+  end,
+}: {
+  entry: IMenuEntry;
+  pathname: string;
+  // Replaces the label as the accessible name of the link.
+  name?: string;
+  // Shown after the label, at the end of the row.
+  end?: ReactNode;
+}) {
   const Icon = entry.icon;
 
   return (
     <NavItem isActive={isCurrent(entry, pathname)}>
-      <Link to={entry.path as string} data-cy={`pulp-menu-item-${entry.id}`}>
+      <Link
+        to={entry.path as string}
+        aria-label={name}
+        data-cy={`pulp-menu-item-${entry.id}`}
+      >
         {Icon ? (
           <span className={navStyles.navLinkIcon} aria-hidden='true'>
             <Icon />
           </span>
         ) : null}
         <span className={navStyles.navLinkText}>{entry.label}</span>
+        {end}
       </Link>
     </NavItem>
   );
