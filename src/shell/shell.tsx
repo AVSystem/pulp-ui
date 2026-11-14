@@ -9,19 +9,12 @@ import {
   MastheadMain,
   MastheadToggle,
   Page,
-  PageContext,
   PageSidebar,
-  PageSidebarBody,
   PageToggleButton,
   SkipToContent,
 } from '@patternfly/react-core';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
-import {
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-  useContext,
-  useState,
-} from 'react';
+import { type ComponentPropsWithoutRef, type ReactNode, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
   AlertList,
@@ -33,10 +26,10 @@ import {
   StatefulDropdown,
   closeAlert,
 } from 'src/components';
-import { PulpMenu } from 'src/menu';
 import { Paths, formatPath } from 'src/paths';
 import { useUserContext } from 'src/user-context';
 import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
+import { SidebarContent, initialSidebarOpen, useSidebar } from './sidebar';
 
 export const MAIN_CONTENT_ID = 'main-content';
 
@@ -135,27 +128,31 @@ const ShellMasthead = ({
   signOut: () => void;
   showAbout: () => void;
 }) => {
-  const { isSidebarOpen, isMobile } = useContext(PageContext);
+  const { isOpen, isNarrow, toggle } = useSidebar();
   // On a wide screen with the sidebar open, the brand cell continues the
-  // sidebar column and the toggle has nothing to do.
-  const framed = !isMobile && isSidebarOpen;
+  // sidebar column and the sidebar footer holds the button that collapses it.
+  const framed = !isNarrow && isOpen;
 
-  const toggleLabel = isMobile
-    ? isSidebarOpen
+  const toggleLabel = isNarrow
+    ? isOpen
       ? t`Close navigation`
       : t`Open navigation`
-    : isSidebarOpen
-      ? t`Collapse sidebar`
-      : t`Expand sidebar`;
+    : t`Expand sidebar`;
 
   return (
     <Masthead
       className={framed ? 'pulp-masthead pulp-framed' : 'pulp-masthead'}
     >
       <MastheadMain>
-        <MastheadToggle>
-          <PageToggleButton isHamburgerButton aria-label={toggleLabel} />
-        </MastheadToggle>
+        {framed ? null : (
+          <MastheadToggle>
+            <PageToggleButton
+              isHamburgerButton
+              aria-label={toggleLabel}
+              onClick={toggle}
+            />
+          </MastheadToggle>
+        )}
         <MastheadBrand>
           <BrandCell />
         </MastheadBrand>
@@ -179,6 +176,8 @@ const ShellMasthead = ({
 // navigation, and the main container the routed screen renders into.
 export const Shell = ({ children }: { children: ReactNode }) => {
   const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);
+  // Read once: the page only uses it when it starts.
+  const [startsOpen] = useState(initialSidebarOpen);
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const { user, logout } = useUserContext();
 
@@ -205,6 +204,7 @@ export const Shell = ({ children }: { children: ReactNode }) => {
   return (
     <Page
       isManagedSidebar
+      defaultManagedSidebarIsOpen={startsOpen}
       masthead={
         <ShellMasthead
           username={username}
@@ -214,9 +214,7 @@ export const Shell = ({ children }: { children: ReactNode }) => {
       }
       sidebar={
         <PageSidebar>
-          <PageSidebarBody>
-            <PulpMenu />
-          </PageSidebarBody>
+          <SidebarContent />
         </PageSidebar>
       }
       skipToContent={

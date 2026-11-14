@@ -1193,7 +1193,7 @@ msgstr "Close YAML editor"
 msgid "Code"
 msgstr "Code"
 
-#: src/shell/shell.tsx
+#: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
 msgstr "Collapse sidebar"
 
@@ -5074,6 +5074,10 @@ msgstr "Publish upstream release fields"
 #: src/actions/python-distribution-edit.tsx
 msgid "Pull-through remote"
 msgstr "Pull-through remote"
+
+#: src/shell/sidebar.tsx
+msgid "Pulp {version}"
+msgstr "Pulp {version}"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Ansible Version"

@@ -1192,7 +1192,7 @@ msgstr "YAML-editor sluiten"
 msgid "Code"
 msgstr "Code"
 
-#: src/shell/shell.tsx
+#: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
 msgstr ""
 
@@ -5072,6 +5072,10 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Pull-through remote"
+msgstr ""
+
+#: src/shell/sidebar.tsx
+msgid "Pulp {version}"
 msgstr ""
 
 #: src/components/pulp-about-modal.tsx

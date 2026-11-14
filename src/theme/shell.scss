@@ -29,6 +29,11 @@
   --pf-v6-c-page__main-container--BorderInlineEndWidth: 0;
 }
 
+// A collapsed sidebar leaves no line behind.
+:root .pf-v6-c-page__sidebar.pf-m-collapsed {
+  border-inline-end-width: 0;
+}
+
 // The sidebar body is the part that scrolls; a footer below it stays put.
 :root .pf-v6-c-page__sidebar-main {
   min-height: 0;
@@ -85,10 +90,6 @@
       overflow: hidden;
       background-color: var(--pulp-nav);
       border-inline-end: 1px solid var(--pulp-line);
-    }
-
-    .pf-v6-c-masthead__toggle {
-      display: none;
     }
 
     .pf-v6-c-masthead__content {
@@ -219,6 +220,59 @@
 // the plugin list could not be read: the error state sits in the menu
 :root .pulp-menu__error {
   list-style: none;
+}
+
+// Sidebar: the menu scrolls inside the sidebar, the footer stays below it.
+.pulp-sidebar__menu {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.pulp-sidebar__footer {
+  display: flex;
+  flex: none;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-block-start: 1px solid var(--pulp-line);
+}
+
+.pulp-sidebar__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--pulp-text-3);
+}
+
+.pulp-sidebar__host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root .pulp-sidebar__collapse {
+  --pf-v6-c-button--PaddingBlockStart: 0;
+  --pf-v6-c-button--PaddingBlockEnd: 0;
+  --pf-v6-c-button--PaddingInlineStart: 0;
+  --pf-v6-c-button--PaddingInlineEnd: 0;
+  flex: none;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  color: var(--pulp-text-2);
+
+  &:hover {
+    background-color: var(--pulp-sunken);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
 }
 
 // Status labels are soft chips: a tinted fill with the status color as text.
