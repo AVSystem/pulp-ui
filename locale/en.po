@@ -1169,6 +1169,7 @@ msgstr "Client key"
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "Clients cannot download its content until a distribution serves it."
 
+#: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "close"
 msgstr "close"

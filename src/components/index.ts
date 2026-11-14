@@ -50,8 +50,6 @@ export { PageWithTabs } from './page-with-tabs';
 export {
   Alert,
   Breadcrumb,
-  Chip,
-  ChipGroup,
   ClipboardCopy,
   ClipboardCopyButton,
   FileUpload,

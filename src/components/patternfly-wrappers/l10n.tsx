@@ -3,13 +3,10 @@ import { Trans } from '@lingui/react/macro';
 import {
   type AlertProps,
   type BreadcrumbProps,
-  type ChipGroupProps,
-  type ChipProps,
   type ClipboardCopyButtonProps,
   type ClipboardCopyProps,
   type FileUploadProps,
   type IconComponentProps,
-  Label,
   type LabelGroupProps,
   type LoginFormProps,
   type NavListProps,
@@ -55,18 +52,6 @@ export const Alert = ({ variant, ...props }: AlertProps) => {
 
 export const Breadcrumb = (props: BreadcrumbProps) => (
   <PFBreadcrumb aria-label={t`Breadcrumb`} {...props} />
-);
-
-export const Chip = (props: Omit<ChipProps, 'ref'>) => (
-  <Label variant='outline' closeBtnAriaLabel={t`close`} {...props} />
-);
-
-export const ChipGroup = (props: Omit<ChipGroupProps, 'ref'>) => (
-  <PFLabelGroup
-    collapsedText={t`${count} more`}
-    expandedText={t`Show less`}
-    {...props}
-  />
 );
 
 export const ClipboardCopy = (props: Omit<ClipboardCopyProps, 'ref'>) => (
