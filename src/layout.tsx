@@ -156,8 +156,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       <PageSidebarBody isFilled={false}>
         <small
           style={{
-            color:
-              'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--Color--200 */,
+            color: 'var(--pf-t--global--text--color--subtle)',
             display: 'block',
             padding: 'var(--pf-t--global--spacer--md)',
           }}

@@ -1,4 +1,5 @@
 import { DropdownItem } from '@patternfly/react-core';
+import menuToggleStyles from '@patternfly/react-styles/css/components/MenuToggle/menu-toggle.mjs';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -141,9 +142,11 @@ describe('StatefulDropdown', () => {
     const withIndicator = container.querySelector('[data-cy=with-indicator]');
 
     expect(icon).toHaveTextContent('EN');
-    expect(icon?.querySelector('.pf-v6-c-menu-toggle__controls')).toBeNull();
     expect(
-      withIndicator?.querySelector('.pf-v6-c-menu-toggle__controls'),
+      icon?.querySelector(`.${menuToggleStyles.menuToggleControls}`),
+    ).toBeNull();
+    expect(
+      withIndicator?.querySelector(`.${menuToggleStyles.menuToggleControls}`),
     ).not.toBeNull();
   });
 

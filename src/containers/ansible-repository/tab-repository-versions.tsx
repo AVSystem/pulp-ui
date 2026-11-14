@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { PageSection } from '@patternfly/react-core';
 import { Table, Td, Th, Tr } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
@@ -280,8 +281,9 @@ export const RepositoryVersionsTab = ({
             },
           ]}
         />
-        <div
-          className='pf-v6-c-page__main-section'
+        <PageSection
+          component='div'
+          hasBodyWrapper={false}
           style={{ padding: '8px 0', margin: '24px -16px 0' }}
         />
         <VersionContent

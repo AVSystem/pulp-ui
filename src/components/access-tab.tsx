@@ -3,6 +3,7 @@ import { Trans } from '@lingui/react/macro';
 import {
   Button,
   DropdownItem,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -72,13 +73,13 @@ interface IProps {
 }
 
 const SectionTitle = ({ title }: { title: string }) => (
-  <h2 className='pf-v6-c-title'>{title}</h2>
+  <Title headingLevel='h2'>{title}</Title>
 );
 const SectionSeparator = () => (
   <div
     style={{
       backgroundColor:
-        'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--BackgroundColor--light-300 */,
+        'var(--pf-t--global--background--color--secondary--default)',
       height: '16px',
       margin: '16px -16px',
     }}
@@ -385,10 +386,10 @@ export class AccessTab extends Component<IProps> {
         {showRoleRemoveModal ? this.renderRoleRemoveModal() : null}
         {showRoleSelectWizard ? this.renderRoleSelectWizard() : null}
 
-        <h3 className='pf-v6-c-title'>
+        <Title headingLevel='h3'>
           {user ? t`User ${user.username}` : null}
           {group ? t`Group ${group.name}` : null}
-        </h3>
+        </Title>
 
         {canEditOwners && (
           <div>

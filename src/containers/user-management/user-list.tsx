@@ -8,6 +8,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
+import tableStyles from '@patternfly/react-styles/css/components/Table/table.mjs';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Link, Navigate } from 'react-router';
@@ -267,13 +268,13 @@ class UserList extends Component<RouteProps, IState> {
           title: t`First name`,
           type: 'alpha',
           id: 'first_name',
-          className: 'pf-m-wrap',
+          className: tableStyles.modifiers.wrap,
         },
         {
           title: t`Last name`,
           type: 'alpha',
           id: 'last_name',
-          className: 'pf-m-wrap',
+          className: tableStyles.modifiers.wrap,
         },
         {
           title: t`Email`,

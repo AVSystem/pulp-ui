@@ -20,6 +20,7 @@ import {
 import { Modal } from '@patternfly/react-core/deprecated';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
+import formStyles from '@patternfly/react-styles/css/components/Form/form.mjs';
 import { Component, type ReactNode } from 'react';
 import { type RemoteType } from 'src/api';
 import { AppContext } from 'src/app-context';
@@ -976,7 +977,7 @@ export class RemoteForm extends Component<IProps, IState> {
           toggleTextExpanded={t`Hide advanced options`}
           toggleTextCollapsed={t`Show advanced options`}
         >
-          <div className='pf-v6-c-form'>
+          <div className={formStyles.form}>
             <FormGroup
               fieldId={'proxy_url'}
               label={t`Proxy URL`}
@@ -1360,7 +1361,7 @@ export class RemoteForm extends Component<IProps, IState> {
           <span
             style={{
               color:
-                'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--200 */,
+                'var(--pf-t--global--text--color--status--danger--default)',
             }}
           >
             {errorMessages['__nofield']}

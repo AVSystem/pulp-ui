@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Button,
+  Content,
   DropdownItem,
   Toolbar,
   ToolbarContent,
@@ -317,9 +318,7 @@ class GroupDetail extends Component<RouteProps, IState> {
         aria-label={t`add-user-modal`}
         title={''}
         header={
-          <span className='pf-v6-c-content'>
-            <h2>{t`Add selected users to group`}</h2>{' '}
-          </span>
+          <Content component='h2'>{t`Add selected users to group`}</Content>
         }
         actions={[
           <Button

@@ -1,5 +1,6 @@
 import { Button } from '@patternfly/react-core';
 import FlaskIcon from '@patternfly/react-icons/dist/esm/icons/flask-icon';
+import emptyStateStyles from '@patternfly/react-styles/css/components/EmptyState/empty-state.mjs';
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -32,8 +33,12 @@ describe('EmptyStateCustom', () => {
     );
 
     expect(container.querySelector('svg')).toBeNull();
-    expect(container.querySelector('.pf-v6-c-empty-state__footer')).toBeNull();
-    expect(container.querySelector('.pf-v6-c-empty-state__icon')).toBeNull();
+    expect(
+      container.querySelector(`.${emptyStateStyles.emptyStateFooter}`),
+    ).toBeNull();
+    expect(
+      container.querySelector(`.${emptyStateStyles.emptyStateIcon}`),
+    ).toBeNull();
   });
 
   it('renders the footer with the button but without an icon', () => {
@@ -47,7 +52,7 @@ describe('EmptyStateCustom', () => {
 
     expect(container.querySelector('svg')).toBeNull();
     expect(
-      container.querySelector('.pf-v6-c-empty-state__footer'),
+      container.querySelector(`.${emptyStateStyles.emptyStateFooter}`),
     ).not.toBeNull();
   });
 });

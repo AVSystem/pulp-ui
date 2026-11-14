@@ -49,7 +49,7 @@ function PulpLoginPage(_props) {
     <LoginPage
       style={{
         backgroundColor:
-          'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--BackgroundColor--dark-100 */,
+          'var(--pf-t--global--background--color--inverse--default)',
       }}
       loginTitle={t`Login`}
       brandImgSrc={PulpLogo}
@@ -66,7 +66,7 @@ function PulpLoginPage(_props) {
               <span
                 style={{
                   color:
-                    'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--100 */,
+                    'var(--pf-t--global--text--color--status--danger--default)',
                 }}
               >
                 <ExclamationCircleIcon /> {error}

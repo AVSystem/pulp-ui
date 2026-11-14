@@ -409,7 +409,7 @@ export const RepositoryForm = ({
               <span
                 style={{
                   color:
-                    'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--200 */,
+                    'var(--pf-t--global--text--color--status--danger--default)',
                 }}
               >
                 {t`Failed to load remotes: ${remotesError}`}
@@ -423,8 +423,7 @@ export const RepositoryForm = ({
       {errorMessages['__nofield'] ? (
         <span
           style={{
-            color:
-              'var(--pf-t--temp--dev--tbd)' /* CODEMODS: original v5 color was --pf-v5-global--danger-color--200 */,
+            color: 'var(--pf-t--global--text--color--status--danger--default)',
           }}
         >
           {errorMessages['__nofield']}
