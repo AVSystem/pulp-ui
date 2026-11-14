@@ -1,12 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Label } from '@patternfly/react-core';
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-} from '@patternfly/react-core/deprecated';
 import { useState } from 'react';
-import { LabelGroup } from 'src/components';
+import { LabelGroup, Typeahead } from 'src/components';
 
 interface IProps {
   availablePermissions?: string[];
@@ -20,19 +15,22 @@ interface IProps {
 // FIXME
 const model_permissions = {};
 
+const permissionLabel = (permission: string) =>
+  model_permissions[permission]?.name || permission;
+
 export const PermissionChipSelector = ({
-  availablePermissions,
+  availablePermissions = [],
   isDisabled,
   isViewOnly,
   onCategoryClear,
   onPermissionToggle,
   selectedPermissions,
 }: IProps) => {
-  const [isOpen, setOpen] = useState(false);
+  const [filter, setFilter] = useState('');
 
   if (isViewOnly) {
     const items = selectedPermissions.map((permission) => ({
-      label: model_permissions[permission]?.name || permission,
+      label: permissionLabel(permission),
       value: permission,
     }));
 
@@ -50,40 +48,39 @@ export const PermissionChipSelector = ({
     );
   }
 
-  // { value: 'galaxy.foo', toString: () => "View foo (translated)" }
-  const selections = selectedPermissions.map((permission) => ({
-    value: permission,
-    toString: () => model_permissions[permission]?.name || permission,
-  }));
+  const toOption = (permission: string) => ({
+    id: permission,
+    name: permissionLabel(permission),
+  });
+
+  // the permissions are all known up front, so they are narrowed here
+  const needle = filter.trim().toLowerCase();
+  const results = availablePermissions
+    .map(toOption)
+    .filter(({ name }) => name.toLowerCase().includes(needle));
+  const selections = selectedPermissions.map(toOption);
 
   return (
-    <Select
-      menuAppendTo='inline'
-      variant={SelectVariant.typeaheadMulti}
-      typeAheadAriaLabel={t`Select permissions`}
-      onToggle={(_event, isOpen) => setOpen(isOpen)}
-      onSelect={(_event, permission) =>
-        onPermissionToggle(permission['value'] || permission)
-      }
-      onClear={() => onCategoryClear()}
-      selections={selections}
-      isOpen={isOpen}
+    <Typeahead
+      multiple
+      isDisabled={!!isDisabled}
+      loadResults={setFilter}
+      onClear={() => onCategoryClear?.()}
+      onSelect={(_event, name) => {
+        const permission = [...results, ...selections].find(
+          (option) => option.name === name,
+        )?.id;
+        onPermissionToggle?.(permission ?? name);
+      }}
       placeholderText={
-        !isDisabled && !isViewOnly
+        !isDisabled
           ? t`Select permissions`
           : selectedPermissions.length === 0
             ? t`No permission`
             : ''
       }
-      isDisabled={!!isDisabled}
-    >
-      {availablePermissions.length === 0
-        ? [<SelectOption isDisabled key={'not_found'} value={t`Not found`} />]
-        : availablePermissions.map((permission) => (
-            <SelectOption key={permission} value={permission}>
-              {model_permissions[permission]?.name || permission}
-            </SelectOption>
-          ))}
-    </Select>
+      results={results}
+      selections={selections}
+    />
   );
 };
