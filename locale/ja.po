@@ -3152,6 +3152,7 @@ msgstr ""
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "File"
 msgstr ""
 
@@ -4478,6 +4479,10 @@ msgstr "絞り込みの基準と一致する結果がありません。フィル
 #~ msgid "No roles yet"
 #~ msgstr "ロールはまだありません"
 
+#: src/shell/command-palette.tsx
+msgid "No screens or repositories match"
+msgstr ""
+
 #: src/containers/signature-keys/list.tsx
 msgid "No signature keys yet"
 msgstr "署名鍵はまだありません"
@@ -4614,6 +4619,10 @@ msgstr ""
 
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 msgstr ""
 
 #: src/shell/notifications.tsx
@@ -5801,6 +5810,7 @@ msgstr ""
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "Repositories"
 msgstr "リポジトリー"
 
@@ -5988,6 +5998,10 @@ msgstr ""
 
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Retry repository search"
 msgstr ""
 
 #: src/components/render-plugin-doc.tsx
@@ -6273,6 +6287,10 @@ msgstr ""
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
 #~ msgstr "search text input"
+
+#: src/shell/command-palette.tsx
+msgid "Searching repositories..."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Seconds. Leave empty to use the server default."
@@ -6668,6 +6686,10 @@ msgstr ""
 
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Some repository lists could not be searched."
 msgstr ""
 
 #: src/components/sort.tsx

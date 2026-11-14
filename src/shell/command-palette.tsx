@@ -1,5 +1,6 @@
 import { plural, t } from '@lingui/core/macro';
 import {
+  Button,
   Menu,
   MenuContent,
   MenuItem,
@@ -8,11 +9,13 @@ import {
   ModalBody,
   TextInputGroup,
   TextInputGroupMain,
+  Title,
 } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import menuStyles from '@patternfly/react-styles/css/components/Menu/menu.mjs';
 import {
   type KeyboardEvent,
+  useCallback,
   useEffect,
   useId,
   useMemo,
@@ -20,10 +23,25 @@ import {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router';
+import { GenericRepositoryAPI } from 'src/api/generic-pulp';
+import { Spinner } from 'src/components';
 import { useMenuModel } from 'src/menu';
+import { Paths, formatPath } from 'src/paths';
+import { usePlugins } from 'src/plugins';
+import { useUserContext } from 'src/user-context';
 
 // The most screens the palette lists.
 const SCREEN_LIMIT = 8;
+
+// A search needs at least this many characters and starts this long after the
+// last keystroke.
+const MIN_REPOSITORY_QUERY = 2;
+const DEBOUNCE_MS = 250;
+
+// How many repositories of one type the palette lists, and how many the one
+// request asks for, so that several types can be represented in the answer.
+const REPOSITORIES_PER_TYPE = 5;
+const REPOSITORY_REQUEST_SIZE = 50;
 
 const TRIGGER_ID = 'pulp-palette-trigger';
 const INPUT_ID = 'pulp-palette-input';
@@ -40,17 +58,165 @@ function isApplePlatform(): boolean {
 }
 
 // One line of the result list: where choosing it leads, the name on the left
-// and, optionally, a short qualifier in the right column.
+// and, for a repository, the plugin it belongs to in the right column.
 interface IResult {
   id: string;
   name: string;
   path: string;
+  plugin?: string;
 }
 
 interface IGroup {
   id: string;
   title: string;
   results: IResult[];
+  // What the group's own line below its results says about the search.
+  status?: 'loading' | 'failed';
+}
+
+interface IRepositoryRow {
+  pulp_href: string;
+  name: string;
+}
+
+// The plugins whose repositories have a screen of their own: the name shown
+// for the plugin and where a repository of it opens.
+function repositoryScreens(): Record<
+  string,
+  { label: string; detail: string }
+> {
+  return {
+    file: { label: t`File`, detail: Paths.file.repository.detail },
+    deb: { label: 'deb', detail: Paths.deb.repository.detail },
+    rpm: { label: 'RPM', detail: Paths.rpm.repository.detail },
+    python: { label: 'Python', detail: Paths.python.repository.detail },
+    ansible: { label: 'Ansible', detail: Paths.ansible.repository.detail },
+  };
+}
+
+// The plugin and the type of a repository, which are the two segments of its
+// address after "repositories", for example deb and apt.
+function repositoryKind(href: string): { plugin: string; type: string } | null {
+  const match = /\/repositories\/([^/]+)\/([^/]+)\//.exec(href);
+  return match ? { plugin: match[1], type: match[2] } : null;
+}
+
+type RepositorySearch =
+  | { state: 'off' }
+  | { state: 'loading' }
+  | { state: 'refused' }
+  | { state: 'failed'; retry: () => void }
+  | { state: 'ready'; repositories: IRepositoryRow[] };
+
+type Answer =
+  | { text: string; state: 'refused' | 'failed' }
+  | { text: string; state: 'ready'; repositories: IRepositoryRow[] };
+
+// Looks repositories up by name with one request to the list of all
+// repositories, once the text has stopped changing. While the text is shorter
+// than the minimum, or searching is not possible, nothing is asked. An answer
+// to a text that is no longer the one typed is dropped.
+function useRepositorySearch(text: string, enabled: boolean): RepositorySearch {
+  const active = enabled && text.length >= MIN_REPOSITORY_QUERY;
+  const [settled, setSettled] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  const [answer, setAnswer] = useState<Answer | null>(null);
+
+  useEffect(() => {
+    if (!active) {
+      setSettled('');
+      return undefined;
+    }
+    const timer = setTimeout(() => setSettled(text), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [active, text]);
+
+  useEffect(() => {
+    if (!settled) {
+      return undefined;
+    }
+    let stale = false;
+    GenericRepositoryAPI.list({
+      name__icontains: settled,
+      page_size: REPOSITORY_REQUEST_SIZE,
+    }).then(
+      ({ data }) => {
+        if (!stale) {
+          setAnswer({
+            text: settled,
+            state: 'ready',
+            repositories: Array.isArray(data?.results) ? data.results : [],
+          });
+        }
+      },
+      (error) => {
+        if (!stale) {
+          setAnswer({
+            text: settled,
+            state: error?.response?.status === 403 ? 'refused' : 'failed',
+          });
+        }
+      },
+    );
+    return () => {
+      stale = true;
+    };
+  }, [settled, attempt]);
+
+  if (!active) {
+    return { state: 'off' };
+  }
+  if (answer?.text !== text) {
+    return { state: 'loading' };
+  }
+  if (answer.state === 'ready') {
+    return { state: 'ready', repositories: answer.repositories };
+  }
+  if (answer.state === 'refused') {
+    return { state: 'refused' };
+  }
+  return {
+    state: 'failed',
+    retry: () => {
+      setAnswer(null);
+      setAttempt((count) => count + 1);
+    },
+  };
+}
+
+// The repositories of the installed plugins that have a repository screen, at
+// most a few of each type, in the order the server listed them.
+function repositoryResults(
+  repositories: IRepositoryRow[],
+  installed: ReadonlySet<string>,
+): IResult[] {
+  const screens = repositoryScreens();
+  const perType = new Map<string, number>();
+  const results: IResult[] = [];
+
+  for (const repository of repositories) {
+    const kind = repositoryKind(repository.pulp_href);
+    const screen =
+      kind && installed.has(kind.plugin) ? screens[kind.plugin] : null;
+    if (!kind || !screen || typeof repository.name !== 'string') {
+      continue;
+    }
+    const key = `${kind.plugin}/${kind.type}`;
+    const count = perType.get(key) ?? 0;
+    if (count >= REPOSITORIES_PER_TYPE) {
+      continue;
+    }
+    perType.set(key, count + 1);
+    results.push({
+      id: `repository-${results.length}`,
+      name: repository.name,
+      plugin: screen.label,
+      // Built from the route and the name, never from the address the
+      // server sent.
+      path: formatPath(screen.detail, { name: repository.name }),
+    });
+  }
+  return results;
 }
 
 // Moves the highlight one step through a list of the given length, wrapping at
@@ -62,11 +228,19 @@ function step(index: number, delta: 1 | -1, length: number): number {
 function Palette({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const { screens } = useMenuModel();
+  const plugins = usePlugins();
+  const { user } = useUserContext();
   const listId = useId();
   const [query, setQuery] = useState('');
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
-  const needle = query.trim().toLowerCase();
+  const text = query.trim();
+  const needle = text.toLowerCase();
+
+  // Repositories are looked up for a signed-in user once the installed plugins
+  // are known, since only those plugins' repositories are listed.
+  const installed = plugins?.state === 'ready' ? plugins.versions : null;
+  const search = useRepositorySearch(text, !!user && !!installed);
 
   const groups = useMemo<IGroup[]>(() => {
     const matching = screens
@@ -78,15 +252,59 @@ function Palette({ onClose }: { onClose: () => void }) {
         path: screen.path,
       }));
 
-    return matching.length > 0
-      ? [{ id: 'screens', title: t`Go to`, results: matching }]
-      : [];
-  }, [screens, needle]);
+    const found: IGroup[] =
+      matching.length > 0
+        ? [{ id: 'screens', title: t`Go to`, results: matching }]
+        : [];
+
+    const repositories =
+      search.state === 'ready' && installed
+        ? repositoryResults(search.repositories, new Set(installed.keys()))
+        : [];
+    if (
+      repositories.length > 0 ||
+      search.state === 'loading' ||
+      search.state === 'failed'
+    ) {
+      found.push({
+        id: 'repositories',
+        title: t`Repositories`,
+        results: repositories,
+        status:
+          search.state === 'loading'
+            ? 'loading'
+            : search.state === 'failed'
+              ? 'failed'
+              : undefined,
+      });
+    }
+    return found;
+  }, [screens, needle, search, installed]);
 
   const results = groups.flatMap((group) => group.results);
   const highlighted =
     results.find((result) => result.id === highlightedId) ?? results[0];
+  // Nothing to show, and nothing still on its way that could show up.
+  const noMatch =
+    results.length === 0 &&
+    search.state !== 'loading' &&
+    search.state !== 'failed';
   const optionId = (result: IResult) => `${listId}-${result.id}`;
+
+  // The dialog has no close button: Escape closes it, and so does a press
+  // anywhere outside it.
+  useEffect(() => {
+    const onPress = (event: MouseEvent) => {
+      if (
+        event.target instanceof Element &&
+        !event.target.closest('.pulp-palette')
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', onPress);
+    return () => document.removeEventListener('mousedown', onPress);
+  }, [onClose]);
 
   const choose = (result: IResult) => {
     onClose();
@@ -122,7 +340,7 @@ function Palette({ onClose }: { onClose: () => void }) {
       aria-label={t`Search or go to`}
       className='pulp-palette'
       elementToFocus={`#${INPUT_ID}`}
-      onClose={onClose}
+      onEscapePress={onClose}
     >
       <ModalBody className='pulp-palette__body'>
         <TextInputGroup className='pulp-palette__field'>
@@ -178,22 +396,58 @@ function Palette({ onClose }: { onClose: () => void }) {
                         key={result.id}
                         id={optionId(result)}
                         isFocused={result === highlighted}
+                        aria-label={
+                          result.plugin
+                            ? `${result.name}, ${result.plugin}`
+                            : undefined
+                        }
                         onClick={() => choose(result)}
                       >
-                        <span
-                          className='pulp-palette__name'
-                          title={result.name}
-                        >
-                          {result.name}
+                        <span className='pulp-palette__row'>
+                          <span
+                            className='pulp-palette__name'
+                            title={result.name}
+                          >
+                            {result.name}
+                          </span>
+                          {result.plugin ? (
+                            <span className='pulp-palette__plugin'>
+                              {result.plugin}
+                            </span>
+                          ) : null}
                         </span>
                       </MenuItem>
                     ))}
+                    {group.status === 'loading' ? (
+                      <li role='presentation' className='pulp-palette__status'>
+                        <Spinner size='sm' aria-hidden='true' />
+                        {t`Searching repositories...`}
+                      </li>
+                    ) : null}
+                    {group.status === 'failed' && search.state === 'failed' ? (
+                      <li role='presentation' className='pulp-palette__status'>
+                        {t`Some repository lists could not be searched.`}
+                        <Button variant='link' isInline onClick={search.retry}>
+                          {t`Retry repository search`}
+                        </Button>
+                      </li>
+                    ) : null}
                   </ul>
                 </li>
               ))}
             </MenuList>
           </MenuContent>
         </Menu>
+        {noMatch ? (
+          <div className='pulp-palette__empty'>
+            <Title headingLevel='h2' size='lg'>
+              {t`No screens or repositories match`}
+            </Title>
+            <p>
+              {t`Nothing matches "${text}". Check the spelling or try part of a repository name.`}
+            </p>
+          </div>
+        ) : null}
         <p className='pulp-palette__hint'>
           {t`Up and Down to move, Enter to open, Esc to close`}
         </p>
@@ -209,6 +463,7 @@ export const CommandPalette = () => {
   const [isOpen, setOpen] = useState(false);
   const opener = useRef<Element | null>(null);
   const wasOpen = useRef(false);
+  const close = useCallback(() => setOpen(false), []);
 
   // Ctrl+K and Cmd+K open the palette wherever the focus is, text fields
   // included, and the browser's own use of the shortcut is cancelled. The
@@ -267,7 +522,7 @@ export const CommandPalette = () => {
           {hint}
         </kbd>
       </button>
-      {isOpen ? <Palette onClose={() => setOpen(false)} /> : null}
+      {isOpen ? <Palette onClose={close} /> : null}
     </>
   );
 };

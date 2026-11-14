@@ -3153,6 +3153,7 @@ msgstr "Fall back to defaults"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "File"
 msgstr "File"
 
@@ -4479,6 +4480,10 @@ msgstr "No results match the filter criteria. Try changing your filter settings.
 #~ msgid "No roles yet"
 #~ msgstr "No roles yet"
 
+#: src/shell/command-palette.tsx
+msgid "No screens or repositories match"
+msgstr "No screens or repositories match"
+
 #: src/containers/signature-keys/list.tsx
 msgid "No signature keys yet"
 msgstr "No signature keys yet"
@@ -4616,6 +4621,10 @@ msgstr "Nothing changed in distribution {name}."
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
 msgstr "Nothing changed in repository {name}."
+
+#: src/shell/command-palette.tsx
+msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
+msgstr "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 
 #: src/shell/notifications.tsx
 msgid "Notifications"
@@ -5802,6 +5811,7 @@ msgstr "Repair task"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "Repositories"
 msgstr "Repositories"
 
@@ -5990,6 +6000,10 @@ msgstr "Retry"
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
 msgstr "Retry loading notifications"
+
+#: src/shell/command-palette.tsx
+msgid "Retry repository search"
+msgstr "Retry repository search"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Return Values"
@@ -6274,6 +6288,10 @@ msgstr "Search screens and repositories"
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
 #~ msgstr "search text input"
+
+#: src/shell/command-palette.tsx
+msgid "Searching repositories..."
+msgstr "Searching repositories..."
 
 #: src/components/remote-form.tsx
 msgid "Seconds. Leave empty to use the server default."
@@ -6670,6 +6688,10 @@ msgstr "Skip to content"
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
 msgstr "Skipped"
+
+#: src/shell/command-palette.tsx
+msgid "Some repository lists could not be searched."
+msgstr "Some repository lists could not be searched."
 
 #: src/components/sort.tsx
 #~ msgid "Sort results"

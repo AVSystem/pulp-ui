@@ -1,7 +1,8 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation } from 'react-router';
 import { describe, expect, it } from 'vitest';
+import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { CommandPalette } from './command-palette';
@@ -37,6 +38,34 @@ const trigger = () =>
   screen.findByRole('button', { name: 'Search or go to...' });
 const input = () => screen.findByRole('combobox');
 const where = () => screen.getByTestId('where').textContent;
+
+const REPOSITORIES = '/pulp/api/v3/repositories/';
+
+// A repository of the generic list: the plugin and type are in its address.
+function repo(plugin: string, type: string, name: string) {
+  return repository({
+    name,
+    pulp_href: `${REPOSITORIES}${plugin}/${type}/00000000-0000-4000-8000-${String(
+      Math.floor(Math.random() * 1e12),
+    ).padStart(12, '0')}/`,
+  });
+}
+
+// Answers the generic repository list like the server's name filter does and
+// records the query of every request.
+function answerRepositories(rows: ReturnType<typeof repo>[]) {
+  const { handler, queries } = listOf(REPOSITORIES, rows, {
+    matching: (row, query) =>
+      row.name
+        .toLowerCase()
+        .includes((query.get('name__icontains') ?? '').toLowerCase()),
+  });
+  server.use(handler);
+  return queries;
+}
+
+// The pause the palette waits after the last keystroke, with some margin.
+const settle = () => new Promise((resolve) => setTimeout(resolve, 400));
 
 // The names of the options in the order they are listed.
 const optionNames = () =>
@@ -203,6 +232,7 @@ describe('palette', () => {
     await openPalette(user);
     await screen.findAllByRole('option');
 
+    answerRepositories([]);
     await user.type(await input(), 'Rem');
     await user.keyboard('{ArrowDown}');
     const box = await input();
@@ -263,6 +293,26 @@ describe('palette', () => {
     expect(await trigger()).toHaveFocus();
   });
 
+  it('closes when the page outside the dialog is pressed and stays open for a press inside', async () => {
+    signIn();
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    fireEvent.mouseDown(await input());
+    expect(screen.getByRole('dialog')).toBeVisible();
+    fireEvent.mouseDown(document.body);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('has no close button, so a pointer user leaves by pressing outside or choosing', async () => {
+    signIn();
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    expect(within(screen.getByRole('dialog')).queryByRole('button')).toBeNull();
+  });
+
   it('keeps the Tab key inside the modal', async () => {
     signIn();
     const { user } = renderPalette();
@@ -288,5 +338,360 @@ describe('palette', () => {
     await screen.findAllByRole('option');
 
     expect(optionNames()).toEqual(['Login', 'Workers and status']);
+  });
+});
+
+describe('repository search', () => {
+  it('sends no repository request for a single character', async () => {
+    signIn();
+    const queries = answerRepositories([repo('deb', 'apt', 'dev-repo')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'd');
+    await settle();
+
+    expect(queries).toHaveLength(0);
+    expect(screen.queryByRole('group', { name: 'Repositories' })).toBeNull();
+  });
+
+  it('sends exactly one request for the final text of a quickly typed word', async () => {
+    signIn();
+    const queries = answerRepositories([repo('deb', 'apt', 'debian-main')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'deb');
+    expect(queries).toHaveLength(0);
+    await screen.findByRole('option', { name: /debian-main/ });
+    await settle();
+
+    expect(queries).toHaveLength(1);
+    expect(Array.from(queries[0].keys()).sort()).toEqual([
+      'limit',
+      'name__icontains',
+      'offset',
+    ]);
+    expect(queries[0].get('name__icontains')).toBe('deb');
+    expect(queries[0].get('limit')).toBe('50');
+  });
+
+  it('groups the results by repository type, five at most each, with the plugin in the right column', async () => {
+    signIn();
+    answerRepositories([
+      ...[1, 2, 3, 4, 5, 6, 7].map((n) => repo('deb', 'apt', `zz-deb-${n}`)),
+      repo('file', 'file', 'zz-file-1'),
+      repo('rpm', 'rpm', 'zz-rpm-1'),
+      repo('python', 'python', 'zz-python-1'),
+      repo('ansible', 'ansible', 'zz-ansible-1'),
+      repo('container', 'container', 'zz-container-1'),
+    ]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    const group = await screen.findByRole('group', { name: 'Repositories' });
+
+    const rows = (await within(group).findAllByRole('option')).map((option) =>
+      option.getAttribute('aria-label'),
+    );
+    expect(rows).toEqual([
+      'zz-deb-1, deb',
+      'zz-deb-2, deb',
+      'zz-deb-3, deb',
+      'zz-deb-4, deb',
+      'zz-deb-5, deb',
+      'zz-file-1, File',
+      'zz-rpm-1, RPM',
+      'zz-python-1, Python',
+      'zz-ansible-1, Ansible',
+    ]);
+  });
+
+  it('leaves out the repositories of a plugin that is not installed', async () => {
+    signIn();
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({
+          versions: ['core', 'file', 'deb'].map((component) => ({
+            component,
+            version: '3.0.0',
+          })),
+        }),
+      ),
+    );
+    answerRepositories([
+      repo('deb', 'apt', 'zz-deb-1'),
+      repo('rpm', 'rpm', 'zz-rpm-1'),
+    ]);
+    const { user } = renderPalette();
+    await openPalette(user);
+    await screen.findAllByRole('option');
+
+    await user.type(await input(), 'zz');
+    await screen.findByRole('option', { name: 'zz-deb-1, deb' });
+
+    expect(screen.queryByRole('option', { name: /zz-rpm-1/ })).toBeNull();
+  });
+
+  it('shows a long name on one line with the whole name as its title', async () => {
+    signIn();
+    const name = `zz-${'long-'.repeat(30)}end`;
+    answerRepositories([repo('deb', 'apt', name)]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    const row = await screen.findByRole('option', { name: `${name}, deb` });
+
+    expect(within(row).getByText(name)).toHaveAttribute('title', name);
+  });
+
+  it('shows a name as text, never as markup', async () => {
+    signIn();
+    const name = 'zz-<b>bold</b><img src=x>';
+    answerRepositories([repo('file', 'file', name)]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    const row = await screen.findByRole('option', { name: `${name}, File` });
+
+    expect(row.querySelector('b, img')).toBeNull();
+  });
+
+  it('opens the detail screen of the chosen repository with Enter', async () => {
+    signIn();
+    answerRepositories([repo('deb', 'apt', 'zz-deb-1')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    await screen.findByRole('option', { name: 'zz-deb-1, deb' });
+    await user.keyboard('{Enter}');
+
+    expect(where()).toBe('/deb/repositories/detail/zz-deb-1/');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('shows a spinner and a message while the request runs, with the screens already listed', async () => {
+    signIn();
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(`*${REPOSITORIES}`, async () => {
+        await gate;
+        return HttpResponse.json({
+          count: 0,
+          next: null,
+          previous: null,
+          results: [],
+        });
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'rep');
+
+    expect(await screen.findByText('Searching repositories...')).toBeVisible();
+    expect(
+      screen.getByRole('option', { name: 'Repositories - deb' }),
+    ).toBeVisible();
+    release();
+    await waitFor(() =>
+      expect(screen.queryByText('Searching repositories...')).toBeNull(),
+    );
+  });
+
+  it('leaves the Repositories group out without a message when the server refuses the request', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, () =>
+        HttpResponse.json({ detail: 'refused' }, { status: 403 }),
+      ),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'rep');
+    await waitFor(() =>
+      expect(screen.queryByText('Searching repositories...')).toBeNull(),
+    );
+
+    expect(screen.queryByRole('group', { name: 'Repositories' })).toBeNull();
+    expect(screen.queryByText(/could not be searched/)).toBeNull();
+    expect(screen.queryByText('refused')).toBeNull();
+    expect(
+      screen.getByRole('option', { name: 'Repositories - deb' }),
+    ).toBeVisible();
+  });
+
+  it('shows one muted row with a retry for any other failure and asks again on retry', async () => {
+    signIn();
+    let calls = 0;
+    server.use(
+      http.get(`*${REPOSITORIES}`, () => {
+        calls += 1;
+        return calls === 1
+          ? HttpResponse.json({ detail: 'database exploded' }, { status: 500 })
+          : HttpResponse.json({
+              count: 1,
+              next: null,
+              previous: null,
+              results: [repo('deb', 'apt', 'zz-deb-1')],
+            });
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    expect(
+      await screen.findByText('Some repository lists could not be searched.'),
+    ).toBeVisible();
+    expect(screen.queryByText(/database exploded/)).toBeNull();
+    expect(screen.queryByText('No screens or repositories match')).toBeNull();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Retry repository search' }),
+    );
+
+    expect(
+      await screen.findByRole('option', { name: 'zz-deb-1, deb' }),
+    ).toBeVisible();
+    expect(calls).toBe(2);
+    expect(screen.queryByText(/could not be searched/)).toBeNull();
+  });
+
+  it('keeps the screens when the repository request fails', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, () =>
+        HttpResponse.json({ detail: 'x' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'rep');
+    await screen.findByText('Some repository lists could not be searched.');
+
+    expect(
+      screen.getByRole('option', { name: 'Repositories - deb' }),
+    ).toBeVisible();
+  });
+
+  it('says nothing matches when no screen and no repository does', async () => {
+    signIn();
+    answerRepositories([repo('deb', 'apt', 'other')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'qqzz');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'No screens or repositories match',
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Nothing matches "qqzz". Check the spelling or try part of a repository name.',
+      ),
+    ).toBeVisible();
+    expect(screen.queryByRole('option')).toBeNull();
+  });
+
+  it('does not show the no-match message while the repositories are still being searched', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        return HttpResponse.json({
+          count: 0,
+          next: null,
+          previous: null,
+          results: [],
+        });
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'qqzz');
+
+    expect(await screen.findByText('Searching repositories...')).toBeVisible();
+    expect(screen.queryByText('No screens or repositories match')).toBeNull();
+    expect(
+      await screen.findByText('No screens or repositories match'),
+    ).toBeVisible();
+  });
+
+  it('ignores a late answer to an earlier query', async () => {
+    signIn();
+    let releaseFirst: () => void = () => undefined;
+    const first = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const page = (names: string[]) =>
+      HttpResponse.json({
+        count: names.length,
+        next: null,
+        previous: null,
+        results: names.map((name) => repo('deb', 'apt', name)),
+      });
+    server.use(
+      http.get(`*${REPOSITORIES}`, async ({ request }) => {
+        const text = new URL(request.url).searchParams.get('name__icontains');
+        if (text === 'zz') {
+          await first;
+          return page(['zz-old']);
+        }
+        return page(['zzz-new']);
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    await settle();
+    await user.type(await input(), 'z');
+    await screen.findByRole('option', { name: 'zzz-new, deb' });
+    releaseFirst();
+    await settle();
+
+    expect(screen.queryByRole('option', { name: /zz-old/ })).toBeNull();
+    expect(screen.getByRole('option', { name: 'zzz-new, deb' })).toBeVisible();
+  });
+
+  it('sends no repository request for a visitor who is not signed in', async () => {
+    // Any request without a handler fails the test (msw onUnhandledRequest).
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'login');
+    await settle();
+
+    expect(screen.getByRole('option', { name: 'Login' })).toBeVisible();
+  });
+
+  it('announces the number of all rows including repositories', async () => {
+    signIn();
+    answerRepositories([
+      repo('deb', 'apt', 'zz-deb-1'),
+      repo('file', 'file', 'zz-file-1'),
+    ]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    await screen.findByRole('option', { name: 'zz-deb-1, deb' });
+
+    expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent(
+      '2 results',
+    );
   });
 });

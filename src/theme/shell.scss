@@ -607,13 +607,15 @@
   --pf-v6-c-modal-box__body--PaddingInlineEnd: 0;
   --pf-v6-c-modal-box__body--PaddingBlockStart: 0;
   --pf-v6-c-modal-box__body--PaddingBlockEnd: 0;
+  --pf-v6-c-modal-box__body--last-child--PaddingBlockEnd: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.pulp-palette__field {
+:root .pulp-palette__field {
   flex: none;
+  inline-size: auto;
   margin: 0.75rem 1rem;
 }
 
@@ -632,6 +634,40 @@
 
   .pf-v6-c-menu__item-select-icon {
     display: none;
+  }
+}
+
+.pulp-palette__row {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  inline-size: 100%;
+  min-width: 0;
+}
+
+.pulp-palette__plugin {
+  flex: none;
+  font-size: 12px;
+  color: var(--pulp-text-3);
+}
+
+.pulp-palette__status {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  color: var(--pulp-text-3);
+}
+
+.pulp-palette__empty {
+  padding: 2rem 1rem;
+  text-align: center;
+
+  p {
+    margin: 0.5rem 0 0;
+    color: var(--pulp-text-2);
   }
 }
 
