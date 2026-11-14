@@ -1,7 +1,12 @@
 import { t } from '@lingui/core/macro';
-import { Button } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
-import { type ReactNode } from 'react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from '@patternfly/react-core';
+import { type ReactNode, useId } from 'react';
 import { Spinner } from 'src/components';
 
 interface IProps {
@@ -24,10 +29,18 @@ export const ConfirmModal = (props: IProps) => {
     spinner,
     confirmButtonTitle,
   } = props;
+  const labelId = useId();
 
   return (
     <Modal
-      actions={[
+      aria-labelledby={labelId}
+      isOpen
+      onClose={cancelAction}
+      variant='small'
+    >
+      <ModalHeader labelId={labelId} title={title} titleIconVariant='warning' />
+      <ModalBody>{children}</ModalBody>
+      <ModalFooter>
         <Button
           key='confirm'
           onClick={confirmAction}
@@ -36,18 +49,11 @@ export const ConfirmModal = (props: IProps) => {
         >
           {confirmButtonTitle ? confirmButtonTitle : t`Yes`}
           {spinner && <Spinner size='sm' />}
-        </Button>,
+        </Button>
         <Button key='cancel' onClick={cancelAction} variant='link'>
           {t`Cancel`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={cancelAction}
-      title={title}
-      titleIconVariant='warning'
-      variant='small'
-    >
-      {children}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };
