@@ -4,8 +4,9 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclam
 import { Fragment, useEffect, useState } from 'react';
 import { MaybeLink, Spinner, Tooltip } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { useSessionEpoch } from 'src/user-context';
 import { plugin2api } from 'src/utilities';
-import { requestErrorText } from 'src/utilities/request-error';
+import { isSessionEnd, requestErrorText } from 'src/utilities/request-error';
 
 export const LazyRepositories = ({
   content_href,
@@ -23,6 +24,8 @@ export const LazyRepositories = ({
   const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  // grows when the same user signs in again, so the cell reads again
+  const epoch = useSessionEpoch();
 
   const query = (prepend?) => {
     plugin2api(plugin)
@@ -39,6 +42,12 @@ export const LazyRepositories = ({
         setLoading(false);
       })
       .catch((e) => {
+        // The session ended: the cell keeps its spinner or what it shows and
+        // reads again after signing in, the sign-in dialog explains it.
+        if (isSessionEnd(e)) {
+          return;
+        }
+
         setRepositories(prepend || []);
         setCount(null);
         setError(requestErrorText(e));
@@ -63,7 +72,7 @@ export const LazyRepositories = ({
     setLoading(true);
 
     query();
-  }, [content_href, remote_href]);
+  }, [content_href, remote_href, epoch]);
 
   // support pagination, but page == 1 is handled above
   useEffect(() => {

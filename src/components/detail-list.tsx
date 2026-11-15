@@ -21,8 +21,12 @@ import {
   Table,
 } from 'src/components';
 import { type ActionType } from '../actions/action';
+import { useSessionEpoch } from '../user-context';
 import { filterIsSet } from '../utilities/filter-is-set';
-import { requestErrorDescription } from '../utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from '../utilities/request-error';
 import { ListErrorState } from './list-error-state';
 
 interface IProps<T> {
@@ -85,28 +89,33 @@ export function DetailList<T>({
   const [error, setError] = useState<ReactNode>(null);
   // counts the retries asked for, so the same parameters load again
   const [attempt, setAttempt] = useState(0);
+  // grows when the same user signs in again, so the list reads again
+  const epoch = useSessionEpoch();
 
   useEffect(() => {
     // a load that is no longer the current one must not change the list
     let current = true;
 
+    // an error state has no rows to keep, so it reads again like a first load
+    if (error) {
+      setLoading(true);
+    }
     setError(null);
     query({ params })
       .then(({ data: { count, results } }) => {
         if (current) {
           setItems(results);
           setItemCount(count);
+          setLoading(false);
         }
       })
       .catch((e) => {
-        if (current) {
+        // The session ended: the sign-in dialog explains it. The list keeps
+        // its loading state or its rows and reads again after signing in.
+        if (current && !isSessionEnd(e)) {
           setItems([]);
           setItemCount(0);
           setError(requestErrorDescription(e));
-        }
-      })
-      .then(() => {
-        if (current) {
           setLoading(false);
         }
       });
@@ -114,7 +123,7 @@ export function DetailList<T>({
     return () => {
       current = false;
     };
-  }, [params, attempt]);
+  }, [params, attempt, epoch]);
 
   const renderModals = (actionContext) => (
     <>

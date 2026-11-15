@@ -2,12 +2,14 @@ import { t } from '@lingui/core/macro';
 import { Button, Label } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { Fragment, useEffect, useState } from 'react';
+import { useSessionEpoch } from '../user-context';
 import {
   type RepositoryDistribution,
   type RepositoryDistributionPlugin,
   distributionsLoadError,
   repositoryDistributions,
 } from '../utilities/repository-distributions';
+import { isSessionEnd } from '../utilities/request-error';
 import { Spinner } from './patternfly-wrappers/l10n';
 import { Tooltip } from './patternfly-wrappers/tooltip';
 
@@ -28,6 +30,8 @@ export const LazyDistributions = ({
   );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // grows when the same user signs in again, so the cell reads again
+  const epoch = useSessionEpoch();
 
   useEffect(() => {
     setDistributions([]);
@@ -52,7 +56,9 @@ export const LazyDistributions = ({
         }
       })
       .catch((e) => {
-        if (current) {
+        // The session ended: the cell keeps its spinner and reads again after
+        // signing in, the sign-in dialog explains the failure.
+        if (current && !isSessionEnd(e)) {
           setError(distributionsLoadError(e));
           setLoading(false);
         }
@@ -61,7 +67,7 @@ export const LazyDistributions = ({
     return () => {
       current = false;
     };
-  }, [plugin, repositoryHref]);
+  }, [plugin, repositoryHref, epoch]);
 
   if (loading) {
     return <Spinner size='sm' />;
