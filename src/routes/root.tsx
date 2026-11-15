@@ -1,6 +1,7 @@
 import { Outlet, useNavigation } from 'react-router';
 import { AppContextProvider } from 'src/app-context';
 import { LoadingSpinner, UIVersion } from 'src/components';
+import { PermissionsProvider } from 'src/permissions';
 import { PluginsProvider } from 'src/plugins';
 import { ReauthDialog } from 'src/session/reauth-dialog';
 import { Shell } from 'src/shell/shell';
@@ -12,16 +13,18 @@ export default function Root() {
 
   return (
     <UserContextProvider>
-      <AppContextProvider>
-        <PluginsProvider>
-          <Shell>
-            {isNavigating && <LoadingSpinner />}
-            <Outlet />
-          </Shell>
-          <ReauthDialog />
-          <UIVersion />
-        </PluginsProvider>
-      </AppContextProvider>
+      <PermissionsProvider>
+        <AppContextProvider>
+          <PluginsProvider>
+            <Shell>
+              {isNavigating && <LoadingSpinner />}
+              <Outlet />
+            </Shell>
+            <ReauthDialog />
+            <UIVersion />
+          </PluginsProvider>
+        </AppContextProvider>
+      </PermissionsProvider>
     </UserContextProvider>
   );
 }

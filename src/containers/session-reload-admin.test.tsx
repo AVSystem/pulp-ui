@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
+import { PermissionsKnown } from 'src/test-utils/permissions';
 import {
   group,
   listOf,
@@ -86,8 +87,10 @@ describe('the group list', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <GroupList />
+        <PermissionsKnown>
+          <SignInAgain />
+          <GroupList />
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/groups' },
     );
@@ -297,10 +300,12 @@ describe('the group detail', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <Routes>
-          <Route path='/groups/detail/:group' element={<GroupDetail />} />
-        </Routes>
+        <PermissionsKnown>
+          <SignInAgain />
+          <Routes>
+            <Route path='/groups/detail/:group' element={<GroupDetail />} />
+          </Routes>
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: `/groups/detail/7?tab=${tab}` },
     );
@@ -536,8 +541,10 @@ describe('the user list', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <UserList />
+        <PermissionsKnown>
+          <SignInAgain />
+          <UserList />
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/users' },
     );
@@ -671,11 +678,13 @@ describe('the user detail and the user edit page', () => {
     server.use(listOf(`${API}/groups/`, []).handler);
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <Routes>
-          <Route path='/users/detail/:user_id' element={<UserDetail />} />
-          <Route path='/users/edit/:user_id' element={<UserEdit />} />
-        </Routes>
+        <PermissionsKnown>
+          <SignInAgain />
+          <Routes>
+            <Route path='/users/detail/:user_id' element={<UserDetail />} />
+            <Route path='/users/edit/:user_id' element={<UserEdit />} />
+          </Routes>
+        </PermissionsKnown>
       </AppContextProvider>,
       { route },
     );
@@ -837,10 +846,12 @@ describe('the profile page', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <AfterSession>
-          <UserProfile />
-        </AfterSession>
+        <PermissionsKnown>
+          <SignInAgain />
+          <AfterSession>
+            <UserProfile />
+          </AfterSession>
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/users/profile' },
     );
@@ -938,8 +949,10 @@ describe('the role list', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <RoleList />
+        <PermissionsKnown>
+          <SignInAgain />
+          <RoleList />
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/roles' },
     );
@@ -1033,10 +1046,12 @@ describe('the role edit page', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <Routes>
-          <Route path='/roles/edit/:role' element={<RoleEdit />} />
-        </Routes>
+        <PermissionsKnown>
+          <SignInAgain />
+          <Routes>
+            <Route path='/roles/edit/:role' element={<RoleEdit />} />
+          </Routes>
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/roles/edit/0192e5a1-0000-7000-8000-0000000000aa/' },
     );
@@ -1174,8 +1189,10 @@ describe('the role create page', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <RoleCreate />
+        <PermissionsKnown>
+          <SignInAgain />
+          <RoleCreate />
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/roles/create' },
     );
@@ -1209,6 +1226,7 @@ describe('the role create page', () => {
       ),
     );
     const { user: u } = renderCreate();
+    await signedIn();
     await u.type(screen.getByPlaceholderText('Role name'), 'zz_new');
     await u.type(
       screen.getByPlaceholderText('Add a role description here'),
@@ -1236,8 +1254,10 @@ describe('the signing services list', () => {
     serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <SignInAgain />
-        <SignatureKeysList />
+        <PermissionsKnown>
+          <SignInAgain />
+          <SignatureKeysList />
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/signature-keys' },
     );

@@ -31,7 +31,7 @@ export const fileRepositorySyncAction = Action({
       syncModalOpen: { autopublish: !!autopublish, name, pulp_href },
     }),
   visible: (_item, { hasPermission }) =>
-    hasPermission('file.change_collectionremote'),
+    hasPermission('file.sync_filerepository'),
   disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;

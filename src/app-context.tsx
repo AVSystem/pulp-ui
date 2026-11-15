@@ -1,5 +1,6 @@
 import { type ReactNode, createContext, useContext, useState } from 'react';
 import { type AlertType } from 'src/components';
+import { usePermissions } from './permissions';
 import { useUserContext } from './user-context';
 
 export interface IAppContextType {
@@ -16,6 +17,7 @@ export const useAppContext = () => useContext(AppContext);
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const { user } = useUserContext();
+  const { hasPermission } = usePermissions();
 
   // An alert with an id replaces an open one with the same id, so a refusal
   // repeated while its alert is still shown stays one alert.
@@ -24,7 +26,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       ...(alert.id ? alerts.filter(({ id }) => id !== alert.id) : alerts),
       alert,
     ]);
-  const hasPermission = (_name) => true; // FIXME: permission handling
 
   return (
     <AppContext.Provider

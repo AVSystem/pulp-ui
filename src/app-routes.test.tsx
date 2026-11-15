@@ -177,13 +177,15 @@ function recordRequests() {
   };
 }
 
-// The requests that are not the configuration file or the one shared read of
-// the installed plugins, which every page makes.
+// The requests that are not the configuration file, the one shared read of the
+// installed plugins or the shared reads of the signed-in user's permissions
+// (their own record and roles), which every page makes.
 function ownRequests(paths: string[]) {
   return paths.filter(
     (path) =>
       !path.endsWith('/pulp-ui-config.json') &&
-      !path.endsWith('/pulp/api/v3/status/'),
+      !path.endsWith('/pulp/api/v3/status/') &&
+      !/\/pulp\/api\/v3\/users\/1\/(roles\/)?$/.test(path),
   );
 }
 

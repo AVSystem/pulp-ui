@@ -1,7 +1,9 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { usePermissions } from 'src/permissions';
+import { servePermissions } from 'src/test-utils/permissions';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -13,9 +15,10 @@ const API = '/pulp/api/v3';
 // parent plays that part.
 function Harness({ item }: { item: object }) {
   const [state, setState] = useState<Record<string, unknown>>({});
+  const { hasPermission } = usePermissions();
   const context = {
     addAlert: vi.fn(),
-    hasPermission: () => true,
+    hasPermission,
     listQuery: vi.fn(),
     query: vi.fn(),
     reloadPage: vi.fn(),
@@ -60,7 +63,59 @@ const mirrorSwitch = () =>
     name: /Content not present in remote|Sync will only add/,
   });
 
+let recorder: { stop: () => void } | undefined;
+
+afterEach(() => {
+  recorder?.stop();
+  recorder = undefined;
+});
+
+// A user whose own role lets them sync file repositories.
+function signInAsSyncer() {
+  recorder = servePermissions({ own: [['file.sync_filerepository']] });
+}
+
+describe('the sync action of file repositories', () => {
+  it('is offered to a holder of the sync permission', async () => {
+    signInAsSyncer();
+    renderWithProviders(<Harness item={repository({ remote: REMOTE })} />);
+
+    expect(
+      await screen.findByRole('button', { name: 'Sync' }),
+    ).toBeInTheDocument();
+  });
+
+  it('is absent for a user who may only change a repository', async () => {
+    recorder = servePermissions({ own: [['file.change_filerepository']] });
+    renderWithProviders(<Harness item={repository({ remote: REMOTE })} />);
+
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Sync' })).toBeNull(),
+    );
+    // give the permission read time to answer, then check again
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(screen.queryByRole('button', { name: 'Sync' })).toBeNull();
+    expect(screen.queryByText('Sync')).toBeNull();
+  });
+
+  it('is absent, not disabled, while the permission read is pending', async () => {
+    recorder = servePermissions({ own: [['file.sync_filerepository']] });
+    server.use(
+      http.get(`*${API}/users/7/`, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+      }),
+    );
+    renderWithProviders(<Harness item={repository({ remote: REMOTE })} />);
+
+    expect(screen.queryByText('Sync')).toBeNull();
+    expect(await screen.findByRole('button', { name: 'Sync' })).toBeEnabled();
+  });
+});
+
 describe('syncing a file repository', () => {
+  beforeEach(signInAsSyncer);
+
   it('starts with mirror on for a repository that does not autopublish', async () => {
     const bodies = serveSync();
     const item = repository({ remote: REMOTE, autopublish: false });
