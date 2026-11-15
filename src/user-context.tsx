@@ -59,7 +59,7 @@ const sessionKey = (user: ISessionUser | null) =>
 // The address of the signed out page, below the base path the UI is served
 // under, compared with the address of the running page.
 function onSignedOutPage() {
-  const trim = (path: string) => path.replace(/\/+$/, '');
+  const trim = (path?: string) => String(path ?? '').replace(/\/+$/, '');
   return trim(window.location.pathname) === trim(uiPath(Paths.meta.signedOut));
 }
 
