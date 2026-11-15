@@ -2,6 +2,7 @@ import { msg, t } from '@lingui/core/macro';
 import { DebRepositoryAPI } from 'src/api';
 import { SyncModal } from 'src/components';
 import { handleHttpError, parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { Action } from './action';
 
 // pulp_deb's own API default for a sync. ansible and file offer to mirror
@@ -12,6 +13,7 @@ const MIRROR_BY_DEFAULT = false;
 
 export const debRepositorySyncAction = Action({
   title: msg`Sync`,
+  permission: ACTION_PERMISSIONS.deb.repository.sync,
   modal: ({ addAlert, query, setState, state }) =>
     state.syncModalOpen ? (
       <SyncModal
@@ -29,8 +31,6 @@ export const debRepositorySyncAction = Action({
     setState({
       syncModalOpen: { name, pulp_href },
     }),
-  visible: (_item, { hasPermission }) =>
-    hasPermission('deb.change_aptrepository'),
   disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;
