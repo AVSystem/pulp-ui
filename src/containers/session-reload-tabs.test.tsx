@@ -219,6 +219,7 @@ function accessTabTests({
     const actionContext = {
       addAlert,
       hasPermission: () => true,
+      hasObjectPermission: () => true,
       state: { params },
       user: null,
     };
@@ -360,6 +361,7 @@ describe('the ansible collection versions tab', () => {
           actionContext={{
             addAlert,
             hasPermission: () => true,
+            hasObjectPermission: () => true,
             query: vi.fn(),
             state: { params: {} },
           }}

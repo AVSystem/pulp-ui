@@ -4,6 +4,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
 import { Paths } from 'src/paths';
+import { PermissionsKnown } from 'src/test-utils/permissions';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -60,17 +61,22 @@ function Where() {
   );
 }
 
+// The form offers a distribution only to users who may add one: the signed-in
+// user is staff, and the page is shown once the permissions are known.
 function renderEdit(route: string) {
+  serveSignIn();
   return renderWithProviders(
-    <AppContextProvider>
-      <Routes>
-        <Route
-          path={Paths.file.repository.edit}
-          element={<FileRepositoryEdit />}
-        />
-        <Route path={Paths.file.repository.detail} element={<Where />} />
-      </Routes>
-    </AppContextProvider>,
+    <PermissionsKnown>
+      <AppContextProvider>
+        <Routes>
+          <Route
+            path={Paths.file.repository.edit}
+            element={<FileRepositoryEdit />}
+          />
+          <Route path={Paths.file.repository.detail} element={<Where />} />
+        </Routes>
+      </AppContextProvider>
+    </PermissionsKnown>,
     { route },
   );
 }

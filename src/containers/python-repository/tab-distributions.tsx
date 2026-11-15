@@ -100,7 +100,8 @@ export const DistributionsTab = ({
         setState,
         state: pageState,
         hasPermission,
-        hasObjectPermission: (_p: string): boolean => true,
+        // No hasObjectPermission: the edit action asks for a permission held
+        // on every object, so nothing here is decided per distribution.
       }}
       defaultPageSize={10}
       defaultSort={'name'}

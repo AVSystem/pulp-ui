@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import { SyncModal } from '../components/sync-modal';
 import { Paths, formatPath } from '../paths';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
@@ -11,6 +12,7 @@ import { Action } from './action';
 
 export const ansibleRepositorySyncAction = Action({
   title: msg`Sync`,
+  permission: ACTION_PERMISSIONS.ansible.repository.sync,
   modal: ({ addAlert, query, setState, state }) =>
     state.syncModalOpen ? (
       <SyncModal
@@ -25,8 +27,6 @@ export const ansibleRepositorySyncAction = Action({
     setState({
       syncModalOpen: { name, pulp_href },
     }),
-  visible: (_item, { hasPermission }) =>
-    hasPermission('ansible.change_collectionremote'),
   disabled: ({ remote, last_sync_task }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;

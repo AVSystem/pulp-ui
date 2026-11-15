@@ -283,6 +283,10 @@ const STATE_KEY = 'pythonDistributionEditModal';
 
 export const pythonDistributionEditAction = Action({
   title: msg`Edit`,
+  // The distributions of a repository page are not read for their own
+  // permission lists, so only a permission held on every object counts.
+  permission: 'python.change_pythondistribution',
+  objectLevel: false,
   modal: ({ addAlert, query, setState, state }) =>
     state?.[STATE_KEY] ? (
       <EditModal
@@ -298,6 +302,4 @@ export const pythonDistributionEditAction = Action({
     ) : null,
   onClick: ({ name, pulp_href }, { setState }) =>
     setState({ [STATE_KEY]: { name, pulp_href } }),
-  visible: (_item, { hasPermission }) =>
-    hasPermission('python.change_pythondistribution'),
 });

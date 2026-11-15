@@ -1,10 +1,11 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { useState } from 'react';
+import { type ReactElement, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetSessionEvents } from 'src/session/session-events';
+import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { listOf, page, remote } from 'src/test-utils/pulp';
-import { renderWithProviders } from 'src/test-utils/render';
+import { renderWithProviders as renderPlain } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
   SignInAgain,
@@ -40,7 +41,14 @@ vi.mock('src/ui-config', () => ({
 
 const API = '/pulp/api/v3';
 
+// Renders the form once the permissions of the signed-in user are known, as
+// the application does. Unless a test serves other grants, the user is staff
+// and holds every permission.
+const renderWithProviders = (ui: ReactElement) =>
+  renderPlain(<PermissionsKnown>{ui}</PermissionsKnown>);
+
 beforeEach(() => {
+  serveSignIn();
   settings.reservedPrefixes = [];
   server.use(
     listOf(`${API}/remotes/file/file/`, []).handler,
@@ -764,5 +772,79 @@ describe('repository form after the same user signs in again', () => {
     await signInAgain(user);
 
     expect(await screen.findByText(/URL \(preview\)/)).toBeInTheDocument();
+  });
+});
+
+// The create-distribution option is offered only to users who may add a
+// distribution of the plugin. Pulp decides every request; the option is
+// presentation.
+describe('repository form, who is offered a distribution', () => {
+  const PLUGINS = [
+    ['file', 'file.add_filedistribution'],
+    ['deb', 'deb.add_aptdistribution'],
+    ['rpm', 'rpm.add_rpmdistribution'],
+    ['python', 'python.add_pythondistribution'],
+    ['ansible', 'ansible.add_ansibledistribution'],
+  ] as const;
+
+  describe.each(PLUGINS)('for %s', (plugin, addDistribution) => {
+    it('shows the option to a user who holds the add permission', async () => {
+      servePermissions({ own: [[addDistribution]] });
+      renderWithProviders(<Harness isNew plugin={plugin} onSave={vi.fn()} />);
+
+      expect(
+        await screen.findByRole('checkbox', { name: /Create a distribution/ }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not render the option for a viewer, and Save asks for no distribution', async () => {
+      servePermissions({ own: [[`${plugin}.view_${plugin}repository`]] });
+      const onSave = vi.fn();
+      const { user } = renderWithProviders(
+        <Harness
+          isNew
+          plugin={plugin}
+          initial={{ name: 'tools' }}
+          onSave={onSave}
+        />,
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'Save' }));
+
+      expect(distributionBox()).toBeNull();
+      expect(screen.queryByText('Distributions')).toBeNull();
+      expect(onSave).toHaveBeenCalledWith({ distribution: null });
+    });
+  });
+
+  it('does not take the permission to add a repository for the one to add a distribution', async () => {
+    servePermissions({ own: [['file.add_filerepository']] });
+    renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    await screen.findByRole('button', { name: 'Save' });
+
+    expect(distributionBox()).toBeNull();
+  });
+
+  it('shows the option to staff, who hold every permission', async () => {
+    servePermissions({ isStaff: true });
+    renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    expect(
+      await screen.findByRole('checkbox', { name: /Create a distribution/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not render the option while nobody is signed in', async () => {
+    server.use(
+      http.get(`*${API}/login/`, () =>
+        HttpResponse.json({ detail: 'no' }, { status: 401 }),
+      ),
+    );
+    renderPlain(<Harness isNew onSave={vi.fn()} />);
+
+    await screen.findByRole('button', { name: 'Save' });
+
+    expect(distributionBox()).toBeNull();
   });
 });

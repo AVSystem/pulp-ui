@@ -12,6 +12,7 @@ import { AccessTab } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
 import { assignRoles, parsePulpIDFromURL } from 'src/utilities';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -26,7 +27,7 @@ interface TabProps {
   item: AnsibleRemoteType;
   actionContext: {
     addAlert: (alert) => void;
-    hasPermission;
+    hasObjectPermission: (permission: string, target?: object) => boolean;
     state: { params };
     user;
   };
@@ -44,6 +45,7 @@ export const RemoteAccessTab = ({
   item,
   actionContext: {
     addAlert,
+    hasObjectPermission,
     state: { params },
   },
 }: TabProps) => {
@@ -51,7 +53,11 @@ export const RemoteAccessTab = ({
   const [name, setName] = useState<string>(item?.name);
   const [groups, setGroups] = useState<GroupType[]>(null); // loading
   const [users, setUsers] = useState<UserType[]>(null); // loading
-  const canEditOwners = true; // FIXME: permissions
+  // Roles are changed only by users who may manage the roles of this object.
+  const canEditOwners = !!hasObjectPermission?.(
+    ACTION_PERMISSIONS.ansible.remote.manageRoles,
+    item,
+  );
   const [selectedGroup, setSelectedGroup] = useState<GroupType>(null);
   const [selectedUser, setSelectedUser] = useState<UserType>(null);
   const [showUserRemoveModal, setShowUserRemoveModal] =

@@ -27,7 +27,18 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 
 // Serves the collection versions list, records the modify requests and
 // answers the task of a modify as completed after `modifyDelay` milliseconds.
-function setup(rows: object[], { modifyDelay = 0 } = {}) {
+function setup(
+  rows: object[],
+  {
+    modifyDelay = 0,
+    hasPermission = () => true,
+    hasObjectPermission = () => true,
+  }: {
+    modifyDelay?: number;
+    hasPermission?: (name: string) => boolean;
+    hasObjectPermission?: (name: string, target?: object) => boolean;
+  } = {},
+) {
   const repo = repository({
     name: 'zz-test-repo',
     pulp_href: `${API}/repositories/ansible/ansible/00000000-0000-4000-8000-0000000000a1/`,
@@ -62,7 +73,8 @@ function setup(rows: object[], { modifyDelay = 0 } = {}) {
       item={item}
       actionContext={{
         addAlert: (alert) => alerts.push(alert),
-        hasPermission: () => true,
+        hasPermission,
+        hasObjectPermission,
         query: reloadPage,
         state: { params: {} },
       }}
@@ -177,5 +189,62 @@ describe('the collection versions tab of an ansible repository', () => {
     expect(
       await screen.findByRole('dialog', { name: 'Select a collection' }),
     ).toBeTruthy();
+  });
+});
+
+describe('the collection versions tab for users with different grants', () => {
+  const MODIFY = 'ansible.modify_ansible_repo_content';
+
+  it('offers neither adding nor removing to a viewer', async () => {
+    setup([row()], {
+      hasPermission: () => false,
+      hasObjectPermission: () => false,
+    });
+
+    await screen.findByText('ns.col v1.0.0');
+
+    expect(screen.queryByRole('button', { name: 'Add collection' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
+  });
+
+  it('offers both to a user whose repository lists the modify permission', async () => {
+    const asked: unknown[] = [];
+    const { user, item } = setup([row()], {
+      hasPermission: () => false,
+      hasObjectPermission: (name, target = undefined) => {
+        asked.push(target);
+        return name === MODIFY;
+      },
+    });
+
+    const created = await screen.findByText('ns.col v1.0.0');
+    expect(
+      screen.getByRole('button', { name: 'Add collection' }),
+    ).toBeInTheDocument();
+    await user.click(
+      within(created.closest('tr') as HTMLElement).getByRole('button', {
+        name: 'Actions',
+      }),
+    );
+
+    expect(
+      await screen.findByRole('menuitem', { name: 'Remove' }),
+    ).toBeInTheDocument();
+    // the row is never the target of the question: the repository is
+    expect(asked.every((target) => target === undefined)).toBe(true);
+    expect(item.name).toBe('zz-test-repo');
+  });
+
+  it('offers both to a user who holds the modify permission on every repository', async () => {
+    setup([row()], {
+      hasPermission: (name) => name === MODIFY,
+      hasObjectPermission: (name) => name === MODIFY,
+    });
+
+    await screen.findByText('ns.col v1.0.0');
+
+    expect(
+      screen.getByRole('button', { name: 'Add collection' }),
+    ).toBeInTheDocument();
   });
 });
