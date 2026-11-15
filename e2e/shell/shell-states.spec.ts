@@ -228,9 +228,11 @@ async function pageDoesNotScroll(page: Page): Promise<boolean> {
   });
 }
 
+// A menu with groups (the account menu) holds one role=menu list per group, so
+// the check is for the first of them.
 async function openMenu(page: Page, hook: string): Promise<void> {
   await page.locator(`[data-cy=${hook}]`).click();
-  await expect(page.getByRole('menu')).toBeVisible();
+  await expect(page.getByRole('menu').first()).toBeVisible();
 }
 
 async function closeWithEscape(page: Page): Promise<void> {
