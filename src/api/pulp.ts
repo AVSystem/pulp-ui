@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { reportUnauthorized } from 'src/session/session-events';
 import { config } from 'src/ui-config';
 import { BaseAPI } from './base';
 
@@ -21,6 +22,20 @@ export class PulpAPI extends BaseAPI {
       }
 
       return request;
+    });
+
+    // A 401 of any call except the sign-in calls means the session ended. The
+    // request is only reported, never repeated: repeating it could run a
+    // delete or a sync a second time. The error still reaches the caller.
+    this.http.interceptors.response.use(undefined, (error) => {
+      if (
+        error?.response?.status === 401 &&
+        !String(error.config?.url ?? '').startsWith('login/')
+      ) {
+        reportUnauthorized('request');
+      }
+
+      return Promise.reject(error);
     });
   }
 }

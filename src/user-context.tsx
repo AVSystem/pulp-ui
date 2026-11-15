@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import { PulpLoginAPI } from './api/pulp-login';
+import { resume, setSignedIn } from './session/session-events';
 import { removeStored } from './utilities/safe-storage';
 
 export interface ISessionUser {
@@ -24,6 +25,16 @@ interface IUserContextType {
   // session. The optional reason travels to the login page through the guard.
   endSession: (reason?: string) => void;
   endReason: string | null;
+  // Grows each time the same user signs in again after the session ended, so
+  // a screen can read its data again.
+  epoch: number;
+  // Signs in through the dialog shown over the current screen. Resolves
+  // 'same' when the same user came back and 'other' when another user signed
+  // in, in which case the page is loaded afresh.
+  signInAgain: (
+    username: string,
+    password: string,
+  ) => Promise<'same' | 'other'>;
 }
 
 const UserContext = createContext<IUserContextType>(undefined);
@@ -44,12 +55,20 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<ISessionUser | null>(null);
   const [status, setStatus] = useState<SessionStatus>('checking');
   const [endReason, setEndReason] = useState<string | null>(null);
+  const [epoch, setEpoch] = useState(0);
 
   const setUser = (next: ISessionUser | null) => {
     setUserState(next);
     setStatus(next ? 'authenticated' : 'anonymous');
     setEndReason(null);
   };
+
+  // The API layer only treats a 401 as an ended session while a user is
+  // signed in.
+  useEffect(() => {
+    setSignedIn(Boolean(user));
+  }, [user]);
+  useEffect(() => () => setSignedIn(false), []);
 
   useEffect(() => {
     // An older version of this UI kept the password in browser storage in plain
@@ -64,6 +83,17 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       )
       .catch(() => setUser(null));
   }, []);
+
+  const signInAgain = async (username: string, password: string) => {
+    const { data } = await PulpLoginAPI.login(username, password);
+    const next = { username: data.username, pulp_href: data.pulp_href };
+
+    // The same user comes back to the same screen; the screen reads again.
+    setUser(next);
+    setEpoch((previous) => previous + 1);
+    resume();
+    return 'same' as const;
+  };
 
   const endSession = (reason?: string) => {
     setUser(null);
@@ -95,9 +125,14 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
         logout,
         endSession,
         endReason,
+        epoch,
+        signInAgain,
       }}
     >
       {children}
     </UserContext.Provider>
   );
 };
+
+// The number of times the same user signed in again; 0 outside the provider.
+export const useSessionEpoch = () => useContext(UserContext)?.epoch ?? 0;

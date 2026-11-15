@@ -1,5 +1,10 @@
 import { HttpResponse, http } from 'msw';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  resetSessionEvents,
+  setSignedIn,
+  subscribe,
+} from 'src/session/session-events';
 import { server } from 'src/test-utils/server';
 import { PulpAPI } from './pulp';
 
@@ -14,6 +19,14 @@ class ExampleAPI extends PulpAPI {
 
   read() {
     return this.http.get('examples/');
+  }
+
+  login() {
+    return this.http.post('login/', null);
+  }
+
+  whoami() {
+    return this.http.get('login/');
   }
 }
 
@@ -114,5 +127,83 @@ describe('api client', () => {
     for (const request of seen) {
       expect(request.authorization).toBeNull();
     }
+  });
+
+  describe('a refused request', () => {
+    const refuse = (status: number) =>
+      server.use(
+        http.get('*/pulp/api/v3/examples/', () =>
+          HttpResponse.json({ detail: 'No.' }, { status }),
+        ),
+        http.post('*/pulp/api/v3/login/', () =>
+          HttpResponse.json({ detail: 'No.' }, { status }),
+        ),
+        http.get('*/pulp/api/v3/login/', () =>
+          HttpResponse.json({ detail: 'No.' }, { status }),
+        ),
+      );
+
+    afterEach(() => {
+      resetSessionEvents();
+    });
+
+    it('a 401 of a call that is not the login tells the session once and still rejects with the original error', async () => {
+      setSignedIn(true);
+      refuse(401);
+      const listener = vi.fn();
+      subscribe(listener);
+
+      await expect(new ExampleAPI().read()).rejects.toMatchObject({
+        response: { status: 401, data: { detail: 'No.' } },
+      });
+
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+
+    it('a 401 of the login call and of the who-is-signed-in call tells nobody', async () => {
+      setSignedIn(true);
+      refuse(401);
+      const listener = vi.fn();
+      subscribe(listener);
+      const api = new ExampleAPI();
+
+      await expect(api.login()).rejects.toMatchObject({
+        response: { status: 401 },
+      });
+      await expect(api.whoami()).rejects.toMatchObject({
+        response: { status: 401 },
+      });
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('a 403 or a 500 tells nobody', async () => {
+      setSignedIn(true);
+      const listener = vi.fn();
+      subscribe(listener);
+
+      refuse(403);
+      await expect(new ExampleAPI().read()).rejects.toBeDefined();
+      refuse(500);
+      await expect(new ExampleAPI().read()).rejects.toBeDefined();
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('is sent once and never repeated by the client', async () => {
+      setSignedIn(true);
+      let requests = 0;
+      server.use(
+        http.get('*/pulp/api/v3/examples/', () => {
+          requests += 1;
+          return HttpResponse.json({ detail: 'No.' }, { status: 401 });
+        }),
+      );
+
+      await expect(new ExampleAPI().read()).rejects.toBeDefined();
+      await new Promise((resolve) => setTimeout(resolve, 30));
+
+      expect(requests).toBe(1);
+    });
   });
 });
