@@ -18,7 +18,7 @@ import {
   type SetStateAction,
   useState,
 } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   AlertList,
   type AlertType,
@@ -28,6 +28,7 @@ import {
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { config } from 'src/ui-config';
 import { useUserContext } from 'src/user-context';
 import { usePhoneWidth } from 'src/utilities/use-phone-width';
 import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
@@ -226,25 +227,34 @@ export const Shell = ({ children }: { children: ReactNode }) => {
   const [startsOpen] = useState(initialSidebarOpen);
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const { user, logout } = useUserContext();
+  const navigate = useNavigate();
 
   const username = user?.username;
 
   // A refused or failed logout leaves the server session alive, so the user is
-  // told instead of being shown as signed out.
+  // told instead of being shown as signed out. With an external login service
+  // the user always ends on the signed out page: a screen that needs no
+  // session would otherwise stay open and look as if nothing had happened.
   const signOut = () =>
-    logout().catch((error) =>
-      setAlerts((current) => [
-        ...current,
-        {
-          variant: 'danger',
-          title: t`Sign-out did not complete`,
-          description: (
-            <>
-              {error.message} {t`You are still signed in.`}
-            </>
-          ),
-        },
-      ]),
+    logout().then(
+      () => {
+        if (config.UI_EXTERNAL_LOGIN_URI) {
+          navigate(formatPath(Paths.meta.signedOut), { replace: true });
+        }
+      },
+      (error) =>
+        setAlerts((current) => [
+          ...current,
+          {
+            variant: 'danger',
+            title: t`Sign-out did not complete`,
+            description: (
+              <>
+                {error.message} {t`You are still signed in.`}
+              </>
+            ),
+          },
+        ]),
     );
 
   return (
