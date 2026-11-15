@@ -15,6 +15,7 @@ import {
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { type FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
+import { PulpLoginAPI } from 'src/api/pulp-login';
 import { LoginLink } from 'src/components/login-link';
 import { Paths, formatPath } from 'src/paths';
 import { MAIN_CONTENT_ID } from 'src/shell/shell';
@@ -23,7 +24,13 @@ import { useUserContext } from 'src/user-context';
 import { loginErrorMessage } from 'src/utilities/login-error';
 import { uiPath } from 'src/utilities/ui-path';
 import './reauth-dialog.scss';
-import { SIGNED_OUT_PATH, resume, useSessionEnded } from './session-events';
+import {
+  SIGNED_OUT_PATH,
+  isSuspended,
+  reportUnauthorized,
+  resume,
+  useSessionEnded,
+} from './session-events';
 
 const PASSWORD_ID = 'pulp-reauth-password';
 const USERNAME_ID = 'pulp-reauth-username';
@@ -39,13 +46,55 @@ const isSignInPage = (pathname: string) => {
   );
 };
 
+// Asks the server once, when the user comes back to the tab, whether the
+// session is still alive. Only a 401 counts: a server error or a lost
+// connection says nothing about the session and is ignored without a word. No
+// timer runs, so a tab that stays in view is never polled; and nothing is
+// asked while nobody is signed in, while the dialog is already open or on a
+// page that deals with signing in itself.
+function useTabReturnCheck(signedIn: boolean, onSignInPage: boolean) {
+  const inFlight = useRef(false);
+
+  useEffect(() => {
+    if (!signedIn || onSignInPage) {
+      return undefined;
+    }
+
+    const onVisibilityChange = () => {
+      if (
+        document.visibilityState !== 'visible' ||
+        inFlight.current ||
+        isSuspended()
+      ) {
+        return;
+      }
+      inFlight.current = true;
+      PulpLoginAPI.whoami()
+        .catch((error) => {
+          if (error?.response?.status === 401) {
+            reportUnauthorized('tab-return');
+          }
+        })
+        .finally(() => {
+          inFlight.current = false;
+        });
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () =>
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [signedIn, onSignInPage]);
+}
+
 // Shown over the current screen while the session of the signed-in user has
 // ended. It cannot be dismissed: the screen behind it looks alive but every
 // request would be refused.
 export const ReauthDialog = () => {
   const { ended } = useSessionEnded();
   const { pathname } = useLocation();
+  const { user } = useUserContext();
   const hidden = isSignInPage(pathname);
+  useTabReturnCheck(Boolean(user), hidden);
   // Where the focus goes once the dialog has closed after signing in again.
   const returnTo = useRef<Element | null>(null);
   const wasOpen = useRef(false);

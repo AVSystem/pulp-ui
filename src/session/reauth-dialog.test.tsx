@@ -532,3 +532,186 @@ describe('sign in again dialog contract', () => {
     await waitFor(() => expect(login).toHaveFocus());
   });
 });
+
+describe('returning to the tab', () => {
+  afterEach(() => {
+    Reflect.deleteProperty(document, 'visibilityState');
+  });
+
+  // What the browser does when the user comes back to the tab.
+  function returnToTab(state: 'visible' | 'hidden' = 'visible') {
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => state,
+    });
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+  }
+
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 60));
+  const WHOAMI = 'GET /pulp/api/v3/login/';
+
+  function answerWhoami(status: number | 'network') {
+    server.use(
+      http.get(LOGIN_URL, () =>
+        status === 'network'
+          ? HttpResponse.error()
+          : HttpResponse.json({ detail: 'No.' }, { status }),
+      ),
+    );
+  }
+
+  it('sends one who-is-signed-in request and opens the dialog without the request note when it answers 401', async () => {
+    await renderScreen();
+    const counts = countRequests();
+    answerWhoami(401);
+
+    returnToTab();
+
+    const dialog = await screen.findByRole('dialog', { name: /Sign in again/ });
+    expect(counts[WHOAMI]).toBe(1);
+    expect(
+      within(dialog).queryByText(/The last action was not completed/),
+    ).not.toBeInTheDocument();
+    expect(
+      within(dialog).getByText('What you have entered on this page is kept.'),
+    ).toBeVisible();
+  });
+
+  it.each([
+    ['a 500 answer', 500],
+    ['a network error', 'network'],
+  ] as const)('%s opens nothing and adds no alert', async (_name, status) => {
+    await renderScreen();
+    const counts = countRequests();
+    answerWhoami(status);
+
+    returnToTab();
+    await waitFor(() => expect(counts[WHOAMI]).toBe(1));
+    await settle();
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(isSuspended()).toBe(false);
+  });
+
+  it('a valid session answer opens nothing', async () => {
+    await renderScreen();
+    const counts = countRequests();
+
+    returnToTab();
+    await waitFor(() => expect(counts[WHOAMI]).toBe(1));
+    await settle();
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('several visibility changes while one check runs send one request', async () => {
+    await renderScreen();
+    const counts = countRequests();
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(LOGIN_URL, async () => {
+        await gate;
+        return HttpResponse.json({ detail: 'No.' }, { status: 401 });
+      }),
+    );
+
+    returnToTab();
+    returnToTab();
+    returnToTab();
+    await settle();
+    release();
+
+    await screen.findByRole('dialog', { name: /Sign in again/ });
+    expect(counts[WHOAMI]).toBe(1);
+  });
+
+  it('checks again on a later return once the first check has finished', async () => {
+    await renderScreen();
+    const counts = countRequests();
+
+    returnToTab();
+    await waitFor(() => expect(counts[WHOAMI]).toBe(1));
+    await settle();
+    returnToTab();
+
+    await waitFor(() => expect(counts[WHOAMI]).toBe(2));
+  });
+
+  it('sends nothing when the tab becomes hidden', async () => {
+    await renderScreen();
+    const counts = countRequests();
+
+    returnToTab('hidden');
+    await settle();
+
+    expect(counts[WHOAMI]).toBeUndefined();
+  });
+
+  it('sends nothing while the dialog is open', async () => {
+    await renderScreen();
+    act(() => reportUnauthorized('tab-return'));
+    await screen.findByRole('dialog', { name: /Sign in again/ });
+    const counts = countRequests();
+
+    returnToTab();
+    await settle();
+
+    expect(counts[WHOAMI]).toBeUndefined();
+  });
+
+  it('sends nothing when nobody is signed in', async () => {
+    answerWhoami(401);
+    const view = renderWithProviders(
+      <>
+        <Screen />
+        <ReauthDialog />
+      </>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+    );
+    const counts = countRequests();
+
+    returnToTab();
+    await settle();
+
+    expect(counts[WHOAMI]).toBeUndefined();
+    expect(view.container).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('sends nothing on the signed-out page', async () => {
+    signedInAs();
+    renderWithProviders(
+      <>
+        <Screen />
+        <ReauthDialog />
+      </>,
+      { route: '/signed-out' },
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+    );
+    const counts = countRequests();
+
+    returnToTab();
+    await settle();
+
+    expect(counts[WHOAMI]).toBeUndefined();
+  });
+
+  it('starts no timer: nothing is asked again without a return to the tab', async () => {
+    await renderScreen();
+    const counts = countRequests();
+
+    await settle();
+
+    expect(counts[WHOAMI]).toBeUndefined();
+  });
+});

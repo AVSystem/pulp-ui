@@ -1,7 +1,18 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  reportUnauthorized,
+  resetSessionEvents,
+  resume,
+} from 'src/session/session-events';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -836,5 +847,104 @@ describe('repository search', () => {
     expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent(
       '2 results',
     );
+  });
+});
+
+describe('repository search while the session has ended', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  // Waits until the signed-in user is known to the session store.
+  async function endSession() {
+    await screen.findByRole('option', { name: 'Repositories - File' });
+    act(() => {
+      reportUnauthorized('tab-return');
+    });
+  }
+
+  it('sends no repository request, shows no "no match" and looks up once after the session resumes', async () => {
+    signIn();
+    const queries = answerRepositories([repo('deb', 'apt', 'zz-held-1')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+    await endSession();
+
+    await user.type(await input(), 'held');
+    await settle();
+
+    expect(queries).toHaveLength(0);
+    expect(
+      screen.queryByText('No screens or repositories match'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/could not be searched/)).not.toBeInTheDocument();
+
+    act(() => {
+      resume();
+    });
+
+    expect(
+      await screen.findByRole('option', { name: 'zz-held-1, deb' }),
+    ).toBeVisible();
+    expect(queries).toHaveLength(1);
+  });
+
+  it('a lookup answered with 401 is neither a failure nor a refusal and is asked again after the session resumes', async () => {
+    signIn();
+    let calls = 0;
+    server.use(
+      http.get(`*${REPOSITORIES}`, () => {
+        calls += 1;
+        if (calls === 1) {
+          return HttpResponse.json({ detail: 'no' }, { status: 401 });
+        }
+        return HttpResponse.json({
+          count: 1,
+          next: null,
+          previous: null,
+          results: [repo('deb', 'apt', 'zz-again-1')],
+        });
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+    await screen.findByRole('option', { name: 'Repositories - File' });
+
+    await user.type(await input(), 'again');
+    await waitFor(() => expect(calls).toBe(1));
+    await settle();
+
+    expect(
+      screen.queryByText('No screens or repositories match'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/could not be searched/)).not.toBeInTheDocument();
+
+    act(() => {
+      resume();
+    });
+
+    expect(
+      await screen.findByRole('option', { name: 'zz-again-1, deb' }),
+    ).toBeVisible();
+    expect(calls).toBe(2);
+  });
+
+  it('does not repeat a lookup that was already answered when the session resumes', async () => {
+    signIn();
+    const queries = answerRepositories([repo('deb', 'apt', 'zz-done-1')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+    await user.type(await input(), 'done');
+    await screen.findByRole('option', { name: 'zz-done-1, deb' });
+
+    act(() => {
+      reportUnauthorized('tab-return');
+    });
+    act(() => {
+      resume();
+    });
+    await settle();
+
+    expect(queries).toHaveLength(1);
   });
 });

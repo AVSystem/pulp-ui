@@ -15,6 +15,11 @@ import {
   it,
   vi,
 } from 'vitest';
+import {
+  reportUnauthorized,
+  resetSessionEvents,
+  resume,
+} from 'src/session/session-events';
 import { type ITask, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -52,7 +57,7 @@ function ended(state: string, minutesAgo: number, name = `task-${state}`) {
   });
 }
 
-type Answer = ITask[] | 'fail' | 'forbidden';
+type Answer = ITask[] | 'fail' | 'forbidden' | 'unauthorized';
 
 // Answers the notification list request, recording its query; the count
 // requests of the Tasks entry are answered with zero.
@@ -71,6 +76,9 @@ function answerWith(answer: () => Answer) {
       }
       if (result === 'forbidden') {
         return HttpResponse.json({ detail: 'no' }, { status: 403 });
+      }
+      if (result === 'unauthorized') {
+        return HttpResponse.json({ detail: 'no' }, { status: 401 });
       }
       return HttpResponse.json({
         count: result.length,
@@ -151,6 +159,7 @@ describe('notifications', () => {
   afterEach(() => {
     intervals.mockRestore();
     vi.useRealTimers();
+    resetSessionEvents();
     Reflect.deleteProperty(document, 'visibilityState');
   });
 
@@ -565,6 +574,64 @@ describe('notifications', () => {
       await user.click(await bell());
 
       await waitFor(() => expect(queries).toHaveLength(2));
+    });
+  });
+
+  describe('while the session has ended', () => {
+    it('asks for nothing at its interval or when the panel opens, and loads once after the session resumes', async () => {
+      const queries = serve([ended('failed', 3, 'late')]);
+      const { user } = renderShell();
+      const toggle = await bell();
+      await waitFor(() => expect(queries).toHaveLength(1));
+
+      act(() => {
+        reportUnauthorized('tab-return');
+      });
+      refreshNow();
+      await user.click(toggle);
+      await settle();
+      expect(queries).toHaveLength(1);
+
+      act(() => {
+        resume();
+      });
+      await waitFor(() => expect(queries).toHaveLength(2));
+      await settle();
+      expect(queries).toHaveLength(2);
+    });
+
+    it('keeps the bell while a request is held back', async () => {
+      serve([]);
+      renderShell();
+      await bell();
+
+      act(() => {
+        reportUnauthorized('tab-return');
+      });
+      refreshNow();
+      await settle();
+
+      expect(
+        screen.getByRole('button', { name: /^Notifications/ }),
+      ).toBeInTheDocument();
+    });
+
+    it('treats a 401 answer as neither a refusal nor a failure: the bell stays and no error is shown', async () => {
+      serve('unauthorized');
+      const { user } = renderShell();
+      const toggle = await bell();
+      await settle();
+
+      await user.click(toggle);
+      finishSlide();
+      await settle();
+
+      expect(
+        screen.queryByRole('button', { name: /^Notifications/ }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Notifications could not be loaded.'),
+      ).not.toBeInTheDocument();
     });
   });
 });
