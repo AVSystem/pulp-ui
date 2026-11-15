@@ -26,6 +26,13 @@ import { fileRepositoryDeleteAction } from './file-repository-delete';
 import { fileRepositoryEditAction } from './file-repository-edit';
 import { fileRepositorySyncAction } from './file-repository-sync';
 import { repositoryVersionRevertAction } from './repository-version-revert';
+import { rpmRemoteCreateAction } from './rpm-remote-create';
+import { rpmRemoteDeleteAction } from './rpm-remote-delete';
+import { rpmRemoteEditAction } from './rpm-remote-edit';
+import { rpmRepositoryCreateAction } from './rpm-repository-create';
+import { rpmRepositoryDeleteAction } from './rpm-repository-delete';
+import { rpmRepositoryEditAction } from './rpm-repository-edit';
+import { rpmRepositorySyncAction } from './rpm-repository-sync';
 
 const API = '/pulp/api/v3';
 
@@ -184,6 +191,20 @@ const ROWS: Row[] = [
       remoteCreate: debRemoteCreateAction,
       remoteEdit: debRemoteEditAction,
       remoteDelete: debRemoteDeleteAction,
+    },
+  ),
+  ...rowsOf(
+    'rpm',
+    { repository: 'rpmrepository', remote: 'rpmremote' },
+    { repository: 'rpm/rpm', remote: 'rpm/rpm' },
+    {
+      repositoryCreate: rpmRepositoryCreateAction,
+      repositoryEdit: rpmRepositoryEditAction,
+      repositorySync: rpmRepositorySyncAction,
+      repositoryDelete: rpmRepositoryDeleteAction,
+      remoteCreate: rpmRemoteCreateAction,
+      remoteEdit: rpmRemoteEditAction,
+      remoteDelete: rpmRemoteDeleteAction,
     },
   ),
 ];
