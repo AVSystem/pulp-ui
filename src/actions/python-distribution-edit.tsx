@@ -17,7 +17,6 @@ import { FormFieldHelper } from '../components/form-field-helper';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
 import { Typeahead } from '../components/typeahead';
 import { useSessionEpoch } from '../user-context';
-import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { changedFields } from '../utilities/changed-fields';
 import { saveErrorMessages } from '../utilities/create-repository';
 import { type ErrorMessagesType } from '../utilities/map-error-messages';
