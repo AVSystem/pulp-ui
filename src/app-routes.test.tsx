@@ -91,6 +91,96 @@ describe('route guard', () => {
     expect(screen.queryByLabelText(/username/i)).not.toBeInTheDocument();
   });
 
+  it('a protected route shows that the session could not be checked, with no redirect, when the check answers 500', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({ detail: 'down' }, { status: 500 }),
+      ),
+    );
+
+    renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'The session could not be checked',
+      }),
+    ).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      new RegExp(`^${PROTECTED_PATH}$`),
+    );
+    expect(screen.queryByLabelText(/username/i)).not.toBeInTheDocument();
+  });
+
+  it('a protected route shows that the session could not be checked when the connection fails', async () => {
+    server.use(http.get('*/pulp/api/v3/login/', () => HttpResponse.error()));
+
+    renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'The session could not be checked',
+      }),
+    ).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      new RegExp(`^${PROTECTED_PATH}$`),
+    );
+  });
+
+  it('Retry asks the server again and opens the screen when the session is there', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({ detail: 'down' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+    await user.click(await screen.findByRole('button', { name: 'Retry' }));
+    await screen.findByRole('heading', {
+      name: 'The session could not be checked',
+    });
+    server.use(listOf('/pulp/api/v3/signing-services/', []).handler);
+    signIn();
+
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Signature keys' }),
+    ).toBeVisible();
+  });
+
+  it('Retry goes to the login page when the server then says nobody is signed in', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({ detail: 'down' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+    await screen.findByRole('heading', {
+      name: 'The session could not be checked',
+    });
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({ detail: 'No.' }, { status: 401 }),
+      ),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+  });
+
+  it('a screen that needs no session renders as for a visitor while the check could not be answered', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({ detail: 'down' }, { status: 500 }),
+      ),
+    );
+
+    renderWithProviders(<Routed />, { route: '/login' });
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+  });
+
   it('a protected route redirects to the login page only when the session check answers 401', async () => {
     renderWithProviders(<Routed />, { route: PROTECTED_PATH });
 
@@ -133,6 +223,130 @@ describe('route guard', () => {
     afterEach(() => {
       config.UI_EXTERNAL_LOGIN_URI = null;
       vi.restoreAllMocks();
+    });
+
+    it('a signed-in answer opens the screen without a redirect', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      server.use(listOf('/pulp/api/v3/signing-services/', []).handler);
+      signIn();
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      expect(
+        await screen.findByRole('heading', { name: 'Signature keys' }),
+      ).toBeVisible();
+      expect(replace).not.toHaveBeenCalled();
+    });
+
+    it('a failed session check of 500 sends no redirect and offers Retry', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      server.use(
+        http.get('*/pulp/api/v3/login/', () =>
+          HttpResponse.json({ detail: 'down' }, { status: 500 }),
+        ),
+      );
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'The session could not be checked',
+        }),
+      ).toBeVisible();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(replace).not.toHaveBeenCalled();
+      expect(window.sessionStorage.getItem('pulp-ui-external-login-at')).toBe(
+        null,
+      );
+    });
+
+    it('a signed-out answer redirects once and remembers the time', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+      const before = Date.now();
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      await waitFor(() => expect(replace).toHaveBeenCalledTimes(1));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(replace).toHaveBeenCalledTimes(1);
+      const stored = Number(
+        window.sessionStorage.getItem('pulp-ui-external-login-at'),
+      );
+      expect(stored).toBeGreaterThanOrEqual(before);
+      expect(stored).toBeLessThanOrEqual(Date.now());
+    });
+
+    it('a page that returns without a session within 30 seconds shows that sign-in did not complete and does not redirect again', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      window.sessionStorage.setItem(
+        'pulp-ui-external-login-at',
+        String(Date.now() - 5000),
+      );
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Sign-in did not complete',
+        }),
+      ).toBeVisible();
+      expect(
+        screen.getByText(
+          'The login page returned without a signed-in session.',
+        ),
+      ).toBeVisible();
+      expect(screen.getByRole('status')).toBeVisible();
+      expect(screen.getByRole('link', { name: 'Login' })).toHaveAttribute(
+        'href',
+        `https://login.example/start?next=${encodeURIComponent('/ui/signature-keys')}`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(replace).not.toHaveBeenCalled();
+    });
+
+    it('a page that returns without a session after 40 seconds redirects again', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      window.sessionStorage.setItem(
+        'pulp-ui-external-login-at',
+        String(Date.now() - 40000),
+      );
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      await waitFor(() => expect(replace).toHaveBeenCalledTimes(1));
+      expect(screen.queryByText('Sign-in did not complete')).toBeNull();
+    });
+
+    it('a screen that needs no session shows no redirect and no loop notice', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      window.sessionStorage.setItem(
+        'pulp-ui-external-login-at',
+        String(Date.now() - 5000),
+      );
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: '/login' });
+
+      expect(await screen.findByLabelText(/username/i)).toBeVisible();
+      expect(replace).not.toHaveBeenCalled();
+      expect(screen.queryByText('Sign-in did not complete')).toBeNull();
     });
 
     it('a protected route passes the path with its query string to the external login address', async () => {

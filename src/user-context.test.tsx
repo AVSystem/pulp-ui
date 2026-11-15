@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { setPageUrl } from 'src/test-utils/page';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { blockStorage } from 'src/test-utils/storage';
@@ -12,7 +13,7 @@ const LOGIN_URL = '*/pulp/api/v3/login/';
 // Shows the session state and offers a logout button that reports how the
 // logout promise ended.
 function SessionProbe() {
-  const { status, user, logout } = useUserContext();
+  const { status, user, logout, retrySessionCheck } = useUserContext();
   const [outcome, setOutcome] = useState('none');
 
   return (
@@ -30,6 +31,9 @@ function SessionProbe() {
         }
       >
         Sign out
+      </button>
+      <button type='button' onClick={() => retrySessionCheck()}>
+        Check again
       </button>
     </>
   );
@@ -191,5 +195,144 @@ describe('user context', () => {
       ),
     );
     expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
+  });
+  describe('the first session check of a page load', () => {
+    const answer = (status: number | 'network') =>
+      server.use(
+        http.get(LOGIN_URL, () =>
+          status === 'network'
+            ? HttpResponse.error()
+            : HttpResponse.json({ detail: 'Backend unavailable.' }, { status }),
+        ),
+      );
+
+    const shown = (status: string) =>
+      waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent(status),
+      );
+
+    it.each([
+      ['a 500 answer', 500],
+      ['a 503 answer', 503],
+      ['a network error', 'network'],
+    ] as const)(
+      '%s leaves the session unknown, not signed out',
+      async (_name, status) => {
+        answer(status);
+
+        renderWithProviders(<SessionProbe />);
+
+        await shown('unknown');
+        expect(screen.getByTestId('user')).toHaveTextContent('nobody');
+      },
+    );
+
+    it('a 401 answer means signed out', async () => {
+      answer(401);
+
+      renderWithProviders(<SessionProbe />);
+
+      await shown('anonymous');
+    });
+
+    it('asking again after an unknown answer makes the user authenticated when the server answers', async () => {
+      answer(500);
+      const { user } = renderWithProviders(<SessionProbe />);
+      await shown('unknown');
+      server.use(
+        http.get(LOGIN_URL, () =>
+          HttpResponse.json({
+            username: 'zoe',
+            pulp_href: '/pulp/api/v3/users/1/',
+          }),
+        ),
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Check again' }));
+
+      await shown('authenticated');
+      expect(screen.getByTestId('user')).toHaveTextContent('zoe');
+    });
+
+    it('asking again sends one request and shows checking while it runs', async () => {
+      answer(500);
+      const { user } = renderWithProviders(<SessionProbe />);
+      await shown('unknown');
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const asked: string[] = [];
+      server.use(
+        http.get(LOGIN_URL, async ({ request }) => {
+          asked.push(request.method);
+          await gate;
+          return HttpResponse.json({ detail: 'No.' }, { status: 401 });
+        }),
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Check again' }));
+
+      await shown('checking');
+      release();
+      await shown('anonymous');
+      expect(asked).toEqual(['GET']);
+    });
+
+    it('a signed-in answer clears the time of the last external login redirect', async () => {
+      window.sessionStorage.setItem(
+        'pulp-ui-external-login-at',
+        String(Date.now()),
+      );
+
+      await renderSignedIn();
+
+      expect(window.sessionStorage.getItem('pulp-ui-external-login-at')).toBe(
+        null,
+      );
+    });
+
+    it('a signed-out answer keeps the time of the last external login redirect', async () => {
+      window.sessionStorage.setItem('pulp-ui-external-login-at', '123');
+      answer(401);
+
+      renderWithProviders(<SessionProbe />);
+      await shown('anonymous');
+
+      expect(window.sessionStorage.getItem('pulp-ui-external-login-at')).toBe(
+        '123',
+      );
+    });
+  });
+  describe('on the signed out page', () => {
+    afterEach(() => setPageUrl('http://localhost/'));
+
+    it.each([
+      'https://pulp.example.com/ui/signed-out',
+      'https://pulp.example.com/ui/signed-out/',
+    ])('%s sends no request and is anonymous', async (address) => {
+      setPageUrl(address);
+      const sent: string[] = [];
+      server.events.on('request:start', ({ request }) => {
+        sent.push(`${request.method} ${new URL(request.url).pathname}`);
+      });
+
+      renderWithProviders(<SessionProbe />);
+
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      expect(sent).toEqual([]);
+      server.events.removeAllListeners();
+    });
+
+    it('another page still asks who is signed in', async () => {
+      setPageUrl('https://pulp.example.com/ui/status/');
+
+      await renderSignedIn();
+
+      expect(screen.getByTestId('user')).toHaveTextContent('zoe');
+    });
   });
 });

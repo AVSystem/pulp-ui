@@ -1534,6 +1534,7 @@ msgstr "Overweeg een beveiligde URL te gebruiken (https://)."
 #~ msgid "Contact you organization administrator for more information."
 #~ msgstr "Contact you organization administrator for more information."
 
+#: src/components/external-sign-in-incomplete.tsx
 #: src/components/insufficient-permissions.tsx
 #: src/utilities/fail-alerts.tsx
 msgid "Contact your organization administrator for more information."
@@ -6623,6 +6624,7 @@ msgstr ""
 #~ msgid "Sign entire collection"
 #~ msgstr "Volledige collectie ondertekenen"
 
+#: src/containers/signed-out.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Sign in again"
 msgstr ""
@@ -6643,6 +6645,10 @@ msgstr ""
 #: src/components/sign-single-certificate-modal.tsx
 #~ msgid "Sign version {version}"
 #~ msgstr "Onderteken versie {version}"
+
+#: src/components/external-sign-in-incomplete.tsx
+msgid "Sign-in did not complete"
+msgstr ""
 
 #: src/shell/shell.tsx
 msgid "Sign-out did not complete"
@@ -6692,6 +6698,10 @@ msgstr ""
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "Alleen ondertekend"
+
+#: src/containers/signed-out.tsx
+msgid "Signed out"
+msgstr ""
 
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signed version(s)"
@@ -7350,6 +7360,10 @@ msgstr ""
 msgid "The last action was not completed. Repeat it after you log in."
 msgstr ""
 
+#: src/components/external-sign-in-incomplete.tsx
+msgid "The login page returned without a signed-in session."
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr ""
@@ -7434,6 +7448,10 @@ msgstr "De geselecteerde rollen worden toegevoegd aan deze specifieke Ansible re
 
 #: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
+msgstr ""
+
+#: src/app-routes.tsx
+msgid "The session could not be checked"
 msgstr ""
 
 #: src/utilities/plugin-version.ts
@@ -8587,6 +8605,10 @@ msgstr "U hebt geen toestemming om gebruikers weer te geven."
 #: src/containers/search/search.tsx
 #~ msgid "You don't have rights to do this operation."
 #~ msgstr "U hebt geen rechten om deze operatie uit te voeren."
+
+#: src/containers/signed-out.tsx
+msgid "You have been signed out of Pulp."
+msgstr ""
 
 #: src/components/collection-info.tsx
 #~ msgid "You have to be logged in to be able to download the tarball."

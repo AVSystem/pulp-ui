@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
+import { Paths } from 'src/paths';
 
 // Where the static page for a signed-out user lives. Shared so the dialog and
 // that page agree on the address.
-export const SIGNED_OUT_PATH = '/signed-out';
+export const SIGNED_OUT_PATH = Paths.meta.signedOut;
 
 // Whether the session of the signed-in user has ended, and whether a request
 // found out (as opposed to a check made on returning to the tab).
@@ -55,6 +56,31 @@ export function reportUnauthorized(origin: 'request' | 'tab-return') {
 // The user signed in again; the session is usable.
 export function resume() {
   publish({ ended: false, fromRequest: false });
+}
+
+// True while a user who signed in during this page load has not been signed
+// out.
+export function isSignedIn() {
+  return signedIn;
+}
+
+// The request that found out the session had ended is marked, so the screen
+// that asked for the data treats the failure like any other session end: the
+// sign-in dialog explains it and no alert is added.
+const SESSION_END_MARK = 'endedSession';
+
+export function markSessionEnd(error: unknown) {
+  if (error && typeof error === 'object') {
+    (error as Record<string, unknown>)[SESSION_END_MARK] = true;
+  }
+}
+
+export function isMarkedSessionEnd(error: unknown): boolean {
+  return (
+    Boolean(error) &&
+    typeof error === 'object' &&
+    (error as Record<string, unknown>)[SESSION_END_MARK] === true
+  );
 }
 
 export function setSignedIn(value: boolean) {

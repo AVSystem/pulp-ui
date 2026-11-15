@@ -1535,6 +1535,7 @@ msgstr "Consider using a secure URL (https://)."
 #~ msgid "Contact you organization administrator for more information."
 #~ msgstr "Contact you organization administrator for more information."
 
+#: src/components/external-sign-in-incomplete.tsx
 #: src/components/insufficient-permissions.tsx
 #: src/utilities/fail-alerts.tsx
 msgid "Contact your organization administrator for more information."
@@ -6624,6 +6625,7 @@ msgstr "Show password"
 #~ msgid "Sign entire collection"
 #~ msgstr "Sign entire collection"
 
+#: src/containers/signed-out.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Sign in again"
 msgstr "Sign in again"
@@ -6644,6 +6646,10 @@ msgstr "Sign in again"
 #: src/components/sign-single-certificate-modal.tsx
 #~ msgid "Sign version {version}"
 #~ msgstr "Sign version {version}"
+
+#: src/components/external-sign-in-incomplete.tsx
+msgid "Sign-in did not complete"
+msgstr "Sign-in did not complete"
 
 #: src/shell/shell.tsx
 msgid "Sign-out did not complete"
@@ -6693,6 +6699,10 @@ msgstr "Signed in as {username}"
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "Signed only"
+
+#: src/containers/signed-out.tsx
+msgid "Signed out"
+msgstr "Signed out"
 
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signed version(s)"
@@ -7351,6 +7361,10 @@ msgstr "The following roles will be applied to user: <0>{0}</0>"
 msgid "The last action was not completed. Repeat it after you log in."
 msgstr "The last action was not completed. Repeat it after you log in."
 
+#: src/components/external-sign-in-incomplete.tsx
+msgid "The login page returned without a signed-in session."
+msgstr "The login page returned without a signed-in session."
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "The outcome of removing the repository is unknown. Check the task:"
@@ -7436,6 +7450,10 @@ msgstr "The selected roles will be added to this specific Ansible repository."
 #: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
 msgstr "The server could not be reached: {message}"
+
+#: src/app-routes.tsx
+msgid "The session could not be checked"
+msgstr "The session could not be checked"
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."
@@ -8588,6 +8606,10 @@ msgstr "You don't have permission to display users."
 #: src/containers/search/search.tsx
 #~ msgid "You don't have rights to do this operation."
 #~ msgstr "You don't have rights to do this operation."
+
+#: src/containers/signed-out.tsx
+msgid "You have been signed out of Pulp."
+msgstr "You have been signed out of Pulp."
 
 #: src/components/collection-info.tsx
 #~ msgid "You have to be logged in to be able to download the tarball."
