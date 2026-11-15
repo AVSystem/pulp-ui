@@ -1038,9 +1038,9 @@ msgstr "Canceled {when}"
 #~ msgid "Certified"
 #~ msgstr "Certified"
 
-#: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-#~ msgid "Change"
-#~ msgstr "Change"
+#: src/actions/action.test.tsx
+msgid "Change"
+msgstr "Change"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Change and upload collections to namespaces."
@@ -1112,6 +1112,12 @@ msgstr "Change existing containers."
 #: src/constants.tsx
 #~ msgid "Change task"
 #~ msgstr "Change task"
+
+#: src/components/list-page.test.tsx
+#: src/components/page-with-tabs.test.tsx
+#: src/components/page.test.tsx
+msgid "Change thing"
+msgstr "Change thing"
 
 #: src/constants.tsx
 #~ msgid "Change user"

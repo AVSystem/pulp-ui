@@ -11,6 +11,10 @@ import {
   reportUnauthorized,
   resetSessionEvents,
 } from '../session/session-events';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from '../test-utils/permissions';
 import { listOf, page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
@@ -716,5 +720,172 @@ describe('a list page whose action is refused', () => {
 
     await alertList();
     expect(alertTitles()).toHaveLength(2);
+  });
+});
+
+describe('a list page whose row actions need a permission', () => {
+  const CHANGE = 'file.change_filerepository';
+  const href = (name: string) => `/pulp/api/v3/things/${name}/`;
+  const NAMES = ['alpha', 'beta', 'gamma'];
+
+  const rowActions = [
+    Action({
+      title: msg`Change thing`,
+      permission: CHANGE,
+      onClick: () => undefined,
+    }),
+  ];
+
+  let rowContext;
+
+  const PermittedList = ListPage<IThing & { pulp_href: string }>({
+    defaultPageSize: 10,
+    displayName: 'PermittedThingList',
+    errorTitle: msg`Things could not be displayed.`,
+    filterConfig: () => [{ id: 'name__icontains', title: 'Name' }],
+    listItemActions: rowActions,
+    noDataDescription: msg`Things appear once they are created.`,
+    noDataTitle: msg`No things yet`,
+    query: ({ params }) => things.list('things/', params),
+    renderTableRow: (item, _index, context) => {
+      rowContext = context;
+      return (
+        <Tr key={item.name}>
+          <Td>{item.name}</Td>
+          <Td>{rowActions.map((action) => action.button(item, context))}</Td>
+        </Tr>
+      );
+    },
+    sortHeaders: [{ title: msg`Name`, type: 'alpha', id: 'name' }],
+    title: msg`Things`,
+  });
+
+  function renderPermittedList() {
+    server.use(
+      listOf(
+        THINGS,
+        NAMES.map((name) => ({ name, pulp_href: href(name) })),
+      ).handler,
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <PermittedList />
+      </AppContextProvider>,
+    );
+  }
+
+  const rowOf = (name: string) => screen.getByText(name).closest('tr');
+  const changeIn = (name: string) =>
+    within(rowOf(name)).queryByRole('button', { name: 'Change thing' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    rowContext = undefined;
+    server.events.removeAllListeners();
+  });
+
+  it('reads no object permissions for a staff user and shows every row action', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderPermittedList();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('button', { name: 'Change thing' }),
+      ).toHaveLength(3),
+    );
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads no object permissions for a user who holds the permission globally', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderPermittedList();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('button', { name: 'Change thing' }),
+      ).toHaveLength(3),
+    );
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads the object permissions of every row and shows the action only on rows that list it', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: ['file.view_filerepository'],
+      [href('gamma')]: [CHANGE],
+    });
+    renderPermittedList();
+
+    await waitFor(() => expect(changeIn('gamma')).toBeInTheDocument());
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    await settled();
+    expect(changeIn('beta')).not.toBeInTheDocument();
+    expect([...requests].sort()).toEqual(
+      NAMES.map((name) => `${href(name)}my_permissions/`).sort(),
+    );
+  });
+
+  it('shows the action of a row only once its own read has answered', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: { permissions: [CHANGE], delayMs: 300 },
+      [href('gamma')]: [],
+    });
+    renderPermittedList();
+
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    expect(changeIn('beta')).not.toBeInTheDocument();
+    await waitFor(() => expect(changeIn('beta')).toBeInTheDocument());
+  });
+
+  it('hides the object actions of a row whose read failed and keeps the others', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: { status: 500 },
+      [href('gamma')]: { status: 403 },
+    });
+    renderPermittedList();
+
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    await settled();
+    expect(changeIn('beta')).not.toBeInTheDocument();
+    expect(changeIn('gamma')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('reads each row once for the page load, however often the list reads again', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: [CHANGE],
+      [href('gamma')]: [CHANGE],
+    });
+    renderPermittedList();
+    await waitFor(() => expect(changeIn('gamma')).toBeInTheDocument());
+
+    await act(async () => {
+      rowContext.query();
+    });
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    await settled();
+
+    expect(requests).toHaveLength(3);
+  });
+
+  it('asks for nothing while nobody is signed in', async () => {
+    const { requests } = serveMyPermissions({ [href('alpha')]: [CHANGE] });
+    renderPermittedList();
+
+    await screen.findByText('alpha');
+    await settled();
+    expect(requests).toEqual([]);
+    expect(screen.queryByRole('button', { name: 'Change thing' })).toBeNull();
   });
 });

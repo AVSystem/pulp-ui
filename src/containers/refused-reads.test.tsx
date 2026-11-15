@@ -53,6 +53,7 @@ const NoViewPermission = ({ children }: { children: ReactNode }) => {
   const value: IAppContextType = {
     alerts: [],
     hasPermission: () => false,
+    permissionsReady: true,
     queueAlert: () => undefined,
     setAlerts: () => undefined,
     user: null,

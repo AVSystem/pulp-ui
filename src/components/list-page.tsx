@@ -27,6 +27,10 @@ import {
 } from 'src/components';
 import { type ActionType } from '../actions/action';
 import { filterIsSet } from '../utilities/filter-is-set';
+import {
+  ObjectPermissions,
+  needsObjectPermissions,
+} from '../utilities/my-permissions';
 import { ParamHelper } from '../utilities/param-helper';
 import {
   isSessionEnd,
@@ -169,6 +173,10 @@ export const ListPage = function <T>({
     // number of the latest load; the answer of an older load is ignored
     private latestQuery = 0;
 
+    // what the server lists for each row's object, read for the rows of this
+    // page load when a row action can only be decided by it
+    private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
+
     constructor(props) {
       super(props);
 
@@ -211,7 +219,17 @@ export const ListPage = function <T>({
       }
     }
 
+    componentWillUnmount() {
+      this.objectPermissions.dispose();
+    }
+
     componentDidUpdate(prevProps: RouteProps) {
+      if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+        // roles may have changed with the new session
+        this.objectPermissions.reset();
+      }
+      this.readRowPermissions();
+
       // The same user signed in again after the session ended: read the list
       // once more. Dialogs and typed text stay; the latest-query guard drops
       // the answer of any read that is still on its way.
@@ -257,7 +275,12 @@ export const ListPage = function <T>({
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
-        hasObjectPermission: () => false, // list items don't load my_permissions .. but superadmin should still work
+        hasObjectPermission: (permission, target) =>
+          this.objectPermissions.holds(
+            permission,
+            target,
+            (this.context as IAppContextType).hasPermission,
+          ),
         hasPermission: (this.context as IAppContextType).hasPermission,
         listQuery: () => this.query(),
         navigate: this.props.navigate,
@@ -420,6 +443,28 @@ export const ListPage = function <T>({
           </Tbody>
         </Table>
       );
+    }
+
+    // Reads the permissions the server lists for each row, in parallel and
+    // once per row, when a row action depends on them: the global permissions
+    // are known and the user lacks some row action's permission globally
+    // (staff never do). A row counts as holding nothing until its read
+    // answered.
+    private readRowPermissions() {
+      const { items, loading, unauthorized } = this.state;
+      if (loading || unauthorized || !items.length) {
+        return;
+      }
+
+      if (
+        needsObjectPermissions(listItemActions, this.context as IAppContextType)
+      ) {
+        items.forEach((item) =>
+          this.objectPermissions.read(
+            (item as { pulp_href?: string })?.pulp_href,
+          ),
+        );
+      }
     }
 
     private query() {

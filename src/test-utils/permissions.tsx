@@ -93,3 +93,39 @@ export function PermissionsKnown({ children }: { children: ReactNode }) {
 
   return known || state === 'ready' ? <>{children}</> : null;
 }
+
+// What a my_permissions read answers for one object: its permission list, a
+// failure status, or a list after a delay (to keep a read pending).
+export type MyPermissionsAnswer =
+  string[] | { status: number } | { permissions: string[]; delayMs: number };
+
+// Serves <object href>my_permissions/ for the given object addresses and
+// records the path of every such request. An address that is not listed
+// answers 404.
+export function serveMyPermissions(
+  answers: Record<string, MyPermissionsAnswer>,
+) {
+  const requests: string[] = [];
+
+  server.use(
+    http.get('*/my_permissions/', async ({ request }) => {
+      const path = new URL(request.url).pathname;
+      requests.push(path);
+      const answer = answers[path.replace(/my_permissions\/$/, '')];
+
+      if (!answer) {
+        return HttpResponse.json({ detail: 'Not found.' }, { status: 404 });
+      }
+      if (Array.isArray(answer)) {
+        return HttpResponse.json({ permissions: answer });
+      }
+      if ('status' in answer) {
+        return HttpResponse.json({ detail: 'no' }, { status: answer.status });
+      }
+      await new Promise((resolve) => setTimeout(resolve, answer.delayMs));
+      return HttpResponse.json({ permissions: answer.permissions });
+    }),
+  );
+
+  return { requests };
+}

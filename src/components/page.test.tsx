@@ -7,6 +7,10 @@ import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import { resetSessionEvents } from '../session/session-events';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from '../test-utils/permissions';
 import { page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
@@ -484,5 +488,158 @@ describe('an edit page whose load is refused', () => {
     expect(
       screen.queryByRole('button', { name: 'Delete thing' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('a page whose header action needs a permission', () => {
+  const HREF = '/pulp/api/v3/things/1/';
+  const CHANGE = 'file.change_filerepository';
+
+  const Screen = (objectLevel = true) =>
+    Page<IThing>({
+      breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+      displayName: 'PermittedThingEdit',
+      errorTitle: msg`Thing could not be displayed.`,
+      headerActions: [
+        Action({
+          title: msg`Change thing`,
+          permission: CHANGE,
+          objectLevel,
+          onClick: () => undefined,
+        }),
+      ],
+      listUrl: '/things',
+      query: ({ name }) =>
+        things
+          .list('things/', { name, page_size: 1 })
+          .then(({ data }) => data.results[0]),
+      title: ({ name }) => name,
+      transformParams: ({ name }) => ({ name }),
+      render: () => <form aria-label='Thing form' />,
+    });
+
+  function renderScreen(objectLevel = true) {
+    const Thing = Screen(objectLevel);
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/edit/:name' element={<Thing />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/things/edit/alpha' },
+    );
+  }
+
+  const change = () => screen.queryByRole('button', { name: 'Change thing' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('shows the action to a global holder and reads no object permissions', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderScreen();
+
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows the action to a staff user and reads no object permissions', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderScreen();
+
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads the object permissions once and shows the action when they list it', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderScreen();
+
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([`${HREF}my_permissions/`]);
+  });
+
+  it('keeps the action absent for an object whose permissions do not list it', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [HREF]: ['file.view_filerepository'],
+    });
+    renderScreen();
+
+    await screen.findByRole('form', { name: 'Thing form' });
+    await waitFor(() => expect(requests).toHaveLength(1));
+    await settled();
+    expect(change()).not.toBeInTheDocument();
+  });
+
+  it('keeps the action absent while the object permissions are being read', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [HREF]: { permissions: [CHANGE], delayMs: 250 },
+    });
+    renderScreen();
+
+    await screen.findByRole('form', { name: 'Thing form' });
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(change()).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+  });
+
+  it.each([403, 500])(
+    'treats a my_permissions read that answers %i as none, silently',
+    async (status) => {
+      servePermissions({ own: [['file.view_filerepository']] });
+      const { requests } = serveMyPermissions({ [HREF]: { status } });
+      renderScreen();
+
+      await screen.findByRole('form', { name: 'Thing form' });
+      await waitFor(() => expect(requests).toHaveLength(1));
+      await settled();
+      expect(change()).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    },
+  );
+
+  it('reads no object permissions for an action that is not object level', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderScreen(false);
+
+    await screen.findByRole('form', { name: 'Thing form' });
+    await settled();
+    expect(requests).toEqual([]);
+    expect(change()).not.toBeInTheDocument();
+  });
+
+  it('asks for nothing while nobody is signed in', async () => {
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderScreen();
+
+    await screen.findByRole('form', { name: 'Thing form' });
+    await settled();
+    expect(requests).toEqual([]);
+    expect(change()).not.toBeInTheDocument();
   });
 });

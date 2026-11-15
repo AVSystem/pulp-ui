@@ -20,6 +20,10 @@ import {
 } from 'src/components';
 import { type RouteProps, withRouter } from 'src/utilities';
 import {
+  ObjectPermissions,
+  needsObjectPermissions,
+} from '../utilities/my-permissions';
+import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
@@ -64,7 +68,7 @@ interface PageParams<T> {
 }
 
 export const Page = function <
-  T extends { name: string; my_permissions?: string[] },
+  T extends { name: string; my_permissions?: string[]; pulp_href?: string },
 >({
   // ({ name }) => [{ url?, name }]
   breadcrumbs,
@@ -98,6 +102,10 @@ export const Page = function <
 
     // number of the latest load; the answer of an older load is ignored
     private latestQuery = 0;
+
+    // what the server lists for the page's object, read when a header action
+    // can only be decided by it
+    private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
 
     constructor(props) {
       super(props);
@@ -134,7 +142,17 @@ export const Page = function <
         .catch(() => undefined);
     }
 
+    componentWillUnmount() {
+      this.objectPermissions.dispose();
+    }
+
     componentDidUpdate(prevProps: RouteProps) {
+      if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+        // roles may have changed with the new session
+        this.objectPermissions.reset();
+      }
+      this.readObjectPermissions();
+
       if (
         prevProps.sessionEpoch === this.props.sessionEpoch ||
         this.state.unauthorized ||
@@ -162,8 +180,12 @@ export const Page = function <
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
-        hasObjectPermission: (permission) =>
-          item?.my_permissions?.includes?.(permission),
+        hasObjectPermission: (permission, target = item) =>
+          this.objectPermissions.holds(
+            permission,
+            target,
+            (this.context as IAppContextType).hasPermission,
+          ),
         hasPermission: (this.context as IAppContextType).hasPermission,
         listQuery: () => this.props.navigate(listUrl),
         navigate: this.props.navigate,
@@ -307,6 +329,28 @@ export const Page = function <
           this.setState({ loading: true, error: null }, read);
         }
       });
+    }
+
+    // Reads the permissions the server lists for the object, once, when a
+    // header action depends on them: the global permissions are known, the
+    // user lacks the action's permission globally (staff never do) and the
+    // object does not carry the list itself.
+    private readObjectPermissions() {
+      const { item, loading, unauthorized } = this.state;
+      if (
+        !item ||
+        loading ||
+        unauthorized ||
+        Array.isArray(item.my_permissions)
+      ) {
+        return;
+      }
+
+      if (
+        needsObjectPermissions(headerActions, this.context as IAppContextType)
+      ) {
+        this.objectPermissions.read(item.pulp_href);
+      }
     }
 
     private addAlert(alert: AlertType) {
