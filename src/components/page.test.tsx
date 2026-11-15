@@ -643,3 +643,65 @@ describe('a page whose header action needs a permission', () => {
     expect(change()).not.toBeInTheDocument();
   });
 });
+
+describe('a page whose header actions are all hidden', () => {
+  const HREF = '/pulp/api/v3/things/1/';
+
+  const Hidden = Page<IThing>({
+    breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+    displayName: 'HiddenActionsThingEdit',
+    errorTitle: msg`Thing could not be displayed.`,
+    headerActions: [
+      Action({
+        title: msg`Change thing`,
+        permission: 'file.change_filerepository',
+        objectLevel: false,
+        onClick: () => undefined,
+      }),
+    ],
+    listUrl: '/things',
+    query: ({ name }) =>
+      things
+        .list('things/', { name, page_size: 1 })
+        .then(({ data }) => data.results[0]),
+    title: ({ name }) => name,
+    transformParams: ({ name }) => ({ name }),
+    render: () => <form aria-label='Thing form' />,
+  });
+
+  function renderHidden() {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/edit/:name' element={<Hidden />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/things/edit/alpha' },
+    );
+  }
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('renders no action container, and renders it once an action is allowed', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const hidden = renderHidden();
+
+    await screen.findByRole('form', { name: 'Thing form' });
+    await act(() => new Promise((r) => setTimeout(r, 120)));
+    expect(hidden.container.querySelector('.pulp-toolbar')).toBeNull();
+    hidden.unmount();
+    server.events.removeAllListeners();
+
+    servePermissions({ own: [['file.change_filerepository']] });
+    const shown = renderHidden();
+    await screen.findByRole('button', { name: 'Change thing' });
+    expect(shown.container.querySelector('.pulp-toolbar')).not.toBeNull();
+  });
+});

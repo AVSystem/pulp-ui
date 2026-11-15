@@ -1,10 +1,11 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
-import { useLocation, useRoutes } from 'react-router';
+import { useLocation, useNavigate, useRoutes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import RootRoute from 'src/routes/root';
+import { servePermissions } from 'src/test-utils/permissions';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -155,6 +156,9 @@ describe('route guard', () => {
 // Answers the session check as a signed-in user.
 function signIn() {
   server.use(
+    http.get('*/pulp/api/v3/users/1/', () =>
+      HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+    ),
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({
         username: 'zoe',
@@ -683,5 +687,89 @@ describe('lazily loaded screens', () => {
     );
 
     expect(await screen.findByText('zz-test-repo')).toBeVisible();
+  });
+});
+
+describe('the permission read after a failure', () => {
+  function Navigate() {
+    const navigate = useNavigate();
+    return (
+      <>
+        <button type='button' onClick={() => navigate('/ansible/namespaces')}>
+          Go to namespaces
+        </button>
+        <button type='button' onClick={() => navigate('/search')}>
+          Go to search
+        </button>
+      </>
+    );
+  }
+
+  const pause = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  const ownRecordReads = (requests: string[]) =>
+    requests.filter((request) => request === '/pulp/api/v3/users/7/').length;
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('is repeated once on the next route change, and not again once it succeeded', async () => {
+    const { requests } = servePermissions({
+      own: [['file.sync_filerepository']],
+    });
+    let failing = true;
+    server.use(
+      http.get('*/pulp/api/v3/users/7/roles/', () =>
+        failing
+          ? HttpResponse.json({ detail: 'no' }, { status: 500 })
+          : HttpResponse.json({
+              count: 1,
+              next: null,
+              previous: null,
+              results: [{ permissions: ['file.sync_filerepository'] }],
+            }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(
+      <>
+        <Navigate />
+        <Routed />
+      </>,
+      { route: '/search' },
+    );
+
+    await screen.findByRole('heading', { name: 'Search', level: 1 });
+    await waitFor(() => expect(ownRecordReads(requests)).toBe(1));
+    await pause();
+
+    failing = false;
+    await user.click(screen.getByRole('button', { name: 'Go to namespaces' }));
+    await waitFor(() => expect(ownRecordReads(requests)).toBe(2));
+    await pause();
+
+    await user.click(screen.getByRole('button', { name: 'Go to search' }));
+    await pause();
+    expect(ownRecordReads(requests)).toBe(2);
+  });
+
+  it('is not repeated on a route change when nothing failed', async () => {
+    const { requests } = servePermissions({ isStaff: true });
+    const user = userEvent.setup();
+    renderWithProviders(
+      <>
+        <Navigate />
+        <Routed />
+      </>,
+      { route: '/search' },
+    );
+
+    await screen.findByRole('heading', { name: 'Search', level: 1 });
+    await waitFor(() => expect(ownRecordReads(requests)).toBe(1));
+    await user.click(screen.getByRole('button', { name: 'Go to namespaces' }));
+    await pause();
+
+    expect(ownRecordReads(requests)).toBe(1);
   });
 });

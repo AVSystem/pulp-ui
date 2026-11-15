@@ -10,6 +10,15 @@ $breakpoint-md: 1000px;
 .pulp-header__row {
   display: flex;
   justify-content: space-between;
+  // The height of a control, so an action that appears once the permissions
+  // are known moves nothing; the controls are taller on a phone.
+  min-block-size: 36px;
+}
+
+@media (max-width: 767px) {
+  .pulp-header__row {
+    min-block-size: 44px;
+  }
 }
 
 .pulp-header__title-box {

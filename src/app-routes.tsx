@@ -2,7 +2,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { Banner, Flex, FlexItem } from '@patternfly/react-core';
 import WrenchIcon from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
-import { type ElementType } from 'react';
+import { type ElementType, useEffect } from 'react';
 import { Navigate, redirect, useLocation } from 'react-router';
 import {
   ErrorBoundary,
@@ -24,6 +24,7 @@ import {
 } from 'src/containers/coming-soon-screens';
 import LoginPage from 'src/containers/login/login';
 import { Paths, formatPath } from 'src/paths';
+import { usePermissions } from 'src/permissions';
 import { usePlugins } from 'src/plugins';
 import Root from 'src/routes/root';
 import { config } from 'src/ui-config';
@@ -625,7 +626,15 @@ const AuthHandler = ({
 }: IRouteConfig) => {
   const { user, status, endReason } = useUserContext();
   const plugins = usePlugins();
+  const { retryIfFailed } = usePermissions();
   const { pathname, search } = useLocation();
+
+  // A failed permission read is attempted again whenever the user moves to
+  // another screen; a read that did not fail is never repeated here.
+  useEffect(() => {
+    retryIfFailed();
+  }, [pathname, retryIfFailed]);
+
   // The whole address the user asked for, so signing in lands on it.
   const returnPath = `${pathname}${search}`;
 

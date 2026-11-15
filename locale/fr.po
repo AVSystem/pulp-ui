@@ -548,6 +548,10 @@ msgstr "Ajouter les utilisateurs sélectionnés au groupe"
 #~ msgid "Add tag(s) to include"
 #~ msgstr "Ajouter une ou plusieurs tags à inclure"
 
+#: src/components/list-page.test.tsx
+msgid "Add thing"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Add user"
 #~ msgstr "Add user"

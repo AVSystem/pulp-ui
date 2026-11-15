@@ -199,6 +199,11 @@ export const Page = function <
 
       const name = item?.name || transformParams(routeParams)?.name || null;
 
+      // Only the actions the user may use are drawn; with none, no container.
+      const shownActions = (headerActions ?? []).filter((action) =>
+        action.isShown(item, actionContext),
+      );
+
       return (
         <>
           <AlertList
@@ -220,17 +225,16 @@ export const Page = function <
               />
             }
             pageControls={
-              unauthorized ? null : (
+              unauthorized || !shownActions.length ? null : (
                 <div className='pulp-toolbar'>
                   <Toolbar>
                     <ToolbarContent>
                       <ToolbarGroup>
-                        {headerActions?.length &&
-                          headerActions.map((action) => (
-                            <ToolbarItem key={action.title}>
-                              {action.button(item, actionContext)}
-                            </ToolbarItem>
-                          ))}
+                        {shownActions.map((action) => (
+                          <ToolbarItem key={action.title}>
+                            {action.button(item, actionContext)}
+                          </ToolbarItem>
+                        ))}
                       </ToolbarGroup>
                     </ToolbarContent>
                   </Toolbar>

@@ -208,6 +208,11 @@ export const PageWithTabs = function <
       const name = item?.name || routeParams.name;
       const tab = params.tab || 'details';
 
+      // Only the actions the user may use are drawn; with none, no container.
+      const shownActions = (headerActions ?? []).filter((action) =>
+        action.isShown(item, actionContext),
+      );
+
       if (!loading && !unauthorized && !item && error && error.status !== 404) {
         return (
           <>
@@ -277,19 +282,16 @@ export const PageWithTabs = function <
               />
             }
             pageControls={
-              loading || unauthorized ? null : (
+              loading || unauthorized || !shownActions.length ? null : (
                 <div className='pulp-toolbar'>
                   <Toolbar>
                     <ToolbarContent>
                       <ToolbarGroup>
-                        {headerActions?.length &&
-                          headerActions.map((action) =>
-                            action.isShown(item, actionContext) ? (
-                              <ToolbarItem key={action.title}>
-                                {action.button(item, actionContext)}
-                              </ToolbarItem>
-                            ) : null,
-                          )}
+                        {shownActions.map((action) => (
+                          <ToolbarItem key={action.title}>
+                            {action.button(item, actionContext)}
+                          </ToolbarItem>
+                        ))}
                       </ToolbarGroup>
                     </ToolbarContent>
                   </Toolbar>

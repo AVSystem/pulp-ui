@@ -548,6 +548,10 @@ msgstr "将所选用户添加到组"
 #~ msgid "Add tag(s) to include"
 #~ msgstr "添加要包含的标签"
 
+#: src/components/list-page.test.tsx
+msgid "Add thing"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Add user"
 #~ msgstr "Add user"

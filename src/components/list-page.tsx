@@ -40,6 +40,7 @@ import {
 } from '../utilities/request-error';
 import { type RouteProps, withRouter } from '../utilities/with-router';
 import { ListErrorState } from './list-error-state';
+import { RowActionsColumn } from './list-item-actions';
 
 interface IState<T> {
   params: {
@@ -321,7 +322,7 @@ export const ListPage = function <T>({
             </Main>
           ) : noData && !loading ? (
             <EmptyStateNoData
-              button={<>{noDataButton?.(null, actionContext)}</>}
+              button={this.emptyStateButton(actionContext)}
               description={i18n._(noDataDescription)}
               title={i18n._(noDataTitle)}
             />
@@ -371,13 +372,15 @@ export const ListPage = function <T>({
                               }}
                             />
                           </ToolbarItem>
-                          {headerActions?.length
-                            ? headerActions.map((action) => (
-                                <ToolbarItem key={action.title}>
-                                  {action.button(null, actionContext)}
-                                </ToolbarItem>
-                              ))
-                            : null}
+                          {headerActions
+                            ?.filter((action) =>
+                              action.isShown(null, actionContext),
+                            )
+                            .map((action) => (
+                              <ToolbarItem key={action.title}>
+                                {action.button(null, actionContext)}
+                              </ToolbarItem>
+                            ))}
                         </ToolbarGroup>
                       </ToolbarContent>
                     </Toolbar>
@@ -420,6 +423,13 @@ export const ListPage = function <T>({
       );
     }
 
+    // The button of the empty state, or nothing when the action is hidden, so
+    // the empty state never holds an empty actions area.
+    private emptyStateButton(actionContext) {
+      const button = noDataButton?.(null, actionContext);
+      return button ? <>{button}</> : undefined;
+    }
+
     private renderTable(params, updateParams, actionContext) {
       const { items } = this.state;
 
@@ -431,6 +441,17 @@ export const ListPage = function <T>({
         translateTitle,
       ) as LocalizedSortHeaders;
 
+      // Whether any row shows an action decides if rows draw the trailing
+      // actions cell at all; a list that declares no row actions decides
+      // nothing here.
+      const anyRowAction = listItemActions?.length
+        ? items.some((item) =>
+            listItemActions.some((action) =>
+              action.isShown(item, actionContext),
+            ),
+          )
+        : undefined;
+
       return (
         <Table aria-label={i18n._(title)}>
           <SortTable
@@ -438,9 +459,11 @@ export const ListPage = function <T>({
             params={params}
             updateParams={updateParams}
           />
-          <Tbody>
-            {items.map((item, i) => renderTableRow(item, i, actionContext))}
-          </Tbody>
+          <RowActionsColumn.Provider value={anyRowAction}>
+            <Tbody>
+              {items.map((item, i) => renderTableRow(item, i, actionContext))}
+            </Tbody>
+          </RowActionsColumn.Provider>
         </Table>
       );
     }
