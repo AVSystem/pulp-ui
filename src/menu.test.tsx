@@ -3,6 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { useRoutes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  type IPermissionSetup,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { settle } from 'src/test-utils/settle';
@@ -24,15 +28,10 @@ function MenuAndRoutes() {
   );
 }
 
-function signIn() {
-  server.use(
-    http.get('*/pulp/api/v3/login/', () =>
-      HttpResponse.json({
-        username: 'zoe',
-        pulp_href: '/pulp/api/v3/users/1/',
-      }),
-    ),
-  );
+// Signs in a user zoe (staff unless the setup says otherwise) and serves the
+// reads the permission provider makes for her.
+function signIn(setup: IPermissionSetup = { isStaff: true }) {
+  return servePermissions({ id: 1, username: 'zoe', ...setup });
 }
 
 function reportPlugins(components: string[]) {
@@ -92,6 +91,7 @@ async function menuShown(route = '/status') {
 
 afterEach(() => {
   vi.useRealTimers();
+  server.events.removeAllListeners();
 });
 
 describe('navigation menu', () => {
@@ -325,7 +325,7 @@ describe('navigation menu', () => {
     expect(item('tasks')).not.toBeNull();
     expect(item('status')).not.toBeNull();
     expect(item('signing-services')).not.toBeNull();
-    expect(item('roles')).not.toBeNull();
+    await waitFor(() => expect(item('roles')).not.toBeNull());
     expect(section('users-and-groups')).not.toBeNull();
     expect(section('repositories')).toBeNull();
     expect(section('remotes')).toBeNull();
@@ -573,6 +573,7 @@ describe('navigation menu', () => {
     reportPlugins(ALL_PLUGINS);
 
     await menuShown('/groups/7');
+    await waitFor(() => expect(item('groups')).not.toBeNull());
 
     expect(item('groups')).toHaveAttribute('aria-current', 'page');
     expect(sectionToggle('users-and-groups')).toHaveAttribute(
@@ -628,6 +629,139 @@ describe('navigation menu', () => {
     expect(
       item('deb-repositories')?.querySelector('.pf-v6-c-nav__link-icon'),
     ).toBeNull();
+  });
+});
+
+describe('administration entries', () => {
+  const accessEntries = () =>
+    ['users', 'groups', 'roles'].filter((id) => item(id) !== null);
+
+  // Lets the permission reads (own record, own roles) answer before a test
+  // asserts that something is still absent.
+  async function permissionsRead(requests: string[]) {
+    await waitFor(() =>
+      expect(requests.some((path) => path.includes('/roles/'))).toBe(true),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+
+  it('offers no Users, Groups, Roles, Users and groups or Access label to a viewer without the permissions', async () => {
+    const { requests } = signIn({ own: [['file.view_filerepository']] });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await permissionsRead(requests);
+
+    expect(accessEntries()).toEqual([]);
+    expect(section('users-and-groups')).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Access' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent),
+    ).toEqual(['Content', 'Operations']);
+  });
+
+  it('offers Groups under Users and groups to a holder of core.view_group only, without Users and Roles', async () => {
+    signIn({ own: [['core.view_group']] });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+
+    await waitFor(() => expect(item('groups')).not.toBeNull());
+    expect(item('users')).toBeNull();
+    expect(item('roles')).toBeNull();
+    expect(section('users-and-groups')).not.toBeNull();
+    expect(
+      screen.getByRole('heading', { name: 'Access', level: 2 }),
+    ).toBeVisible();
+  });
+
+  it('offers Users alone to a holder of auth.view_user only', async () => {
+    signIn({ own: [['auth.view_user']] });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+
+    await waitFor(() => expect(item('users')).not.toBeNull());
+    expect(item('groups')).toBeNull();
+    expect(item('roles')).toBeNull();
+  });
+
+  it('takes the permissions of a group role into account', async () => {
+    signIn({ groups: [{ id: 3, roles: [['core.view_group']] }] });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+
+    await waitFor(() => expect(item('groups')).not.toBeNull());
+    expect(item('users')).toBeNull();
+  });
+
+  it('offers Roles only to staff, never for a holder of other role permissions', async () => {
+    signIn({
+      own: [['core.view_role', 'core.change_role', 'core.delete_role']],
+    });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(item('roles')).toBeNull();
+  });
+
+  it('offers all three to staff', async () => {
+    signIn({ isStaff: true });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+
+    await waitFor(() =>
+      expect(accessEntries()).toEqual(['users', 'groups', 'roles']),
+    );
+  });
+
+  it('shows none of them while the permissions are pending or after the read failed', async () => {
+    signIn({ isStaff: true });
+    server.use(
+      http.get('*/pulp/api/v3/users/1/', () =>
+        HttpResponse.json({ detail: 'no' }, { status: 500 }),
+      ),
+    );
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(accessEntries()).toEqual([]);
+    expect(
+      screen.queryByRole('heading', { name: 'Access' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the entries above Access in place when Groups appears after the permission read', async () => {
+    signIn({ own: [['core.view_group']] });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await screen.findByRole('button', { name: 'Repositories' });
+    const order = () =>
+      screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+
+    expect(order().slice(0, 2)).toEqual(['Content', 'Operations']);
+    await waitFor(() => expect(item('groups')).not.toBeNull());
+    expect(order()).toEqual(['Content', 'Operations', 'Access']);
+  });
+
+  it('lists the screens of the model the same way', async () => {
+    signIn({ own: [['core.view_group']] });
+    reportPlugins(['core']);
+
+    renderWithProviders(<ModelList />);
+
+    await screen.findByText('Users and groups - Groups');
+    expect(screen.queryByText('Users and groups - Users')).toBeNull();
+    expect(screen.queryByText('Roles')).toBeNull();
   });
 });
 

@@ -28,6 +28,7 @@ import {
 import { Link, useLocation } from 'react-router';
 import { NavList } from 'src/components';
 import { Paths, formatPath } from './paths';
+import { usePermissions } from './permissions';
 import { usePlugins } from './plugins';
 import {
   TaskCountPills,
@@ -35,6 +36,7 @@ import {
   useTaskCounts,
 } from './shell/task-counts';
 import { useUserContext } from './user-context';
+import { type AdminScreen, canViewScreen } from './utilities/screen-access';
 
 // One screen the menu leads to, or one expandable section holding screens.
 export interface IMenuEntry {
@@ -144,6 +146,7 @@ function pluginEntries(
 function buildGroups(
   signedIn: boolean,
   installed: ReadonlySet<string>,
+  canView: (screen: AdminScreen) => boolean,
 ): IMenuGroup[] {
   // Before sign-in the menu leads only to the login page. The status screen
   // stays reachable by its address and from the brand link; what it shows to a
@@ -222,27 +225,39 @@ function buildGroups(
           label: t`Users and groups`,
           icon: UsersIcon,
           entries: [
-            {
-              id: 'users',
-              label: t`Users`,
-              path: formatPath(Paths.core.user.list),
-            },
-            {
-              id: 'groups',
-              label: t`Groups`,
-              path: formatPath(Paths.core.group.list),
-              alternativePaths: [altPath(Paths.core.group.detail)],
-            },
+            ...(canView('users')
+              ? [
+                  {
+                    id: 'users',
+                    label: t`Users`,
+                    path: formatPath(Paths.core.user.list),
+                  },
+                ]
+              : []),
+            ...(canView('groups')
+              ? [
+                  {
+                    id: 'groups',
+                    label: t`Groups`,
+                    path: formatPath(Paths.core.group.list),
+                    alternativePaths: [altPath(Paths.core.group.detail)],
+                  },
+                ]
+              : []),
           ],
         },
-        {
-          id: 'roles',
-          label: t`Roles`,
-          path: formatPath(Paths.core.role.list),
-          alternativePaths: [altPath(Paths.core.role.edit)],
-          icon: ShieldAltIcon,
-        },
-      ],
+        ...(canView('roles')
+          ? [
+              {
+                id: 'roles',
+                label: t`Roles`,
+                path: formatPath(Paths.core.role.list),
+                alternativePaths: [altPath(Paths.core.role.edit)],
+                icon: ShieldAltIcon,
+              },
+            ]
+          : []),
+      ].filter((entry) => !entry.entries || entry.entries.length > 0),
     },
   ];
 
@@ -266,20 +281,25 @@ function flatten(groups: IMenuGroup[]): IMenuScreen[] {
   return screens;
 }
 
-// The entries the menu shows for the current session and the installed
-// plugins, as sections and as a flat list of screens. While the plugin list is
-// loading or could not be read, nothing that depends on a plugin is included.
+// The entries the menu shows for the current session, the installed plugins and
+// the signed-in user's permissions, as sections and as a flat list of screens.
+// While the plugin list is loading or could not be read, nothing that depends
+// on a plugin is included; while the permissions are unknown, no
+// administration entry is.
 export function useMenuModel(): IMenuModel {
   const { user } = useUserContext();
   const plugins = usePlugins();
+  const permissions = usePermissions();
   const signedIn = !!user;
   const versions = plugins.state === 'ready' ? plugins.versions : null;
 
   return useMemo(() => {
     const installed: ReadonlySet<string> = new Set(versions?.keys() ?? []);
-    const groups = buildGroups(signedIn, installed);
+    const groups = buildGroups(signedIn, installed, (screen) =>
+      canViewScreen(screen, permissions),
+    );
     return { groups, screens: flatten(groups), plugins };
-  }, [signedIn, versions, plugins]);
+  }, [signedIn, versions, plugins, permissions]);
 }
 
 // A path without its trailing slash and without trailing parameters, so a

@@ -13,20 +13,19 @@ import {
   resetSessionEvents,
   resume,
 } from 'src/session/session-events';
+import {
+  type IPermissionSetup,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { CommandPalette } from './command-palette';
 
-function signIn() {
-  server.use(
-    http.get('*/pulp/api/v3/login/', () =>
-      HttpResponse.json({
-        username: 'zoe',
-        pulp_href: '/pulp/api/v3/users/1/',
-      }),
-    ),
-  );
+// Signs in a user zoe, staff unless the setup says otherwise, and serves the
+// reads of the permission provider for her.
+function signIn(setup: IPermissionSetup = { isStaff: true }) {
+  servePermissions({ id: 1, username: 'zoe', ...setup });
 }
 
 // Shows where the router is, so a test can see where a choice led.
@@ -88,6 +87,10 @@ async function openPalette(user: ReturnType<typeof renderPalette>['user']) {
   await user.click(await trigger());
   await input();
 }
+
+afterEach(() => {
+  server.events.removeAllListeners();
+});
 
 describe('search trigger', () => {
   it('is a button that names the shortcut for assistive technology', async () => {
@@ -274,11 +277,58 @@ describe('palette', () => {
 
     await user.type(await input(), 'u');
 
-    expect(optionNames()).toEqual([
-      'Workers and status',
-      'Users and groups - Users',
-      'Users and groups - Groups',
-    ]);
+    await waitFor(() =>
+      expect(optionNames()).toEqual([
+        'Workers and status',
+        'Users and groups - Users',
+        'Users and groups - Groups',
+      ]),
+    );
+  });
+
+  it.each(['users', 'groups', 'roles'])(
+    'offers no %s screen to a user who may not view it',
+    async (query) => {
+      signIn({ own: [['file.view_filerepository']] });
+      answerRepositories([]);
+      const { user } = renderPalette();
+      await openPalette(user);
+      await screen.findAllByRole('option');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      await user.type(await input(), query);
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'No screens or repositories match',
+        }),
+      ).toBeVisible();
+      expect(screen.queryByRole('option')).toBeNull();
+    },
+  );
+
+  it('offers Groups but not Users or Roles to a holder of core.view_group', async () => {
+    signIn({ own: [['core.view_group']] });
+    const { user } = renderPalette();
+    await openPalette(user);
+    await screen.findAllByRole('option');
+
+    await user.type(await input(), 'groups');
+
+    await waitFor(() =>
+      expect(optionNames()).toEqual(['Users and groups - Groups']),
+    );
+  });
+
+  it('offers Roles to staff', async () => {
+    signIn({ isStaff: true });
+    const { user } = renderPalette();
+    await openPalette(user);
+    await screen.findAllByRole('option');
+
+    await user.type(await input(), 'roles');
+
+    await waitFor(() => expect(optionNames()).toEqual(['Roles']));
   });
 
   it('opens the highlighted screen with Enter and closes', async () => {

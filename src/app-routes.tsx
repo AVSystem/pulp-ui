@@ -10,6 +10,7 @@ import {
   LoadingPage,
   NotFound,
 } from 'src/components';
+import { InsufficientPermissions } from 'src/components/insufficient-permissions';
 import { lazyScreen } from 'src/components/lazy-screen';
 import { ListErrorState } from 'src/components/list-error-state';
 import { Main } from 'src/components/main';
@@ -30,6 +31,7 @@ import Root from 'src/routes/root';
 import { config } from 'src/ui-config';
 import { loginURL } from 'src/utilities';
 import { requestErrorDescription } from 'src/utilities/request-error';
+import { type AdminScreen, canViewScreen } from 'src/utilities/screen-access';
 import { useUserContext } from './user-context';
 
 // Every screen of a plugin section or core group is fetched when it is first
@@ -285,6 +287,11 @@ interface IRouteConfig {
   // The component name the server reports for the plugin the route belongs
   // to. Routes without one belong to Pulp core.
   plugin?: string;
+  // The administration screen the route belongs to. The route shows the
+  // insufficient permissions page to a user who may not view that screen, the
+  // same rule that hides its menu entry. Presentation only: Pulp decides every
+  // request.
+  screenAccess?: AdminScreen;
 }
 
 const routes: IRouteConfig[] = [
@@ -330,11 +337,13 @@ const routes: IRouteConfig[] = [
   {
     component: GroupList,
     path: Paths.core.group.list,
+    screenAccess: 'groups',
     beta: true,
   },
   {
     component: GroupDetail,
     path: Paths.core.group.detail,
+    screenAccess: 'groups',
     beta: true,
   },
   {
@@ -344,16 +353,19 @@ const routes: IRouteConfig[] = [
   {
     component: EditRole,
     path: Paths.core.role.edit,
+    screenAccess: 'roles',
     beta: true,
   },
   {
     component: RoleCreate,
     path: Paths.core.role.create,
+    screenAccess: 'roles',
     beta: true,
   },
   {
     component: RoleList,
     path: Paths.core.role.list,
+    screenAccess: 'roles',
     beta: true,
   },
   {
@@ -454,6 +466,7 @@ const routes: IRouteConfig[] = [
   {
     component: UserCreate,
     path: Paths.core.user.create,
+    screenAccess: 'users',
     beta: true,
   },
   {
@@ -463,16 +476,19 @@ const routes: IRouteConfig[] = [
   {
     component: EditUser,
     path: Paths.core.user.edit,
+    screenAccess: 'users',
     beta: true,
   },
   {
     component: UserDetail,
     path: Paths.core.user.detail,
+    screenAccess: 'users',
     beta: true,
   },
   {
     component: UserList,
     path: Paths.core.user.list,
+    screenAccess: 'users',
     beta: true,
   },
   {
@@ -623,10 +639,12 @@ const AuthHandler = ({
   noAuth,
   path,
   plugin,
+  screenAccess,
 }: IRouteConfig) => {
   const { user, status, endReason } = useUserContext();
   const plugins = usePlugins();
-  const { retryIfFailed } = usePermissions();
+  const permissions = usePermissions();
+  const { retryIfFailed } = permissions;
   const { pathname, search } = useLocation();
 
   // A failed permission read is attempted again whenever the user moves to
@@ -660,6 +678,21 @@ const AuthHandler = ({
         )}
       />
     );
+  }
+
+  // An administration screen is shown only to a user who may view it. The
+  // permissions are read once the session is known: until they are, the page is
+  // loading, and after a failed read the user is told they may not view it,
+  // because nothing is offered on a guess. The server still decides every
+  // request.
+  if (screenAccess) {
+    if (permissions.state === 'unknown' && !permissions.failed) {
+      return <LoadingPage />;
+    }
+
+    if (!canViewScreen(screenAccess, permissions)) {
+      return <InsufficientPermissions />;
+    }
   }
 
   // Which screens are offered is a matter of presentation: Pulp decides who
@@ -726,19 +759,22 @@ const AuthHandler = ({
 };
 
 const appRoutes = () =>
-  routes.map(({ beta, component, noAuth, path, plugin, ...rest }) => ({
-    element: (
-      <AuthHandler
-        beta={beta}
-        component={component}
-        noAuth={noAuth}
-        path={path}
-        plugin={plugin}
-      />
-    ),
-    path: path,
-    ...rest,
-  }));
+  routes.map(
+    ({ beta, component, noAuth, path, plugin, screenAccess, ...rest }) => ({
+      element: (
+        <AuthHandler
+          beta={beta}
+          component={component}
+          noAuth={noAuth}
+          path={path}
+          plugin={plugin}
+          screenAccess={screenAccess}
+        />
+      ),
+      path: path,
+      ...rest,
+    }),
+  );
 
 export const dataRoutes = [
   {
