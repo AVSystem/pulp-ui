@@ -548,6 +548,10 @@ msgstr "Geselecteerde gebruikers aan groep toevoegen"
 #~ msgid "Add tag(s) to include"
 #~ msgstr "Tag(s) toevoegen om op te nemen"
 
+#: src/components/list-page.test.tsx
+msgid "Add thing"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Add user"
 #~ msgstr "Add user"
@@ -1037,9 +1041,9 @@ msgstr ""
 #~ msgid "Certified"
 #~ msgstr "Gecertificeerd"
 
-#: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
-#~ msgid "Change"
-#~ msgstr "Wijzigen"
+#: src/actions/action.test.tsx
+msgid "Change"
+msgstr "Wijzigen"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Change and upload collections to namespaces."
@@ -1111,6 +1115,12 @@ msgstr ""
 #: src/constants.tsx
 #~ msgid "Change task"
 #~ msgstr "Change task"
+
+#: src/components/list-page.test.tsx
+#: src/components/page-with-tabs.test.tsx
+#: src/components/page.test.tsx
+msgid "Change thing"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Change user"

@@ -8,6 +8,10 @@ import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import { resetSessionEvents } from '../session/session-events';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from '../test-utils/permissions';
 import { page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
@@ -426,5 +430,171 @@ describe('a detail page with tabs whose load is refused', () => {
     expect(
       screen.queryByRole('button', { name: 'Delete thing' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('a detail page with tabs whose header action needs a permission', () => {
+  const HREF = '/pulp/api/v3/things/1/';
+  const CHANGE = 'file.change_filerepository';
+
+  const Permitted = PageWithTabs<IThing>({
+    breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+    displayName: 'PermittedThingDetail',
+    errorTitle: msg`Thing could not be displayed.`,
+    headerActions: [
+      Action({
+        title: msg`Change thing`,
+        permission: CHANGE,
+        onClick: () => undefined,
+      }),
+    ],
+    listUrl: '/things',
+    query: ({ name }) =>
+      things
+        .list('things/', { name, page_size: 1 })
+        .then(({ data }) => data.results[0]),
+    renderTab: (_tab, item) => <p>{`Details of ${item.name}`}</p>,
+    tabs: () => [{ title: 'Details', link: '/', active: true }],
+  });
+
+  function renderScreen() {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/:name' element={<Permitted />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/things/alpha' },
+    );
+  }
+
+  const change = () => screen.queryByRole('button', { name: 'Change thing' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('shows the action to a global holder and reads no object permissions', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderScreen();
+
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads no object permissions for a staff user', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderScreen();
+
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads the object permissions once and shows the action when they list it', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderScreen();
+
+    expect(
+      await screen.findByRole('button', { name: 'Change thing' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([`${HREF}my_permissions/`]);
+  });
+
+  it('keeps the action absent while the object permissions are read and when they fail', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [HREF]: { permissions: [CHANGE], delayMs: 200 },
+    });
+    const first = renderScreen();
+
+    await screen.findByText('Details of alpha');
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(change()).not.toBeInTheDocument();
+    await screen.findByRole('button', { name: 'Change thing' });
+    first.unmount();
+
+    serveMyPermissions({ [HREF]: { status: 500 } });
+    renderScreen();
+    await screen.findByText('Details of alpha');
+    await settled();
+    expect(change()).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+});
+
+describe('a detail page with tabs whose header actions are all hidden', () => {
+  const HREF = '/pulp/api/v3/things/1/';
+
+  const Hidden = PageWithTabs<IThing>({
+    breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+    displayName: 'HiddenActionsThingDetail',
+    errorTitle: msg`Thing could not be displayed.`,
+    headerActions: [
+      Action({
+        title: msg`Change thing`,
+        permission: 'file.change_filerepository',
+        objectLevel: false,
+        onClick: () => undefined,
+      }),
+    ],
+    listUrl: '/things',
+    query: ({ name }) =>
+      things
+        .list('things/', { name, page_size: 1 })
+        .then(({ data }) => data.results[0]),
+    renderTab: (_tab, item) => <p>{`Details of ${item.name}`}</p>,
+    tabs: () => [{ title: 'Details', link: '/', active: true }],
+  });
+
+  function renderHidden() {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/:name' element={<Hidden />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/things/alpha' },
+    );
+  }
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('renders no action container, and renders it once an action is allowed', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const hidden = renderHidden();
+
+    await screen.findByText('Details of alpha');
+    await act(() => new Promise((r) => setTimeout(r, 120)));
+    expect(hidden.container.querySelector('.pulp-toolbar')).toBeNull();
+    hidden.unmount();
+    server.events.removeAllListeners();
+
+    servePermissions({ own: [['file.change_filerepository']] });
+    const shown = renderHidden();
+    await screen.findByRole('button', { name: 'Change thing' });
+    expect(shown.container.querySelector('.pulp-toolbar')).not.toBeNull();
   });
 });

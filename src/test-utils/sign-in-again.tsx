@@ -10,9 +10,14 @@ import { server } from './server';
 
 const USER = { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' };
 
-// Answers the session check and the sign-in call with one known user.
+// Answers the session check and the sign-in call with one known user. The
+// user is staff, so the permission provider lets every screen show its
+// actions and the tests are about the session, not about permissions.
 export function serveSignIn() {
   server.use(
+    http.get('*/pulp/api/v3/users/1/', () =>
+      HttpResponse.json({ ...USER, id: 1, is_staff: true, groups: [] }),
+    ),
     http.get('*/pulp/api/v3/login/', () => HttpResponse.json(USER)),
     http.post('*/pulp/api/v3/login/', () =>
       HttpResponse.json(USER, { status: 201 }),

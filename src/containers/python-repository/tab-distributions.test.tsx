@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
+import { servePermissions } from 'src/test-utils/permissions';
 import {
   listOf,
   page,
@@ -53,6 +54,8 @@ const reads = (path: string) =>
 beforeEach(() => {
   seen = [];
   patchBodies = [];
+  // A user whose own role lets them change distributions.
+  servePermissions({ own: [['python.change_pythondistribution']] });
   server.events.on('request:start', ({ request }) => {
     seen.push({ method: request.method, path: new URL(request.url).pathname });
   });

@@ -2,12 +2,13 @@ import { screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode } from 'react';
 import { Route, Routes } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   AppContext,
   AppContextProvider,
   type IAppContextType,
 } from 'src/app-context';
+import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import GroupDetail from './group-management/group-detail';
@@ -23,6 +24,17 @@ import UserList from './user-management/user-list';
 
 const API = '/pulp/api/v3';
 
+// The screens' own view checks pass for a staff user.
+let recorder: { stop: () => void };
+
+beforeEach(() => {
+  recorder = servePermissions({ id: 1, isStaff: true });
+});
+
+afterEach(() => {
+  recorder.stop();
+});
+
 const refuse = (path: string, body: object = { detail: 'Not for you.' }) =>
   server.use(
     http.get(`*${path}`, () =>
@@ -31,7 +43,9 @@ const refuse = (path: string, body: object = { detail: 'Not for you.' }) =>
   );
 
 const withProvider = (ui: ReactNode) => (
-  <AppContextProvider>{ui}</AppContextProvider>
+  <AppContextProvider>
+    <PermissionsKnown>{ui}</PermissionsKnown>
+  </AppContextProvider>
 );
 
 // a context in which the screen's own view check says no
@@ -39,6 +53,7 @@ const NoViewPermission = ({ children }: { children: ReactNode }) => {
   const value: IAppContextType = {
     alerts: [],
     hasPermission: () => false,
+    permissionsReady: true,
     queueAlert: () => undefined,
     setAlerts: () => undefined,
     user: null,

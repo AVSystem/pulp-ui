@@ -1,5 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { type ReactNode, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Shell } from 'src/shell/shell';
@@ -156,5 +158,24 @@ describe('base header', () => {
     expect(headings[0]).toHaveTextContent('Thing one');
     expect(headings[0]).toHaveClass('pf-m-3xl');
     expect(document.title).toBe('Pulp UI - Thing one');
+  });
+});
+
+describe('the header row stylesheet', () => {
+  const css = readFileSync(
+    resolve(process.cwd(), 'src/components/header.scss'),
+    'utf8',
+  );
+  const rule = (selector: string) =>
+    css.slice(css.indexOf(selector)).split('}')[0];
+
+  it('keeps the title row at least 36px high, so actions appearing later move nothing', () => {
+    expect(rule('.pulp-header__row {')).toMatch(/min-block-size: 36px;/);
+  });
+
+  it('keeps the title row at least 44px high on a phone, where controls are that tall', () => {
+    expect(css).toMatch(
+      /@media \(max-width: 767px\) \{\s*\.pulp-header__row \{\s*min-block-size: 44px;/,
+    );
   });
 });

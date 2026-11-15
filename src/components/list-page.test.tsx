@@ -11,11 +11,16 @@ import {
   reportUnauthorized,
   resetSessionEvents,
 } from '../session/session-events';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from '../test-utils/permissions';
 import { listOf, page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
 import { useUserContext } from '../user-context';
 import { handleHttpError } from '../utilities/fail-alerts';
+import { ListItemActions } from './list-item-actions';
 import { ListPage } from './list-page';
 
 const THINGS = '/pulp/api/v3/things/';
@@ -716,5 +721,356 @@ describe('a list page whose action is refused', () => {
 
     await alertList();
     expect(alertTitles()).toHaveLength(2);
+  });
+});
+
+describe('a list page whose row actions need a permission', () => {
+  const CHANGE = 'file.change_filerepository';
+  const href = (name: string) => `/pulp/api/v3/things/${name}/`;
+  const NAMES = ['alpha', 'beta', 'gamma'];
+
+  const rowActions = [
+    Action({
+      title: msg`Change thing`,
+      permission: CHANGE,
+      onClick: () => undefined,
+    }),
+  ];
+
+  let rowContext;
+
+  const PermittedList = ListPage<IThing & { pulp_href: string }>({
+    defaultPageSize: 10,
+    displayName: 'PermittedThingList',
+    errorTitle: msg`Things could not be displayed.`,
+    filterConfig: () => [{ id: 'name__icontains', title: 'Name' }],
+    listItemActions: rowActions,
+    noDataDescription: msg`Things appear once they are created.`,
+    noDataTitle: msg`No things yet`,
+    query: ({ params }) => things.list('things/', params),
+    renderTableRow: (item, _index, context) => {
+      rowContext = context;
+      return (
+        <Tr key={item.name}>
+          <Td>{item.name}</Td>
+          <Td>{rowActions.map((action) => action.button(item, context))}</Td>
+        </Tr>
+      );
+    },
+    sortHeaders: [{ title: msg`Name`, type: 'alpha', id: 'name' }],
+    title: msg`Things`,
+  });
+
+  function renderPermittedList() {
+    server.use(
+      listOf(
+        THINGS,
+        NAMES.map((name) => ({ name, pulp_href: href(name) })),
+      ).handler,
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <PermittedList />
+      </AppContextProvider>,
+    );
+  }
+
+  const rowOf = (name: string) => screen.getByText(name).closest('tr');
+  const changeIn = (name: string) =>
+    within(rowOf(name)).queryByRole('button', { name: 'Change thing' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    rowContext = undefined;
+    server.events.removeAllListeners();
+  });
+
+  it('reads no object permissions for a staff user and shows every row action', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderPermittedList();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('button', { name: 'Change thing' }),
+      ).toHaveLength(3),
+    );
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads no object permissions for a user who holds the permission globally', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderPermittedList();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('button', { name: 'Change thing' }),
+      ).toHaveLength(3),
+    );
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads the object permissions of every row and shows the action only on rows that list it', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: ['file.view_filerepository'],
+      [href('gamma')]: [CHANGE],
+    });
+    renderPermittedList();
+
+    await waitFor(() => expect(changeIn('gamma')).toBeInTheDocument());
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    await settled();
+    expect(changeIn('beta')).not.toBeInTheDocument();
+    expect([...requests].sort()).toEqual(
+      NAMES.map((name) => `${href(name)}my_permissions/`).sort(),
+    );
+  });
+
+  it('shows the action of a row only once its own read has answered', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: { permissions: [CHANGE], delayMs: 300 },
+      [href('gamma')]: [],
+    });
+    renderPermittedList();
+
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    expect(changeIn('beta')).not.toBeInTheDocument();
+    await waitFor(() => expect(changeIn('beta')).toBeInTheDocument());
+  });
+
+  it('hides the object actions of a row whose read failed and keeps the others', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: { status: 500 },
+      [href('gamma')]: { status: 403 },
+    });
+    renderPermittedList();
+
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    await settled();
+    expect(changeIn('beta')).not.toBeInTheDocument();
+    expect(changeIn('gamma')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('reads each row once for the page load, however often the list reads again', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const { requests } = serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: [CHANGE],
+      [href('gamma')]: [CHANGE],
+    });
+    renderPermittedList();
+    await waitFor(() => expect(changeIn('gamma')).toBeInTheDocument());
+
+    await act(async () => {
+      rowContext.query();
+    });
+    await waitFor(() => expect(changeIn('alpha')).toBeInTheDocument());
+    await settled();
+
+    expect(requests).toHaveLength(3);
+  });
+
+  it('asks for nothing while nobody is signed in', async () => {
+    const { requests } = serveMyPermissions({ [href('alpha')]: [CHANGE] });
+    renderPermittedList();
+
+    await screen.findByText('alpha');
+    await settled();
+    expect(requests).toEqual([]);
+    expect(screen.queryByRole('button', { name: 'Change thing' })).toBeNull();
+  });
+});
+
+describe('a list page that hides the actions a user may not use', () => {
+  const CHANGE = 'file.change_filerepository';
+  const ADD = 'file.add_filerepository';
+  const href = (name: string) => `/pulp/api/v3/things/${name}/`;
+
+  const rowAction = Action({
+    title: msg`Change thing`,
+    permission: CHANGE,
+    onClick: () => undefined,
+  });
+  const addAction = Action({
+    title: msg`Add thing`,
+    permission: ADD,
+    objectLevel: false,
+    onClick: () => undefined,
+  });
+
+  const HiddenList = ListPage<IThing & { pulp_href: string }>({
+    defaultPageSize: 10,
+    displayName: 'HiddenThingList',
+    errorTitle: msg`Things could not be displayed.`,
+    filterConfig: () => [{ id: 'name__icontains', title: 'Name' }],
+    headerActions: [addAction],
+    listItemActions: [rowAction],
+    noDataButton: addAction.button,
+    noDataDescription: msg`Things appear once they are created.`,
+    noDataTitle: msg`No things yet`,
+    query: ({ params }) => things.list('things/', params),
+    renderTableRow: (item, _index, context) => (
+      <Tr key={item.name}>
+        <Td>{item.name}</Td>
+        <ListItemActions kebabItems={[rowAction.dropdownItem(item, context)]} />
+      </Tr>
+    ),
+    sortHeaders: [{ title: msg`Name`, type: 'alpha', id: 'name' }],
+    title: msg`Things`,
+  });
+
+  function renderHidden(names: string[]) {
+    server.use(
+      listOf(
+        THINGS,
+        names.map((name) => ({ name, pulp_href: href(name) })),
+      ).handler,
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <HiddenList />
+      </AppContextProvider>,
+    );
+  }
+
+  const cells = (name: string) =>
+    within(screen.getByText(name).closest('tr')).getAllByRole('cell');
+  const toolbarItems = (container: HTMLElement) =>
+    container.querySelectorAll('.pf-v6-c-toolbar__item').length;
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('renders no trailing actions cell in any row when no row has an action', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({
+      [href('alpha')]: [],
+      [href('beta')]: [],
+    });
+    renderHidden(['alpha', 'beta']);
+
+    await screen.findByText('alpha');
+    await settled();
+    expect(cells('alpha')).toHaveLength(1);
+    expect(cells('beta')).toHaveLength(1);
+  });
+
+  it('renders the cell in every row, empty where a row has none, once one row has an action', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({
+      [href('alpha')]: [CHANGE],
+      [href('beta')]: [],
+    });
+    renderHidden(['alpha', 'beta']);
+
+    await waitFor(() => expect(cells('alpha')).toHaveLength(2));
+    expect(cells('beta')).toHaveLength(2);
+    expect(within(cells('beta')[1]).queryByRole('button')).toBeNull();
+    expect(within(cells('alpha')[1]).getByRole('button')).toBeInTheDocument();
+  });
+
+  it('renders the cell in every row for a user who may change every object', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    renderHidden(['alpha', 'beta']);
+
+    await waitFor(() => expect(cells('alpha')).toHaveLength(2));
+    expect(cells('beta')).toHaveLength(2);
+  });
+
+  it('renders no toolbar item for header actions the user may not use', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    const hidden = renderHidden(['alpha']);
+    await screen.findByText('alpha');
+    await settled();
+    const without = toolbarItems(hidden.container);
+    expect(screen.queryByRole('button', { name: 'Add thing' })).toBeNull();
+    hidden.unmount();
+    server.events.removeAllListeners();
+
+    servePermissions({ own: [[ADD]] });
+    const shown = renderHidden(['alpha']);
+    await screen.findByRole('button', { name: 'Add thing' });
+    expect(toolbarItems(shown.container)).toBe(without + 1);
+  });
+
+  it('shows the empty state without a button when its action is hidden', async () => {
+    servePermissions({ own: [['file.view_filerepository']] });
+    renderHidden([]);
+
+    await screen.findByText('No things yet');
+    await settled();
+    expect(
+      screen.getByText('Things appear once they are created.'),
+    ).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Add thing' })).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('shows the empty state with its button for a user who may add', async () => {
+    servePermissions({ own: [[ADD]] });
+    renderHidden([]);
+
+    expect(
+      await screen.findByRole('button', { name: 'Add thing' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows no empty state button while the permissions are not known', async () => {
+    servePermissions({ own: [[ADD]] });
+    server.use(
+      http.get('*/pulp/api/v3/users/7/roles/', async () => {
+        await delay(200);
+        return HttpResponse.json(page([{ permissions: [ADD] }]));
+      }),
+    );
+    renderHidden([]);
+
+    await screen.findByText('No things yet');
+    expect(screen.queryByRole('button', { name: 'Add thing' })).toBeNull();
+    expect(
+      await screen.findByRole('button', { name: 'Add thing' }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('the actions cell of a row', () => {
+  it('is rendered by a row outside a list page, empty or not', () => {
+    renderWithProviders(
+      <table>
+        <tbody>
+          <tr>
+            <ListItemActions kebabItems={[null, false]} />
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getAllByRole('cell')).toHaveLength(1);
+  });
+
+  it('renders no kebab when no item remains', () => {
+    const { container } = renderWithProviders(
+      <table>
+        <tbody>
+          <tr>
+            <ListItemActions kebabItems={[null, undefined, false]} />
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    expect(container.querySelector('[data-cy="kebab-toggle"]')).toBeNull();
   });
 });

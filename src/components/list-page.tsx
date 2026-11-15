@@ -27,6 +27,10 @@ import {
 } from 'src/components';
 import { type ActionType } from '../actions/action';
 import { filterIsSet } from '../utilities/filter-is-set';
+import {
+  ObjectPermissions,
+  needsObjectPermissions,
+} from '../utilities/my-permissions';
 import { ParamHelper } from '../utilities/param-helper';
 import {
   isSessionEnd,
@@ -36,6 +40,7 @@ import {
 } from '../utilities/request-error';
 import { type RouteProps, withRouter } from '../utilities/with-router';
 import { ListErrorState } from './list-error-state';
+import { RowActionsColumn } from './list-item-actions';
 
 interface IState<T> {
   params: {
@@ -169,6 +174,10 @@ export const ListPage = function <T>({
     // number of the latest load; the answer of an older load is ignored
     private latestQuery = 0;
 
+    // what the server lists for each row's object, read for the rows of this
+    // page load when a row action can only be decided by it
+    private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
+
     constructor(props) {
       super(props);
 
@@ -211,7 +220,17 @@ export const ListPage = function <T>({
       }
     }
 
+    componentWillUnmount() {
+      this.objectPermissions.dispose();
+    }
+
     componentDidUpdate(prevProps: RouteProps) {
+      if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+        // roles may have changed with the new session
+        this.objectPermissions.reset();
+      }
+      this.readRowPermissions();
+
       // The same user signed in again after the session ended: read the list
       // once more. Dialogs and typed text stay; the latest-query guard drops
       // the answer of any read that is still on its way.
@@ -257,7 +276,12 @@ export const ListPage = function <T>({
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
-        hasObjectPermission: () => false, // list items don't load my_permissions .. but superadmin should still work
+        hasObjectPermission: (permission, target) =>
+          this.objectPermissions.holds(
+            permission,
+            target,
+            (this.context as IAppContextType).hasPermission,
+          ),
         hasPermission: (this.context as IAppContextType).hasPermission,
         listQuery: () => this.query(),
         navigate: this.props.navigate,
@@ -298,7 +322,7 @@ export const ListPage = function <T>({
             </Main>
           ) : noData && !loading ? (
             <EmptyStateNoData
-              button={<>{noDataButton?.(null, actionContext)}</>}
+              button={this.emptyStateButton(actionContext)}
               description={i18n._(noDataDescription)}
               title={i18n._(noDataTitle)}
             />
@@ -348,13 +372,15 @@ export const ListPage = function <T>({
                               }}
                             />
                           </ToolbarItem>
-                          {headerActions?.length
-                            ? headerActions.map((action) => (
-                                <ToolbarItem key={action.title}>
-                                  {action.button(null, actionContext)}
-                                </ToolbarItem>
-                              ))
-                            : null}
+                          {headerActions
+                            ?.filter((action) =>
+                              action.isShown(null, actionContext),
+                            )
+                            .map((action) => (
+                              <ToolbarItem key={action.title}>
+                                {action.button(null, actionContext)}
+                              </ToolbarItem>
+                            ))}
                         </ToolbarGroup>
                       </ToolbarContent>
                     </Toolbar>
@@ -397,6 +423,13 @@ export const ListPage = function <T>({
       );
     }
 
+    // The button of the empty state, or nothing when the action is hidden, so
+    // the empty state never holds an empty actions area.
+    private emptyStateButton(actionContext) {
+      const button = noDataButton?.(null, actionContext);
+      return button ? <>{button}</> : undefined;
+    }
+
     private renderTable(params, updateParams, actionContext) {
       const { items } = this.state;
 
@@ -408,6 +441,17 @@ export const ListPage = function <T>({
         translateTitle,
       ) as LocalizedSortHeaders;
 
+      // Whether any row shows an action decides if rows draw the trailing
+      // actions cell at all; a list that declares no row actions decides
+      // nothing here.
+      const anyRowAction = listItemActions?.length
+        ? items.some((item) =>
+            listItemActions.some((action) =>
+              action.isShown(item, actionContext),
+            ),
+          )
+        : undefined;
+
       return (
         <Table aria-label={i18n._(title)}>
           <SortTable
@@ -415,11 +459,35 @@ export const ListPage = function <T>({
             params={params}
             updateParams={updateParams}
           />
-          <Tbody>
-            {items.map((item, i) => renderTableRow(item, i, actionContext))}
-          </Tbody>
+          <RowActionsColumn.Provider value={anyRowAction}>
+            <Tbody>
+              {items.map((item, i) => renderTableRow(item, i, actionContext))}
+            </Tbody>
+          </RowActionsColumn.Provider>
         </Table>
       );
+    }
+
+    // Reads the permissions the server lists for each row, in parallel and
+    // once per row, when a row action depends on them: the global permissions
+    // are known and the user lacks some row action's permission globally
+    // (staff never do). A row counts as holding nothing until its read
+    // answered.
+    private readRowPermissions() {
+      const { items, loading, unauthorized } = this.state;
+      if (loading || unauthorized || !items.length) {
+        return;
+      }
+
+      if (
+        needsObjectPermissions(listItemActions, this.context as IAppContextType)
+      ) {
+        items.forEach((item) =>
+          this.objectPermissions.read(
+            (item as { pulp_href?: string })?.pulp_href,
+          ),
+        );
+      }
     }
 
     private query() {
