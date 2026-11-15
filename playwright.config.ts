@@ -46,14 +46,17 @@ function crawlProject(theme: 'light' | 'dark', viewport: 'desktop' | 'phone') {
 // The shell-state spec (e2e/shell) opens the menus and dialogs of the shell
 // that the crawler cannot reach without clicking and screenshots them, signed
 // in as the crawl account. Same project shape as the crawl: one theme at one
-// width. The phone projects run only the states tagged @phone. Screenshots go to
-// PULP_UI_SHELL_OUT (shell-report/ unless set) and stay on the machine that ran
+// width. The phone projects run only the states tagged @phone, and the desktop
+// projects skip the ones tagged @phone-only, which exist for a phone screen
+// alone. Screenshots go to PULP_UI_SHELL_OUT (shell-report/ unless set) and stay on the machine that ran
 // the spec.
 function shellProject(theme: 'light' | 'dark', viewport: 'desktop' | 'phone') {
   return {
     name: `shell-${theme}-${viewport}`,
     testMatch: 'shell/**/*.spec.ts',
-    ...(viewport === 'phone' ? { grep: /@phone/ } : {}),
+    ...(viewport === 'phone'
+      ? { grep: /@phone/ }
+      : { grepInvert: /@phone-only/ }),
     metadata: { theme, viewport },
     use: {
       ...untraced,
