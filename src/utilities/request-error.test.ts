@@ -1,10 +1,13 @@
 import { HttpResponse, http } from 'msw';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { SessionSuspendedError } from 'src/session/session-events';
 import { PulpAPI } from '../api/pulp';
 import { server } from '../test-utils/server';
 import {
   isSessionEnd,
+  requestErrorDescription,
+  requestErrorDetail,
   requestErrorStatus,
   requestErrorText,
 } from './request-error';
@@ -146,5 +149,77 @@ describe('isSessionEnd', () => {
     ['undefined', undefined],
   ])('is false for %s', (_name, value) => {
     expect(isSessionEnd(value)).toBe(false);
+  });
+});
+
+const refused = (data?: unknown) => ({
+  response: { status: 403, statusText: 'Forbidden', data },
+});
+
+describe('requestErrorDetail', () => {
+  it('is the detail of the answer', () => {
+    expect(requestErrorDetail(refused({ detail: 'Not for you.' }))).toBe(
+      'Not for you.',
+    );
+  });
+
+  it.each([
+    ['no body', undefined],
+    ['an empty body', {}],
+    ['a blank detail', { detail: '   ' }],
+    ['a detail that is not text', { detail: { reason: 'x' } }],
+    ['a string body', 'Forbidden'],
+  ])('is null for %s', (_name, data) => {
+    expect(requestErrorDetail(refused(data))).toBeNull();
+  });
+
+  it('is null for a failure without a response', () => {
+    expect(requestErrorDetail(new Error('boom'))).toBeNull();
+    expect(requestErrorDetail(null)).toBeNull();
+  });
+});
+
+describe('a refused request (403)', () => {
+  it('has the sentence and the detail as text, with no client-written status sentence', () => {
+    expect(requestErrorText(refused({ detail: 'Not for you.' }))).toBe(
+      'You do not have permission to do this. Not for you.',
+    );
+  });
+
+  it('falls back to Pulp refused this request when there is no detail', () => {
+    expect(requestErrorText(refused({}))).toBe(
+      'You do not have permission to do this. Pulp refused this request.',
+    );
+  });
+
+  it('describes the refusal in three paragraphs', () => {
+    const html = renderToStaticMarkup(
+      requestErrorDescription(refused({ detail: 'Not for you.' })) as never,
+    );
+
+    expect(html.match(/<p[ >]/g)).toHaveLength(3);
+    expect(html).toContain('You do not have permission to do this.');
+    expect(html).toContain('Not for you.');
+    expect(html).toContain(
+      'Contact your organization administrator for more information.',
+    );
+    expect(html).not.toContain('Error 403');
+  });
+
+  it('escapes markup in the detail', () => {
+    const html = renderToStaticMarkup(
+      requestErrorDescription(refused({ detail: '<b>x</b>' })) as never,
+    );
+
+    expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
+    expect(html).not.toContain('<b>');
+  });
+
+  it('never includes another field of the body', () => {
+    const text = requestErrorText(
+      refused({ detail: 'Not for you.', secret: 'secret-body-text' }),
+    );
+
+    expect(text).not.toContain('secret-body-text');
   });
 });

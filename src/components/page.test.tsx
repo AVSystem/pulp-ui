@@ -3,6 +3,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import { resetSessionEvents } from '../session/session-events';
@@ -16,6 +17,36 @@ import {
   signedIn,
 } from '../test-utils/sign-in-again';
 import { Page } from './page';
+
+const withDeleteAction = (condition?: () => boolean) =>
+  Page<IThing>({
+    breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+    condition,
+    displayName: 'GuardedThingEdit',
+    errorTitle: msg`Thing could not be displayed.`,
+    headerActions: [
+      Action({ title: msg`Delete thing`, onClick: () => undefined }),
+    ],
+    listUrl: '/things',
+    query: ({ name }) =>
+      things
+        .list('things/', { name, page_size: 1 })
+        .then(({ data }) => data.results[0]),
+    title: ({ name }) => name,
+    transformParams: ({ name }) => ({ name }),
+    render: () => <form aria-label='Thing form' />,
+  });
+
+function renderGuarded(Screen: ReturnType<typeof withDeleteAction>) {
+  return renderWithProviders(
+    <AppContextProvider>
+      <Routes>
+        <Route path='/things/edit/:name' element={<Screen />} />
+      </Routes>
+    </AppContextProvider>,
+    { route: '/things/edit/alpha' },
+  );
+}
 
 const THINGS = '/pulp/api/v3/things/';
 
@@ -384,5 +415,74 @@ describe('a page after the same user signs in again', () => {
 
     expect(calls()).toBe(0);
     expect(screen.getByText('Creating a new thing')).toBeInTheDocument();
+  });
+});
+
+describe('an edit page whose load is refused', () => {
+  it('shows the insufficient permissions page with the server text instead of the form or an error state', async () => {
+    server.use(failing(403, 'Forbidden'));
+    renderEdit('/things/edit/alpha');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('You do not have permission to view this page.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('no')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Contact your organization administrator for more information.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Thing could not be displayed.' }),
+    ).toBeNull();
+    expect(form()).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    // the screen keeps its own title above the page
+    expect(screen.getByRole('heading', { name: 'alpha' })).toBeInTheDocument();
+  });
+
+  it('omits the detail paragraph for a 403 without a detail', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json({}, { status: 403, statusText: 'Forbidden' }),
+      ),
+    );
+    renderEdit('/things/edit/alpha');
+
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('renders no header action for a refused read, and renders it for a shown object', async () => {
+    const Screen = withDeleteAction();
+
+    server.use(failing(403, 'Forbidden'));
+    const refused = renderGuarded(Screen);
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    expect(
+      screen.queryByRole('button', { name: 'Delete thing' }),
+    ).not.toBeInTheDocument();
+    refused.unmount();
+
+    server.use(answer('alpha'));
+    renderGuarded(Screen);
+    expect(
+      await screen.findByRole('button', { name: 'Delete thing' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the same page without a detail when the screen condition is false for the loaded object', async () => {
+    server.use(answer('alpha'));
+    renderGuarded(withDeleteAction(() => false));
+
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+    expect(
+      screen.queryByRole('button', { name: 'Delete thing' }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -1524,7 +1524,8 @@ msgstr "セキュアな URL (https://) の使用を検討してください。"
 #~ msgid "Contact you organization administrator for more information."
 #~ msgstr "Contact you organization administrator for more information."
 
-#: src/components/empty-state-unauthorized.tsx
+#: src/components/insufficient-permissions.tsx
+#: src/utilities/request-error.ts
 msgid "Contact your organization administrator for more information."
 msgstr "詳細は、組織の管理者にお問い合わせください。"
 
@@ -2105,6 +2106,11 @@ msgstr "ロールを削除しますか?"
 #~ msgid "Delete task"
 #~ msgstr "Delete task"
 
+#: src/components/page-with-tabs.test.tsx
+#: src/components/page.test.tsx
+msgid "Delete thing"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Delete user"
 #~ msgstr "Delete user"
@@ -2621,8 +2627,8 @@ msgid "Error {statusCode} - {statusText}: {customMessage}"
 msgstr "エラー {statusCode} - {statusText}: {customMessage}"
 
 #: src/utilities/fail-alerts.tsx
-msgid "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
-msgstr "エラー {statusCode} - {statusText}: 許可されていません: このリクエストを行うのに必要なパーミッションがありません。サーバー管理者に問い合わせてパーミッションを昇格してください。"
+#~ msgid "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgstr "エラー {statusCode} - {statusText}: 許可されていません: このリクエストを行うのに必要なパーミッションがありません。サーバー管理者に問い合わせてパーミッションを昇格してください。"
 
 #: src/utilities/fail-alerts.tsx
 msgid "Error {statusCode} - {statusText}: The server could not find the requested URL."
@@ -2637,8 +2643,8 @@ msgid "Error {statusCode} - {statusText}: The server was unable to complete your
 msgstr "エラー {statusCode} - {statusText}: サーバーはリクエストを完了できませんでした。"
 
 #: src/utilities/fail-alerts.tsx
-msgid "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
-msgstr "エラー {statusCode} - {statusText}: このリクエストを行うのに必要なパーミッションがありません。サーバー管理者に問い合わせてパーミッションを昇格してください。"
+#~ msgid "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgstr "エラー {statusCode} - {statusText}: このリクエストを行うのに必要なパーミッションがありません。サーバー管理者に問い合わせてパーミッションを昇格してください。"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Error deleting collection version."
@@ -3312,6 +3318,10 @@ msgstr ""
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "10 回試行した後に、タスクの待機を中止します。"
 
+#: src/components/insufficient-permissions.tsx
+msgid "Go back"
+msgstr ""
+
 #: src/shell/command-palette.tsx
 msgid "Go to"
 msgstr ""
@@ -3338,6 +3348,10 @@ msgstr ""
 
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
+msgstr ""
+
+#: src/components/insufficient-permissions.tsx
+msgid "Go to the start page"
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -3721,6 +3735,13 @@ msgstr ""
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "Instructions"
 #~ msgstr "手順"
+
+#: src/components/insufficient-permissions.tsx
+#: src/containers/group-management/group-detail.tsx
+#: src/containers/role-management/role-edit.tsx
+#: src/containers/user-management/user-detail.tsx
+msgid "Insufficient permissions"
+msgstr ""
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
@@ -5296,6 +5317,10 @@ msgstr ""
 #~ msgid "Pulp Logo"
 #~ msgstr ""
 
+#: src/utilities/request-error.ts
+msgid "Pulp refused this request."
+msgstr ""
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
@@ -6075,8 +6100,8 @@ msgstr "ロール \"{0}\" を削除できませんでした。"
 
 #. placeholder {0}: this.state.role.name
 #: src/containers/role-management/role-edit.tsx
-msgid "Role \"{0}\" could not be displayed."
-msgstr "ロール \"{0}\" を表示できませんでした。"
+#~ msgid "Role \"{0}\" could not be displayed."
+#~ msgstr "ロール \"{0}\" を表示できませんでした。"
 
 #. placeholder {0}: selectedDeleteRole.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6091,6 +6116,10 @@ msgstr "ロール \"{name}\" を削除できませんでした。"
 msgid "Role \"{name}\" has been successfully deleted."
 msgstr "ロール \"{name}\" が正常に削除されました。"
 
+#: src/containers/role-management/role-edit.tsx
+msgid "Role \"{roleName}\" could not be displayed."
+msgstr ""
+
 #. placeholder {0}: role.name
 #. placeholder {1}: group.name
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6102,6 +6131,10 @@ msgstr "ロール {0} をグループ {1} に割り当てられませんでし�
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role {0} has been successfully added to {1}."
 msgstr "ロール {0} は {1} に正常に追加されました。"
+
+#: src/containers/role-management/role-edit.tsx
+msgid "Role could not be displayed."
+msgstr ""
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Role Header"
@@ -8512,12 +8545,20 @@ msgstr ""
 #~ msgstr "Automation Hub にアクセスできません"
 
 #: src/components/empty-state-unauthorized.tsx
-msgid "You do not have access to Pulp UI"
+#~ msgid "You do not have access to Pulp UI"
+#~ msgstr ""
+
+#: src/utilities/request-error.ts
+msgid "You do not have permission to do this."
 msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
 #~ msgstr "すべてのタスクを表示するパーミッションがありません。自分が作成したタスクのみを表示できます。"
+
+#: src/components/insufficient-permissions.tsx
+msgid "You do not have permission to view this page."
+msgstr ""
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "You do not have the required permissions."

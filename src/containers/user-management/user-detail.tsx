@@ -7,8 +7,9 @@ import { AppContext, type IAppContextType } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
+  BaseHeader,
   DeleteUserModal,
-  EmptyStateUnauthorized,
+  InsufficientPermissions,
   LoadingPage,
   NotFound,
   UserFormPage,
@@ -20,7 +21,11 @@ import {
   type RouteProps,
   withRouter,
 } from 'src/utilities';
-import { isSessionEnd } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDetail,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -29,6 +34,8 @@ interface IState {
   redirect?: string;
   showDeleteModal: boolean;
   unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
   userDetail: UserType;
 }
 
@@ -44,6 +51,7 @@ class UserDetail extends Component<RouteProps, IState> {
       notFound: false,
       showDeleteModal: false,
       unauthorized: false,
+      unauthorizedDetail: null,
       userDetail: undefined,
     };
   }
@@ -74,7 +82,17 @@ class UserDetail extends Component<RouteProps, IState> {
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
         // keeps its spinner or its content until it reads again.
-        if (!isSessionEnd(e)) {
+        if (isSessionEnd(e)) {
+          return;
+        }
+        // A refused read is not a missing user: the user is told they may
+        // not view it, with Pulp's own reason.
+        if (requestErrorStatus(e) === 403) {
+          this.setState({
+            unauthorized: true,
+            unauthorizedDetail: requestErrorDetail(e),
+          });
+        } else {
           this.setState({ notFound: true });
         }
       });
@@ -91,13 +109,19 @@ class UserDetail extends Component<RouteProps, IState> {
       notFound,
       showDeleteModal,
       unauthorized,
+      unauthorizedDetail,
       userDetail,
     } = this.state;
 
     const { hasPermission } = this.context as IAppContextType;
 
     if (unauthorized) {
-      return <EmptyStateUnauthorized />;
+      return (
+        <>
+          <BaseHeader title={t`Insufficient permissions`} />
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        </>
+      );
     }
 
     if (notFound) {

@@ -33,7 +33,7 @@ import {
   DeleteModal,
   EmptyStateFilter,
   EmptyStateNoData,
-  EmptyStateUnauthorized,
+  InsufficientPermissions,
   LinkTabs,
   ListItemActions,
   LoadingPage,
@@ -55,6 +55,7 @@ import {
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import GroupDetailRoleManagement from './group-detail-role-management/group-detail-role-management';
@@ -86,6 +87,8 @@ interface IState {
   showDeleteModal: boolean;
   showUserRemoveModal: UserType | null;
   unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
   users: UserType[];
 }
 
@@ -131,6 +134,7 @@ class GroupDetail extends Component<RouteProps, IState> {
       showDeleteModal: false,
       showUserRemoveModal: null,
       unauthorized: false,
+      unauthorizedDetail: null,
       users: null,
     };
   }
@@ -188,6 +192,7 @@ class GroupDetail extends Component<RouteProps, IState> {
       showDeleteModal,
       showUserRemoveModal,
       unauthorized,
+      unauthorizedDetail,
       users,
     } = this.state;
     const { hasPermission } = this.context as IAppContextType;
@@ -207,7 +212,12 @@ class GroupDetail extends Component<RouteProps, IState> {
     }
 
     if (unauthorized) {
-      return <EmptyStateUnauthorized />;
+      return (
+        <>
+          <BaseHeader title={t`Insufficient permissions`} />
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        </>
+      );
     }
 
     if (notFound) {
@@ -779,6 +789,13 @@ class GroupDetail extends Component<RouteProps, IState> {
         }
         if (requestErrorStatus(e) === 404) {
           this.setState({ notFound: true });
+        } else if (requestErrorStatus(e) === 403) {
+          // A refused read is not a failure to retry: the user is told they
+          // may not view the group, with Pulp's own reason.
+          this.setState({
+            unauthorized: true,
+            unauthorizedDetail: requestErrorDetail(e),
+          });
         } else {
           this.addAlert(
             t`Group could not be displayed.`,

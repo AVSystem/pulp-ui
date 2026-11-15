@@ -16,8 +16,8 @@ import {
   CompoundFilter,
   EmptyStateFilter,
   EmptyStateNoData,
-  EmptyStateUnauthorized,
   type FilterOption,
+  InsufficientPermissions,
   LoadingSpinner,
   Main,
   PulpPagination,
@@ -31,6 +31,8 @@ import { ParamHelper } from '../utilities/param-helper';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from '../utilities/request-error';
 import { type RouteProps, withRouter } from '../utilities/with-router';
 import { ListErrorState } from './list-error-state';
@@ -47,13 +49,16 @@ interface IState<T> {
   // why the last load failed; null while the list is loading or loaded
   error: ReactNode;
   unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
   inputText: string;
   selectedFilter: string;
 }
 
 // states:
 // loading - initial state, only Main + spinner, header and alerts
-// unauthorized - only EmptyStateUnauthorized, header and alerts
+// unauthorized - only InsufficientPermissions, header and alerts: the read was
+//   refused (403) or the screen's condition does not hold
 // error - the load failed, only ListErrorState with a retry, header and alerts
 // noData - no data at all, EmptyStateNoData with possible buttons
 // !items.length - no visible data but a filter is on, EmptyStateFilter with a clear filters button, CompoundFilter + AppliedFilters
@@ -190,6 +195,7 @@ export const ListPage = function <T>({
         params,
         selectedFilter: null,
         unauthorized: false,
+        unauthorizedDetail: null,
       };
     }
 
@@ -218,8 +224,16 @@ export const ListPage = function <T>({
     }
 
     render() {
-      const { alerts, error, itemCount, items, loading, params, unauthorized } =
-        this.state;
+      const {
+        alerts,
+        error,
+        itemCount,
+        items,
+        loading,
+        params,
+        unauthorized,
+        unauthorizedDetail,
+      } = this.state;
 
       const localizedFilterConfig = filterConfig({ state: this.state }) || [];
       const knownFilters = localizedFilterConfig.map(({ id }) => id);
@@ -273,7 +287,7 @@ export const ListPage = function <T>({
           <BaseHeader title={i18n._(title)} />
           {renderModals?.(actionContext)}
           {unauthorized ? (
-            <EmptyStateUnauthorized />
+            <InsufficientPermissions detail={unauthorizedDetail} />
           ) : error && !loading ? (
             <Main>
               <ListErrorState
@@ -436,10 +450,25 @@ export const ListPage = function <T>({
               return;
             }
 
+            // A refused read is not a failure to retry: the user is told they
+            // may not view the list, with Pulp's own reason.
+            if (requestErrorStatus(e) === 403) {
+              this.setState({
+                loading: false,
+                items: [],
+                itemCount: 0,
+                unauthorized: true,
+                unauthorizedDetail: requestErrorDetail(e),
+              });
+              return;
+            }
+
             this.setState({
               loading: false,
               items: [],
               itemCount: 0,
+              unauthorized: false,
+              unauthorizedDetail: null,
               error: requestErrorDescription(e),
             });
           });

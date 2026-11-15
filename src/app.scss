@@ -9,6 +9,29 @@ body,
   padding: 16px;
 }
 
+// the server's own text can be one long unbroken word; it wraps instead of
+// scrolling the page sideways
+.pulp-break-anywhere {
+  overflow-wrap: anywhere;
+}
+
+// the page for a refused read: body text in the regular text color and a fixed
+// rhythm between the sentences and the actions
+.pulp-insufficient-permissions {
+  --pf-v6-c-empty-state--body--FontSize: var(
+    --pf-t--global--font--size--body--default
+  );
+  --pf-v6-c-empty-state__body--Color: var(--pulp-text);
+  --pf-v6-c-empty-state__footer--MarginBlockStart: var(
+    --pf-t--global--spacer--md
+  );
+  --pf-v6-c-empty-state__actions--ColumnGap: var(--pf-t--global--spacer--sm);
+
+  p + p {
+    margin-block-start: var(--pf-t--global--spacer--sm);
+  }
+}
+
 .pulp-clickable {
   cursor: pointer;
 }

@@ -1,7 +1,11 @@
 import { t } from '@lingui/core/macro';
-import { LoginLink } from '../components/login-link';
+import { type ReactNode } from 'react';
 import { mapErrorMessages } from './map-error-messages';
-import { isSessionEnd, requestErrorStatus } from './request-error';
+import {
+  forbiddenTexts,
+  isSessionEnd,
+  requestErrorStatus,
+} from './request-error';
 
 export function errorMessage(
   statusCode: number,
@@ -10,8 +14,6 @@ export function errorMessage(
 ) {
   const messages = {
     500: t`Error ${statusCode} - ${statusText}: The server encountered an error and was unable to complete your request.`,
-    401: t`Error ${statusCode} - ${statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions.`,
-    403: t`Error ${statusCode} - ${statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions.`,
     404: t`Error ${statusCode} - ${statusText}: The server could not find the requested URL.`,
     400: t`Error ${statusCode} - ${statusText}: The server was unable to complete your request.`,
     default: t`Error ${statusCode} - ${statusText}`,
@@ -24,19 +26,22 @@ export function errorMessage(
 }
 
 export function jsxErrorMessage(code, text, custom?) {
-  const description = errorMessage(code, text, custom);
+  return errorMessage(code, text, custom);
+}
 
-  if (code == 401) {
-    return (
-      <>
-        {description}
-        <br />
-        <LoginLink />
-      </>
-    );
-  }
+// What a refused action says: that the user may not do it, Pulp's own reason
+// as plain text that wraps inside the alert, and whom to ask. The reason is a
+// text node, never markup.
+export function forbiddenDescription(error) {
+  const { sentence, detail, hint } = forbiddenTexts(error);
 
-  return description;
+  return (
+    <>
+      <p>{sentence}</p>
+      <p className='pulp-break-anywhere'>{detail}</p>
+      <p>{hint}</p>
+    </>
+  );
 }
 
 // Turns a failed request into a danger alert and then calls the callback. The
@@ -48,10 +53,15 @@ export const handleHttpError = (title, callback, addAlert) => (e) => {
     return;
   }
 
-  let description = String(e);
+  let description: ReactNode = String(e);
+  let id: string | undefined;
 
   const status = requestErrorStatus(e);
-  if (status !== null) {
+  if (status === 403) {
+    // The same refusal of the same action stays one alert while it is open.
+    description = forbiddenDescription(e);
+    id = `refused:${title}`;
+  } else if (status !== null) {
     // HTTP error
     const err = mapErrorMessages(e);
     const message = Object.values(err).join(' ');
@@ -60,6 +70,7 @@ export const handleHttpError = (title, callback, addAlert) => (e) => {
   }
 
   addAlert({
+    ...(id ? { id } : {}),
     title,
     variant: 'danger',
     description,

@@ -1,6 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import { StrictMode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -15,6 +15,7 @@ import { listOf, page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
 import { useUserContext } from '../user-context';
+import { handleHttpError } from '../utilities/fail-alerts';
 import { ListPage } from './list-page';
 
 const THINGS = '/pulp/api/v3/things/';
@@ -187,12 +188,92 @@ describe('a list page whose API answers with an error status', () => {
     expect(screen.queryByText('No things yet')).not.toBeInTheDocument();
   });
 
-  it('still shows the error state for a 403', async () => {
+  it('shows the insufficient permissions page with the server text for a 403', async () => {
     server.use(failing(403, 'Forbidden'));
     renderList();
 
-    expect(await screen.findByText(/Error 403 - /)).toBeInTheDocument();
-    expect(retry()).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('You do not have permission to view this page.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('no')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Contact your organization administrator for more information.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Go to the start page' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Things could not be displayed.' }),
+    ).not.toBeInTheDocument();
+    expect(spinner()).not.toBeInTheDocument();
+  });
+
+  it('shows no detail paragraph for a 403 without a detail', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json({}, { status: 403, statusText: 'Forbidden' }),
+      ),
+    );
+    renderList();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('shows the server text as text when it contains markup', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(
+          { detail: '<img src=x onerror=alert(1)>' },
+          { status: 403 },
+        ),
+      ),
+    );
+    const { container } = renderList();
+
+    expect(
+      await screen.findByText('<img src=x onerror=alert(1)>'),
+    ).toBeInTheDocument();
+    expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('shows the same page without a server text when its condition is false', async () => {
+    const Guarded = ListPage<IThing>({
+      condition: () => false,
+      defaultPageSize: 10,
+      displayName: 'GuardedList',
+      errorTitle: msg`Things could not be displayed.`,
+      filterConfig: () => [{ id: 'name__icontains', title: 'Name' }],
+      noDataDescription: msg`Things appear once they are created.`,
+      noDataTitle: msg`No things yet`,
+      query: ({ params }) => things.list('things/', params),
+      renderTableRow: (item) => (
+        <Tr key={item.name}>
+          <Td>{item.name}</Td>
+        </Tr>
+      ),
+      sortHeaders: [{ title: msg`Name`, type: 'alpha', id: 'name' }],
+      title: msg`Things`,
+    });
+    renderWithProviders(
+      <AppContextProvider>
+        <Guarded />
+      </AppContextProvider>,
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+    expect(screen.getByRole('heading', { name: 'Things' })).toBeInTheDocument();
   });
 
   it('never shows the response body', async () => {
@@ -555,5 +636,85 @@ describe('a list page when the session has ended', () => {
     expect(spinner()).toBeInTheDocument();
     expect(errorStates()).toHaveLength(0);
     expect(screen.queryByText(/could not be/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('a list page whose action is refused', () => {
+  const refusal = (detail = 'Not for you.') => ({
+    response: { status: 403, statusText: 'Forbidden', data: { detail } },
+  });
+  const refuse = (title: string) =>
+    act(() =>
+      handleHttpError(
+        title,
+        () => undefined,
+        actionContext.addAlert,
+      )(refusal()),
+    );
+  const alertList = () =>
+    waitFor(() => {
+      const element = document.querySelector<HTMLElement>(
+        '[data-cy="AlertList"]',
+      );
+      expect(element?.children.length).toBeGreaterThan(0);
+      return element;
+    });
+  const alertTitles = () =>
+    within(document.querySelector<HTMLElement>('[data-cy="AlertList"]'))
+      .queryAllByRole('heading')
+      .map((h) => h.textContent);
+
+  it('shows one danger alert with the action title and the refusal text, and leaves the rows', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () => HttpResponse.json(page(rows('alpha')))),
+    );
+    renderList();
+    await screen.findByText('alpha');
+
+    refuse('Failed to save thing.');
+
+    const list = within(await alertList());
+    expect(list.getByText(/Failed to save thing\./)).toBeInTheDocument();
+    expect(
+      list.getByText('You do not have permission to do this.'),
+    ).toBeInTheDocument();
+    expect(list.getByText('Not for you.')).toBeInTheDocument();
+    expect(
+      list.getByText(
+        'Contact your organization administrator for more information.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('alpha')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+  });
+
+  it('adds no second alert for the same refusal while the first is open', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () => HttpResponse.json(page(rows('alpha')))),
+    );
+    renderList();
+    await screen.findByText('alpha');
+
+    refuse('Failed to save thing.');
+    refuse('Failed to save thing.');
+
+    await alertList();
+    expect(alertTitles()).toHaveLength(1);
+  });
+
+  it('shows two alerts for refusals of two different actions', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () => HttpResponse.json(page(rows('alpha')))),
+    );
+    renderList();
+    await screen.findByText('alpha');
+
+    refuse('Failed to save thing.');
+    refuse('Failed to delete thing.');
+
+    await alertList();
+    expect(alertTitles()).toHaveLength(2);
   });
 });

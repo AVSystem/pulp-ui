@@ -1525,7 +1525,8 @@ msgstr "Consider using a secure URL (https://)."
 #~ msgid "Contact you organization administrator for more information."
 #~ msgstr "Contact you organization administrator for more information."
 
-#: src/components/empty-state-unauthorized.tsx
+#: src/components/insufficient-permissions.tsx
+#: src/utilities/request-error.ts
 msgid "Contact your organization administrator for more information."
 msgstr "Contact your organization administrator for more information."
 
@@ -2106,6 +2107,11 @@ msgstr "Delete role?"
 #~ msgid "Delete task"
 #~ msgstr "Delete task"
 
+#: src/components/page-with-tabs.test.tsx
+#: src/components/page.test.tsx
+msgid "Delete thing"
+msgstr "Delete thing"
+
 #: src/constants.tsx
 #~ msgid "Delete user"
 #~ msgstr "Delete user"
@@ -2622,8 +2628,8 @@ msgid "Error {statusCode} - {statusText}: {customMessage}"
 msgstr "Error {statusCode} - {statusText}: {customMessage}"
 
 #: src/utilities/fail-alerts.tsx
-msgid "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
-msgstr "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgid "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgstr "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
 
 #: src/utilities/fail-alerts.tsx
 msgid "Error {statusCode} - {statusText}: The server could not find the requested URL."
@@ -2638,8 +2644,8 @@ msgid "Error {statusCode} - {statusText}: The server was unable to complete your
 msgstr "Error {statusCode} - {statusText}: The server was unable to complete your request."
 
 #: src/utilities/fail-alerts.tsx
-msgid "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
-msgstr "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgid "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgstr "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Error deleting collection version."
@@ -3313,6 +3319,10 @@ msgstr "Giving up waiting for task after {attempts} attempts."
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "Giving up waiting for task after 10 attempts."
 
+#: src/components/insufficient-permissions.tsx
+msgid "Go back"
+msgstr "Go back"
+
 #: src/shell/command-palette.tsx
 msgid "Go to"
 msgstr "Go to"
@@ -3340,6 +3350,10 @@ msgstr "Go to previous page"
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
 msgstr "Go to the login page"
+
+#: src/components/insufficient-permissions.tsx
+msgid "Go to the start page"
+msgstr "Go to the start page"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -3722,6 +3736,13 @@ msgstr "Installer packages will be synchronized"
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "Instructions"
 #~ msgstr "Instructions"
+
+#: src/components/insufficient-permissions.tsx
+#: src/containers/group-management/group-detail.tsx
+#: src/containers/role-management/role-edit.tsx
+#: src/containers/user-management/user-detail.tsx
+msgid "Insufficient permissions"
+msgstr "Insufficient permissions"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
@@ -5297,6 +5318,10 @@ msgstr "Pulp logo"
 #~ msgid "Pulp Logo"
 #~ msgstr "Pulp Logo"
 
+#: src/utilities/request-error.ts
+msgid "Pulp refused this request."
+msgstr "Pulp refused this request."
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
@@ -6076,8 +6101,8 @@ msgstr "Role \"{0}\" could not be deleted."
 
 #. placeholder {0}: this.state.role.name
 #: src/containers/role-management/role-edit.tsx
-msgid "Role \"{0}\" could not be displayed."
-msgstr "Role \"{0}\" could not be displayed."
+#~ msgid "Role \"{0}\" could not be displayed."
+#~ msgstr "Role \"{0}\" could not be displayed."
 
 #. placeholder {0}: selectedDeleteRole.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6092,6 +6117,10 @@ msgstr "Role \"{name}\" could not be deleted."
 msgid "Role \"{name}\" has been successfully deleted."
 msgstr "Role \"{name}\" has been successfully deleted."
 
+#: src/containers/role-management/role-edit.tsx
+msgid "Role \"{roleName}\" could not be displayed."
+msgstr "Role \"{roleName}\" could not be displayed."
+
 #. placeholder {0}: role.name
 #. placeholder {1}: group.name
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6103,6 +6132,10 @@ msgstr "Role {0} could not be assigned to group {1}."
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role {0} has been successfully added to {1}."
 msgstr "Role {0} has been successfully added to {1}."
+
+#: src/containers/role-management/role-edit.tsx
+msgid "Role could not be displayed."
+msgstr "Role could not be displayed."
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Role Header"
@@ -8513,12 +8546,20 @@ msgstr "You can edit this repository to create a distribution."
 #~ msgstr "You do not have access to Automation Hub"
 
 #: src/components/empty-state-unauthorized.tsx
-msgid "You do not have access to Pulp UI"
-msgstr "You do not have access to Pulp UI"
+#~ msgid "You do not have access to Pulp UI"
+#~ msgstr "You do not have access to Pulp UI"
+
+#: src/utilities/request-error.ts
+msgid "You do not have permission to do this."
+msgstr "You do not have permission to do this."
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
 #~ msgstr "You do not have permission to view all tasks. Only tasks created by you are visible."
+
+#: src/components/insufficient-permissions.tsx
+msgid "You do not have permission to view this page."
+msgstr "You do not have permission to view this page."
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "You do not have the required permissions."

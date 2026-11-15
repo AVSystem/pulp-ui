@@ -52,8 +52,10 @@ describe('the task list', () => {
       await screen.findByText('Tasks list could not be displayed.'),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Error 403 - Forbidden: Forbidden: You do not have/),
+      screen.getByText('You do not have permission to do this.'),
     ).toBeInTheDocument();
+    expect(screen.getByText('no')).toBeInTheDocument();
+    expect(screen.queryByText(/Error 403/)).toBeNull();
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 });

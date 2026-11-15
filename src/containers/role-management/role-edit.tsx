@@ -5,6 +5,8 @@ import { RoleAPI, type RoleType } from 'src/api';
 import {
   AlertList,
   type AlertType,
+  BaseHeader,
+  InsufficientPermissions,
   LoadingPage,
   Main,
   NotFound,
@@ -25,6 +27,7 @@ import {
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
 
@@ -50,6 +53,9 @@ interface IState {
   saving: boolean;
   selected: { id: number; name: string }[];
   showDeleteModal: boolean;
+  unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
 }
 
 class EditRole extends Component<RouteProps, IState> {
@@ -82,6 +88,8 @@ class EditRole extends Component<RouteProps, IState> {
       saving: false,
       selected: [],
       showDeleteModal: false,
+      unauthorized: false,
+      unauthorizedDetail: null,
     };
   }
 
@@ -116,9 +124,23 @@ class EditRole extends Component<RouteProps, IState> {
         if (isSessionEnd(e)) {
           return;
         }
+        // A refused read is not a failure to retry: the user is told they
+        // may not view the role, with Pulp's own reason.
+        if (requestErrorStatus(e) === 403) {
+          this.setState({
+            unauthorized: true,
+            unauthorizedDetail: requestErrorDetail(e),
+          });
+          return;
+        }
+        // Until the role was read its name is unknown, so the title says
+        // only that the role could not be shown.
+        const roleName = this.state.role?.name;
         this.setState({ notFound: true });
         this.addAlert(
-          t`Role "${this.state.role.name}" could not be displayed.`,
+          roleName
+            ? t`Role "${roleName}" could not be displayed.`
+            : t`Role could not be displayed.`,
           'danger',
           requestErrorDescription(e),
         );
@@ -139,7 +161,18 @@ class EditRole extends Component<RouteProps, IState> {
       notFound,
       role,
       saving,
+      unauthorized,
+      unauthorizedDetail,
     } = this.state;
+
+    if (unauthorized) {
+      return (
+        <>
+          <BaseHeader title={t`Insufficient permissions`} />
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        </>
+      );
+    }
 
     if (!role && alerts && alerts.length) {
       return (
