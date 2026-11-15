@@ -466,7 +466,8 @@ describe('the add collection dialog, while it does not know what the repository 
     await offered('ns.alpha v1.0.0');
     expect(screen.queryByText(failedTitle)).toBeNull();
     expect(checkboxOf(heldName)).toBeDisabled();
-    expect(contentReads).toHaveLength(2);
+    // the refused read never reached the recording handler; the retry did
+    expect(contentReads).toHaveLength(1);
     await user.click(screen.getByText('ns.alpha v1.0.0'));
     expect(selectButton()).toBeEnabled();
   });

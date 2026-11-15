@@ -1,0 +1,18 @@
+// A collection version the repository already holds recedes: muted text and a
+// label that follows the name at a small distance.
+.pulp-collection-in-repository td {
+  color: var(--pulp-text-3);
+}
+
+.pulp-collection-name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+
+  .pf-v6-c-label {
+    --pf-v6-c-label--BackgroundColor: var(--pulp-sunken);
+    --pf-v6-c-label--Color: var(--pulp-text-2);
+    font-weight: 600;
+  }
+}

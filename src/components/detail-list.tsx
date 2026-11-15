@@ -41,6 +41,9 @@ interface IProps<T> {
     setState?;
     state?;
   };
+  // marks the table as busy for assistive technology while the screen around
+  // the list still reads data the rows depend on
+  busy?: boolean;
   defaultPageSize: number;
   defaultSort?: string;
   errorTitle: string;
@@ -61,6 +64,7 @@ interface IProps<T> {
 
 export function DetailList<T>({
   actionContext,
+  busy,
   defaultPageSize,
   defaultSort,
   errorTitle,
@@ -215,7 +219,7 @@ export function DetailList<T>({
           ) : !items.length ? (
             <EmptyStateFilter />
           ) : (
-            <Table aria-label={title}>
+            <Table aria-busy={busy} aria-label={title}>
               <SortTable
                 options={{ headers: sortHeaders }}
                 params={params}
