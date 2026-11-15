@@ -1,6 +1,7 @@
 // The sign-in page keeps PatternFly's login layout and takes its colors,
-// radius and shadow from the theme tokens. The logo is dark artwork, so it
-// sits on a white chip to stay readable on the brand backdrop in both themes.
+// radius and shadow from the theme tokens. The logo sits on a chip of its own
+// color: white on the blue light backdrop, where the artwork would blend in,
+// and the backdrop black in the dark theme, where it reads on its own.
 
 // Declared with the page class so it outranks PatternFly's component variables
 // whichever order the stylesheets load in.
