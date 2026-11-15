@@ -1526,6 +1526,7 @@ msgstr "Consider using a secure URL (https://)."
 #~ msgstr "Contact you organization administrator for more information."
 
 #: src/components/insufficient-permissions.tsx
+#: src/utilities/request-error.ts
 msgid "Contact your organization administrator for more information."
 msgstr "Contact your organization administrator for more information."
 
@@ -2627,8 +2628,8 @@ msgid "Error {statusCode} - {statusText}: {customMessage}"
 msgstr "Error {statusCode} - {statusText}: {customMessage}"
 
 #: src/utilities/fail-alerts.tsx
-msgid "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
-msgstr "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgid "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgstr "Error {statusCode} - {statusText}: Forbidden: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
 
 #: src/utilities/fail-alerts.tsx
 msgid "Error {statusCode} - {statusText}: The server could not find the requested URL."
@@ -2643,8 +2644,8 @@ msgid "Error {statusCode} - {statusText}: The server was unable to complete your
 msgstr "Error {statusCode} - {statusText}: The server was unable to complete your request."
 
 #: src/utilities/fail-alerts.tsx
-msgid "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
-msgstr "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgid "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
+#~ msgstr "Error {statusCode} - {statusText}: You do not have the required permissions to proceed with this request. Please contact the server administrator for elevated permissions."
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Error deleting collection version."
@@ -5315,6 +5316,10 @@ msgstr "Pulp logo"
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Logo"
 #~ msgstr "Pulp Logo"
+
+#: src/utilities/request-error.ts
+msgid "Pulp refused this request."
+msgstr "Pulp refused this request."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -8534,6 +8539,10 @@ msgstr "You can edit this repository to create a distribution."
 #: src/components/empty-state-unauthorized.tsx
 #~ msgid "You do not have access to Pulp UI"
 #~ msgstr "You do not have access to Pulp UI"
+
+#: src/utilities/request-error.ts
+msgid "You do not have permission to do this."
+msgstr "You do not have permission to do this."
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."

@@ -2,7 +2,11 @@ import { t } from '@lingui/core/macro';
 import { type AlertType } from 'src/components/alert-list';
 import { distributionConflicts } from './distribution-availability';
 import { type ErrorMessagesType, mapErrorMessages } from './map-error-messages';
-import { isSessionEnd, requestErrorStatus } from './request-error';
+import {
+  forbiddenTexts,
+  isSessionEnd,
+  requestErrorStatus,
+} from './request-error';
 import { taskAlert } from './task-alert';
 import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
 
@@ -53,6 +57,10 @@ export function failureReason(e): string {
   }
 
   const status = requestErrorStatus(e);
+  if (status === 403) {
+    const { sentence, detail, hint } = forbiddenTexts(e);
+    return `${sentence} ${detail} ${hint}`;
+  }
   if (status !== null) {
     const statusText = e.response.statusText;
     let messages: string[] = [];

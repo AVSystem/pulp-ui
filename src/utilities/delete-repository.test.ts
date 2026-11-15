@@ -313,7 +313,8 @@ describe('deleteRepositoryWithDistributions', () => {
       failed: [
         {
           name: 'b-refused',
-          reason: 'You do not have permission to perform this action.',
+          reason:
+            'You do not have permission to do this. You do not have permission to perform this action. Contact your organization administrator for more information.',
         },
       ],
       pending: [],
@@ -480,7 +481,8 @@ describe('deleteRepositoryWithDistributions', () => {
       failed: [],
       pending: [],
       repositoryDeleted: false,
-      repositoryError: 'The repository is in use.',
+      repositoryError:
+        'You do not have permission to do this. The repository is in use. Contact your organization administrator for more information.',
     });
   });
 

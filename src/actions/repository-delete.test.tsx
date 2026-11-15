@@ -32,10 +32,12 @@ function Harness({
   first,
   second,
   addAlert,
+  listQuery = vi.fn(),
 }: {
   first: { name: string; pulp_href: string };
   second: { name: string; pulp_href: string };
   addAlert: (alert) => void;
+  listQuery?: () => void;
 }) {
   const [state, setState] = useState<State>({
     deleteModalOpen: opened(first),
@@ -43,7 +45,7 @@ function Harness({
   const context = {
     addAlert,
     hasPermission: () => true,
-    listQuery: vi.fn(),
+    listQuery,
     query: vi.fn(),
     reloadPage: vi.fn(),
     setState: (next: State | ((old: State) => State | null)) =>
@@ -150,5 +152,48 @@ describe('the Delete action of a repository', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.queryByText(/so nothing was deleted/)).toBeNull();
     expect(screen.queryByText(/unexpected error/)).toBeNull();
+  });
+
+  it('shows one alert that says the user may not delete, with the server text, and leaves the list as it was when the delete is refused', async () => {
+    const first = repository({ name: 'zz-first' });
+    const second = repository({ name: 'zz-second' });
+    server.use(
+      listOf(`${API}/distributions/file/file/`, []).handler,
+      listOf(`${API}/publications/file/file/`, []).handler,
+      http.delete(`*${API}/repositories/file/file/:id/`, () =>
+        HttpResponse.json({ detail: 'Not for you.' }, { status: 403 }),
+      ),
+    );
+    const addAlert = vi.fn();
+    const listQuery = vi.fn();
+    const { user } = renderWithProviders(
+      <Harness
+        first={first}
+        second={second}
+        addAlert={addAlert}
+        listQuery={listQuery}
+      />,
+    );
+
+    await screen.findByText(/No distribution serves this repository/);
+    await user.type(
+      screen.getByLabelText(/Type the repository name/),
+      'zz-first',
+    );
+    await user.click(screen.getByRole('button', { name: /^Delete/ }));
+
+    const alert = await screen.findByText(
+      /You do not have permission to do this\./,
+    );
+    expect(alert).toHaveTextContent('Not for you.');
+    expect(alert).toHaveTextContent(
+      'Contact your organization administrator for more information.',
+    );
+    expect(screen.getAllByText(/You do not have permission/)).toHaveLength(1);
+    expect(screen.queryByText(/Error 403/)).toBeNull();
+    // the dialog stays and nothing on the page was touched
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(addAlert).not.toHaveBeenCalled();
+    expect(listQuery).not.toHaveBeenCalled();
   });
 });

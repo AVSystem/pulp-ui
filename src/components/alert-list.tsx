@@ -38,6 +38,7 @@ export const AlertList = ({ alerts, closeAlert }: IProps) => (
         key={i}
         title={alert.title}
         variant={alert.variant}
+        isLiveRegion={alert.variant === 'danger'}
         actionClose={<AlertActionCloseButton onClose={() => closeAlert(i)} />}
       >
         {alert.description}

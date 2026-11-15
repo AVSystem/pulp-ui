@@ -17,7 +17,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const { user } = useUserContext();
 
-  const queueAlert = (alert) => setAlerts((alerts) => [...alerts, alert]);
+  // An alert with an id replaces an open one with the same id, so a refusal
+  // repeated while its alert is still shown stays one alert.
+  const queueAlert = (alert: AlertType) =>
+    setAlerts((alerts) => [
+      ...(alert.id ? alerts.filter(({ id }) => id !== alert.id) : alerts),
+      alert,
+    ]);
   const hasPermission = (_name) => true; // FIXME: permission handling
 
   return (

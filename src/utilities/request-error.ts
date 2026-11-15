@@ -1,7 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { type ReactNode } from 'react';
 import { SessionSuspendedError } from 'src/session/session-events';
-import { errorMessage, jsxErrorMessage } from './fail-alerts';
+import {
+  errorMessage,
+  forbiddenDescription,
+  jsxErrorMessage,
+} from './fail-alerts';
 
 // A failed request does not always carry a response: a network error, a CORS
 // failure and an exception thrown before the request is sent have none. These
@@ -22,6 +26,22 @@ export function requestErrorDetail(error): string | null {
   return typeof detail === 'string' && detail.trim() ? detail : null;
 }
 
+// The three sentences that tell a user an action was refused: what happened,
+// Pulp's own reason (or a plain fallback when the answer has none), and whom
+// to ask. Only the answer's `detail` is used; the client writes no other text
+// about the refusal.
+export function forbiddenTexts(error): {
+  sentence: string;
+  detail: string;
+  hint: string;
+} {
+  return {
+    sentence: t`You do not have permission to do this.`,
+    detail: requestErrorDetail(error) ?? t`Pulp refused this request.`,
+    hint: t`Contact your organization administrator for more information.`,
+  };
+}
+
 // True when the failure is the end of the session and nothing else: a 401
 // answer, or a request that was held back while the sign-in dialog is open.
 // The dialog explains it and the screen reads again after signing in, so the
@@ -38,6 +58,10 @@ export function isSessionEnd(error): boolean {
 // Neither the response body nor headers nor a stack are included.
 export function requestErrorText(error): string {
   const status = requestErrorStatus(error);
+  if (status === 403) {
+    const { sentence, detail } = forbiddenTexts(error);
+    return `${sentence} ${detail}`;
+  }
   if (status !== null) {
     return errorMessage(status, error.response.statusText ?? '');
   }
@@ -52,9 +76,12 @@ export function requestErrorText(error): string {
   return t`The request failed.`;
 }
 
-// The same text as a node for display: the sign-in link accompanies a 401.
+// The same text as a node for display. A refusal reads as three paragraphs.
 export function requestErrorDescription(error): ReactNode {
   const status = requestErrorStatus(error);
+  if (status === 403) {
+    return forbiddenDescription(error);
+  }
   if (status !== null) {
     return jsxErrorMessage(status, error.response.statusText ?? '');
   }
