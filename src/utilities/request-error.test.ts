@@ -1,8 +1,8 @@
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { SessionSuspendedError } from 'src/session/session-events';
 import { PulpAPI } from '../api/pulp';
 import { server } from '../test-utils/server';
-import { SessionSuspendedError } from 'src/session/session-events';
 import {
   isSessionEnd,
   requestErrorStatus,

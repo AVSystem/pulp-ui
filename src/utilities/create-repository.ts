@@ -2,7 +2,7 @@ import { t } from '@lingui/core/macro';
 import { type AlertType } from 'src/components/alert-list';
 import { distributionConflicts } from './distribution-availability';
 import { type ErrorMessagesType, mapErrorMessages } from './map-error-messages';
-import { requestErrorStatus } from './request-error';
+import { isSessionEnd, requestErrorStatus } from './request-error';
 import { taskAlert } from './task-alert';
 import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
 
@@ -32,6 +32,9 @@ export interface CreateRepositoryResult {
   // could not be read, so it is not known whether the distribution exists;
   // null otherwise
   distributionUnknown: string | null;
+  // set when the session ended before the distribution request was answered:
+  // the sign-in dialog explains it, so the result carries no failure
+  sessionEnded?: true;
 }
 
 interface CreateRepositoryParams {
@@ -76,6 +79,11 @@ export function failureReason(e): string {
 // per-field messages, a server rejection is shown by field, anything without a
 // response is shown without one.
 export function saveErrorMessages(e): ErrorMessagesType {
+  // The end of a session is explained by the sign-in dialog, not by the form.
+  if (isSessionEnd(e)) {
+    return {};
+  }
+
   if (e instanceof CreateBlocked) {
     return e.errors;
   }
@@ -110,6 +118,10 @@ export async function createRepository({
     try {
       conflicts = await distributionConflicts(data.name, basePath);
     } catch (e) {
+      if (isSessionEnd(e)) {
+        // Nothing was written; the form shows no message of its own.
+        throw e;
+      }
       const reason = failureReason(e);
       throw new CreateBlocked({
         __nofield: t`Could not check whether the name and base path are free: ${reason}. Nothing was created.`,
@@ -170,6 +182,17 @@ export async function createRepository({
         distributionUnknown: null,
       };
     }
+    if (isSessionEnd(e)) {
+      // The repository exists; whether the distribution was created is not
+      // claimed either way.
+      return {
+        repositoryHref,
+        distributionError: null,
+        distributionPending: null,
+        distributionUnknown: null,
+        sessionEnded: true,
+      };
+    }
     return {
       repositoryHref,
       distributionError: failureReason(e),
@@ -195,8 +218,15 @@ export function createAlerts(
     distributionError,
     distributionPending,
     distributionUnknown,
+    sessionEnded,
   }: CreateRepositoryResult,
 ): AlertType[] {
+  if (sessionEnded) {
+    return [
+      { variant: 'success', title: t`Successfully created repository ${name}` },
+    ];
+  }
+
   if (distributionError) {
     return [
       {

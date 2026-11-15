@@ -7,6 +7,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
+import {
+  reportUnauthorized,
+  resetSessionEvents,
+} from '../session/session-events';
 import { listOf, page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
@@ -164,12 +168,30 @@ describe('a list page whose API answers with an error status', () => {
     expect(retry()).toBeInTheDocument();
   });
 
-  it('keeps the sign-in link for a 401', async () => {
+  it('shows no error state for a 401: the sign-in dialog explains it', async () => {
     server.use(failing(401, 'Unauthorized'));
     renderList();
 
-    expect(await screen.findByText(/Error 401 - /)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Login' })).toBeInTheDocument();
+    await waitFor(() => expect(spinner()).toBeInTheDocument());
+    await new Promise((resolve) => setTimeout(resolve, 60));
+
+    expect(spinner()).toBeInTheDocument();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Login' }),
+    ).not.toBeInTheDocument();
+    expect(errorStates()).toHaveLength(0);
+    expect(
+      screen.queryByRole('heading', { name: 'Things could not be displayed.' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('No things yet')).not.toBeInTheDocument();
+  });
+
+  it('still shows the error state for a 403', async () => {
+    server.use(failing(403, 'Forbidden'));
+    renderList();
+
+    expect(await screen.findByText(/Error 403 - /)).toBeInTheDocument();
     expect(retry()).toBeInTheDocument();
   });
 
@@ -482,5 +504,56 @@ describe('a list page after the same user signs in again', () => {
     await screen.findByText('alpha');
 
     expect(screen.getByRole('dialog')).toBeVisible();
+  });
+});
+
+describe('a list page when the session has ended', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const signedIn = async () =>
+    waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent('authenticated'),
+    );
+
+  it('keeps its loading state without an error for a refused read and shows the rows after the same user signs in again', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('alpha');
+    await signedIn();
+    server.use(failing(401, 'Unauthorized'));
+    act(() => actionContext.query());
+    await waitFor(() => expect(spinner()).toBeInTheDocument());
+    await new Promise((resolve) => setTimeout(resolve, 60));
+
+    expect(spinner()).toBeInTheDocument();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+    expect(errorStates()).toHaveLength(0);
+
+    server.use(listOf(THINGS, rows('beta')).handler);
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText('beta')).toBeVisible();
+    expect(spinner()).not.toBeInTheDocument();
+  });
+
+  it('keeps its loading state without an error for a read that was held back', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    renderAfterSignIn();
+    await screen.findByText('alpha');
+    await signedIn();
+    const queries = listOf(THINGS, rows('alpha'));
+    server.use(queries.handler);
+    act(() => reportUnauthorized('tab-return'));
+
+    act(() => actionContext.query());
+    await waitFor(() => expect(spinner()).toBeInTheDocument());
+    await new Promise((resolve) => setTimeout(resolve, 60));
+
+    expect(queries.queries).toHaveLength(0);
+    expect(spinner()).toBeInTheDocument();
+    expect(errorStates()).toHaveLength(0);
+    expect(screen.queryByText(/could not be/i)).not.toBeInTheDocument();
   });
 });

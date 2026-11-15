@@ -21,8 +21,7 @@ export function requestErrorStatus(error): number | null {
 // failure is not a session end.
 export function isSessionEnd(error): boolean {
   return (
-    error instanceof SessionSuspendedError ||
-    requestErrorStatus(error) === 401
+    error instanceof SessionSuspendedError || requestErrorStatus(error) === 401
   );
 }
 
