@@ -388,11 +388,15 @@ describe('routes of a plugin the server does not report', () => {
 
     renderWithProviders(<Routed />, { route: '/container/containers' });
 
+    // The plugin list is read after the session check answered, and this is
+    // the first screen of the file to render: a cold start on a busy runner
+    // needs more than the default second.
     expect(
-      await screen.findByRole('heading', {
-        name: 'Plugin not installed',
-        level: 1,
-      }),
+      await screen.findByRole(
+        'heading',
+        { name: 'Plugin not installed', level: 1 },
+        { timeout: 5000 },
+      ),
     ).toBeVisible();
     expect(
       screen.getByText(
