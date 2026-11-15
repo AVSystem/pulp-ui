@@ -1,8 +1,9 @@
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { settle } from 'src/test-utils/settle';
 import { usePlugins } from './plugins';
 import { useUserContext } from './user-context';
 
@@ -33,7 +34,10 @@ function countStatusRequests() {
   return counter;
 }
 
-afterEach(() => removeCounter());
+afterEach(() => {
+  removeCounter();
+  vi.useRealTimers();
+});
 
 // Shows what the provider knows and lets a test change the session by hand.
 function PluginsProbe() {
@@ -49,6 +53,9 @@ function PluginsProbe() {
           ? Array.from(plugins.versions.keys()).join(',')
           : ''}
       </p>
+      <button type='button' onClick={plugins.retry}>
+        Retry plugins
+      </button>
       <button type='button' onClick={() => endSession()}>
         End session
       </button>
@@ -142,5 +149,122 @@ describe('plugin list', () => {
     );
     expect(screen.getByTestId('versions')).toHaveTextContent(/^core$/);
     expect(counter.requests).toBe(2);
+  });
+});
+
+// Answers status/ with the given outcomes in turn (the last one repeats) and
+// counts the requests.
+function answerPlugins(...outcomes: ('fail' | 'ok')[]) {
+  const counter = { requests: 0 };
+  server.use(
+    http.get('*/pulp/api/v3/status/', () => {
+      const outcome = outcomes[Math.min(counter.requests, outcomes.length - 1)];
+      counter.requests += 1;
+      return outcome === 'ok'
+        ? HttpResponse.json({
+            versions: [{ component: 'core', version: '3.0.0' }],
+          })
+        : HttpResponse.json({ detail: 'Failed.' }, { status: 500 });
+    }),
+  );
+  return counter;
+}
+
+const showsState = (state: string) =>
+  expect(screen.getByTestId('plugins')).toHaveTextContent(state);
+
+describe('plugin list retry', () => {
+  it('stays as loading after the first failed read and reads once more after 3000 ms', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail');
+
+    renderWithProviders(<PluginsProbe />);
+    await settle();
+    expect(counter.requests).toBe(1);
+    showsState('loading');
+
+    await settle(2999);
+    expect(counter.requests).toBe(1);
+    showsState('loading');
+
+    await settle(1);
+    expect(counter.requests).toBe(2);
+  });
+
+  it('is ready when the second read succeeds', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail', 'ok');
+
+    renderWithProviders(<PluginsProbe />);
+    await settle(3000);
+
+    showsState('ready');
+    expect(counter.requests).toBe(2);
+  });
+
+  it('is in error only when the second read fails, and then makes no further attempt', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail');
+
+    renderWithProviders(<PluginsProbe />);
+    await settle(3000);
+
+    showsState('error');
+    await settle(60000);
+    expect(counter.requests).toBe(2);
+  });
+
+  it('turns a status answer without versions into an error state', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    let requests = 0;
+    server.use(
+      http.get('*/pulp/api/v3/status/', () => {
+        requests += 1;
+        return HttpResponse.json({ database_connection: { connected: true } });
+      }),
+    );
+
+    renderWithProviders(<PluginsProbe />);
+    await settle(3000);
+
+    showsState('error');
+    expect(requests).toBe(2);
+  });
+
+  it('reads once and without an automatic second attempt when the user asks again and it fails', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail');
+
+    renderWithProviders(<PluginsProbe />);
+    await settle(3000);
+    showsState('error');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry plugins' }));
+    await settle();
+    expect(counter.requests).toBe(3);
+    showsState('error');
+    await settle(60000);
+    expect(counter.requests).toBe(3);
+  });
+
+  it('cancels the wait when the session ends, so no request is sent for the old session', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail');
+
+    renderWithProviders(<PluginsProbe />);
+    await settle();
+    expect(counter.requests).toBe(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'End session' }));
+    await settle(10000);
+
+    expect(counter.requests).toBe(1);
+    showsState('idle');
   });
 });

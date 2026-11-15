@@ -381,9 +381,61 @@
   }
 }
 
-// the plugin list could not be read: the error state sits in the menu
+// the plugin list could not be read: a row of the menu with a quiet Retry
 :root .pulp-menu__error {
   list-style: none;
+}
+
+// the sentence wraps to a second line at the sidebar width and is never cut
+.pulp-menu__error-row {
+  display: flex;
+  align-items: flex-start;
+  column-gap: var(--pf-t--global--spacer--sm);
+  padding-block: var(--pf-t--global--spacer--sm);
+  padding-inline: var(--pf-t--global--spacer--sm);
+  color: var(--pulp-bad);
+}
+
+.pulp-menu__error-icon {
+  flex: none;
+  // the first line of the text is 1.5 x 14px high; the 16px icon centers on it
+  margin-block-start: 0.15rem;
+  font-size: 16px;
+  color: var(--pulp-bad);
+}
+
+.pulp-menu__error-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: var(--pf-t--global--spacer--xs);
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pulp-menu__error-text {
+  overflow-wrap: anywhere;
+  color: var(--pulp-bad);
+}
+
+// a hit area of 36px, 44px on a phone, with the link itself at the text edge
+:root .pulp-menu__error-retry {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  font-size: 14px;
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root .pulp-menu__error-retry {
+    min-height: 2.75rem;
+  }
 }
 
 // Sidebar: the menu scrolls inside the sidebar, the footer stays below it.

@@ -22,7 +22,12 @@ export type PluginsState =
   | { state: 'idle' }
   | { state: 'loading' }
   | { state: 'ready'; versions: Map<string, string> }
-  | { state: 'error'; error: unknown };
+  // retrying is set while the user's own request to read again is running,
+  // so a screen can keep showing the failure with a busy button.
+  | { state: 'error'; error: unknown; retrying?: boolean };
+
+// How long a failed read waits before the one quiet second attempt.
+export const PLUGIN_RETRY_DELAY_MS = 3000;
 
 export type IPluginsContextType = PluginsState & {
   // Asks the server again.
@@ -46,7 +51,14 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
   // session never inherits what was read for the one before it.
   const session = user ? (user.pulp_href ?? user.username) : null;
 
-  const load = useCallback((fresh = false) => {
+  // The pending quiet second attempt, if any.
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // quietly: a failed read is not reported at once. The state stays as it is
+  // and one more read follows after PLUGIN_RETRY_DELAY_MS; only when that one
+  // fails too is the failure reported.
+  const load = useCallback(function read(fresh = false, quietly = false) {
+    clearTimeout(timer.current);
     const current = ++latest.current;
     plugin_versions({ fresh }).then(
       (list) => {
@@ -58,7 +70,15 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
         }
       },
       (error) => {
-        if (current === latest.current) {
+        if (current !== latest.current) {
+          return;
+        }
+        if (quietly) {
+          timer.current = setTimeout(
+            () => read(true, false),
+            PLUGIN_RETRY_DELAY_MS,
+          );
+        } else {
           setPlugins({ state: 'error', error });
         }
       },
@@ -83,14 +103,20 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
     }
 
     setPlugins({ state: 'loading' });
-    load();
+    load(false, true);
     return () => {
       latest.current++;
+      clearTimeout(timer.current);
     };
   }, [load, session, status]);
 
   const retry = useCallback(() => {
-    setPlugins({ state: 'loading' });
+    // A failure stays on show while it is asked again.
+    setPlugins((previous) =>
+      previous.state === 'error'
+        ? { ...previous, retrying: true }
+        : { state: 'loading' },
+    );
     load(true);
   }, [load]);
 

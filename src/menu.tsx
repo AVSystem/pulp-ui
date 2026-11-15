@@ -1,7 +1,14 @@
 import { t } from '@lingui/core/macro';
-import { Nav, NavExpandable, NavGroup, NavItem } from '@patternfly/react-core';
+import {
+  Button,
+  Nav,
+  NavExpandable,
+  NavGroup,
+  NavItem,
+} from '@patternfly/react-core';
 import CloudDownloadAltIcon from '@patternfly/react-icons/dist/esm/icons/cloud-download-alt-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import HeartbeatIcon from '@patternfly/react-icons/dist/esm/icons/heartbeat-icon';
 import KeyIcon from '@patternfly/react-icons/dist/esm/icons/key-icon';
 import LayerGroupIcon from '@patternfly/react-icons/dist/esm/icons/layer-group-icon';
@@ -9,11 +16,17 @@ import ShieldAltIcon from '@patternfly/react-icons/dist/esm/icons/shield-alt-ico
 import TasksIcon from '@patternfly/react-icons/dist/esm/icons/tasks-icon';
 import UsersIcon from '@patternfly/react-icons/dist/esm/icons/users-icon';
 import navStyles from '@patternfly/react-styles/css/components/Nav/nav.mjs';
-import { type ComponentType, type ReactNode, useMemo, useState } from 'react';
+import {
+  type ComponentType,
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useLocation } from 'react-router';
 import { NavList } from 'src/components';
-import { ListErrorState } from 'src/components/list-error-state';
-import { requestErrorDescription } from 'src/utilities/request-error';
 import { Paths, formatPath } from './paths';
 import { usePlugins } from './plugins';
 import {
@@ -407,6 +420,58 @@ function Entry({
   );
 }
 
+// The plugin list could not be read: what is missing and a way to ask again,
+// in the place where the plugin entries would be. It is a line of the menu, not
+// a page, so its only action is a quiet link.
+function PluginListError({
+  retrying,
+  onRetry,
+  onGone,
+}: {
+  retrying: boolean;
+  onRetry: () => void;
+  // Called as the row leaves the menu, saying whether the focus was inside it.
+  onGone: (hadFocus: boolean) => void;
+}) {
+  const row = useRef<HTMLLIElement>(null);
+  const gone = useRef(onGone);
+  gone.current = onGone;
+
+  useLayoutEffect(
+    () => () => {
+      gone.current(!!row.current?.contains(document.activeElement));
+    },
+    [],
+  );
+
+  return (
+    <li className='pulp-menu__error' ref={row}>
+      <div className='pulp-menu__error-row' role='status'>
+        <ExclamationCircleIcon
+          className='pulp-menu__error-icon'
+          aria-hidden='true'
+        />
+        <div className='pulp-menu__error-body'>
+          <span className='pulp-menu__error-text'>
+            {t`The plugin list could not be loaded`}
+          </span>
+          <Button
+            variant='link'
+            isInline
+            className='pulp-menu__error-retry'
+            aria-label={t`Retry loading the plugin list`}
+            isLoading={retrying}
+            isAriaDisabled={retrying}
+            onClick={retrying ? undefined : onRetry}
+          >
+            {t`Retry`}
+          </Button>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 export const PulpMenu = () => {
   const { groups, plugins } = useMenuModel();
   const { user } = useUserContext();
@@ -417,6 +482,24 @@ export const PulpMenu = () => {
 
   const isExpanded = (id: string, current: boolean) => toggled[id] ?? current;
 
+  // Set when the plugin list was asked for again by hand with the focus on the
+  // row's Retry: once the list arrives and the row is gone, the focus moves to
+  // the first entry of the Content group instead of being lost.
+  const focusContent = useRef(false);
+  const pluginState = plugins.state;
+  useEffect(() => {
+    if (pluginState === 'ready' && focusContent.current) {
+      focusContent.current = false;
+      document
+        .querySelector<HTMLElement>(
+          '[data-cy=pulp-menu-group-content] a[href], [data-cy=pulp-menu-group-content] button',
+        )
+        ?.focus();
+    } else if (pluginState === 'idle') {
+      focusContent.current = false;
+    }
+  }, [pluginState]);
+
   return (
     <Nav
       aria-label={t`Main`}
@@ -426,15 +509,15 @@ export const PulpMenu = () => {
     >
       {user && plugins.state === 'error' ? (
         // The entries that depend on the installed plugins could not be built:
-        // the reason and a way to ask again, where those entries would be.
+        // the row says so, where those entries would be.
         <NavGroup title={t`Content`}>
-          <li className='pulp-menu__error'>
-            <ListErrorState
-              title={t`Could not read the installed plugins`}
-              message={requestErrorDescription(plugins.error)}
-              onRetry={plugins.retry}
-            />
-          </li>
+          <PluginListError
+            retrying={!!plugins.retrying}
+            onRetry={plugins.retry}
+            onGone={(hadFocus) => {
+              focusContent.current = hadFocus;
+            }}
+          />
         </NavGroup>
       ) : null}
       {groups.map((group) => {
@@ -448,7 +531,11 @@ export const PulpMenu = () => {
         ));
 
         return group.title ? (
-          <NavGroup key={group.id} title={group.title}>
+          <NavGroup
+            key={group.id}
+            title={group.title}
+            data-cy={`pulp-menu-group-${group.id}`}
+          >
             {entries}
           </NavGroup>
         ) : (

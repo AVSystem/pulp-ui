@@ -1,9 +1,11 @@
 import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { useRoutes } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { settle } from 'src/test-utils/settle';
 import { resetPluginVersionsCache } from 'src/utilities/plugin-version';
 import { dataRoutes } from './app-routes';
 import { PulpMenu, useMenuModel } from './menu';
@@ -46,6 +48,29 @@ function reportPlugins(components: string[]) {
   );
 }
 
+// Answers status/ with the given outcomes in turn (the last one repeats) and
+// counts the requests.
+function answerPlugins(...outcomes: ('fail' | 'ok')[]) {
+  const counter = { requests: 0 };
+  server.use(
+    http.get('*/pulp/api/v3/status/', () => {
+      const outcome = outcomes[Math.min(counter.requests, outcomes.length - 1)];
+      counter.requests += 1;
+      return outcome === 'ok'
+        ? HttpResponse.json({
+            versions: ALL_PLUGINS.map((component) => ({
+              component,
+              version: '3.0.0',
+            })),
+          })
+        : HttpResponse.json({ detail: 'Failed.' }, { status: 500 });
+    }),
+  );
+  return counter;
+}
+
+const PLUGIN_ROW = 'The plugin list could not be loaded';
+
 const ALL_PLUGINS = ['core', 'file', 'deb', 'rpm', 'python', 'ansible'];
 
 const item = (id: string) =>
@@ -64,6 +89,10 @@ async function menuShown(route = '/status') {
   await screen.findByRole('link', { name: 'Tasks' });
   return rendered;
 }
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('navigation menu', () => {
   it('groups the entries by task: Content, Operations and Access', async () => {
@@ -313,43 +342,154 @@ describe('navigation menu', () => {
     ).toBeVisible();
   });
 
-  it('shows the fixed entries and the shared error state with Retry when the plugin list fails, and Retry asks again', async () => {
+  it('keeps the menu as while loading after the first failed read and shows the row only when the second read fails', async () => {
     signIn();
-    const statusRequests: string[] = [];
-    const onStart = ({ request }: { request: Request }) => {
-      const { pathname } = new URL(request.url);
-      if (pathname.endsWith('/status/')) {
-        statusRequests.push(pathname);
-      }
-    };
-    server.events.on('request:start', onStart);
-    server.use(
-      http.get('*/pulp/api/v3/status/', () =>
-        HttpResponse.json({ detail: 'Failed.' }, { status: 500 }),
-      ),
-    );
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail');
 
-    const { user } = await menuShown();
+    renderWithProviders(<PulpMenu />);
+    await settle();
 
-    expect(
-      await screen.findByText('Could not read the installed plugins'),
-    ).toBeVisible();
+    expect(counter.requests).toBe(1);
     expect(item('tasks')).not.toBeNull();
     expect(item('roles')).not.toBeNull();
     expect(section('repositories')).toBeNull();
-    expect(statusRequests).toHaveLength(1);
+    expect(screen.queryByText(PLUGIN_ROW)).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Content' })).toBeNull();
+
+    await settle(3000);
+
+    expect(counter.requests).toBe(2);
+    const content = screen.getByRole('region', { name: 'Content' });
+    const row = within(content).getByRole('status');
+    expect(row).toHaveTextContent(PLUGIN_ROW);
+    expect(
+      within(row).getByRole('button', {
+        name: 'Retry loading the plugin list',
+      }),
+    ).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Operations' })).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Access' })).toBeVisible();
+    expect(item('tasks')).not.toBeNull();
+    expect(section('repositories')).toBeNull();
+  });
+
+  it('shows no row when the second read succeeds', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    answerPlugins('fail', 'ok');
+
+    renderWithProviders(<PulpMenu />);
+    await settle(3000);
+
+    expect(screen.queryByText(PLUGIN_ROW)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Repositories' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the row with a busy Retry while it asks again, keeps it and the focus when that fails too', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = answerPlugins('fail');
+    renderWithProviders(<PulpMenu />);
+    await settle(3000);
+    vi.useRealTimers();
+
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get('*/pulp/api/v3/status/', async () => {
+        counter.requests += 1;
+        await gate;
+        return HttpResponse.json({ detail: 'Failed.' }, { status: 500 });
+      }),
+    );
+    const user = userEvent.setup();
+    const retry = screen.getByRole('button', {
+      name: 'Retry loading the plugin list',
+    });
+
+    await user.click(retry);
+
+    await waitFor(() => expect(retry).toHaveAttribute('aria-disabled', 'true'));
+    expect(retry).toHaveClass('pf-m-in-progress');
+    expect(screen.getByText(PLUGIN_ROW)).toBeVisible();
+    expect(retry).toHaveFocus();
+    const before = counter.requests;
+    await user.click(retry);
+    expect(counter.requests).toBe(before);
+
+    release();
+    await waitFor(() => expect(retry).not.toHaveAttribute('aria-disabled'));
+
+    expect(retry).not.toHaveClass('pf-m-in-progress');
+    expect(screen.getByText(PLUGIN_ROW)).toBeVisible();
+    expect(retry).toHaveFocus();
+    expect(section('repositories')).toBeNull();
+  });
+
+  it('removes the row and moves the focus to the first entry of the Content group when Retry succeeds', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    answerPlugins('fail');
+    renderWithProviders(<PulpMenu />);
+    await settle(3000);
+    vi.useRealTimers();
+    const user = userEvent.setup();
+    expect(screen.getByText(PLUGIN_ROW)).toBeVisible();
 
     reportPlugins(ALL_PLUGINS);
-    await user.click(screen.getByRole('button', { name: 'Retry' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Retry loading the plugin list' }),
+    );
 
-    expect(
-      await screen.findByRole('button', { name: 'Repositories' }),
-    ).toBeVisible();
-    expect(statusRequests).toHaveLength(2);
-    expect(
-      screen.queryByText('Could not read the installed plugins'),
-    ).not.toBeInTheDocument();
-    server.events.removeListener('request:start', onStart);
+    const repositories = await screen.findByRole('button', {
+      name: 'Repositories',
+    });
+    expect(screen.queryByText(PLUGIN_ROW)).not.toBeInTheDocument();
+    expect(item('tasks')).not.toBeNull();
+    await waitFor(() => expect(repositories).toHaveFocus());
+  });
+
+  it('leaves the focus where it is when Retry succeeds after the user moved it elsewhere', async () => {
+    signIn();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    answerPlugins('fail');
+    renderWithProviders(<PulpMenu />);
+    await settle(3000);
+    vi.useRealTimers();
+    const user = userEvent.setup();
+
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get('*/pulp/api/v3/status/', async () => {
+        await gate;
+        return HttpResponse.json({
+          versions: ALL_PLUGINS.map((component) => ({
+            component,
+            version: '3.0.0',
+          })),
+        });
+      }),
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Retry loading the plugin list' }),
+    );
+    (item('tasks') as HTMLElement).focus();
+
+    release();
+    const repositories = await screen.findByRole('button', {
+      name: 'Repositories',
+    });
+
+    expect(repositories).not.toHaveFocus();
+    expect(item('tasks')).toHaveFocus();
   });
 
   it('shows no plugin entry and raises no unhandled rejection when the plugins cannot be read', async () => {

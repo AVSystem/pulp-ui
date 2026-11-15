@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -7,6 +8,7 @@ import RootRoute from 'src/routes/root';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { settle } from 'src/test-utils/settle';
 import { config } from 'src/ui-config';
 import { dataRoutes } from './app-routes';
 
@@ -459,14 +461,15 @@ function holdStatus() {
   return release;
 }
 
-// Answers status/ with a failure first and the given plugins afterwards, and
-// counts the requests.
-function failStatusOnce(afterwards: string[]) {
+// Answers status/ with a failure for the first reads (the quiet second attempt
+// of the plugin provider is the second one) and the given plugins afterwards,
+// and counts the requests.
+function failStatus(failures: number, afterwards: string[]) {
   const counter = { requests: 0 };
   server.use(
     http.get('*/pulp/api/v3/status/', () => {
       counter.requests += 1;
-      if (counter.requests === 1) {
+      if (counter.requests <= failures) {
         return HttpResponse.json({ detail: 'Failed.' }, { status: 500 });
       }
       return HttpResponse.json({
@@ -481,6 +484,10 @@ function failStatusOnce(afterwards: string[]) {
 }
 
 describe('plugin routes while the installed plugins are unknown', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('a signed-out user is sent to the login page whatever status answers', async () => {
     const release = holdStatus();
 
@@ -513,38 +520,53 @@ describe('plugin routes while the installed plugins are unknown', () => {
     ).toBeVisible();
   });
 
-  it('a failed status shows the error state, never not installed, and Retry asks again', async () => {
+  it('a failed status shows the loading page during the quiet second attempt and the error state only after it, never not installed, and Retry asks again', async () => {
     signIn();
-    const counter = failStatusOnce(ALL_PLUGINS);
-    const { user } = renderWithProviders(<Routed />, {
-      route: '/ansible/collections',
-    });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const counter = failStatus(2, ALL_PLUGINS);
+    renderWithProviders(<Routed />, { route: '/ansible/collections' });
 
+    await settle(2999);
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
     expect(
-      await screen.findByText('Could not read the installed plugins'),
-    ).toBeVisible();
-    expect(screen.queryByText(/is not installed/)).not.toBeInTheDocument();
+      screen.queryByText('The plugin list could not be loaded'),
+    ).not.toBeInTheDocument();
     expect(counter.requests).toBe(1);
 
-    await user.click(screen.getByRole('button', { name: 'Retry' }));
+    await settle(1);
+
+    expect(
+      screen.getByText('The plugin list could not be loaded'),
+    ).toBeVisible();
+    expect(screen.queryByText(/is not installed/)).not.toBeInTheDocument();
+    expect(counter.requests).toBe(2);
+
+    vi.useRealTimers();
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(
       await screen.findByRole('heading', { name: 'Collections', level: 1 }),
     ).toBeVisible();
-    expect(counter.requests).toBe(2);
+    expect(counter.requests).toBe(3);
     expect(
-      screen.queryByText('Could not read the installed plugins'),
+      screen.queryByText('The plugin list could not be loaded'),
     ).not.toBeInTheDocument();
   });
 
   it('Retry reports the plugin as not installed once the server answers without it', async () => {
     signIn();
-    failStatusOnce(WITHOUT_CONTAINER);
-    const { user } = renderWithProviders(<Routed />, {
-      route: '/container/containers',
-    });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    failStatus(2, WITHOUT_CONTAINER);
+    renderWithProviders(<Routed />, { route: '/container/containers' });
+    await settle(3000);
+    vi.useRealTimers();
 
-    await user.click(await screen.findByRole('button', { name: 'Retry' }));
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(
       await screen.findByText(
@@ -604,7 +626,7 @@ describe('plugin routes while the installed plugins are unknown', () => {
       await screen.findByRole('heading', { name: 'Search', level: 1 }),
     ).toBeVisible();
     expect(
-      screen.queryByText('Could not read the installed plugins'),
+      screen.queryByText('The plugin list could not be loaded'),
     ).not.toBeInTheDocument();
   });
 });

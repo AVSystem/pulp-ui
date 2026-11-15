@@ -660,7 +660,12 @@ const AuthHandler = ({
   if (plugin) {
     // Idle means signed out, which only lasts a moment on a screen that needs
     // a session: the sign-in redirect above takes over.
-    if (plugins.state === 'loading' || plugins.state === 'idle') {
+    // A read the user asked for again by hand is shown as loading too.
+    if (
+      plugins.state === 'loading' ||
+      plugins.state === 'idle' ||
+      (plugins.state === 'error' && plugins.retrying)
+    ) {
       return <LoadingPage />;
     }
 
@@ -669,7 +674,7 @@ const AuthHandler = ({
         <Main>
           <section className='pulp-section'>
             <ListErrorState
-              title={t`Could not read the installed plugins`}
+              title={t`The plugin list could not be loaded`}
               message={requestErrorDescription(plugins.error)}
               onRetry={plugins.retry}
             />
