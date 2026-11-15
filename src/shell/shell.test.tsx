@@ -160,9 +160,7 @@ describe('sidebar drawer below 1200px', () => {
     const { user } = renderShell('/tasks');
     await user.click(screen.getByRole('button', { name: 'Open navigation' }));
 
-    await user.click(
-      within(sidebar()).getByRole('link', { name: 'Workers and status' }),
-    );
+    await user.click(within(sidebar()).getByRole('link', { name: 'Login' }));
 
     await waitFor(() => expect(isClosed()).toBe(true));
     expect(

@@ -1695,8 +1695,8 @@ msgstr ""
 
 #: src/app-routes.tsx
 #: src/menu.tsx
-msgid "Could not read the installed plugins"
-msgstr ""
+#~ msgid "Could not read the installed plugins"
+#~ msgstr ""
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Could not update the certification status for {0}.{1}.{2}."
@@ -6002,11 +6002,16 @@ msgid "Retries"
 msgstr ""
 
 #: src/components/list-error-state.tsx
+#: src/menu.tsx
 msgid "Retry"
 msgstr ""
 
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
+msgstr ""
+
+#: src/menu.tsx
+msgid "Retry loading the plugin list"
 msgstr ""
 
 #: src/shell/command-palette.tsx
@@ -7303,6 +7308,11 @@ msgstr "Le mot de passe à utiliser pour l'authentification lors de la synchroni
 msgid "The password to be used for authentication when syncing. This is not required when using a token."
 msgstr "Le mot de passe à utiliser pour l'authentification lors de la synchronisation. Ce n'est pas nécessaire si vous utilisez un jeton."
 
+#: src/app-routes.tsx
+#: src/menu.tsx
+msgid "The plugin list could not be loaded"
+msgstr ""
+
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
@@ -7362,6 +7372,10 @@ msgstr "Les rôles sélectionnés seront ajoutés à ce référentiel Ansible sp
 
 #: src/containers/login/login.tsx
 msgid "The server could not be reached: {message}"
+msgstr ""
+
+#: src/utilities/plugin-version.ts
+msgid "The status answer lists no plugins."
 msgstr ""
 
 #: src/utilities/wait-for-task.ts
@@ -8173,6 +8187,10 @@ msgstr "Versions"
 
 #: src/components/repository-form.tsx
 msgid "Versions kept per package"
+msgstr ""
+
+#: src/containers/pulp-status.tsx
+msgid "Versions, workers and storage are shown to signed-in users."
 msgstr ""
 
 #: src/shell/notifications.tsx

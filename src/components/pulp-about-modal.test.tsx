@@ -5,8 +5,20 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { PulpAboutModal } from './pulp-about-modal';
 
+function signIn() {
+  server.use(
+    http.get('*/pulp/api/v3/login/', () =>
+      HttpResponse.json({
+        username: 'zoe',
+        pulp_href: '/pulp/api/v3/users/1/',
+      }),
+    ),
+  );
+}
+
 describe('about dialog', () => {
   it('shows the core version the server reports', async () => {
+    signIn();
     server.use(
       http.get('*/pulp/api/v3/status/', () =>
         HttpResponse.json({
@@ -23,6 +35,7 @@ describe('about dialog', () => {
   });
 
   it('does not fail when the server does not report the core component', async () => {
+    signIn();
     server.use(
       http.get('*/pulp/api/v3/status/', () =>
         HttpResponse.json({
