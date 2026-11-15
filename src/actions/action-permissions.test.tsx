@@ -25,6 +25,14 @@ import { fileRepositoryCreateAction } from './file-repository-create';
 import { fileRepositoryDeleteAction } from './file-repository-delete';
 import { fileRepositoryEditAction } from './file-repository-edit';
 import { fileRepositorySyncAction } from './file-repository-sync';
+import { pythonDistributionEditAction } from './python-distribution-edit';
+import { pythonRemoteCreateAction } from './python-remote-create';
+import { pythonRemoteDeleteAction } from './python-remote-delete';
+import { pythonRemoteEditAction } from './python-remote-edit';
+import { pythonRepositoryCreateAction } from './python-repository-create';
+import { pythonRepositoryDeleteAction } from './python-repository-delete';
+import { pythonRepositoryEditAction } from './python-repository-edit';
+import { pythonRepositorySyncAction } from './python-repository-sync';
 import { repositoryVersionRevertAction } from './repository-version-revert';
 import { rpmRemoteCreateAction } from './rpm-remote-create';
 import { rpmRemoteDeleteAction } from './rpm-remote-delete';
@@ -164,6 +172,11 @@ const rowsOf = (
   ];
 };
 
+const distributionItem = {
+  name: 'zz-test-distribution',
+  pulp_href: `${API}/distributions/python/pypi/00000000-0000-4000-8000-0000000000e1/`,
+};
+
 const ROWS: Row[] = [
   ...rowsOf(
     'file',
@@ -207,6 +220,31 @@ const ROWS: Row[] = [
       remoteDelete: rpmRemoteDeleteAction,
     },
   ),
+  ...rowsOf(
+    'python',
+    { repository: 'pythonrepository', remote: 'pythonremote' },
+    { repository: 'python/python', remote: 'python/python' },
+    {
+      repositoryCreate: pythonRepositoryCreateAction,
+      repositoryEdit: pythonRepositoryEditAction,
+      repositorySync: pythonRepositorySyncAction,
+      repositoryDelete: pythonRepositoryDeleteAction,
+      remoteCreate: pythonRemoteCreateAction,
+      remoteEdit: pythonRemoteEditAction,
+      remoteDelete: pythonRemoteDeleteAction,
+    },
+  ),
+  // The distributions of a repository page are not read for their own
+  // permission lists, so only a permission held on every object counts.
+  {
+    label: 'python distribution edit',
+    action: pythonDistributionEditAction,
+    permission: 'python.change_pythondistribution',
+    objectLevel: false,
+    item: distributionItem,
+    listed: distributionItem,
+    plugin: 'python',
+  },
 ];
 
 const shown = (node: ReactNode) => {

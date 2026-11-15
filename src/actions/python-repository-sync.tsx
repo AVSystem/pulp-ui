@@ -2,6 +2,7 @@ import { msg, t } from '@lingui/core/macro';
 import { PythonRepositoryAPI } from 'src/api';
 import { SyncModal } from 'src/components';
 import { handleHttpError, parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { Action } from './action';
 
 // pulp_python syncs additively unless mirror is requested. Mirroring deletes
@@ -11,6 +12,7 @@ const MIRROR_BY_DEFAULT = false;
 
 export const pythonRepositorySyncAction = Action({
   title: msg`Sync`,
+  permission: ACTION_PERMISSIONS.python.repository.sync,
   modal: ({ addAlert, query, setState, state }) =>
     state.syncModalOpen ? (
       <SyncModal
@@ -29,8 +31,6 @@ export const pythonRepositorySyncAction = Action({
     setState({
       syncModalOpen: { name, pulp_href },
     }),
-  visible: (_item, { hasPermission }) =>
-    hasPermission('python.change_pythonrepository'),
   disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;
