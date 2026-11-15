@@ -219,6 +219,7 @@ function accessTabTests({
     const actionContext = {
       addAlert,
       hasPermission: () => true,
+      hasObjectPermission: () => true,
       state: { params },
       user: null,
     };

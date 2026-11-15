@@ -14,6 +14,7 @@ export interface IPluginPermissions {
     add: string;
     change: string;
     delete: string;
+    manageRoles: string;
   };
   repository: {
     add: string;
@@ -44,6 +45,7 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
         add: 'file.add_fileremote',
         change: 'file.change_fileremote',
         delete: 'file.delete_fileremote',
+        manageRoles: 'file.manage_roles_fileremote',
       },
     },
     deb: {
@@ -61,6 +63,7 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
         add: 'deb.add_aptremote',
         change: 'deb.change_aptremote',
         delete: 'deb.delete_aptremote',
+        manageRoles: 'deb.manage_roles_aptremote',
       },
     },
     rpm: {
@@ -78,6 +81,7 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
         add: 'rpm.add_rpmremote',
         change: 'rpm.change_rpmremote',
         delete: 'rpm.delete_rpmremote',
+        manageRoles: 'rpm.manage_roles_rpmremote',
       },
     },
     python: {
@@ -95,6 +99,7 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
         add: 'python.add_pythonremote',
         change: 'python.change_pythonremote',
         delete: 'python.delete_pythonremote',
+        manageRoles: 'python.manage_roles_pythonremote',
       },
     },
     ansible: {
@@ -112,6 +117,7 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
         add: 'ansible.add_collectionremote',
         change: 'ansible.change_collectionremote',
         delete: 'ansible.delete_collectionremote',
+        manageRoles: 'ansible.manage_roles_collectionremote',
       },
     },
   };

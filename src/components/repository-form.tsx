@@ -19,9 +19,11 @@ import {
   Spinner,
   Typeahead,
 } from 'src/components';
+import { usePermissions } from 'src/permissions';
 import { config } from 'src/ui-config';
 import { useSessionEpoch } from 'src/user-context';
 import { type ErrorMessagesType, plugin2api } from 'src/utilities';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   basePathProblem,
   reservedPrefixFor,
@@ -104,7 +106,15 @@ export const RepositoryForm = ({
 
   const isValid = !requiredFields.find((field) => !repository[field]);
 
-  const [createDistribution, setCreateDistribution] = useState(false);
+  // A distribution is offered only to users who may add one of this plugin's
+  // distributions; a user who may not never sees the option and never asks for
+  // one. Pulp still decides the request itself.
+  const { hasPermission } = usePermissions();
+  const canAddDistribution = hasPermission(
+    ACTION_PERMISSIONS[plugin].repository.addDistribution,
+  );
+  const [distributionTicked, setDistributionTicked] = useState(false);
+  const createDistribution = canAddDistribution && distributionTicked;
   // undefined until the user edits the field; until then the base path follows
   // the repository name
   const [typedBasePath, setTypedBasePath] = useState<string | undefined>();
@@ -300,63 +310,66 @@ export const RepositoryForm = ({
         </>
       )}
 
-      {formGroup(
-        'distributions',
-        t`Distributions`,
-        t`Content in repositories without a distribution will not be visible to clients for sync, download or search.`,
-        isNew ? (
-          <>
-            <Checkbox
-              isChecked={createDistribution}
-              onChange={(_event, value) => setCreateDistribution(value)}
-              isDisabled={reservedUnknown}
-              label={
-                repository.name
-                  ? t`Create a distribution "${repository.name}" for this repository`
-                  : t`Create a distribution for this repository`
-              }
-              id='create_distribution'
-            />
-            {reservedUnknown ? (
-              <FormFieldHelper variant='warning'>
-                {t`The reserved base paths of this server could not be read, so a distribution cannot be created here.`}
-              </FormFieldHelper>
-            ) : null}
-            {createDistribution ? (
-              <FormGroup
-                fieldId='base_path'
-                label={t`Base path`}
-                isRequired
-                style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}
-              >
-                <TextInput
-                  id='base_path'
-                  isRequired
-                  type='text'
-                  validated={basePathError ? 'error' : 'default'}
-                  value={basePath}
-                  onChange={(_event, value) => setTypedBasePath(value)}
-                />
-                <FormFieldHelper variant={basePathError ? 'error' : 'default'}>
-                  {basePathError || previewUrl}
-                </FormFieldHelper>
-                {basePathError && previewUrl ? (
-                  <FormFieldHelper>{previewUrl}</FormFieldHelper>
-                ) : null}
+      {(!isNew || canAddDistribution) &&
+        formGroup(
+          'distributions',
+          t`Distributions`,
+          t`Content in repositories without a distribution will not be visible to clients for sync, download or search.`,
+          isNew ? (
+            <>
+              <Checkbox
+                isChecked={createDistribution}
+                onChange={(_event, value) => setDistributionTicked(value)}
+                isDisabled={reservedUnknown}
+                label={
+                  repository.name
+                    ? t`Create a distribution "${repository.name}" for this repository`
+                    : t`Create a distribution for this repository`
+                }
+                id='create_distribution'
+              />
+              {reservedUnknown ? (
                 <FormFieldHelper variant='warning'>
-                  {t`The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in.`}
+                  {t`The reserved base paths of this server could not be read, so a distribution cannot be created here.`}
                 </FormFieldHelper>
-              </FormGroup>
-            ) : null}
-          </>
-        ) : (
-          <LazyDistributions
-            plugin={plugin}
-            emptyText={t`None`}
-            repositoryHref={repository.pulp_href}
-          />
-        ),
-      )}
+              ) : null}
+              {createDistribution ? (
+                <FormGroup
+                  fieldId='base_path'
+                  label={t`Base path`}
+                  isRequired
+                  style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}
+                >
+                  <TextInput
+                    id='base_path'
+                    isRequired
+                    type='text'
+                    validated={basePathError ? 'error' : 'default'}
+                    value={basePath}
+                    onChange={(_event, value) => setTypedBasePath(value)}
+                  />
+                  <FormFieldHelper
+                    variant={basePathError ? 'error' : 'default'}
+                  >
+                    {basePathError || previewUrl}
+                  </FormFieldHelper>
+                  {basePathError && previewUrl ? (
+                    <FormFieldHelper>{previewUrl}</FormFieldHelper>
+                  ) : null}
+                  <FormFieldHelper variant='warning'>
+                    {t`The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in.`}
+                  </FormFieldHelper>
+                </FormGroup>
+              ) : null}
+            </>
+          ) : (
+            <LazyDistributions
+              plugin={plugin}
+              emptyText={t`None`}
+              repositoryHref={repository.pulp_href}
+            />
+          ),
+        )}
 
       {formGroup(
         'pulp_labels',

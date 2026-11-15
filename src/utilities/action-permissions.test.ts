@@ -89,4 +89,22 @@ describe('ACTION_PERMISSIONS', () => {
       'file.add_filedistribution',
     );
   });
+
+  it('names the permission that manages the roles of a remote', () => {
+    expect(ACTION_PERMISSIONS.file.remote.manageRoles).toBe(
+      'file.manage_roles_fileremote',
+    );
+    expect(ACTION_PERMISSIONS.deb.remote.manageRoles).toBe(
+      'deb.manage_roles_aptremote',
+    );
+    expect(ACTION_PERMISSIONS.rpm.remote.manageRoles).toBe(
+      'rpm.manage_roles_rpmremote',
+    );
+    expect(ACTION_PERMISSIONS.python.remote.manageRoles).toBe(
+      'python.manage_roles_pythonremote',
+    );
+    expect(ACTION_PERMISSIONS.ansible.remote.manageRoles).toBe(
+      'ansible.manage_roles_collectionremote',
+    );
+  });
 });
