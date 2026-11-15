@@ -170,6 +170,10 @@ msgstr "{name} will be cancelled."
 msgid "{name} will stop running."
 msgstr "{name} will stop running."
 
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "{namespace}.{name} v{version}, already in the repository"
+msgstr "{namespace}.{name} v{version}, already in the repository"
+
 #: src/components/collection-card.tsx
 #: src/components/collection-header.tsx
 #: src/components/collection-list-item.tsx
@@ -1436,6 +1440,10 @@ msgstr "Collection versions will appear once the collection is modified."
 #: src/containers/coming-soon-screens.tsx
 msgid "Collections"
 msgstr "Collections"
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "Collections already in the repository cannot be marked, so none can be selected yet."
+msgstr "Collections already in the repository cannot be marked, so none can be selected yet."
 
 #: src/utilities/translate-task.ts
 msgid "Collections sync"
@@ -3645,6 +3653,10 @@ msgstr "Import collection"
 #: src/components/repository-form.tsx
 msgid "In order to retain all versions, leave this field blank."
 msgstr "In order to retain all versions, leave this field blank."
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "In repository"
+msgstr "In repository"
 
 #: src/components/remote-form.tsx
 msgid "Include all dependencies when syncing a collection."
@@ -6049,6 +6061,7 @@ msgstr "Retained version count"
 msgid "Retries"
 msgstr "Retries"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
 #: src/menu.tsx
 msgid "Retry"
@@ -6061,6 +6074,10 @@ msgstr "Retry loading notifications"
 #: src/menu.tsx
 msgid "Retry loading the plugin list"
 msgstr "Retry loading the plugin list"
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "Retry loading the repository content"
+msgstr "Retry loading the repository content"
 
 #: src/shell/command-palette.tsx
 msgid "Retry repository search"
@@ -7389,6 +7406,10 @@ msgstr "The password to be used for authentication when syncing. This is not req
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "The plugin list could not be loaded"
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "The repository content could not be read"
+msgstr "The repository content could not be read"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
