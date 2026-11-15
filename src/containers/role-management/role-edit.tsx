@@ -275,7 +275,7 @@ class EditRole extends Component<RouteProps, IState> {
   private editRole = (permissions) => {
     this.setState({ saving: true }, () => {
       const { pulp_href } = this.state.role;
-      const roleID = parsePulpIDFromURL(pulp_href) + '/';
+      const roleID = parsePulpIDFromURL(pulp_href);
       const { name, description } = this.state;
 
       RoleAPI.updatePermissions(roleID, { name, description, permissions })
