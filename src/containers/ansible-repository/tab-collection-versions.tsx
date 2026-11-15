@@ -70,7 +70,11 @@ export const CollectionVersionsTab = ({
   };
 
   return (
+    // The rows are those of the latest repository version, so the list starts
+    // over when the page shows a newer one (for example after the page read
+    // the repository again).
     <DetailList<AnsibleCollectionVersion>
+      key={item.latest_version_href}
       actionContext={{
         addAlert,
         state: modalState,

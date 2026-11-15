@@ -13,7 +13,12 @@ import {
   Table,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { useSessionEpoch } from 'src/user-context';
 import { parsePulpIDFromURL } from 'src/utilities';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface TabProps {
   item;
@@ -121,10 +126,13 @@ export const RepositoryVersionsTab = ({
   const [modalState, setModalState] = useState({});
   const [version, setVersion] = useState(null);
 
+  // grows when the same user signs in again, so the version is read again
+  const epoch = useSessionEpoch();
+
   useEffect(() => {
     if (state.params.repositoryVersion) {
-      queryDetail({ number: state.params.repositoryVersion }).then(
-        ({ data }) => {
+      queryDetail({ number: state.params.repositoryVersion })
+        .then(({ data }) => {
           if (!data?.results?.[0]) {
             addAlert({
               variant: 'danger',
@@ -132,12 +140,24 @@ export const RepositoryVersionsTab = ({
             });
           }
           setVersion(data.results[0]);
-        },
-      );
+        })
+        .catch((e) => {
+          // The session ended: the version stays as it is (or the spinner
+          // keeps turning) and is read again after signing in.
+          if (isSessionEnd(e)) {
+            return;
+          }
+
+          addAlert({
+            variant: 'danger',
+            title: t`Failed to find repository version`,
+            description: requestErrorDescription(e),
+          });
+        });
     } else {
       setVersion(null);
     }
-  }, [state.params.repositoryVersion]);
+  }, [state.params.repositoryVersion, epoch]);
 
   const renderTableRow = (
     item: DebRepositoryVersionType,
