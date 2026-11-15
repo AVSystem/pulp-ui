@@ -5,9 +5,16 @@ import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
+import { resetSessionEvents } from '../session/session-events';
 import { page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
+import {
+  SignInAgain,
+  recordWrites,
+  serveSignIn,
+  signedIn,
+} from '../test-utils/sign-in-again';
 import { Page } from './page';
 
 const THINGS = '/pulp/api/v3/things/';
@@ -105,12 +112,20 @@ describe('an edit page whose load fails', () => {
     expect(form()).not.toBeInTheDocument();
   });
 
-  it('keeps the sign-in link for a 401', async () => {
+  it('keeps its loading state without an error or alert for a 401', async () => {
     server.use(failing(401, 'Unauthorized'));
     renderEdit('/things/edit/alpha');
 
-    expect(await screen.findByText(/Error 401 - /)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Login' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('progressbar')).toBeVisible());
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Thing could not be displayed.' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Thing could not be displayed.')).toBeNull();
+    expect(form()).not.toBeInTheDocument();
   });
 
   it('shows the failure once, with no alert besides the error state', async () => {
@@ -227,5 +242,147 @@ describe('an edit page whose load succeeds', () => {
     await waitFor(() => expect(calls).toBe(3));
     expect(screen.getByText('Editing alpha')).toBeInTheDocument();
     expect(screen.queryByText(/Error 503/)).not.toBeInTheDocument();
+  });
+});
+
+function renderAfterSignIn(route = '/things/edit/alpha') {
+  serveSignIn();
+  return renderWithProviders(
+    <>
+      <SignInAgain />
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/edit/:name' element={<ThingEdit />} />
+        </Routes>
+      </AppContextProvider>
+    </>,
+    { route },
+  );
+}
+
+// Answers with the given names, one answer per read, the last one repeating.
+const answers = (...replies: (string | Response)[]) => {
+  let calls = 0;
+  const handler = http.get(`*${THINGS}`, async () => {
+    const reply = replies[Math.min(calls, replies.length - 1)];
+    calls += 1;
+    await delay(40);
+    return typeof reply === 'string'
+      ? HttpResponse.json(page([{ name: reply }]))
+      : reply.clone();
+  });
+  return { handler, calls: () => calls };
+};
+
+describe('a page after the same user signs in again', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  it('reads the object again without a loading state and shows the fresh object', async () => {
+    const { handler, calls } = answers('alpha', 'alpha-2');
+    server.use(handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('Editing alpha');
+    await signedIn();
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await waitFor(() => expect(calls()).toBe(2));
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.getByText('Editing alpha')).toBeInTheDocument();
+    expect(await screen.findByText('Editing alpha-2')).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('sends no write besides the sign-in', async () => {
+    const { handler } = answers('alpha');
+    server.use(handler);
+    const recorded = recordWrites();
+    const { user } = renderAfterSignIn();
+    await screen.findByText('Editing alpha');
+    await signedIn();
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await screen.findByText('Editing alpha');
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(recorded.writes).toEqual(['POST /pulp/api/v3/login/']);
+    recorded.stop();
+  });
+
+  it('keeps the page as it was and adds one alert with the error title when the read fails', async () => {
+    const { handler, calls } = answers(
+      'alpha',
+      HttpResponse.json({ detail: 'no' }, { status: 500 }),
+    );
+    server.use(handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('Editing alpha');
+    await signedIn();
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await waitFor(() => expect(calls()).toBe(2));
+
+    expect(await screen.findByText(/Error 500/)).toBeInTheDocument();
+    expect(screen.getAllByText('Thing could not be displayed.')).toHaveLength(
+      1,
+    );
+    expect(screen.getByText('Editing alpha')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Retry' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('keeps the page as it was and adds no alert when the read is refused with 401', async () => {
+    const { handler, calls } = answers(
+      'alpha',
+      HttpResponse.json({ detail: 'no' }, { status: 401 }),
+    );
+    server.use(handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('Editing alpha');
+    await signedIn();
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await waitFor(() => expect(calls()).toBe(2));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(screen.getByText('Editing alpha')).toBeInTheDocument();
+    expect(screen.queryByText('Thing could not be displayed.')).toBeNull();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+  });
+
+  it('runs the first read again when it was refused, and shows the object', async () => {
+    const { handler, calls } = answers(
+      HttpResponse.json({ detail: 'no' }, { status: 401 }),
+      'alpha',
+    );
+    server.use(handler);
+    const { user } = renderAfterSignIn();
+    await waitFor(() => expect(calls()).toBe(1));
+    await signedIn();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+    expect(screen.getByRole('progressbar')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+  });
+
+  it('reads nothing for a new object', async () => {
+    const { handler, calls } = answers('alpha');
+    server.use(handler);
+    const { user } = renderAfterSignIn('/things/edit/_');
+    await screen.findByText('Creating a new thing');
+    await signedIn();
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(calls()).toBe(0);
+    expect(screen.getByText('Creating a new thing')).toBeInTheDocument();
   });
 });
