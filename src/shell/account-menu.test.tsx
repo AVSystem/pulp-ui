@@ -98,7 +98,7 @@ describe('account menu', () => {
       .map((item) => item.textContent);
     expect(items).toEqual(['My profile', 'Logout']);
     expect(
-      screen.getByRole('menuitem', { name: 'logout' }),
+      screen.getByRole('menuitem', { name: 'Logout' }),
     ).toBeInTheDocument();
   });
 
@@ -119,7 +119,7 @@ describe('account menu', () => {
     await user.click(
       screen.getByRole('button', { name: 'Account menu for anna.k' }),
     );
-    await user.click(screen.getByRole('menuitem', { name: 'logout' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Logout' }));
 
     expect(logout).toHaveBeenCalledTimes(1);
   });
