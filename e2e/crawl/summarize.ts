@@ -34,6 +34,19 @@ const IMPACT_WEIGHT: Record<string, number> = {
   minor: 1,
 };
 
+// The type scale and font families of the design system. The design gate
+// holds the same lists; a unit test keeps the two in step.
+export const ALLOWED_FONT_SIZES = ['12px', '14px', '18px', '28px'];
+const RED_HAT_FAMILIES = ['redhattext', 'redhatdisplay', 'redhatmono'];
+
+// "Red Hat Text", "RedHatText" and the variable-font name "Red Hat Text VF"
+// are the same family.
+export function isRedHatFamily(name: string): boolean {
+  return RED_HAT_FAMILIES.includes(
+    name.toLowerCase().replace(/\s+/g, '').replace(/vf$/, ''),
+  );
+}
+
 const unexpected = <T extends { expected: boolean }>(items: T[]): T[] =>
   items.filter((item) => !item.expected);
 
@@ -121,7 +134,25 @@ export interface Totals {
   axeViolations: number;
   unsettled: number;
   placeholderParams: number;
+  contrastViolations: number;
+  undecidedContrast: number;
+  seriousAccessibility: number;
+  offScaleFontScreens: number;
+  foreignRequests: number;
+  foreignFontScreens: number;
 }
+
+// The design fields are absent from the reports of an older crawl.
+const contrastOf = (report: ScreenReport) =>
+  report.axe.violations.filter((v) => v.id === 'color-contrast');
+const seriousOf = (report: ScreenReport) =>
+  report.axe.violations.filter(
+    (v) => v.impact === 'serious' || v.impact === 'critical',
+  );
+const offScaleSizesOf = (report: ScreenReport) =>
+  (report.fontSizes ?? []).filter((size) => !ALLOWED_FONT_SIZES.includes(size));
+const foreignFamiliesOf = (report: ScreenReport) =>
+  (report.fontFamilies ?? []).filter((name) => !isRedHatFamily(name));
 
 export function totalsOf(reports: ScreenReport[]): Totals {
   const sum = (pick: (report: ScreenReport) => number) =>
@@ -142,6 +173,12 @@ export function totalsOf(reports: ScreenReport[]): Totals {
     axeViolations: sum((r) => r.axe.violations.length),
     unsettled: sum((r) => (r.settled === false ? 1 : 0)),
     placeholderParams: sum((r) => (r.params === 'placeholder' ? 1 : 0)),
+    contrastViolations: sum((r) => contrastOf(r).length),
+    undecidedContrast: sum((r) => r.axe.incompleteContrast ?? 0),
+    seriousAccessibility: sum((r) => seriousOf(r).length),
+    offScaleFontScreens: sum((r) => (offScaleSizesOf(r).length ? 1 : 0)),
+    foreignRequests: sum((r) => (r.foreignRequests ?? []).length),
+    foreignFontScreens: sum((r) => (foreignFamiliesOf(r).length ? 1 : 0)),
   };
 }
 
@@ -249,6 +286,12 @@ export function renderSummary(
     `| Screens visited with a placeholder parameter | ${totals.placeholderParams} |`,
     `| Expected failed requests (not counted above) | ${totals.expectedFailedRequests} |`,
     `| Console lines of expected failed requests (not counted above) | ${totals.expectedConsoleErrors} |`,
+    `| Color contrast violations | ${totals.contrastViolations} |`,
+    `| Color contrast checks axe could not complete | ${totals.undecidedContrast} |`,
+    `| Serious or critical accessibility violations | ${totals.seriousAccessibility} |`,
+    `| Screens with an off-scale font size | ${totals.offScaleFontScreens} |`,
+    `| Requests to another host | ${totals.foreignRequests} |`,
+    `| Screens with a font outside the Red Hat families | ${totals.foreignFontScreens} |`,
     '',
     '## Screens',
     '',
@@ -393,6 +436,60 @@ export function renderSummary(
       lines.push(`| ${cell(key, 200)} | ${count} |`);
     }
   }
+
+  // One table per design finding: the screens that show it and its value.
+  const designSection = (
+    title: string,
+    heading: string,
+    value: (report: ScreenReport) => string,
+  ) => {
+    lines.push('', `## ${title}`, '');
+    const rows = ordered.flatMap((report) => {
+      const found = value(report);
+      return found
+        ? [
+            `| ${cell(report.route)} | ${report.theme} | ${report.viewport} | ${cell(hide(found), 200)} |`,
+          ]
+        : [];
+    });
+    if (rows.length === 0) {
+      lines.push('None.');
+    } else {
+      lines.push(`| Route | Theme | Width | ${heading} |`, '|---|---|---|---|');
+      lines.push(...rows);
+    }
+  };
+  const ruleNodes = (list: ScreenReport['axe']['violations']) =>
+    list.map((v) => `${v.id} (${v.nodes} nodes)`).join(', ');
+
+  designSection('Color contrast violations', 'Nodes', (report) => {
+    const found = contrastOf(report);
+    return found.length
+      ? String(found.reduce((sum, v) => sum + v.nodes, 0))
+      : '';
+  });
+  designSection(
+    'Color contrast checks axe could not complete',
+    'Nodes',
+    (report) =>
+      report.axe.incompleteContrast
+        ? String(report.axe.incompleteContrast)
+        : '',
+  );
+  designSection(
+    'Serious or critical accessibility violations',
+    'Rules',
+    (report) => ruleNodes(seriousOf(report)),
+  );
+  designSection('Font sizes outside the scale', 'Sizes', (report) =>
+    offScaleSizesOf(report).join(', '),
+  );
+  designSection('Requests to another host', 'Origins', (report) =>
+    (report.foreignRequests ?? []).join(', '),
+  );
+  designSection('Fonts outside the Red Hat families', 'Families', (report) =>
+    foreignFamiliesOf(report).join(', '),
+  );
 
   return `${lines.join('\n')}\n`;
 }

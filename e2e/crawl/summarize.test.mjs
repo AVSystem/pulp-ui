@@ -11,7 +11,13 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { orderScreens, scoreOf, summarizeRun } from './summarize.ts';
+import {
+  orderScreens,
+  renderSummary,
+  scoreOf,
+  summarizeRun,
+  totalsOf,
+} from './summarize.ts';
 import { verifyReport } from './verify-report.mjs';
 
 const ROUTES = [
@@ -174,5 +180,117 @@ describe('summarizeRun', () => {
     expect(readFileSync(join(dir, 'summary.md'), 'utf8')).not.toContain(
       'pulp.example.org',
     );
+  });
+});
+
+describe('design findings', () => {
+  const contrast = {
+    id: 'color-contrast',
+    impact: 'serious',
+    help: 'Elements must meet minimum color contrast ratio thresholds',
+    nodes: 3,
+    targets: ['.a'],
+  };
+  const design = {
+    fontSizes: ['13px', '14px'],
+    fontFamilies: ['Red Hat Text', 'Georgia'],
+    foreignRequests: ['https://fonts.example'],
+    axe: { violations: [contrast], incompleteContrast: 4 },
+  };
+  const dirty = report('/a', 'a', 'dark', 'phone', 'r', design);
+  const clean = report('/b', 'b', 'light', 'desktop', 'r', {
+    fontSizes: ['12px', '14px', '18px', '28px'],
+    fontFamilies: ['Red Hat Display', 'Red Hat Mono', 'Red Hat Text'],
+    foreignRequests: [],
+    axe: { violations: [], incompleteContrast: 0 },
+  });
+
+  it('counts the findings of the design fields in the totals', () => {
+    expect(totalsOf([dirty, clean])).toMatchObject({
+      contrastViolations: 1,
+      undecidedContrast: 4,
+      seriousAccessibility: 1,
+      offScaleFontScreens: 1,
+      foreignRequests: 1,
+      foreignFontScreens: 1,
+    });
+  });
+
+  it('counts nothing for reports of an older crawl without the fields', () => {
+    expect(
+      totalsOf([report('/a', 'a', 'light', 'desktop', 'r')]),
+    ).toMatchObject({
+      contrastViolations: 0,
+      undecidedContrast: 0,
+      seriousAccessibility: 0,
+      offScaleFontScreens: 0,
+      foreignRequests: 0,
+      foreignFontScreens: 0,
+    });
+  });
+
+  it('adds the totals rows after the existing ones and names the findings', () => {
+    const text = renderSummary([dirty, clean], ROUTES, true);
+    for (const row of [
+      '| Color contrast violations | 1 |',
+      '| Color contrast checks axe could not complete | 4 |',
+      '| Serious or critical accessibility violations | 1 |',
+      '| Screens with an off-scale font size | 1 |',
+      '| Requests to another host | 1 |',
+      '| Screens with a font outside the Red Hat families | 1 |',
+    ]) {
+      expect(text).toContain(row);
+    }
+    const last = text.indexOf(
+      '| Console lines of expected failed requests (not counted above) |',
+    );
+    expect(text.indexOf('| Color contrast violations |')).toBeGreaterThan(last);
+    const section = (title) =>
+      text.slice(text.indexOf(`## ${title}`)).split('\n## ')[0];
+    expect(section('Font sizes outside the scale')).toMatch(
+      /\/a \| dark \| phone \| 13px/,
+    );
+    expect(section('Requests to another host')).toContain(
+      'https://fonts.example',
+    );
+    expect(section('Fonts outside the Red Hat families')).toContain('Georgia');
+    expect(section('Color contrast violations')).toMatch(
+      /\/a \| dark \| phone/,
+    );
+    expect(section('Color contrast checks axe could not complete')).toMatch(
+      /\/a \| dark \| phone \| 4/,
+    );
+    expect(section('Serious or critical accessibility violations')).toContain(
+      'color-contrast',
+    );
+    expect(section('Font sizes outside the scale')).not.toContain('/b');
+  });
+
+  it('keeps the existing totals rows and the Screens table header', () => {
+    const text = renderSummary([clean], ROUTES, true);
+    for (const row of [
+      '| Screens that crashed into the error page | 0 |',
+      '| Uncaught errors | 0 |',
+      '| Failed requests | 0 |',
+      '| Console errors | 0 |',
+      '| Accessibility rule violations | 0 |',
+      '| Repeated requests | 0 |',
+      '| Screens that did not settle | 0 |',
+    ]) {
+      expect(text).toContain(row);
+    }
+    expect(text).toContain(
+      '| # | Route | Theme | Width | Params | Score | Error page | Uncaught | Failed | Console | Axe | Repeated | Settled | Load ms | Report |',
+    );
+  });
+
+  it('writes a complete run with design fields that still verifies', () => {
+    for (const { pattern, slug } of ROUTES) {
+      for (const [theme, viewport] of COMBINATIONS) {
+        write(dir, report(pattern, slug, theme, viewport, 'one', design));
+      }
+    }
+    expect(summarizeRun(dir, ROUTES, 'one')).toBe(true);
+    expect(verifyReport(dir).filter((c) => !c.ok)).toEqual([]);
   });
 });

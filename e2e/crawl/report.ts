@@ -73,7 +73,22 @@ export interface ScreenReport {
   pageErrors: string[];
   failedRequests: FailedRequest[];
   duplicateRequests: DuplicateRequest[];
-  axe: { violations: AxeViolation[] };
+  axe: {
+    violations: AxeViolation[];
+    // Nodes whose color contrast axe could not decide (for example text over
+    // an image or a gradient). They are neither a pass nor a violation.
+    incompleteContrast: number;
+  };
+  // The distinct computed font sizes of the elements that render visible text,
+  // for example "14px", sorted.
+  fontSizes: string[];
+  // The distinct leading font families of the same elements, quotes removed,
+  // sorted.
+  fontFamilies: string[];
+  // The distinct origins of requests to any host but the application's own,
+  // sorted. A page that loads a font, script or image from elsewhere shows up
+  // here.
+  foreignRequests: string[];
   // The build stamp the application carries, null when the page has none.
   uiBuild: { hash?: string; date?: string | null; version?: string } | null;
   // Identifies the crawl run that wrote the file, so a report left by an

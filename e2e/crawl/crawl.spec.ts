@@ -19,7 +19,9 @@ import { crawlRoutes } from './routes';
 // Opens every screen of the application as the account of the run and records
 // what the page did: its title, whether it crashed into the error boundary, the
 // console errors, uncaught errors and failed or repeated requests it caused,
-// the accessibility findings of axe, and a screenshot. The crawl only
+// the requests it made to any host but the application's own, the font sizes
+// and families its text renders in, the accessibility findings of axe, and a
+// screenshot. The crawl only
 // navigates and reads. It never clicks, types or submits anything and sends no
 // request of its own besides loading the pages, so it changes nothing on the
 // deployment. Findings never fail a test; only a screen that cannot be crawled,
@@ -75,6 +77,7 @@ for (const route of crawlRoutes()) {
     const pageErrors: string[] = [];
     const failedRequests: FailedRequest[] = [];
     const seen = new Map<string, number>();
+    const foreignOrigins = new Set<string>();
 
     page.on('console', (message) => {
       if (message.type() !== 'error') {
@@ -91,6 +94,9 @@ for (const route of crawlRoutes()) {
     page.on('pageerror', (error) => pageErrors.push(String(error)));
     page.on('request', (request) => {
       const url = new URL(request.url());
+      if (/^https?:$/.test(url.protocol) && url.origin !== here) {
+        foreignOrigins.add(url.origin);
+      }
       if (url.origin === here && url.pathname.includes(API)) {
         const key = `${request.method()} ${url.pathname}${url.search}`;
         seen.set(key, (seen.get(key) ?? 0) + 1);
@@ -153,6 +159,37 @@ for (const route of crawlRoutes()) {
       (await page.getByText('Something went horribly wrong!').count()) > 0;
     const signedIn = (await page.locator(USER_MENU).count()) > 0;
 
+    const typography = await page.evaluate(() => {
+      const sizes = new Set<string>();
+      const families = new Set<string>();
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+      );
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const parent = node.parentElement;
+        if (!parent || !node.textContent?.trim()) {
+          continue;
+        }
+        // Text that is not rendered, or that sits in a script or style
+        // element, has no size to judge.
+        if (parent.closest('script, style, noscript, template')) {
+          continue;
+        }
+        // checkVisibility also covers a hidden ancestor, which the computed
+        // style of the element alone does not show.
+        if (!parent.checkVisibility({ visibilityProperty: true })) {
+          continue;
+        }
+        const style = getComputedStyle(parent);
+        sizes.add(style.fontSize);
+        families.add(
+          (style.fontFamily.split(',')[0] ?? '').replace(/["']/g, '').trim(),
+        );
+      }
+      return { sizes: [...sizes].sort(), families: [...families].sort() };
+    });
+
     const axe = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
 
     const screenshot = screenName(route.slug, theme, viewport, 'png');
@@ -205,7 +242,13 @@ for (const route of crawlRoutes()) {
             .slice(0, 5)
             .map((node) => node.target.join(' ')),
         })),
+        incompleteContrast: axe.incomplete
+          .filter((result) => result.id === 'color-contrast')
+          .reduce((sum, result) => sum + result.nodes.length, 0),
       },
+      fontSizes: typography.sizes,
+      fontFamilies: typography.families,
+      foreignRequests: [...foreignOrigins].sort(),
       uiBuild: await uiBuild(page),
       run: process.env['PULP_UI_CRAWL_RUN'] ?? '',
       capturedAt: new Date().toISOString(),

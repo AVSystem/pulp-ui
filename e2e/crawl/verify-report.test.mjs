@@ -185,6 +185,55 @@ describe('verifyReport', () => {
   });
 });
 
+describe('design fields', () => {
+  const file = () => join(dir, 'status.light.phone.json');
+  const withField = (change) => {
+    const report = JSON.parse(readFileSync(file(), 'utf8'));
+    change(report);
+    writeFileSync(file(), JSON.stringify(report));
+  };
+
+  it('accepts reports that lack the fields, as an older crawl has them', () => {
+    expect(failures(dir)).toEqual([]);
+  });
+
+  it('accepts well-formed fields', () => {
+    withField((report) => {
+      report.fontSizes = ['12px', '14.5px'];
+      report.fontFamilies = ['Red Hat Text'];
+      report.foreignRequests = ['https://fonts.example'];
+      report.axe.incompleteContrast = 2;
+    });
+    expect(failures(dir)).toEqual([]);
+  });
+
+  it.each([
+    ['fontSizes', 'big'],
+    ['fontSizes', ['14']],
+    ['fontSizes', [14]],
+    ['fontFamilies', 'Red Hat Text'],
+    ['fontFamilies', [1]],
+    ['foreignRequests', 'https://fonts.example'],
+    ['foreignRequests', ['not an origin']],
+    ['foreignRequests', ['https://fonts.example/css?family=x']],
+  ])('fails when %s is %j', (field, value) => {
+    withField((report) => {
+      report[field] = value;
+    });
+    expect(failures(dir).join('\n')).toContain(field);
+  });
+
+  it.each([-1, 1.5, '3'])(
+    'fails when axe.incompleteContrast is %j',
+    (value) => {
+      withField((report) => {
+        report.axe.incompleteContrast = value;
+      });
+      expect(failures(dir).join('\n')).toContain('incompleteContrast');
+    },
+  );
+});
+
 describe('command line', () => {
   const run = (...args) =>
     spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });

@@ -4,7 +4,10 @@
 // the four theme and width combinations, every report carries all of its fields
 // and names a screenshot that exists. It checks completeness only; what the
 // reports found (console errors, failed requests, accessibility findings, a
-// page that crashed) never makes it fail.
+// page that crashed) never makes it fail. The design fields (font sizes and
+// families, requests to other hosts, undecided contrast) are checked for their
+// shape only when a report has them, so a crawl made before they existed still
+// passes; design-gate.mjs judges their content.
 //
 // Usage: verify-report.mjs <output directory>
 // Prints "ok <what>" or "FAIL <what>: <why>" per check and exits 1 on any FAIL.
@@ -41,6 +44,48 @@ const ARRAY_FIELDS = [
   'failedRequests',
   'duplicateRequests',
 ];
+
+const PX_SIZE = /^\d+(\.\d+)?px$/;
+const ORIGIN = /^https?:\/\/[^/\s?#]+$/;
+
+const isListOf = (value, test) => Array.isArray(value) && value.every(test);
+
+// What is wrong with the design fields of a report that has them.
+function designProblems(report) {
+  const problems = [];
+  if (
+    'fontSizes' in report &&
+    !isListOf(report.fontSizes, (v) => typeof v === 'string' && PX_SIZE.test(v))
+  ) {
+    problems.push('fontSizes is not a list of px sizes');
+  }
+  if (
+    'fontFamilies' in report &&
+    !isListOf(report.fontFamilies, (v) => typeof v === 'string')
+  ) {
+    problems.push('fontFamilies is not a list of names');
+  }
+  if (
+    'foreignRequests' in report &&
+    !isListOf(
+      report.foreignRequests,
+      (v) => typeof v === 'string' && ORIGIN.test(v),
+    )
+  ) {
+    problems.push('foreignRequests is not a list of origins');
+  }
+  if (
+    report.axe &&
+    'incompleteContrast' in report.axe &&
+    !(
+      Number.isInteger(report.axe.incompleteContrast) &&
+      report.axe.incompleteContrast >= 0
+    )
+  ) {
+    problems.push('axe.incompleteContrast is not a count');
+  }
+  return problems;
+}
 
 function readJson(path) {
   try {
@@ -128,6 +173,9 @@ export function verifyReport(dir) {
         if ('axe' in report && !Array.isArray(report.axe?.violations)) {
           problems.push('axe.violations is not a list');
         }
+        // The design fields are absent from the reports of an older crawl; when
+        // present they must have their shape.
+        problems.push(...designProblems(report));
         // A report left by another run next to this run's index is not part of it.
         if (
           index.value.run !== undefined &&
