@@ -4,6 +4,7 @@ import { HttpResponse, delay, http } from 'msw';
 import { useState } from 'react';
 import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
+import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import { resetSessionEvents } from '../session/session-events';
@@ -336,5 +337,94 @@ describe('a detail page with tabs after the same user signs in again', () => {
 
     expect(await screen.findByText('Details of alpha')).toBeInTheDocument();
     expect(screen.queryByText(NOT_FOUND)).not.toBeInTheDocument();
+  });
+});
+
+describe('a detail page with tabs whose load is refused', () => {
+  const Guarded = (condition?: () => boolean) =>
+    PageWithTabs<IThing>({
+      breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+      condition,
+      displayName: 'GuardedThingDetail',
+      errorTitle: msg`Thing could not be displayed.`,
+      headerActions: [
+        Action({ title: msg`Delete thing`, onClick: () => undefined }),
+      ],
+      listUrl: '/things',
+      query: ({ name }) =>
+        things
+          .list('things/', { name, page_size: 1 })
+          .then(({ data }) => data.results[0]),
+      renderTab: (_tab, item) => <p>{`Details of ${item.name}`}</p>,
+      tabs: () => [{ title: 'Details', link: '/', active: true }],
+    });
+
+  function renderScreen(Screen: ReturnType<typeof Guarded>) {
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/:name' element={<Screen />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/things/alpha' },
+    );
+  }
+
+  it('shows the insufficient permissions page with the server text, not the error state or the not-found page', async () => {
+    server.use(failing(403, 'Forbidden'));
+    renderDetail();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('You do not have permission to view this page.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('no')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    expect(screen.queryByText(NOT_FOUND)).not.toBeInTheDocument();
+    expect(screen.queryByText('Details of alpha')).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'alpha' })).toBeInTheDocument();
+  });
+
+  it('omits the detail paragraph for a 403 without a detail', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json({}, { status: 403, statusText: 'Forbidden' }),
+      ),
+    );
+    renderDetail();
+
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('renders no header action for a refused read, and renders it for a shown object', async () => {
+    const Screen = Guarded();
+
+    server.use(failing(403, 'Forbidden'));
+    const refused = renderScreen(Screen);
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    expect(
+      screen.queryByRole('button', { name: 'Delete thing' }),
+    ).not.toBeInTheDocument();
+    refused.unmount();
+
+    server.use(answer('alpha'));
+    renderScreen(Screen);
+    expect(
+      await screen.findByRole('button', { name: 'Delete thing' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the same page without a detail when the screen condition is false', async () => {
+    renderScreen(Guarded(() => false));
+
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+    expect(
+      screen.queryByRole('button', { name: 'Delete thing' }),
+    ).not.toBeInTheDocument();
   });
 });

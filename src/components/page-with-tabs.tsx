@@ -13,7 +13,7 @@ import {
   type AlertType,
   BaseHeader,
   Breadcrumbs,
-  EmptyStateUnauthorized,
+  InsufficientPermissions,
   LinkTabs,
   type LinkTabsProps,
   LoadingSpinner,
@@ -25,6 +25,7 @@ import { ParamHelper, type RouteProps, withRouter } from 'src/utilities';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
   requestErrorStatus,
 } from '../utilities/request-error';
 import { ListErrorState } from './list-error-state';
@@ -40,11 +41,14 @@ interface IState<T> {
     tab?: string;
   };
   unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
 }
 
 // states:
 // loading - initial state, only Main + spinner, header and alerts
-// unauthorized - only EmptyStateUnauthorized, header and alerts
+// unauthorized - only InsufficientPermissions, header (no actions) and alerts:
+//   the read was refused (403) or the screen's condition does not hold
 // notFound - the load answered 404, NotFound
 // error - any other failed load, header and ListErrorState with a retry
 // (data) - renders detail
@@ -118,6 +122,7 @@ export const PageWithTabs = function <
         item: null,
         loading: true,
         unauthorized: false,
+        unauthorizedDetail: null,
         params,
       };
     }
@@ -155,7 +160,15 @@ export const PageWithTabs = function <
 
     render() {
       const { routeParams } = this.props;
-      const { alerts, error, item, loading, params, unauthorized } = this.state;
+      const {
+        alerts,
+        error,
+        item,
+        loading,
+        params,
+        unauthorized,
+        unauthorizedDetail,
+      } = this.state;
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
@@ -242,7 +255,7 @@ export const PageWithTabs = function <
               />
             }
             pageControls={
-              loading ? null : (
+              loading || unauthorized ? null : (
                 <div className='pulp-toolbar'>
                   <Toolbar>
                     <ToolbarContent>
@@ -271,7 +284,7 @@ export const PageWithTabs = function <
           </BaseHeader>
           {renderModals?.(actionContext)}
           {unauthorized ? (
-            <EmptyStateUnauthorized />
+            <InsufficientPermissions detail={unauthorizedDetail} />
           ) : (
             <Main>
               {loading ? (
@@ -328,6 +341,19 @@ export const PageWithTabs = function <
                 variant: 'danger',
                 title: i18n._(errorTitle),
                 description: requestErrorDescription(e),
+              });
+              return;
+            }
+
+            // A refused read is not a failure to retry: the user is told they
+            // may not view the page, with Pulp's own reason.
+            if (requestErrorStatus(e) === 403) {
+              this.setState({
+                loading: false,
+                item: null,
+                error: null,
+                unauthorized: true,
+                unauthorizedDetail: requestErrorDetail(e),
               });
               return;
             }

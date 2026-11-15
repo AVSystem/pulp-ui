@@ -18,7 +18,6 @@ export { Details } from './details';
 export { EmptyStateCustom } from './empty-state-custom';
 export { EmptyStateFilter } from './empty-state-filter';
 export { EmptyStateNoData } from './empty-state-no-data';
-export { EmptyStateUnauthorized } from './empty-state-unauthorized';
 export { EmptyStateXs } from './empty-state-xs';
 export { ErrorBoundary } from './error-boundary';
 export { ExternalLink } from './external-link';

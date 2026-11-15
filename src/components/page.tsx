@@ -13,7 +13,7 @@ import {
   type AlertType,
   BaseHeader,
   Breadcrumbs,
-  EmptyStateUnauthorized,
+  InsufficientPermissions,
   LoadingSpinner,
   Main,
   closeAlert,
@@ -22,6 +22,8 @@ import { type RouteProps, withRouter } from 'src/utilities';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from '../utilities/request-error';
 import { ListErrorState } from './list-error-state';
 
@@ -32,11 +34,14 @@ interface IState<T> {
   item: T;
   loading: boolean;
   unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
 }
 
 // states:
 // loading - initial state, only Main + spinner, header and alerts
-// unauthorized - only EmptyStateUnauthorized, header and alerts
+// unauthorized - only InsufficientPermissions, header (no actions) and alerts:
+//   the read was refused (403) or the screen's condition does not hold
 // error - the load failed, header and ListErrorState with a retry; render is
 //   never called, so a form for an existing object is not shown without it
 // (data) - renders detail, or the form of a new object when the route has no name
@@ -103,6 +108,7 @@ export const Page = function <
         item: null,
         loading: true,
         unauthorized: false,
+        unauthorizedDetail: null,
       };
     }
 
@@ -151,7 +157,8 @@ export const Page = function <
 
     render() {
       const { routeParams } = this.props;
-      const { alerts, error, item, loading, unauthorized } = this.state;
+      const { alerts, error, item, loading, unauthorized, unauthorizedDetail } =
+        this.state;
 
       const actionContext = {
         addAlert: (alert) => this.addAlert(alert),
@@ -191,25 +198,27 @@ export const Page = function <
               />
             }
             pageControls={
-              <div className='pulp-toolbar'>
-                <Toolbar>
-                  <ToolbarContent>
-                    <ToolbarGroup>
-                      {headerActions?.length &&
-                        headerActions.map((action) => (
-                          <ToolbarItem key={action.title}>
-                            {action.button(item, actionContext)}
-                          </ToolbarItem>
-                        ))}
-                    </ToolbarGroup>
-                  </ToolbarContent>
-                </Toolbar>
-              </div>
+              unauthorized ? null : (
+                <div className='pulp-toolbar'>
+                  <Toolbar>
+                    <ToolbarContent>
+                      <ToolbarGroup>
+                        {headerActions?.length &&
+                          headerActions.map((action) => (
+                            <ToolbarItem key={action.title}>
+                              {action.button(item, actionContext)}
+                            </ToolbarItem>
+                          ))}
+                      </ToolbarGroup>
+                    </ToolbarContent>
+                  </Toolbar>
+                </div>
+              )
             }
           />
           {renderModals?.(actionContext)}
           {unauthorized ? (
-            <EmptyStateUnauthorized />
+            <InsufficientPermissions detail={unauthorizedDetail} />
           ) : (
             <Main>
               {loading ? (
@@ -265,7 +274,17 @@ export const Page = function <
             })
             .catch((e) => {
               if (current === this.latestQuery && !isSessionEnd(e)) {
-                if (quiet) {
+                if (!quiet && requestErrorStatus(e) === 403) {
+                  // A refused read is not a failure to retry: the user is
+                  // told they may not view the page, with Pulp's own reason.
+                  this.setState({
+                    loading: false,
+                    item: null,
+                    error: null,
+                    unauthorized: true,
+                    unauthorizedDetail: requestErrorDetail(e),
+                  });
+                } else if (quiet) {
                   this.addAlert({
                     variant: 'danger',
                     title: i18n._(errorTitle),

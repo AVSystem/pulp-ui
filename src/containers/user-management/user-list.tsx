@@ -24,7 +24,7 @@ import {
   DeleteUserModal,
   EmptyStateFilter,
   EmptyStateNoData,
-  EmptyStateUnauthorized,
+  InsufficientPermissions,
   LabelGroup,
   ListItemActions,
   LoadingSpinner,
@@ -44,6 +44,8 @@ import {
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 
 interface IState {
@@ -59,6 +61,8 @@ interface IState {
   showDeleteModal: boolean;
   alerts: AlertType[];
   unauthorized: boolean;
+  // the reason Pulp gave for refusing the read, when it gave one
+  unauthorizedDetail: string | null;
   inputText: string;
 }
 
@@ -90,6 +94,7 @@ class UserList extends Component<RouteProps, IState> {
       itemCount: 0,
       alerts: [],
       unauthorized: false,
+      unauthorizedDetail: null,
       inputText: '',
     };
   }
@@ -124,6 +129,7 @@ class UserList extends Component<RouteProps, IState> {
       deleteUser,
       alerts,
       unauthorized,
+      unauthorizedDetail,
     } = this.state;
 
     const { hasPermission } = this.context as IAppContextType;
@@ -157,7 +163,7 @@ class UserList extends Component<RouteProps, IState> {
         />
         <BaseHeader title={t`Users`} />
         {unauthorized ? (
-          <EmptyStateUnauthorized />
+          <InsufficientPermissions detail={unauthorizedDetail} />
         ) : (
           <Main>
             <section className='pulp-section'>
@@ -412,6 +418,18 @@ class UserList extends Component<RouteProps, IState> {
           // The session ended: the sign-in dialog explains it, and the list
           // keeps its spinner or its rows until it reads again.
           if (isSessionEnd(e)) {
+            return;
+          }
+          // A refused read is not a failure to retry: the user is told they
+          // may not view the list, with Pulp's own reason.
+          if (requestErrorStatus(e) === 403) {
+            this.setState({
+              users: [],
+              itemCount: 0,
+              loading: false,
+              unauthorized: true,
+              unauthorizedDetail: requestErrorDetail(e),
+            });
             return;
           }
           this.setState({

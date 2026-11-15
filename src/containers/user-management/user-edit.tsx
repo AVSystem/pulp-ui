@@ -4,7 +4,7 @@ import { Navigate } from 'react-router';
 import { UserAPI, type UserType } from 'src/api';
 import {
   BaseHeader,
-  EmptyStateUnauthorized,
+  InsufficientPermissions,
   LoadingPage,
   UserFormPage,
 } from 'src/components';
@@ -16,13 +16,21 @@ import {
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
-import { isSessionEnd } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDetail,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 function UserEdit(props: RouteProps) {
   const [errorMessages, setErrorMessages] = useState<ErrorMessagesType>({});
   const [initialState, setInitialState] = useState<UserType>();
   const [redirect, setRedirect] = useState<string>();
   const [unauthorized, setUnauthorized] = useState<boolean>(false);
+  // the reason Pulp gave for refusing the read, when it gave one
+  const [unauthorizedDetail, setUnauthorizedDetail] = useState<string | null>(
+    null,
+  );
   const [user, setUser] = useState<UserType>();
 
   const {
@@ -49,12 +57,16 @@ function UserEdit(props: RouteProps) {
           setUser(extendedResult);
         }
         setUnauthorized(false);
+        setUnauthorizedDetail(null);
       })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
         // keeps its spinner or its form until it reads again.
         if (!isSessionEnd(e)) {
           setUnauthorized(true);
+          setUnauthorizedDetail(
+            requestErrorStatus(e) === 403 ? requestErrorDetail(e) : null,
+          );
         }
       });
 
@@ -100,7 +112,7 @@ function UserEdit(props: RouteProps) {
     return (
       <>
         <BaseHeader title={title} />
-        <EmptyStateUnauthorized />
+        <InsufficientPermissions detail={unauthorizedDetail} />
       </>
     );
   }

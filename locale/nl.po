@@ -1524,7 +1524,6 @@ msgstr "Overweeg een beveiligde URL te gebruiken (https://)."
 #~ msgid "Contact you organization administrator for more information."
 #~ msgstr "Contact you organization administrator for more information."
 
-#: src/components/empty-state-unauthorized.tsx
 #: src/components/insufficient-permissions.tsx
 msgid "Contact your organization administrator for more information."
 msgstr "Neem contact op met de beheerder van uw organisatie voor meer informatie."
@@ -2105,6 +2104,11 @@ msgstr "Rol verwijderen?"
 #: src/constants.tsx
 #~ msgid "Delete task"
 #~ msgstr "Delete task"
+
+#: src/components/page-with-tabs.test.tsx
+#: src/components/page.test.tsx
+msgid "Delete thing"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Delete user"
@@ -3732,6 +3736,8 @@ msgstr ""
 #~ msgstr "Instructies"
 
 #: src/components/insufficient-permissions.tsx
+#: src/containers/group-management/group-detail.tsx
+#: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
 msgstr ""
 
@@ -8525,8 +8531,8 @@ msgstr ""
 #~ msgstr "U heeft geen toegang tot Automation Hub"
 
 #: src/components/empty-state-unauthorized.tsx
-msgid "You do not have access to Pulp UI"
-msgstr ""
+#~ msgid "You do not have access to Pulp UI"
+#~ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."

@@ -1524,7 +1524,6 @@ msgstr "보안 URL(https://)을 사용하는 것이 좋습니다."
 #~ msgid "Contact you organization administrator for more information."
 #~ msgstr "Contact you organization administrator for more information."
 
-#: src/components/empty-state-unauthorized.tsx
 #: src/components/insufficient-permissions.tsx
 msgid "Contact your organization administrator for more information."
 msgstr "자세한 내용은 조직 관리자에게 문의하십시오."
@@ -2105,6 +2104,11 @@ msgstr "역할을 삭제하시겠습니까?"
 #: src/constants.tsx
 #~ msgid "Delete task"
 #~ msgstr "Delete task"
+
+#: src/components/page-with-tabs.test.tsx
+#: src/components/page.test.tsx
+msgid "Delete thing"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Delete user"
@@ -3732,6 +3736,8 @@ msgstr ""
 #~ msgstr "설명"
 
 #: src/components/insufficient-permissions.tsx
+#: src/containers/group-management/group-detail.tsx
+#: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
 msgstr ""
 
@@ -8525,8 +8531,8 @@ msgstr ""
 #~ msgstr "Automation Hub에 액세스할 수 없습니다"
 
 #: src/components/empty-state-unauthorized.tsx
-msgid "You do not have access to Pulp UI"
-msgstr ""
+#~ msgid "You do not have access to Pulp UI"
+#~ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
