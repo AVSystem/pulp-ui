@@ -62,4 +62,39 @@ describe('plugin versions', () => {
     expect(counter.requests).toBe(2);
     expect(versions).toEqual([{ name: 'core', version: '3.2.0' }]);
   });
+
+  it('rejects with a readable error when the answer lists no plugins', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({
+          database_connection: { connected: true },
+          redis_connection: { connected: true },
+        }),
+      ),
+    );
+
+    await expect(plugin_versions()).rejects.toThrow(
+      'The status answer lists no plugins.',
+    );
+  });
+
+  it('asks the server again after an answer that listed no plugins', async () => {
+    let requests = 0;
+    server.use(
+      http.get('*/pulp/api/v3/status/', () => {
+        requests += 1;
+        return requests === 1
+          ? HttpResponse.json({ database_connection: { connected: true } })
+          : HttpResponse.json({
+              versions: [{ component: 'core', version: '3.0.0' }],
+            });
+      }),
+    );
+
+    await expect(plugin_versions()).rejects.toBeInstanceOf(Error);
+    await expect(plugin_versions()).resolves.toEqual([
+      { name: 'core', version: '3.0.0' },
+    ]);
+    expect(requests).toBe(2);
+  });
 });

@@ -658,7 +658,9 @@ const AuthHandler = ({
   // lacks the plugin means it is not installed; while the answer is pending or
   // failed nothing is known about it.
   if (plugin) {
-    if (plugins.state === 'loading') {
+    // Idle means signed out, which only lasts a moment on a screen that needs
+    // a session: the sign-in redirect above takes over.
+    if (plugins.state === 'loading' || plugins.state === 'idle') {
       return <LoadingPage />;
     }
 

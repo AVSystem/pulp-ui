@@ -260,6 +260,24 @@ describe('navigation menu', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('sends no request to status/ while signed out', async () => {
+    const statusRequests: string[] = [];
+    const onStart = ({ request }: { request: Request }) => {
+      const { pathname } = new URL(request.url);
+      if (pathname.endsWith('/status/')) {
+        statusRequests.push(pathname);
+      }
+    };
+    server.events.on('request:start', onStart);
+
+    renderWithProviders(<PulpMenu />);
+    await screen.findByRole('link', { name: 'Login' });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    server.events.removeListener('request:start', onStart);
+
+    expect(statusRequests).toEqual([]);
+  });
+
   it('renders the fixed entries at once while the plugin list loads, without plugin entries', async () => {
     signIn();
     let release: () => void = () => undefined;

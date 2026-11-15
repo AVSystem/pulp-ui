@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { PulpStatusAPI } from '../api/pulp-status';
 
 interface PluginVersion {
@@ -35,10 +36,21 @@ export function resetPluginVersionsCache() {
   cache.time = 0;
 }
 
+// An answer that holds no list of versions (the reduced answer a server gives
+// to a visitor who is not signed in) is a failed read. It is rejected inside
+// the cached read, so it is dropped from the cache like any other failure.
+const readStatus = () =>
+  PulpStatusAPI.get().then((response: { data }) => {
+    if (!Array.isArray(response.data?.versions)) {
+      throw new Error(t`The status answer lists no plugins.`);
+    }
+    return response;
+  });
+
 export function plugin_versions({
   fresh = false,
 }: { fresh?: boolean } = {}): Promise<PluginVersion[]> {
-  return cached(() => PulpStatusAPI.get(), fresh).then(({ data }: { data }) =>
+  return cached(readStatus, fresh).then(({ data }: { data }) =>
     data.versions.map(({ component, version }) => ({
       name: component,
       version: version,
