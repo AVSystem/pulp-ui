@@ -1,21 +1,16 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetPageWidth, setPageUrl, setPageWidth } from 'src/test-utils/page';
+import { servePermissions } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { Shell } from './shell';
 import { SIDEBAR_STORAGE_KEY, initialSidebarOpen } from './sidebar';
 
+// Signs in a staff user zoe and serves the reads of the permission provider.
 function signIn() {
-  server.use(
-    http.get('*/pulp/api/v3/login/', () =>
-      HttpResponse.json({
-        username: 'zoe',
-        pulp_href: '/pulp/api/v3/users/1/',
-      }),
-    ),
-  );
+  servePermissions({ id: 1, username: 'zoe', isStaff: true });
 }
 
 function reportCore(version: string) {
@@ -42,6 +37,10 @@ function renderShell() {
 
 const sidebar = () => document.getElementById('page-sidebar') as HTMLElement;
 const isCollapsed = () => sidebar().getAttribute('aria-hidden') === 'true';
+
+afterEach(() => {
+  server.events.removeAllListeners();
+});
 
 describe('sidebar footer', () => {
   beforeEach(() => {
@@ -131,6 +130,75 @@ describe('sidebar footer', () => {
       '.pulp-sidebar__footer',
     ) as HTMLElement;
     expect(within(footer).getByText('pulp.example.com')).toBeInTheDocument();
+  });
+});
+
+describe('sidebar access entries', () => {
+  beforeEach(() => {
+    setPageUrl('https://pulp.example.com/ui/');
+    setPageWidth(1400);
+  });
+
+  afterEach(() => {
+    resetPageWidth();
+    server.events.removeAllListeners();
+  });
+
+  const groupLabels = () =>
+    within(sidebar())
+      .queryAllByRole('heading', { level: 2 })
+      .map((heading) => heading.textContent);
+
+  it('shows no Access label for a user without any Access entry', async () => {
+    const { requests } = servePermissions({
+      id: 1,
+      own: [['file.view_filerepository']],
+    });
+    reportCore('3.49.1');
+
+    renderShell();
+    await screen.findByText('Pulp 3.49.1');
+    await waitFor(() =>
+      expect(requests.some((path) => path.includes('/roles/'))).toBe(true),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(groupLabels()).toEqual(['Content', 'Operations']);
+    expect(
+      within(sidebar()).queryByRole('button', { name: 'Users and groups' }),
+    ).toBeNull();
+  });
+
+  it('adds the Access group last when Groups arrives, leaving Content and Operations where they were', async () => {
+    servePermissions({ id: 1, own: [['core.view_group']] });
+    reportCore('3.49.1');
+
+    renderShell();
+    await screen.findByText('Pulp 3.49.1');
+    const content = within(sidebar()).getByRole('region', { name: 'Content' });
+    const operations = within(sidebar()).getByRole('region', {
+      name: 'Operations',
+    });
+    expect(groupLabels().slice(0, 2)).toEqual(['Content', 'Operations']);
+
+    await waitFor(() => expect(groupLabels()).toContain('Access'));
+
+    expect(groupLabels()).toEqual(['Content', 'Operations', 'Access']);
+    expect(within(sidebar()).getByRole('region', { name: 'Content' })).toBe(
+      content,
+    );
+    expect(within(sidebar()).getByRole('region', { name: 'Operations' })).toBe(
+      operations,
+    );
+    expect(
+      content.compareDocumentPosition(operations) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      operations.compareDocumentPosition(
+        within(sidebar()).getByRole('region', { name: 'Access' }),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });
 

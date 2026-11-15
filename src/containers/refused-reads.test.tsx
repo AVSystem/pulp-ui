@@ -10,6 +10,9 @@ import { server } from 'src/test-utils/server';
 import GroupDetail from './group-management/group-detail';
 import GroupList from './group-management/group-list';
 import RoleEdit from './role-management/role-edit';
+import RoleList from './role-management/role-list';
+import UserProfile from './settings/user-profile';
+import SignatureKeysList from './signature-keys/list';
 import UserDetail from './user-management/user-detail';
 import UserEdit from './user-management/user-edit';
 import UserList from './user-management/user-list';
@@ -231,5 +234,133 @@ describe('the role edit page', () => {
       await screen.findByText('Role could not be displayed.'),
     ).toBeInTheDocument();
     expect(screen.getByText(/Error 500 - Server Error/)).toBeInTheDocument();
+  });
+});
+
+describe('the role list', () => {
+  const render = () =>
+    renderWithProviders(withProviderFn(<RoleList />), { route: '/roles' });
+
+  it('shows the page with the server text for a refused read, below its own header', async () => {
+    refuse(`${API}/roles/`);
+    render();
+
+    await insufficient();
+    expect(sentence()).toBeInTheDocument();
+    expect(screen.getByText('Not for you.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Roles' })).toBeInTheDocument();
+    expectNoRetryAndNoAlert('Roles list could not be displayed.');
+  });
+
+  it('shows an alert with the failure title for another failure', async () => {
+    server.use(
+      http.get(`*${API}/roles/`, () =>
+        HttpResponse.json(
+          { detail: 'broken' },
+          { status: 500, statusText: 'Server Error' },
+        ),
+      ),
+    );
+    render();
+
+    expect(
+      await screen.findByText('Roles list could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Error 500 - Server Error/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+  });
+});
+
+describe('the signing services list', () => {
+  const render = () =>
+    renderWithProviders(withProviderFn(<SignatureKeysList />), {
+      route: '/signature-keys',
+    });
+
+  it('shows the page with the server text for a refused read, below its own header', async () => {
+    refuse(`${API}/signing-services/`);
+    render();
+
+    await insufficient();
+    expect(sentence()).toBeInTheDocument();
+    expect(screen.getByText('Not for you.')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Signature keys', level: 1 }),
+    ).toBeInTheDocument();
+    expectNoRetryAndNoAlert('Signature keys could not be displayed.');
+  });
+
+  it('shows no server text when the refusal carried none', async () => {
+    refuse(`${API}/signing-services/`, {});
+    render();
+
+    await insufficient();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('shows an alert with the failure title for another failure', async () => {
+    server.use(
+      http.get(`*${API}/signing-services/`, () =>
+        HttpResponse.json(
+          { detail: 'broken' },
+          { status: 500, statusText: 'Server Error' },
+        ),
+      ),
+    );
+    render();
+
+    expect(
+      await screen.findByText('Signature keys could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+  });
+});
+
+describe('the profile page', () => {
+  const render = () =>
+    renderWithProviders(withProviderFn(<UserProfile />), {
+      route: '/users/profile',
+    });
+
+  it('shows the page with the server text for a refused read, not the not-found page', async () => {
+    refuse(`${API}/users/`);
+    render();
+
+    await insufficient();
+    expect(sentence()).toBeInTheDocument();
+    expect(screen.getByText('Not for you.')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: 'Insufficient permissions',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("We couldn't find the page you're looking for!"),
+    ).toBeNull();
+    expectNoRetryAndNoAlert();
+  });
+
+  it('keeps the not-found page for another failure', async () => {
+    server.use(
+      http.get(`*${API}/users/`, () =>
+        HttpResponse.json(
+          { detail: 'broken' },
+          { status: 500, statusText: 'Server Error' },
+        ),
+      ),
+    );
+    render();
+
+    expect(
+      await screen.findByText("We couldn't find the page you're looking for!"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
   });
 });
