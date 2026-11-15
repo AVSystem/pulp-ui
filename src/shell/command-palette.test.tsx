@@ -290,6 +290,22 @@ describe('palette', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('does not open the highlighted screen when Enter ends a text composition', async () => {
+    signIn();
+    const { user } = renderPalette();
+    await openPalette(user);
+    await screen.findAllByRole('option');
+    const box = await input();
+
+    fireEvent.keyDown(box, { key: 'Enter', isComposing: true });
+
+    expect(where()).toBe('/tasks');
+    expect(screen.getByRole('dialog')).toBeVisible();
+
+    fireEvent.keyDown(box, { key: 'Enter' });
+    await waitFor(() => expect(where()).not.toBe('/tasks'));
+  });
+
   it('opens a screen with a click', async () => {
     signIn();
     const { user } = renderPalette();

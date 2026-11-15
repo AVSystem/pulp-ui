@@ -129,6 +129,11 @@ export const Typeahead = ({
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // The keys of a text composition (an input method editor) belong to it:
+    // Enter commits the composed text and must not choose an option.
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
     switch (event.key) {
       case 'ArrowDown':
       case 'ArrowUp': {

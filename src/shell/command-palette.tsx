@@ -328,6 +328,11 @@ function Palette({ onClose }: { onClose: () => void }) {
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    // The keys of a text composition (an input method editor) belong to it:
+    // Enter commits the composed text and must not open a result.
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       if (results.length > 0) {
