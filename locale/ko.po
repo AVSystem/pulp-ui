@@ -1790,6 +1790,10 @@ msgstr "새 역할 만들기"
 msgid "Create new user"
 msgstr "새 사용자 만들기"
 
+#: src/components/list-page.test.tsx
+msgid "Create thing"
+msgstr ""
+
 #: src/utilities/translate-locked-role.ts
 msgid "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
 msgstr "컬렉션 네임스페이스를 생성, 삭제 및 변경합니다. 컬렉션을 업로드하고 삭제합니다. 원격에서 컬렉션을 동기화합니다. 컬렉션을 승인 및 거부합니다."
@@ -3332,6 +3336,10 @@ msgstr ""
 msgid "Go to previous page"
 msgstr ""
 
+#: src/session/reauth-dialog.tsx
+msgid "Go to the login page"
+msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "GPG key"
@@ -3730,7 +3738,7 @@ msgstr ""
 #~ msgid "Invalid file name. Collections must be formatted as 'namespace-collection_name-1.0.0'"
 #~ msgstr "잘못된 파일 이름입니다. 컬렉션은 'namespace-collection_name-1.0.0'로 포맷해야 합니다"
 
-#: src/containers/login/login.tsx
+#: src/utilities/login-error.ts
 msgid "Invalid login credentials."
 msgstr "잘못된 로그인 자격 증명입니다."
 
@@ -3964,6 +3972,7 @@ msgstr ""
 #~ msgstr "지역"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/session/reauth-dialog.tsx
 msgid "Log in"
 msgstr ""
 
@@ -4876,6 +4885,7 @@ msgstr "상위 작업"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/user-form.tsx
+#: src/session/reauth-dialog.tsx
 msgid "Password"
 msgstr "암호"
 
@@ -6425,7 +6435,7 @@ msgstr "선택된 역할"
 msgid "Selected user"
 msgstr ""
 
-#: src/containers/login/login.tsx
+#: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
 msgstr "서버 오류. 나중에 다시 시도하십시오."
 
@@ -6568,6 +6578,10 @@ msgstr ""
 #: src/components/headers/collection-header.tsx
 #~ msgid "Sign entire collection"
 #~ msgstr "전체 컬렉션에 서명"
+
+#: src/session/reauth-dialog.tsx
+msgid "Sign in again"
+msgstr ""
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "sign state"
@@ -7288,6 +7302,10 @@ msgstr "다음 역할이 다음 그룹에 적용됩니다: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr ""
 
+#: src/session/reauth-dialog.tsx
+msgid "The last action was not completed. Repeat it after you log in."
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr ""
@@ -7370,7 +7388,7 @@ msgstr "선택한 역할은 이 특정 Ansible 리포지토리에 추가됩니�
 #~ msgid "The selected roles will be added to this specific namespace."
 #~ msgstr "선택한 역할이 이 특정 네임스페이스에 추가됩니다."
 
-#: src/containers/login/login.tsx
+#: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
 msgstr ""
 
@@ -8090,6 +8108,7 @@ msgstr "사용자 목록"
 #: src/components/user-form.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/session/reauth-dialog.tsx
 msgid "Username"
 msgstr "사용자 이름"
 
@@ -8325,6 +8344,10 @@ msgstr "페이지를 찾을 수 없습니다!"
 #~ msgid "Welcome to Galaxy"
 #~ msgstr ""
 
+#: src/session/reauth-dialog.tsx
+msgid "What you have entered on this page is kept."
+msgstr ""
+
 #: src/components/repository-form.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
 msgstr ""
@@ -8523,6 +8546,14 @@ msgstr "사용자를 표시할 수 있는 권한이 없습니다."
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
+msgstr ""
+
+#: src/session/reauth-dialog.tsx
+msgid "Your session has ended. Log in to continue."
+msgstr ""
+
+#: src/session/reauth-dialog.tsx
+msgid "Your session has ended. You are taken to the login page and back to this page afterwards. Anything you entered on this page is lost."
 msgstr ""
 
 #: src/shell/notifications.tsx
