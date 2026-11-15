@@ -3738,6 +3738,7 @@ msgstr ""
 
 #: src/components/insufficient-permissions.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/containers/role-management/role-edit.tsx
 #: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
 msgstr ""
@@ -6099,8 +6100,8 @@ msgstr "Le rôle \"{0}\" n’a pas pu être supprimé."
 
 #. placeholder {0}: this.state.role.name
 #: src/containers/role-management/role-edit.tsx
-msgid "Role \"{0}\" could not be displayed."
-msgstr "Le rôle \"{0}\" n’a pas pu être affiché."
+#~ msgid "Role \"{0}\" could not be displayed."
+#~ msgstr "Le rôle \"{0}\" n’a pas pu être affiché."
 
 #. placeholder {0}: selectedDeleteRole.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6115,6 +6116,10 @@ msgstr "Le rôle \"{name}\" n’a pas pu être supprimé."
 msgid "Role \"{name}\" has been successfully deleted."
 msgstr "Le rôle \"{name}\" a été supprimé avec succès."
 
+#: src/containers/role-management/role-edit.tsx
+msgid "Role \"{roleName}\" could not be displayed."
+msgstr ""
+
 #. placeholder {0}: role.name
 #. placeholder {1}: group.name
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6126,6 +6131,10 @@ msgstr "Le rôle {0} n'a pas pu être attribué au groupe {1}."
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role {0} has been successfully added to {1}."
 msgstr "Le rôle \"{0}\" a été ajouté au groupe \"{1}\"."
+
+#: src/containers/role-management/role-edit.tsx
+msgid "Role could not be displayed."
+msgstr ""
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Role Header"

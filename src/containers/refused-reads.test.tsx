@@ -12,6 +12,7 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import GroupDetail from './group-management/group-detail';
 import GroupList from './group-management/group-list';
+import RoleEdit from './role-management/role-edit';
 import UserDetail from './user-management/user-detail';
 import UserEdit from './user-management/user-edit';
 import UserList from './user-management/user-list';
@@ -226,3 +227,46 @@ function withNoPermission(ui: ReactNode) {
 function expectNoRetryAndNoGroupAlert() {
   expectNoRetryAndNoAlert('Group could not be displayed.');
 }
+
+describe('the role edit page', () => {
+  const ROLE = '0192e5a1-0000-7000-8000-0000000000aa';
+  const render = () =>
+    renderWithProviders(
+      withProviderFn(
+        <Routes>
+          <Route path='/roles/edit/:role' element={<RoleEdit />} />
+        </Routes>,
+      ),
+      { route: `/roles/edit/${ROLE}/` },
+    );
+
+  it('shows the page with the server text when the first read is refused', async () => {
+    refuse(`${API}/roles/${ROLE}/`);
+    render();
+
+    await insufficient();
+    expect(sentence()).toBeInTheDocument();
+    expect(screen.getByText('Not for you.')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: 'Insufficient permissions',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expectNoRetryAndNoAlert();
+  });
+
+  it('shows an alert with the failure title, and does not fail inside its own handler, when the first read fails for another reason', async () => {
+    server.use(
+      http.get(`*${API}/roles/${ROLE}/`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+      ),
+    );
+    render();
+
+    expect(
+      await screen.findByText('Role could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Error 500 - Server Error/)).toBeInTheDocument();
+  });
+});

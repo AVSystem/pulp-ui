@@ -3738,6 +3738,7 @@ msgstr ""
 
 #: src/components/insufficient-permissions.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/containers/role-management/role-edit.tsx
 #: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
 msgstr ""
@@ -6099,8 +6100,8 @@ msgstr "ロール \"{0}\" を削除できませんでした。"
 
 #. placeholder {0}: this.state.role.name
 #: src/containers/role-management/role-edit.tsx
-msgid "Role \"{0}\" could not be displayed."
-msgstr "ロール \"{0}\" を表示できませんでした。"
+#~ msgid "Role \"{0}\" could not be displayed."
+#~ msgstr "ロール \"{0}\" を表示できませんでした。"
 
 #. placeholder {0}: selectedDeleteRole.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6115,6 +6116,10 @@ msgstr "ロール \"{name}\" を削除できませんでした。"
 msgid "Role \"{name}\" has been successfully deleted."
 msgstr "ロール \"{name}\" が正常に削除されました。"
 
+#: src/containers/role-management/role-edit.tsx
+msgid "Role \"{roleName}\" could not be displayed."
+msgstr ""
+
 #. placeholder {0}: role.name
 #. placeholder {1}: group.name
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6126,6 +6131,10 @@ msgstr "ロール {0} をグループ {1} に割り当てられませんでし�
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role {0} has been successfully added to {1}."
 msgstr "ロール {0} は {1} に正常に追加されました。"
+
+#: src/containers/role-management/role-edit.tsx
+msgid "Role could not be displayed."
+msgstr ""
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Role Header"
