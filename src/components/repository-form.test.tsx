@@ -143,6 +143,29 @@ describe('repository form, distribution option', () => {
     ).toBeInTheDocument();
   });
 
+  it('previews no URL, and still works, when the status answer holds no content settings', async () => {
+    server.use(
+      http.get(`*${API}/status/`, () =>
+        HttpResponse.json({ database_connection: { connected: true } }),
+      ),
+    );
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+
+    await user.type(
+      await screen.findByRole('textbox', { name: /Name/ }),
+      'tools',
+    );
+    await user.click(distributionBox());
+
+    expect(
+      await screen.findByText(
+        'The client URL is shown on the repository page once the distribution exists.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/URL \(preview\)/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+  });
+
   it('does not render the box or a base path field when editing, and Save asks for no distribution', async () => {
     const onSave = vi.fn();
     const { user } = renderWithProviders(

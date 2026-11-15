@@ -482,6 +482,10 @@ async function loadUrlPrefix(plugin: string): Promise<string | null> {
     const {
       data: { content_settings },
     } = await PulpStatusAPI.get();
+    // A reduced answer carries no content settings: nothing to derive.
+    if (!content_settings) {
+      return null;
+    }
     const origin = (
       content_settings.content_origin || window.location.origin
     ).replace(/\/+$/, '');

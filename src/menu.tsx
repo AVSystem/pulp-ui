@@ -145,13 +145,9 @@ function buildGroups(
   signedIn: boolean,
   installed: ReadonlySet<string>,
 ): IMenuGroup[] {
-  const status: IMenuEntry = {
-    id: 'status',
-    label: t`Workers and status`,
-    path: formatPath(Paths.core.status),
-    icon: HeartbeatIcon,
-  };
-
+  // Before sign-in the menu leads only to the login page. The status screen
+  // stays reachable by its address and from the brand link; what it shows to a
+  // visitor is the server's decision.
   if (!signedIn) {
     return [
       {
@@ -164,9 +160,15 @@ function buildGroups(
           },
         ],
       },
-      { id: 'operations', title: t`Operations`, entries: [status] },
     ];
   }
+
+  const status: IMenuEntry = {
+    id: 'status',
+    label: t`Workers and status`,
+    path: formatPath(Paths.core.status),
+    icon: HeartbeatIcon,
+  };
 
   const sections: IMenuEntry[] = [
     {

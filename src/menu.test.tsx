@@ -270,23 +270,18 @@ describe('navigation menu', () => {
     }
   });
 
-  it('offers only Login and Workers and status when signed out', async () => {
+  it('offers only Login when signed out', async () => {
     reportPlugins(ALL_PLUGINS);
 
     renderWithProviders(<PulpMenu />);
     await screen.findByRole('link', { name: 'Login' });
 
     const nav = screen.getByRole('navigation', { name: 'Main' });
-    expect(labels(Array.from(nav.querySelectorAll('a'))).sort()).toEqual([
-      'Login',
-      'Workers and status',
-    ]);
+    expect(labels(Array.from(nav.querySelectorAll('a')))).toEqual(['Login']);
     expect(item('login')).toHaveAttribute('href', '/login/');
-    expect(item('status')).toHaveAttribute('href', '/status/');
+    expect(item('status')).toBeNull();
     expect(within(nav).queryByRole('button')).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { name: 'Content' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryAllByRole('heading')).toEqual([]);
   });
 
   it('sends no request to status/ while signed out', async () => {
@@ -676,14 +671,14 @@ describe('menu model', () => {
     ).toBe('/deb/repositories/');
   });
 
-  it('lists only Login and Workers and status when signed out', async () => {
+  it('lists only Login when signed out', async () => {
     reportPlugins(ALL_PLUGINS);
 
     renderWithProviders(<ModelList />);
 
     await screen.findByText('Login');
     expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual(
-      ['Login', 'Workers and status'],
+      ['Login'],
     );
   });
 });

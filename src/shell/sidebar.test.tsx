@@ -61,6 +61,7 @@ describe('sidebar footer', () => {
   });
 
   it('shows no version before the plugin list answered', async () => {
+    signIn();
     let release: () => void = () => undefined;
     const gate = new Promise<void>((resolve) => {
       release = resolve;
@@ -84,6 +85,7 @@ describe('sidebar footer', () => {
   });
 
   it('shows no version when the plugin list cannot be read', async () => {
+    signIn();
     server.use(
       http.get('*/pulp/api/v3/status/', () =>
         HttpResponse.json({ detail: 'Failed.' }, { status: 500 }),
@@ -97,6 +99,7 @@ describe('sidebar footer', () => {
   });
 
   it('does not show the version of the user interface build', async () => {
+    signIn();
     reportCore('3.49.1');
 
     renderShell();
@@ -106,6 +109,7 @@ describe('sidebar footer', () => {
   });
 
   it('keeps the host out of the footer on a wide screen', async () => {
+    signIn();
     reportCore('3.49.1');
 
     renderShell();
@@ -117,6 +121,7 @@ describe('sidebar footer', () => {
 
   it('shows the host in the footer below the width of the persistent sidebar', async () => {
     setPageWidth(900);
+    signIn();
     reportCore('3.49.1');
 
     renderShell();
@@ -126,6 +131,36 @@ describe('sidebar footer', () => {
       '.pulp-sidebar__footer',
     ) as HTMLElement;
     expect(within(footer).getByText('pulp.example.com')).toBeInTheDocument();
+  });
+});
+
+describe('sidebar before sign-in', () => {
+  beforeEach(() => {
+    setPageUrl('https://pulp.example.com/ui/');
+    setPageWidth(1400);
+  });
+
+  afterEach(resetPageWidth);
+
+  it('offers only Login: no Workers and status entry and no Operations label', async () => {
+    renderShell();
+
+    const nav = await within(sidebar()).findByRole('navigation', {
+      name: 'Main',
+    });
+    await within(nav).findByRole('link', { name: 'Login' });
+
+    expect(nav.querySelectorAll('a')).toHaveLength(1);
+    expect(
+      sidebar().querySelector('[data-cy=pulp-menu-item-login]'),
+    ).not.toBeNull();
+    expect(
+      sidebar().querySelector('[data-cy=pulp-menu-item-status]'),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Operations' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Workers and status')).not.toBeInTheDocument();
   });
 });
 

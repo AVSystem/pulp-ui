@@ -422,13 +422,13 @@ describe('palette', () => {
     );
   });
 
-  it('offers the sign-in screen and the status screen to a visitor who is not signed in', async () => {
+  it('offers only the sign-in screen to a visitor who is not signed in', async () => {
     const { user } = renderPalette();
 
     await openPalette(user);
     await screen.findAllByRole('option');
 
-    expect(optionNames()).toEqual(['Login', 'Workers and status']);
+    expect(optionNames()).toEqual(['Login']);
   });
 });
 

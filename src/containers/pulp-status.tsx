@@ -241,6 +241,69 @@ const CardJSON = ({ status }: { status }) => {
   );
 };
 
+// The cards of the answer, in the order they are shown. A card is listed only
+// when its key is in the answer, so a reduced answer shows fewer cards and no
+// placeholder stands in for the missing ones.
+function cards(status) {
+  const all: { key: string; title: string; body: ReactNode }[] = [
+    {
+      key: 'versions',
+      title: t`Versions`,
+      body: <StatusVersions versions={status.versions} />,
+    },
+    {
+      key: 'storage',
+      title: t`Storage`,
+      body: <StatusStorage storage={status.storage} />,
+    },
+    {
+      key: 'content_settings',
+      title: t`Content settings`,
+      body: <StatusContentSettings contentSettings={status.content_settings} />,
+    },
+    {
+      key: 'database_connection',
+      title: t`Database connection`,
+      body: (
+        <StatusDatabaseConnection
+          databaseConnection={status.database_connection}
+        />
+      ),
+    },
+    {
+      key: 'redis_connection',
+      title: t`Redis connection`,
+      body: <StatusRedisConnection redisConnection={status.redis_connection} />,
+    },
+    {
+      key: 'domain_enabled',
+      title: t`Domain enabled`,
+      body: <StatusDomainEnabled domainEnabled={status.domain_enabled} />,
+    },
+    {
+      key: 'online_workers',
+      title: t`Online workers`,
+      body: <StatusOnlineWorkers onlineWorkers={status.online_workers} />,
+    },
+    {
+      key: 'online_api_apps',
+      title: t`Online api apps`,
+      body: <StatusOnlineApiApps onlineApiApps={status.online_api_apps} />,
+    },
+    {
+      key: 'online_content_apps',
+      title: t`Online content apps`,
+      body: (
+        <StatusOnlineContentApps
+          onlineContentApps={status.online_content_apps}
+        />
+      ),
+    },
+  ];
+
+  return all.filter(({ key }) => key in status);
+}
+
 class PulpStatus extends Component<RouteProps, IState> {
   constructor(props) {
     super(props);
@@ -276,42 +339,17 @@ class PulpStatus extends Component<RouteProps, IState> {
           </Main>
         ) : (
           <Main>
+            {'versions' in status ? null : (
+              // A visitor who is not signed in gets a reduced answer; only
+              // what it holds is shown, and this line says what is left out.
+              <p>{t`Versions, workers and storage are shown to signed-in users.`}</p>
+            )}
             <Gallery hasGutter>
-              <CardItem title={t`Versions`}>
-                <StatusVersions versions={status?.versions} />
-              </CardItem>
-              <CardItem title={t`Storage`}>
-                <StatusStorage storage={status?.storage} />
-              </CardItem>
-              <CardItem title={t`Content settings`}>
-                <StatusContentSettings
-                  contentSettings={status?.content_settings}
-                />
-              </CardItem>
-              <CardItem title={t`Database connection`}>
-                <StatusDatabaseConnection
-                  databaseConnection={status?.database_connection}
-                />
-              </CardItem>
-              <CardItem title={t`Redis connection`}>
-                <StatusRedisConnection
-                  redisConnection={status?.redis_connection}
-                />
-              </CardItem>
-              <CardItem title={t`Domain enabled`}>
-                <StatusDomainEnabled domainEnabled={status?.domain_enabled} />
-              </CardItem>
-              <CardItem title={t`Online workers`}>
-                <StatusOnlineWorkers onlineWorkers={status?.online_workers} />
-              </CardItem>
-              <CardItem title={t`Online api apps`}>
-                <StatusOnlineApiApps onlineApiApps={status?.online_api_apps} />
-              </CardItem>
-              <CardItem title={t`Online content apps`}>
-                <StatusOnlineContentApps
-                  onlineContentApps={status?.online_content_apps}
-                />
-              </CardItem>
+              {cards(status).map(({ key, title, body }) => (
+                <CardItem key={key} title={title}>
+                  {body}
+                </CardItem>
+              ))}
             </Gallery>
             <br />
             <CardJSON status={status} />{' '}
