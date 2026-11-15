@@ -46,6 +46,9 @@ const REPOSITORY_REQUEST_SIZE = 50;
 const TRIGGER_ID = 'pulp-palette-trigger';
 const INPUT_ID = 'pulp-palette-input';
 
+// A dialog that is open anywhere on the page.
+const DIALOG_SELECTOR = '.pf-v6-c-modal-box';
+
 // Whether the shortcut is Cmd+K: on Apple platforms. The shortcut itself works
 // with either modifier everywhere.
 function isApplePlatform(): boolean {
@@ -486,6 +489,13 @@ export const CommandPalette = () => {
         event.key.toLowerCase() === 'k'
       ) {
         event.preventDefault();
+        // The shortcut does nothing while the palette is open, which would
+        // record the palette's own input as the place to return to, or while
+        // another dialog is open, which the palette would stack over with a
+        // second focus trap.
+        if (isOpen || document.querySelector(DIALOG_SELECTOR)) {
+          return;
+        }
         opener.current = document.activeElement;
         setOpen(true);
       }
@@ -493,7 +503,7 @@ export const CommandPalette = () => {
     document.addEventListener('keydown', onKey, { capture: true });
     return () =>
       document.removeEventListener('keydown', onKey, { capture: true });
-  }, []);
+  }, [isOpen]);
 
   // When the palette closes, the focus goes back to the button; if the button
   // cannot take it (a collapsed sidebar), to what had it before.

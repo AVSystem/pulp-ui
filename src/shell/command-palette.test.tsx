@@ -158,6 +158,50 @@ describe('keyboard shortcut', () => {
   });
 });
 
+describe('keyboard shortcut while a dialog is open', () => {
+  it('keeps the place to return to when pressed inside the open palette', async () => {
+    signIn();
+    const { user } = renderPalette();
+    // A collapsed sidebar cannot take the focus back, so the field that had it
+    // before the palette opened is the place to return to.
+    (await trigger()).setAttribute('disabled', '');
+    const field = screen.getByRole('textbox', { name: 'Some field' });
+    field.focus();
+    fireEvent.keyDown(field, { key: 'k', ctrlKey: true });
+    const box = await input();
+
+    const notCancelled = fireEvent.keyDown(box, { key: 'k', ctrlKey: true });
+    await user.keyboard('{Escape}');
+
+    // The browser's own use of the key is still cancelled.
+    expect(notCancelled).toBe(false);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(field).toHaveFocus();
+  });
+
+  it('does not open over another dialog', async () => {
+    signIn();
+    renderWithProviders(
+      <>
+        <CommandPalette />
+        <div className='pf-v6-c-modal-box' role='dialog' aria-label='Other'>
+          <button type='button'>Inside</button>
+        </div>
+      </>,
+    );
+    const inside = screen.getByRole('button', { name: 'Inside' });
+    inside.focus();
+
+    const notCancelled = fireEvent.keyDown(inside, { key: 'k', ctrlKey: true });
+
+    expect(notCancelled).toBe(false);
+    expect(
+      screen.queryByRole('dialog', { name: 'Search or go to' }),
+    ).not.toBeInTheDocument();
+    expect(inside).toHaveFocus();
+  });
+});
+
 describe('palette', () => {
   it('focuses a combobox that controls a listbox of options', async () => {
     signIn();
