@@ -46,7 +46,10 @@ import {
   translateTask,
   withRouter,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 import './task.scss';
 
 interface IState {
@@ -112,6 +115,14 @@ export class TaskListView extends Component<RouteProps, IState> {
 
   componentDidMount() {
     this.queryTasks();
+  }
+
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the list again, keeping the rows on
+    // screen until the answer arrives.
+    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      this.queryTasks(true);
+    }
   }
 
   render() {
@@ -477,6 +488,12 @@ export class TaskListView extends Component<RouteProps, IState> {
         this.queryTasks();
       })
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it. The task was not
+        // stopped and nothing is repeated.
+        if (isSessionEnd(e)) {
+          this.setState({ cancelModalVisible: false });
+          return;
+        }
         this.setState({
           loading: true,
           cancelModalVisible: false,
@@ -492,8 +509,9 @@ export class TaskListView extends Component<RouteProps, IState> {
       });
   }
 
-  private queryTasks() {
-    this.setState({ loading: true }, () => {
+  // A quiet read keeps the rows on screen instead of showing the spinner.
+  private queryTasks(quiet = false) {
+    this.setState({ loading: quiet ? this.state.loading : true }, () => {
       TaskAPI.list(this.state.params)
         .then((result) => {
           this.setState({
@@ -503,6 +521,11 @@ export class TaskListView extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
+          // The session ended: the sign-in dialog explains it, and the list
+          // keeps its spinner or its rows until it reads again.
+          if (isSessionEnd(e)) {
+            return;
+          }
           this.setState({
             loading: false,
             items: [],
@@ -539,9 +562,11 @@ export class TaskListView extends Component<RouteProps, IState> {
         this.addAlert(t`Orphan cleanup started`, 'success');
         this.queryTasks();
       })
-      .catch(() =>
-        this.addAlert(t`Orphan cleanup could not be started`, 'danger'),
-      );
+      .catch((e) => {
+        if (!isSessionEnd(e)) {
+          this.addAlert(t`Orphan cleanup could not be started`, 'danger');
+        }
+      });
   }
 
   private repair(task: { verify_checksums: boolean }) {
@@ -550,12 +575,14 @@ export class TaskListView extends Component<RouteProps, IState> {
         this.addAlert(t`Repair artifact storage started`, 'success');
         this.queryTasks();
       })
-      .catch(() =>
-        this.addAlert(
-          t`Repair artifact storage could not be started`,
-          'danger',
-        ),
-      );
+      .catch((e) => {
+        if (!isSessionEnd(e)) {
+          this.addAlert(
+            t`Repair artifact storage could not be started`,
+            'danger',
+          );
+        }
+      });
   }
 
   private purge(task: { finished_before: string; states: string[] }) {
@@ -564,9 +591,11 @@ export class TaskListView extends Component<RouteProps, IState> {
         this.addAlert(t`Purge tasks started`, 'success');
         this.queryTasks();
       })
-      .catch(() =>
-        this.addAlert(t`Purge tasks could not be started`, 'danger'),
-      );
+      .catch((e) => {
+        if (!isSessionEnd(e)) {
+          this.addAlert(t`Purge tasks could not be started`, 'danger');
+        }
+      });
   }
 
   private updateParams(params, callback = null) {

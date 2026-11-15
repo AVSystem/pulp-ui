@@ -8,9 +8,10 @@ import {
   ListItem,
   TextInput,
 } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Paths, formatPath } from 'src/paths';
+import { useSessionEpoch } from 'src/user-context';
 import { ContentGuardAPI } from '../api/content-guard';
 import {
   DeleteNotStarted,
@@ -24,6 +25,7 @@ import {
   distributionsLoadError,
   repositoryDistributions,
 } from '../utilities/repository-distributions';
+import { isSessionEnd } from '../utilities/request-error';
 import { DeleteModal } from './delete-modal';
 import { DistributionURL } from './distribution-url';
 import { Alert, Spinner } from './patternfly-wrappers/l10n';
@@ -75,7 +77,13 @@ async function guardNamesOf(
     return Object.fromEntries(
       guards.map(({ pulp_href, name }) => [pulp_href, name]),
     );
-  } catch {
+  } catch (e) {
+    // A refused read for a user who may not see the guards leaves the names
+    // out. A read that failed only because the session ended is not that: the
+    // whole listing is read again after signing in, with the names.
+    if (isSessionEnd(e)) {
+      throw e;
+    }
     return {};
   }
 }
@@ -226,8 +234,29 @@ export const DeleteRepositoryModal = ({
     nothingDeleted: boolean;
   } | null>(null);
 
+  // grows when the same user signs in again, so the distributions are listed again
+  const epoch = useSessionEpoch();
+  const listedEpoch = useRef(epoch);
+  // Once a delete has started or finished, the listing on screen is the one
+  // that was passed to it and a later read must not replace it.
+  const frozen = useRef(false);
+  frozen.current = deleting || kept !== null;
+
   useEffect(() => {
     let cancelled = false;
+
+    // A listing read again for a new session keeps the list on screen, and a
+    // listing that failed starts over like a first read.
+    const again = listedEpoch.current !== epoch;
+    listedEpoch.current = epoch;
+    if (again && frozen.current) {
+      return;
+    }
+    setListing((shown) =>
+      shown.status !== 'loading' && (!again || shown.status === 'error')
+        ? { status: 'loading' }
+        : shown,
+    );
 
     repositoryDistributions(plugin, pulpHref, { complete: true })
       .then(async (distributions) => ({
@@ -235,16 +264,22 @@ export const DeleteRepositoryModal = ({
         guardNames: await guardNamesOf(distributions),
       }))
       .then(
-        (loaded) => !cancelled && setListing({ status: 'ready', ...loaded }),
-        (e) =>
+        (loaded) =>
           !cancelled &&
+          !frozen.current &&
+          setListing({ status: 'ready', ...loaded }),
+        (e) =>
+          // The session ended: the sign-in dialog explains it, and the dialog
+          // keeps its list or its spinner until the read runs again.
+          !cancelled &&
+          !isSessionEnd(e) &&
           setListing({ status: 'error', message: distributionsLoadError(e) }),
       );
 
     return () => {
       cancelled = true;
     };
-  }, [plugin, pulpHref]);
+  }, [plugin, pulpHref, epoch]);
 
   if (!name) {
     return null;

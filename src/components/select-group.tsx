@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Flex, FlexItem, Label } from '@patternfly/react-core';
 import { Td } from '@patternfly/react-table';
-import { type FunctionComponent, useEffect, useState } from 'react';
+import { type FunctionComponent, useEffect, useRef, useState } from 'react';
 import { GroupAPI, type GroupType } from 'src/api';
 import {
   AppliedFilters,
@@ -13,7 +13,9 @@ import {
   RadioRow,
   RoleListTable,
 } from 'src/components';
+import { useSessionEpoch } from 'src/user-context';
 import { filterIsSet } from 'src/utilities';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 interface IProps {
   assignedGroups: GroupType[];
@@ -36,17 +38,44 @@ export const SelectGroup: FunctionComponent<IProps> = ({
     page_size: 10,
   });
 
+  // grows when the same user signs in again, so the list reads again
+  const epoch = useSessionEpoch();
+  const firstEpoch = useRef(epoch);
+  // numbers the reads, so an answer that is no longer the latest is dropped
+  const latestRead = useRef(0);
+
   useEffect(() => {
-    queryGroups();
+    queryGroups(false);
   }, [localParams]);
 
-  const queryGroups = () => {
-    setLoading(true);
-    GroupAPI.list(localParams).then(({ data }) => {
-      setGroups(data.data);
-      setGroupsCount(data.meta.count);
-      setLoading(false);
-    });
+  useEffect(() => {
+    if (epoch !== firstEpoch.current) {
+      queryGroups(true);
+    }
+  }, [epoch]);
+
+  // A quiet read keeps the rows on screen; the selection lives in the parent
+  // and the filter text in this component, so neither is touched by a read.
+  const queryGroups = (quiet: boolean) => {
+    const read = ++latestRead.current;
+    if (!quiet) {
+      setLoading(true);
+    }
+    GroupAPI.list(localParams)
+      .then(({ data }) => {
+        if (read === latestRead.current) {
+          setGroups(data.results);
+          setGroupsCount(data.count);
+          setLoading(false);
+        }
+      })
+      .catch((e) => {
+        // The session ended: the sign-in dialog explains it and the list
+        // reads again after signing in.
+        if (!isSessionEnd(e)) {
+          throw e;
+        }
+      });
   };
 
   if (loading) {

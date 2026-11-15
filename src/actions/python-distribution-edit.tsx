@@ -16,11 +16,12 @@ import { type AlertType } from '../components/alert-list';
 import { FormFieldHelper } from '../components/form-field-helper';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
 import { Typeahead } from '../components/typeahead';
+import { useSessionEpoch } from '../user-context';
 import { changedFields } from '../utilities/changed-fields';
 import { saveErrorMessages } from '../utilities/create-repository';
 import { type ErrorMessagesType } from '../utilities/map-error-messages';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
-import { requestErrorText } from '../utilities/request-error';
+import { isSessionEnd, requestErrorText } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import { TaskPending, waitForTaskUrl } from '../utilities/wait-for-task';
 import { Action } from './action';
@@ -70,11 +71,18 @@ const EditModal = ({
   const [remotesError, setRemotesError] = useState<string | null>(null);
   const [errors, setErrors] = useState<ErrorMessagesType>({});
   const [saving, setSaving] = useState(false);
+  // grows when the same user signs in again, so the dialog reads again
+  const epoch = useSessionEpoch();
+  // set once the user changes a field; a read again then leaves the form alone
+  const touched = useRef(false);
 
   // Identifies the latest search, so a slower answer to an earlier text cannot
   // replace the list of a later one.
   const latestRemotes = useRef(0);
+  // the text of the latest search, so a read again keeps the shown list
+  const remoteSearch = useRef<string | undefined>(undefined);
   const loadRemotes = (search?: string) => {
+    remoteSearch.current = search;
     const current = ++latestRemotes.current;
     setRemotesError(null);
     PythonRemoteAPI.list(search ? { name__icontains: search } : {})
@@ -86,7 +94,9 @@ const EditModal = ({
         }
       })
       .catch((e) => {
-        if (current === latestRemotes.current) {
+        // The session ended: the list stays as it is and is read again after
+        // signing in.
+        if (current === latestRemotes.current && !isSessionEnd(e)) {
           setRemotes([]);
           setRemotesError(requestErrorText(e));
         }
@@ -97,7 +107,7 @@ const EditModal = ({
     // a load that is no longer the current one must not change the form
     let current = true;
 
-    loadRemotes();
+    loadRemotes(remoteSearch.current);
     PythonDistributionAPI.get(id)
       .then(async ({ data }) => {
         let choice: RemoteChoice | null = null;
@@ -106,16 +116,27 @@ const EditModal = ({
           // carries as a link; without the name the link itself is shown
           choice = await PythonRemoteAPI.get(parsePulpIDFromURL(data.remote))
             .then(({ data: r }) => ({ name: r.name, id: data.remote }))
-            .catch(() => ({ name: data.remote, id: data.remote }));
+            .catch((e) => {
+              // a session that ended is not a missing name: read it all again
+              if (isSessionEnd(e)) {
+                throw e;
+              }
+              return { name: data.remote, id: data.remote };
+            });
         }
-        if (current) {
+        // An untouched form shows the fresh distribution; a form the user has
+        // changed keeps what they chose.
+        if (current && !touched.current) {
           setLoaded(data);
           setAllowUploads(data.allow_uploads !== false);
           setRemote(choice);
+          setLoadError(null);
         }
       })
       .catch((e) => {
-        if (current) {
+        // The session ended: the dialog keeps its spinner or its form and
+        // reads again after signing in.
+        if (current && !isSessionEnd(e)) {
           setLoadError(requestErrorText(e));
         }
       });
@@ -123,7 +144,7 @@ const EditModal = ({
     return () => {
       current = false;
     };
-  }, [id]);
+  }, [id, epoch]);
 
   const save = async () => {
     const changes = changedFields(loaded, {
@@ -192,10 +213,14 @@ const EditModal = ({
             <FormGroup fieldId='remote' label={t`Pull-through remote`}>
               <Typeahead
                 loadResults={loadRemotes}
-                onClear={() => setRemote(null)}
+                onClear={() => {
+                  touched.current = true;
+                  setRemote(null);
+                }}
                 onSelect={(_event, value) => {
                   const chosen = remotes.find((r) => r.name === value);
                   if (chosen) {
+                    touched.current = true;
                     setRemote({ name: chosen.name, id: chosen.pulp_href });
                   }
                 }}
@@ -217,7 +242,10 @@ const EditModal = ({
                 id='allow_uploads'
                 isChecked={allowUploads}
                 label={t`Allow uploads to this distribution`}
-                onChange={(_event, value) => setAllowUploads(value)}
+                onChange={(_event, value) => {
+                  touched.current = true;
+                  setAllowUploads(value);
+                }}
               />
               <FormFieldHelper
                 variant={errors['allow_uploads'] ? 'error' : 'default'}

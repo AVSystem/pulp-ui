@@ -1,10 +1,23 @@
-import { screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { TaskAPI } from 'src/api';
 import { AppContextProvider } from 'src/app-context';
+import {
+  reportUnauthorized,
+  resetSessionEvents,
+  resume,
+  setSignedIn,
+} from 'src/session/session-events';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  recordWrites,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import TaskDetail from './task-detail';
 
 const task = {
@@ -93,5 +106,160 @@ describe('task detail', () => {
     await screen.findByRole('dialog');
 
     expect(messages()).toEqual(first);
+  });
+});
+
+describe('task detail after the same user signs in again', () => {
+  afterEach(() => {
+    resetSessionEvents();
+    vi.restoreAllMocks();
+  });
+
+  const URL_PATH = '*/pulp/api/v3/tasks/:id/';
+  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
+  const signInAgain = (user) =>
+    user.click(screen.getByRole('button', { name: 'Sign in again' }));
+  const refused = http.get(URL_PATH, () =>
+    HttpResponse.json({ detail: 'no' }, { status: 401 }),
+  );
+  const serve = (overrides: Partial<typeof task> = {}) => {
+    const reads = { count: 0 };
+    server.use(
+      http.get(URL_PATH, () => {
+        reads.count++;
+        return HttpResponse.json({ ...task, ...overrides });
+      }),
+    );
+    return reads;
+  };
+  const progress = (message: string) => ({
+    progress_reports: [{ message, code: 'clean-up.content', done: 1 }],
+  });
+
+  function renderSignedIn() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <Routes>
+          <Route path='/tasks/:task' element={<TaskDetail />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/tasks/0192e5a1-0000-7000-8000-000000000001' },
+    );
+  }
+
+  it('reads the task again and shows the fresh one', async () => {
+    serve({ state: 'running', ...progress('Step one') });
+    const { user } = renderSignedIn();
+    await screen.findByText('Step one');
+    await signedIn();
+    serve({ state: 'running', ...progress('Step two') });
+
+    await signInAgain(user);
+
+    expect(await screen.findByText('Step two')).toBeInTheDocument();
+  });
+
+  it('keeps its content, with no alert and no not-found page, when the read is refused with 401', async () => {
+    serve({ state: 'running', ...progress('Step one') });
+    const { user } = renderSignedIn();
+    await screen.findByText('Step one');
+    await signedIn();
+    server.use(refused);
+
+    await signInAgain(user);
+    await pause();
+
+    expect(screen.getByText('Step one')).toBeInTheDocument();
+    expect(screen.queryByText(/Page not found/)).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('keeps the spinner, with no not-found page, when the first read is refused, and shows the task after signing in', async () => {
+    server.use(refused);
+    const { user } = renderSignedIn();
+    await signedIn();
+    await pause();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByText(/Page not found/)).toBeNull();
+    serve({ state: 'running', ...progress('Step one') });
+
+    await signInAgain(user);
+
+    expect(await screen.findByText('Step one')).toBeInTheDocument();
+  });
+
+  it('still shows the not-found page when the task cannot be read for another reason', async () => {
+    server.use(
+      http.get(URL_PATH, () =>
+        HttpResponse.json({ detail: 'gone' }, { status: 404 }),
+      ),
+    );
+    renderSignedIn();
+
+    expect(await screen.findByText(/Page not found/)).toBeInTheDocument();
+  });
+
+  describe('the poll of a running task', () => {
+    // the callback the page registered for its 10 second poll
+    const pollOf = (spy: ReturnType<typeof vi.spyOn>) => {
+      const call = spy.mock.calls.find(([, delay]) => delay === 10000);
+      return call[0] as () => void;
+    };
+
+    it('asks for nothing while the sign-in dialog is open and reads again after signing in', async () => {
+      const spy = vi.spyOn(window, 'setInterval');
+      // counts the attempts: the request layer would hold a request back
+      // while the dialog is open, so the poll itself must not try
+      const attempts = vi.spyOn(TaskAPI, 'get');
+      serve({ state: 'running', ...progress('Step one') });
+      renderSignedIn();
+      await screen.findByText('Step one');
+      await signedIn();
+      const poll = pollOf(spy);
+
+      setSignedIn(true);
+      act(() => reportUnauthorized('request'));
+      const before = attempts.mock.calls.length;
+      act(() => poll());
+      await pause();
+      expect(attempts.mock.calls.length).toBe(before);
+
+      act(() => resume());
+      act(() => poll());
+      await waitFor(() => expect(attempts.mock.calls.length).toBe(before + 1));
+    });
+
+    it('adds no alert when a poll is refused with 401', async () => {
+      const spy = vi.spyOn(window, 'setInterval');
+      serve({ state: 'running', ...progress('Step one') });
+      renderSignedIn();
+      await screen.findByText('Step one');
+      await signedIn();
+      const poll = pollOf(spy);
+      server.use(refused);
+
+      act(() => poll());
+      await pause();
+
+      expect(screen.getByText('Step one')).toBeInTheDocument();
+      expect(screen.queryByText(/Page not found/)).toBeNull();
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+  });
+
+  it('sends no write', async () => {
+    serve({ state: 'running', ...progress('Step one') });
+    const recorded = recordWrites();
+    const { user } = renderSignedIn();
+    await screen.findByText('Step one');
+    await signedIn();
+
+    await signInAgain(user);
+    await pause();
+
+    expect(recorded.writes).toEqual(['POST /pulp/api/v3/login/']);
+    recorded.stop();
   });
 });

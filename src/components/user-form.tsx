@@ -6,7 +6,7 @@ import {
   Label,
   TextInput,
 } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GroupAPI, type UserType } from 'src/api';
 import {
   Alert,
@@ -16,8 +16,12 @@ import {
   HelpButton,
   Typeahead,
 } from 'src/components';
+import { useSessionEpoch } from 'src/user-context';
 import { type ErrorMessagesType } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface IProps {
   errorMessages: ErrorMessagesType;
@@ -48,7 +52,14 @@ export const UserForm = ({
     { name: string; id: number }[]
   >([]);
 
-  useEffect(() => loadGroups(''), []);
+  // grows when the same user signs in again, so the group list reads again
+  const epoch = useSessionEpoch();
+  // the filter of the latest group search, so a re-read keeps the shown list
+  const groupFilter = useRef('');
+
+  useEffect(() => {
+    loadGroups(groupFilter.current);
+  }, [epoch]);
 
   const minLength = 9; // actually counts codepoints, close enough
 
@@ -203,9 +214,15 @@ export const UserForm = ({
   }
 
   function loadGroups(name) {
+    groupFilter.current = name;
     GroupAPI.list({ name__contains: name, page_size: 5 })
       .then((result) => setSearchGroups(result.data.results))
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it and the groups
+        // read again after signing in.
+        if (isSessionEnd(e)) {
+          return;
+        }
         setFormErrors({
           ...formErrors,
           groups: {

@@ -20,13 +20,14 @@ import {
   Typeahead,
 } from 'src/components';
 import { config } from 'src/ui-config';
+import { useSessionEpoch } from 'src/user-context';
 import { type ErrorMessagesType, plugin2api } from 'src/utilities';
 import {
   basePathProblem,
   reservedPrefixFor,
   sanitizeBasePath,
 } from 'src/utilities/base-path-rules';
-import { requestErrorText } from 'src/utilities/request-error';
+import { isSessionEnd, requestErrorText } from 'src/utilities/request-error';
 
 interface IProps {
   allowEditName: boolean;
@@ -113,17 +114,24 @@ export const RepositoryForm = ({
   // a second click can arrive before the disabled button has rendered
   const savingRef = useRef(false);
 
+  // grows when the same user signs in again, so the lists read again
+  const epoch = useSessionEpoch();
+
   useEffect(() => {
     if (!isNew || !createDistribution) {
       return;
     }
 
     let current = true;
-    loadUrlPrefix(plugin).then((prefix) => current && setUrlPrefix(prefix));
+    loadUrlPrefix(plugin)
+      .then((prefix) => current && setUrlPrefix(prefix))
+      // The session ended: the preview keeps what it shows and is read again
+      // after signing in.
+      .catch(() => undefined);
     return () => {
       current = false;
     };
-  }, [isNew, createDistribution, plugin]);
+  }, [isNew, createDistribution, plugin, epoch]);
 
   const problem = createDistribution ? basePathProblem(basePath) : null;
   // The deployment's list of reserved prefixes is known only when the
@@ -186,7 +194,10 @@ export const RepositoryForm = ({
   // Identifies the latest search, so a slower answer to an earlier text cannot
   // replace the list of a later one.
   const latestRemotes = useRef(0);
+  // the text of the latest search, so a read again keeps the shown list
+  const remoteSearch = useRef<string | undefined>(undefined);
   const loadRemotes = (name?) => {
+    remoteSearch.current = name;
     const current = ++latestRemotes.current;
     setRemotesError(null);
     const { RemoteAPI } = plugin2api(plugin);
@@ -198,14 +209,16 @@ export const RepositoryForm = ({
         }
       })
       .catch((e) => {
-        if (current === latestRemotes.current) {
+        // The session ended: the list stays as it is and is read again after
+        // signing in.
+        if (current === latestRemotes.current && !isSessionEnd(e)) {
           setRemotes([]);
           setRemotesError(requestErrorText(e));
         }
       });
   };
 
-  useEffect(() => loadRemotes(), []);
+  useEffect(() => loadRemotes(remoteSearch.current), [epoch]);
 
   const selectedRemote =
     remotes?.find?.(({ pulp_href }) => pulp_href === repository?.remote) ??
@@ -494,7 +507,12 @@ async function loadUrlPrefix(plugin: string): Promise<string | null> {
       '',
     );
     return `${origin}/${prefix ? `${prefix}/` : ''}`;
-  } catch {
+  } catch (e) {
+    // A session that ended is not "no prefix": the caller reads again after
+    // signing in.
+    if (isSessionEnd(e)) {
+      throw e;
+    }
     return null;
   }
 }
