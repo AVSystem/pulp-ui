@@ -290,6 +290,18 @@ function Palette({ onClose }: { onClose: () => void }) {
     search.state !== 'loading' &&
     search.state !== 'failed';
   const optionId = (result: IResult) => `${listId}-${result.id}`;
+  const highlightedElementId = highlighted ? optionId(highlighted) : undefined;
+
+  // The list scrolls and the focus stays in the input, so the highlighted row
+  // has to be brought into view by hand, or an arrow key could move the
+  // highlight to a row nobody can see.
+  useEffect(() => {
+    if (highlightedElementId) {
+      document
+        .getElementById(highlightedElementId)
+        ?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [highlightedElementId]);
 
   // The dialog has no close button: Escape closes it, and so does a press
   // anywhere outside it.
@@ -353,9 +365,7 @@ function Palette({ onClose }: { onClose: () => void }) {
             role='combobox'
             isExpanded
             aria-controls={listId}
-            aria-activedescendant={
-              highlighted ? optionId(highlighted) : undefined
-            }
+            aria-activedescendant={highlightedElementId}
             onChange={(_event, value) => {
               setQuery(value);
               setHighlightedId(null);

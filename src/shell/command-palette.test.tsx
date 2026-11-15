@@ -282,6 +282,36 @@ describe('palette', () => {
     expect(active()).toBe(1);
   });
 
+  it('scrolls the highlighted option into view when the highlight moves', async () => {
+    signIn();
+    const scrolled: string[] = [];
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function scrollIntoView(
+      this: Element,
+      options?: boolean | ScrollIntoViewOptions,
+    ) {
+      expect(options).toEqual({ block: 'nearest' });
+      scrolled.push(this.id);
+    };
+    try {
+      const { user } = renderPalette();
+      await openPalette(user);
+      await screen.findAllByRole('option');
+      const box = await input();
+      scrolled.length = 0;
+
+      await user.keyboard('{ArrowUp}');
+      expect(scrolled.at(-1)).toBe(box.getAttribute('aria-activedescendant'));
+      const last = scrolled.at(-1);
+
+      await user.keyboard('{ArrowDown}');
+      expect(scrolled.at(-1)).toBe(box.getAttribute('aria-activedescendant'));
+      expect(scrolled.at(-1)).not.toBe(last);
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
   it('closes on Escape and returns the focus to the trigger', async () => {
     signIn();
     const { user } = renderPalette();
