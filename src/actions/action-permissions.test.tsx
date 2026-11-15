@@ -11,6 +11,16 @@ import { RepositoryVersionsTab as PythonTab } from '../containers/python-reposit
 import { RepositoryVersionsTab as RpmTab } from '../containers/rpm-repository/tab-repository-versions';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { type ActionType } from './action';
+import { ansibleRemoteCreateAction } from './ansible-remote-create';
+import { ansibleRemoteDeleteAction } from './ansible-remote-delete';
+import { ansibleRemoteEditAction } from './ansible-remote-edit';
+import { ansibleRepositoryCollectionVersionAddAction } from './ansible-repository-collection-version-add';
+import { ansibleRepositoryCollectionVersionRemoveAction } from './ansible-repository-collection-version-remove';
+import { ansibleRepositoryCopyAction } from './ansible-repository-copy';
+import { ansibleRepositoryCreateAction } from './ansible-repository-create';
+import { ansibleRepositoryDeleteAction } from './ansible-repository-delete';
+import { ansibleRepositoryEditAction } from './ansible-repository-edit';
+import { ansibleRepositorySyncAction } from './ansible-repository-sync';
 import { debRemoteCreateAction } from './deb-remote-create';
 import { debRemoteDeleteAction } from './deb-remote-delete';
 import { debRemoteEditAction } from './deb-remote-edit';
@@ -177,6 +187,13 @@ const distributionItem = {
   pulp_href: `${API}/distributions/python/pypi/00000000-0000-4000-8000-0000000000e1/`,
 };
 
+const collectionVersionItem = {
+  namespace: 'zz',
+  name: 'collection',
+  version: '1.0.0',
+  pulp_href: `${API}/content/ansible/collection_versions/00000000-0000-4000-8000-0000000000f1/`,
+};
+
 const ROWS: Row[] = [
   ...rowsOf(
     'file',
@@ -234,6 +251,31 @@ const ROWS: Row[] = [
       remoteDelete: pythonRemoteDeleteAction,
     },
   ),
+  ...rowsOf(
+    'ansible',
+    { repository: 'ansiblerepository', remote: 'collectionremote' },
+    { repository: 'ansible/ansible', remote: 'ansible/collection' },
+    {
+      repositoryCreate: ansibleRepositoryCreateAction,
+      repositoryEdit: ansibleRepositoryEditAction,
+      repositorySync: ansibleRepositorySyncAction,
+      repositoryDelete: ansibleRepositoryDeleteAction,
+      remoteCreate: ansibleRemoteCreateAction,
+      remoteEdit: ansibleRemoteEditAction,
+      remoteDelete: ansibleRemoteDeleteAction,
+    },
+  ),
+  // Removing a collection version modifies the content of the repository the
+  // page shows; the row is a collection version, not the permission bearer.
+  {
+    label: 'ansible collection version remove',
+    action: ansibleRepositoryCollectionVersionRemoveAction,
+    permission: 'ansible.modify_ansible_repo_content',
+    objectLevel: true,
+    item: collectionVersionItem,
+    listed: collectionVersionItem,
+    plugin: 'ansible',
+  },
   // The distributions of a repository page are not read for their own
   // permission lists, so only a permission held on every object counts.
   {
@@ -451,4 +493,77 @@ describe('the revert action in the versions tab of a repository page', () => {
       expect(asked.every((target) => target === item)).toBe(true);
     },
   );
+});
+
+// The ansible repository actions that are not rows above.
+describe('the ansible repository actions that need more than a table row', () => {
+  const MODIFY = 'ansible.modify_ansible_repo_content';
+  const repo = {
+    name: 'zz-test-repo',
+    pulp_href: `${API}/repositories/ansible/ansible/00000000-0000-4000-8000-0000000000a1/`,
+  };
+
+  describe('the sync action', () => {
+    it('does not accept the permission to change a remote instead', () => {
+      const ctx = context({
+        global: ['ansible.change_collectionremote'],
+        object: { [repo.pulp_href]: ['ansible.change_collectionremote'] },
+      });
+
+      expect(ansibleRepositorySyncAction.isShown(repo, ctx)).toBe(false);
+    });
+  });
+
+  // The copy action only reads the distribution of the repository and puts a
+  // client configuration on the clipboard: it changes nothing, so it carries
+  // no permission and every reader of the repository is offered it.
+  describe('the copy action', () => {
+    it('declares no permission and is offered to a viewer', () => {
+      const ctx = context({ global: ['ansible.view_ansiblerepository'] });
+
+      expect(ansibleRepositoryCopyAction.permission).toBeUndefined();
+      expect(ansibleRepositoryCopyAction.isShown(repo, ctx)).toBe(true);
+    });
+  });
+
+  // The add action sits in the header of the collection versions tab, which
+  // has no item: the repository the tab belongs to is what its context
+  // answers for.
+  describe('the add collection action', () => {
+    const add = ansibleRepositoryCollectionVersionAddAction;
+
+    it('is absent, not disabled, for a viewer', () => {
+      const ctx = context({ global: ['ansible.view_ansiblerepository'] });
+
+      expect(add.isShown(null, ctx)).toBe(false);
+      expect(add.button(null, ctx)).toBeNull();
+    });
+
+    it('is shown to a holder of the modify permission on every repository', () => {
+      const ctx = context({ global: [MODIFY] });
+
+      expect(add.isShown(null, ctx)).toBe(true);
+      expect(shown(add.button(null, ctx))).toBeInTheDocument();
+    });
+
+    it('is shown when the repository lists the modify permission', () => {
+      const ctx = {
+        hasPermission: () => false,
+        hasObjectPermission: (name: string) => name === MODIFY,
+      };
+
+      expect(add.isShown(null, ctx)).toBe(true);
+    });
+
+    it('does not accept the change permission instead', () => {
+      const ctx = {
+        hasPermission: (name: string) =>
+          name === 'ansible.change_ansiblerepository',
+        hasObjectPermission: (name: string) =>
+          name === 'ansible.change_ansiblerepository',
+      };
+
+      expect(add.isShown(null, ctx)).toBe(false);
+    });
+  });
 });

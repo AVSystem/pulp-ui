@@ -4,6 +4,7 @@ import { Content } from '@patternfly/react-core';
 import { useState } from 'react';
 import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import { DeleteModal } from '../components/delete-modal';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
@@ -106,6 +107,7 @@ const RemoveCollectionVersionModal = ({
 
 export const ansibleRepositoryCollectionVersionRemoveAction = Action({
   title: msg`Remove`,
+  permission: ACTION_PERMISSIONS.ansible.repository.modify,
   modal: ({ addAlert, state, setState, reloadPage }) =>
     state.removeCollectionVersionModal ? (
       <RemoveCollectionVersionModal

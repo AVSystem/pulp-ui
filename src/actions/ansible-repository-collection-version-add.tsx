@@ -20,6 +20,7 @@ import {
   closeAlert,
 } from '../components/alert-list';
 import { DetailList } from '../components/detail-list';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
@@ -221,6 +222,12 @@ const AddCollectionVersionModal = ({
 
 export const ansibleRepositoryCollectionVersionAddAction = Action({
   title: msg`Add collection`,
+  // The action sits in the header of the collection versions tab, which has no
+  // item: the tab's context answers for the repository it belongs to, so the
+  // check is made here instead of through the permission parameter.
+  visible: (_item, { hasObjectPermission, hasPermission }) =>
+    !!hasPermission?.(ACTION_PERMISSIONS.ansible.repository.modify) ||
+    !!hasObjectPermission?.(ACTION_PERMISSIONS.ansible.repository.modify),
   modal: ({ addAlert, state, setState, reloadPage }) =>
     state.addCollectionVersionModal ? (
       <AddCollectionVersionModal

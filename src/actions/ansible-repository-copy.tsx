@@ -8,6 +8,8 @@ import {
 import { isSessionEnd } from '../utilities/request-error';
 import { Action } from './action';
 
+// Reads the distribution of the repository and puts a client configuration on
+// the clipboard. It changes nothing, so it declares no permission.
 export const ansibleRepositoryCopyAction = Action({
   title: msg`Copy CLI configuration`,
   onClick: async (item, { addAlert }) => {

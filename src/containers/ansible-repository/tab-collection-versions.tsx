@@ -16,7 +16,8 @@ interface TabProps {
   actionContext: {
     addAlert: (alert) => void;
     state: { params };
-    hasPermission;
+    hasPermission: (string) => boolean;
+    hasObjectPermission: (permission: string, target?: object) => boolean;
     // loads the repository page again
     query: () => void;
   };
@@ -24,7 +25,12 @@ interface TabProps {
 
 export const CollectionVersionsTab = ({
   item,
-  actionContext: { addAlert, hasPermission, query: reloadPage },
+  actionContext: {
+    addAlert,
+    hasPermission,
+    hasObjectPermission,
+    query: reloadPage,
+  },
 }: TabProps) => {
   // The list of the plain content endpoint knows the filters namespace, name,
   // version, q and tags and the repository version filters; any other key is
@@ -82,8 +88,11 @@ export const CollectionVersionsTab = ({
         query,
         reloadPage,
         hasPermission,
-        hasObjectPermission: (p: string): boolean =>
-          item?.my_permissions?.includes?.(p),
+        // The rows are collection versions, which carry no permissions of
+        // their own: the actions on them ask about the repository the page
+        // shows.
+        hasObjectPermission: (permission: string) =>
+          hasObjectPermission(permission),
       }}
       defaultPageSize={10}
       errorTitle={t`Collection versions could not be displayed.`}
