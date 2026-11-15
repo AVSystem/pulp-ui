@@ -169,6 +169,10 @@ msgstr "{name} 将被取消。"
 msgid "{name} will stop running."
 msgstr "{name} 将停止运行。"
 
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "{namespace}.{name} v{version}, already in the repository"
+msgstr ""
+
 #: src/components/collection-card.tsx
 #: src/components/collection-header.tsx
 #: src/components/collection-list-item.tsx
@@ -1435,6 +1439,10 @@ msgstr "修改集合后会出现集合版本。"
 #: src/containers/coming-soon-screens.tsx
 msgid "Collections"
 msgstr "集合"
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "Collections already in the repository cannot be marked, so none can be selected yet."
+msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Collections sync"
@@ -3644,6 +3652,10 @@ msgstr ""
 #: src/components/repository-form.tsx
 msgid "In order to retain all versions, leave this field blank."
 msgstr "要保留所有版本，请将此字段留空。"
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "In repository"
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Include all dependencies when syncing a collection."
@@ -6048,6 +6060,7 @@ msgstr "保留版本计数"
 msgid "Retries"
 msgstr ""
 
+#: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
 #: src/menu.tsx
 msgid "Retry"
@@ -6059,6 +6072,10 @@ msgstr ""
 
 #: src/menu.tsx
 msgid "Retry loading the plugin list"
+msgstr ""
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "Retry loading the repository content"
 msgstr ""
 
 #: src/shell/command-palette.tsx
@@ -7387,6 +7404,10 @@ msgstr "同步时要用于身份验证的密码。在使用令牌时不需要此
 #: src/app-routes.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
+msgstr ""
+
+#: src/actions/ansible-repository-collection-version-add.tsx
+msgid "The repository content could not be read"
 msgstr ""
 
 #. placeholder {0}: result.repositoryError

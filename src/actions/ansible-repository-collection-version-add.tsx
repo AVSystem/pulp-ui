@@ -1,19 +1,22 @@
 import { msg, plural, t } from '@lingui/core/macro';
 import {
+  AlertActionLink,
   Button,
   Checkbox,
+  Label,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
 } from '@patternfly/react-core';
 import { Td, Tr } from '@patternfly/react-table';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import {
   type AnsibleCollectionVersion,
   CollectionVersionAPI,
 } from '../api/collection-version';
+import { Alert } from '../components';
 import {
   AlertList,
   type AlertType,
@@ -23,8 +26,10 @@ import { DetailList } from '../components/detail-list';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
+import { isSessionEnd } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
+import './ansible-repository-collection-version-add.scss';
 import { reloadAfterContentTask } from './repository-content-task';
 
 // Adds the collection versions to the repository, then reloads the page once
@@ -74,21 +79,35 @@ async function add(
 }
 
 // Selects the collection version, or unselects it when it is selected already.
+// A version the repository already holds is never added to the selection.
 function toggleCollection(
   clicked: AnsibleCollectionVersion,
   collections: AnsibleCollectionVersion[],
+  held: ReadonlySet<string>,
 ): AnsibleCollectionVersion[] {
+  if (held.has(clicked.pulp_href)) {
+    return collections;
+  }
+
   return collections.some(({ pulp_href }) => pulp_href === clicked.pulp_href)
     ? collections.filter(({ pulp_href }) => pulp_href !== clicked.pulp_href)
     : [...collections, clicked];
 }
 
+// What the dialog knows about the content of the repository's latest version:
+// not yet (pending), not at all (failed), or the versions of the shown page
+// that it holds (done).
+type ContentRead = 'pending' | 'failed' | 'done';
+
 const AddCollectionVersionModal = ({
   addAction,
   closeAction,
+  latestVersionHref,
 }: {
   addAction: (selected) => Promise<void>;
   closeAction: () => void;
+  // the latest version of the repository; null for a repository without one
+  latestVersionHref: string | null;
 }) => {
   const labelId = useId();
   const [alerts, setAlerts] = useState([]);
@@ -96,8 +115,54 @@ const AddCollectionVersionModal = ({
   const [pending, setPending] = useState(false);
   const [selected, setSelected] = useState<AnsibleCollectionVersion[]>([]);
 
+  const [contentRead, setContentRead] = useState<ContentRead>('pending');
+  // every version seen so far that the repository holds, on any page
+  const [held, setHeld] = useState<ReadonlySet<string>>(new Set());
+  // the versions of the page the content read is about, for a retry
+  const pageHrefs = useRef<string[]>([]);
+  // numbers the content reads, so an answer for an older page is dropped
+  const latestRead = useRef(0);
+
   const addAlert = (alert: AlertType) => {
     setAlerts([...alerts, alert]);
+  };
+
+  // Asks which of the page's versions the latest repository version holds,
+  // with one request for the page. Until it answers, or after it failed,
+  // nothing can be selected: a version could be added that is already there.
+  // A failure that only means the session ended shows nothing and keeps the
+  // pending state; the list reads again after signing in.
+  const readContent = (hrefs: string[]) => {
+    pageHrefs.current = hrefs;
+    const read = ++latestRead.current;
+
+    if (!latestVersionHref || !hrefs.length) {
+      setContentRead('done');
+      return;
+    }
+
+    setContentRead('pending');
+    CollectionVersionAPI.list({
+      repository_version: latestVersionHref,
+      pulp_href__in: hrefs.join(','),
+      page: 1,
+      page_size: hrefs.length,
+    })
+      .then(({ data: { results } }) => {
+        if (read === latestRead.current) {
+          setHeld((known) => {
+            const all = new Set(known);
+            results.forEach(({ pulp_href }) => all.add(pulp_href));
+            return all;
+          });
+          setContentRead('done');
+        }
+      })
+      .catch((e) => {
+        if (read === latestRead.current && !isSessionEnd(e)) {
+          setContentRead('failed');
+        }
+      });
   };
 
   // The plain content endpoint answers a filter it does not know with
@@ -106,31 +171,54 @@ const AddCollectionVersionModal = ({
   const query = ({ params } = {}) => {
     const rest = { ...params };
     delete rest.sort;
-    return CollectionVersionAPI.list(rest);
+    return CollectionVersionAPI.list(rest).then((response) => {
+      readContent(
+        response.data.results.map(
+          ({ pulp_href }: AnsibleCollectionVersion) => pulp_href,
+        ),
+      );
+      return response;
+    });
   };
 
   const [modalState, setModalState] = useState({});
 
   const renderTableRow = (item: AnsibleCollectionVersion, index: number) => {
     const { name, namespace, version, description } = item;
+    const inRepository = held.has(item.pulp_href);
+    const selectable = contentRead === 'done' && !inRepository;
 
     return (
       <Tr
-        onClick={() => setSelected(toggleCollection(item, selected))}
+        className={inRepository ? 'pulp-collection-in-repository' : undefined}
+        onClick={() => {
+          if (selectable) {
+            setSelected(toggleCollection(item, selected, held));
+          }
+        }}
         key={index}
       >
         <Td>
           <Checkbox
-            aria-label={`${namespace}.${name} v${version}`}
+            aria-label={
+              inRepository
+                ? t`${namespace}.${name} v${version}, already in the repository`
+                : `${namespace}.${name} v${version}`
+            }
             id={`collection-${index}`}
-            isChecked={selected.some(
-              ({ pulp_href }) => pulp_href === item.pulp_href,
-            )}
+            isChecked={
+              !inRepository &&
+              selected.some(({ pulp_href }) => pulp_href === item.pulp_href)
+            }
+            isDisabled={!selectable}
             name={`collection-${index}`}
           />
         </Td>
         <Td>
-          {namespace}.{name} v{version}
+          <span className='pulp-collection-name'>
+            {namespace}.{name} v{version}
+            {inRepository ? <Label isCompact>{t`In repository`}</Label> : null}
+          </span>
         </Td>
         <Td>{description}</Td>
       </Tr>
@@ -147,6 +235,23 @@ const AddCollectionVersionModal = ({
       <ModalHeader labelId={labelId} title={t`Select a collection`} />
       <ModalBody>
         <section className='modal-body' data-cy='modal-body'>
+          {contentRead === 'failed' ? (
+            <Alert
+              actionLinks={
+                <AlertActionLink
+                  aria-label={t`Retry loading the repository content`}
+                  onClick={() => readContent(pageHrefs.current)}
+                >
+                  {t`Retry`}
+                </AlertActionLink>
+              }
+              isInline
+              title={t`The repository content could not be read`}
+              variant='danger'
+            >
+              {t`Collections already in the repository cannot be marked, so none can be selected yet.`}
+            </Alert>
+          ) : null}
           <DetailList<AnsibleCollectionVersion>
             actionContext={{
               addAlert,
@@ -157,6 +262,7 @@ const AddCollectionVersionModal = ({
                 throw 'unused';
               },
             }}
+            busy={contentRead === 'pending'}
             defaultPageSize={10}
             errorTitle={t`Collection versions could not be displayed.`}
             filterConfig={[
@@ -204,10 +310,12 @@ const AddCollectionVersionModal = ({
           key='confirm'
           onClick={() => {
             setPending(true);
-            addAction(selected).finally(() => setPending(false));
+            addAction(
+              selected.filter(({ pulp_href }) => !held.has(pulp_href)),
+            ).finally(() => setPending(false));
           }}
           variant='primary'
-          isDisabled={!selected.length || pending}
+          isDisabled={!selected.length || pending || contentRead !== 'done'}
           isLoading={pending}
         >
           {t`Select`}
@@ -241,13 +349,20 @@ export const ansibleRepositoryCollectionVersionAddAction = Action({
         closeAction={() =>
           setState((ms) => ({ ...ms, addCollectionVersionModal: null }))
         }
+        latestVersionHref={
+          state.addCollectionVersionModal.latestVersionHref ?? null
+        }
       />
     ) : null,
   onClick: (
     _item,
     {
       state: {
-        repository: { name: repositoryName, pulp_href: repositoryHref },
+        repository: {
+          name: repositoryName,
+          pulp_href: repositoryHref,
+          latest_version_href: latestVersionHref,
+        },
       },
       setState,
     },
@@ -257,6 +372,7 @@ export const ansibleRepositoryCollectionVersionAddAction = Action({
       addCollectionVersionModal: {
         repositoryHref,
         repositoryName,
+        latestVersionHref,
       },
     })),
 });
