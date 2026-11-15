@@ -2,6 +2,7 @@ import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   SessionSuspendedError,
+  getSnapshot,
   reportUnauthorized,
   resetSessionEvents,
   resume,
@@ -9,6 +10,7 @@ import {
   subscribe,
 } from 'src/session/session-events';
 import { server } from 'src/test-utils/server';
+import { isSessionEnd } from 'src/utilities/request-error';
 import { PulpAPI } from './pulp';
 
 class ExampleAPI extends PulpAPI {
@@ -180,12 +182,17 @@ describe('api client', () => {
       expect(listener).not.toHaveBeenCalled();
     });
 
-    it('a 403 or a 500 tells nobody', async () => {
+    it('a 403 while the session is alive and a 500 tell nobody', async () => {
       setSignedIn(true);
       const listener = vi.fn();
       subscribe(listener);
 
       refuse(403);
+      server.use(
+        http.get('*/pulp/api/v3/login/', () =>
+          HttpResponse.json({ username: 'zoe' }),
+        ),
+      );
       await expect(new ExampleAPI().read()).rejects.toBeDefined();
       refuse(500);
       await expect(new ExampleAPI().read()).rejects.toBeDefined();
@@ -207,6 +214,136 @@ describe('api client', () => {
       await new Promise((resolve) => setTimeout(resolve, 30));
 
       expect(requests).toBe(1);
+    });
+  });
+
+  // A backend that answers an ended session with 403 instead of 401 cannot be
+  // told from a real refusal by the status alone, so one who-is-signed-in
+  // request decides.
+  describe('a 403 of a signed-in user', () => {
+    const refuseExamples = () =>
+      server.use(
+        http.get('*/pulp/api/v3/examples/', () =>
+          HttpResponse.json({ detail: 'Forbidden.' }, { status: 403 }),
+        ),
+      );
+    const whoamiAnswers = (status: number, seen?: string[]) =>
+      server.use(
+        http.get('*/pulp/api/v3/login/', ({ request }) => {
+          seen?.push(request.method);
+          return status === 200
+            ? HttpResponse.json({ username: 'zoe' })
+            : HttpResponse.json({ detail: 'No.' }, { status });
+        }),
+      );
+
+    afterEach(() => {
+      resetSessionEvents();
+    });
+
+    it('reaches the caller unchanged and opens nothing when the session is alive', async () => {
+      setSignedIn(true);
+      refuseExamples();
+      whoamiAnswers(200);
+      const listener = vi.fn();
+      subscribe(listener);
+
+      const error = await new ExampleAPI().read().catch((e) => e);
+
+      expect(error.response.status).toBe(403);
+      expect(error.response.data).toEqual({ detail: 'Forbidden.' });
+      expect(isSessionEnd(error)).toBe(false);
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it.each([401, 403])(
+      'ends the session, with the request note, when who-is-signed-in answers %i',
+      async (status) => {
+        setSignedIn(true);
+        refuseExamples();
+        whoamiAnswers(status);
+
+        const error = await new ExampleAPI().read().catch((e) => e);
+
+        expect(isSessionEnd(error)).toBe(true);
+        expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
+      },
+    );
+
+    it('keeps the 403 a refusal when who-is-signed-in itself fails with a 500 or a lost connection', async () => {
+      setSignedIn(true);
+      refuseExamples();
+      const listener = vi.fn();
+      subscribe(listener);
+
+      whoamiAnswers(500);
+      const first = await new ExampleAPI().read().catch((e) => e);
+      server.use(http.get('*/pulp/api/v3/login/', () => HttpResponse.error()));
+      const second = await new ExampleAPI().read().catch((e) => e);
+
+      expect(isSessionEnd(first)).toBe(false);
+      expect(isSessionEnd(second)).toBe(false);
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('sends one who-is-signed-in request for concurrent refusals', async () => {
+      setSignedIn(true);
+      refuseExamples();
+      const seen: string[] = [];
+      whoamiAnswers(401, seen);
+      const api = new ExampleAPI();
+
+      const errors = await Promise.all([
+        api.read().catch((e) => e),
+        api.read().catch((e) => e),
+        api.read().catch((e) => e),
+      ]);
+
+      expect(seen).toEqual(['GET']);
+      expect(errors.map(isSessionEnd)).toEqual([true, true, true]);
+    });
+
+    it('asks again for a later refusal once the first check has answered', async () => {
+      setSignedIn(true);
+      refuseExamples();
+      const seen: string[] = [];
+      whoamiAnswers(200, seen);
+      const api = new ExampleAPI();
+
+      await api.read().catch((e) => e);
+      await api.read().catch((e) => e);
+
+      expect(seen).toEqual(['GET', 'GET']);
+    });
+
+    it('sends no who-is-signed-in request when nobody is signed in', async () => {
+      refuseExamples();
+      const seen: string[] = [];
+      whoamiAnswers(401, seen);
+
+      const error = await new ExampleAPI().read().catch((e) => e);
+
+      expect(error.response.status).toBe(403);
+      expect(isSessionEnd(error)).toBe(false);
+      expect(seen).toEqual([]);
+    });
+
+    it('sends no who-is-signed-in request for a 403 of the login call itself', async () => {
+      setSignedIn(true);
+      const seen: string[] = [];
+      server.use(
+        http.post('*/pulp/api/v3/login/', () =>
+          HttpResponse.json({ detail: 'No.' }, { status: 403 }),
+        ),
+        http.get('*/pulp/api/v3/login/', ({ request }) => {
+          seen.push(request.method);
+          return HttpResponse.json({ username: 'zoe' });
+        }),
+      );
+
+      await new ExampleAPI().login().catch((e) => e);
+
+      expect(seen).toEqual([]);
     });
   });
 

@@ -1,3 +1,5 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { basicAuthorization } from './basic-authorization';
 
@@ -19,5 +21,44 @@ describe('basicAuthorization', () => {
 
     expect(() => basicAuthorization(username, password)).not.toThrow();
     expect(basicAuthorization(username, password)).toBe(expected);
+  });
+});
+
+// The Basic header carries the password, so it is built for the one sign-in
+// request and nowhere else: no other module may import the builder or encode
+// a Basic header itself, and nothing about it is ever stored.
+describe('the single place that builds the Basic header', () => {
+  const root = resolve(import.meta.dirname, '..');
+  const only = ['api/pulp-login.ts', 'utilities/basic-authorization.test.ts'];
+
+  const sources = (directory: string): string[] =>
+    readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        return sources(path);
+      }
+      return /\.tsx?$/.test(entry.name) ? [path] : [];
+    });
+
+  const named = (pattern: RegExp) =>
+    sources(root)
+      .filter((file) => pattern.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(root, file))
+      .sort();
+
+  it("is imported only by src/api/pulp-login.ts and the builder's own test", () => {
+    const importers = named(
+      /(?:from|import\(|require\()\s*['"][^'"]*basic-authorization['"]/,
+    ).filter((file) => file !== 'utilities/basic-authorization.ts');
+
+    expect(importers).toEqual([...only].sort());
+  });
+
+  it('is not built by hand anywhere else', () => {
+    const builders = named(/\bbtoa\(|['"`]Basic\s/).filter(
+      (file) => !/\.test\.tsx?$/.test(file),
+    );
+
+    expect(builders).toEqual(['utilities/basic-authorization.ts'].sort());
   });
 });
