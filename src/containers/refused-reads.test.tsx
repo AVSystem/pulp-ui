@@ -321,13 +321,18 @@ describe('the signing services list', () => {
 });
 
 describe('the profile page', () => {
+  // The profile does not wait for the permission read, which would fail with
+  // the same refusal as the record itself.
   const render = () =>
-    renderWithProviders(withProviderFn(<UserProfile />), {
-      route: '/users/profile',
-    });
+    renderWithProviders(
+      <AppContextProvider>
+        <UserProfile />
+      </AppContextProvider>,
+      { route: '/users/profile' },
+    );
 
   it('shows the page with the server text for a refused read, not the not-found page', async () => {
-    refuse(`${API}/users/`);
+    refuse(`${API}/users/1/`);
     render();
 
     await insufficient();
@@ -347,7 +352,7 @@ describe('the profile page', () => {
 
   it('keeps the not-found page for another failure', async () => {
     server.use(
-      http.get(`*${API}/users/`, () =>
+      http.get(`*${API}/users/1/`, () =>
         HttpResponse.json(
           { detail: 'broken' },
           { status: 500, statusText: 'Server Error' },

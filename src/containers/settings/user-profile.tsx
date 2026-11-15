@@ -19,6 +19,7 @@ import {
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
+import { idFromHref } from 'src/utilities/global-permissions';
 import {
   isSessionEnd,
   requestErrorDetail,
@@ -43,6 +44,10 @@ function UserProfile(_props: RouteProps) {
     endSession,
   } = useUserContext();
   const username = sessionUser?.username;
+  // The record is read by its own address: Pulp lets every user read their
+  // own record, while the list of users is open only to those who may view
+  // users.
+  const userId = idFromHref(sessionUser?.pulp_href);
 
   const addAlert = (alert: AlertType) => {
     setAlerts([...alerts, alert]);
@@ -55,25 +60,16 @@ function UserProfile(_props: RouteProps) {
   const touched = useRef(false);
 
   const loadUser = () =>
-    UserAPI.list({
-      username,
-      page_size: 1,
-    })
-      .then(
-        ({
-          data: {
-            results: [result],
-          },
-        }) => {
-          // The api doesn't return a value for the password, so set a blank one here
-          // to keep react from getting confused
-          const extendedResult = { ...result, password: '' };
-          setInitialState({ ...extendedResult });
-          if (!touched.current) {
-            setUser(extendedResult);
-          }
-        },
-      )
+    UserAPI.get(userId)
+      .then(({ data: result }) => {
+        // The api doesn't return a value for the password, so set a blank one here
+        // to keep react from getting confused
+        const extendedResult = { ...result, password: '' };
+        setInitialState({ ...extendedResult });
+        if (!touched.current) {
+          setUser(extendedResult);
+        }
+      })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
         // keeps its spinner or its form until it reads again.
@@ -89,12 +85,16 @@ function UserProfile(_props: RouteProps) {
         }
       });
 
+  // Waits for the session check to name the user; the address does not change
+  // while the page is open, a rename keeps it.
   useEffect(() => {
-    loadUser();
-  }, []);
+    if (userId) {
+      loadUser();
+    }
+  }, [userId]);
 
   useEffect(() => {
-    if (epoch !== firstEpoch.current && !refused) {
+    if (userId && epoch !== firstEpoch.current && !refused) {
       loadUser();
     }
   }, [epoch]);
