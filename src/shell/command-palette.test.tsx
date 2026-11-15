@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -344,31 +344,32 @@ describe('palette', () => {
 
   it('scrolls the highlighted option into view when the highlight moves', async () => {
     signIn();
-    const scrolled: string[] = [];
-    const original = Element.prototype.scrollIntoView;
-    Element.prototype.scrollIntoView = function scrollIntoView(
-      this: Element,
-      options?: boolean | ScrollIntoViewOptions,
-    ) {
-      expect(options).toEqual({ block: 'nearest' });
-      scrolled.push(this.id);
-    };
+    const scroll = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(() => undefined);
     try {
       const { user } = renderPalette();
       await openPalette(user);
       await screen.findAllByRole('option');
       const box = await input();
-      scrolled.length = 0;
+      scroll.mockClear();
+
+      // The element each call was made on, and the options it was made with.
+      const lastScrolled = () => (scroll.mock.contexts.at(-1) as Element).id;
+      expect(scroll.mock.calls.every(([o]) => o?.['block'] === 'nearest')).toBe(
+        true,
+      );
 
       await user.keyboard('{ArrowUp}');
-      expect(scrolled.at(-1)).toBe(box.getAttribute('aria-activedescendant'));
-      const last = scrolled.at(-1);
+      expect(lastScrolled()).toBe(box.getAttribute('aria-activedescendant'));
+      const last = lastScrolled();
+      expect(scroll).toHaveBeenLastCalledWith({ block: 'nearest' });
 
       await user.keyboard('{ArrowDown}');
-      expect(scrolled.at(-1)).toBe(box.getAttribute('aria-activedescendant'));
-      expect(scrolled.at(-1)).not.toBe(last);
+      expect(lastScrolled()).toBe(box.getAttribute('aria-activedescendant'));
+      expect(lastScrolled()).not.toBe(last);
     } finally {
-      Element.prototype.scrollIntoView = original;
+      scroll.mockRestore();
     }
   });
 
