@@ -599,4 +599,36 @@ describe('repository form, remote choices', () => {
     await waitFor(() => expect(reloads).toBeGreaterThanOrEqual(3));
     await waitFor(() => expect(box).toHaveValue('mirror-one'));
   });
+
+  it('ignores the slow answer to an earlier remote search', async () => {
+    const first = remote({ name: 'alpha-old' });
+    const second = remote({ name: 'alpha-two-new' });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(`*${API}/remotes/file/file/`, async ({ request }) => {
+        const text = new URL(request.url).searchParams.get('name__icontains');
+        if (text === 'al') {
+          await gate;
+          return HttpResponse.json(page([first]));
+        }
+        return HttpResponse.json(page(text === 'alp' ? [second] : []));
+      }),
+    );
+
+    const { user } = renderWithProviders(<Harness isNew onSave={vi.fn()} />);
+    const box = await screen.findByRole('combobox', {
+      name: 'Select a remote',
+    });
+
+    await user.type(box, 'alp');
+    await screen.findByRole('option', { name: 'alpha-two-new' });
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(screen.queryByRole('option', { name: 'alpha-old' })).toBeNull();
+    expect(screen.getByRole('option', { name: 'alpha-two-new' })).toBeVisible();
+  });
 });
