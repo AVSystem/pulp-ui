@@ -603,6 +603,54 @@ describe('repository search', () => {
     ).toBeVisible();
   });
 
+  it('says repositories cannot be searched, not that nothing matches, when the request is refused and no screen matches', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, () =>
+        HttpResponse.json({ detail: 'refused' }, { status: 403 }),
+      ),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'qqzz');
+
+    expect(
+      await screen.findByText(
+        'Repositories cannot be searched with your account.',
+      ),
+    ).toBeVisible();
+    expect(screen.queryByText('No screens or repositories match')).toBeNull();
+    expect(screen.queryByRole('option')).toBeNull();
+  });
+
+  it('does not announce "No results" while the repositories are still being searched', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        return HttpResponse.json({
+          count: 0,
+          next: null,
+          previous: null,
+          results: [],
+        });
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'qqzz');
+
+    const live = document.querySelector('[aria-live="polite"]');
+    await screen.findByText('Searching repositories...', {
+      selector: '.pulp-palette__status',
+    });
+    expect(live).toHaveTextContent('Searching repositories...');
+    expect(live).not.toHaveTextContent('No results');
+    await waitFor(() => expect(live).toHaveTextContent('No results'));
+  });
+
   it('shows one muted row with a retry for any other failure and asks again on retry', async () => {
     signIn();
     let calls = 0;
@@ -697,7 +745,11 @@ describe('repository search', () => {
 
     await user.type(await input(), 'qqzz');
 
-    expect(await screen.findByText('Searching repositories...')).toBeVisible();
+    expect(
+      await screen.findByText('Searching repositories...', {
+        selector: '.pulp-palette__status',
+      }),
+    ).toBeVisible();
     expect(screen.queryByText('No screens or repositories match')).toBeNull();
     expect(
       await screen.findByText('No screens or repositories match'),

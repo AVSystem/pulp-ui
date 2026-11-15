@@ -5819,6 +5819,10 @@ msgstr ""
 msgid "Repositories"
 msgstr "リポジトリー"
 
+#: src/shell/command-palette.tsx
+msgid "Repositories cannot be searched with your account."
+msgstr ""
+
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/file-repository/list.tsx

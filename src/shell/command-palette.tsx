@@ -74,7 +74,7 @@ interface IGroup {
   title: string;
   results: IResult[];
   // What the group's own line below its results says about the search.
-  status?: 'loading' | 'failed';
+  status?: 'loading' | 'failed' | 'refused';
 }
 
 interface IRepositoryRow {
@@ -264,21 +264,21 @@ function Palette({ onClose }: { onClose: () => void }) {
       search.state === 'ready' && installed
         ? repositoryResults(search.repositories, new Set(installed.keys()))
         : [];
-    if (
-      repositories.length > 0 ||
-      search.state === 'loading' ||
-      search.state === 'failed'
-    ) {
+    // A refusal stays unmentioned next to matching screens; on its own it
+    // would read as "nothing matches", so it is named when nothing else is
+    // listed.
+    let status: IGroup['status'];
+    if (search.state === 'loading' || search.state === 'failed') {
+      status = search.state;
+    } else if (search.state === 'refused' && found.length === 0) {
+      status = 'refused';
+    }
+    if (repositories.length > 0 || status) {
       found.push({
         id: 'repositories',
         title: t`Repositories`,
         results: repositories,
-        status:
-          search.state === 'loading'
-            ? 'loading'
-            : search.state === 'failed'
-              ? 'failed'
-              : undefined,
+        status,
       });
     }
     return found;
@@ -287,11 +287,12 @@ function Palette({ onClose }: { onClose: () => void }) {
   const results = groups.flatMap((group) => group.results);
   const highlighted =
     results.find((result) => result.id === highlightedId) ?? results[0];
-  // Nothing to show, and nothing still on its way that could show up.
-  const noMatch =
-    results.length === 0 &&
-    search.state !== 'loading' &&
-    search.state !== 'failed';
+  // Nothing to show, and nothing still on its way or left unsaid that could
+  // explain why.
+  const noMatch = results.length === 0 && !groups.some((group) => group.status);
+  // While the repositories are still being looked up and nothing is listed
+  // yet, "No results" would be untrue.
+  const searching = results.length === 0 && search.state === 'loading';
   const optionId = (result: IResult) => `${listId}-${result.id}`;
   const highlightedElementId = highlighted ? optionId(highlighted) : undefined;
 
@@ -381,11 +382,13 @@ function Palette({ onClose }: { onClose: () => void }) {
           />
         </TextInputGroup>
         <div className='pf-v6-screen-reader' aria-live='polite'>
-          {plural(results.length, {
-            0: 'No results',
-            one: '# result',
-            other: '# results',
-          })}
+          {searching
+            ? t`Searching repositories...`
+            : plural(results.length, {
+                0: 'No results',
+                one: '# result',
+                other: '# results',
+              })}
         </div>
         <Menu role='listbox' isPlain className='pulp-palette__menu'>
           <MenuContent>
@@ -435,6 +438,11 @@ function Palette({ onClose }: { onClose: () => void }) {
                       <li role='presentation' className='pulp-palette__status'>
                         <Spinner size='sm' aria-hidden='true' />
                         {t`Searching repositories...`}
+                      </li>
+                    ) : null}
+                    {group.status === 'refused' ? (
+                      <li role='presentation' className='pulp-palette__status'>
+                        {t`Repositories cannot be searched with your account.`}
                       </li>
                     ) : null}
                     {group.status === 'failed' && search.state === 'failed' ? (

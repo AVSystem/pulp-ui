@@ -5820,6 +5820,10 @@ msgstr "Repair task"
 msgid "Repositories"
 msgstr "Repositories"
 
+#: src/shell/command-palette.tsx
+msgid "Repositories cannot be searched with your account."
+msgstr "Repositories cannot be searched with your account."
+
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/file-repository/list.tsx
