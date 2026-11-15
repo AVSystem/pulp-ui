@@ -10,7 +10,7 @@ import {
   TextInput,
   Title,
 } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormFieldHelper, PermissionCategories, Spinner } from 'src/components';
 
 interface IProps {
@@ -47,7 +47,14 @@ export const RoleForm = ({
   saving,
 }: IProps) => {
   const [permissions, setPermissions] = useState<string[]>([]);
-  useEffect(() => setPermissions(originalPermissions), []);
+  // true once the user changed the permissions: a fresh role read then never
+  // replaces them, while an untouched form follows the role it was given
+  const touched = useRef(false);
+  useEffect(() => {
+    if (!touched.current) {
+      setPermissions(originalPermissions);
+    }
+  }, [originalPermissions]);
 
   return (
     <>
@@ -112,7 +119,10 @@ export const RoleForm = ({
 
           <PermissionCategories
             permissions={permissions}
-            setSelected={(permissions) => setPermissions(permissions)}
+            setSelected={(permissions) => {
+              touched.current = true;
+              setPermissions(permissions);
+            }}
             showEmpty
           />
         </div>

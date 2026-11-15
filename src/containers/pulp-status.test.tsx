@@ -1,9 +1,16 @@
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
+import { resetSessionEvents } from 'src/session/session-events';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  recordWrites,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import PulpStatus from './pulp-status';
 
 const status = {
@@ -106,5 +113,98 @@ describe('status page for a visitor who is not signed in', () => {
       'JSON',
     ]);
     expect(screen.queryByText(NOTE)).not.toBeInTheDocument();
+  });
+});
+
+describe('status page after the same user signs in again', () => {
+  const STATUS = '*/pulp/api/v3/status/';
+  const reduced = { database_connection: { connected: true } };
+  const refused = http.get(STATUS, () =>
+    HttpResponse.json({ detail: 'no' }, { status: 401 }),
+  );
+
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
+  const signInAgain = (user) =>
+    user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+  function renderSignedIn() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <PulpStatus />
+      </AppContextProvider>,
+      { route: '/status' },
+    );
+  }
+
+  it('reads the status again and shows what a signed-in user may see', async () => {
+    server.use(http.get(STATUS, () => HttpResponse.json(reduced)));
+    const { user } = renderSignedIn();
+    expect(await screen.findByText(NOTE)).toBeVisible();
+    await signedIn();
+    server.use(http.get(STATUS, () => HttpResponse.json(status)));
+
+    await signInAgain(user);
+
+    expect(await screen.findByText('Versions')).toBeVisible();
+    expect(screen.queryByText(NOTE)).not.toBeInTheDocument();
+  });
+
+  it('keeps its content, with no alert, when the read is refused with 401', async () => {
+    server.use(http.get(STATUS, () => HttpResponse.json(status)));
+    const { user } = renderSignedIn();
+    await screen.findByText('Versions');
+    await signedIn();
+    server.use(refused);
+
+    await signInAgain(user);
+    await pause();
+
+    expect(screen.getByText('Versions')).toBeVisible();
+    expect(screen.queryByText('Failed to load status')).toBeNull();
+  });
+
+  it('keeps the spinner, with no alert, when the first read is refused, and shows the status after signing in', async () => {
+    server.use(refused);
+    const { user } = renderSignedIn();
+    await signedIn();
+    await pause();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByText('Failed to load status')).toBeNull();
+    server.use(http.get(STATUS, () => HttpResponse.json(status)));
+
+    await signInAgain(user);
+
+    expect(await screen.findByText('Versions')).toBeVisible();
+  });
+
+  it('still shows its alert when the read fails for another reason', async () => {
+    server.use(
+      http.get(STATUS, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    renderSignedIn();
+
+    expect(await screen.findByText('Failed to load status')).toBeVisible();
+  });
+
+  it('sends no write', async () => {
+    server.use(http.get(STATUS, () => HttpResponse.json(status)));
+    const recorded = recordWrites();
+    const { user } = renderSignedIn();
+    await screen.findByText('Versions');
+    await signedIn();
+
+    await signInAgain(user);
+    await pause();
+
+    expect(recorded.writes).toEqual(['POST /pulp/api/v3/login/']);
+    recorded.stop();
   });
 });

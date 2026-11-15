@@ -275,3 +275,96 @@ export function contentGuard(
     ...overrides,
   };
 }
+
+export interface IGroup {
+  pulp_href: string;
+  id: number;
+  name: string;
+}
+
+// A group as the server returns it; the numeric id follows the href sequence.
+export function group(overrides: Partial<IGroup> = {}): IGroup {
+  const id = bump();
+  return {
+    pulp_href: `/pulp/api/v3/groups/${id}/`,
+    id,
+    name: `group-${id}`,
+    ...overrides,
+  };
+}
+
+export interface IUser {
+  pulp_href: string;
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_staff: boolean;
+  is_active: boolean;
+  date_joined: string;
+  groups: IGroup[];
+  [field: string]: unknown;
+}
+
+// A user as the server returns it, with no group and a blank name.
+export function user(overrides: Partial<IUser> = {}): IUser {
+  const id = bump();
+  return {
+    pulp_href: `/pulp/api/v3/users/${id}/`,
+    id,
+    username: `user-${id}`,
+    first_name: '',
+    last_name: '',
+    email: '',
+    is_staff: false,
+    is_active: true,
+    date_joined: '2000-01-01T00:00:00.000000Z',
+    groups: [],
+    ...overrides,
+  };
+}
+
+export interface IRole {
+  pulp_href: string;
+  name: string;
+  description: string;
+  locked: boolean;
+  permissions: string[];
+  pulp_created: string;
+}
+
+// A role as the server returns it; unlocked, so it can be edited.
+export function role(overrides: Partial<IRole> = {}): IRole {
+  return {
+    pulp_href: href('roles'),
+    name: `role-${sequence}`,
+    description: '',
+    locked: false,
+    permissions: [],
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    ...overrides,
+  };
+}
+
+export interface ISigningService {
+  pulp_href: string;
+  name: string;
+  pubkey_fingerprint: string;
+  public_key: string;
+  pulp_created: string;
+}
+
+// A signing service as the server returns it.
+export function signingService(
+  overrides: Partial<ISigningService> = {},
+): ISigningService {
+  return {
+    pulp_href: href('signing-services'),
+    name: `signer-${sequence}`,
+    pubkey_fingerprint: '0'.repeat(40),
+    public_key: 'public key text',
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    ...overrides,
+  };
+}

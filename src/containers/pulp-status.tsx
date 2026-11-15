@@ -22,7 +22,10 @@ import {
   closeAlert,
 } from 'src/components';
 import { type RouteProps, getHumanSize, withRouter } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -318,6 +321,14 @@ class PulpStatus extends Component<RouteProps, IState> {
     this.query();
   }
 
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the status again, which now holds
+    // everything a signed-in user may see.
+    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      this.query();
+    }
+  }
+
   render() {
     const { alerts, status } = this.state;
 
@@ -365,6 +376,11 @@ class PulpStatus extends Component<RouteProps, IState> {
         this.setState({ status: data });
       })
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page
+        // keeps its spinner or its content until it reads again.
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.setState({
           alerts: [
             ...this.state.alerts,

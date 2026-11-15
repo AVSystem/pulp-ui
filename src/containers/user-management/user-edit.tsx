@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router';
 import { UserAPI, type UserType } from 'src/api';
 import {
@@ -9,13 +9,14 @@ import {
   UserFormPage,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { useUserContext } from 'src/user-context';
+import { useSessionEpoch, useUserContext } from 'src/user-context';
 import {
   type ErrorMessagesType,
   type RouteProps,
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 function UserEdit(props: RouteProps) {
   const [errorMessages, setErrorMessages] = useState<ErrorMessagesType>({});
@@ -31,17 +32,42 @@ function UserEdit(props: RouteProps) {
   } = useUserContext();
   const username = sessionUser?.username;
 
+  // grows when the same user signs in again, so the user is read again
+  const epoch = useSessionEpoch();
+  const firstEpoch = useRef(epoch);
+  // true once the form was changed: a later read never replaces what was typed
+  const touched = useRef(false);
+
   const id = props.routeParams.user_id;
-  useEffect(() => {
+
+  const loadUser = () =>
     UserAPI.get(id)
       .then(({ data: result }) => {
         const extendedResult = { ...result, password: '' };
         setInitialState({ ...extendedResult });
-        setUser(extendedResult);
+        if (!touched.current) {
+          setUser(extendedResult);
+        }
         setUnauthorized(false);
       })
-      .catch(() => setUnauthorized(true));
+      .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page
+        // keeps its spinner or its form until it reads again.
+        if (!isSessionEnd(e)) {
+          setUnauthorized(true);
+        }
+      });
+
+  useEffect(() => {
+    touched.current = false;
+    loadUser();
   }, [id]);
+
+  useEffect(() => {
+    if (epoch !== firstEpoch.current) {
+      loadUser();
+    }
+  }, [epoch]);
 
   const saveUser = () =>
     UserAPI.saveUser(user)
@@ -100,6 +126,7 @@ function UserEdit(props: RouteProps) {
       saveUser={saveUser}
       title={title}
       updateUser={(user, errorMessages) => {
+        touched.current = true;
         setErrorMessages(errorMessages);
         setUser(user);
       }}

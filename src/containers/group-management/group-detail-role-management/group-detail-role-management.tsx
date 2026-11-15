@@ -9,7 +9,7 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Td } from '@patternfly/react-table';
-import { type FunctionComponent, useEffect, useState } from 'react';
+import { type FunctionComponent, useEffect, useRef, useState } from 'react';
 import {
   type GroupObjectPermissionType,
   GroupRoleAPI,
@@ -31,6 +31,7 @@ import {
   SelectRoles,
   WizardModal,
 } from 'src/components';
+import { useSessionEpoch } from 'src/user-context';
 import {
   ParamHelper,
   type ParamType,
@@ -38,7 +39,10 @@ import {
   parsePulpIDFromURL,
   translateLockedRole,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 import './group-detail-role-management.scss';
 
 interface GroupRoleType {
@@ -79,13 +83,27 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
   );
   const [isRoleDeleting, setIsRoleDeleting] = useState(false);
 
+  // grows when the same user signs in again, so the roles are read again
+  const epoch = useSessionEpoch();
+  const firstEpoch = useRef(epoch);
+
   useEffect(() => {
     queryRolesWithPermissions();
     setInputText((params['role__icontains'] as string) || '');
   }, [params]);
 
-  const queryRolesWithPermissions = () => {
-    setLoading(true);
+  useEffect(() => {
+    if (epoch !== firstEpoch.current) {
+      queryRolesWithPermissions(true);
+    }
+  }, [epoch]);
+
+  // A quiet read keeps the table, an open dialog and the picked roles as they
+  // are instead of showing the spinner.
+  const queryRolesWithPermissions = (quiet = false) => {
+    if (!quiet) {
+      setLoading(true);
+    }
 
     GroupRoleAPI.listRoles(group.id, {
       ...ParamHelper.getReduced({ ...params, content_object: null }, [
@@ -101,6 +119,11 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
         setLoading(false);
       })
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the table
+        // keeps its spinner or its rows until it reads again.
+        if (isSessionEnd(e)) {
+          return;
+        }
         addAlert(
           t`Permissions for group "${group.name}" could not be displayed.`,
           'danger',
@@ -112,6 +135,7 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
   const deleteRole = () => {
     const pulpId = parsePulpIDFromURL(selectedDeleteRole.pulp_href);
 
+    let sessionEnded = false;
     setIsRoleDeleting(true);
     GroupRoleAPI.removeRole(group.id, pulpId)
       .then(() => {
@@ -123,6 +147,11 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
         );
       })
       .catch((err) => {
+        // The session ended: the role was not removed and nothing is repeated.
+        if (isSessionEnd(err)) {
+          sessionEnded = true;
+          return;
+        }
         addAlert(
           t`Role "${selectedDeleteRole.role}" could not be deleted.`,
           'danger',
@@ -132,7 +161,8 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
       .finally(() => {
         setIsRoleDeleting(false);
         setSelectedDeleteRole(null);
-        queryRolesWithPermissions();
+        // after a session end the rows stay until the epoch read replaces them
+        queryRolesWithPermissions(sessionEnded);
       });
   };
 
@@ -239,6 +269,7 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
             setSelectedRoles([]);
           }}
           onSave={() => {
+            let sessionEnded = false;
             const selectedRolesPromises = selectedRoles.map((role) =>
               GroupRoleAPI.addRoleToGroup(group.id, role)
                 .then(() => {
@@ -248,6 +279,10 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
                   );
                 })
                 .catch((e) => {
+                  if (isSessionEnd(e)) {
+                    sessionEnded = true;
+                    return;
+                  }
                   const data = e?.response?.data;
 
                   const errMessage =
@@ -265,6 +300,11 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
             );
 
             Promise.all(selectedRolesPromises).then(() => {
+              // A session end keeps the wizard and the picked roles, so the
+              // user can add again after signing in.
+              if (sessionEnded) {
+                return;
+              }
               queryRolesWithPermissions();
               setShowAddRolesModal(false);
               setSelectedRoles([]);

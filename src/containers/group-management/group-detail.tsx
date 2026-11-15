@@ -53,6 +53,7 @@ import {
   withRouter,
 } from 'src/utilities';
 import {
+  isSessionEnd,
   requestErrorDescription,
   requestErrorStatus,
 } from 'src/utilities/request-error';
@@ -143,7 +144,16 @@ class GroupDetail extends Component<RouteProps, IState> {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read again what is on screen, keeping
+    // the content and the open dialogs.
+    if (
+      prevProps.sessionEpoch !== this.props.sessionEpoch &&
+      !this.state.unauthorized
+    ) {
+      this.reloadAfterSignIn();
+    }
+
     if (prevProps.location.search !== this.props.location.search) {
       const id = this.props.routeParams.group;
       const params = ParamHelper.parseParamString(this.props.location.search, [
@@ -345,7 +355,7 @@ class GroupDetail extends Component<RouteProps, IState> {
                     return;
                   }
                   let filteredUsers = [];
-                  result.data.data.forEach((user) => {
+                  result.data.results.forEach((user) => {
                     filteredUsers.push({
                       id: user.id,
                       name: user.username,
@@ -361,7 +371,7 @@ class GroupDetail extends Component<RouteProps, IState> {
                   });
                 })
                 .catch((e) => {
-                  if (current !== this.latestUserSearch) {
+                  if (current !== this.latestUserSearch || isSessionEnd(e)) {
                     return;
                   }
                   this.addAlert(
@@ -416,7 +426,13 @@ class GroupDetail extends Component<RouteProps, IState> {
             isDisabled={this.state.selected.length === 0}
             onClick={() =>
               this.addUserToGroup(this.state.selected, this.state.group).then(
-                close,
+                (added) => {
+                  // A session end leaves the dialog and its selection as they
+                  // are, so the user can add again after signing in.
+                  if (added) {
+                    close();
+                  }
+                },
               )
             }
           >
@@ -447,6 +463,9 @@ class GroupDetail extends Component<RouteProps, IState> {
           this.setState({ redirect: formatPath(Paths.core.group.list) });
         })
         .catch((e) => {
+          if (isSessionEnd(e)) {
+            return;
+          }
           this.addAlert(
             t`Group "${group.name}" could not be deleted.`,
             'danger',
@@ -494,6 +513,9 @@ class GroupDetail extends Component<RouteProps, IState> {
   }
 
   private addUserToGroup(selectedUsers, group) {
+    // Resolves with false when the session ended: nothing was added, and the
+    // caller keeps the dialog open.
+    let added = true;
     return Promise.all(
       selectedUsers.map(({ id }) => {
         const user = this.state.allUsers.find((x) => x.id === id);
@@ -507,24 +529,41 @@ class GroupDetail extends Component<RouteProps, IState> {
         );
       })
       .catch((e) => {
+        if (isSessionEnd(e)) {
+          added = false;
+          return;
+        }
         this.addAlert(
           t`User "${selectedUsers[0].name}" could not be added to group "${this.state.group.name}".`,
           'danger',
           requestErrorDescription(e),
         );
       })
-      .then(() => this.queryUsers());
+      .then(() => {
+        if (added) {
+          this.queryUsers();
+        }
+        return added;
+      });
   }
 
   private loadOptions() {
     UserAPI.list({ page_size: 1000 })
       .then((result) => {
         const options = result.data.results
-          .filter((user) => !this.state.users.find((u) => u.id === user.id))
+          .filter(
+            (user) =>
+              !this.state.users.find((u) => u.id === user.id) &&
+              // what the user already picked stays picked, not offered again
+              !this.state.selected.find((s) => s.id === user.id),
+          )
           .map((option) => ({ id: option.id, name: option.username }));
         this.setState({ options, allUsers: result.data.results });
       })
       .catch((e) => {
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.addAlert(
           t`Users list could not be displayed.`,
           'danger',
@@ -701,6 +740,11 @@ class GroupDetail extends Component<RouteProps, IState> {
         }),
       )
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it and the members
+        // are read again after signing in.
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.addAlert(
           t`Users list could not be displayed.`,
           'danger',
@@ -709,12 +753,30 @@ class GroupDetail extends Component<RouteProps, IState> {
       });
   }
 
-  private queryGroup() {
+  // Reads what the screen shows again without dropping it first: the group,
+  // the members when they were loaded and the add dialog's candidates.
+  private reloadAfterSignIn() {
+    this.queryGroup(true);
+    if (this.state.users) {
+      this.queryUsers();
+    }
+    if (this.state.addModalVisible && this.state.options !== undefined) {
+      this.loadOptions();
+    }
+  }
+
+  // A quiet read keeps the loaded members and the page on screen.
+  private queryGroup(quiet = false) {
     GroupAPI.get(this.state.params.id)
       .then((result) => {
         this.setState({ group: result.data });
       })
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page
+        // keeps its spinner or its content until it reads again.
+        if (isSessionEnd(e)) {
+          return;
+        }
         if (requestErrorStatus(e) === 404) {
           this.setState({ notFound: true });
         } else {
@@ -726,9 +788,11 @@ class GroupDetail extends Component<RouteProps, IState> {
         }
       });
 
-    this.setState({
-      users: null,
-    });
+    if (!quiet) {
+      this.setState({
+        users: null,
+      });
+    }
   }
 
   private deleteUser(user) {
@@ -749,6 +813,9 @@ class GroupDetail extends Component<RouteProps, IState> {
         this.queryUsers();
       })
       .catch((e) => {
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.addAlert(
           t`User "${user.username}" could not be removed from group "${name}".`,
           'danger',

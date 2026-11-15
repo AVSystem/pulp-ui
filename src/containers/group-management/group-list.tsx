@@ -45,7 +45,10 @@ import {
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface IState {
   params: {
@@ -112,6 +115,17 @@ class GroupList extends Component<RouteProps, IState> {
       this.setState({ unauthorized: true });
     } else {
       this.queryGroups();
+    }
+  }
+
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the list again, keeping the rows on
+    // screen until the answer arrives.
+    if (
+      prevProps.sessionEpoch !== this.props.sessionEpoch &&
+      !this.state.unauthorized
+    ) {
+      this.queryGroups(true);
     }
   }
 
@@ -312,11 +326,16 @@ class GroupList extends Component<RouteProps, IState> {
     })
       .then((result) =>
         this.setState({
-          deleteModalUsers: result.data.data,
-          deleteModalCount: result.data.meta.count,
+          deleteModalUsers: result.data.results,
+          deleteModalCount: result.data.count,
         }),
       )
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it and the dialog
+        // keeps its notice while the users are read again.
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.setState({
           deleteModalVisible: false,
           selectedGroup: null,
@@ -358,7 +377,11 @@ class GroupList extends Component<RouteProps, IState> {
           selectedGroup: null,
         });
       })
-      .catch(() =>
+      .catch((e) => {
+        if (isSessionEnd(e)) {
+          this.setState({ editModalVisible: false, selectedGroup: null });
+          return;
+        }
         this.setState({
           editModalVisible: false,
           selectedGroup: null,
@@ -369,8 +392,8 @@ class GroupList extends Component<RouteProps, IState> {
               title: t`Changes to group "${this.state.selectedGroup.name}" could not be saved.`,
             },
           ],
-        }),
-      );
+        });
+      });
   }
 
   private renderTable(params) {
@@ -465,7 +488,11 @@ class GroupList extends Component<RouteProps, IState> {
         });
         this.queryGroups();
       })
-      .catch(() =>
+      .catch((e) => {
+        // The session ended: nothing was deleted and nothing is repeated.
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.setState({
           alerts: [
             ...this.state.alerts,
@@ -474,12 +501,13 @@ class GroupList extends Component<RouteProps, IState> {
               title: t`Error deleting group.`,
             },
           ],
-        }),
-      );
+        });
+      });
   }
 
-  private queryGroups() {
-    this.setState({ loading: true }, () =>
+  // A quiet read keeps the rows on screen instead of showing the spinner.
+  private queryGroups(quiet = false) {
+    this.setState({ loading: quiet ? this.state.loading : true }, () =>
       GroupAPI.list(this.state.params)
         .then((result) => {
           this.setState({
@@ -489,6 +517,11 @@ class GroupList extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
+          // The session ended: the sign-in dialog explains it, and the list
+          // keeps its spinner or its rows until it reads again.
+          if (isSessionEnd(e)) {
+            return;
+          }
           this.setState({
             groups: [],
             itemCount: 0,
