@@ -1,9 +1,16 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { resetSessionEvents } from 'src/session/session-events';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  recordWrites,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import { SyncModal } from './sync-modal';
 
 const mirrorSwitch = () =>
@@ -232,5 +239,109 @@ describe('sync dialog, sync already queued or running', () => {
       await screen.findByText('A sync of this repository is already running.'),
     ).toBeInTheDocument();
     expect(syncButton()).toBeDisabled();
+  });
+});
+
+describe('sync dialog after the same user signs in again', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
+  // the open modal hides the rest of the page from the accessibility tree
+  const signInAgain = (user) =>
+    user.click(
+      screen.getByRole('button', { name: 'Sign in again', hidden: true }),
+    );
+  const refusedTasks = () =>
+    http.get(`*${TASKS}`, () =>
+      HttpResponse.json({ detail: 'no' }, { status: 401 }),
+    );
+  const repo = repository();
+
+  function renderDialog(syncAction = vi.fn().mockResolvedValue(undefined)) {
+    serveSignIn();
+    return {
+      syncAction,
+      ...renderWithProviders(
+        <>
+          <SignInAgain />
+          <SyncModal
+            closeAction={() => null}
+            name='tools'
+            plugin='file'
+            repositoryHref={repo.pulp_href}
+            syncAction={syncAction}
+          />
+        </>,
+      ),
+    };
+  }
+
+  const running = () =>
+    listOf(TASKS, [task({ state: 'running', name: SYNC_TASKS.file })]);
+
+  it('checks again and enables Sync once the running sync has ended', async () => {
+    server.use(running().handler);
+    const { user } = renderDialog();
+    await screen.findByText('A sync of this repository is already running.');
+    await signedIn();
+    server.use(listOf(TASKS, []).handler);
+
+    await signInAgain(user);
+
+    await waitFor(() => expect(syncButton()).toBeEnabled());
+    expect(screen.queryByText(/already/)).toBeNull();
+  });
+
+  it('keeps the running-sync notice and a disabled Sync when the check is refused with 401', async () => {
+    server.use(running().handler);
+    const { user } = renderDialog();
+    await screen.findByText('A sync of this repository is already running.');
+    await signedIn();
+    server.use(refusedTasks());
+
+    await signInAgain(user);
+    await pause();
+
+    expect(
+      screen.getByText('A sync of this repository is already running.'),
+    ).toBeInTheDocument();
+    expect(syncButton()).toBeDisabled();
+  });
+
+  it('keeps Sync enabled and shows no error line when the first check is refused with 401', async () => {
+    server.use(refusedTasks());
+    const { user } = renderDialog();
+    await signedIn();
+    await pause();
+
+    expect(syncButton()).toBeEnabled();
+    expect(screen.queryByText(/Could not check/)).toBeNull();
+
+    server.use(running().handler);
+    await signInAgain(user);
+
+    expect(
+      await screen.findByText('A sync of this repository is already running.'),
+    ).toBeInTheDocument();
+    expect(syncButton()).toBeDisabled();
+  });
+
+  it('keeps the chosen options and sends no write besides the sign-in', async () => {
+    server.use(listOf(TASKS, []).handler);
+    const recorded = recordWrites();
+    const { user, syncAction } = renderDialog();
+    await signedIn();
+    await user.click(mirrorSwitch());
+    expect(mirrorSwitch()).not.toBeChecked();
+
+    await signInAgain(user);
+    await pause();
+
+    expect(mirrorSwitch()).not.toBeChecked();
+    expect(syncAction).not.toHaveBeenCalled();
+    expect(recorded.writes).toEqual(['POST /pulp/api/v3/login/']);
+    recorded.stop();
   });
 });

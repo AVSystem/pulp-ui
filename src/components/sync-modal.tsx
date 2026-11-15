@@ -10,10 +10,12 @@ import {
   ModalHeader,
   Switch,
 } from '@patternfly/react-core';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Alert, FormFieldHelper, HelpButton, Spinner } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { useSessionEpoch } from 'src/user-context';
+import { isSessionEnd } from 'src/utilities/request-error';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import {
   type IRunningTask,
@@ -81,6 +83,9 @@ export const SyncModal = ({
   }, [name, defaultMirror, defaultSyncPolicy]);
 
   const [check, setCheck] = useState<RunningCheck>({ status: 'pending' });
+  // grows when the same user signs in again, so the check runs again
+  const epoch = useSessionEpoch();
+  const checkedEpoch = useRef(epoch);
 
   useEffect(() => {
     if (!repositoryHref || !plugin) {
@@ -88,9 +93,16 @@ export const SyncModal = ({
       return;
     }
 
+    // A check run again for a new session keeps what the dialog shows until
+    // the answer arrives, so the notice and the disabled Sync do not flicker.
+    const again = checkedEpoch.current !== epoch;
+    checkedEpoch.current = epoch;
+
     // An answer for a repository the dialog has since left must not show.
     let current = true;
-    setCheck({ status: 'pending' });
+    if (!again) {
+      setCheck({ status: 'pending' });
+    }
     runningTask(repositoryHref, plugin)
       .then((found) => {
         if (current) {
@@ -99,8 +111,10 @@ export const SyncModal = ({
           );
         }
       })
-      .catch(() => {
-        if (current) {
+      .catch((e) => {
+        // The session ended: the dialog keeps what it shows, without an error
+        // line, and the check runs again after signing in.
+        if (current && !isSessionEnd(e)) {
           setCheck({ status: 'failed' });
         }
       });
@@ -108,7 +122,7 @@ export const SyncModal = ({
     return () => {
       current = false;
     };
-  }, [repositoryHref, plugin]);
+  }, [repositoryHref, plugin, epoch]);
 
   if (!name) {
     return null;
