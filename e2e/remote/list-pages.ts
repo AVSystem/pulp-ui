@@ -10,7 +10,10 @@ import { title } from '../support/sign-in';
 // deployed application and not of the test: the test is then marked as
 // expected to fail with that reason, so it still runs and the run reports it
 // the day the page works. `viewerRefused` marks a page the limited account may
-// not read: the server answers it with 403.
+// not read: the server answers it with 403. `viewerNoScreen` marks a screen the
+// limited account is not shown at all: the application answers with the
+// insufficient permissions page without asking the server for the screen's
+// data.
 //
 // `outcome` names a page that is deliberately not a working screen: a
 // placeholder that says the screen is not available yet, or the not-found page
@@ -27,6 +30,7 @@ export interface ListPage {
   title: string;
   outcome?: Outcome;
   viewerRefused?: boolean;
+  viewerNoScreen?: boolean;
   knownDefect?: { admin?: string; viewer?: string };
 }
 
@@ -40,20 +44,26 @@ export const listPages: ListPage[] = [
     plugin: null,
     title: 'Task management',
   },
-  { name: 'Groups', path: 'groups', plugin: null, title: 'Groups' },
+  {
+    name: 'Groups',
+    path: 'groups',
+    plugin: null,
+    title: 'Groups',
+    viewerNoScreen: true,
+  },
   {
     name: 'Roles',
     path: 'roles',
     plugin: null,
     title: 'Roles',
-    viewerRefused: true,
+    viewerNoScreen: true,
   },
   {
     name: 'Users',
     path: 'users',
     plugin: null,
     title: 'Users',
-    viewerRefused: true,
+    viewerNoScreen: true,
   },
   {
     name: 'Signature keys',
