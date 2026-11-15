@@ -29,9 +29,12 @@
   --pf-v6-c-page__main-container--BorderInlineEndWidth: 0;
 }
 
-// A collapsed sidebar leaves no line behind.
+// A collapsed sidebar leaves no line behind and nothing in it can take focus:
+// the page hides it from assistive technology, so its links and buttons must
+// not stay reachable by keyboard while it is off screen.
 :root .pf-v6-c-page__sidebar.pf-m-collapsed {
   border-inline-end-width: 0;
+  visibility: hidden;
 }
 
 // The sidebar body is the part that scrolls; a footer below it stays put.
@@ -199,6 +202,10 @@
   --pf-v6-c-breadcrumb__item-divider--Color: var(--pulp-text-3);
   flex-wrap: nowrap;
   min-width: 0;
+  // an inline flex box is as wide as its content unless it is capped: without
+  // the cap a long last crumb pushes the top bar past the screen instead of
+  // being cut with an ellipsis
+  max-inline-size: 100%;
 
   .pf-v6-c-breadcrumb__list {
     flex-wrap: nowrap;
