@@ -1,5 +1,9 @@
 import Cookies from 'js-cookie';
-import { reportUnauthorized } from 'src/session/session-events';
+import {
+  SessionSuspendedError,
+  isSuspended,
+  reportUnauthorized,
+} from 'src/session/session-events';
 import { config } from 'src/ui-config';
 import { BaseAPI } from './base';
 
@@ -19,6 +23,18 @@ export class PulpAPI extends BaseAPI {
       const csrfToken = Cookies.get('csrftoken');
       if (csrfToken) {
         request.headers['X-CSRFToken'] = csrfToken;
+      }
+
+      return request;
+    });
+
+    // While the session has ended and the sign-in dialog is open, nothing but
+    // a sign-in call leaves the browser: any other request could only collect
+    // another refusal. The rejection is recognised by isSessionEnd, and the
+    // screens that wanted the data read it again after signing in.
+    this.http.interceptors.request.use((request) => {
+      if (isSuspended() && !String(request.url ?? '').startsWith('login/')) {
+        return Promise.reject(new SessionSuspendedError());
       }
 
       return request;

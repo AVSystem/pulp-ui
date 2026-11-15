@@ -29,7 +29,9 @@ import { TaskAPI } from 'src/api/task';
 import { EmptyStateCustom } from 'src/components/empty-state-custom';
 import { language } from 'src/l10n';
 import { Paths, formatPath } from 'src/paths';
+import { isSuspended, subscribe } from 'src/session/session-events';
 import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 // Where the browser remembers when the panel was last opened.
 export const NOTIFICATIONS_SEEN_KEY = 'pulp-notifications-seen';
@@ -127,7 +129,10 @@ const endedMillis = (task: IEndedTask) =>
 // The tasks that ended recently among those the signed-in user can see, the
 // panel's open state and the read marker kept in this browser. Nothing is
 // stored on the server. The list is asked for when the provider is enabled,
-// every minute while the page is in view, and when the panel opens.
+// every minute while the page is in view, and when the panel opens. While the
+// session has ended and the sign-in dialog is open nothing is asked: the list
+// and the bell stay as they are, and the list is read once as soon as the user
+// has signed in again.
 export const NotificationsProvider = ({
   enabled,
   children,
@@ -151,6 +156,10 @@ export const NotificationsProvider = ({
   }, []);
 
   const load = useCallback(() => {
+    if (isSuspended()) {
+      return;
+    }
+
     const current = ++latest.current;
     const since = new Date(Date.now() - WINDOW_MS).toISOString();
 
@@ -167,7 +176,9 @@ export const NotificationsProvider = ({
         }
       },
       (error) => {
-        if (current !== latest.current) {
+        if (current !== latest.current || isSessionEnd(error)) {
+          // An ended session is not a failure of the list: the sign-in dialog
+          // explains it and the list is read again afterwards.
           return;
         }
         if (error?.response?.status === 403) {
@@ -202,9 +213,13 @@ export const NotificationsProvider = ({
         load();
       }
     }, NOTIFICATIONS_REFRESH_MS);
+    // Notified on every change of the session; only the one that lifts the
+    // pause starts a round.
+    const unsubscribe = subscribe(load);
 
     return () => {
       clearInterval(timer);
+      unsubscribe();
       latest.current++;
     };
   }, [enabled, load, settle]);

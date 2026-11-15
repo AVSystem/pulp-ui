@@ -2,9 +2,15 @@ import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileDistributionAPI } from 'src/api/file-distribution';
 import { FileRepositoryAPI } from 'src/api/file-repository';
+import { SessionSuspendedError } from 'src/session/session-events';
 import { type IDistribution, distribution, listOf } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
-import { CreateBlocked, createRepository } from './create-repository';
+import {
+  CreateBlocked,
+  createAlerts,
+  createRepository,
+  saveErrorMessages,
+} from './create-repository';
 
 const DISTRIBUTIONS = '/pulp/api/v3/distributions/';
 const REPOSITORY_HREF =
@@ -380,5 +386,55 @@ describe('createRepository', () => {
     for (const body of postBodies) {
       expect(body['name']).toBe(NAME);
     }
+  });
+});
+
+describe('createRepository when the session ends', () => {
+  it('reports the repository as created and adds no danger alert when the distribution request is refused with 401', async () => {
+    serveExistingDistributions([]);
+    serveRepositoryCreate();
+    serveDistributionCreate(() =>
+      HttpResponse.json({ detail: 'No.' }, { status: 401 }),
+    );
+
+    const result = await create({ basePath: BASE_PATH });
+    const alerts = createAlerts(NAME, { basePath: BASE_PATH }, result);
+
+    expect(result.repositoryHref).toBe(REPOSITORY_HREF);
+    expect(result.distributionError).toBeNull();
+    expect(alerts.map((alert) => alert.variant)).toEqual(['success']);
+    expect(alerts[0]?.title).toBe(`Successfully created repository ${NAME}`);
+    expect(requestsOf('POST', '/distributions/file/file/')).toHaveLength(1);
+  });
+
+  it('rejects with the original error, not a blocked create, when the name check is refused with 401', async () => {
+    server.use(
+      http.get(`*${DISTRIBUTIONS}`, () =>
+        HttpResponse.json({ detail: 'No.' }, { status: 401 }),
+      ),
+    );
+
+    const outcome = await create({ basePath: BASE_PATH }).catch(
+      (e: unknown) => e,
+    );
+
+    expect(outcome).not.toBeInstanceOf(CreateBlocked);
+    expect((outcome as { response: { status: number } }).response.status).toBe(
+      401,
+    );
+    expect(posts()).toStrictEqual([]);
+  });
+
+  it('maps a session end to no messages and any other failure as before', () => {
+    expect(saveErrorMessages({ response: { status: 401, data: {} } })).toEqual(
+      {},
+    );
+    expect(saveErrorMessages(new SessionSuspendedError())).toEqual({});
+    expect(
+      saveErrorMessages({
+        response: { status: 403, data: { detail: 'Forbidden.' } },
+      }),
+    ).toMatchObject({ __nofield: 'Forbidden.' });
+    expect(saveErrorMessages(new Error('boom'))).toEqual({ __nofield: 'boom' });
   });
 });

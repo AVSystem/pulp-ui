@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { SessionSuspendedError } from 'src/session/session-events';
 import { handleHttpError } from './fail-alerts';
-import { mapErrorMessages } from './map-error-messages';
+import {
+  alertErrorsWithoutFields,
+  mapErrorMessages,
+} from './map-error-messages';
 
 describe('mapErrorMessages', () => {
   it('returns no messages for an error that has no response', () => {
@@ -23,6 +27,57 @@ describe('mapErrorMessages', () => {
         response: { status: 400, data: { name: ['taken'] } },
       }),
     ).toEqual({ name: ['taken'] });
+  });
+});
+
+describe('mapErrorMessages and a session end', () => {
+  const unauthorized = {
+    response: {
+      status: 401,
+      statusText: 'Unauthorized',
+      data: { detail: 'Authentication credentials were not provided.' },
+    },
+  };
+
+  it('returns no messages for a 401, so no form shows the old sentence', () => {
+    expect(mapErrorMessages(unauthorized)).toEqual({});
+  });
+
+  it('returns no messages for a request that was held back', () => {
+    expect(mapErrorMessages(new SessionSuspendedError())).toEqual({});
+  });
+
+  it('still maps a 403 body', () => {
+    expect(
+      mapErrorMessages({
+        response: { status: 403, data: { detail: 'Forbidden.' } },
+      }),
+    ).toEqual({ detail: 'Forbidden.' });
+  });
+
+  it('adds no danger alert for a session end and still adds one for another failure', () => {
+    const alerts = [];
+    const add = (alert) => alerts.push(alert);
+
+    alertErrorsWithoutFields(
+      mapErrorMessages(unauthorized),
+      ['name'],
+      add,
+      'Could not save',
+      () => undefined,
+    );
+    expect(alerts).toEqual([]);
+
+    alertErrorsWithoutFields(
+      mapErrorMessages({ response: { status: 500, data: 'boom' } }),
+      ['name'],
+      add,
+      'Could not save',
+      () => undefined,
+    );
+    expect(alerts).toEqual([
+      { variant: 'danger', title: 'Could not save', description: 'boom' },
+    ]);
   });
 });
 

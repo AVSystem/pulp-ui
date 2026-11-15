@@ -11,6 +11,11 @@ import {
   vi,
 } from 'vitest';
 import { PulpMenu } from 'src/menu';
+import {
+  reportUnauthorized,
+  resetSessionEvents,
+  resume,
+} from 'src/session/session-events';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { COUNT_REFRESH_MS } from './task-counts';
@@ -110,6 +115,7 @@ describe('task count pills', () => {
   afterEach(() => {
     intervals.mockRestore();
     vi.useRealTimers();
+    resetSessionEvents();
     Reflect.deleteProperty(document, 'visibilityState');
   });
 
@@ -327,5 +333,54 @@ describe('task count pills', () => {
     await settle();
 
     expect(pill('running')).toHaveTextContent('2');
+  });
+
+  it('sends no request at its interval while the session has ended, and loads once after it resumes', async () => {
+    const queries = answerCounts({ running: 1, failed: 0 });
+    await renderMenu();
+    await waitFor(() => expect(queries).toHaveLength(2));
+
+    act(() => {
+      reportUnauthorized('tab-return');
+    });
+    refreshNow();
+    await settle();
+    expect(queries).toHaveLength(2);
+
+    act(() => {
+      resume();
+    });
+    await waitFor(() => expect(queries).toHaveLength(4));
+    await settle();
+    expect(queries).toHaveLength(4);
+  });
+
+  it('keeps the numbers it has while the session has ended', async () => {
+    answerCounts({ running: 3, failed: 2 });
+    await renderMenu();
+    await waitFor(() => expect(pill('running')).toHaveTextContent('3'));
+
+    act(() => {
+      reportUnauthorized('tab-return');
+    });
+    refreshNow();
+    await settle();
+
+    expect(pill('running')).toHaveTextContent('3');
+    expect(pill('failed')).toHaveTextContent('2');
+  });
+
+  it('sends no request when the route changes while the session has ended', async () => {
+    const queries = answerCounts({ running: 1, failed: 0 });
+    const { user } = await renderMenu();
+    await waitFor(() => expect(queries).toHaveLength(2));
+
+    act(() => {
+      reportUnauthorized('tab-return');
+    });
+    await user.click(screen.getByRole('link', { name: 'go to tasks' }));
+    await settle();
+
+    expect(queries).toHaveLength(2);
   });
 });

@@ -28,7 +28,10 @@ import {
 import { type ActionType } from '../actions/action';
 import { filterIsSet } from '../utilities/filter-is-set';
 import { ParamHelper } from '../utilities/param-helper';
-import { requestErrorDescription } from '../utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from '../utilities/request-error';
 import { type RouteProps, withRouter } from '../utilities/with-router';
 import { ListErrorState } from './list-error-state';
 
@@ -423,6 +426,13 @@ export const ListPage = function <T>({
           })
           .catch((e) => {
             if (current !== this.latestQuery) {
+              return;
+            }
+
+            // The end of a session is no failure of the list: the sign-in
+            // dialog explains it and the list reads again once the user has
+            // signed in, so the page keeps its loading state until then.
+            if (isSessionEnd(e)) {
               return;
             }
 

@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { LoginLink } from '../components/login-link';
 import { mapErrorMessages } from './map-error-messages';
-import { requestErrorStatus } from './request-error';
+import { isSessionEnd, requestErrorStatus } from './request-error';
 
 export function errorMessage(
   statusCode: number,
@@ -39,7 +39,15 @@ export function jsxErrorMessage(code, text, custom?) {
   return description;
 }
 
+// Turns a failed request into a danger alert and then calls the callback. The
+// end of a session adds no alert: the sign-in dialog explains it, and a second
+// message with the old 401 sentence would only stack up behind the dialog.
 export const handleHttpError = (title, callback, addAlert) => (e) => {
+  if (isSessionEnd(e)) {
+    callback();
+    return;
+  }
+
   let description = String(e);
 
   const status = requestErrorStatus(e);

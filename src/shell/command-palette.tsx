@@ -28,7 +28,9 @@ import { Spinner } from 'src/components';
 import { useMenuModel } from 'src/menu';
 import { Paths, formatPath } from 'src/paths';
 import { usePlugins } from 'src/plugins';
+import { isSuspended, subscribe } from 'src/session/session-events';
 import { useUserContext } from 'src/user-context';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 // The most screens the palette lists.
 const SCREEN_LIMIT = 8;
@@ -118,12 +120,29 @@ type Answer =
 // Looks repositories up by name with one request to the list of all
 // repositories, once the text has stopped changing. While the text is shorter
 // than the minimum, or searching is not possible, nothing is asked. An answer
-// to a text that is no longer the one typed is dropped.
+// to a text that is no longer the one typed is dropped. While the session has
+// ended and the sign-in dialog is open nothing is asked, and a lookup that was
+// held back or answered 401 stays pending: it runs once as soon as the user has
+// signed in again, and is never shown as a failure or as "no match".
 function useRepositorySearch(text: string, enabled: boolean): RepositorySearch {
   const active = enabled && text.length >= MIN_REPOSITORY_QUERY;
   const [settled, setSettled] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [answer, setAnswer] = useState<Answer | null>(null);
+  // Whether the lookup for the settled text could not run because of an ended
+  // session.
+  const held = useRef(false);
+
+  useEffect(
+    () =>
+      subscribe(() => {
+        if (held.current && !isSuspended()) {
+          held.current = false;
+          setAttempt((count) => count + 1);
+        }
+      }),
+    [],
+  );
 
   useEffect(() => {
     if (!active) {
@@ -138,6 +157,11 @@ function useRepositorySearch(text: string, enabled: boolean): RepositorySearch {
     if (!settled) {
       return undefined;
     }
+    if (isSuspended()) {
+      held.current = true;
+      return undefined;
+    }
+    held.current = false;
     let stale = false;
     GenericRepositoryAPI.list({
       name__icontains: settled,
@@ -153,12 +177,17 @@ function useRepositorySearch(text: string, enabled: boolean): RepositorySearch {
         }
       },
       (error) => {
-        if (!stale) {
-          setAnswer({
-            text: settled,
-            state: error?.response?.status === 403 ? 'refused' : 'failed',
-          });
+        if (stale) {
+          return;
         }
+        if (isSessionEnd(error)) {
+          held.current = true;
+          return;
+        }
+        setAnswer({
+          text: settled,
+          state: error?.response?.status === 403 ? 'refused' : 'failed',
+        });
       },
     );
     return () => {

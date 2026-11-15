@@ -1,3 +1,5 @@
+import { isSessionEnd } from './request-error';
+
 // Transforms the error message format from the API into an object such that
 // {<backendFieldID>: <errorMessage>}
 
@@ -5,8 +7,15 @@ export class ErrorMessagesType {
   [key: string]: string;
 }
 
+// The end of a session maps to no messages: the sign-in dialog explains it, so
+// neither a form field nor an alert repeats it.
 export function mapErrorMessages(err): ErrorMessagesType {
   const messages = {};
+
+  if (isSessionEnd(err)) {
+    return messages;
+  }
+
   const data = err?.response?.data;
 
   // an error without a response body has no messages to map
