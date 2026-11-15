@@ -280,4 +280,33 @@ describe('command line', () => {
     rmSync(join(dir, 'status.light.phone.json'));
     expect(run(dir).status).toBe(2);
   });
+
+  it.each([
+    ['null', 'null'],
+    ['a number', '7'],
+    ['an array', '[]'],
+  ])('exits 2 when a report is %s', (_what, content) => {
+    writeCrawl(dir);
+    writeFileSync(join(dir, 'status.light.phone.json'), content);
+    const result = run(dir);
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('not a screen report');
+    expect(result.stderr).not.toContain('TypeError');
+  });
+
+  it.each([
+    ['has no file', { route: '/status', theme: 'light', viewport: 'phone' }],
+    ['is null', null],
+    ['has a file that is not text', { file: 3 }],
+  ])('exits 2 when an index entry %s', (_what, entry) => {
+    writeCrawl(dir);
+    writeFileSync(
+      join(dir, 'index.json'),
+      JSON.stringify({ routes: ROUTES, screens: [entry] }),
+    );
+    const result = run(dir);
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('without a report file');
+    expect(result.stderr).not.toContain('TypeError');
+  });
 });

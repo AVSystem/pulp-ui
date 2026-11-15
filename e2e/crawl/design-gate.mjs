@@ -125,7 +125,17 @@ export function designGate(dir) {
   const failed = new Map(CHECKS.map((check) => [check, []]));
   let undecided = 0;
   for (const screen of index.screens) {
+    if (typeof screen?.file !== 'string' || screen.file === '') {
+      throw new BadInput('index.json lists a screen without a report file');
+    }
     const report = readJson(join(dir, screen.file), screen.file);
+    if (
+      report === null ||
+      typeof report !== 'object' ||
+      Array.isArray(report)
+    ) {
+      throw new BadInput(`${screen.file} is not a screen report`);
+    }
     const name = `${screen.route} ${screen.theme} ${screen.viewport}`;
     undecided += Number.isInteger(report.axe?.incompleteContrast)
       ? report.axe.incompleteContrast
