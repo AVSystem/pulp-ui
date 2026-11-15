@@ -2,6 +2,7 @@ import { msg, t } from '@lingui/core/macro';
 import { RPMRepositoryAPI } from 'src/api';
 import { SyncModal } from 'src/components';
 import { handleHttpError, parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { Action } from './action';
 
 // pulp_rpm's own API default, which never removes content. Mirroring is
@@ -19,6 +20,7 @@ const syncPolicies = () => [
 
 export const rpmRepositorySyncAction = Action({
   title: msg`Sync`,
+  permission: ACTION_PERMISSIONS.rpm.repository.sync,
   modal: ({ addAlert, query, setState, state }) =>
     state.syncModalOpen ? (
       <SyncModal
@@ -37,8 +39,6 @@ export const rpmRepositorySyncAction = Action({
     setState({
       syncModalOpen: { name, pulp_href },
     }),
-  visible: (_item, { hasPermission }) =>
-    hasPermission('rpm.change_rpmrepository'),
   disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;

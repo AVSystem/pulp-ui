@@ -7,10 +7,12 @@ import {
   taskAlert,
   waitForTaskUrl,
 } from 'src/utilities';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { Action } from './action';
 
 export const debRemoteDeleteAction = Action({
   title: msg`Delete`,
+  permission: ACTION_PERMISSIONS.deb.remote.delete,
   modal: ({ addAlert, listQuery, setState, state }) =>
     state.deleteModalOpen ? (
       <DeleteRemoteModal
