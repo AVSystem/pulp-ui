@@ -1,5 +1,6 @@
 import { msg, t } from '@lingui/core/macro';
 import { DeleteRepositoryModal } from '../components/delete-repository-modal';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { deleteRepositoryWithDistributions } from '../utilities/delete-repository';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { plugin2api } from '../utilities/plugin-repository-base-path';
@@ -17,7 +18,8 @@ const attempt = (update: () => void) => {
 
 // The Delete action of a plugin's repositories: removes every distribution
 // that serves the repository, then the repository, after the user typed its
-// name.
+// name. It is offered to whoever holds the plugin's delete permission, on the
+// repository or on every repository.
 export const repositoryDeleteAction = (
   plugin: RepositoryDistributionPlugin,
 ) => {
@@ -25,6 +27,8 @@ export const repositoryDeleteAction = (
 
   return Action({
     title: msg`Delete`,
+    permission: ACTION_PERMISSIONS[plugin].repository.delete,
+    objectLevel: ACTION_PERMISSIONS[plugin].objectRoles,
     modal: ({ addAlert, listQuery, setState, state }) =>
       state.deleteModalOpen ? (
         <DeleteRepositoryModal

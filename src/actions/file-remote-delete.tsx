@@ -1,6 +1,7 @@
 import { msg, t } from '@lingui/core/macro';
 import { FileRemoteAPI } from '../api/file-remote';
 import { DeleteRemoteModal } from '../components/delete-remote-modal';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
@@ -9,6 +10,7 @@ import { Action } from './action';
 
 export const fileRemoteDeleteAction = Action({
   title: msg`Delete`,
+  permission: ACTION_PERMISSIONS.file.remote.delete,
   modal: ({ addAlert, listQuery, setState, state }) =>
     state.deleteModalOpen ? (
       <DeleteRemoteModal

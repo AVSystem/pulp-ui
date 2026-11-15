@@ -32,7 +32,7 @@ interface TabProps {
     addAlert: (alert) => void;
     state: { params };
     hasPermission: (string) => boolean;
-    hasObjectPermission: (string) => boolean;
+    hasObjectPermission: (permission: string, target?: object) => boolean;
     // loads the repository page again
     query: () => void;
   };
@@ -323,7 +323,9 @@ export const RepositoryVersionsTab = ({
         query: queryList,
         reloadPage,
         hasPermission,
-        hasObjectPermission, // needs item=repository, not repository version
+        // The rows are repository versions, which carry no permissions of their
+        // own: the actions on them ask about the repository the page shows.
+        hasObjectPermission: (permission) => hasObjectPermission(permission),
       }}
       defaultPageSize={10}
       defaultSort={'-pulp_created'}

@@ -8,6 +8,10 @@ import {
 } from '@patternfly/react-core';
 import { useId, useState } from 'react';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
+import {
+  ACTION_PERMISSIONS,
+  pluginOfHref,
+} from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
@@ -156,6 +160,21 @@ export const repositoryVersionRevertAction = (RepositoryAPI: RevertAPI) => {
       ) : null,
     onClick: ({ repositoryName, number, pulp_href }, { setState }) =>
       setState({ revertModal: { repositoryName, number, pulp_href } }),
+    // A revert is a modification of the repository's content, so the plugin's
+    // modify permission decides, read from the address of the version. The
+    // list's context answers object permissions for the repository the page
+    // shows, never for the version row.
+    visible: (version, { hasObjectPermission, hasPermission }) => {
+      const plugin = pluginOfHref(version?.pulp_href);
+      if (!plugin) {
+        return false;
+      }
+
+      const { modify } = ACTION_PERMISSIONS[plugin].repository;
+      return ACTION_PERMISSIONS[plugin].objectRoles && hasObjectPermission
+        ? !!hasObjectPermission(modify, version)
+        : !!hasPermission?.(modify);
+    },
     disabled: ({ isLatest }) => {
       if (isLatest) {
         return t`Already the current version`;

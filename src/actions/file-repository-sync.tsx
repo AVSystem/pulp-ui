@@ -1,6 +1,7 @@
 import { msg, t } from '@lingui/core/macro';
 import { FileRepositoryAPI } from '../api/file-repository';
 import { SyncModal } from '../components/sync-modal';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
@@ -8,6 +9,7 @@ import { Action } from './action';
 
 export const fileRepositorySyncAction = Action({
   title: msg`Sync`,
+  permission: ACTION_PERMISSIONS.file.repository.sync,
   modal: ({ addAlert, query, setState, state }) =>
     state.syncModalOpen ? (
       <SyncModal
@@ -30,8 +32,6 @@ export const fileRepositorySyncAction = Action({
     setState({
       syncModalOpen: { autopublish: !!autopublish, name, pulp_href },
     }),
-  visible: (_item, { hasPermission }) =>
-    hasPermission('file.sync_filerepository'),
   disabled: ({ remote }) => {
     if (!remote) {
       return t`There are no remotes associated with this repository.`;
