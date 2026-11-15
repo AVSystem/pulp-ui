@@ -19,6 +19,7 @@ import {
   DateComponent,
   EmptyStateFilter,
   EmptyStateNoData,
+  InsufficientPermissions,
   ListItemActions,
   LoadingSpinner,
   Main,
@@ -36,6 +37,8 @@ import {
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 
 interface IState {
@@ -47,6 +50,9 @@ interface IState {
   items: SigningServiceType[];
   itemCount: number;
   alerts: AlertType[];
+  // Pulp refused the read of the list, with its reason when it gave one.
+  unauthorized: boolean;
+  unauthorizedDetail: string | null;
   inputText: string;
 }
 
@@ -69,6 +75,8 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
       loading: true,
       itemCount: 0,
       alerts: [],
+      unauthorized: false,
+      unauthorizedDetail: null,
       inputText: '',
     };
   }
@@ -80,13 +88,24 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
   componentDidUpdate(prevProps: RouteProps) {
     // The same user signed in again: read the list again, keeping the rows on
     // screen until the answer arrives.
-    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+    if (
+      prevProps.sessionEpoch !== this.props.sessionEpoch &&
+      !this.state.unauthorized
+    ) {
       this.query(true);
     }
   }
 
   render() {
-    const { params, itemCount, loading, items, alerts } = this.state;
+    const {
+      params,
+      itemCount,
+      loading,
+      items,
+      alerts,
+      unauthorized,
+      unauthorizedDetail,
+    } = this.state;
 
     const noData = items.length === 0 && !filterIsSet(params, ['name']);
 
@@ -102,7 +121,9 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
           }
         />
         <BaseHeader title={t`Signature keys`} />
-        {noData && !loading ? (
+        {unauthorized ? (
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        ) : noData && !loading ? (
           <EmptyStateNoData
             title={t`No signature keys yet`}
             description={t`Signature keys will appear once created.`}
@@ -274,6 +295,18 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
           // The session ended: the sign-in dialog explains it, and the list
           // keeps its spinner or its rows until it reads again.
           if (isSessionEnd(e)) {
+            return;
+          }
+          // A refused read is not a failure to retry: the user is told they
+          // may not view the list, with Pulp's own reason.
+          if (requestErrorStatus(e) === 403) {
+            this.setState({
+              loading: false,
+              items: [],
+              itemCount: 0,
+              unauthorized: true,
+              unauthorizedDetail: requestErrorDetail(e),
+            });
             return;
           }
           this.setState({

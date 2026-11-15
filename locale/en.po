@@ -3750,6 +3750,7 @@ msgstr "Installer packages will be synchronized"
 #: src/components/insufficient-permissions.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/role-management/role-edit.tsx
+#: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
 msgstr "Insufficient permissions"

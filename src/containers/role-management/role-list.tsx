@@ -24,6 +24,7 @@ import {
   EmptyStateFilter,
   EmptyStateNoData,
   ExpandableRow,
+  InsufficientPermissions,
   ListItemActions,
   LoadingSpinner,
   Main,
@@ -45,6 +46,8 @@ import {
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 
 interface IState {
@@ -53,6 +56,9 @@ interface IState {
   redirect?: string;
   alerts: AlertType[];
   loading: boolean;
+  // Pulp refused the read of the list, with its reason when it gave one.
+  unauthorized: boolean;
+  unauthorizedDetail: string | null;
   inputText: string;
   params: {
     page?: number;
@@ -88,6 +94,8 @@ export class RoleList extends Component<RouteProps, IState> {
       roles: [],
       alerts: [],
       loading: true,
+      unauthorized: false,
+      unauthorizedDetail: null,
       inputText: '',
       params,
       roleCount: 0,
@@ -105,7 +113,10 @@ export class RoleList extends Component<RouteProps, IState> {
   componentDidUpdate(prevProps: RouteProps) {
     // The same user signed in again: read the list again, keeping the rows on
     // screen until the answer arrives.
-    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+    if (
+      prevProps.sessionEpoch !== this.props.sessionEpoch &&
+      !this.state.unauthorized
+    ) {
       this.queryRoles(true);
     }
   }
@@ -120,6 +131,8 @@ export class RoleList extends Component<RouteProps, IState> {
       showDeleteModal,
       roleToEdit,
       roles,
+      unauthorized,
+      unauthorizedDetail,
     } = this.state;
 
     const noData =
@@ -200,7 +213,9 @@ export class RoleList extends Component<RouteProps, IState> {
           </DeleteModal>
         )}
         <BaseHeader title={t`Roles`} />
-        {noData && !loading ? (
+        {unauthorized ? (
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        ) : noData && !loading ? (
           <EmptyStateNoData
             title={t`There are currently no roles`}
             description={t`Please add a role by using the button below.`}
@@ -375,9 +390,6 @@ export class RoleList extends Component<RouteProps, IState> {
   }
 
   private renderDropdownItems = (role) => {
-    // TODO: fix to work with Pulp API
-    return [];
-
     const { pulp_href, locked } = role;
     const roleID = parsePulpIDFromURL(pulp_href);
 
@@ -408,25 +420,26 @@ export class RoleList extends Component<RouteProps, IState> {
         {t`Delete`}
       </DropdownItem>
     );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Only staff hold these permissions, so the actions are in practice for
+    // staff; Pulp decides every request.
     const { hasPermission } = this.context as IAppContextType;
     const dropdownItems = [
-      // hasPermission('galaxy.change_containerregistryremote') &&
-      locked ? (
-        <Tooltip key='edit' content={t`Built-in roles cannot be edited.`}>
-          {editItem}
-        </Tooltip>
-      ) : (
-        editItem
-      ),
-      // hasPermission('galaxy.delete_containerregistryremote') &&
-      locked ? (
-        <Tooltip key='delete' content={t`Built-in roles cannot be deleted.`}>
-          {deleteItem}
-        </Tooltip>
-      ) : (
-        deleteItem
-      ),
+      hasPermission('core.change_role') &&
+        (locked ? (
+          <Tooltip key='edit' content={t`Built-in roles cannot be edited.`}>
+            {editItem}
+          </Tooltip>
+        ) : (
+          editItem
+        )),
+      hasPermission('core.delete_role') &&
+        (locked ? (
+          <Tooltip key='delete' content={t`Built-in roles cannot be deleted.`}>
+            {deleteItem}
+          </Tooltip>
+        ) : (
+          deleteItem
+        )),
     ];
 
     return dropdownItems;
@@ -448,6 +461,18 @@ export class RoleList extends Component<RouteProps, IState> {
           // The session ended: the sign-in dialog explains it, and the list
           // keeps its spinner or its rows until it reads again.
           if (isSessionEnd(err)) {
+            return;
+          }
+          // A refused read is not a failure to retry: the user is told they
+          // may not view the list, with Pulp's own reason.
+          if (requestErrorStatus(err) === 403) {
+            this.setState({
+              roles: [],
+              roleCount: 0,
+              loading: false,
+              unauthorized: true,
+              unauthorizedDetail: requestErrorDetail(err),
+            });
             return;
           }
           this.setState({

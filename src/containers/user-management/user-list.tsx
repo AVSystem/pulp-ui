@@ -100,12 +100,7 @@ class UserList extends Component<RouteProps, IState> {
   }
 
   componentDidMount() {
-    const { hasPermission } = this.context as IAppContextType;
-    if (!hasPermission('galaxy.view_user')) {
-      this.setState({ unauthorized: true });
-    } else {
-      this.queryUsers();
-    }
+    this.queryUsers();
   }
 
   componentDidUpdate(prevProps: RouteProps) {
@@ -202,7 +197,7 @@ class UserList extends Component<RouteProps, IState> {
                         />
                       </ToolbarItem>
                     </ToolbarGroup>
-                    {hasPermission('galaxy.add_user') ? (
+                    {hasPermission('auth.add_user') ? (
                       <ToolbarGroup>
                         <ToolbarItem>
                           <Link to={formatPath(Paths.core.user.create)}>
@@ -336,7 +331,7 @@ class UserList extends Component<RouteProps, IState> {
     const dropdownItems = [];
     const { hasPermission } = this.context as IAppContextType;
 
-    if (hasPermission('galaxy.change_user')) {
+    if (hasPermission('auth.change_user')) {
       dropdownItems.push(
         <DropdownItem
           key='edit'
@@ -353,7 +348,7 @@ class UserList extends Component<RouteProps, IState> {
       );
     }
 
-    if (hasPermission('galaxy.delete_user')) {
+    if (hasPermission('auth.delete_user')) {
       dropdownItems.push(
         <DropdownItem key='delete' onClick={() => this.deleteUser(user)}>
           {t`Delete`}

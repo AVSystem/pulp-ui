@@ -115,12 +115,7 @@ class GroupList extends Component<RouteProps, IState> {
     this.setState({ alerts: (this.context as IAppContextType).alerts || [] });
     (this.context as IAppContextType).setAlerts([]);
 
-    const { hasPermission } = this.context as IAppContextType;
-    if (!hasPermission('galaxy.view_group')) {
-      this.setState({ unauthorized: true });
-    } else {
-      this.queryGroups();
-    }
+    this.queryGroups();
   }
 
   componentDidUpdate(prevProps: RouteProps) {
@@ -181,7 +176,7 @@ class GroupList extends Component<RouteProps, IState> {
             title={t`No groups yet`}
             description={t`Groups will appear once created`}
             button={
-              hasPermission('galaxy.add_group') && (
+              hasPermission('core.add_group') && (
                 <Button
                   variant='primary'
                   onClick={() => this.setState({ createModalVisible: true })}
@@ -215,7 +210,7 @@ class GroupList extends Component<RouteProps, IState> {
                         />
                       </ToolbarItem>
                     </ToolbarGroup>
-                    {hasPermission('galaxy.add_group') && (
+                    {hasPermission('core.add_group') && (
                       <ToolbarGroup>
                         <ToolbarItem>
                           <Button
@@ -298,7 +293,7 @@ class GroupList extends Component<RouteProps, IState> {
     const name = this.state.selectedGroup && this.state.selectedGroup.name;
     const { deleteModalUsers: users, deleteModalCount: count } = this.state;
     const { hasPermission } = this.context as IAppContextType;
-    const view_user = hasPermission('galaxy.view_user');
+    const view_user = hasPermission('auth.view_user');
 
     if (!users && view_user) {
       this.queryUsers();
@@ -438,7 +433,7 @@ class GroupList extends Component<RouteProps, IState> {
   private renderTableRow(group, index: number) {
     const { hasPermission } = this.context as IAppContextType;
     const dropdownItems = [
-      hasPermission('galaxy.delete_group') && (
+      hasPermission('core.delete_group') && (
         <DropdownItem
           aria-label='Delete'
           key='delete'

@@ -5,6 +5,8 @@ import { UserAPI, type UserType } from 'src/api';
 import {
   AlertList,
   type AlertType,
+  BaseHeader,
+  InsufficientPermissions,
   LoadingPage,
   NotFound,
   UserFormPage,
@@ -17,7 +19,11 @@ import {
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
-import { isSessionEnd } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDetail,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 
 function UserProfile(_props: RouteProps) {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
@@ -25,6 +31,10 @@ function UserProfile(_props: RouteProps) {
   const [inEditMode, setInEditMode] = useState<boolean>(false);
   const [initialState, setInitialState] = useState<UserType>();
   const [notFound, setNotFound] = useState<boolean>(false);
+  // Pulp refused the read of the profile, with its reason when it gave one.
+  const [refused, setRefused] = useState<{ detail: string | null } | null>(
+    null,
+  );
   const [user, setUser] = useState<UserType>();
 
   const {
@@ -67,7 +77,14 @@ function UserProfile(_props: RouteProps) {
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
         // keeps its spinner or its form until it reads again.
-        if (!isSessionEnd(e)) {
+        if (isSessionEnd(e)) {
+          return;
+        }
+        // A refused read is not a missing profile: the user is told they may
+        // not view it, with Pulp's own reason.
+        if (requestErrorStatus(e) === 403) {
+          setRefused({ detail: requestErrorDetail(e) });
+        } else {
           setNotFound(true);
         }
       });
@@ -77,7 +94,7 @@ function UserProfile(_props: RouteProps) {
   }, []);
 
   useEffect(() => {
-    if (epoch !== firstEpoch.current) {
+    if (epoch !== firstEpoch.current && !refused) {
       loadUser();
     }
   }, [epoch]);
@@ -103,6 +120,15 @@ function UserProfile(_props: RouteProps) {
         }
       })
       .catch((err) => setErrorMessages(mapErrorMessages(err)));
+
+  if (refused) {
+    return (
+      <>
+        <BaseHeader title={t`Insufficient permissions`} />
+        <InsufficientPermissions detail={refused.detail} />
+      </>
+    );
+  }
 
   if (notFound) {
     return <NotFound />;

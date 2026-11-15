@@ -773,3 +773,153 @@ describe('the permission read after a failure', () => {
     expect(ownRecordReads(requests)).toBe(1);
   });
 });
+
+describe('administration screens', () => {
+  // The screens read the app context, which the root route supplies.
+  const RoutedInApp = () => (
+    <AppContextProvider>
+      <Routed />
+    </AppContextProvider>
+  );
+
+  const API = '/pulp/api/v3';
+  const refusal = () =>
+    document.querySelector('[data-cy=InsufficientPermissions]');
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  // The server answers the lists the three screens read.
+  function serveLists() {
+    server.use(
+      listOf(`${API}/users/`, []).handler,
+      listOf(`${API}/groups/`, []).handler,
+      listOf(`${API}/roles/`, []).handler,
+    );
+  }
+
+  const SCREENS = [
+    ['users list', '/users', 'Users'],
+    ['groups list', '/groups', 'Groups'],
+    ['roles list', '/roles', 'Roles'],
+    ['user detail', '/users/detail/5', 'Users'],
+    ['user edit', '/users/edit/5', 'Users'],
+    ['user create', '/users/create', 'Users'],
+    ['group detail', '/groups/detail/5', 'Groups'],
+    ['role edit', '/roles/edit/some-role', 'Roles'],
+    ['role create', '/roles/create', 'Roles'],
+  ] as const;
+
+  it.each(SCREENS)(
+    'the %s page shows the insufficient permissions page without server text to a user who may not view it',
+    async (_name, route) => {
+      serveLists();
+      servePermissions({ own: [['file.view_filerepository']] });
+      const requests = recordRequests();
+
+      renderWithProviders(<RoutedInApp />, { route });
+
+      await waitFor(() => expect(refusal()).not.toBeNull());
+      expect(
+        screen.getByRole('heading', { name: 'Insufficient permissions' }),
+      ).toBeVisible();
+      expect(
+        screen.getByText('You do not have permission to view this page.'),
+      ).toBeVisible();
+      expect(refusal()?.querySelectorAll('.pulp-break-anywhere')).toHaveLength(
+        0,
+      );
+
+      // Only the shared reads of the signed-in user's own permissions ran.
+      expect(
+        requests.paths.filter(
+          (path) =>
+            !path.endsWith('/pulp-ui-config.json') &&
+            !path.endsWith('/pulp/api/v3/status/') &&
+            !path.endsWith('/pulp/api/v3/login/') &&
+            !/\/pulp\/api\/v3\/users\/7\/(roles\/)?$/.test(path),
+        ),
+      ).toEqual([]);
+      requests.stop();
+    },
+  );
+
+  it('opens the roles list for staff only', async () => {
+    serveLists();
+    servePermissions({ isStaff: true });
+
+    renderWithProviders(<RoutedInApp />, { route: '/roles' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Roles', level: 1 }),
+    ).toBeVisible();
+    expect(refusal()).toBeNull();
+  });
+
+  it('refuses the roles list to a holder of every role permission who is not staff', async () => {
+    serveLists();
+    servePermissions({
+      own: [['core.view_role', 'core.change_role', 'core.delete_role']],
+    });
+
+    renderWithProviders(<RoutedInApp />, { route: '/roles' });
+
+    await waitFor(() => expect(refusal()).not.toBeNull());
+  });
+
+  it('shows the loading page while the permissions are pending and sends no request of the screen', async () => {
+    serveLists();
+    servePermissions({ isStaff: true });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(`*${API}/users/7/`, async () => {
+        await gate;
+        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+      }),
+    );
+    const requests = recordRequests();
+
+    renderWithProviders(<RoutedInApp />, { route: '/users' });
+    await new Promise((resolve) => setTimeout(resolve, 80));
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(refusal()).toBeNull();
+    expect(requests.paths).not.toContain(`${API}/users/`);
+
+    release();
+    expect(
+      await screen.findByRole('heading', { name: 'Users', level: 1 }),
+    ).toBeVisible();
+    requests.stop();
+  });
+
+  it('shows the insufficient permissions page after the permission read failed', async () => {
+    serveLists();
+    servePermissions({ isStaff: true });
+    server.use(
+      http.get(`*${API}/users/7/`, () =>
+        HttpResponse.json({ detail: 'no' }, { status: 500 }),
+      ),
+    );
+
+    renderWithProviders(<RoutedInApp />, { route: '/groups' });
+
+    await waitFor(() => expect(refusal()).not.toBeNull());
+  });
+
+  it('leaves the screens that are not administration alone', async () => {
+    server.use(listOf(`${API}/signing-services/`, []).handler);
+    servePermissions({ own: [] });
+
+    renderWithProviders(<RoutedInApp />, { route: '/signature-keys' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Signature keys' }),
+    ).toBeVisible();
+    expect(refusal()).toBeNull();
+  });
+});
