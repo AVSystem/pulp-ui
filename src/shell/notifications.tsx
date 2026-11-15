@@ -182,6 +182,13 @@ export const NotificationsProvider = ({
 
   useEffect(() => {
     if (!enabled) {
+      // Nothing of the previous session may outlive it: the next user starts
+      // with a closed panel and no list.
+      setOpen(false);
+      setOpenedAgainst(null);
+      setTasks([]);
+      setSeen(null);
+      settle('loading');
       return undefined;
     }
 
@@ -200,7 +207,7 @@ export const NotificationsProvider = ({
       clearInterval(timer);
       latest.current++;
     };
-  }, [enabled, load]);
+  }, [enabled, load, settle]);
 
   const open = useCallback(() => {
     const now = Date.now();
@@ -259,8 +266,13 @@ export const NotificationsProvider = ({
   );
 };
 
-// Whether the panel is expanded, for the page that hosts it.
-export const useNotificationsOpen = () => useNotifications().isOpen;
+// Whether the panel is expanded, for the page that hosts it. A panel that is
+// not available renders nothing, so it is never reported as expanded: the page
+// would otherwise keep an empty column open.
+export const useNotificationsOpen = () => {
+  const { isOpen, available } = useNotifications();
+  return isOpen && available;
+};
 
 const bellName = (unread: number) =>
   unread > 0

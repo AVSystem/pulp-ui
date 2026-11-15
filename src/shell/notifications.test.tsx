@@ -21,6 +21,10 @@ import { server } from 'src/test-utils/server';
 import {
   NOTIFICATIONS_REFRESH_MS,
   NOTIFICATIONS_SEEN_KEY,
+  NotificationBell,
+  NotificationPanel,
+  NotificationsProvider,
+  useNotificationsOpen,
 } from './notifications';
 import { Shell } from './shell';
 
@@ -408,6 +412,85 @@ describe('notifications', () => {
       expect(
         screen.queryByText('Notifications could not be loaded.'),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('lifecycle', () => {
+    const drawer = () => document.querySelector('.pf-v6-c-drawer');
+
+    it('collapses the page when a refresh is refused while the panel is open', async () => {
+      let answer: Answer = [ended('failed', 3, 'visible')];
+      answerWith(() => answer);
+      await openPanel();
+      await screen.findByRole('link', { name: 'visible' });
+      expect(drawer()).toHaveClass('pf-m-expanded');
+
+      answer = 'forbidden';
+      refreshNow();
+
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: /^Notifications/ }),
+        ).not.toBeInTheDocument(),
+      );
+      expect(drawer()).not.toHaveClass('pf-m-expanded');
+    });
+
+    it('starts the next session with a closed panel and no list', async () => {
+      // The second session's answer is held back so the state in between is
+      // what the new user sees first.
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let calls = 0;
+      server.use(
+        http.get(TASKS, async () => {
+          calls++;
+          if (calls > 1) {
+            await gate;
+          }
+          const results =
+            calls > 1
+              ? [ended('completed', 2, 'second-user-task')]
+              : [ended('failed', 3, 'first-user-task')];
+          return HttpResponse.json({
+            count: results.length,
+            next: null,
+            previous: null,
+            results,
+          });
+        }),
+      );
+
+      const Probe = () => (
+        <span data-testid='open'>{String(useNotificationsOpen())}</span>
+      );
+      const tree = (enabled: boolean) => (
+        <NotificationsProvider enabled={enabled}>
+          <Probe />
+          <NotificationBell />
+          <NotificationPanel />
+        </NotificationsProvider>
+      );
+      const view = renderWithProviders(tree(true));
+
+      await view.user.click(await bell());
+      // The open click asks again; wait for the held-back answer to be pending.
+      await waitFor(() => expect(calls).toBe(2));
+      expect(screen.getByTestId('open')).toHaveTextContent('true');
+
+      view.rerender(tree(false));
+      view.rerender(tree(true));
+
+      await waitFor(() => expect(calls).toBe(3));
+      expect(screen.getByTestId('open')).toHaveTextContent('false');
+      expect(screen.queryByText('first-user-task')).not.toBeInTheDocument();
+      expect(screen.queryByText('second-user-task')).not.toBeInTheDocument();
+
+      release();
+      await settle();
+      expect(screen.getByTestId('open')).toHaveTextContent('false');
     });
   });
 
