@@ -23,6 +23,7 @@ import {
 } from 'src/components';
 import { ParamHelper, type RouteProps, withRouter } from 'src/utilities';
 import {
+  isSessionEnd,
   requestErrorDescription,
   requestErrorStatus,
 } from '../utilities/request-error';
@@ -47,6 +48,10 @@ interface IState<T> {
 // notFound - the load answered 404, NotFound
 // error - any other failed load, header and ListErrorState with a retry
 // (data) - renders detail
+//
+// A load that fails because the session ended changes nothing: the page keeps
+// its loading state or its content, the sign-in dialog explains the failure
+// and the page reads again once the same user has signed in.
 
 interface PageWithTabsParams<T> {
   breadcrumbs: ({ name, tab, params }) => { url?: string; name: string }[];
@@ -129,10 +134,22 @@ export const PageWithTabs = function <
       }
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: RouteProps) {
       if (prevProps.location !== this.props.location) {
         const params = ParamHelper.parseParamString(this.props.location.search);
         this.setState({ params: { tab: 'details', ...params } });
+      }
+
+      // The same user signed in again after the session ended. A page that
+      // shows its object reads it again in the background, so the open tab
+      // keeps what it holds. A page that is still loading, or shows an error
+      // or not-found state, reads again like a first visit.
+      if (
+        prevProps.sessionEpoch !== this.props.sessionEpoch &&
+        !this.state.unauthorized
+      ) {
+        const { error, item, loading } = this.state;
+        this.query({ quiet: !!item && !loading && !error });
       }
     }
 
@@ -282,11 +299,13 @@ export const PageWithTabs = function <
       return renderTab(tab, item, actionContext);
     }
 
-    private query() {
+    // quiet: the object is shown already; read it again without a loading
+    // state and keep the page as it is when the read fails
+    private query({ quiet = false } = {}) {
       const { name } = this.props.routeParams;
       const current = ++this.latestQuery;
 
-      this.setState({ loading: true, error: null }, () => {
+      const read = () =>
         query({ name })
           .then((item) => {
             if (current !== this.latestQuery) {
@@ -294,12 +313,22 @@ export const PageWithTabs = function <
             }
 
             this.setState({
+              error: null,
               item,
               loading: false,
             });
           })
           .catch((e) => {
-            if (current !== this.latestQuery) {
+            if (current !== this.latestQuery || isSessionEnd(e)) {
+              return;
+            }
+
+            if (quiet) {
+              this.addAlert({
+                variant: 'danger',
+                title: i18n._(errorTitle),
+                description: requestErrorDescription(e),
+              });
               return;
             }
 
@@ -312,7 +341,12 @@ export const PageWithTabs = function <
               },
             });
           });
-      });
+
+      if (quiet) {
+        read();
+      } else {
+        this.setState({ loading: true, error: null }, read);
+      }
     }
 
     private addAlert(alert: AlertType) {

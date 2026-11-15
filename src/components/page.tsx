@@ -19,7 +19,10 @@ import {
   closeAlert,
 } from 'src/components';
 import { type RouteProps, withRouter } from 'src/utilities';
-import { requestErrorDescription } from '../utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from '../utilities/request-error';
 import { ListErrorState } from './list-error-state';
 
 interface IState<T> {
@@ -37,6 +40,10 @@ interface IState<T> {
 // error - the load failed, header and ListErrorState with a retry; render is
 //   never called, so a form for an existing object is not shown without it
 // (data) - renders detail, or the form of a new object when the route has no name
+//
+// A load that fails because the session ended changes nothing: the page keeps
+// its loading state or its content, the sign-in dialog explains the failure
+// and the page reads again once the same user has signed in.
 
 interface PageParams<T> {
   breadcrumbs: ({ name }) => { url?: string; name: string }[];
@@ -119,6 +126,27 @@ export const Page = function <
         })
         // the failure is already shown as the error state
         .catch(() => undefined);
+    }
+
+    componentDidUpdate(prevProps: RouteProps) {
+      if (
+        prevProps.sessionEpoch === this.props.sessionEpoch ||
+        this.state.unauthorized ||
+        !transformParams(this.props.routeParams)?.name
+      ) {
+        return;
+      }
+
+      // The same user signed in again after the session ended. A page that
+      // shows its object reads it again in the background, so a form keeps
+      // what the user typed (the edited copy lives in the page state, which
+      // this read does not touch). A page that is still loading or shows an
+      // error state reads again like a first visit.
+      const { error, item, loading } = this.state;
+      this.query({ quiet: !!item && !loading && !error }).catch(
+        // the failure is shown as the error state or as an alert
+        () => undefined,
+      );
     }
 
     render() {
@@ -209,7 +237,9 @@ export const Page = function <
       );
     }
 
-    private query(): Promise<T> {
+    // quiet: the object is shown already; read it again without a loading
+    // state and keep the page as it is when the read fails
+    private query({ quiet = false } = {}): Promise<T> {
       const { name } = transformParams(this.props.routeParams);
 
       if (!name) {
@@ -221,11 +251,12 @@ export const Page = function <
       const current = ++this.latestQuery;
 
       return new Promise((resolve, reject) => {
-        this.setState({ loading: true, error: null }, () => {
+        const read = () =>
           query({ name })
             .then((item) => {
               if (current === this.latestQuery) {
                 this.setState({
+                  error: null,
                   item,
                   loading: false,
                 });
@@ -233,16 +264,29 @@ export const Page = function <
               resolve(item);
             })
             .catch((e) => {
-              if (current === this.latestQuery) {
-                this.setState({
-                  loading: false,
-                  item: null,
-                  error: requestErrorDescription(e),
-                });
+              if (current === this.latestQuery && !isSessionEnd(e)) {
+                if (quiet) {
+                  this.addAlert({
+                    variant: 'danger',
+                    title: i18n._(errorTitle),
+                    description: requestErrorDescription(e),
+                  });
+                } else {
+                  this.setState({
+                    loading: false,
+                    item: null,
+                    error: requestErrorDescription(e),
+                  });
+                }
               }
               reject(e);
             });
-        });
+
+        if (quiet) {
+          read();
+        } else {
+          this.setState({ loading: true, error: null }, read);
+        }
       });
     }
 

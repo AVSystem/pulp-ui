@@ -1,12 +1,18 @@
 import { Td, Tr } from '@patternfly/react-table';
-import { screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { StrictMode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PulpAPI } from '../api/pulp';
+import { resetSessionEvents } from '../session/session-events';
 import { listOf } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
+import {
+  SignInAgain,
+  serveSignIn,
+  signedIn,
+} from '../test-utils/sign-in-again';
 import { DetailList } from './detail-list';
 
 const THINGS = '/pulp/api/v3/things/';
@@ -75,12 +81,20 @@ describe('a list in a detail tab whose load fails', () => {
     expect(addAlert).not.toHaveBeenCalled();
   });
 
-  it('keeps the sign-in link for a 401', async () => {
+  it('keeps its loading state without an error state or alert for a 401', async () => {
     server.use(failing(401, 'Unauthorized'));
-    renderList();
+    const { addAlert } = renderList();
 
-    expect(await screen.findByText(/Error 401 - /)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Login' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('progressbar')).toBeVisible());
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+    expect(screen.queryByText('No things yet')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Things could not be displayed.' }),
+    ).not.toBeInTheDocument();
+    expect(addAlert).not.toHaveBeenCalled();
   });
 
   it('shows the rows once Retry finds the API again', async () => {
@@ -137,5 +151,98 @@ describe('a list in a detail tab whose load succeeds', () => {
     renderList();
 
     expect(await screen.findByText('alpha')).toBeInTheDocument();
+  });
+});
+
+describe('a list in a detail tab after the same user signs in again', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  function renderAfterSignIn() {
+    serveSignIn();
+    const { addAlert } = { addAlert: vi.fn() };
+    return renderWithProviders(
+      <>
+        <SignInAgain />
+        <DetailList<IThing>
+          actionContext={{
+            addAlert,
+            hasPermission: () => true,
+            query: vi.fn(),
+          }}
+          defaultPageSize={10}
+          errorTitle='Things could not be displayed.'
+          noDataDescription='Things appear once they are created.'
+          noDataTitle='No things yet'
+          query={({ params }) => things.list('things/', params)}
+          renderTableRow={(item) => (
+            <Tr key={item.name}>
+              <Td>{item.name}</Td>
+            </Tr>
+          )}
+          sortHeaders={[{ title: 'Name', type: 'alpha', id: 'name' }]}
+          title='Things'
+        />
+      </>,
+    );
+  }
+
+  it('reads again with the same parameters and shows the fresh rows', async () => {
+    const { handler, queries } = listOf(THINGS, rows('alpha'));
+    server.use(handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('alpha');
+    await signedIn();
+    const fresh = listOf(THINGS, rows('beta'));
+    server.use(fresh.handler);
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText('beta')).toBeVisible();
+    expect(screen.queryByText('alpha')).not.toBeInTheDocument();
+    expect(fresh.queries).toHaveLength(1);
+    expect(fresh.queries[0]).toEqual(queries[0]);
+  });
+
+  it('keeps the rows and shows no error state when the read is refused with 401', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('alpha');
+    await signedIn();
+    server.use(failing(401, 'Unauthorized'));
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(screen.getByText('alpha')).toBeVisible();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+  });
+
+  it('shows the rows after a first read that was refused', async () => {
+    server.use(failing(401, 'Unauthorized'));
+    const { user } = renderAfterSignIn();
+    await signedIn();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    server.use(listOf(THINGS, rows('beta')).handler);
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText('beta')).toBeVisible();
+    expect(screen.queryByText(/Error 401/)).not.toBeInTheDocument();
+  });
+
+  it('reads a list that shows an error state again like a first visit', async () => {
+    server.use(failing(503, 'Service Unavailable'));
+    const { user } = renderAfterSignIn();
+    await screen.findByText(/Error 503/);
+    await signedIn();
+    server.use(listOf(THINGS, rows('beta')).handler);
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText('beta')).toBeVisible();
+    expect(screen.queryByText(/Error 503/)).not.toBeInTheDocument();
   });
 });

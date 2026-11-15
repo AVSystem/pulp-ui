@@ -10,8 +10,12 @@ import {
 } from 'src/api';
 import { AccessTab } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { useSessionEpoch } from 'src/user-context';
 import { assignRoles, parsePulpIDFromURL } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface UserType {
   username: string;
@@ -27,6 +31,14 @@ interface TabProps {
     user;
   };
 }
+
+// A lookup that was refused because the session ended is read again with the
+// roles after signing in; any other failure is not hidden.
+const rethrowUnlessSessionEnd = (e) => {
+  if (!isSessionEnd(e)) {
+    throw e;
+  }
+};
 
 export const RemoteAccessTab = ({
   item,
@@ -59,9 +71,16 @@ export const RemoteAccessTab = ({
     roles?: RoleType[];
   }>(null);
 
-  const query = () => {
-    setUsers(null);
-    setGroups(null);
+  // grows when the same user signs in again, so the roles are read again
+  const epoch = useSessionEpoch();
+
+  // quiet: the roles are shown already; read them again without the loading
+  // state, which would close the dialogs of this tab
+  const query = ({ quiet = false } = {}) => {
+    if (!quiet) {
+      setUsers(null);
+      setGroups(null);
+    }
 
     // TODO handle pagination
     AnsibleRemoteAPI.listRoles(id, { page_size: 100 })
@@ -72,7 +91,13 @@ export const RemoteAccessTab = ({
         setUsers(users as UserType[]);
         setGroups(groups as GroupType[]);
       })
-      .catch(() => {
+      .catch((e) => {
+        // The session ended: the tab keeps its spinner or its roles and reads
+        // again after signing in, the sign-in dialog explains the failure.
+        if (isSessionEnd(e)) {
+          return;
+        }
+
         setUsers([]);
         setGroups([]);
       });
@@ -244,7 +269,14 @@ export const RemoteAccessTab = ({
     });
   };
 
-  useEffect(query, [item.pulp_href]);
+  useEffect(() => query(), [item.pulp_href]);
+
+  // the same user signed in again: read the roles once more, keeping dialogs
+  useEffect(() => {
+    if (epoch) {
+      query({ quiet: true });
+    }
+  }, [epoch]);
 
   useEffect(() => {
     if (!users) {
@@ -256,9 +288,11 @@ export const RemoteAccessTab = ({
       return;
     }
 
-    UserAPI.list({ username: params.user }).then(({ data: { data } }) => {
-      setSelectedUser(users.find((u) => u.username === data[0].username));
-    });
+    UserAPI.list({ username: params.user })
+      .then(({ data: { data } }) => {
+        setSelectedUser(users.find((u) => u.username === data[0].username));
+      })
+      .catch(rethrowUnlessSessionEnd);
   }, [params?.user, users]);
 
   useEffect(() => {
@@ -271,9 +305,11 @@ export const RemoteAccessTab = ({
       return;
     }
 
-    GroupAPI.list({ name: params.group }).then(({ data: { data } }) => {
-      setSelectedGroup(groups.find((g) => g.name === data[0].name));
-    });
+    GroupAPI.list({ name: params.group })
+      .then(({ data: { data } }) => {
+        setSelectedGroup(groups.find((g) => g.name === data[0].name));
+      })
+      .catch(rethrowUnlessSessionEnd);
   }, [params?.group, groups]);
 
   return (

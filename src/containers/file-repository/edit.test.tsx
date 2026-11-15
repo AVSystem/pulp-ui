@@ -7,6 +7,11 @@ import { Paths } from 'src/paths';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import FileRepositoryEdit from './edit';
 
 const API = '/pulp/api/v3';
@@ -66,6 +71,24 @@ function renderEdit(route: string) {
         <Route path={Paths.file.repository.detail} element={<Where />} />
       </Routes>
     </AppContextProvider>,
+    { route },
+  );
+}
+
+function renderEditAfterSignIn(route: string) {
+  serveSignIn();
+  return renderWithProviders(
+    <>
+      <SignInAgain />
+      <AppContextProvider>
+        <Routes>
+          <Route
+            path={Paths.file.repository.edit}
+            element={<FileRepositoryEdit />}
+          />
+        </Routes>
+      </AppContextProvider>
+    </>,
     { route },
   );
 }
@@ -343,6 +366,75 @@ describe('editing a file repository', () => {
       await screen.findByText(/Updated repository existing/),
     ).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /detail page/ })).toBeNull();
+  });
+});
+
+describe('editing a file repository after the same user signs in again', () => {
+  const existing = repository({
+    name: 'existing',
+    pulp_href: `${API}/repositories/file/file/00000000-0000-4000-8000-000000000001/`,
+    description: 'old text',
+    retain_repo_versions: 3,
+    pulp_labels: {},
+    remote: null,
+  });
+  const repositoryWrites = () =>
+    writes().filter(
+      (r) => r.method !== 'GET' && r.path.startsWith(`${API}/repositories/`),
+    );
+  const serveRepositoryRows = (row: typeof existing) =>
+    server.use(
+      listOf(`${API}/repositories/file/file/`, [row], {
+        matching: (r, query) => r.name === query.get('name'),
+      }).handler,
+    );
+
+  beforeEach(() => {
+    serveSupportingLists();
+    serveRepositoryRows(existing);
+  });
+
+  it('reads the repository again, keeps the description the user typed and sends no repository write', async () => {
+    const { user } = renderEditAfterSignIn('/file/repositories/edit/existing');
+    await screen.findByDisplayValue('existing');
+    await signedIn();
+    await user.clear(descriptionInput());
+    await user.type(descriptionInput(), 'typed text');
+    const reads = () =>
+      seen.filter(
+        (r) =>
+          r.method === 'GET' && r.path === `${API}/repositories/file/file/`,
+      ).length;
+    expect(reads()).toBe(1);
+    serveRepositoryRows({ ...existing, description: 'server text' });
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    await waitFor(() => expect(reads()).toBe(2));
+    await waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent('authenticated'),
+    );
+    expect(descriptionInput()).toHaveValue('typed text');
+    expect(repositoryWrites()).toStrictEqual([]);
+    expect(writes().map((r) => `${r.method} ${r.path}`)).toStrictEqual([
+      `POST ${API}/login/`,
+    ]);
+  });
+
+  it('shows the fresh description in a form the user has not changed', async () => {
+    const { user } = renderEditAfterSignIn('/file/repositories/edit/existing');
+    await screen.findByDisplayValue('existing');
+    await signedIn();
+    expect(descriptionInput()).toHaveValue('old text');
+    serveRepositoryRows({ ...existing, description: 'server text' });
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    await waitFor(() => expect(descriptionInput()).toHaveValue('server text'));
+    expect(repositoryWrites()).toStrictEqual([]);
+    expect(writes().map((r) => `${r.method} ${r.path}`)).toStrictEqual([
+      `POST ${API}/login/`,
+    ]);
   });
 });
 

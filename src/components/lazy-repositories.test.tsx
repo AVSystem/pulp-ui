@@ -1,9 +1,15 @@
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { resetSessionEvents } from 'src/session/session-events';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import { LazyRepositories } from './lazy-repositories';
 
 const API = '/pulp/api/v3';
@@ -70,5 +76,71 @@ describe('repositories that use a remote', () => {
     expect(
       await screen.findByText(/Failed to load repositories: Error 500/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('repositories that use a remote after the session ended', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const refused = http.get(`*${API}/repositories/file/file/`, () =>
+    HttpResponse.json({ detail: 'no' }, { status: 401 }),
+  );
+
+  function renderAfterSignIn() {
+    serveSignIn();
+    return renderWithProviders(
+      <>
+        <SignInAgain />
+        <LazyRepositories plugin='file' remote_href={REMOTE} />
+      </>,
+    );
+  }
+
+  it('keeps the spinner and shows no failure marker for a 401', async () => {
+    server.use(refused);
+    renderAfterSignIn();
+    await signedIn();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    // the only button is the sign-in helper: no failure marker is drawn
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+  });
+
+  it('reads again after the same user signs in again and names the repositories', async () => {
+    server.use(refused);
+    const { user } = renderAfterSignIn();
+    await signedIn();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+    server.use(
+      listOf(`${API}/repositories/file/file/`, [repository({ name: 'alpha' })])
+        .handler,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText(/alpha/)).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('reads the shown repositories again and replaces them', async () => {
+    server.use(
+      listOf(`${API}/repositories/file/file/`, [repository({ name: 'alpha' })])
+        .handler,
+    );
+    const { user } = renderAfterSignIn();
+    await screen.findByText(/alpha/);
+    await signedIn();
+    server.use(
+      listOf(`${API}/repositories/file/file/`, [repository({ name: 'beta' })])
+        .handler,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText(/beta/)).toBeInTheDocument();
+    expect(screen.queryByText(/alpha/)).toBeNull();
   });
 });
