@@ -57,12 +57,7 @@ class UserDetail extends Component<RouteProps, IState> {
   }
 
   componentDidMount() {
-    const { hasPermission } = this.context as IAppContextType;
-    if (!hasPermission('galaxy.view_user')) {
-      this.setState({ unauthorized: true });
-    } else {
-      this.queryUser();
-    }
+    this.queryUser();
   }
 
   componentDidUpdate(prevProps: RouteProps) {
@@ -170,7 +165,7 @@ class UserDetail extends Component<RouteProps, IState> {
           isReadonly
           extraControls={
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              {hasPermission('galaxy.change_user') ? (
+              {hasPermission('auth.change_user') ? (
                 <div>
                   <Link
                     to={formatPath(Paths.core.user.edit, {
@@ -181,7 +176,7 @@ class UserDetail extends Component<RouteProps, IState> {
                   </Link>
                 </div>
               ) : null}
-              {hasPermission('galaxy.delete_user') ? (
+              {hasPermission('auth.delete_user') ? (
                 <div style={{ marginLeft: '8px' }}>
                   <Button
                     variant='secondary'

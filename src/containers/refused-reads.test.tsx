@@ -3,11 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { type ReactNode } from 'react';
 import { Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  AppContext,
-  AppContextProvider,
-  type IAppContextType,
-} from 'src/app-context';
+import { AppContextProvider } from 'src/app-context';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -19,12 +15,11 @@ import UserEdit from './user-management/user-edit';
 import UserList from './user-management/user-list';
 
 // The user and group screens show the insufficient permissions page when Pulp
-// refuses the read that fills them, and when the screen's own check says the
-// user may not view it. The page is presentation: Pulp refused the request.
+// refuses the read that fills them. The page is presentation: Pulp refused the
+// request.
 
 const API = '/pulp/api/v3';
 
-// The screens' own view checks pass for a staff user.
 let recorder: { stop: () => void };
 
 beforeEach(() => {
@@ -47,19 +42,6 @@ const withProvider = (ui: ReactNode) => (
     <PermissionsKnown>{ui}</PermissionsKnown>
   </AppContextProvider>
 );
-
-// a context in which the screen's own view check says no
-const NoViewPermission = ({ children }: { children: ReactNode }) => {
-  const value: IAppContextType = {
-    alerts: [],
-    hasPermission: () => false,
-    permissionsReady: true,
-    queueAlert: () => undefined,
-    setAlerts: () => undefined,
-    user: null,
-  };
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};
 
 const insufficient = () =>
   screen.findByRole('heading', { name: 'Insufficient permissions', level: 4 });
@@ -90,14 +72,6 @@ describe('the group list', () => {
     expect(screen.getByRole('heading', { name: 'Groups' })).toBeInTheDocument();
     expectNoRetryAndNoAlert('Groups list could not be displayed.');
   });
-
-  it('shows the page without a server text when the screen check refuses', async () => {
-    render(withNoPermission);
-
-    await insufficient();
-    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
-    expect(screen.getByRole('heading', { name: 'Groups' })).toBeInTheDocument();
-  });
 });
 
 describe('the group detail', () => {
@@ -127,13 +101,6 @@ describe('the group detail', () => {
     ).toBeInTheDocument();
     expectNoRetryAndNoGroupAlert();
   });
-
-  it('shows the page without a server text when the screen check refuses', async () => {
-    render(withNoPermission);
-
-    await insufficient();
-    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
-  });
 });
 
 describe('the user list', () => {
@@ -149,14 +116,6 @@ describe('the user list', () => {
     expect(screen.getByText('Not for you.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Users' })).toBeInTheDocument();
     expectNoRetryAndNoAlert('Users list could not be displayed.');
-  });
-
-  it('shows the page without a server text when the screen check refuses', async () => {
-    render(withNoPermission);
-
-    await insufficient();
-    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
-    expect(screen.getByRole('heading', { name: 'Users' })).toBeInTheDocument();
   });
 });
 
@@ -188,13 +147,6 @@ describe('the user detail', () => {
       screen.queryByText("We couldn't find the page you're looking for!"),
     ).toBeNull();
     expectNoRetryAndNoAlert();
-  });
-
-  it('shows the page without a server text when the screen check refuses', async () => {
-    render(withNoPermission);
-
-    await insufficient();
-    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
   });
 });
 
@@ -233,10 +185,6 @@ describe('the user edit page', () => {
 
 function withProviderFn(ui: ReactNode) {
   return withProvider(ui);
-}
-
-function withNoPermission(ui: ReactNode) {
-  return <NoViewPermission>{ui}</NoViewPermission>;
 }
 
 function expectNoRetryAndNoGroupAlert() {

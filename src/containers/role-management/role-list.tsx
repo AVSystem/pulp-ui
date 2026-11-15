@@ -375,9 +375,6 @@ export class RoleList extends Component<RouteProps, IState> {
   }
 
   private renderDropdownItems = (role) => {
-    // TODO: fix to work with Pulp API
-    return [];
-
     const { pulp_href, locked } = role;
     const roleID = parsePulpIDFromURL(pulp_href);
 
@@ -408,25 +405,26 @@ export class RoleList extends Component<RouteProps, IState> {
         {t`Delete`}
       </DropdownItem>
     );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Only staff hold these permissions, so the actions are in practice for
+    // staff; Pulp decides every request.
     const { hasPermission } = this.context as IAppContextType;
     const dropdownItems = [
-      // hasPermission('galaxy.change_containerregistryremote') &&
-      locked ? (
-        <Tooltip key='edit' content={t`Built-in roles cannot be edited.`}>
-          {editItem}
-        </Tooltip>
-      ) : (
-        editItem
-      ),
-      // hasPermission('galaxy.delete_containerregistryremote') &&
-      locked ? (
-        <Tooltip key='delete' content={t`Built-in roles cannot be deleted.`}>
-          {deleteItem}
-        </Tooltip>
-      ) : (
-        deleteItem
-      ),
+      hasPermission('core.change_role') &&
+        (locked ? (
+          <Tooltip key='edit' content={t`Built-in roles cannot be edited.`}>
+            {editItem}
+          </Tooltip>
+        ) : (
+          editItem
+        )),
+      hasPermission('core.delete_role') &&
+        (locked ? (
+          <Tooltip key='delete' content={t`Built-in roles cannot be deleted.`}>
+            {deleteItem}
+          </Tooltip>
+        ) : (
+          deleteItem
+        )),
     ];
 
     return dropdownItems;

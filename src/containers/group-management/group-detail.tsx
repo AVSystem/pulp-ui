@@ -140,12 +140,7 @@ class GroupDetail extends Component<RouteProps, IState> {
   }
 
   componentDidMount() {
-    const { hasPermission } = this.context as IAppContextType;
-    if (!hasPermission('galaxy.view_group')) {
-      this.setState({ unauthorized: true });
-    } else {
-      this.queryGroup();
-    }
+    this.queryGroup();
   }
 
   componentDidUpdate(prevProps: RouteProps) {
@@ -243,7 +238,7 @@ class GroupDetail extends Component<RouteProps, IState> {
           { tab: 'access' },
         ),
       },
-      hasPermission('galaxy.view_user') && {
+      hasPermission('auth.view_user') && {
         active: params.tab === 'users',
         title: t`Users`,
         link: formatPath(
@@ -297,7 +292,7 @@ class GroupDetail extends Component<RouteProps, IState> {
   private renderControls() {
     const { hasPermission } = this.context as IAppContextType;
 
-    if (!hasPermission('galaxy.delete_group')) {
+    if (!hasPermission('core.delete_group')) {
       return null;
     }
 
@@ -316,7 +311,7 @@ class GroupDetail extends Component<RouteProps, IState> {
   private renderGroupDetail() {
     const { params, group } = this.state;
     const { hasPermission } = this.context as IAppContextType;
-    const canEdit = hasPermission('galaxy.change_group');
+    const canEdit = hasPermission('core.manage_roles_group');
 
     return (
       <GroupDetailRoleManagement
@@ -484,7 +479,7 @@ class GroupDetail extends Component<RouteProps, IState> {
         });
     };
 
-    const view_user = hasPermission('galaxy.view_user');
+    const view_user = hasPermission('auth.view_user');
 
     if (!users && view_user) {
       this.queryUsers();
@@ -607,7 +602,7 @@ class GroupDetail extends Component<RouteProps, IState> {
           title={t`No users yet`}
           description={t`Users will appear once added to this group`}
           button={
-            hasPermission('galaxy.change_group') && (
+            hasPermission('core.change_group') && (
               <Button
                 variant='primary'
                 onClick={() => this.setState({ addModalVisible: true })}
@@ -643,7 +638,7 @@ class GroupDetail extends Component<RouteProps, IState> {
                   />
                 </ToolbarItem>
               </ToolbarGroup>
-              {hasPermission('galaxy.change_group') && (
+              {hasPermission('core.change_group') && (
                 <ToolbarGroup>
                   <ToolbarItem>
                     <Button
@@ -724,7 +719,7 @@ class GroupDetail extends Component<RouteProps, IState> {
   private renderTableRow(user: UserType, index: number) {
     const { hasPermission } = this.context as IAppContextType;
     const dropdownItems = [
-      hasPermission('galaxy.change_group') && (
+      hasPermission('core.change_group') && (
         <DropdownItem
           key='delete'
           onClick={() => this.setState({ showUserRemoveModal: user })}
