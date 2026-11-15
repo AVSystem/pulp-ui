@@ -20,6 +20,7 @@ import {
   type RouteProps,
   withRouter,
 } from 'src/utilities';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 interface IState {
   alerts: AlertType[];
@@ -49,14 +50,34 @@ class UserDetail extends Component<RouteProps, IState> {
 
   componentDidMount() {
     const { hasPermission } = this.context as IAppContextType;
-    const id = this.props.routeParams.user_id;
     if (!hasPermission('galaxy.view_user')) {
       this.setState({ unauthorized: true });
     } else {
-      UserAPI.get(id)
-        .then((result) => this.setState({ userDetail: result.data }))
-        .catch(() => this.setState({ notFound: true }));
+      this.queryUser();
     }
+  }
+
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the user again, keeping what is on
+    // screen until the answer arrives.
+    if (
+      prevProps.sessionEpoch !== this.props.sessionEpoch &&
+      !this.state.unauthorized
+    ) {
+      this.queryUser();
+    }
+  }
+
+  private queryUser() {
+    UserAPI.get(this.props.routeParams.user_id)
+      .then((result) => this.setState({ userDetail: result.data }))
+      .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page
+        // keeps its spinner or its content until it reads again.
+        if (!isSessionEnd(e)) {
+          this.setState({ notFound: true });
+        }
+      });
   }
 
   render() {

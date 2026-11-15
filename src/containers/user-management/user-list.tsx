@@ -41,7 +41,10 @@ import {
   filterIsSet,
   withRouter,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface IState {
   params: {
@@ -97,6 +100,17 @@ class UserList extends Component<RouteProps, IState> {
       this.setState({ unauthorized: true });
     } else {
       this.queryUsers();
+    }
+  }
+
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the list again, keeping the rows on
+    // screen until the answer arrives.
+    if (
+      prevProps.sessionEpoch !== this.props.sessionEpoch &&
+      !this.state.unauthorized
+    ) {
+      this.queryUsers(true);
     }
   }
 
@@ -383,8 +397,9 @@ class UserList extends Component<RouteProps, IState> {
       },
     );
 
-  private queryUsers() {
-    this.setState({ loading: true }, () =>
+  // A quiet read keeps the rows on screen instead of showing the spinner.
+  private queryUsers(quiet = false) {
+    this.setState({ loading: quiet ? this.state.loading : true }, () =>
       UserAPI.list(this.state.params)
         .then((result) => {
           this.setState({
@@ -394,6 +409,11 @@ class UserList extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
+          // The session ended: the sign-in dialog explains it, and the list
+          // keeps its spinner or its rows until it reads again.
+          if (isSessionEnd(e)) {
+            return;
+          }
           this.setState({
             users: [],
             itemCount: 0,

@@ -6,6 +6,7 @@ import { DeleteModal } from 'src/components';
 import { useUserContext } from 'src/user-context';
 import { mapErrorMessages } from 'src/utilities';
 import {
+  isSessionEnd,
   requestErrorDescription,
   requestErrorStatus,
   requestErrorText,
@@ -54,6 +55,11 @@ export const DeleteUserModal = ({
     UserAPI.delete(user.id)
       .then(() => waitForDeleteConfirm())
       .catch((err) => {
+        // The session ended: the user was not deleted and nothing is
+        // repeated; the dialog stays so the user can delete after signing in.
+        if (isSessionEnd(err)) {
+          return;
+        }
         addAlert(
           t`User "${user.username}" could not be deleted.`,
           'danger',
@@ -75,6 +81,14 @@ export const DeleteUserModal = ({
         waitForDeleteConfirm();
       })
       .catch((err) => {
+        // The session ended while waiting for the removal to show: the delete
+        // itself went through, so the dialog closes and the list reads again
+        // after signing in.
+        if (isSessionEnd(err)) {
+          closeModal(true);
+          setWaiting(false);
+          return;
+        }
         if (requestErrorStatus(err) === 404) {
           addAlert(
             t`User "${user.username}" has been successfully deleted.`,
