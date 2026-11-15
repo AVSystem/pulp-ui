@@ -1,6 +1,9 @@
 import { t } from '@lingui/core/macro';
 import { type ReactNode } from 'react';
-import { SessionSuspendedError } from 'src/session/session-events';
+import {
+  SessionSuspendedError,
+  isMarkedSessionEnd,
+} from 'src/session/session-events';
 import {
   errorMessage,
   forbiddenDescription,
@@ -28,13 +31,16 @@ export function requestErrorDetail(error): string | null {
 }
 
 // True when the failure is the end of the session and nothing else: a 401
-// answer, or a request that was held back while the sign-in dialog is open.
-// The dialog explains it and the screen reads again after signing in, so the
-// caller shows no alert and no error state of its own. A 403 or any other
+// answer, a request that was held back while the sign-in dialog is open, or a
+// refusal that a who-is-signed-in request showed to be an ended session. The
+// dialog explains it and the screen reads again after signing in, so the
+// caller shows no alert and no error state of its own. Any other 403 or other
 // failure is not a session end.
 export function isSessionEnd(error): boolean {
   return (
-    error instanceof SessionSuspendedError || requestErrorStatus(error) === 401
+    error instanceof SessionSuspendedError ||
+    requestErrorStatus(error) === 401 ||
+    isMarkedSessionEnd(error)
   );
 }
 

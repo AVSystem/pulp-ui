@@ -58,6 +58,31 @@ export function resume() {
   publish({ ended: false, fromRequest: false });
 }
 
+// True while a user who signed in during this page load has not been signed
+// out.
+export function isSignedIn() {
+  return signedIn;
+}
+
+// The request that found out the session had ended is marked, so the screen
+// that asked for the data treats the failure like any other session end: the
+// sign-in dialog explains it and no alert is added.
+const SESSION_END_MARK = 'endedSession';
+
+export function markSessionEnd(error: unknown) {
+  if (error && typeof error === 'object') {
+    (error as Record<string, unknown>)[SESSION_END_MARK] = true;
+  }
+}
+
+export function isMarkedSessionEnd(error: unknown): boolean {
+  return (
+    Boolean(error) &&
+    typeof error === 'object' &&
+    (error as Record<string, unknown>)[SESSION_END_MARK] === true
+  );
+}
+
 export function setSignedIn(value: boolean) {
   signedIn = value;
   if (!value) {

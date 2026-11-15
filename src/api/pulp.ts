@@ -1,11 +1,20 @@
 import Cookies from 'js-cookie';
 import {
   SessionSuspendedError,
+  isSignedIn,
   isSuspended,
+  markSessionEnd,
   reportUnauthorized,
 } from 'src/session/session-events';
 import { config } from 'src/ui-config';
 import { BaseAPI } from './base';
+
+const isLoginCall = (error) =>
+  String(error?.config?.url ?? '').startsWith('login/');
+
+// The one who-is-signed-in request that tells an ended session from a real
+// refusal. Refusals that arrive together share it.
+let sessionCheck: Promise<boolean> | null = null;
 
 export class PulpAPI extends BaseAPI {
   mapPageToOffset = true; // offset & limit
@@ -43,15 +52,41 @@ export class PulpAPI extends BaseAPI {
     // A 401 of any call except the sign-in calls means the session ended. The
     // request is only reported, never repeated: repeating it could run a
     // delete or a sync a second time. The error still reaches the caller.
-    this.http.interceptors.response.use(undefined, (error) => {
-      if (
-        error?.response?.status === 401 &&
-        !String(error.config?.url ?? '').startsWith('login/')
-      ) {
+    //
+    // A 403 of a signed-in user is a refusal, except with an authentication
+    // backend that answers an ended session with 403 instead of 401. One
+    // who-is-signed-in request tells them apart: a 2xx answer means the
+    // refusal is real and the error reaches the caller untouched; a 401 or 403
+    // answer means the session ended.
+    this.http.interceptors.response.use(undefined, async (error) => {
+      const status = error?.response?.status;
+
+      if (status === 401 && !isLoginCall(error)) {
         reportUnauthorized('request');
+      } else if (status === 403 && !isLoginCall(error) && isSignedIn()) {
+        if (await this.sessionEnded()) {
+          markSessionEnd(error);
+          reportUnauthorized('request');
+        }
       }
 
       return Promise.reject(error);
     });
+  }
+
+  // True when the server says nobody is signed in. A failed check (a server
+  // error or a lost connection) says nothing, so it counts as not ended.
+  private sessionEnded(): Promise<boolean> {
+    sessionCheck ??= this.http
+      .get('login/')
+      .then(
+        () => false,
+        (error) => [401, 403].includes(error?.response?.status),
+      )
+      .finally(() => {
+        sessionCheck = null;
+      });
+
+    return sessionCheck;
   }
 }
