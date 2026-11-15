@@ -6,8 +6,10 @@ import {
   useState,
 } from 'react';
 import { PulpLoginAPI } from './api/pulp-login';
+import { Paths, formatPath } from './paths';
 import { resume, setSignedIn } from './session/session-events';
 import { removeStored } from './utilities/safe-storage';
+import { uiPath } from './utilities/ui-path';
 
 export interface ISessionUser {
   username: string;
@@ -39,6 +41,11 @@ interface IUserContextType {
 
 const UserContext = createContext<IUserContextType>(undefined);
 export const useUserContext = () => useContext(UserContext);
+
+// Tells two sessions apart: the user's address, or the name when the answer
+// carries none.
+const sessionKey = (user: ISessionUser | null) =>
+  user ? (user.pulp_href ?? user.username) : null;
 
 function logoutFailure(error): Error {
   const response = error?.response;
@@ -87,6 +94,14 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const signInAgain = async (username: string, password: string) => {
     const { data } = await PulpLoginAPI.login(username, password);
     const next = { username: data.username, pulp_href: data.pulp_href };
+
+    if (sessionKey(next) !== sessionKey(user)) {
+      // Everything in memory belongs to the previous user. A full page load
+      // drops all of it (forms, permissions, caches) in one step, which no
+      // piece of code could do reliably one state at a time.
+      window.location.assign(uiPath(formatPath(Paths.core.status)));
+      return 'other' as const;
+    }
 
     // The same user comes back to the same screen; the screen reads again.
     setUser(next);

@@ -10,6 +10,7 @@ import { useUserContext } from 'src/user-context';
 import { useQueryParams, withRouter } from 'src/utilities';
 import { safeNextPath } from 'src/utilities/safe-next-path';
 import PulpLogo from 'static/images/pulp_logo.png';
+import { loginErrorMessage } from '../../utilities/login-error';
 import './login.scss';
 
 function PulpLoginPage(_props) {
@@ -27,17 +28,7 @@ function PulpLoginPage(_props) {
         setUser({ username: data.username, pulp_href: data.pulp_href });
         setRedirect(safeNextPath(next, formatPath(Paths.core.status)));
       })
-      .catch((result) => {
-        const response = result?.response;
-        if (!response) {
-          const message = result?.message || String(result);
-          setError(t`The server could not be reached: ${message}`);
-        } else if (response.status.toString().startsWith('5')) {
-          setError(t`Server error. Please come back later.`);
-        } else {
-          setError(response.data?.detail || t`Invalid login credentials.`);
-        }
-      });
+      .catch((result) => setError(loginErrorMessage(result)));
 
     e.preventDefault();
   };

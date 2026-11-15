@@ -1,3 +1,23 @@
+// The dialog reuses the sign-in page's error color and the quiet note color of
+// the theme; nothing here introduces a color of its own.
 .pulp-reauth__error {
   color: var(--pulp-bad);
+  overflow-wrap: anywhere;
+}
+
+.pulp-reauth__note {
+  color: var(--pulp-text-2);
+}
+
+// A long user name scrolls inside its input; the dialog keeps its width.
+.pf-v6-c-modal-box .pf-v6-c-form__group-control {
+  min-inline-size: 0;
+}
+
+// Phone width: the submit button and the exit link are 44px high.
+@media (max-width: 767px) {
+  .pulp-reauth__submit,
+  .pulp-reauth__exit {
+    min-block-size: 2.75rem;
+  }
 }
