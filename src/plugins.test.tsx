@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, delay, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -39,10 +39,14 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+// Every state the probe was rendered with, in order.
+const renderedStates: string[] = [];
+
 // Shows what the provider knows and lets a test change the session by hand.
 function PluginsProbe() {
   const plugins = usePlugins();
-  const { status, endSession, setUser } = useUserContext();
+  renderedStates.push(plugins.state);
+  const { status, endSession, setUser, signInAgain } = useUserContext();
 
   return (
     <>
@@ -66,6 +70,9 @@ function PluginsProbe() {
         }
       >
         Start session
+      </button>
+      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+        Sign in again
       </button>
     </>
   );
@@ -149,6 +156,48 @@ describe('plugin list', () => {
     );
     expect(screen.getByTestId('versions')).toHaveTextContent(/^core$/);
     expect(counter.requests).toBe(2);
+  });
+});
+
+describe('plugin list after the same user signs in again', () => {
+  it('reads the plugin list again and shows the fresh answer without going back to loading', async () => {
+    signIn();
+    server.use(
+      http.post(LOGIN_URL, () =>
+        HttpResponse.json(
+          { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' },
+          { status: 201 },
+        ),
+      ),
+    );
+    const counter = countStatusRequests();
+    const { user } = renderWithProviders(<PluginsProbe />);
+    await waitFor(() =>
+      expect(screen.getByTestId('plugins')).toHaveTextContent('ready'),
+    );
+    expect(counter.requests).toBe(1);
+    server.use(
+      http.get('*/pulp/api/v3/status/', async () => {
+        // Slow enough for a loading state, if there were one, to be drawn.
+        await delay(100);
+        return HttpResponse.json({
+          versions: [
+            { component: 'core', version: '3.0.0' },
+            { component: 'rpm', version: '3.0.0' },
+          ],
+        });
+      }),
+    );
+    renderedStates.length = 0;
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('versions')).toHaveTextContent('core,rpm'),
+    );
+    expect(counter.requests).toBe(2);
+    expect(renderedStates).not.toContain('loading');
+    expect(renderedStates).toContain('ready');
   });
 });
 

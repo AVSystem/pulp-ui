@@ -202,6 +202,18 @@ export const ListPage = function <T>({
       }
     }
 
+    componentDidUpdate(prevProps: RouteProps) {
+      // The same user signed in again after the session ended: read the list
+      // once more. Dialogs and typed text stay; the latest-query guard drops
+      // the answer of any read that is still on its way.
+      if (
+        prevProps.sessionEpoch !== this.props.sessionEpoch &&
+        !this.state.unauthorized
+      ) {
+        this.query();
+      }
+    }
+
     render() {
       const { alerts, error, itemCount, items, loading, params, unauthorized } =
         this.state;

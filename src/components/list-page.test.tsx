@@ -4,11 +4,13 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import { StrictMode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import { listOf, page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
+import { useUserContext } from '../user-context';
 import { ListPage } from './list-page';
 
 const THINGS = '/pulp/api/v3/things/';
@@ -347,5 +349,138 @@ describe('a list page mounted in the development setup', () => {
     await screen.findByRole('button', { name: 'Retry' });
     await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
     expect(requests).toBe(2);
+  });
+});
+
+// Signs the user in again the way the dialog does, once the session check has
+// answered.
+function SignInAgain() {
+  const { signInAgain, status } = useUserContext();
+
+  return (
+    <>
+      <p data-testid='session'>{status}</p>
+      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+        Sign in again
+      </button>
+    </>
+  );
+}
+
+const ThingListWithModal = ListPage<IThing>({
+  defaultPageSize: 10,
+  displayName: 'ThingListWithModal',
+  errorTitle: msg`Things could not be displayed.`,
+  filterConfig: () => [{ id: 'name__icontains', title: 'Name' }],
+  headerActions: [
+    Action({
+      title: msg`Create thing`,
+      onClick: (_item, context) => context.setState({ creating: true }),
+      modal: ({ state }) =>
+        state.creating ? <p role='dialog'>Create a thing</p> : null,
+    }),
+  ],
+  noDataDescription: msg`Things appear once they are created.`,
+  noDataTitle: msg`No things yet`,
+  query: ({ params }) => things.list('things/', params),
+  renderTableRow: (item) => (
+    <Tr key={item.name}>
+      <Td>{item.name}</Td>
+    </Tr>
+  ),
+  sortHeaders: [{ title: msg`Name`, type: 'alpha', id: 'name' }],
+  title: msg`Things`,
+});
+
+function renderAfterSignIn(List: typeof ThingList = ThingList) {
+  server.use(
+    http.get('*/pulp/api/v3/login/', () =>
+      HttpResponse.json({
+        username: 'zoe',
+        pulp_href: '/pulp/api/v3/users/1/',
+      }),
+    ),
+    http.post('*/pulp/api/v3/login/', () =>
+      HttpResponse.json(
+        { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' },
+        { status: 201 },
+      ),
+    ),
+  );
+  return renderWithProviders(
+    <>
+      <SignInAgain />
+      <AppContextProvider>
+        <List />
+      </AppContextProvider>
+    </>,
+  );
+}
+
+describe('a list page after the same user signs in again', () => {
+  it('reads the list again with the same query and shows the fresh rows', async () => {
+    const { handler, queries } = listOf(THINGS, rows('alpha'));
+    server.use(handler);
+    const { user } = renderAfterSignIn();
+    await screen.findByText('alpha');
+    await waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent('authenticated'),
+    );
+    expect(queries).toHaveLength(1);
+    const { handler: fresh, queries: freshQueries } = listOf(
+      THINGS,
+      rows('beta'),
+    );
+    server.use(fresh);
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(await screen.findByText('beta')).toBeVisible();
+    expect(screen.queryByText('alpha')).not.toBeInTheDocument();
+    expect(freshQueries).toHaveLength(1);
+    expect(freshQueries[0]).toEqual(queries[0]);
+  });
+
+  it('keeps the text typed into the filter and sends no write', async () => {
+    const { handler } = listOf(THINGS, rows('alpha'));
+    server.use(handler);
+    const writes: string[] = [];
+    server.events.on('request:start', ({ request }) => {
+      if (!['GET', 'HEAD'].includes(request.method)) {
+        writes.push(`${request.method} ${new URL(request.url).pathname}`);
+      }
+    });
+    const { user } = renderAfterSignIn();
+    await screen.findByText('alpha');
+    await waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent('authenticated'),
+    );
+    await user.type(screen.getByRole('textbox'), 'half a filt');
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+    await screen.findByText('alpha');
+
+    expect(screen.getByRole('textbox')).toHaveValue('half a filt');
+    expect(writes).toEqual(['POST /pulp/api/v3/login/']);
+    server.events.removeAllListeners();
+  });
+
+  it('keeps an open dialog while the list reads again', async () => {
+    const { handler } = listOf(THINGS, rows('alpha'));
+    server.use(handler);
+    const { user } = renderAfterSignIn(ThingListWithModal);
+    await screen.findByText('alpha');
+    await waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent('authenticated'),
+    );
+    await user.click(screen.getByRole('button', { name: 'Create thing' }));
+    expect(screen.getByRole('dialog')).toBeVisible();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Sign in again', hidden: true }),
+    );
+    await screen.findByText('alpha');
+
+    expect(screen.getByRole('dialog')).toBeVisible();
   });
 });

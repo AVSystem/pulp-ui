@@ -1791,6 +1791,10 @@ msgstr "Create new role"
 msgid "Create new user"
 msgstr "Create new user"
 
+#: src/components/list-page.test.tsx
+msgid "Create thing"
+msgstr "Create thing"
+
 #: src/utilities/translate-locked-role.ts
 msgid "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
 msgstr "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
@@ -3333,6 +3337,10 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
+#: src/session/reauth-dialog.tsx
+msgid "Go to the login page"
+msgstr "Go to the login page"
+
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "GPG key"
@@ -3731,7 +3739,7 @@ msgstr "Installer packages will be synchronized"
 #~ msgid "Invalid file name. Collections must be formatted as 'namespace-collection_name-1.0.0'"
 #~ msgstr "Invalid file name. Collections must be formatted as 'namespace-collection_name-1.0.0'"
 
-#: src/containers/login/login.tsx
+#: src/utilities/login-error.ts
 msgid "Invalid login credentials."
 msgstr "Invalid login credentials."
 
@@ -3965,6 +3973,7 @@ msgstr "Loading..."
 #~ msgstr "Local"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/session/reauth-dialog.tsx
 msgid "Log in"
 msgstr "Log in"
 
@@ -4877,6 +4886,7 @@ msgstr "Parent task"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/user-form.tsx
+#: src/session/reauth-dialog.tsx
 msgid "Password"
 msgstr "Password"
 
@@ -6426,7 +6436,7 @@ msgstr "Selected roles"
 msgid "Selected user"
 msgstr "Selected user"
 
-#: src/containers/login/login.tsx
+#: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
 msgstr "Server error. Please come back later."
 
@@ -6569,6 +6579,10 @@ msgstr "Show password"
 #: src/components/headers/collection-header.tsx
 #~ msgid "Sign entire collection"
 #~ msgstr "Sign entire collection"
+
+#: src/session/reauth-dialog.tsx
+msgid "Sign in again"
+msgstr "Sign in again"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "sign state"
@@ -7289,6 +7303,10 @@ msgstr "The following roles will be applied to group: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "The following roles will be applied to user: <0>{0}</0>"
 
+#: src/session/reauth-dialog.tsx
+msgid "The last action was not completed. Repeat it after you log in."
+msgstr "The last action was not completed. Repeat it after you log in."
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "The outcome of removing the repository is unknown. Check the task:"
@@ -7371,7 +7389,7 @@ msgstr "The selected roles will be added to this specific Ansible repository."
 #~ msgid "The selected roles will be added to this specific namespace."
 #~ msgstr "The selected roles will be added to this specific namespace."
 
-#: src/containers/login/login.tsx
+#: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
 msgstr "The server could not be reached: {message}"
 
@@ -8091,6 +8109,7 @@ msgstr "User list"
 #: src/components/user-form.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/session/reauth-dialog.tsx
 msgid "Username"
 msgstr "Username"
 
@@ -8326,6 +8345,10 @@ msgstr "We couldn't find the page you're looking for!"
 #~ msgid "Welcome to Galaxy"
 #~ msgstr "Welcome to Galaxy"
 
+#: src/session/reauth-dialog.tsx
+msgid "What you have entered on this page is kept."
+msgstr "What you have entered on this page is kept."
+
 #: src/components/repository-form.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
 msgstr "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
@@ -8525,6 +8548,14 @@ msgstr "You don't have permission to display users."
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Your password was changed. Sign in with the new password."
+
+#: src/session/reauth-dialog.tsx
+msgid "Your session has ended. Log in to continue."
+msgstr "Your session has ended. Log in to continue."
+
+#: src/session/reauth-dialog.tsx
+msgid "Your session has ended. You are taken to the login page and back to this page afterwards. Anything you entered on this page is lost."
+msgstr "Your session has ended. You are taken to the login page and back to this page afterwards. Anything you entered on this page is lost."
 
 #: src/shell/notifications.tsx
 msgid "Your tasks appear here when they fail, complete or are canceled."

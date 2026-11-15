@@ -39,13 +39,16 @@ const PluginsContext = createContext<IPluginsContextType>(undefined);
 export const usePlugins = () => useContext(PluginsContext);
 
 export const PluginsProvider = ({ children }: { children: ReactNode }) => {
-  const { user, status } = useUserContext();
+  const { user, status, epoch } = useUserContext();
   const [plugins, setPlugins] = useState<PluginsState>({ state: 'loading' });
   // Identifies the latest load, so an answer to an earlier one, or one that
   // arrives after the provider is gone, is ignored.
   const latest = useRef(0);
   // The session the list was last read for; null once signed out.
   const readFor = useRef<string | null | undefined>(undefined);
+  // The session epoch of that read: it grows when the same user signs in
+  // again, which makes the list be read once more.
+  const readAt = useRef(0);
 
   // Who the list is read for. It follows the signed-in user, so another
   // session never inherits what was read for the one before it.
@@ -92,23 +95,33 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (readFor.current !== undefined && readFor.current !== session) {
+    // The same user signing in again keeps what is on show while the list is
+    // read once more, so a screen behind the sign-in dialog is not replaced
+    // by a loading state.
+    const again = readFor.current === session && readAt.current !== epoch;
+    if (
+      readFor.current !== undefined &&
+      (readFor.current !== session || again)
+    ) {
       resetPluginVersionsCache();
     }
     readFor.current = session;
+    readAt.current = epoch;
 
     if (!session) {
       setPlugins({ state: 'idle' });
       return;
     }
 
-    setPlugins({ state: 'loading' });
+    if (!again) {
+      setPlugins({ state: 'loading' });
+    }
     load(false, true);
     return () => {
       latest.current++;
       clearTimeout(timer.current);
     };
-  }, [load, session, status]);
+  }, [epoch, load, session, status]);
 
   const retry = useCallback(() => {
     // A failure stays on show while it is asked again.
