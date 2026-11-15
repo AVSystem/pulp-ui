@@ -2,8 +2,8 @@ import { t } from '@lingui/core/macro';
 import { type ReactNode } from 'react';
 import { mapErrorMessages } from './map-error-messages';
 import {
-  forbiddenTexts,
   isSessionEnd,
+  requestErrorDetail,
   requestErrorStatus,
 } from './request-error';
 
@@ -27,6 +27,22 @@ export function errorMessage(
 
 export function jsxErrorMessage(code, text, custom?) {
   return errorMessage(code, text, custom);
+}
+
+// The three sentences that tell a user an action was refused: what happened,
+// Pulp's own reason (or a plain fallback when the answer has none), and whom
+// to ask. Only the answer's `detail` is used; the client writes no other text
+// about the refusal.
+export function forbiddenTexts(error): {
+  sentence: string;
+  detail: string;
+  hint: string;
+} {
+  return {
+    sentence: t`You do not have permission to do this.`,
+    detail: requestErrorDetail(error) ?? t`Pulp refused this request.`,
+    hint: t`Contact your organization administrator for more information.`,
+  };
 }
 
 // What a refused action says: that the user may not do it, Pulp's own reason

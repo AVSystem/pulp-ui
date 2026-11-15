@@ -1525,7 +1525,7 @@ msgstr "Pensez à utiliser l’URL (https://) sécurisé."
 #~ msgstr "Contact you organization administrator for more information."
 
 #: src/components/insufficient-permissions.tsx
-#: src/utilities/request-error.ts
+#: src/utilities/fail-alerts.tsx
 msgid "Contact your organization administrator for more information."
 msgstr "Contactez l'administrateur de votre organisation pour plus d'informations."
 
@@ -5317,7 +5317,7 @@ msgstr ""
 #~ msgid "Pulp Logo"
 #~ msgstr ""
 
-#: src/utilities/request-error.ts
+#: src/utilities/fail-alerts.tsx
 msgid "Pulp refused this request."
 msgstr ""
 
@@ -8548,7 +8548,7 @@ msgstr ""
 #~ msgid "You do not have access to Pulp UI"
 #~ msgstr ""
 
-#: src/utilities/request-error.ts
+#: src/utilities/fail-alerts.tsx
 msgid "You do not have permission to do this."
 msgstr ""
 
