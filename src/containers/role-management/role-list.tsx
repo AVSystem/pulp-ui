@@ -42,7 +42,10 @@ import {
   translateLockedRole,
   withRouter,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface IState {
   roles: RoleType[];
@@ -97,6 +100,14 @@ export class RoleList extends Component<RouteProps, IState> {
 
   componentDidMount() {
     this.queryRoles();
+  }
+
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the list again, keeping the rows on
+    // screen until the answer arrives.
+    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      this.queryRoles(true);
+    }
   }
 
   render() {
@@ -348,6 +359,9 @@ export class RoleList extends Component<RouteProps, IState> {
         ),
       )
       .catch((e) => {
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.addAlert(
           t`Role "${name}" could not be deleted.`,
           'danger',
@@ -418,9 +432,10 @@ export class RoleList extends Component<RouteProps, IState> {
     return dropdownItems;
   };
 
-  private queryRoles = () => {
+  // A quiet read keeps the rows on screen instead of showing the spinner.
+  private queryRoles = (quiet = false) => {
     const { params } = this.state;
-    this.setState({ loading: true }, () => {
+    this.setState({ loading: quiet ? this.state.loading : true }, () => {
       RoleAPI.list(params)
         .then((result) => {
           this.setState({
@@ -430,6 +445,11 @@ export class RoleList extends Component<RouteProps, IState> {
           });
         })
         .catch((err) => {
+          // The session ended: the sign-in dialog explains it, and the list
+          // keeps its spinner or its rows until it reads again.
+          if (isSessionEnd(err)) {
+            return;
+          }
           this.setState({
             roleCount: 0,
             loading: false,

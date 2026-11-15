@@ -2,7 +2,14 @@ import { t } from '@lingui/core/macro';
 import { Component } from 'react';
 import { Navigate } from 'react-router';
 import { RoleAPI } from 'src/api';
-import { type AlertType, Main, RoleForm, RoleHeader } from 'src/components';
+import {
+  AlertList,
+  type AlertType,
+  Main,
+  RoleForm,
+  RoleHeader,
+  closeAlert,
+} from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import {
   type RouteProps,
@@ -11,6 +18,7 @@ import {
   withRouter,
 } from 'src/utilities';
 import {
+  isSessionEnd,
   requestErrorDescription,
   requestErrorStatus,
 } from 'src/utilities/request-error';
@@ -48,7 +56,7 @@ class RoleCreate extends Component<RouteProps, IState> {
       return <Navigate to={this.state.redirect} />;
     }
 
-    const { errorMessages, description, name, saving } = this.state;
+    const { alerts, errorMessages, description, name, saving } = this.state;
 
     const breadcrumbs = [
       { url: formatPath(Paths.core.role.list), name: t`Roles` },
@@ -57,6 +65,15 @@ class RoleCreate extends Component<RouteProps, IState> {
 
     return (
       <>
+        <AlertList
+          alerts={alerts}
+          closeAlert={(i) =>
+            closeAlert(i, {
+              alerts,
+              setAlerts: (alerts) => this.setState({ alerts }),
+            })
+          }
+        />
         <RoleHeader title={t`Create a new role`} breadcrumbs={breadcrumbs} />
         <Main>
           <section className='pulp-section'>
@@ -121,6 +138,12 @@ class RoleCreate extends Component<RouteProps, IState> {
           }),
         )
         .catch((err) => {
+          // The session ended: nothing was created and nothing is repeated;
+          // the form stays as typed.
+          if (isSessionEnd(err)) {
+            this.setState({ saving: false });
+            return;
+          }
           if (requestErrorStatus(err) === 400) {
             const errors = mapNetworkErrors(err);
 

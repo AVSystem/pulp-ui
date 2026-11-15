@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { UserAPI, type UserType } from 'src/api';
 import {
   AlertList,
@@ -10,13 +10,14 @@ import {
   UserFormPage,
   closeAlert,
 } from 'src/components';
-import { useUserContext } from 'src/user-context';
+import { useSessionEpoch, useUserContext } from 'src/user-context';
 import {
   type ErrorMessagesType,
   type RouteProps,
   mapErrorMessages,
   withRouter,
 } from 'src/utilities';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 function UserProfile(_props: RouteProps) {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
@@ -37,7 +38,13 @@ function UserProfile(_props: RouteProps) {
     setAlerts([...alerts, alert]);
   };
 
-  useEffect(() => {
+  // grows when the same user signs in again, so the profile is read again
+  const epoch = useSessionEpoch();
+  const firstEpoch = useRef(epoch);
+  // true once the form was changed: a later read never replaces what was typed
+  const touched = useRef(false);
+
+  const loadUser = () =>
     UserAPI.list({
       username,
       page_size: 1,
@@ -52,15 +59,33 @@ function UserProfile(_props: RouteProps) {
           // to keep react from getting confused
           const extendedResult = { ...result, password: '' };
           setInitialState({ ...extendedResult });
-          setUser(extendedResult);
+          if (!touched.current) {
+            setUser(extendedResult);
+          }
         },
       )
-      .catch(() => setNotFound(true));
+      .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page
+        // keeps its spinner or its form until it reads again.
+        if (!isSessionEnd(e)) {
+          setNotFound(true);
+        }
+      });
+
+  useEffect(() => {
+    loadUser();
   }, []);
+
+  useEffect(() => {
+    if (epoch !== firstEpoch.current) {
+      loadUser();
+    }
+  }, [epoch]);
 
   const saveUser = () =>
     UserAPI.saveUser(user)
       .then(() => {
+        touched.current = false;
         setInEditMode(false);
         addAlert({
           variant: 'success',
@@ -115,6 +140,7 @@ function UserProfile(_props: RouteProps) {
         isMe
         isReadonly={!inEditMode}
         onCancel={() => {
+          touched.current = false;
           setUser(initialState);
           setInEditMode(false);
           setErrorMessages({});
@@ -122,6 +148,7 @@ function UserProfile(_props: RouteProps) {
         saveUser={saveUser}
         title={title}
         updateUser={(user, errorMessages) => {
+          touched.current = true;
           setErrorMessages(errorMessages);
           setUser(user);
         }}

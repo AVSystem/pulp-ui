@@ -1,10 +1,18 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
+import { type ReactNode } from 'react';
 import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
-import { group, listOf, page, user } from 'src/test-utils/pulp';
+import {
+  group,
+  listOf,
+  page,
+  role,
+  signingService,
+  user,
+} from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -13,8 +21,14 @@ import {
   serveSignIn,
   signedIn,
 } from 'src/test-utils/sign-in-again';
+import { useUserContext } from 'src/user-context';
 import GroupDetail from './group-management/group-detail';
 import GroupList from './group-management/group-list';
+import RoleCreate from './role-management/role-create';
+import RoleEdit from './role-management/role-edit';
+import RoleList from './role-management/role-list';
+import UserProfile from './settings/user-profile';
+import SignatureKeysList from './signature-keys/list';
 import UserDetail from './user-management/user-detail';
 import UserEdit from './user-management/user-edit';
 import UserList from './user-management/user-list';
@@ -36,7 +50,10 @@ const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
 const signInAgain = (u) =>
   u.click(screen.getByRole('button', { name: 'Sign in again', hidden: true }));
 
-const refused = (method: 'get' | 'post' | 'put' | 'delete', path: string) =>
+const refused = (
+  method: 'get' | 'post' | 'put' | 'patch' | 'delete',
+  path: string,
+) =>
   http[method](`*${path}`, () =>
     HttpResponse.json({ detail: 'no' }, { status: 401 }),
   );
@@ -797,5 +814,504 @@ describe('the user detail and the user edit page', () => {
       expect(recorded.writes).toEqual([`POST ${API}/login/`]);
       recorded.stop();
     });
+  });
+});
+
+// The profile page reads the signed-in user, so it is shown once the session
+// check has answered, as the route guard of the application does.
+function AfterSession({ children }: { children: ReactNode }) {
+  const { status } = useUserContext();
+  return status === 'authenticated' ? <>{children}</> : null;
+}
+
+describe('the profile page', () => {
+  const USERS = `${API}/users/`;
+  const serve = (firstName: string) =>
+    server.use(
+      listOf(USERS, [user({ id: 1, username: 'zoe', first_name: firstName })])
+        .handler,
+      listOf(`${API}/groups/`, []).handler,
+    );
+
+  function renderProfile() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <AfterSession>
+          <UserProfile />
+        </AfterSession>
+      </AppContextProvider>,
+      { route: '/users/profile' },
+    );
+  }
+
+  it('shows the fresh profile after signing in again when nothing was typed', async () => {
+    serve('Zo');
+    const { user: u } = renderProfile();
+    expect(await screen.findByText('Zo')).toBeInTheDocument();
+    serve('Zoe');
+
+    await signInAgain(u);
+
+    expect(await screen.findByText('Zoe')).toBeInTheDocument();
+  });
+
+  it('keeps the typed last name when the profile is read again', async () => {
+    serve('Zo');
+    const { user: u } = renderProfile();
+    await screen.findByText('Zo');
+    await u.click(screen.getByRole('button', { name: 'Edit' }));
+    const field = await screen.findByLabelText(/Last name/);
+    await u.type(field, 'Typed');
+    let reads = 0;
+    server.use(
+      http.get(`*${USERS}`, () => {
+        reads += 1;
+        return HttpResponse.json(
+          page([user({ id: 1, username: 'zoe', last_name: 'Fresh' })]),
+        );
+      }),
+    );
+
+    await signInAgain(u);
+
+    await waitFor(() => expect(reads).toBe(1));
+    await pause();
+    expect(screen.getByLabelText(/Last name/)).toHaveValue('Typed');
+  });
+
+  it('keeps the profile, with no error page, when the read is refused with 401', async () => {
+    serve('Zo');
+    const { user: u } = renderProfile();
+    await screen.findByText('Zo');
+    await signedIn();
+    server.use(refused('get', USERS));
+
+    await signInAgain(u);
+    await pause();
+
+    expect(screen.getByText('Zo')).toBeInTheDocument();
+    expect(screen.queryByText(/not found/i)).toBeNull();
+  });
+
+  it('keeps the spinner, with no not-found page, when the first read is refused, and shows the profile after signing in', async () => {
+    server.use(refused('get', USERS), listOf(`${API}/groups/`, []).handler);
+    const { user: u } = renderProfile();
+    await signedIn();
+    await pause();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByText(/not found/i)).toBeNull();
+    serve('Zo');
+
+    await signInAgain(u);
+
+    expect(await screen.findByText('Zo')).toBeInTheDocument();
+  });
+
+  it('sends no write', async () => {
+    serve('Zo');
+    const recorded = recordWrites();
+    const { user: u } = renderProfile();
+    await screen.findByText('Zo');
+    await signedIn();
+
+    await signInAgain(u);
+    await pause();
+
+    expect(recorded.writes).toEqual([`POST ${API}/login/`]);
+    recorded.stop();
+  });
+});
+
+describe('the role list', () => {
+  const ROLES = `${API}/roles/`;
+  const serve = (...names: string[]) =>
+    server.use(
+      listOf(
+        ROLES,
+        names.map((name) => role({ name })),
+      ).handler,
+    );
+
+  function renderRoles() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <RoleList />
+      </AppContextProvider>,
+      { route: '/roles' },
+    );
+  }
+
+  it('reads the roles again and shows the fresh rows', async () => {
+    serve('zz-role-a');
+    const { user: u } = renderRoles();
+    await screen.findByText('zz-role-a');
+    await signedIn();
+    serve('zz-role-a', 'zz-role-b');
+
+    await signInAgain(u);
+
+    expect(await screen.findByText('zz-role-b')).toBeInTheDocument();
+  });
+
+  it('keeps its rows, with no alert, when the read is refused with 401', async () => {
+    serve('zz-role-a');
+    const { user: u } = renderRoles();
+    await screen.findByText('zz-role-a');
+    await signedIn();
+    server.use(refused('get', ROLES));
+
+    await signInAgain(u);
+    await pause();
+
+    expect(screen.getByText('zz-role-a')).toBeInTheDocument();
+    expect(screen.queryByText('Roles list could not be displayed.')).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('keeps the spinner, with no alert, when the first read is refused, and lists after signing in', async () => {
+    server.use(refused('get', ROLES));
+    const { user: u } = renderRoles();
+    await signedIn();
+    await pause();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByText('Roles list could not be displayed.')).toBeNull();
+    serve('zz-role-a');
+
+    await signInAgain(u);
+
+    expect(await screen.findByText('zz-role-a')).toBeInTheDocument();
+  });
+
+  it('still shows its alert when the read fails for another reason', async () => {
+    server.use(
+      http.get(`*${ROLES}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    renderRoles();
+
+    expect(
+      await screen.findByText('Roles list could not be displayed.'),
+    ).toBeInTheDocument();
+  });
+
+  it('sends no write', async () => {
+    serve('zz-role-a');
+    const recorded = recordWrites();
+    const { user: u } = renderRoles();
+    await screen.findByText('zz-role-a');
+    await signedIn();
+
+    await signInAgain(u);
+    await pause();
+
+    expect(recorded.writes).toEqual([`POST ${API}/login/`]);
+    recorded.stop();
+  });
+});
+
+describe('the role edit page', () => {
+  const ROLE = role({
+    pulp_href: `${API}/roles/0192e5a1-0000-7000-8000-0000000000aa/`,
+    name: 'zz-role',
+  });
+  const ROLE_PATH = `${API}/roles/0192e5a1-0000-7000-8000-0000000000aa/`;
+  const DESCRIPTION = 'Add a role description here';
+
+  const serve = (description: string, permissions: string[] = []) =>
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ ...ROLE, description, permissions }),
+      ),
+    );
+
+  function renderEdit() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <Routes>
+          <Route path='/roles/edit/:role' element={<RoleEdit />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/roles/edit/0192e5a1-0000-7000-8000-0000000000aa/' },
+    );
+  }
+
+  const descriptionField = () => screen.findByPlaceholderText(DESCRIPTION);
+
+  it('shows the fresh description after signing in again when nothing was typed', async () => {
+    serve('first text');
+    const { user: u } = renderEdit();
+    expect(await descriptionField()).toHaveValue('first text');
+    await signedIn();
+    serve('second text');
+
+    await signInAgain(u);
+
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(DESCRIPTION)).toHaveValue(
+        'second text',
+      ),
+    );
+  });
+
+  it('keeps the typed description when the role is read again', async () => {
+    serve('first text');
+    const { user: u } = renderEdit();
+    const field = await descriptionField();
+    await signedIn();
+    await u.clear(field);
+    await u.type(field, 'typed text');
+    let reads = 0;
+    server.use(
+      http.get(`*${ROLE_PATH}`, () => {
+        reads += 1;
+        return HttpResponse.json({ ...ROLE, description: 'fresh text' });
+      }),
+    );
+
+    await signInAgain(u);
+
+    await waitFor(() => expect(reads).toBe(1));
+    await pause();
+    expect(screen.getByPlaceholderText(DESCRIPTION)).toHaveValue('typed text');
+  });
+
+  it('saves the fresh permissions of an untouched form and the typed description', async () => {
+    serve('first text', ['old.permission']);
+    const { user: u } = renderEdit();
+    const field = await descriptionField();
+    await signedIn();
+    await u.clear(field);
+    await u.type(field, 'typed text');
+    serve('fresh text', ['new.permission']);
+    await signInAgain(u);
+    await pause();
+    let body: unknown;
+    server.use(
+      http.patch(`*${ROLE_PATH}`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json(ROLE);
+      }),
+    );
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).toEqual({
+      name: 'zz-role',
+      description: 'typed text',
+      permissions: ['new.permission'],
+    });
+  });
+
+  it('keeps the form, with no alert or not-found page, when the read is refused with 401', async () => {
+    serve('first text');
+    const { user: u } = renderEdit();
+    await descriptionField();
+    await signedIn();
+    server.use(refused('get', ROLE_PATH));
+
+    await signInAgain(u);
+    await pause();
+
+    expect(screen.getByPlaceholderText(DESCRIPTION)).toHaveValue('first text');
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByText(/not found/i)).toBeNull();
+  });
+
+  it('keeps the spinner, with no alert or not-found page, when the first read is refused, and shows the form after signing in', async () => {
+    server.use(refused('get', ROLE_PATH));
+    const { user: u } = renderEdit();
+    await signedIn();
+    await pause();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByText(/not found/i)).toBeNull();
+    serve('first text');
+
+    await signInAgain(u);
+
+    expect(await descriptionField()).toHaveValue('first text');
+  });
+
+  it('adds no alert when saving is refused with 401', async () => {
+    serve('first text');
+    server.use(refused('patch', ROLE_PATH));
+    const { user: u } = renderEdit();
+    await descriptionField();
+    await signedIn();
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    await pause();
+
+    expect(screen.queryByText(/could not be saved/)).toBeNull();
+    expect(screen.getByPlaceholderText(DESCRIPTION)).toHaveValue('first text');
+  });
+
+  it('sends no write', async () => {
+    serve('first text');
+    const recorded = recordWrites();
+    const { user: u } = renderEdit();
+    await descriptionField();
+    await signedIn();
+
+    await signInAgain(u);
+    await pause();
+
+    expect(recorded.writes).toEqual([`POST ${API}/login/`]);
+    recorded.stop();
+  });
+});
+
+describe('the role create page', () => {
+  function renderCreate() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <RoleCreate />
+      </AppContextProvider>,
+      { route: '/roles/create' },
+    );
+  }
+
+  it('shows no alert, keeps the typed form and stops saving when creating is refused with 401', async () => {
+    server.use(refused('post', `${API}/roles/`));
+    const { user: u } = renderCreate();
+    await signedIn();
+    await u.type(screen.getByPlaceholderText('Role name'), 'zz_new');
+    await u.type(
+      screen.getByPlaceholderText('Add a role description here'),
+      'zz description',
+    );
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    await pause();
+
+    expect(screen.queryByText(/could not be created/)).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(screen.getByPlaceholderText('Role name')).toHaveValue('zz_new');
+    expect(
+      screen.getByPlaceholderText('Add a role description here'),
+    ).toHaveValue('zz description');
+  });
+
+  it('still shows its alert when creating fails for another reason', async () => {
+    server.use(
+      http.post(`*${API}/roles/`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    const { user: u } = renderCreate();
+    await u.type(screen.getByPlaceholderText('Role name'), 'zz_new');
+    await u.type(
+      screen.getByPlaceholderText('Add a role description here'),
+      'zz description',
+    );
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(
+      await screen.findByText('Role "zz_new" could not be created.'),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('the signing services list', () => {
+  const SERVICES = `${API}/signing-services/`;
+  const serve = (...names: string[]) =>
+    server.use(
+      listOf(
+        SERVICES,
+        names.map((name) => signingService({ name })),
+      ).handler,
+    );
+
+  function renderServices() {
+    serveSignIn();
+    return renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <SignatureKeysList />
+      </AppContextProvider>,
+      { route: '/signature-keys' },
+    );
+  }
+
+  it('reads the services again and shows the fresh rows', async () => {
+    serve('zz-signer-a');
+    const { user: u } = renderServices();
+    await screen.findByText('zz-signer-a');
+    await signedIn();
+    serve('zz-signer-a', 'zz-signer-b');
+
+    await signInAgain(u);
+
+    expect(await screen.findByText('zz-signer-b')).toBeInTheDocument();
+  });
+
+  it('keeps its rows, with no alert, when the read is refused with 401', async () => {
+    serve('zz-signer-a');
+    const { user: u } = renderServices();
+    await screen.findByText('zz-signer-a');
+    await signedIn();
+    server.use(refused('get', SERVICES));
+
+    await signInAgain(u);
+    await pause();
+
+    expect(screen.getByText('zz-signer-a')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Signature keys could not be displayed.'),
+    ).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('keeps the spinner, with no alert, when the first read is refused, and lists after signing in', async () => {
+    server.use(refused('get', SERVICES));
+    const { user: u } = renderServices();
+    await signedIn();
+    await pause();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(
+      screen.queryByText('Signature keys could not be displayed.'),
+    ).toBeNull();
+    serve('zz-signer-a');
+
+    await signInAgain(u);
+
+    expect(await screen.findByText('zz-signer-a')).toBeInTheDocument();
+  });
+
+  it('still shows its alert when the read fails for another reason', async () => {
+    server.use(
+      http.get(`*${SERVICES}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    renderServices();
+
+    expect(
+      await screen.findByText('Signature keys could not be displayed.'),
+    ).toBeInTheDocument();
+  });
+
+  it('sends no write', async () => {
+    serve('zz-signer-a');
+    const recorded = recordWrites();
+    const { user: u } = renderServices();
+    await screen.findByText('zz-signer-a');
+    await signedIn();
+
+    await signInAgain(u);
+    await pause();
+
+    expect(recorded.writes).toEqual([`POST ${API}/login/`]);
+    recorded.stop();
   });
 });

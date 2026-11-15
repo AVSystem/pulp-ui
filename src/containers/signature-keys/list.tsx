@@ -33,7 +33,10 @@ import {
   filterIsSet,
   withRouter,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 
 interface IState {
   params: {
@@ -72,6 +75,14 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
 
   componentDidMount() {
     this.query();
+  }
+
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the list again, keeping the rows on
+    // screen until the answer arrives.
+    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      this.query(true);
+    }
   }
 
   render() {
@@ -248,8 +259,9 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
     );
   }
 
-  private query() {
-    this.setState({ loading: true }, () => {
+  // A quiet read keeps the rows on screen instead of showing the spinner.
+  private query(quiet = false) {
+    this.setState({ loading: quiet ? this.state.loading : true }, () => {
       SigningServiceAPI.list({ sort: 'name', ...this.state.params })
         .then((result) => {
           this.setState({
@@ -259,6 +271,11 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
           });
         })
         .catch((e) => {
+          // The session ended: the sign-in dialog explains it, and the list
+          // keeps its spinner or its rows until it reads again.
+          if (isSessionEnd(e)) {
+            return;
+          }
           this.setState({
             loading: false,
             items: [],

@@ -23,6 +23,7 @@ import {
   withRouter,
 } from 'src/utilities';
 import {
+  isSessionEnd,
   requestErrorDescription,
   requestErrorStatus,
 } from 'src/utilities/request-error';
@@ -52,6 +53,9 @@ interface IState {
 }
 
 class EditRole extends Component<RouteProps, IState> {
+  // true once the user typed a description: a later read never replaces it
+  descriptionTouched = false;
+
   constructor(props) {
     super(props);
 
@@ -83,17 +87,35 @@ class EditRole extends Component<RouteProps, IState> {
 
   componentDidMount() {
     this.setState({ editPermissions: true });
+    this.queryRole();
+  }
 
+  componentDidUpdate(prevProps: RouteProps) {
+    // The same user signed in again: read the role again. An untouched form
+    // shows the fresh role, a changed description stays as typed.
+    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      this.queryRole();
+    }
+  }
+
+  private queryRole() {
     RoleAPI.get(this.state.params.id)
       .then((result) => {
-        this.setState({
+        this.setState((previous) => ({
           role: result.data,
-          description: result.data.description,
+          description: this.descriptionTouched
+            ? previous.description
+            : result.data.description,
           name: result.data.name,
           originalPermissions: result.data.permissions,
-        });
+        }));
       })
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page
+        // keeps its spinner or its form until it reads again.
+        if (isSessionEnd(e)) {
+          return;
+        }
         this.setState({ notFound: true });
         this.addAlert(
           t`Role "${this.state.role.name}" could not be displayed.`,
@@ -174,6 +196,7 @@ class EditRole extends Component<RouteProps, IState> {
                 errorMessages['description'] ? 'error' : null
               }
               onDescriptionChange={(value) => {
+                this.descriptionTouched = true;
                 this.setState({ description: value }, () => {
                   const errors = validateInput(
                     value,
@@ -227,6 +250,12 @@ class EditRole extends Component<RouteProps, IState> {
           this.setState({ redirect: formatPath(Paths.core.role.list) }),
         )
         .catch((err) => {
+          // The session ended: nothing was saved and nothing is repeated; the
+          // form stays as typed.
+          if (isSessionEnd(err)) {
+            this.setState({ saving: false });
+            return;
+          }
           if (requestErrorStatus(err) === 400) {
             const errors = mapNetworkErrors(err);
 
