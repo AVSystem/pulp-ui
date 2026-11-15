@@ -168,12 +168,12 @@ describe('logout', () => {
     );
   };
 
-  function renderShellRouted() {
+  function renderShellRouted(route = '/signature-keys') {
     return renderWithProviders(
       <Shell>
         <Routed />
       </Shell>,
-      { route: '/signature-keys' },
+      { route },
     );
   }
 
@@ -226,6 +226,31 @@ describe('logout', () => {
       await new Promise((resolve) => setTimeout(resolve, 80));
       expect(replace).not.toHaveBeenCalled();
       expect(screen.queryByText('Sign-in did not complete')).toBeNull();
+    });
+
+    it('lands on the signed out page from a screen that needs no session too', async () => {
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+      server.use(
+        http.delete(
+          '*/pulp/api/v3/login/',
+          () => new HttpResponse(null, { status: 204 }),
+        ),
+      );
+      const { user } = renderShellRouted('/about');
+      await screen.findByRole('heading', { name: 'About project' });
+
+      await logout(user);
+
+      expect(
+        await screen.findByText('You have been signed out of Pulp.'),
+      ).toBeVisible();
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        /^\/signed-out\/?$/,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      expect(replace).not.toHaveBeenCalled();
     });
 
     it('keeps the user signed in on the current screen when the logout fails', async () => {
