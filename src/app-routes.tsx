@@ -2,7 +2,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { Banner, Flex, FlexItem } from '@patternfly/react-core';
 import WrenchIcon from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
-import { type ElementType, useEffect } from 'react';
+import { type ElementType, useEffect, useRef, useState } from 'react';
 import { Navigate, redirect, useLocation } from 'react-router';
 import {
   ErrorBoundary,
@@ -10,6 +10,7 @@ import {
   LoadingPage,
   NotFound,
 } from 'src/components';
+import { ExternalSignInIncomplete } from 'src/components/external-sign-in-incomplete';
 import { InsufficientPermissions } from 'src/components/insufficient-permissions';
 import { lazyScreen } from 'src/components/lazy-screen';
 import { ListErrorState } from 'src/components/list-error-state';
@@ -29,7 +30,11 @@ import { usePermissions } from 'src/permissions';
 import { usePlugins } from 'src/plugins';
 import Root from 'src/routes/root';
 import { config } from 'src/ui-config';
-import { loginURL } from 'src/utilities';
+import {
+  externalLoginAge,
+  rememberExternalLogin,
+} from 'src/utilities/external-login-attempt';
+import { loginURL } from 'src/utilities/login-url';
 import { requestErrorDescription } from 'src/utilities/request-error';
 import { type AdminScreen, canViewScreen } from 'src/utilities/screen-access';
 import { useUserContext } from './user-context';
@@ -633,6 +638,11 @@ const routes: IRouteConfig[] = [
   },
 ];
 
+// A page that loads without a session less than this long after the browser
+// was sent to the external login shows that sign-in did not complete instead of
+// sending it there again.
+const EXTERNAL_LOGIN_RETRY_WINDOW_MS = 30000;
+
 const AuthHandler = ({
   beta,
   component: Component,
@@ -641,7 +651,8 @@ const AuthHandler = ({
   plugin,
   screenAccess,
 }: IRouteConfig) => {
-  const { user, status, endReason } = useUserContext();
+  const { user, status, endReason, sessionError, retrySessionCheck } =
+    useUserContext();
   const plugins = usePlugins();
   const permissions = usePermissions();
   const { retryIfFailed } = permissions;
@@ -656,17 +667,61 @@ const AuthHandler = ({
   // The whole address the user asked for, so signing in lands on it.
   const returnPath = `${pathname}${search}`;
 
+  // Only a session check that answered 401 sends the user to sign in. The
+  // browser is sent to the external login at most once per attempt: a page
+  // that comes back without a session shortly after stops instead of looping.
+  const needsExternalLogin =
+    !user &&
+    !noAuth &&
+    status === 'anonymous' &&
+    Boolean(config.UI_EXTERNAL_LOGIN_URI);
+  const [signInIncomplete, setSignInIncomplete] = useState(false);
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (!needsExternalLogin) {
+      redirected.current = false;
+      return;
+    }
+    if (redirected.current) {
+      return;
+    }
+    redirected.current = true;
+
+    const age = externalLoginAge(Date.now());
+    if (age !== null && age < EXTERNAL_LOGIN_RETRY_WINDOW_MS) {
+      setSignInIncomplete(true);
+      return;
+    }
+    rememberExternalLogin(Date.now());
+    // NOTE: also update LoginLink when changing this
+    window.location.replace(loginURL(returnPath));
+  }, [needsExternalLogin, returnPath]);
+
   if (status === 'checking' && !noAuth) {
     // Redirecting before the session check answers would make every reload of
     // a protected page look like a logout.
     return <LoadingPage />;
   }
 
+  if (status === 'unknown' && !noAuth) {
+    // No answer says nothing about the session: nothing redirects, in either
+    // login mode, and the user can ask again.
+    return (
+      <Main>
+        <section className='pulp-section'>
+          <ListErrorState
+            title={t`The session could not be checked`}
+            message={requestErrorDescription(sessionError)}
+            onRetry={retrySessionCheck}
+          />
+        </section>
+      </Main>
+    );
+  }
+
   if (!user && !noAuth) {
-    // NOTE: also update LoginLink when changing this
     if (config.UI_EXTERNAL_LOGIN_URI) {
-      window.location.replace(loginURL(returnPath));
-      return null;
+      return signInIncomplete ? <ExternalSignInIncomplete /> : null;
     }
 
     return (
