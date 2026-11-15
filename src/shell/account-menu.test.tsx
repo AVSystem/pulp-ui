@@ -8,12 +8,22 @@ function Where() {
   return <p data-testid='where'>{useLocation().pathname}</p>;
 }
 
-function renderAccount(username: string | undefined, logout = vi.fn()) {
+function renderAccount(
+  username: string | undefined,
+  logout = vi.fn(),
+  { includeHelp = false, showAbout = vi.fn() } = {},
+) {
   return {
     logout,
+    showAbout,
     ...renderWithProviders(
       <>
-        <AccountMenu username={username} logout={logout} />
+        <AccountMenu
+          username={username}
+          logout={logout}
+          includeHelp={includeHelp}
+          showAbout={showAbout}
+        />
         <Routes>
           <Route path='*' element={<Where />} />
         </Routes>
@@ -112,5 +122,72 @@ describe('account menu', () => {
     await user.click(screen.getByRole('menuitem', { name: 'logout' }));
 
     expect(logout).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('account menu with the help items', () => {
+  const open = async (options = {}) => {
+    const rendered = renderAccount('anna.k', vi.fn(), {
+      includeHelp: true,
+      ...options,
+    });
+    await rendered.user.click(
+      screen.getByRole('button', { name: 'Account menu for anna.k' }),
+    );
+    return rendered;
+  };
+
+  it('has a Help group with the help items and the language items between the profile and Logout', async () => {
+    await open();
+
+    expect(screen.getByRole('heading', { name: 'Help' })).toBeInTheDocument();
+    const items = screen
+      .getAllByRole('menuitem')
+      .map((item) => item.textContent);
+    expect(items.slice(0, 5)).toEqual([
+      'My profile',
+      'Documentation',
+      'About Pulp UI',
+      'About project',
+      'English (browser default)',
+    ]);
+    expect(items.at(-1)).toBe('Logout');
+    expect(
+      screen.getByRole('menuitem', { name: 'Reset to browser defaults' }),
+    ).toBeInTheDocument();
+  });
+
+  it('opens the documentation in a new tab without opener access', async () => {
+    await open();
+
+    const link = screen.getByRole('menuitem', { name: /Documentation/ });
+    expect(link).toHaveAttribute('href', 'https://docs.pulpproject.org/');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('opens the About dialog and the page about the project', async () => {
+    const { user, showAbout } = await open();
+
+    await user.click(screen.getByRole('menuitem', { name: 'About Pulp UI' }));
+    expect(showAbout).toHaveBeenCalledTimes(1);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Account menu for anna.k' }),
+    );
+    await user.click(screen.getByRole('menuitem', { name: 'About project' }));
+    expect(screen.getByTestId('where')).toHaveTextContent('/about');
+  });
+
+  it('leaves the Help group out unless asked for it', async () => {
+    const { user } = renderAccount('anna.k');
+    await user.click(
+      screen.getByRole('button', { name: 'Account menu for anna.k' }),
+    );
+
+    expect(screen.queryByRole('heading', { name: 'Help' })).toBeNull();
+    expect(
+      screen.queryByRole('menuitem', { name: /Documentation/ }),
+    ).toBeNull();
   });
 });

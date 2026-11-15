@@ -1,7 +1,7 @@
 import { BreadcrumbItem } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Breadcrumb } from 'src/components';
+import { usePhoneWidth } from 'src/utilities/use-phone-width';
 
 export interface BreadcrumbType {
   name: string;
@@ -11,25 +11,6 @@ export interface BreadcrumbType {
 interface IProps {
   /** List of links to display in the breadcrumb */
   links: BreadcrumbType[];
-}
-
-// Below this width the trail is cut down to the parent and the current screen.
-const PHONE_QUERY = '(max-width: 767px)';
-
-function usePhoneWidth() {
-  const [phone, setPhone] = useState(
-    () => window.matchMedia(PHONE_QUERY).matches,
-  );
-
-  useEffect(() => {
-    const query = window.matchMedia(PHONE_QUERY);
-    const onChange = () => setPhone(query.matches);
-    onChange();
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-
-  return phone;
 }
 
 // The crumb that leads one level up: the nearest earlier crumb with a link.

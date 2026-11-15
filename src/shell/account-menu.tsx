@@ -10,7 +10,9 @@ import {
 } from '@patternfly/react-core';
 import { type Ref, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { languageMenuItems } from 'src/components/language-switcher';
 import { Paths, formatPath } from 'src/paths';
+import { useHelpItems } from './help-menu';
 
 // Up to two characters that stand for the user: the first letters of the
 // first two parts of a name written with dots, dashes or underscores, or the
@@ -28,13 +30,25 @@ interface IProps {
   // Not known yet: the toggle then has no initials and no name.
   username?: string;
   logout: () => void;
+  // Opens the About dialog of the interface.
+  showAbout: () => void;
+  // Takes the Help and Language entries of the top bar into this menu, for a
+  // top bar that has no room for their buttons.
+  includeHelp?: boolean;
 }
 
 // The signed-in user: an avatar with initials and the name, opening the
 // account menu. The name is only ever rendered as text.
-export const AccountMenu = ({ username, logout }: IProps) => {
+export const AccountMenu = ({
+  username,
+  logout,
+  showAbout,
+  includeHelp = false,
+}: IProps) => {
   const [isOpen, setOpen] = useState(false);
   const navigate = useNavigate();
+  const helpItems = useHelpItems(showAbout);
+  const languageItems = languageMenuItems();
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -81,6 +95,22 @@ export const AccountMenu = ({ username, logout }: IProps) => {
         </DropdownList>
       </DropdownGroup>
       <Divider />
+      {includeHelp ? (
+        <>
+          <DropdownGroup label={t`Help`} labelHeadingLevel='h2'>
+            <DropdownList>
+              {helpItems}
+              {languageItems.length > 0 ? (
+                <>
+                  <Divider component='li' key='languages' />
+                  {languageItems}
+                </>
+              ) : null}
+            </DropdownList>
+          </DropdownGroup>
+          <Divider />
+        </>
+      ) : null}
       <DropdownList>
         <DropdownItem key='logout' aria-label='logout' onClick={() => logout()}>
           {t`Logout`}

@@ -3459,6 +3459,7 @@ msgstr "Guard: {guardName}"
 msgid "Has words"
 msgstr "Has words"
 
+#: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
 msgid "Help"
 msgstr "Help"

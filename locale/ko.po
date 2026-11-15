@@ -3458,6 +3458,7 @@ msgstr ""
 msgid "Has words"
 msgstr ""
 
+#: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
 msgid "Help"
 msgstr ""

@@ -701,3 +701,104 @@
   max-inline-size: 100%;
   overflow-x: auto;
 }
+
+// The sidebar as a drawer (below 1200px): a dim layer over the page, under the
+// top bar and the drawer, so a press outside the drawer is visibly a press
+// outside. The layer is only drawn while the drawer is open.
+.pulp-drawer-backdrop {
+  position: fixed;
+  inset-block: 4rem 0;
+  inset-inline: 0;
+  z-index: var(--pf-t--global--z-index--sm);
+  background-color: var(--pf-t--global--background--color--backdrop--default);
+  opacity: 0.6;
+}
+
+// Phone width: the top bar keeps the essentials, every control is at least
+// 44px, and dialogs use the width of the screen minus a margin.
+@media (max-width: 767px) {
+  :root .pf-v6-c-masthead.pulp-masthead {
+    --pf-v6-c-masthead--PaddingInline: 0.5rem;
+    --pf-v6-c-masthead__main--MarginInlineEnd: 0.25rem;
+  }
+
+  // the logo alone; the name and the host are in the drawer footer and the
+  // link's accessible name
+  .pulp-brand__text {
+    display: none;
+  }
+
+  .pulp-topbar__crumbs {
+    min-width: 0;
+  }
+
+  .pulp-topbar__actions {
+    gap: 0.25rem;
+  }
+
+  :root .pulp-topbar__button {
+    --pf-v6-c-menu-toggle--Width: 2.75rem;
+    --pf-v6-c-menu-toggle--Height: 2.75rem;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  :root .pf-v6-c-masthead .pf-v6-c-masthead__toggle .pf-v6-c-button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .pulp-topbar__bell {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  // the account toggle is the avatar alone; the name stays in the document for
+  // the accessible name
+  :root .pulp-account {
+    --pf-v6-c-menu-toggle--PaddingInlineStart: 0;
+    --pf-v6-c-menu-toggle--PaddingInlineEnd: 0;
+    block-size: 2.75rem;
+    inline-size: 2.75rem;
+    min-width: 2.75rem;
+    justify-content: center;
+  }
+
+  .pulp-account__name {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  :root .pf-v6-c-nav .pf-v6-c-nav__link {
+    min-height: 2.75rem;
+  }
+
+  .pulp-search {
+    block-size: 2.75rem;
+  }
+
+  :root .pulp-sidebar__collapse {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
+
+  :root .pulp-palette .pf-v6-c-menu__item {
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+  // dialogs: the full width minus 16px on each side
+  :root .pf-v6-c-modal-box {
+    --pf-v6-c-modal-box--Width: calc(100% - 2rem);
+    --pf-v6-c-modal-box--MaxWidth: calc(100% - 2rem);
+    --pf-v6-c-modal-box--m-sm--Width: calc(100% - 2rem);
+    --pf-v6-c-modal-box--m-md--Width: calc(100% - 2rem);
+    --pf-v6-c-modal-box--m-lg--Width: calc(100% - 2rem);
+    margin-inline: 1rem;
+  }
+}

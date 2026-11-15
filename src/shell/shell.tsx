@@ -29,6 +29,7 @@ import {
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useUserContext } from 'src/user-context';
+import { usePhoneWidth } from 'src/utilities/use-phone-width';
 import PulpLogoIcon from 'static/images/pulp_logo_icon.svg';
 import { AccountMenu } from './account-menu';
 import { BreadcrumbBar, BreadcrumbSlotProvider } from './breadcrumb-slot';
@@ -39,7 +40,13 @@ import {
   NotificationsProvider,
   useNotificationsOpen,
 } from './notifications';
-import { SidebarContent, initialSidebarOpen, useSidebar } from './sidebar';
+import {
+  SIDEBAR_TOGGLE_ID,
+  SidebarContent,
+  SidebarDrawer,
+  initialSidebarOpen,
+  useSidebar,
+} from './sidebar';
 import { ThemeMenu } from './theme-menu';
 
 export const MAIN_CONTENT_ID = 'main-content';
@@ -80,6 +87,11 @@ const ShellMasthead = ({
   showAbout: () => void;
 }) => {
   const { isOpen, isNarrow, toggle } = useSidebar();
+  const phone = usePhoneWidth();
+  // A phone has no room for the Help and Language buttons: a signed-in user
+  // finds them in the account menu. A visitor has no account menu, so the
+  // buttons stay.
+  const helpInMenu = phone && !!username;
   // On a wide screen with the sidebar open, the brand cell continues the
   // sidebar column and the sidebar footer holds the button that collapses it.
   const framed = !isNarrow && isOpen;
@@ -92,12 +104,16 @@ const ShellMasthead = ({
 
   return (
     <Masthead
+      // One row at every width: PatternFly stacks the brand above the rest
+      // below 768px, which would double the height of the top bar.
+      display={{ default: 'inline' }}
       className={framed ? 'pulp-masthead pulp-framed' : 'pulp-masthead'}
     >
       <MastheadMain>
         {framed ? null : (
           <MastheadToggle>
             <PageToggleButton
+              id={SIDEBAR_TOGGLE_ID}
               isHamburgerButton
               aria-label={toggleLabel}
               onClick={toggle}
@@ -111,12 +127,17 @@ const ShellMasthead = ({
       <MastheadContent>
         <BreadcrumbBar />
         <div className='pulp-topbar__actions'>
-          <HelpMenu showAbout={showAbout} />
+          {helpInMenu ? null : <HelpMenu showAbout={showAbout} />}
           <ThemeMenu />
-          <LanguageSwitcher />
+          {helpInMenu ? null : <LanguageSwitcher />}
           <NotificationBell />
           {username ? (
-            <AccountMenu username={username} logout={signOut} />
+            <AccountMenu
+              username={username}
+              logout={signOut}
+              showAbout={showAbout}
+              includeHelp={helpInMenu}
+            />
           ) : (
             <LoginLink button />
           )}
@@ -176,6 +197,7 @@ const ShellPage = ({
       }
       mainContainerId={MAIN_CONTENT_ID}
     >
+      <SidebarDrawer />
       <AlertList
         alerts={alerts}
         closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
