@@ -4,6 +4,7 @@ import { SessionSuspendedError } from 'src/session/session-events';
 import {
   errorMessage,
   forbiddenDescription,
+  forbiddenTexts,
   jsxErrorMessage,
 } from './fail-alerts';
 
@@ -24,22 +25,6 @@ export function requestErrorStatus(error): number | null {
 export function requestErrorDetail(error): string | null {
   const detail = error?.response?.data?.detail;
   return typeof detail === 'string' && detail.trim() ? detail : null;
-}
-
-// The three sentences that tell a user an action was refused: what happened,
-// Pulp's own reason (or a plain fallback when the answer has none), and whom
-// to ask. Only the answer's `detail` is used; the client writes no other text
-// about the refusal.
-export function forbiddenTexts(error): {
-  sentence: string;
-  detail: string;
-  hint: string;
-} {
-  return {
-    sentence: t`You do not have permission to do this.`,
-    detail: requestErrorDetail(error) ?? t`Pulp refused this request.`,
-    hint: t`Contact your organization administrator for more information.`,
-  };
 }
 
 // True when the failure is the end of the session and nothing else: a 401

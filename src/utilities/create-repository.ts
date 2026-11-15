@@ -1,12 +1,9 @@
 import { t } from '@lingui/core/macro';
 import { type AlertType } from 'src/components/alert-list';
 import { distributionConflicts } from './distribution-availability';
+import { forbiddenTexts } from './fail-alerts';
 import { type ErrorMessagesType, mapErrorMessages } from './map-error-messages';
-import {
-  forbiddenTexts,
-  isSessionEnd,
-  requestErrorStatus,
-} from './request-error';
+import { isSessionEnd, requestErrorStatus } from './request-error';
 import { taskAlert } from './task-alert';
 import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
 
