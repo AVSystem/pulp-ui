@@ -14,6 +14,14 @@ export function requestErrorStatus(error): number | null {
   return typeof status === 'number' ? status : null;
 }
 
+// The reason Pulp gave in the answer's `detail` field, as plain text, or null
+// when the answer has none. Only a non-empty string counts: nothing else of
+// the response body is ever read.
+export function requestErrorDetail(error): string | null {
+  const detail = error?.response?.data?.detail;
+  return typeof detail === 'string' && detail.trim() ? detail : null;
+}
+
 // True when the failure is the end of the session and nothing else: a 401
 // answer, or a request that was held back while the sign-in dialog is open.
 // The dialog explains it and the screen reads again after signing in, so the

@@ -1526,6 +1526,7 @@ msgstr "Consider using a secure URL (https://)."
 #~ msgstr "Contact you organization administrator for more information."
 
 #: src/components/empty-state-unauthorized.tsx
+#: src/components/insufficient-permissions.tsx
 msgid "Contact your organization administrator for more information."
 msgstr "Contact your organization administrator for more information."
 
@@ -3313,6 +3314,10 @@ msgstr "Giving up waiting for task after {attempts} attempts."
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "Giving up waiting for task after 10 attempts."
 
+#: src/components/insufficient-permissions.tsx
+msgid "Go back"
+msgstr "Go back"
+
 #: src/shell/command-palette.tsx
 msgid "Go to"
 msgstr "Go to"
@@ -3340,6 +3345,10 @@ msgstr "Go to previous page"
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
 msgstr "Go to the login page"
+
+#: src/components/insufficient-permissions.tsx
+msgid "Go to the start page"
+msgstr "Go to the start page"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -3722,6 +3731,10 @@ msgstr "Installer packages will be synchronized"
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "Instructions"
 #~ msgstr "Instructions"
+
+#: src/components/insufficient-permissions.tsx
+msgid "Insufficient permissions"
+msgstr "Insufficient permissions"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
@@ -8519,6 +8532,10 @@ msgstr "You do not have access to Pulp UI"
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
 #~ msgstr "You do not have permission to view all tasks. Only tasks created by you are visible."
+
+#: src/components/insufficient-permissions.tsx
+msgid "You do not have permission to view this page."
+msgstr "You do not have permission to view this page."
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "You do not have the required permissions."

@@ -25,6 +25,7 @@ export { ExternalLink } from './external-link';
 export { FormFieldHelper } from './form-field-helper';
 export { GroupModal } from './group-modal';
 export { HelpButton } from './help-button';
+export { InsufficientPermissions } from './insufficient-permissions';
 export { LanguageSwitcher } from './language-switcher';
 export { LazyDistributions } from './lazy-distributions';
 export { LazyRepositories } from './lazy-repositories';

@@ -1525,6 +1525,7 @@ msgstr "考虑使用一个安全 URL(https://)。"
 #~ msgstr "Contact you organization administrator for more information."
 
 #: src/components/empty-state-unauthorized.tsx
+#: src/components/insufficient-permissions.tsx
 msgid "Contact your organization administrator for more information."
 msgstr "如需更多信息，请联系您的机构管理员。"
 
@@ -3312,6 +3313,10 @@ msgstr ""
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "10 次尝试后放弃等待任务."
 
+#: src/components/insufficient-permissions.tsx
+msgid "Go back"
+msgstr ""
+
 #: src/shell/command-palette.tsx
 msgid "Go to"
 msgstr ""
@@ -3338,6 +3343,10 @@ msgstr ""
 
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
+msgstr ""
+
+#: src/components/insufficient-permissions.tsx
+msgid "Go to the start page"
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -3721,6 +3730,10 @@ msgstr ""
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "Instructions"
 #~ msgstr "说明"
+
+#: src/components/insufficient-permissions.tsx
+msgid "Insufficient permissions"
+msgstr ""
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
@@ -8518,6 +8531,10 @@ msgstr ""
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
 #~ msgstr "您没有查看所有任务的权限。只有您所创建的任务是可见的。"
+
+#: src/components/insufficient-permissions.tsx
+msgid "You do not have permission to view this page."
+msgstr ""
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "You do not have the required permissions."

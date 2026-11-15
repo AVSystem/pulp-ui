@@ -187,12 +187,92 @@ describe('a list page whose API answers with an error status', () => {
     expect(screen.queryByText('No things yet')).not.toBeInTheDocument();
   });
 
-  it('still shows the error state for a 403', async () => {
+  it('shows the insufficient permissions page with the server text for a 403', async () => {
     server.use(failing(403, 'Forbidden'));
     renderList();
 
-    expect(await screen.findByText(/Error 403 - /)).toBeInTheDocument();
-    expect(retry()).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('You do not have permission to view this page.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('no')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Contact your organization administrator for more information.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Go to the start page' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Things could not be displayed.' }),
+    ).not.toBeInTheDocument();
+    expect(spinner()).not.toBeInTheDocument();
+  });
+
+  it('shows no detail paragraph for a 403 without a detail', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json({}, { status: 403, statusText: 'Forbidden' }),
+      ),
+    );
+    renderList();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('shows the server text as text when it contains markup', async () => {
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(
+          { detail: '<img src=x onerror=alert(1)>' },
+          { status: 403 },
+        ),
+      ),
+    );
+    const { container } = renderList();
+
+    expect(
+      await screen.findByText('<img src=x onerror=alert(1)>'),
+    ).toBeInTheDocument();
+    expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('shows the same page without a server text when its condition is false', async () => {
+    const Guarded = ListPage<IThing>({
+      condition: () => false,
+      defaultPageSize: 10,
+      displayName: 'GuardedList',
+      errorTitle: msg`Things could not be displayed.`,
+      filterConfig: () => [{ id: 'name__icontains', title: 'Name' }],
+      noDataDescription: msg`Things appear once they are created.`,
+      noDataTitle: msg`No things yet`,
+      query: ({ params }) => things.list('things/', params),
+      renderTableRow: (item) => (
+        <Tr key={item.name}>
+          <Td>{item.name}</Td>
+        </Tr>
+      ),
+      sortHeaders: [{ title: msg`Name`, type: 'alpha', id: 'name' }],
+      title: msg`Things`,
+    });
+    renderWithProviders(
+      <AppContextProvider>
+        <Guarded />
+      </AppContextProvider>,
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+    expect(screen.getByRole('heading', { name: 'Things' })).toBeInTheDocument();
   });
 
   it('never shows the response body', async () => {
