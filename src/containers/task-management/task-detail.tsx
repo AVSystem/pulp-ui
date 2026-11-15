@@ -256,12 +256,11 @@ class TaskDetail extends Component<RouteProps, IState> {
                     {t`Reserve resources`}
                   </Title>
                   <br />
-                  {resources.length ? (
-                    <DescriptionList isHorizontal>
-                      {resources.map((resource, index) => {
-                        return (
-                          <Fragment key={resource.type + index}>
-                            {index ? <hr /> : null}
+                  {resources.length
+                    ? resources.map((resource, index) => (
+                        <Fragment key={resource.type + index}>
+                          {index ? <hr /> : null}
+                          <DescriptionList isHorizontal>
                             <DescriptionListGroup>
                               <DescriptionListTerm>{t`Type`}</DescriptionListTerm>
                               <DescriptionListDescription>
@@ -284,13 +283,10 @@ class TaskDetail extends Component<RouteProps, IState> {
                                 </DescriptionListDescription>
                               </DescriptionListGroup>
                             )}
-                          </Fragment>
-                        );
-                      })}
-                    </DescriptionList>
-                  ) : (
-                    t`There's no resource record`
-                  )}
+                          </DescriptionList>
+                        </Fragment>
+                      ))
+                    : t`There's no resource record`}
                 </section>
               </FlexItem>
             </Flex>
@@ -306,36 +302,32 @@ class TaskDetail extends Component<RouteProps, IState> {
                     </Title>
                     <br />
                     {task.progress_reports.length ? (
-                      <DescriptionList isHorizontal>
-                        {task.progress_reports
-                          .reverse()
-                          .map((report, index) => {
-                            return (
-                              <Fragment key={index}>
-                                <hr />
-                                {Object.keys(report).map((key, index) => {
-                                  return (
-                                    !!report[key] && (
-                                      <DescriptionListGroup key={key + index}>
-                                        <DescriptionListTerm>
-                                          {{
-                                            message: t`Message`,
-                                            code: t`Code`,
-                                            state: t`State`,
-                                            done: t`Done`,
-                                          }[key] || capitalize(key)}
-                                        </DescriptionListTerm>
-                                        <DescriptionListDescription>
-                                          {report[key]}
-                                        </DescriptionListDescription>
-                                      </DescriptionListGroup>
-                                    )
-                                  );
-                                })}{' '}
-                              </Fragment>
-                            );
-                          })}
-                      </DescriptionList>
+                      task.progress_reports.reverse().map((report, index) => (
+                        <Fragment key={index}>
+                          <hr />
+                          <DescriptionList isHorizontal>
+                            {Object.keys(report).map((key, index) => {
+                              return (
+                                !!report[key] && (
+                                  <DescriptionListGroup key={key + index}>
+                                    <DescriptionListTerm>
+                                      {{
+                                        message: t`Message`,
+                                        code: t`Code`,
+                                        state: t`State`,
+                                        done: t`Done`,
+                                      }[key] || capitalize(key)}
+                                    </DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                      {report[key]}
+                                    </DescriptionListDescription>
+                                  </DescriptionListGroup>
+                                )
+                              );
+                            })}
+                          </DescriptionList>
+                        </Fragment>
+                      ))
                     ) : (
                       <EmptyStateCustom
                         icon={CubesIcon}
