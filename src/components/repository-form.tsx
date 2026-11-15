@@ -178,24 +178,38 @@ export const RepositoryForm = ({
 
   const [remotes, setRemotes] = useState(null);
   const [remotesError, setRemotesError] = useState(null);
+  // Every remote the field has been offered, by address: a search narrows the
+  // list to other remotes, and the one that is selected must keep its name.
+  const knownRemotes = useRef(
+    new Map<string, { name: string; pulp_href: string }>(),
+  );
+  // Identifies the latest search, so a slower answer to an earlier text cannot
+  // replace the list of a later one.
+  const latestRemotes = useRef(0);
   const loadRemotes = (name?) => {
+    const current = ++latestRemotes.current;
     setRemotesError(null);
     const { RemoteAPI } = plugin2api(plugin);
     RemoteAPI.list(name ? { name__icontains: name } : {})
-      .then(({ data }) =>
-        setRemotes(data.results.map((r) => ({ ...r, id: r.pulp_href }))),
-      )
+      .then(({ data }) => {
+        data.results.forEach((r) => knownRemotes.current.set(r.pulp_href, r));
+        if (current === latestRemotes.current) {
+          setRemotes(data.results.map((r) => ({ ...r, id: r.pulp_href })));
+        }
+      })
       .catch((e) => {
-        setRemotes([]);
-        setRemotesError(requestErrorText(e));
+        if (current === latestRemotes.current) {
+          setRemotes([]);
+          setRemotesError(requestErrorText(e));
+        }
       });
   };
 
   useEffect(() => loadRemotes(), []);
 
-  const selectedRemote = remotes?.find?.(
-    ({ pulp_href }) => pulp_href === repository?.remote,
-  );
+  const selectedRemote =
+    remotes?.find?.(({ pulp_href }) => pulp_href === repository?.remote) ??
+    knownRemotes.current.get(repository?.remote);
 
   return (
     <Form>

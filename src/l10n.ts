@@ -1,4 +1,9 @@
 import { i18n } from '@lingui/core';
+import {
+  readStored,
+  removeStored,
+  writeStored,
+} from 'src/utilities/safe-storage';
 
 // remember to update lingui.config.js as well
 export const availableLanguages = ['en', 'es', 'fr', 'ko', 'nl', 'ja', 'zh'];
@@ -41,29 +46,30 @@ const searchParams = Object.fromEntries(
 );
 
 if (searchParams.pseudolocalization === 'true') {
-  window.localStorage.test_l10n = 'true';
+  writeStored('test_l10n', 'true');
 }
 if (searchParams.pseudolocalization === 'false') {
-  delete window.localStorage.test_l10n;
+  removeStored('test_l10n');
 }
 
 if (searchParams.lang) {
-  window.localStorage.override_l10n = searchParams.lang;
+  writeStored('override_l10n', searchParams.lang);
 }
 if (searchParams.lang === '') {
-  delete window.localStorage.override_l10n;
+  removeStored('override_l10n');
 }
 
 // ?lang and ?pseudolocalization get removed in entrypoint.tsx
 // (removed to prevent the param getting passed to api calls)
 // (in entrypoint.tsx to prevent interaction with pushState)
 
+const storedLanguage = readStored('override_l10n');
 const overrideLanguage =
-  window.localStorage.override_l10n &&
-  availableLanguages.includes(window.localStorage.override_l10n) &&
-  window.localStorage.override_l10n;
+  storedLanguage && availableLanguages.includes(storedLanguage)
+    ? storedLanguage
+    : null;
 export const language = overrideLanguage || userLanguage || 'en';
-const pseudolocalization = window.localStorage.test_l10n === 'true';
+const pseudolocalization = readStored('test_l10n') === 'true';
 
 if (overrideLanguage) {
   console.debug(

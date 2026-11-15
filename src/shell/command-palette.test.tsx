@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -158,6 +158,50 @@ describe('keyboard shortcut', () => {
   });
 });
 
+describe('keyboard shortcut while a dialog is open', () => {
+  it('keeps the place to return to when pressed inside the open palette', async () => {
+    signIn();
+    const { user } = renderPalette();
+    // A collapsed sidebar cannot take the focus back, so the field that had it
+    // before the palette opened is the place to return to.
+    (await trigger()).setAttribute('disabled', '');
+    const field = screen.getByRole('textbox', { name: 'Some field' });
+    field.focus();
+    fireEvent.keyDown(field, { key: 'k', ctrlKey: true });
+    const box = await input();
+
+    const notCancelled = fireEvent.keyDown(box, { key: 'k', ctrlKey: true });
+    await user.keyboard('{Escape}');
+
+    // The browser's own use of the key is still cancelled.
+    expect(notCancelled).toBe(false);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(field).toHaveFocus();
+  });
+
+  it('does not open over another dialog', async () => {
+    signIn();
+    renderWithProviders(
+      <>
+        <CommandPalette />
+        <div className='pf-v6-c-modal-box' role='dialog' aria-label='Other'>
+          <button type='button'>Inside</button>
+        </div>
+      </>,
+    );
+    const inside = screen.getByRole('button', { name: 'Inside' });
+    inside.focus();
+
+    const notCancelled = fireEvent.keyDown(inside, { key: 'k', ctrlKey: true });
+
+    expect(notCancelled).toBe(false);
+    expect(
+      screen.queryByRole('dialog', { name: 'Search or go to' }),
+    ).not.toBeInTheDocument();
+    expect(inside).toHaveFocus();
+  });
+});
+
 describe('palette', () => {
   it('focuses a combobox that controls a listbox of options', async () => {
     signIn();
@@ -246,6 +290,22 @@ describe('palette', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('does not open the highlighted screen when Enter ends a text composition', async () => {
+    signIn();
+    const { user } = renderPalette();
+    await openPalette(user);
+    await screen.findAllByRole('option');
+    const box = await input();
+
+    fireEvent.keyDown(box, { key: 'Enter', isComposing: true });
+
+    expect(where()).toBe('/tasks');
+    expect(screen.getByRole('dialog')).toBeVisible();
+
+    fireEvent.keyDown(box, { key: 'Enter' });
+    await waitFor(() => expect(where()).not.toBe('/tasks'));
+  });
+
   it('opens a screen with a click', async () => {
     signIn();
     const { user } = renderPalette();
@@ -280,6 +340,37 @@ describe('palette', () => {
     expect(active()).toBe(0);
     await user.keyboard('{ArrowDown}');
     expect(active()).toBe(1);
+  });
+
+  it('scrolls the highlighted option into view when the highlight moves', async () => {
+    signIn();
+    const scroll = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(() => undefined);
+    try {
+      const { user } = renderPalette();
+      await openPalette(user);
+      await screen.findAllByRole('option');
+      const box = await input();
+      scroll.mockClear();
+
+      // The element each call was made on, and the options it was made with.
+      const lastScrolled = () => (scroll.mock.contexts.at(-1) as Element).id;
+      expect(scroll.mock.calls.every(([o]) => o?.['block'] === 'nearest')).toBe(
+        true,
+      );
+
+      await user.keyboard('{ArrowUp}');
+      expect(lastScrolled()).toBe(box.getAttribute('aria-activedescendant'));
+      const last = lastScrolled();
+      expect(scroll).toHaveBeenLastCalledWith({ block: 'nearest' });
+
+      await user.keyboard('{ArrowDown}');
+      expect(lastScrolled()).toBe(box.getAttribute('aria-activedescendant'));
+      expect(lastScrolled()).not.toBe(last);
+    } finally {
+      scroll.mockRestore();
+    }
   });
 
   it('closes on Escape and returns the focus to the trigger', async () => {
@@ -529,6 +620,54 @@ describe('repository search', () => {
     ).toBeVisible();
   });
 
+  it('says repositories cannot be searched, not that nothing matches, when the request is refused and no screen matches', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, () =>
+        HttpResponse.json({ detail: 'refused' }, { status: 403 }),
+      ),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'qqzz');
+
+    expect(
+      await screen.findByText(
+        'Repositories cannot be searched with your account.',
+      ),
+    ).toBeVisible();
+    expect(screen.queryByText('No screens or repositories match')).toBeNull();
+    expect(screen.queryByRole('option')).toBeNull();
+  });
+
+  it('does not announce "No results" while the repositories are still being searched', async () => {
+    signIn();
+    server.use(
+      http.get(`*${REPOSITORIES}`, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        return HttpResponse.json({
+          count: 0,
+          next: null,
+          previous: null,
+          results: [],
+        });
+      }),
+    );
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'qqzz');
+
+    const live = document.querySelector('[aria-live="polite"]');
+    await screen.findByText('Searching repositories...', {
+      selector: '.pulp-palette__status',
+    });
+    expect(live).toHaveTextContent('Searching repositories...');
+    expect(live).not.toHaveTextContent('No results');
+    await waitFor(() => expect(live).toHaveTextContent('No results'));
+  });
+
   it('shows one muted row with a retry for any other failure and asks again on retry', async () => {
     signIn();
     let calls = 0;
@@ -623,7 +762,11 @@ describe('repository search', () => {
 
     await user.type(await input(), 'qqzz');
 
-    expect(await screen.findByText('Searching repositories...')).toBeVisible();
+    expect(
+      await screen.findByText('Searching repositories...', {
+        selector: '.pulp-palette__status',
+      }),
+    ).toBeVisible();
     expect(screen.queryByText('No screens or repositories match')).toBeNull();
     expect(
       await screen.findByText('No screens or repositories match'),

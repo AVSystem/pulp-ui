@@ -28,9 +28,11 @@ const task = {
   reserved_resources_record: ['pdrn:1:alpha', 'pdrn:1:beta'],
 };
 
-function renderDetail() {
+function renderDetail(overrides: Partial<typeof task> = {}) {
   server.use(
-    http.get('*/pulp/api/v3/tasks/:id/', () => HttpResponse.json(task)),
+    http.get('*/pulp/api/v3/tasks/:id/', () =>
+      HttpResponse.json({ ...task, ...overrides }),
+    ),
   );
   return renderWithProviders(
     <AppContextProvider>
@@ -69,5 +71,27 @@ describe('task detail', () => {
     expect(screen.getByText('alpha')).toBeInTheDocument();
     expect(screen.getByText('beta')).toBeInTheDocument();
     expect(container.querySelectorAll('section hr').length).toBe(3);
+  });
+
+  it('lists the progress messages newest first and keeps that order when the page redraws', async () => {
+    const { user } = renderDetail({ state: 'running' });
+    const messages = () =>
+      screen
+        .getAllByText(/^Clean up orphan/)
+        .map((element) => element.textContent);
+
+    await screen.findByText('Reserve resources');
+    const first = messages();
+    expect(first).toEqual([
+      'Clean up orphan Artifacts',
+      'Clean up orphan Content',
+    ]);
+
+    // Opening the stop dialog redraws the page without loading the task
+    // again.
+    await user.click(screen.getByRole('button', { name: 'Stop task' }));
+    await screen.findByRole('dialog');
+
+    expect(messages()).toEqual(first);
   });
 });

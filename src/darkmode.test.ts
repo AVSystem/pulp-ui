@@ -9,6 +9,7 @@ import {
   reflectPreference,
   setUserChoice,
 } from 'src/darkmode';
+import { blockStorage } from 'src/test-utils/storage';
 
 const KEY = 'pulp-darkmode';
 const DARK_CLASS = 'pf-v6-theme-dark';
@@ -161,6 +162,33 @@ describe('reflectPreference', () => {
     reflectPreference('dark');
     expect(isDark()).toBe(true);
     reflectPreference('light');
+    expect(isDark()).toBe(false);
+  });
+});
+
+describe('with a storage that is blocked', () => {
+  it('starts, with the system theme, when the page loads', async () => {
+    mockSystemTheme(true);
+    blockStorage();
+    vi.resetModules();
+
+    await expect(import('src/darkmode')).resolves.toBeDefined();
+
+    expect(isDark()).toBe(true);
+  });
+
+  it('has no stored choice', () => {
+    blockStorage();
+    expect(getUserChoice()).toBeNull();
+  });
+
+  it('still shows a chosen theme, for this page', () => {
+    mockSystemTheme(false);
+    blockStorage();
+
+    expect(() => setUserChoice('dark')).not.toThrow();
+    expect(isDark()).toBe(true);
+    expect(() => setUserChoice(null)).not.toThrow();
     expect(isDark()).toBe(false);
   });
 });

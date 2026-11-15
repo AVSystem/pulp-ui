@@ -6,6 +6,7 @@ import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
 import {
   listOf,
+  page,
   pythonDistribution,
   remote,
   repository,
@@ -373,5 +374,41 @@ describe('Python repository Distributions tab: editing a distribution', () => {
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(await screen.findByText('zz-served')).toBeInTheDocument();
+  });
+
+  it('ignores the slow answer to an earlier remote search', async () => {
+    serveRepositoryAndDistributions();
+    serveDistribution();
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(`*${API}/remotes/python/python/`, async ({ request }) => {
+        const text = new URL(request.url).searchParams.get('name__icontains');
+        if (text === 'zz') {
+          await gate;
+          return HttpResponse.json(page([mirror, other]));
+        }
+        return HttpResponse.json(
+          page([mirror, other].filter((row) => row.name.includes(text ?? ''))),
+        );
+      }),
+    );
+    const { user } = renderTab();
+    const dialog = await openEditDialog(user);
+
+    await user.click(within(dialog).getByPlaceholderText('Select a remote'));
+    await user.type(
+      within(dialog).getByPlaceholderText('Select a remote'),
+      'zz-o',
+    );
+    await screen.findByRole('option', { name: 'zz-other' });
+
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(screen.queryByRole('option', { name: 'zz-mirror' })).toBeNull();
+    expect(screen.getByRole('option', { name: 'zz-other' })).toBeVisible();
   });
 });

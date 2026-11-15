@@ -4,6 +4,7 @@ import LanguageIcon from '@patternfly/react-icons/dist/esm/icons/language-icon';
 import { type ReactElement } from 'react';
 import { StatefulDropdown } from 'src/components';
 import { availableLanguages, language, languageNames } from 'src/l10n';
+import { readStored } from 'src/utilities/safe-storage';
 
 // The menu entries that choose the language: the current one, every language
 // the interface comes in, and the way back to the browser's own choice. Empty
@@ -14,10 +15,11 @@ export function languageMenuItems(): ReactElement[] {
   }
 
   const currentLanguage = languageNames[language] || language;
+  const overridden = !!readStored('override_l10n');
 
   return [
     <DropdownItem isDisabled key='current'>
-      {window.localStorage.override_l10n
+      {overridden
         ? t`${currentLanguage} (current)`
         : t`${currentLanguage} (browser default)`}
     </DropdownItem>,
@@ -32,11 +34,7 @@ export function languageMenuItems(): ReactElement[] {
       </DropdownItem>
     )),
     <Divider component='li' key='separator2' />,
-    <DropdownItem
-      key='unset'
-      to='?lang='
-      isDisabled={!window.localStorage.override_l10n}
-    >
+    <DropdownItem key='unset' to='?lang=' isDisabled={!overridden}>
       {t`Reset to browser defaults`}
     </DropdownItem>,
   ];

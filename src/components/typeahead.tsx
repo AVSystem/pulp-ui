@@ -86,9 +86,20 @@ export const Typeahead = ({
     }
   };
 
-  const close = () => {
+  const hide = () => {
     setIsOpen(false);
     setFocusedIndex(null);
+  };
+
+  // Closing without a choice drops what was typed in a single-select field,
+  // so the field shows the value that is really selected, and asks for the
+  // full list again since the narrowed one no longer matches the field.
+  const close = () => {
+    hide();
+    if (!multiple && typedText !== null) {
+      setTypedText(null);
+      loadResults('');
+    }
   };
 
   const selectOption = (event, name: string) => {
@@ -96,7 +107,7 @@ export const Typeahead = ({
 
     if (!multiple) {
       setTypedText(null);
-      close();
+      hide();
       loadResults('');
     }
     inputRef.current?.focus();
@@ -118,6 +129,11 @@ export const Typeahead = ({
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // The keys of a text composition (an input method editor) belong to it:
+    // Enter commits the composed text and must not choose an option.
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
     switch (event.key) {
       case 'ArrowDown':
       case 'ArrowUp': {

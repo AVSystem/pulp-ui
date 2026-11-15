@@ -93,6 +93,10 @@ class GroupDetail extends Component<RouteProps, IState> {
 
   userQueryStringParams = ['username', 'first_name', 'last_name', 'email'];
 
+  // Identifies the latest user search of the add dialog, so a slower answer to
+  // an earlier text cannot replace the list of a later one.
+  latestUserSearch = 0;
+
   constructor(props) {
     super(props);
 
@@ -330,9 +334,16 @@ class GroupDetail extends Component<RouteProps, IState> {
         <ModalBody>
           <Typeahead
             results={this.state.options}
-            loadResults={(name) =>
-              UserAPI.list({ username__contains: name, page_size: 1000 })
+            loadResults={(name) => {
+              const current = ++this.latestUserSearch;
+              return UserAPI.list({
+                username__contains: name,
+                page_size: 1000,
+              })
                 .then((result) => {
+                  if (current !== this.latestUserSearch) {
+                    return;
+                  }
                   let filteredUsers = [];
                   result.data.data.forEach((user) => {
                     filteredUsers.push({
@@ -350,13 +361,16 @@ class GroupDetail extends Component<RouteProps, IState> {
                   });
                 })
                 .catch((e) => {
+                  if (current !== this.latestUserSearch) {
+                    return;
+                  }
                   this.addAlert(
                     t`Users list could not be displayed.`,
                     'danger',
                     requestErrorDescription(e),
                   );
-                })
-            }
+                });
+            }}
             onSelect={(event, selection) => {
               const selectedUser = this.state.options.find(
                 (x) => x.name === selection,

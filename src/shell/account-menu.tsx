@@ -112,7 +112,7 @@ export const AccountMenu = ({
         </>
       ) : null}
       <DropdownList>
-        <DropdownItem key='logout' aria-label='logout' onClick={() => logout()}>
+        <DropdownItem key='logout' onClick={() => logout()}>
           {t`Logout`}
         </DropdownItem>
       </DropdownList>

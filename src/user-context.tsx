@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import { PulpLoginAPI } from './api/pulp-login';
+import { removeStored } from './utilities/safe-storage';
 
 export interface ISessionUser {
   username: string;
@@ -54,8 +55,8 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     // An older version of this UI kept the password in browser storage in plain
     // text. The keys are deleted without being read or used, so nothing left
     // behind can sign anyone in or leak.
-    window.localStorage.removeItem('credentials');
-    window.sessionStorage.removeItem('credentials');
+    removeStored('credentials');
+    removeStored('credentials', 'sessionStorage');
 
     PulpLoginAPI.whoami()
       .then(({ data }) =>

@@ -46,6 +46,9 @@ const REPOSITORY_REQUEST_SIZE = 50;
 const TRIGGER_ID = 'pulp-palette-trigger';
 const INPUT_ID = 'pulp-palette-input';
 
+// A dialog that is open anywhere on the page.
+const DIALOG_SELECTOR = '.pf-v6-c-modal-box';
+
 // Whether the shortcut is Cmd+K: on Apple platforms. The shortcut itself works
 // with either modifier everywhere.
 function isApplePlatform(): boolean {
@@ -71,7 +74,7 @@ interface IGroup {
   title: string;
   results: IResult[];
   // What the group's own line below its results says about the search.
-  status?: 'loading' | 'failed';
+  status?: 'loading' | 'failed' | 'refused';
 }
 
 interface IRepositoryRow {
@@ -261,21 +264,21 @@ function Palette({ onClose }: { onClose: () => void }) {
       search.state === 'ready' && installed
         ? repositoryResults(search.repositories, new Set(installed.keys()))
         : [];
-    if (
-      repositories.length > 0 ||
-      search.state === 'loading' ||
-      search.state === 'failed'
-    ) {
+    // A refusal stays unmentioned next to matching screens; on its own it
+    // would read as "nothing matches", so it is named when nothing else is
+    // listed.
+    let status: IGroup['status'];
+    if (search.state === 'loading' || search.state === 'failed') {
+      status = search.state;
+    } else if (search.state === 'refused' && found.length === 0) {
+      status = 'refused';
+    }
+    if (repositories.length > 0 || status) {
       found.push({
         id: 'repositories',
         title: t`Repositories`,
         results: repositories,
-        status:
-          search.state === 'loading'
-            ? 'loading'
-            : search.state === 'failed'
-              ? 'failed'
-              : undefined,
+        status,
       });
     }
     return found;
@@ -284,12 +287,25 @@ function Palette({ onClose }: { onClose: () => void }) {
   const results = groups.flatMap((group) => group.results);
   const highlighted =
     results.find((result) => result.id === highlightedId) ?? results[0];
-  // Nothing to show, and nothing still on its way that could show up.
-  const noMatch =
-    results.length === 0 &&
-    search.state !== 'loading' &&
-    search.state !== 'failed';
+  // Nothing to show, and nothing still on its way or left unsaid that could
+  // explain why.
+  const noMatch = results.length === 0 && !groups.some((group) => group.status);
+  // While the repositories are still being looked up and nothing is listed
+  // yet, "No results" would be untrue.
+  const searching = results.length === 0 && search.state === 'loading';
   const optionId = (result: IResult) => `${listId}-${result.id}`;
+  const highlightedElementId = highlighted ? optionId(highlighted) : undefined;
+
+  // The list scrolls and the focus stays in the input, so the highlighted row
+  // has to be brought into view by hand, or an arrow key could move the
+  // highlight to a row nobody can see.
+  useEffect(() => {
+    if (highlightedElementId) {
+      document
+        .getElementById(highlightedElementId)
+        ?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [highlightedElementId]);
 
   // The dialog has no close button: Escape closes it, and so does a press
   // anywhere outside it.
@@ -312,6 +328,11 @@ function Palette({ onClose }: { onClose: () => void }) {
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    // The keys of a text composition (an input method editor) belong to it:
+    // Enter commits the composed text and must not open a result.
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       if (results.length > 0) {
@@ -353,9 +374,7 @@ function Palette({ onClose }: { onClose: () => void }) {
             role='combobox'
             isExpanded
             aria-controls={listId}
-            aria-activedescendant={
-              highlighted ? optionId(highlighted) : undefined
-            }
+            aria-activedescendant={highlightedElementId}
             onChange={(_event, value) => {
               setQuery(value);
               setHighlightedId(null);
@@ -368,11 +387,13 @@ function Palette({ onClose }: { onClose: () => void }) {
           />
         </TextInputGroup>
         <div className='pf-v6-screen-reader' aria-live='polite'>
-          {plural(results.length, {
-            0: 'No results',
-            one: '# result',
-            other: '# results',
-          })}
+          {searching
+            ? t`Searching repositories...`
+            : plural(results.length, {
+                0: 'No results',
+                one: '# result',
+                other: '# results',
+              })}
         </div>
         <Menu role='listbox' isPlain className='pulp-palette__menu'>
           <MenuContent>
@@ -422,6 +443,11 @@ function Palette({ onClose }: { onClose: () => void }) {
                       <li role='presentation' className='pulp-palette__status'>
                         <Spinner size='sm' aria-hidden='true' />
                         {t`Searching repositories...`}
+                      </li>
+                    ) : null}
+                    {group.status === 'refused' ? (
+                      <li role='presentation' className='pulp-palette__status'>
+                        {t`Repositories cannot be searched with your account.`}
                       </li>
                     ) : null}
                     {group.status === 'failed' && search.state === 'failed' ? (
@@ -476,6 +502,13 @@ export const CommandPalette = () => {
         event.key.toLowerCase() === 'k'
       ) {
         event.preventDefault();
+        // The shortcut does nothing while the palette is open, which would
+        // record the palette's own input as the place to return to, or while
+        // another dialog is open, which the palette would stack over with a
+        // second focus trap.
+        if (isOpen || document.querySelector(DIALOG_SELECTOR)) {
+          return;
+        }
         opener.current = document.activeElement;
         setOpen(true);
       }
@@ -483,7 +516,7 @@ export const CommandPalette = () => {
     document.addEventListener('keydown', onKey, { capture: true });
     return () =>
       document.removeEventListener('keydown', onKey, { capture: true });
-  }, []);
+  }, [isOpen]);
 
   // When the palette closes, the focus goes back to the button; if the button
   // cannot take it (a collapsed sidebar), to what had it before.

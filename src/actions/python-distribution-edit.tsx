@@ -9,7 +9,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@patternfly/react-core';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { PythonDistributionAPI } from '../api/python-distribution';
 import { PythonRemoteAPI } from '../api/python-remote';
 import { type AlertType } from '../components/alert-list';
@@ -71,17 +71,25 @@ const EditModal = ({
   const [errors, setErrors] = useState<ErrorMessagesType>({});
   const [saving, setSaving] = useState(false);
 
+  // Identifies the latest search, so a slower answer to an earlier text cannot
+  // replace the list of a later one.
+  const latestRemotes = useRef(0);
   const loadRemotes = (search?: string) => {
+    const current = ++latestRemotes.current;
     setRemotesError(null);
     PythonRemoteAPI.list(search ? { name__icontains: search } : {})
-      .then(({ data }) =>
-        setRemotes(
-          data.results.map((r) => ({ ...r, id: r.pulp_href as string })),
-        ),
-      )
+      .then(({ data }) => {
+        if (current === latestRemotes.current) {
+          setRemotes(
+            data.results.map((r) => ({ ...r, id: r.pulp_href as string })),
+          );
+        }
+      })
       .catch((e) => {
-        setRemotes([]);
-        setRemotesError(requestErrorText(e));
+        if (current === latestRemotes.current) {
+          setRemotes([]);
+          setRemotesError(requestErrorText(e));
+        }
       });
   };
 
