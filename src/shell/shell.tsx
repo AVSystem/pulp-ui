@@ -196,6 +196,9 @@ const ShellPage = ({
         </SkipToContent>
       }
       mainContainerId={MAIN_CONTENT_ID}
+      // the container scrolls, so it must be reachable by keyboard even on a
+      // screen with nothing focusable in it
+      mainTabIndex={0}
     >
       <SidebarDrawer />
       <AlertList

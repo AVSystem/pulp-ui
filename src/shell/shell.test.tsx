@@ -58,6 +58,17 @@ describe('app shell', () => {
     expect(skip).toHaveAttribute('href', '#main-content');
   });
 
+  it('makes the scrolling main container reachable by keyboard without changing the first tab stop', async () => {
+    const { user } = renderShell();
+
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('tabindex', '0');
+
+    await user.tab();
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveFocus();
+    expect(main).not.toHaveFocus();
+  });
+
   it('shows the logo, the wordmark and the host of the running origin as one link to Status', async () => {
     renderShell('/tasks');
 
