@@ -2,7 +2,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode } from 'react';
 import { Route, Routes } from 'react-router';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown } from 'src/test-utils/permissions';
@@ -834,24 +834,29 @@ function AfterSession({ children }: { children: ReactNode }) {
 }
 
 describe('the profile page', () => {
-  const USERS = `${API}/users/`;
+  // The sign-in handlers come first so a test's own answer for the record
+  // takes precedence over theirs.
+  beforeEach(() => serveSignIn());
+
+  // the signed-in user's own record, read by its address
+  const USERS = `${API}/users/1/`;
   const serve = (firstName: string) =>
     server.use(
-      listOf(USERS, [user({ id: 1, username: 'zoe', first_name: firstName })])
-        .handler,
+      http.get(`*${USERS}`, () =>
+        HttpResponse.json(
+          user({ id: 1, username: 'zoe', first_name: firstName }),
+        ),
+      ),
       listOf(`${API}/groups/`, []).handler,
     );
 
   function renderProfile() {
-    serveSignIn();
     return renderWithProviders(
       <AppContextProvider>
-        <PermissionsKnown>
-          <SignInAgain />
-          <AfterSession>
-            <UserProfile />
-          </AfterSession>
-        </PermissionsKnown>
+        <SignInAgain />
+        <AfterSession>
+          <UserProfile />
+        </AfterSession>
       </AppContextProvider>,
       { route: '/users/profile' },
     );
@@ -879,15 +884,17 @@ describe('the profile page', () => {
     server.use(
       http.get(`*${USERS}`, () => {
         reads += 1;
-        return HttpResponse.json(
-          page([user({ id: 1, username: 'zoe', last_name: 'Fresh' })]),
-        );
+        return HttpResponse.json({
+          ...user({ id: 1, username: 'zoe', last_name: 'Fresh' }),
+          is_staff: true,
+        });
       }),
     );
 
     await signInAgain(u);
 
-    await waitFor(() => expect(reads).toBe(1));
+    // the permission read and the profile read both ask for the record
+    await waitFor(() => expect(reads).toBe(2));
     await pause();
     expect(screen.getByLabelText(/Last name/)).toHaveValue('Typed');
   });
