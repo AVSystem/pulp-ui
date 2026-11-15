@@ -132,6 +132,7 @@ export const Paths = {
     about: '/about',
     login: '/login',
     search: '/search',
+    signedOut: '/signed-out',
   },
   python: {
     remote: {

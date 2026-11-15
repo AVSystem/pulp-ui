@@ -9,6 +9,7 @@ import {
 import { PulpLoginAPI } from './api/pulp-login';
 import { Paths, formatPath } from './paths';
 import { resume, setSignedIn } from './session/session-events';
+import { config } from './ui-config';
 import { forgetExternalLogin } from './utilities/external-login-attempt';
 import { removeStored } from './utilities/safe-storage';
 import { uiPath } from './utilities/ui-path';
@@ -54,6 +55,19 @@ export const useUserContext = () => useContext(UserContext);
 // carries none.
 const sessionKey = (user: ISessionUser | null) =>
   user ? (user.pulp_href ?? user.username) : null;
+
+// The address of the signed out page, below the base path the UI is served
+// under, compared with the address of the running page.
+function onSignedOutPage() {
+  const trim = (path: string) => path.replace(/\/+$/, '');
+  return trim(window.location.pathname) === trim(uiPath(Paths.meta.signedOut));
+}
+
+// The reason an ended session carries when the user logged out of an
+// installation with an external login: the guard then sends them to the signed
+// out page instead of to the external login, which would sign them straight
+// back in.
+export const SIGNED_OUT_REASON = 'signed-out';
 
 function logoutFailure(error): Error {
   const response = error?.response;
@@ -122,6 +136,13 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     removeStored('credentials');
     removeStored('credentials', 'sessionStorage');
 
+    // The signed out page asks nothing: the session is over, and a request
+    // here could only start a sign-in again.
+    if (onSignedOutPage()) {
+      setUser(null);
+      return;
+    }
+
     checkSession();
   }, [checkSession]);
 
@@ -149,16 +170,19 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     setEndReason(reason ?? null);
   };
 
+  const endByLogout = () =>
+    endSession(config.UI_EXTERNAL_LOGIN_URI ? SIGNED_OUT_REASON : undefined);
+
   const logout = () =>
     PulpLoginAPI.logout().then(
-      () => endSession(),
+      () => endByLogout(),
       (error) => {
         // 401 means the server session is already gone, which is the state a
         // logout aims for. Any other failure (for example a CSRF refusal or a
         // dropped connection) leaves the session alive, so the user must not
         // be shown as signed out.
         if (error?.response?.status === 401) {
-          endSession();
+          endByLogout();
           return;
         }
         throw logoutFailure(error);

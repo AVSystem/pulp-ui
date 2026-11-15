@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
+import { Paths } from 'src/paths';
 
 // Where the static page for a signed-out user lives. Shared so the dialog and
 // that page agree on the address.
-export const SIGNED_OUT_PATH = '/signed-out';
+export const SIGNED_OUT_PATH = Paths.meta.signedOut;
 
 // Whether the session of the signed-in user has ended, and whether a request
 // found out (as opposed to a check made on returning to the tab).

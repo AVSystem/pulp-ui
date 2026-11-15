@@ -25,6 +25,7 @@ import {
   SearchComingSoon,
 } from 'src/containers/coming-soon-screens';
 import LoginPage from 'src/containers/login/login';
+import SignedOut from 'src/containers/signed-out';
 import { Paths, formatPath } from 'src/paths';
 import { usePermissions } from 'src/permissions';
 import { usePlugins } from 'src/plugins';
@@ -37,7 +38,7 @@ import {
 import { loginURL } from 'src/utilities/login-url';
 import { requestErrorDescription } from 'src/utilities/request-error';
 import { type AdminScreen, canViewScreen } from 'src/utilities/screen-access';
-import { useUserContext } from './user-context';
+import { SIGNED_OUT_REASON, useUserContext } from './user-context';
 
 // Every screen of a plugin section or core group is fetched when it is first
 // shown, one chunk per section or group, so the entry holds only the shell, the
@@ -507,6 +508,11 @@ const routes: IRouteConfig[] = [
     noAuth: true,
   },
   {
+    component: SignedOut,
+    path: Paths.meta.signedOut,
+    noAuth: true,
+  },
+  {
     component: CollectionsComingSoon,
     path: Paths.ansible.collection.docs_page,
     plugin: 'ansible',
@@ -674,6 +680,7 @@ const AuthHandler = ({
     !user &&
     !noAuth &&
     status === 'anonymous' &&
+    endReason !== SIGNED_OUT_REASON &&
     Boolean(config.UI_EXTERNAL_LOGIN_URI);
   const [signInIncomplete, setSignInIncomplete] = useState(false);
   const redirected = useRef(false);
@@ -721,6 +728,10 @@ const AuthHandler = ({
 
   if (!user && !noAuth) {
     if (config.UI_EXTERNAL_LOGIN_URI) {
+      if (endReason === SIGNED_OUT_REASON) {
+        return <Navigate replace to={formatPath(Paths.meta.signedOut)} />;
+      }
+
       return signInIncomplete ? <ExternalSignInIncomplete /> : null;
     }
 
