@@ -228,8 +228,31 @@ A production build (`npm run build`) can be further configured by serving a `/pu
 |-------------------------|-----------------|-----------------------------------------------------------------------------------------|
 | `API_BASE_PATH`         | `/pulp/api/v3/` | Change when using domains or a different path                                           |
 | `UI_BASE_PATH`          | `/ui/`          | Change when only serving index in a subdirectory, or want different browser path prefix |
-| `UI_EXTERNAL_LOGIN_URI` | `null`          | Set to something like `/login/` when using SSO                                          |
+| `UI_EXTERNAL_LOGIN_URI` | `null`          | Set to something like `/login/` when using SSO, see below                               |
 | `EXTRA_VERSION`         | `""`            | An extra version string to display in about modal                                       |
+
+### External login (`UI_EXTERNAL_LOGIN_URI`)
+
+Set `UI_EXTERNAL_LOGIN_URI` to the address of a login service (for example `/login/`) when
+people sign in through single sign-on instead of the UI's own form. The contract between the
+UI and that service:
+
+- The UI sends the browser to the address with the query parameter `next` set to the URL-encoded
+  path the person asked for, for example `/login/?next=%2Fui%2Fgroups%2F`. Only a screen that needs
+  a session starts this; Status, About project and the sign-in pages open without one.
+- The login service signs the person in and sends the browser back to `next` with a session the
+  Pulp API accepts: a session cookie, or whatever credentials your configured authentication
+  classes read from the request.
+- On return the UI asks the API who is signed in (`GET login/`). A 200 answer opens the screen. Only
+  a 401 means nobody is signed in; any other failure shows "The session could not be checked" with a
+  Retry button and never redirects.
+- A return without a session does not loop. When the page loads without a session less than 30
+  seconds after it sent the browser to the login service, it shows "Sign-in did not complete" with
+  a Login button instead of redirecting a second time.
+- Logout ends the Pulp session (`DELETE login/`) and shows a "Signed out" page that sends no
+  request; its "Sign in again" button is the only way back to the login service. Signing out of the
+  login service itself is up to that service.
+- The UI never stores a credential: the session lives in the cookie or header your service sets.
 
 ## Contributing & Help
 See the [Pulp developer guide](https://pulpproject.org/dev/) to contribute, or reach the community on [Discourse](https://discourse.pulpproject.org) / Matrix ([#pulp](https://matrix.to/#/#pulp:matrix.org), [#pulp-dev](https://matrix.to/#/#pulp-dev:matrix.org))
