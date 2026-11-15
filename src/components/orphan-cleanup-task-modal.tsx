@@ -4,8 +4,12 @@ import {
   Form,
   FormGroup,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   NumberInput,
 } from '@patternfly/react-core';
+import { useId } from 'react';
 import { DateComponent, FormFieldHelper } from 'src/components';
 
 interface IProps {
@@ -17,75 +21,85 @@ interface IProps {
 
 export const OrphanCleanupTaskModal = (props: IProps) => {
   const { cancelAction, confirmAction, taskValue, updateTask } = props;
+  const labelId = useId();
+  const descriptorId = useId();
 
   return (
     <Modal
-      actions={[
-        <Button key='confirm' onClick={confirmAction} variant='primary'>
-          {t`Yes`}
-        </Button>,
-        <Button key='cancel' onClick={cancelAction} variant='link'>
-          {t`Cancel`}
-        </Button>,
-      ]}
+      aria-describedby={descriptorId}
+      aria-labelledby={labelId}
       isOpen
       onClose={cancelAction}
-      title={t`Orphan cleanup task`}
-      description={t`Trigger an asynchronous orphan cleanup operation.`}
-      titleIconVariant='info'
       variant='medium'
     >
-      <Form>
-        <FormGroup
-          fieldId={'orphan_protection_time'}
-          label={t`Orphan protection time:`}
-        >
-          <NumberInput
-            id={'orphan_protection_time'}
-            value={taskValue.orphan_protection_time}
-            onMinus={() => {
-              updateTask({
-                orphan_protection_time: taskValue.orphan_protection_time - 1,
-              });
-            }}
-            onChange={(event) => {
-              // @ts-expect-error: Property 'value' does not exist on type 'EventTarget'.
-              const value = Number(event.target.value);
-              if (value < 0 || Number.isNaN(value)) {
+      <ModalHeader
+        description={t`Trigger an asynchronous orphan cleanup operation.`}
+        descriptorId={descriptorId}
+        labelId={labelId}
+        title={t`Orphan cleanup task`}
+        titleIconVariant='info'
+      />
+      <ModalBody>
+        <Form>
+          <FormGroup
+            fieldId={'orphan_protection_time'}
+            label={t`Orphan protection time:`}
+          >
+            <NumberInput
+              id={'orphan_protection_time'}
+              value={taskValue.orphan_protection_time}
+              onMinus={() => {
                 updateTask({
-                  orphan_protection_time: 0,
+                  orphan_protection_time: taskValue.orphan_protection_time - 1,
                 });
-              } else {
+              }}
+              onChange={(event) => {
+                // @ts-expect-error: Property 'value' does not exist on type 'EventTarget'.
+                const value = Number(event.target.value);
+                if (value < 0 || Number.isNaN(value)) {
+                  updateTask({
+                    orphan_protection_time: 0,
+                  });
+                } else {
+                  updateTask({
+                    orphan_protection_time: value,
+                  });
+                }
+              }}
+              min={0}
+              onPlus={() => {
                 updateTask({
-                  orphan_protection_time: value,
+                  orphan_protection_time: taskValue.orphan_protection_time + 1,
                 });
-              }
-            }}
-            min={0}
-            onPlus={() => {
-              updateTask({
-                orphan_protection_time: taskValue.orphan_protection_time + 1,
-              });
-            }}
-          />
-          {taskValue.orphan_protection_time ? (
-            <>
-              {' '}
-              (
-              <DateComponent
-                date={new Date(
-                  Date.now() - taskValue.orphan_protection_time * 60 * 1000,
-                ).toISOString()}
-              />
-              )
-            </>
-          ) : null}
-          <FormFieldHelper>
-            {t`The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans.`}
-          </FormFieldHelper>
-          <br />
-        </FormGroup>
-      </Form>
+              }}
+            />
+            {taskValue.orphan_protection_time ? (
+              <>
+                {' '}
+                (
+                <DateComponent
+                  date={new Date(
+                    Date.now() - taskValue.orphan_protection_time * 60 * 1000,
+                  ).toISOString()}
+                />
+                )
+              </>
+            ) : null}
+            <FormFieldHelper>
+              {t`The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans.`}
+            </FormFieldHelper>
+            <br />
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
+        <Button key='confirm' onClick={confirmAction} variant='primary'>
+          {t`Yes`}
+        </Button>
+        <Button key='cancel' onClick={cancelAction} variant='link'>
+          {t`Cancel`}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

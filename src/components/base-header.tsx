@@ -1,5 +1,6 @@
 import { Title } from '@patternfly/react-core';
 import { type ReactNode, useEffect } from 'react';
+import { useBreadcrumbSlot } from 'src/shell/breadcrumb-slot';
 import './header.scss';
 
 interface IProps {
@@ -31,33 +32,17 @@ export const BaseHeader = ({
     document.title = title ? `Pulp UI - ${title}` : 'Pulp UI';
   }, [title]);
 
-  return (
-    <div
-      className={className}
-      style={{
-        backgroundColor: 'var(--pf-v5-global--BackgroundColor--100)',
-        padding: '0 24px',
-      }}
-    >
-      {contextSelector || null}
-      {breadcrumbs && (
-        <div style={{ paddingTop: '10px', paddingBottom: '10px' }}>
-          {breadcrumbs}
-        </div>
-      )}
-      {!breadcrumbs && !contextSelector && <div style={{ height: '24px' }} />}
+  useBreadcrumbSlot(breadcrumbs, title);
 
-      <div
-        data-cy='column-section'
-        style={{ display: 'flex', justifyContent: 'space-between' }}
-      >
-        <div
-          data-cy='title-box'
-          style={{ display: 'flex', alignItems: 'center' }}
-        >
+  return (
+    <div className={['pulp-header', className].filter(Boolean).join(' ')}>
+      {contextSelector || null}
+
+      <div className='pulp-header__row' data-cy='column-section'>
+        <div className='pulp-header__title-box' data-cy='title-box'>
           {logo}
           <div>
-            <Title headingLevel='h1' size='2xl'>
+            <Title headingLevel='h1' size='3xl'>
               {title}
               {status}
             </Title>
@@ -68,11 +53,9 @@ export const BaseHeader = ({
       </div>
       {versionControl || null}
 
-      {children ? (
-        <div className='pulp-header-bottom'>{children}</div>
-      ) : (
-        <div style={{ height: '24px' }} />
-      )}
+      <div className={children ? 'pulp-header-bottom' : 'pulp-header__end'}>
+        {children}
+      </div>
     </div>
   );
 };

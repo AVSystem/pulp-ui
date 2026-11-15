@@ -1,6 +1,12 @@
 import { msg, t } from '@lingui/core/macro';
-import { Button, Modal } from '@patternfly/react-core';
-import { useState } from 'react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from '@patternfly/react-core';
+import { useId, useState } from 'react';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
@@ -28,10 +34,26 @@ const RevertModal = ({
   revertAction: () => void;
 }) => {
   const [pending, setPending] = useState(false);
+  const labelId = useId();
 
   return (
     <Modal
-      actions={[
+      aria-labelledby={labelId}
+      isOpen
+      onClose={cancelAction}
+      variant='small'
+    >
+      <ModalHeader
+        labelId={labelId}
+        title={t`Revert repository`}
+        titleIconVariant='warning'
+      />
+      <ModalBody>
+        {t`Are you sure you want to revert this repository to the version below?`}
+        <br />
+        <b>{version}</b>
+      </ModalBody>
+      <ModalFooter>
         <Button
           key='revert'
           onClick={() => {
@@ -43,20 +65,11 @@ const RevertModal = ({
         >
           {t`Revert`}
           {pending && <Spinner size='sm' />}
-        </Button>,
+        </Button>
         <Button key='cancel' onClick={cancelAction} variant='link'>
           {t`Cancel`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={cancelAction}
-      title={t`Revert repository`}
-      titleIconVariant='warning'
-      variant={'small'}
-    >
-      {t`Are you sure you want to revert this repository to the version below?`}
-      <br />
-      <b>{version}</b>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

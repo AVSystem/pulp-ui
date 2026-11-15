@@ -1,6 +1,6 @@
 import { type MessageDescriptor, i18n } from '@lingui/core';
 import { Button } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
+import { DropdownItem } from '@patternfly/react-core';
 import { type ReactNode } from 'react';
 import { Tooltip } from '../components/patternfly-wrappers/tooltip';
 
@@ -69,7 +69,7 @@ export const Action = ({
         <DropdownItem
           key={i18n._(title)}
           description={disabled(item, actionContext)}
-          isDisabled
+          isAriaDisabled
         >
           {i18n._(title)}
         </DropdownItem>

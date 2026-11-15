@@ -5,7 +5,7 @@ body,
 }
 
 .pulp-section {
-  background-color: var(--pf-v5-global--BackgroundColor--100);
+  background-color: var(--pf-t--global--background--color--primary--default);
   padding: 16px;
 }
 
@@ -13,25 +13,29 @@ body,
   cursor: pointer;
 }
 
-// remove padding between menu and top navbar
-#page-sidebar .pf-v5-c-nav {
-  --pf-v5-c-nav__list--PaddingTop: 0;
+// inline code reads like the code surfaces
+code {
+  background-color: var(--pulp-code);
+  color: var(--pulp-code-text);
 }
 
 // this was getting applied globally when it was in the collection-info.scss file
 // which means other components now rely on it, so I'm just going move it here
 // so that it's explicitly setting these styles globally.
 pre {
-  background-color: var(--pf-v5-global--BackgroundColor--150);
-  border: 1px solid var(--pf-v5-global--BackgroundColor--200);
-  font-family: var(--pf-v5-global--FontFamily--monospace);
+  background-color: var(--pulp-code);
+  color: var(--pulp-code-text);
+  border: 1px solid var(--pulp-line);
+  font-family: var(--pf-t--global--font--family--mono);
   display: block;
   padding: 10px;
 
   // Patternfly does something that makes it so that fonts don't get inherited
   // from the parent so it has to be overridden at every level.
   code {
-    font-family: var(--pf-v5-global--FontFamily--monospace);
+    background-color: transparent;
+    color: inherit;
+    font-family: var(--pf-t--global--font--family--mono);
   }
 }
 
@@ -42,9 +46,11 @@ pre {
   align-items: center;
 }
 
-// inline alert inside pf-v5-c-content has big title and extra margin otherwise
-.pf-v5-c-content .pf-v5-c-alert__title {
-  margin: 0;
-  font-size: var(--pf-v5-c-alert__title--FontSize);
-  font-weight: var(--pf-v5-c-alert__title--FontWeight);
+// An inline alert inside rich text would take the heading size and margins of
+// the text around it; its title keeps the alert's own size and no margin.
+.pf-v6-c-content .pf-v6-c-alert {
+  --pf-v6-c-content--h4--MarginBlockStart: 0;
+  --pf-v6-c-content--h4--MarginBlockEnd: 0;
+  --pf-v6-c-content--h4--FontSize: var(--pf-v6-c-alert--FontSize);
+  --pf-v6-c-content--h4--FontWeight: var(--pf-v6-c-alert__title--FontWeight);
 }

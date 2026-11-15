@@ -44,7 +44,7 @@ test('a distribution deleted or re-bound on the server leaves the page after a r
   });
 
   const detailPath = (name: string) => `deb/repositories/detail/${name}`;
-  const details = page.locator('.pf-v5-c-description-list__group', {
+  const details = page.locator('.pf-v6-c-description-list__group', {
     hasText: 'Repository URL',
   });
   const row = (distribution: PulpObject) =>
@@ -115,7 +115,7 @@ test('a distribution deleted or re-bound on the server leaves the page after a r
 
   // ... and from the edit form
   await page.goto(`deb/repositories/edit/${repository.name}`);
-  const group = page.locator('.pf-v5-c-form__group', {
+  const group = page.locator('.pf-v6-c-form__group', {
     has: page.locator('label[for=distributions]'),
   });
   await expect(group).toContainText('None');

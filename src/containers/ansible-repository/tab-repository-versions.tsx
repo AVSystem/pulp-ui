@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
-import { Table, Td, Th, Tr } from '@patternfly/react-table';
+import { PageSection } from '@patternfly/react-core';
+import { Td, Th, Tr } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { ansibleRepositoryVersionRevertAction } from 'src/actions';
@@ -14,6 +15,7 @@ import {
   Details,
   ListItemActions,
   Spinner,
+  Table,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
@@ -280,8 +282,9 @@ export const RepositoryVersionsTab = ({
             },
           ]}
         />
-        <div
-          className='pf-v5-c-page__main-section'
+        <PageSection
+          component='div'
+          hasBodyWrapper={false}
           style={{ padding: '8px 0', margin: '24px -16px 0' }}
         />
         <VersionContent

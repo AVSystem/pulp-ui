@@ -13,16 +13,16 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current, default)"
-msgstr ""
+#~ msgid "(current, default)"
+#~ msgstr ""
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current)"
-msgstr ""
+#~ msgid "(current)"
+#~ msgstr ""
 
 #: src/components/darkmode-switcher.tsx
-msgid "(default)"
-msgstr ""
+#~ msgid "(default)"
+#~ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -47,6 +47,11 @@ msgstr ""
 #: src/components/remote-form.tsx
 msgid "(uploaded)"
 msgstr "(アップロード済み)"
+
+#. placeholder {0}: results.length
+#: src/shell/command-palette.tsx
+msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
+msgstr ""
 
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -94,6 +99,14 @@ msgstr ""
 #: src/components/headers/partner-header.tsx
 #~ msgid "{company} logo"
 #~ msgstr "{company} ロゴ"
+
+#: src/shell/task-counts.tsx
+msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
+msgstr ""
+
+#: src/shell/task-counts.tsx
+msgid "{count, plural, one {# running task} other {# running tasks}}"
+msgstr ""
 
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Dependency} other {Dependencies}}"
@@ -179,6 +192,10 @@ msgstr "{name} は実行を停止します。"
 #: src/components/wizard-modal.tsx
 msgid "{title} steps"
 msgstr "{title} ステップ"
+
+#: src/shell/notifications.tsx
+msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
+msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
@@ -340,20 +357,37 @@ msgstr ""
 msgid "A whole number. Leave empty to use the server default."
 msgstr ""
 
-#: src/layout.tsx
-msgid "About"
-msgstr "情報"
+#: src/shell/shell.tsx
+#~ msgid "About"
+#~ msgstr "情報"
 
 #: src/containers/about-project.tsx
-#: src/menu.tsx
+#: src/shell/help-menu.tsx
 msgid "About project"
+msgstr ""
+
+#: src/shell/help-menu.tsx
+msgid "About Pulp UI"
 msgstr ""
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/menu.tsx
 msgid "Access"
 msgstr "アクセス"
+
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr ""
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr ""
+
+#: src/components/stateful-dropdown.tsx
+msgid "Actions"
+msgstr ""
 
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Active user profile \"{0}\" could not be displayed."
@@ -519,8 +553,8 @@ msgstr "選択したユーザーのグループへの追加"
 #~ msgstr "Add user"
 
 #: src/containers/group-management/group-detail.tsx
-msgid "add-user-modal"
-msgstr "add-user-modal"
+#~ msgid "add-user-modal"
+#~ msgstr "add-user-modal"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
@@ -957,6 +991,10 @@ msgstr "取り消し"
 msgid "Canceled"
 msgstr "取り消し済み"
 
+#: src/shell/notifications.tsx
+msgid "Canceled {when}"
+msgstr ""
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
 #~ msgstr "コレクションの依存関係が<0/>削除されるまで<1/>名前空間は削除できません"
@@ -1121,6 +1159,7 @@ msgstr "子タスク"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
+#: src/components/typeahead.tsx
 msgid "Clear"
 msgstr "消去"
 
@@ -1164,7 +1203,9 @@ msgstr "クライアントキー"
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr ""
 
+#: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/components/typeahead.tsx
 msgid "close"
 msgstr ""
 
@@ -1173,13 +1214,29 @@ msgstr ""
 msgid "Close"
 msgstr "閉じる"
 
+#: src/shell/shell.tsx
+msgid "Close navigation"
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Close notifications"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
 msgstr "YAML エディターを閉じます"
 
+#: src/shell/command-palette.tsx
+msgid "Cmd K"
+msgstr ""
+
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
 msgstr "コード"
+
+#: src/shell/sidebar.tsx
+msgid "Collapse sidebar"
+msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
@@ -1366,7 +1423,6 @@ msgstr "コレクションが変更されると、コレクションのバージ
 #~ msgstr "ID {0} 付きコレクションが見つかりません。"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Collections"
 msgstr "コレクション"
 
@@ -1426,6 +1482,10 @@ msgstr ""
 #: src/containers/task-management/task-list-view.tsx
 msgid "Completed"
 msgstr "完了済み"
+
+#: src/shell/notifications.tsx
+msgid "Completed {when}"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -1517,13 +1577,12 @@ msgstr "詳細は、組織の管理者にお問い合わせください。"
 #~ msgstr "コンテナーリポジトリー名"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Containers"
 msgstr "Containers"
 
-#: src/containers/collection-detail/collection-content.tsx
-#~ msgid "Content"
-#~ msgstr "コンテンツ"
+#: src/menu.tsx
+msgid "Content"
+msgstr "コンテンツ"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1635,6 +1694,7 @@ msgstr ""
 #~ msgstr "インポートログを読み込むことができませんでした"
 
 #: src/app-routes.tsx
+#: src/menu.tsx
 msgid "Could not read the installed plugins"
 msgstr ""
 
@@ -1784,6 +1844,10 @@ msgstr "作成日時"
 #~ msgid "Creation started for distribution {distributionName}"
 #~ msgstr "ディストリビューション {distributionName} の作成が開始しました"
 
+#: src/shell/command-palette.tsx
+msgid "Ctrl K"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 #~ msgid "Curate all synclist repositories"
 #~ msgstr ""
@@ -1815,6 +1879,10 @@ msgstr ""
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Current provider namespace"
 #~ msgstr ""
+
+#: src/components/typeahead.tsx
+msgid "Current selections"
+msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Current tags"
@@ -1852,7 +1920,7 @@ msgstr "カスタムパーミッション"
 msgid "Danger"
 msgstr ""
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Dark"
 msgstr ""
 
@@ -2280,15 +2348,15 @@ msgstr ""
 msgid "Distributions of {0} repositories cannot be looked up"
 msgstr ""
 
-#: src/layout.tsx
-msgid "Docs dropdown"
-msgstr ""
+#: src/shell/shell.tsx
+#~ msgid "Docs dropdown"
+#~ msgstr ""
 
 #: src/components/collection-header.tsx
 #~ msgid "Docs site"
 #~ msgstr "ドキュメントのサイト"
 
-#: src/layout.tsx
+#: src/shell/help-menu.tsx
 msgid "Documentation"
 msgstr "ドキュメント"
 
@@ -2795,6 +2863,10 @@ msgstr ""
 #~ msgid "Execution Environments"
 #~ msgstr "実行環境"
 
+#: src/shell/shell.tsx
+msgid "Expand sidebar"
+msgstr ""
+
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Expiration"
 #~ msgstr "有効期限"
@@ -2820,6 +2892,10 @@ msgstr ""
 #: src/containers/task-management/task-list-view.tsx
 msgid "Failed"
 msgstr "失敗"
+
+#: src/shell/notifications.tsx
+msgid "Failed {when}"
+msgstr ""
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Failed to {operation} tag \"{tag}\"."
@@ -3075,6 +3151,8 @@ msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "File"
 msgstr ""
 
@@ -3146,8 +3224,8 @@ msgstr "名"
 #~ msgstr "ログのフォロー"
 
 #: src/components/sync-modal.tsx
-msgid "Force a sync to happen."
-msgstr ""
+#~ msgid "Force a sync to happen."
+#~ msgstr ""
 
 #: src/components/role-import-form.tsx
 #~ msgid "Found"
@@ -3229,6 +3307,10 @@ msgstr ""
 #: src/utilities/wait-for-task.ts
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "10 回試行した後に、タスクの待機を中止します。"
+
+#: src/shell/command-palette.tsx
+msgid "Go to"
+msgstr ""
 
 #: src/components/collection-info.tsx
 #~ msgid "Go to documentation"
@@ -3374,6 +3456,11 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
+msgstr ""
+
+#: src/shell/account-menu.tsx
+#: src/shell/help-menu.tsx
+msgid "Help"
 msgstr ""
 
 #: src/containers/landing/landing-page.tsx
@@ -3608,16 +3695,16 @@ msgstr ""
 #~ msgstr "インストール:"
 
 #: src/components/remote-form.tsx
-msgid "Installer files will be skipped"
-msgstr ""
+#~ msgid "Installer files will be skipped"
+#~ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer files will be synchronized"
 msgstr ""
 
 #: src/components/remote-form.tsx
-msgid "Installer packages will be skipped"
-msgstr ""
+#~ msgid "Installer packages will be skipped"
+#~ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer packages will be synchronized"
@@ -3808,7 +3895,7 @@ msgstr ""
 #~ msgid "License"
 #~ msgstr "ライセンス"
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Light"
 msgstr ""
 
@@ -3898,9 +3985,13 @@ msgstr "ログイン"
 #~ msgid "Logo URL"
 #~ msgstr "ロゴ URL"
 
-#: src/layout.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "ログアウト"
+
+#: src/menu.tsx
+msgid "Main"
+msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "Make private"
@@ -3935,6 +4026,10 @@ msgstr "コレクションリモートを管理します。"
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "マニフェストリストはこの画面ではサポートされていません。<0>Images</0> タブを使用してマニフェスト一覧の詳細を確認してください。"
 
+#: src/shell/theme-menu.tsx
+msgid "Match system"
+msgstr ""
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
 #~ msgstr ""
@@ -3963,6 +4058,10 @@ msgstr ""
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
 
+#: src/components/help-button.tsx
+msgid "More information"
+msgstr ""
+
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
 #~ msgstr "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -3988,7 +4087,7 @@ msgstr "整数でなければなりません。"
 #~ msgstr "自分の名前空間"
 
 #: src/containers/settings/user-profile.tsx
-#: src/layout.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "自分のプロファイル"
 
@@ -4095,7 +4194,6 @@ msgstr "名前空間"
 #~ msgstr "Namespace successfully edited."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Namespaces"
 msgstr "名前空間"
 
@@ -4225,6 +4323,10 @@ msgstr ""
 #: src/containers/collection-detail/collection-distributions.tsx
 #~ msgid "No distributions yet"
 #~ msgstr "ディストリビューションはまだありません"
+
+#: src/shell/notifications.tsx
+msgid "No finished tasks yet"
+msgstr ""
 
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
@@ -4382,6 +4484,10 @@ msgstr "絞り込みの基準と一致する結果がありません。フィル
 #~ msgid "No roles yet"
 #~ msgstr "ロールはまだありません"
 
+#: src/shell/command-palette.tsx
+msgid "No screens or repositories match"
+msgstr ""
+
 #: src/containers/signature-keys/list.tsx
 msgid "No signature keys yet"
 msgstr "署名鍵はまだありません"
@@ -4467,7 +4573,6 @@ msgstr ""
 msgid "Not enabled"
 msgstr ""
 
-#: src/components/permission-chip-selector.tsx
 #: src/components/typeahead.tsx
 msgid "Not found"
 msgstr "見つかりません"
@@ -4519,6 +4624,18 @@ msgstr ""
 
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Notifications"
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Notifications could not be loaded."
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -4573,6 +4690,14 @@ msgstr ""
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
 #~ msgstr ""
 
+#: src/shell/shell.tsx
+msgid "Open navigation"
+msgstr ""
+
+#: src/menu.tsx
+msgid "Operations"
+msgstr ""
+
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
 #~ msgstr "Ansible Lightspeed にオプトインする"
@@ -4591,6 +4716,10 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "Optimize"
+msgstr ""
+
+#: src/components/typeahead.tsx
+msgid "Options"
 msgstr ""
 
 #: src/containers/pulp-status.tsx
@@ -4685,8 +4814,11 @@ msgstr ""
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/menu.tsx
 msgid "Packages"
+msgstr ""
+
+#: src/menu.tsx
+msgid "Packages and artifacts"
 msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
@@ -5034,6 +5166,10 @@ msgstr ""
 msgid "Pull-through remote"
 msgstr ""
 
+#: src/shell/sidebar.tsx
+msgid "Pulp {version}"
+msgstr ""
+
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Ansible Version"
 #~ msgstr "Pulp Ansible バージョン"
@@ -5161,6 +5297,10 @@ msgstr "Pulp のタイプ"
 #: src/containers/login/login.tsx
 #~ msgid "Pulp UI is currently using HTTP Basic Authentication. Your credentials will be stored in your browser's sessionStorage or localStorage, in plain text."
 #~ msgstr ""
+
+#: src/shell/shell.tsx
+msgid "Pulp, {host}"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Pulpcore: Add and remove"
@@ -5454,7 +5594,6 @@ msgid "Remote name"
 msgstr "リモート名"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Remote registries"
 msgstr ""
 
@@ -5676,6 +5815,7 @@ msgstr ""
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "Repositories"
 msgstr "リポジトリー"
 
@@ -5821,7 +5961,6 @@ msgstr ""
 msgid "Reserve resources"
 msgstr "リソースの予約"
 
-#: src/components/darkmode-switcher.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Reset"
 msgstr ""
@@ -5833,6 +5972,10 @@ msgstr ""
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Resources"
 #~ msgstr "リソース"
+
+#: src/shell/command-palette.tsx
+msgid "Results"
+msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
@@ -5856,6 +5999,14 @@ msgstr ""
 
 #: src/components/list-error-state.tsx
 msgid "Retry"
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Retry loading notifications"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Retry repository search"
 msgstr ""
 
 #: src/components/render-plugin-doc.tsx
@@ -6030,8 +6181,8 @@ msgid "RPM prune packages"
 msgstr ""
 
 #: src/menu.tsx
-msgid "RPMs"
-msgstr ""
+#~ msgid "RPMs"
+#~ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
@@ -6104,9 +6255,9 @@ msgstr ""
 #~ msgid "Scroll to end"
 #~ msgstr "最後までスクロール"
 
+#: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Search"
 msgstr ""
 
@@ -6126,9 +6277,25 @@ msgstr ""
 #~ msgid "Search my namespaces"
 #~ msgstr "Search my namespaces"
 
+#: src/shell/command-palette.tsx
+msgid "Search or go to"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Search or go to..."
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Search screens and repositories"
+msgstr ""
+
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
 #~ msgstr "search text input"
+
+#: src/shell/command-palette.tsx
+msgid "Searching repositories..."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Seconds. Leave empty to use the server default."
@@ -6410,7 +6577,7 @@ msgstr ""
 #~ msgid "Sign version {version}"
 #~ msgstr "バージョン {version} に署名する"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Sign-out did not complete"
 msgstr ""
 
@@ -6419,7 +6586,6 @@ msgstr ""
 #~ msgstr "署名"
 
 #: src/containers/signature-keys/list.tsx
-#: src/menu.tsx
 msgid "Signature keys"
 msgstr "署名鍵"
 
@@ -6452,6 +6618,10 @@ msgstr "署名鍵が作成されると表示されます。"
 #~ msgid "Signed and approved"
 #~ msgstr "署名済みおよび承認済み"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr ""
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "署名済みのみ"
@@ -6468,6 +6638,10 @@ msgstr "署名鍵が作成されると表示されます。"
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signing service selector:"
 #~ msgstr "署名サービスセレクター:"
+
+#: src/menu.tsx
+msgid "Signing services"
+msgstr ""
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6511,8 +6685,16 @@ msgstr "シングルサインオン URL。"
 msgid "Skip them"
 msgstr ""
 
+#: src/shell/shell.tsx
+msgid "Skip to content"
+msgstr ""
+
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
+msgstr ""
+
+#: src/shell/command-palette.tsx
+msgid "Some repository lists could not be searched."
 msgstr ""
 
 #: src/components/sort.tsx
@@ -6520,8 +6702,8 @@ msgstr ""
 #~ msgstr "結果のソート"
 
 #: src/components/remote-form.tsx
-msgid "Source packages will be skipped"
-msgstr ""
+#~ msgid "Source packages will be skipped"
+#~ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be synchronized"
@@ -6584,7 +6766,6 @@ msgstr ""
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Status"
 msgstr "ステータス"
 
@@ -6719,12 +6900,12 @@ msgstr ""
 #~ msgstr "スーパーユーザーには、所属するグループに関係なく、すべてのシステムパーミッションが割り当てられています。"
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to dark mode"
-msgstr ""
+#~ msgid "Switch to dark mode"
+#~ msgstr ""
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to light mode"
-msgstr ""
+#~ msgid "Switch to light mode"
+#~ msgstr ""
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -6832,8 +7013,8 @@ msgid "Sync udebs"
 msgstr ""
 
 #: src/components/sync-modal.tsx
-msgid "Sync will only add missing content"
-msgstr ""
+#~ msgid "Sync will only add missing content"
+#~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Synced"
@@ -6923,7 +7104,6 @@ msgstr "タスク一覧"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Task management"
 msgstr "タスク管理"
 
@@ -6940,6 +7120,10 @@ msgstr "タスク名"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Task to change tag \"{0}\" could not be completed."
 #~ msgstr "タグ \"{0}\" を変更するタスクを完了できませんでした。"
+
+#: src/menu.tsx
+msgid "Tasks"
+msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7206,6 +7390,10 @@ msgstr "同期時に認証に使用するユーザー名。トークンを使用
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
+msgstr ""
+
+#: src/shell/theme-menu.tsx
+msgid "Theme"
 msgstr ""
 
 #: src/components/access-tab.tsx
@@ -7533,6 +7721,10 @@ msgstr ""
 msgid "Untag image"
 msgstr ""
 
+#: src/shell/command-palette.tsx
+msgid "Up and Down to move, Enter to open, Esc to close"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 msgid "Update collection remote"
 msgstr ""
@@ -7841,8 +8033,8 @@ msgstr "ユーザー <0>{username}</0> がグループ <1>{groupname}</1> から
 #~ msgstr "User <0>{username}</0> will be removed from group<1>{groupname}</1>."
 
 #: src/menu.tsx
-msgid "User access"
-msgstr ""
+#~ msgid "User access"
+#~ msgstr ""
 
 #: src/menu.tsx
 #~ msgid "User Access"
@@ -7852,9 +8044,9 @@ msgstr ""
 msgid "User details"
 msgstr "エラーの詳細"
 
-#: src/layout.tsx
-msgid "User dropdown"
-msgstr ""
+#: src/shell/shell.tsx
+#~ msgid "User dropdown"
+#~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7887,9 +8079,9 @@ msgstr "ユーザー名"
 #~ msgid "Username: {0}"
 #~ msgstr "ユーザー名: {0}"
 
-#: src/layout.tsx
-msgid "Username: {username}"
-msgstr ""
+#: src/shell/shell.tsx
+#~ msgid "Username: {username}"
+#~ msgstr ""
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"
@@ -7904,6 +8096,10 @@ msgstr ""
 #: src/menu.tsx
 msgid "Users"
 msgstr "ユーザー"
+
+#: src/menu.tsx
+msgid "Users and groups"
+msgstr ""
 
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
@@ -7975,9 +8171,9 @@ msgstr "バージョン"
 msgid "Versions kept per package"
 msgstr ""
 
-#: src/constants.tsx
-#~ msgid "View all tasks"
-#~ msgstr "View all tasks"
+#: src/shell/notifications.tsx
+msgid "View all tasks"
+msgstr "View all tasks"
 
 #: src/utilities/translate-locked-role.ts
 msgid "View and cancel any task."
@@ -8157,6 +8353,10 @@ msgstr ""
 #~ msgid "Wisdom settings"
 #~ msgstr "Wisdom settings"
 
+#: src/menu.tsx
+msgid "Workers and status"
+msgstr ""
+
 #: src/components/ratings.tsx
 #~ msgid "Works without change"
 #~ msgstr ""
@@ -8238,7 +8438,7 @@ msgstr ""
 #~ msgid "You are an SSO user. Your token will expire <0/>."
 #~ msgstr "SSO ユーザーです。トークンは <0/> に期限が切れます。"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "You are still signed in."
 msgstr ""
 
@@ -8301,6 +8501,10 @@ msgstr "ユーザーを表示するパーミッションがありません。"
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
+msgstr ""
+
+#: src/shell/notifications.tsx
+msgid "Your tasks appear here when they fail, complete or are canceled."
 msgstr ""
 
 #: src/containers/token/token-standalone.tsx

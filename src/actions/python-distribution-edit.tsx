@@ -5,8 +5,11 @@ import {
   Form,
   FormGroup,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
 } from '@patternfly/react-core';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { PythonDistributionAPI } from '../api/python-distribution';
 import { PythonRemoteAPI } from '../api/python-remote';
 import { type AlertType } from '../components/alert-list';
@@ -54,6 +57,7 @@ const EditModal = ({
 }) => {
   const { name, pulp_href } = target;
   const id = parsePulpIDFromURL(pulp_href);
+  const labelId = useId();
 
   // the distribution as the server returned it when the dialog opened
   const [loaded, setLoaded] = useState<Record<string, unknown> | null>(null);
@@ -161,7 +165,67 @@ const EditModal = ({
 
   return (
     <Modal
-      actions={[
+      aria-labelledby={labelId}
+      isOpen
+      onClose={cancelAction}
+      variant='small'
+    >
+      <ModalHeader labelId={labelId} title={t`Edit distribution`} />
+      <ModalBody>
+        <p>{name}</p>
+        {loadError ? (
+          <FormFieldHelper variant='error'>
+            {t`Failed to load the distribution: ${loadError}`}
+          </FormFieldHelper>
+        ) : !loaded ? (
+          <Spinner size='md' />
+        ) : (
+          <Form>
+            <FormGroup fieldId='remote' label={t`Pull-through remote`}>
+              <Typeahead
+                loadResults={loadRemotes}
+                onClear={() => setRemote(null)}
+                onSelect={(_event, value) => {
+                  const chosen = remotes.find((r) => r.name === value);
+                  if (chosen) {
+                    setRemote({ name: chosen.name, id: chosen.pulp_href });
+                  }
+                }}
+                placeholderText={t`Select a remote`}
+                results={remotes}
+                selections={remote ? [remote] : []}
+              />
+              <FormFieldHelper
+                variant={errors['remote'] || remotesError ? 'error' : 'default'}
+              >
+                {fieldMessage(errors, 'remote') ||
+                  (remotesError
+                    ? t`Failed to load remotes: ${remotesError}`
+                    : t`Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded.`)}
+              </FormFieldHelper>
+            </FormGroup>
+            <FormGroup fieldId='allow_uploads' label={t`Uploads`}>
+              <Checkbox
+                id='allow_uploads'
+                isChecked={allowUploads}
+                label={t`Allow uploads to this distribution`}
+                onChange={(_event, value) => setAllowUploads(value)}
+              />
+              <FormFieldHelper
+                variant={errors['allow_uploads'] ? 'error' : 'default'}
+              >
+                {fieldMessage(errors, 'allow_uploads')}
+              </FormFieldHelper>
+            </FormGroup>
+            {errors['__nofield'] ? (
+              <FormFieldHelper variant='error'>
+                {fieldMessage(errors, '__nofield')}
+              </FormFieldHelper>
+            ) : null}
+          </Form>
+        )}
+      </ModalBody>
+      <ModalFooter>
         <Button
           key='save'
           variant='primary'
@@ -170,68 +234,11 @@ const EditModal = ({
         >
           {t`Save`}
           {saving && <Spinner size='sm' />}
-        </Button>,
+        </Button>
         <Button key='cancel' variant='link' onClick={cancelAction}>
           {t`Cancel`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={cancelAction}
-      title={t`Edit distribution`}
-      variant='small'
-    >
-      <p>{name}</p>
-      {loadError ? (
-        <FormFieldHelper variant='error'>
-          {t`Failed to load the distribution: ${loadError}`}
-        </FormFieldHelper>
-      ) : !loaded ? (
-        <Spinner size='md' />
-      ) : (
-        <Form>
-          <FormGroup fieldId='remote' label={t`Pull-through remote`}>
-            <Typeahead
-              loadResults={loadRemotes}
-              onClear={() => setRemote(null)}
-              onSelect={(_event, value) => {
-                const chosen = remotes.find((r) => r.name === value);
-                if (chosen) {
-                  setRemote({ name: chosen.name, id: chosen.pulp_href });
-                }
-              }}
-              placeholderText={t`Select a remote`}
-              results={remotes}
-              selections={remote ? [remote] : []}
-            />
-            <FormFieldHelper
-              variant={errors['remote'] || remotesError ? 'error' : 'default'}
-            >
-              {fieldMessage(errors, 'remote') ||
-                (remotesError
-                  ? t`Failed to load remotes: ${remotesError}`
-                  : t`Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded.`)}
-            </FormFieldHelper>
-          </FormGroup>
-          <FormGroup fieldId='allow_uploads' label={t`Uploads`}>
-            <Checkbox
-              id='allow_uploads'
-              isChecked={allowUploads}
-              label={t`Allow uploads to this distribution`}
-              onChange={(_event, value) => setAllowUploads(value)}
-            />
-            <FormFieldHelper
-              variant={errors['allow_uploads'] ? 'error' : 'default'}
-            >
-              {fieldMessage(errors, 'allow_uploads')}
-            </FormFieldHelper>
-          </FormGroup>
-          {errors['__nofield'] ? (
-            <FormFieldHelper variant='error'>
-              {fieldMessage(errors, '__nofield')}
-            </FormFieldHelper>
-          ) : null}
-        </Form>
-      )}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Text } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 import { useState } from 'react';
 import { DeleteModal } from 'src/components';
 
@@ -35,13 +35,13 @@ export const DeleteRemoteModal = ({
       isDisabled={pending}
       title={t`Delete remote?`}
     >
-      <Text>
+      <Content component='p'>
         <Trans>
           Are you sure you want to delete the remote <b>{name}</b>?<br />
           <b>Note:</b> This will also delete all associated resources under this
           remote.
         </Trans>
-      </Text>
+      </Content>
     </DeleteModal>
   );
 };

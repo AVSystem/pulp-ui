@@ -52,7 +52,7 @@ export const DataForm = ({
         isRequired={!isReadonly && requiredFields.includes(field.id)}
         key={field.id}
         label={field.title}
-        labelIcon={!isReadonly && field.formGroupLabelIcon}
+        labelHelp={!isReadonly && field.formGroupLabelIcon}
         data-cy={`DataForm-field-${field.id}`}
       >
         {isReadonly ? (

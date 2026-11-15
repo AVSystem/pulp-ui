@@ -29,7 +29,7 @@ test('after logging out in one tab, the other tab is refused by the server and r
   await logOutThroughMenu(tabA);
 
   // Tab B is not reloaded: it moves on to another list page inside the app.
-  await tabB.locator('[data-cy="pulp-menu-item-Task management"]').click();
+  await tabB.locator('[data-cy="pulp-menu-item-tasks"]').click();
 
   await expect
     .poll(() => answers, { message: 'the server refuses tab B' })
@@ -39,7 +39,7 @@ test('after logging out in one tab, the other tab is refused by the server and r
   // the login page, both are a correct way to say the session is gone.
   await expect(tabB.getByText('The stack trace is:')).toHaveCount(0);
   await expect(
-    tabB.locator('.pf-v5-c-alert, #pf-login-username-id').first(),
+    tabB.locator('.pf-v6-c-alert, #pf-login-username-id').first(),
   ).toBeVisible();
 
   await tabB.reload();

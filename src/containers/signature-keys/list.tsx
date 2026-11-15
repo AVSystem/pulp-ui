@@ -1,12 +1,12 @@
 import { t } from '@lingui/core/macro';
 import {
+  DropdownItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { SigningServiceAPI, type SigningServiceType } from 'src/api';
 import {
@@ -24,6 +24,7 @@ import {
   Main,
   PulpPagination,
   SortTable,
+  Table,
   closeAlert,
 } from 'src/components';
 import {

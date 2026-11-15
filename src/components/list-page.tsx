@@ -5,7 +5,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody } from '@patternfly/react-table';
+import { Tbody } from '@patternfly/react-table';
 import { Component, type ReactNode } from 'react';
 import { AppContext, type IAppContextType } from 'src/app-context';
 import {
@@ -22,6 +22,7 @@ import {
   Main,
   PulpPagination,
   SortTable,
+  Table,
   closeAlert,
 } from 'src/components';
 import { type ActionType } from '../actions/action';

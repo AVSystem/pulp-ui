@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -206,9 +206,7 @@ describe('the delete repository dialog', () => {
     await user.click(deleteButton());
 
     await waitFor(() => expect(deleteButton()).toBeDisabled());
-    expect(
-      deleteButton().querySelector('.pf-v5-c-spinner'),
-    ).toBeInTheDocument();
+    expect(within(deleteButton()).getByRole('progressbar')).toBeInTheDocument();
 
     finish(kept({ repositoryDeleted: true }));
   });

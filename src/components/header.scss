@@ -1,7 +1,28 @@
 $breakpoint-md: 1000px;
 
+// The header block of a screen: title, status, actions and tabs. The trail is
+// shown in the top bar, so the block starts with its own spacing.
+.pulp-header {
+  padding: 24px 24px 0;
+  background-color: var(--pulp-surface);
+}
+
+.pulp-header__row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pulp-header__title-box {
+  display: flex;
+  align-items: center;
+}
+
+.pulp-header__end {
+  height: 24px;
+}
+
 .pulp-header-bordered {
-  border-bottom: 1px solid #d8d8d8;
+  border-bottom: 1px solid var(--pulp-line);
 }
 
 .pulp-header-image {
@@ -22,11 +43,6 @@ $breakpoint-md: 1000px;
 
   .tabs {
     flex-grow: 0;
-  }
-
-  // Tabs isDisabled
-  .pf-v5-c-tabs__item.disabled .pf-v5-c-tabs__link {
-    cursor: not-allowed;
   }
 
   .links {

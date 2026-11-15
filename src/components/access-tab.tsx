@@ -2,12 +2,13 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Button,
+  DropdownItem,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { sortBy } from 'lodash';
 import { Component } from 'react';
 import { Link } from 'react-router';
@@ -26,6 +27,7 @@ import {
   SelectUser,
   SortTable,
   Spinner,
+  Table,
   WizardModal,
 } from 'src/components';
 import { type RoleType } from '../api/response-types/role';
@@ -72,12 +74,13 @@ interface IProps {
 }
 
 const SectionTitle = ({ title }: { title: string }) => (
-  <h2 className='pf-v5-c-title'>{title}</h2>
+  <Title headingLevel='h2'>{title}</Title>
 );
 const SectionSeparator = () => (
   <div
     style={{
-      backgroundColor: 'var(--pf-v5-global--BackgroundColor--light-300)',
+      backgroundColor:
+        'var(--pf-t--global--background--color--secondary--default)',
       height: '16px',
       margin: '16px -16px',
     }}
@@ -384,10 +387,10 @@ export class AccessTab extends Component<IProps> {
         {showRoleRemoveModal ? this.renderRoleRemoveModal() : null}
         {showRoleSelectWizard ? this.renderRoleSelectWizard() : null}
 
-        <h3 className='pf-v5-c-title'>
+        <Title headingLevel='h3'>
           {user ? t`User ${user.username}` : null}
           {group ? t`Group ${group.name}` : null}
-        </h3>
+        </Title>
 
         {canEditOwners && (
           <div>

@@ -1,4 +1,6 @@
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
+import menuStyles from '@patternfly/react-styles/css/components/Menu/menu.mjs';
+import navStyles from '@patternfly/react-styles/css/components/Nav/nav.mjs';
 import { type ReactNode } from 'react';
 
 interface IProps {
@@ -29,8 +31,8 @@ export const ExternalLink = ({
     download: { display: 'none' },
   }[variant];
   const className = {
-    nav: 'pf-v5-c-nav__link',
-    menu: 'pf-v5-c-dropdown__menu-item',
+    nav: navStyles.navLink,
+    menu: menuStyles.menuItem,
   }[variant];
 
   return (

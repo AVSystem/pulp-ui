@@ -6,7 +6,6 @@ export { type BreadcrumbType, Breadcrumbs } from './breadcrumbs';
 export { CompoundFilter, type FilterOption } from './compound-filter';
 export { ConfirmModal } from './confirm-modal';
 export { CopyURL } from './copy-url';
-export { DarkmodeSwitcher } from './darkmode-switcher';
 export { DataForm } from './data-form';
 export { DateComponent } from './date-component';
 export { DeleteGroupModal } from './delete-group-modal';
@@ -50,8 +49,6 @@ export { PageWithTabs } from './page-with-tabs';
 export {
   Alert,
   Breadcrumb,
-  Chip,
-  ChipGroup,
   ClipboardCopy,
   ClipboardCopyButton,
   FileUpload,
@@ -95,6 +92,7 @@ export { SortTable } from './sort-table';
 export { StatefulDropdown } from './stateful-dropdown';
 export { StatusIndicator } from './status-indicator';
 export { SyncModal } from './sync-modal';
+export { Table } from './table';
 export { Typeahead } from './typeahead';
 export { UIVersion } from './ui-version';
 export { UserForm } from './user-form';

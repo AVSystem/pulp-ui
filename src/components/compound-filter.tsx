@@ -1,18 +1,19 @@
 import { t } from '@lingui/core/macro';
 import {
+  Badge,
   Button,
   ButtonVariant,
+  DropdownItem,
   InputGroup,
   InputGroupItem,
-  TextInput,
-} from '@patternfly/react-core';
-import {
-  DropdownItem,
+  MenuToggle,
+  type MenuToggleElement,
   Select,
   SelectGroup,
+  SelectList,
   SelectOption,
-  SelectVariant,
-} from '@patternfly/react-core/deprecated';
+  TextInput,
+} from '@patternfly/react-core';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { useState } from 'react';
@@ -52,7 +53,9 @@ export const CompoundFilter = ({
     return null;
   }
 
-  const filterOptions = filterConfig.map((v) => (
+  const visibleFilters = filterConfig.filter(({ hidden }) => !hidden);
+
+  const filterOptions = visibleFilters.map((v) => (
     <DropdownItem
       onClick={() => {
         onChange('');
@@ -69,91 +72,123 @@ export const CompoundFilter = ({
 
   return (
     <InputGroup data-cy='compound_filter'>
-      {filterConfig.length !== 1 && (
-        <StatefulDropdown
-          toggleType='dropdown'
-          defaultText={
-            <span>
-              <FilterIcon />
-              {'   '}
-              {selectedFilter.title}
-            </span>
-          }
-          position='left'
-          isPlain={false}
-          items={filterOptions}
-        />
+      {visibleFilters.length !== 1 && (
+        <InputGroupItem>
+          <StatefulDropdown
+            toggleType='dropdown'
+            defaultText={
+              <span>
+                <FilterIcon />
+                {'   '}
+                {selectedFilter.title}
+              </span>
+            }
+            position='left'
+            isPlain={false}
+            items={filterOptions}
+          />
+        </InputGroupItem>
       )}
-      {renderInput()}
+      <InputGroupItem isFill>{renderInput()}</InputGroupItem>
       <InputGroupItem>
         <Button
+          aria-label={t`Search`}
+          icon={<SearchIcon />}
           onClick={() => submitFilter()}
           variant={ButtonVariant.control}
           isDisabled={!inputText.trim().length}
-        >
-          <SearchIcon />
-        </Button>
+        ></Button>
       </InputGroupItem>
     </InputGroup>
   );
 
   function renderInput() {
     switch (selectedFilter.inputType) {
-      case 'multiple':
+      case 'multiple': {
+        const selected = selectedValues();
+
         return (
           <Select
-            variant={SelectVariant.checkbox}
-            onToggle={(_e) => setIsOpen(!isOpen)}
-            onSelect={onSelectMultiple}
+            role='menu'
             isOpen={isOpen}
-            placeholderText={t`Filter by ${selectedFilter.id.toLowerCase()}`}
-            selections={params[selectedFilter.id]}
-            isGrouped
-          >
-            {[
-              <SelectGroup
-                label={t`Filter by ${selectedFilter.id}`}
-                key={selectedFilter.id}
+            selected={selected}
+            onSelect={(_event, value) => onSelectMultiple(String(value))}
+            onOpenChange={setIsOpen}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={() => setIsOpen(!isOpen)}
+                isExpanded={isOpen}
+                isFullWidth
+                badge={
+                  selected.length ? (
+                    <Badge isRead>{selected.length}</Badge>
+                  ) : undefined
+                }
               >
+                {t`Filter by ${selectedFilter.id.toLowerCase()}`}
+              </MenuToggle>
+            )}
+          >
+            <SelectGroup
+              label={t`Filter by ${selectedFilter.id}`}
+              key={selectedFilter.id}
+            >
+              <SelectList>
                 {selectedFilter.options.map((option) => (
-                  // patternfly does not allow for us to set a display name aside from the ID
-                  // which unfortunately means that multiple select will ignore the human readable
-                  // option.title
-                  // FIXME: pf5?
-                  <SelectOption key={option.id} value={option.id} />
+                  <SelectOption
+                    key={option.id}
+                    value={option.id}
+                    hasCheckbox
+                    isSelected={selected.includes(option.id)}
+                  >
+                    {option.title}
+                  </SelectOption>
                 ))}
-              </SelectGroup>,
-            ]}
+              </SelectList>
+            </SelectGroup>
           </Select>
         );
+      }
       case 'select':
         return (
-          <StatefulDropdown
-            toggleType='dropdown'
-            defaultText={
-              selectTitleById(inputText, selectedFilter) ||
-              selectedFilter.placeholder ||
-              selectedFilter.title
-            }
-            isPlain={false}
-            position='left'
-            items={selectedFilter.options.map((v) => (
-              <DropdownItem
-                onClick={() => {
-                  onChange(v.id);
-                  submitFilter(v.id);
-                }}
-                key={v.id}
+          <Select
+            isOpen={isOpen}
+            selected={inputText}
+            onSelect={(_event, value) => {
+              setIsOpen(false);
+              onChange(String(value));
+              submitFilter(String(value));
+            }}
+            onOpenChange={setIsOpen}
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={() => setIsOpen(!isOpen)}
+                isExpanded={isOpen}
+                isFullWidth
               >
-                {v.title}
-              </DropdownItem>
-            ))}
-          />
+                {selectTitleById(inputText, selectedFilter) ||
+                  selectedFilter.placeholder ||
+                  selectedFilter.title}
+              </MenuToggle>
+            )}
+          >
+            <SelectList>
+              {selectedFilter.options.map((v) => (
+                <SelectOption key={v.id} value={v.id}>
+                  {v.title}
+                </SelectOption>
+              ))}
+            </SelectList>
+          </Select>
         );
       case 'typeahead': {
+        const needle = inputText.trim().toLowerCase();
         const typeaheadResults = filterConfig
           .find(({ id }) => id === selectedFilter.id)
-          .options.map(({ id, title }) => ({ id, name: title }));
+          .options.map(({ id, title }) => ({ id, name: title }))
+          .filter(({ name }) => name.toLowerCase().includes(needle));
 
         return (
           <Typeahead
@@ -164,7 +199,9 @@ export const CompoundFilter = ({
               onChange('');
             }}
             onSelect={(event, value) => {
-              const item = typeaheadResults.find(({ name }) => name === value);
+              const item = selectedFilter.options.find(
+                ({ title }) => title === value,
+              );
               submitFilter(item?.id || value);
             }}
             placeholderText={
@@ -185,7 +222,7 @@ export const CompoundFilter = ({
             }
             value={inputText}
             onChange={(_event, k) => onChange(k)}
-            onKeyPress={(e) => handleEnter(e)}
+            onKeyDown={(e) => handleEnter(e)}
           />
         );
     }
@@ -212,32 +249,27 @@ export const CompoundFilter = ({
     });
   }
 
-  function onSelectMultiple(event) {
-    let newParams = params[selectedFilter.id];
+  // no tags => falsy
+  // 1 tag => "foo"
+  // 2+ tags => ["foo", "bar"]
+  // normalised to an array
+  function selectedValues(): string[] {
+    const current = params[selectedFilter.id];
 
-    // no tags => falsy
-    // 1 tag => "foo"
-    // 2+ tags => ["foo", "bar"]
-    // convert all to an array
-    if (!newParams) {
-      newParams = [];
+    if (!current) {
+      return [];
     }
-    if (!Array.isArray(newParams)) {
-      newParams = [newParams];
-    }
+    return Array.isArray(current) ? current : [current];
+  }
 
-    // FIXME: TODO: Remove after patternfly fixes the pf-random-id issue
-    const selectedID = event.currentTarget.id.replace(/pf-random-id-\d+-/, '');
-    if (newParams.includes(selectedID)) {
-      const index = newParams.indexOf(selectedID);
-      if (index > -1) {
-        newParams.splice(index, 1);
-      }
-    } else {
-      newParams.push(selectedID);
-    }
+  function onSelectMultiple(id: string) {
+    const current = selectedValues();
 
-    submitMultiple(newParams);
+    submitMultiple(
+      current.includes(id)
+        ? current.filter((value) => value !== id)
+        : [...current, id],
+    );
   }
 
   function selectTitleById(inputText: string, selectedFilter: FilterOption) {
@@ -245,6 +277,6 @@ export const CompoundFilter = ({
       return inputText;
     }
 
-    return selectedFilter.options.find((opt) => opt.id === inputText).title;
+    return selectedFilter.options.find((opt) => opt.id === inputText)?.title;
   }
 };

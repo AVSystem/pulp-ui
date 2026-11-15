@@ -49,6 +49,9 @@ export default defineConfig({
           setupFiles: ['./vitest.setup.ts'],
           include: ['src/**/*.test.{ts,tsx}'],
           exclude,
+          // The class maps of PatternFly components import their stylesheet;
+          // Node cannot load it, the test transform turns it into an empty module.
+          server: { deps: { inline: [/@patternfly\/react-styles/] } },
         },
       },
       {

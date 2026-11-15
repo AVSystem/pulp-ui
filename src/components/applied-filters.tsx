@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
-import { Button } from '@patternfly/react-core';
+import { Button, Label } from '@patternfly/react-core';
 import { type CSSProperties } from 'react';
-import { Chip, ChipGroup } from 'src/components';
+import { LabelGroup } from 'src/components';
 import { ParamHelper, type ParamType } from 'src/utilities';
 
 interface IProps {
@@ -51,13 +51,18 @@ export const AppliedFilters = ({
 
     return (
       <div style={{ display: 'inline', marginRight: '8px' }} key={key}>
-        <ChipGroup categoryName={niceNames[key] || key}>
+        <LabelGroup categoryName={niceNames[key] || key}>
           {chips.map((v, i) => (
-            <Chip key={i} onClick={() => unsetFilter(v)}>
+            <Label
+              key={i}
+              variant='outline'
+              closeBtnAriaLabel={t`close`}
+              onClose={() => unsetFilter(v)}
+            >
               {niceValues?.[key]?.[v] || v}
-            </Chip>
+            </Label>
           ))}
-        </ChipGroup>
+        </LabelGroup>
       </div>
     );
   };

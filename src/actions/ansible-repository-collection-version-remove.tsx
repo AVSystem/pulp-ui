@@ -1,6 +1,6 @@
 import { msg, t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Text } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 import { useState } from 'react';
 import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import { DeleteModal } from '../components/delete-modal';
@@ -91,7 +91,7 @@ const RemoveCollectionVersionModal = ({
       isRemove
       title={t`Remove collection version?`}
     >
-      <Text>
+      <Content component='p'>
         <Trans>
           Are you sure you want to remove the collection version{' '}
           <b>
@@ -99,7 +99,7 @@ const RemoveCollectionVersionModal = ({
           </b>{' '}
           from the <b>{repositoryName}</b> repository?
         </Trans>
-      </Text>
+      </Content>
     </DeleteModal>
   );
 };

@@ -1,12 +1,9 @@
-$blue: #00659c; /* logo blue */
-$grey: #9c9c9c;
-
 .pulp-SortTable-headers {
   .active {
-    color: $blue;
+    color: var(--pulp-primary);
   }
 
   .inactive {
-    color: $grey;
+    color: var(--pulp-text-3);
   }
 }

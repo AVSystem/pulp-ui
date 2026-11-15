@@ -1,0 +1,811 @@
+// PatternFly component variables that have no semantic token, set from the
+// Pulp tokens. PatternFly declares each of them on its component class, so
+// they are set on the same class behind a :root prefix: the extra specificity
+// holds whichever order the stylesheets load in. No literal color lives here.
+
+// Frame geometry. The page is a grid of a 264px sidebar column and the main
+// container below a full-width top bar; the main container sits flat on the
+// page ground instead of floating as a rounded card.
+:root .pf-v6-c-page {
+  --pf-v6-c-page__sidebar--Width--base: 16.5rem;
+  --pf-v6-c-page__sidebar--MarginInlineEnd: 0;
+  --pf-v6-c-page__sidebar--PaddingBlockEnd: 0;
+  --pf-v6-c-page__sidebar-body--PaddingInlineStart: 0.5rem;
+  --pf-v6-c-page__sidebar-body--PaddingInlineEnd: 0.5rem;
+  --pf-v6-c-page__sidebar--BorderInlineEndWidth: 1px;
+  --pf-v6-c-page__sidebar--BorderInlineEndColor: var(--pulp-line);
+  --pf-v6-c-page__sidebar--BackgroundColor: var(--pulp-nav);
+  --pf-v6-c-page__sidebar--xl--BackgroundColor: var(--pulp-nav);
+  --pf-v6-c-page__main-container--BackgroundColor: var(--pulp-bg);
+  --pf-v6-c-page__main-container--BackdropFilter: none;
+  --pf-v6-c-page__main-container--AlignSelf: stretch;
+  --pf-v6-c-page__main-container--MaxHeight: 100%;
+  --pf-v6-c-page__main-container--MarginInlineStart: 0;
+  --pf-v6-c-page__main-container--MarginInlineEnd: 0;
+  --pf-v6-c-page__main-container--BorderRadius: 0;
+  --pf-v6-c-page__main-container--BorderBlockStartWidth: 0;
+  --pf-v6-c-page__main-container--BorderBlockEndWidth: 0;
+  --pf-v6-c-page__main-container--BorderInlineStartWidth: 0;
+  --pf-v6-c-page__main-container--BorderInlineEndWidth: 0;
+}
+
+// A collapsed sidebar leaves no line behind and nothing in it can take focus:
+// the page hides it from assistive technology, so its links and buttons must
+// not stay reachable by keyboard while it is off screen.
+:root .pf-v6-c-page__sidebar.pf-m-collapsed {
+  border-inline-end-width: 0;
+  visibility: hidden;
+}
+
+// The sidebar body is the part that scrolls; a footer below it stays put.
+:root .pf-v6-c-page__sidebar-main {
+  min-height: 0;
+}
+
+// top bar: 64px high with a line under it
+:root .pf-v6-c-masthead {
+  --pf-v6-c-masthead--BackgroundColor: var(--pulp-bg);
+  --pf-v6-c-masthead--BorderColor: var(--pulp-line);
+}
+
+:root .pf-v6-c-masthead.pulp-masthead {
+  --pf-v6-c-masthead--PaddingBlock: 0;
+  --pf-v6-c-masthead--PaddingInline: 1.5rem;
+  --pf-v6-c-masthead__logo--Width: auto;
+  --pf-v6-c-masthead__logo--MaxHeight: none;
+  --pf-v6-c-masthead__main--MarginInlineEnd: var(--pf-t--global--spacer--md);
+  box-sizing: border-box;
+  block-size: 4rem;
+  align-items: center;
+  border-block-end: 1px solid var(--pulp-line);
+
+  .pf-v6-c-masthead__main {
+    min-width: 0;
+  }
+
+  .pf-v6-c-masthead__brand {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .pf-v6-c-masthead__content {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+}
+
+// Help, theme, language and account, 8px apart.
+.pulp-topbar__actions {
+  display: flex;
+  flex: none;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+// The icon buttons of the top bar: 36px squares with a soft hover.
+:root .pulp-topbar__button {
+  --pf-v6-c-menu-toggle--Width: 2.25rem;
+  --pf-v6-c-menu-toggle--Height: 2.25rem;
+  --pf-v6-c-menu-toggle--PaddingBlockStart: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: 0;
+  --pf-v6-c-menu-toggle--BorderRadius: 8px;
+  --pf-v6-c-menu-toggle--Color: var(--pulp-text-2);
+  --pf-v6-c-menu-toggle--hover--Color: var(--pulp-text-2);
+  --pf-v6-c-menu-toggle--expanded--Color: var(--pulp-text-2);
+  --pf-v6-c-menu-toggle--BackgroundColor: transparent;
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-menu-toggle--expanded--BackgroundColor: var(--pulp-sunken);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  min-width: 2.25rem;
+  color: var(--pulp-text-2);
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+
+  .pf-v6-c-menu-toggle__icon,
+  .pf-v6-c-menu-toggle__text {
+    color: var(--pulp-text-2);
+  }
+}
+
+// The account toggle: a 36px pill holding a round avatar and the username.
+:root .pulp-account {
+  --pf-v6-c-menu-toggle--BackgroundColor: var(--pulp-surface);
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-menu-toggle--expanded--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-menu-toggle--Color: var(--pulp-text);
+  --pf-v6-c-menu-toggle--hover--Color: var(--pulp-text);
+  --pf-v6-c-menu-toggle--expanded--Color: var(--pulp-text);
+  --pf-v6-c-menu-toggle--BorderRadius: 999px;
+  --pf-v6-c-menu-toggle--PaddingBlockStart: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: 0.25rem;
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: 0.625rem;
+  --pf-v6-c-menu-toggle--FontSize: 14px;
+  box-sizing: border-box;
+  block-size: 2.25rem;
+  min-width: 2.25rem;
+  max-width: 14rem;
+  border: 1px solid var(--pulp-line);
+  border-radius: 999px;
+  background-color: var(--pulp-surface);
+  color: var(--pulp-text);
+
+  &::before {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+
+  .pf-v6-c-menu-toggle__button {
+    column-gap: 0.5rem;
+  }
+
+  // the pill has no arrow: the menu is announced by the button itself
+  .pf-v6-c-menu-toggle__controls {
+    display: none;
+  }
+
+  .pf-v6-c-menu-toggle__text {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    min-width: 0;
+  }
+}
+
+.pulp-account__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  background-color: var(--pulp-primary-soft);
+  color: var(--pulp-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pulp-account__name {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--pulp-text);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The trail takes the room the action group leaves.
+.pulp-topbar__crumbs {
+  flex: 1 1 0;
+  min-width: 200px;
+}
+
+:root .pulp-crumbs {
+  --pf-v6-c-breadcrumb--FontSize: 14px;
+  --pf-v6-c-breadcrumb__link--Color: var(--pulp-text-2);
+  --pf-v6-c-breadcrumb__link--hover--Color: var(--pulp-text);
+  --pf-v6-c-breadcrumb__item--m-current--Color: var(--pulp-text);
+  --pf-v6-c-breadcrumb__item-divider--Color: var(--pulp-text-3);
+  flex-wrap: nowrap;
+  min-width: 0;
+  // an inline flex box is as wide as its content unless it is capped: without
+  // the cap a long last crumb pushes the top bar past the screen instead of
+  // being cut with an ellipsis
+  max-inline-size: 100%;
+
+  .pf-v6-c-breadcrumb__list {
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .pf-v6-c-breadcrumb__item {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  // the earlier crumbs give way first; the current one keeps its room
+  .pf-v6-c-breadcrumb__item:not(:last-child) {
+    flex-shrink: 2;
+  }
+
+  .pf-v6-c-breadcrumb__item:last-child {
+    font-weight: 600;
+  }
+
+  .pf-v6-c-breadcrumb__link,
+  .pulp-crumb__text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// The left cell of the top bar. With the sidebar open on a wide screen it is
+// exactly as wide as the sidebar and continues its background, so the two read
+// as one column.
+@media (min-width: 75rem) {
+  :root .pf-v6-c-masthead.pulp-masthead.pulp-framed {
+    --pf-v6-c-masthead--PaddingInlineStart: 0;
+
+    .pf-v6-c-masthead__main {
+      box-sizing: border-box;
+      align-self: stretch;
+      padding-inline: 1rem;
+      margin-inline-end: 0;
+      overflow: hidden;
+      background-color: var(--pulp-nav);
+      border-inline-end: 1px solid var(--pulp-line);
+    }
+
+    .pf-v6-c-masthead__content {
+      padding-inline-start: 1.5rem;
+    }
+  }
+}
+
+// logo, wordmark and host as one link
+:root .pulp-brand {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  min-width: 0;
+  color: var(--pulp-text);
+  text-decoration: none;
+}
+
+.pulp-brand__logo {
+  flex: none;
+  inline-size: 30px;
+  block-size: 25px;
+  object-fit: contain;
+}
+
+.pulp-brand__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pulp-brand__name {
+  font-family: var(--pf-t--global--font--family--heading);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--pulp-text);
+}
+
+.pulp-brand__host {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--pulp-text-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// the host moves to the sidebar footer below the width of the persistent sidebar
+@media (max-width: calc(75rem - 1px)) {
+  .pulp-brand__host {
+    display: none;
+  }
+}
+
+// Navigation: 36px rows with 8px padding and radius, hover is a sunken tint and
+// the current entry a blue tint with a heavier label. Group labels are small
+// and quiet.
+:root .pf-v6-c-nav {
+  --pf-v6-c-nav--PaddingBlockStart: 0;
+  --pf-v6-c-nav--PaddingBlockEnd: 0.5rem;
+  --pf-v6-c-nav--RowGap: 0;
+  --pf-v6-c-nav__list--RowGap: 2px;
+  --pf-v6-c-nav__link--PaddingBlockStart: 0;
+  --pf-v6-c-nav__link--PaddingBlockEnd: 0;
+  --pf-v6-c-nav__link--PaddingInlineStart: 0.5rem;
+  --pf-v6-c-nav__link--PaddingInlineEnd: 0.5rem;
+  --pf-v6-c-nav__link--ColumnGap: 0.5rem;
+  --pf-v6-c-nav__link--AlignItems: center;
+  --pf-v6-c-nav__link--BorderRadius: var(--pf-t--global--border--radius--small);
+  --pf-v6-c-nav__link--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link--hover--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link--m-current--Color: var(--pulp-text);
+  --pf-v6-c-nav__link--hover--BackgroundColor: var(--pulp-sunken);
+  --pf-v6-c-nav__link--m-current--BackgroundColor: var(--pulp-nav-active);
+  --pf-v6-c-nav__link-icon--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link-icon--hover--Color: var(--pulp-text-2);
+  --pf-v6-c-nav__link--m-current__link-icon--Color: var(--pulp-text);
+  --pf-v6-c-nav__section-title--Color: var(--pulp-text-3);
+  --pf-v6-c-nav__section-title--FontSize: 12px;
+  --pf-v6-c-nav__section-title--FontWeight: 600;
+  --pf-v6-c-nav__section-title--PaddingBlockStart: 1rem;
+  --pf-v6-c-nav__section-title--PaddingBlockEnd: 0.25rem;
+  --pf-v6-c-nav__section-title--PaddingInlineStart: 0.5rem;
+  --pf-v6-c-nav__section-title--PaddingInlineEnd: 0.5rem;
+  // the current entry is marked by its tint, not by an accent bar
+  --pf-v6-c-nav__item--current--accent--ScaleY: 0;
+  --pf-v6-c-nav__subnav--PaddingInlineStart: 1.5rem;
+
+  .pf-v6-c-nav__link {
+    min-height: 2.25rem;
+    font-size: 14px;
+    font-weight: 400;
+
+    &:focus-visible {
+      outline: 2px solid var(--pulp-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  // the section holding the current screen reads heavier without a tint of
+  // its own: the screen inside it carries the highlight
+  .pf-v6-c-nav__item.pf-m-current > .pf-v6-c-nav__link,
+  .pf-v6-c-nav__link.pf-m-current {
+    font-weight: 600;
+  }
+
+  .pf-v6-c-nav__link-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    font-size: 16px;
+  }
+
+  // a long label truncates before it runs under the count pills
+  .pf-v6-c-nav__link-text {
+    overflow: hidden;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // the expand arrow centers on its row
+  .pf-v6-c-nav__toggle {
+    align-self: center;
+    transform: none;
+  }
+}
+
+// the plugin list could not be read: the error state sits in the menu
+:root .pulp-menu__error {
+  list-style: none;
+}
+
+// Sidebar: the menu scrolls inside the sidebar, the footer stays below it.
+.pulp-sidebar__menu {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.pulp-sidebar__footer {
+  display: flex;
+  flex: none;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-block-start: 1px solid var(--pulp-line);
+}
+
+.pulp-sidebar__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--pulp-text-3);
+}
+
+.pulp-sidebar__host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root .pulp-sidebar__collapse {
+  --pf-v6-c-button--PaddingBlockStart: 0;
+  --pf-v6-c-button--PaddingBlockEnd: 0;
+  --pf-v6-c-button--PaddingInlineStart: 0;
+  --pf-v6-c-button--PaddingInlineEnd: 0;
+  flex: none;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  color: var(--pulp-text-2);
+
+  &:hover {
+    background-color: var(--pulp-sunken);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+}
+
+// Status labels are soft chips: a tinted fill with the status color as text.
+// Only the status variants are set; PatternFly's own color variants read their
+// values from other variables and are left alone.
+:root .pf-v6-c-label {
+  --pf-v6-c-label--m-success--BackgroundColor: var(--pulp-ok-soft);
+  --pf-v6-c-label--m-success--Color: var(--pulp-ok);
+  --pf-v6-c-label--m-success__icon--Color: var(--pulp-ok);
+  --pf-v6-c-label--m-success--m-clickable--hover--BackgroundColor: var(
+    --pulp-ok-soft
+  );
+  --pf-v6-c-label--m-success--m-clickable--hover--Color: var(--pulp-ok);
+  --pf-v6-c-label--m-success--m-clickable--hover__icon--Color: var(--pulp-ok);
+
+  --pf-v6-c-label--m-danger--BackgroundColor: var(--pulp-bad-soft);
+  --pf-v6-c-label--m-danger--Color: var(--pulp-bad);
+  --pf-v6-c-label--m-danger__icon--Color: var(--pulp-bad);
+  --pf-v6-c-label--m-danger--m-clickable--hover--BackgroundColor: var(
+    --pulp-bad-soft
+  );
+  --pf-v6-c-label--m-danger--m-clickable--hover--Color: var(--pulp-bad);
+  --pf-v6-c-label--m-danger--m-clickable--hover__icon--Color: var(--pulp-bad);
+
+  --pf-v6-c-label--m-warning--BackgroundColor: var(--pulp-signal-soft);
+  --pf-v6-c-label--m-warning--Color: var(--pulp-signal-text);
+  --pf-v6-c-label--m-warning__icon--Color: var(--pulp-signal-text);
+  --pf-v6-c-label--m-warning--m-clickable--hover--BackgroundColor: var(
+    --pulp-signal-soft
+  );
+  --pf-v6-c-label--m-warning--m-clickable--hover--Color: var(
+    --pulp-signal-text
+  );
+  --pf-v6-c-label--m-warning--m-clickable--hover__icon--Color: var(
+    --pulp-signal-text
+  );
+
+  --pf-v6-c-label--m-info--BackgroundColor: var(--pulp-primary-soft);
+  --pf-v6-c-label--m-info--Color: var(--pulp-primary);
+  --pf-v6-c-label--m-info__icon--Color: var(--pulp-primary);
+  --pf-v6-c-label--m-info--m-clickable--hover--BackgroundColor: var(
+    --pulp-primary-soft
+  );
+  --pf-v6-c-label--m-info--m-clickable--hover--Color: var(--pulp-primary);
+  --pf-v6-c-label--m-info--m-clickable--hover__icon--Color: var(--pulp-primary);
+}
+
+// code surfaces
+:root .pf-v6-c-code-block {
+  --pf-v6-c-code-block--BackgroundColor: var(--pulp-code);
+  color: var(--pulp-code-text);
+}
+
+// The pills of the Tasks entry: running first, 4px apart, at the end of the
+// row. They never shrink, so the label gives way.
+.pulp-nav-counts {
+  display: inline-flex;
+  flex: none;
+  gap: 0.25rem;
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+.pulp-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  block-size: 20px;
+  min-width: 20px;
+  padding-inline: 0.375rem;
+  border-radius: 999px;
+  font-family: var(--pf-t--global--font--family--body);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.pulp-count--running {
+  background-color: var(--pulp-primary-soft);
+  color: var(--pulp-primary);
+}
+
+.pulp-count--failed {
+  background-color: var(--pulp-signal);
+  color: var(--pulp-on-signal);
+}
+
+// The bell: the same 36px footprint as the other icon buttons, wider when it
+// shows a number.
+.pulp-topbar__bell {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+}
+
+// The panel: a link to the whole list under the title, the list scrolling
+// inside the panel.
+.pulp-notifications__all {
+  padding: 0 1.5rem 0.5rem;
+  font-size: 14px;
+}
+
+// Search trigger: the first thing in the sidebar, styled as a field that opens
+// the palette. It is a button, not an input.
+.pulp-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  inline-size: 100%;
+  block-size: 2.25rem;
+  margin-block-end: 1rem;
+  padding: 0 0.5rem;
+  font: inherit;
+  font-size: 14px;
+  color: var(--pulp-text-3);
+  text-align: start;
+  cursor: pointer;
+  background-color: var(--pulp-surface);
+  border: 1px solid var(--pulp-line-strong);
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--pulp-sunken);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pulp-primary);
+    outline-offset: 2px;
+  }
+}
+
+.pulp-search__icon {
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.pulp-search__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulp-search__hint {
+  flex: none;
+  padding: 0 0.375rem;
+  font-family: var(--pf-t--global--font--family--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pulp-text-3);
+  border: 1px solid var(--pulp-line);
+  border-radius: 4px;
+}
+
+// Palette: a small dialog near the top of the page. The result list scrolls
+// inside the dialog; the page behind it does not.
+:root .pulp-palette {
+  --pf-v6-c-modal-box--BackgroundColor: var(--pulp-raised);
+  --pf-v6-c-modal-box--BorderRadius: 12px;
+  --pf-v6-c-modal-box--BoxShadow: var(--pulp-shadow);
+  overflow: hidden;
+}
+
+:root .pulp-palette__body {
+  --pf-v6-c-modal-box__body--PaddingInlineStart: 0;
+  --pf-v6-c-modal-box__body--PaddingInlineEnd: 0;
+  --pf-v6-c-modal-box__body--PaddingBlockStart: 0;
+  --pf-v6-c-modal-box__body--PaddingBlockEnd: 0;
+  --pf-v6-c-modal-box__body--last-child--PaddingBlockEnd: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:root .pulp-palette__field {
+  flex: none;
+  inline-size: auto;
+  margin: 0.75rem 1rem;
+}
+
+.pulp-palette__menu {
+  --pf-v6-c-menu--BoxShadow: none;
+  --pf-v6-c-menu--BackgroundColor: transparent;
+  --pf-v6-c-menu__content--MaxHeight: 22rem;
+  overflow-y: auto;
+  border-block-start: 1px solid var(--pulp-line);
+
+  // The highlighted row: a soft fill and a 2px bar at its start.
+  .pf-v6-c-menu__list-item.pf-m-focus > .pf-v6-c-menu__item {
+    background-color: var(--pulp-nav-active);
+    box-shadow: inset 2px 0 0 var(--pulp-primary);
+  }
+
+  .pf-v6-c-menu__item-select-icon {
+    display: none;
+  }
+}
+
+.pulp-palette__row {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  inline-size: 100%;
+  min-width: 0;
+}
+
+.pulp-palette__plugin {
+  flex: none;
+  font-size: 12px;
+  color: var(--pulp-text-3);
+}
+
+.pulp-palette__status {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  color: var(--pulp-text-3);
+}
+
+.pulp-palette__empty {
+  padding: 2rem 1rem;
+  text-align: center;
+
+  p {
+    margin: 0.5rem 0 0;
+    color: var(--pulp-text-2);
+  }
+}
+
+.pulp-palette__name {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--pf-t--global--font--family--body);
+  font-size: 14px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulp-palette__hint {
+  flex: none;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 12px;
+  color: var(--pulp-text-3);
+  border-block-start: 1px solid var(--pulp-line);
+
+  @media (width < 768px) {
+    display: none;
+  }
+}
+
+// Tables keep their rows at every width. A table wider than its container
+// scrolls inside this box, so the page itself never scrolls sideways.
+.pulp-table-scroll {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+// The sidebar as a drawer (below 1200px): a dim layer over the page, under the
+// top bar and the drawer, so a press outside the drawer is visibly a press
+// outside. The layer is only drawn while the drawer is open.
+.pulp-drawer-backdrop {
+  position: fixed;
+  inset-block: 4rem 0;
+  inset-inline: 0;
+  z-index: var(--pf-t--global--z-index--sm);
+  background-color: var(--pf-t--global--background--color--backdrop--default);
+  opacity: 0.6;
+}
+
+// Phone width: the top bar keeps the essentials, every control is at least
+// 44px, and dialogs use the width of the screen minus a margin.
+@media (max-width: 767px) {
+  :root .pf-v6-c-masthead.pulp-masthead {
+    --pf-v6-c-masthead--PaddingInline: 0.5rem;
+    --pf-v6-c-masthead__main--MarginInlineEnd: 0.25rem;
+  }
+
+  // the logo alone; the name and the host are in the drawer footer and the
+  // link's accessible name
+  .pulp-brand__text {
+    display: none;
+  }
+
+  .pulp-topbar__crumbs {
+    min-width: 0;
+  }
+
+  .pulp-topbar__actions {
+    gap: 0.25rem;
+  }
+
+  :root .pulp-topbar__button {
+    --pf-v6-c-menu-toggle--Width: 2.75rem;
+    --pf-v6-c-menu-toggle--Height: 2.75rem;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  :root .pf-v6-c-masthead .pf-v6-c-masthead__toggle .pf-v6-c-button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .pulp-topbar__bell {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  // the account toggle is the avatar alone; the name stays in the document for
+  // the accessible name
+  :root .pulp-account {
+    --pf-v6-c-menu-toggle--PaddingInlineStart: 0;
+    --pf-v6-c-menu-toggle--PaddingInlineEnd: 0;
+    block-size: 2.75rem;
+    inline-size: 2.75rem;
+    min-width: 2.75rem;
+    justify-content: center;
+  }
+
+  .pulp-account__name {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  :root .pf-v6-c-nav .pf-v6-c-nav__link {
+    min-height: 2.75rem;
+  }
+
+  .pulp-search {
+    block-size: 2.75rem;
+  }
+
+  :root .pulp-sidebar__collapse {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
+
+  :root .pulp-palette .pf-v6-c-menu__item {
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+  // dialogs: the full width minus 16px on each side
+  :root .pf-v6-c-modal-box {
+    --pf-v6-c-modal-box--Width: calc(100% - 2rem);
+    --pf-v6-c-modal-box--MaxWidth: calc(100% - 2rem);
+    --pf-v6-c-modal-box--m-sm--Width: calc(100% - 2rem);
+    --pf-v6-c-modal-box--m-md--Width: calc(100% - 2rem);
+    --pf-v6-c-modal-box--m-lg--Width: calc(100% - 2rem);
+    margin-inline: 1rem;
+  }
+}

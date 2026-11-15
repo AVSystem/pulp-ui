@@ -56,7 +56,7 @@ function serveSync(running: object[] = []) {
 }
 
 const mirrorSwitch = () =>
-  screen.getByRole('checkbox', {
+  screen.getByRole('switch', {
     name: /Content not present in remote|Sync will only add/,
   });
 

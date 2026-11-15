@@ -1,7 +1,6 @@
 import { t } from '@lingui/core/macro';
 import {
   Modal,
-  ModalVariant,
   Wizard,
   WizardHeader,
   WizardStep,
@@ -28,14 +27,7 @@ export const WizardModal = ({ onClose, onSave, steps, title }: IProps) => {
   };
 
   return (
-    <Modal
-      aria-label={title}
-      hasNoBodyWrapper
-      isOpen
-      onEscapePress={onClose}
-      showClose={false}
-      variant={ModalVariant.large}
-    >
+    <Modal aria-label={title} isOpen onEscapePress={onClose} variant='large'>
       <Wizard
         header={
           <WizardHeader

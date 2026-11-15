@@ -1,9 +1,11 @@
 import { type Page, expect } from '@playwright/test';
 import { account, baseUrl } from './env';
 
-// The page title as the application renders it.
+// The page title as the application renders it: a heading whose name contains
+// the text. Every screen shows its title as the level-1 heading except the
+// login page, which shows its title as a level-2 heading, so no level is named.
 export function title(page: Page, text: string) {
-  return page.locator('.pf-v5-c-title', { hasText: text }).first();
+  return page.getByRole('heading', { name: text }).first();
 }
 
 // Fills in the login form with the account of the run and submits it, the way

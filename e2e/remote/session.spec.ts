@@ -12,7 +12,7 @@ import {
 
 const loginForm = '#pf-login-username-id';
 const userMenu = '[data-cy=user-dropdown]';
-const loginMenuItem = '[data-cy=pulp-menu-item-Login]';
+const loginMenuItem = '[data-cy=pulp-menu-item-login]';
 
 // The first test runs on the shared session of the admin account that the setup
 // project saved. Every test after it starts from a context of its own: tests
@@ -268,6 +268,6 @@ test.describe('sessions of their own', () => {
 
     await expect(page.locator(loginMenuItem)).toBeVisible();
     await expect(page.locator(userMenu)).toHaveCount(0);
-    await expect(page.locator('.pf-v5-c-alert')).toHaveCount(0);
+    await expect(page.locator('.pf-v6-c-alert')).toHaveCount(0);
   });
 });

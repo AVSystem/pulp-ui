@@ -1,13 +1,7 @@
 import { t } from '@lingui/core/macro';
-import {
-  ExpandableRowContent,
-  Table,
-  Tbody,
-  Td,
-  Tr,
-} from '@patternfly/react-table';
+import { ExpandableRowContent, Tbody, Td, Tr } from '@patternfly/react-table';
 import { type FunctionComponent, type ReactNode, useState } from 'react';
-import { SortTable } from 'src/components';
+import { SortTable, Table } from 'src/components';
 
 interface IProps {
   children: ReactNode;

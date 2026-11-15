@@ -1,347 +1,460 @@
 import { t } from '@lingui/core/macro';
-import { Nav, NavExpandable, NavItem } from '@patternfly/react-core';
-import { reject, some } from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { Nav, NavExpandable, NavGroup, NavItem } from '@patternfly/react-core';
+import CloudDownloadAltIcon from '@patternfly/react-icons/dist/esm/icons/cloud-download-alt-icon';
+import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
+import HeartbeatIcon from '@patternfly/react-icons/dist/esm/icons/heartbeat-icon';
+import KeyIcon from '@patternfly/react-icons/dist/esm/icons/key-icon';
+import LayerGroupIcon from '@patternfly/react-icons/dist/esm/icons/layer-group-icon';
+import ShieldAltIcon from '@patternfly/react-icons/dist/esm/icons/shield-alt-icon';
+import TasksIcon from '@patternfly/react-icons/dist/esm/icons/tasks-icon';
+import UsersIcon from '@patternfly/react-icons/dist/esm/icons/users-icon';
+import navStyles from '@patternfly/react-styles/css/components/Nav/nav.mjs';
+import { type ComponentType, type ReactNode, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ExternalLink, NavList } from 'src/components';
+import { NavList } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
+import { requestErrorDescription } from 'src/utilities/request-error';
 import { Paths, formatPath } from './paths';
 import { usePlugins } from './plugins';
+import {
+  TaskCountPills,
+  taskEntryName,
+  useTaskCounts,
+} from './shell/task-counts';
 import { useUserContext } from './user-context';
 
-const menuItem = (name, options = {}) => ({
-  active: false,
-  condition: () => true,
-  ...options,
-  type: 'item',
-  name,
-});
+// One screen the menu leads to, or one expandable section holding screens.
+export interface IMenuEntry {
+  // Stable name of the entry: the end-to-end hooks hang on it, never on the
+  // label.
+  id: string;
+  label: string;
+  // Where a screen entry leads; absent on a section.
+  path?: string;
+  // Other screens that belong to the entry, so it stays marked as current.
+  alternativePaths?: string[];
+  icon?: ComponentType;
+  // The second level of a section.
+  entries?: IMenuEntry[];
+}
 
-const menuSection = (name, options = {}, items = []) => ({
-  active: false,
-  condition: (...params) => some(items, (item) => item.condition(...params)), // any visible items inside
-  ...options,
-  type: 'section',
-  name,
-  items,
-});
+export interface IMenuGroup {
+  id: string;
+  // A group without a title is rendered without a label.
+  title?: string;
+  entries: IMenuEntry[];
+}
 
-const altPath = (p) => formatPath(p, {}, null, { ignoreMissing: true });
+// A screen the menu leads to as one flat line, for places that list screens:
+// the trail in the top bar and the search.
+export interface IMenuScreen {
+  id: string;
+  // Second-level screens read "Repositories - deb".
+  label: string;
+  path: string;
+  alternativePaths: string[];
+}
 
-// condition: loggedIn OR condition: and(loggedIn, hasPlugin('rpm'))
-const loggedIn = ({ user }) => !!user;
-const hasPlugin =
-  (name) =>
-  ({ plugins }) =>
-    !!plugins[name];
-const and =
-  (...conditions) =>
-  (context) =>
-    conditions.every((condition) => condition(context));
-// const or = (...conditions) => (context) => conditions.some((condition) => condition(context));
+export interface IMenuModel {
+  groups: IMenuGroup[];
+  screens: IMenuScreen[];
+  // The state of the installed plugin list, which the plugin-dependent part
+  // of the menu follows.
+  plugins: ReturnType<typeof usePlugins>;
+}
 
-// FIXME: fix those screens
-const BROKEN = () => false;
+const altPath = (path: string) =>
+  formatPath(path, {}, null, { ignoreMissing: true });
 
-function standaloneMenu() {
+interface IPluginPaths {
+  key: string;
+  label: string;
+  repositories: string;
+  remotes: string;
+  packages?: string;
+}
+
+// The plugins that have screens, in the order the second level lists them.
+function pluginPaths(): IPluginPaths[] {
   return [
-    menuItem(t`Status`, {
-      url: formatPath(Paths.core.status),
-    }),
-    menuItem(t`Login`, {
-      url: formatPath(Paths.meta.login),
-      condition: ({ user }) => !user, // not logged in
-    }),
-    menuItem(t`Search`, {
-      url: formatPath(Paths.meta.search),
-      condition: and(BROKEN, loggedIn),
-    }),
-    menuSection(
-      'Pulp Ansible',
-      { condition: and(loggedIn, hasPlugin('ansible')) },
-      [
-        menuItem(t`Collections`, {
-          url: formatPath(Paths.ansible.collection.list),
-          alternativeUrls: [altPath('/repo/:repo')],
-          condition: BROKEN,
-        }),
-        menuItem(t`Namespaces`, {
-          url: formatPath(Paths.ansible.namespace.list),
-          condition: BROKEN,
-        }),
-        menuItem(t`Repositories`, {
-          url: formatPath(Paths.ansible.repository.list),
-        }),
-        menuItem(t`Remotes`, {
-          url: formatPath(Paths.ansible.remote.list),
-        }),
-      ],
-    ),
-    menuSection(
-      'Pulp container',
-      { condition: and(loggedIn, hasPlugin('container')) },
-      [
-        menuItem(t`Containers`, {
-          url: formatPath(Paths.container.repository.list),
-          condition: BROKEN,
-        }),
-        menuItem(t`Remote registries`, {
-          url: formatPath(Paths.container.remote.list),
-          condition: BROKEN,
-        }),
-      ],
-    ),
-    menuSection('Pulp deb', { condition: and(loggedIn, hasPlugin('deb')) }, [
-      menuItem(t`Repositories`, {
-        url: formatPath(Paths.deb.repository.list),
-      }),
-      menuItem(t`Remotes`, {
-        url: formatPath(Paths.deb.remote.list),
-      }),
-    ]),
-    menuSection('Pulp file', { condition: and(loggedIn, hasPlugin('file')) }, [
-      menuItem(t`Repositories`, {
-        url: formatPath(Paths.file.repository.list),
-      }),
-      menuItem(t`Remotes`, {
-        url: formatPath(Paths.file.remote.list),
-      }),
-    ]),
-    menuSection(
-      'Pulp Python',
-      { condition: and(loggedIn, hasPlugin('python')) },
-      [
-        menuItem(t`Repositories`, {
-          url: formatPath(Paths.python.repository.list),
-        }),
-        menuItem(t`Remotes`, {
-          url: formatPath(Paths.python.remote.list),
-        }),
-        menuItem(t`Packages`, {
-          url: formatPath(Paths.python.package.list),
-        }),
-      ],
-    ),
-    menuSection('Pulp RPM', { condition: and(loggedIn, hasPlugin('rpm')) }, [
-      menuItem(t`Repositories`, {
-        url: formatPath(Paths.rpm.repository.list),
-      }),
-      menuItem(t`Remotes`, {
-        url: formatPath(Paths.rpm.remote.list),
-      }),
-      menuItem(t`RPMs`, {
-        url: formatPath(Paths.rpm.package.list),
-      }),
-    ]),
-    menuItem(t`Task management`, {
-      url: formatPath(Paths.core.task.list),
-      alternativeUrls: [altPath(Paths.core.task.detail)],
-      condition: loggedIn,
-    }),
-    menuItem(t`Signature keys`, {
-      url: formatPath(Paths.core.signature_keys),
-      condition: loggedIn,
-    }),
-    menuSection(t`User access`, { condition: loggedIn }, [
-      menuItem(t`Users`, {
-        url: formatPath(Paths.core.user.list),
-      }),
-      menuItem(t`Groups`, {
-        url: formatPath(Paths.core.group.list),
-        alternativeUrls: [altPath(Paths.core.group.detail)],
-      }),
-      menuItem(t`Roles`, {
-        url: formatPath(Paths.core.role.list),
-        alternativeUrls: [altPath(Paths.core.role.edit)],
-      }),
-    ]),
-    menuItem(t`About project`, {
-      url: formatPath(Paths.meta.about),
-    }),
+    {
+      key: 'file',
+      label: t`File`,
+      repositories: Paths.file.repository.list,
+      remotes: Paths.file.remote.list,
+    },
+    {
+      key: 'deb',
+      label: 'deb',
+      repositories: Paths.deb.repository.list,
+      remotes: Paths.deb.remote.list,
+    },
+    {
+      key: 'rpm',
+      label: 'RPM',
+      repositories: Paths.rpm.repository.list,
+      remotes: Paths.rpm.remote.list,
+      packages: Paths.rpm.package.list,
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      repositories: Paths.python.repository.list,
+      remotes: Paths.python.remote.list,
+      packages: Paths.python.package.list,
+    },
+    {
+      key: 'ansible',
+      label: 'Ansible',
+      repositories: Paths.ansible.repository.list,
+      remotes: Paths.ansible.remote.list,
+    },
   ];
 }
 
-function activateMenu(items, pathname) {
-  // ensure no /:var at the end
-  const normalize = (s) => s.replace(/\/$/, '').replace(/(\/:[^/:]+)+$/, '');
-  const normalizedPathname = normalize(pathname).replace(
-    /\/repo\/[^/]+\//,
-    '/repo/:repo/',
-  );
-
-  items.forEach((item) => {
-    item.active =
-      item.type === 'section'
-        ? activateMenu(item.items, pathname)
-        : normalizedPathname.startsWith(normalize(item.url)) ||
-          (item.alternativeUrls?.length &&
-            item.alternativeUrls.some((url) =>
-              normalizedPathname.startsWith(normalize(url)),
-            ));
-  });
-
-  return some(items, 'active');
+function pluginEntries(
+  installed: ReadonlySet<string>,
+  kind: 'repositories' | 'remotes' | 'packages',
+): IMenuEntry[] {
+  return pluginPaths()
+    .filter((plugin) => installed.has(plugin.key) && plugin[kind])
+    .map((plugin) => ({
+      id: `${plugin.key}-${kind}`,
+      label: plugin.label,
+      path: formatPath(plugin[kind] as string),
+    }));
 }
 
-function ItemOrSection({
-  item,
-  context,
-  expandedSections,
+// Which entries exist for this session and these installed plugins. What is
+// offered here is a matter of presentation: Pulp decides on every request what
+// the signed-in user may read or change.
+function buildGroups(
+  signedIn: boolean,
+  installed: ReadonlySet<string>,
+): IMenuGroup[] {
+  const status: IMenuEntry = {
+    id: 'status',
+    label: t`Workers and status`,
+    path: formatPath(Paths.core.status),
+    icon: HeartbeatIcon,
+  };
+
+  if (!signedIn) {
+    return [
+      {
+        id: 'sign-in',
+        entries: [
+          {
+            id: 'login',
+            label: t`Login`,
+            path: formatPath(Paths.meta.login),
+          },
+        ],
+      },
+      { id: 'operations', title: t`Operations`, entries: [status] },
+    ];
+  }
+
+  const sections: IMenuEntry[] = [
+    {
+      id: 'repositories',
+      label: t`Repositories`,
+      icon: LayerGroupIcon,
+      entries: pluginEntries(installed, 'repositories'),
+    },
+    {
+      id: 'packages',
+      label: t`Packages and artifacts`,
+      icon: CubeIcon,
+      entries: pluginEntries(installed, 'packages'),
+    },
+    {
+      id: 'remotes',
+      label: t`Remotes`,
+      icon: CloudDownloadAltIcon,
+      entries: pluginEntries(installed, 'remotes'),
+    },
+  ].filter((section) => section.entries.length > 0);
+
+  const groups: IMenuGroup[] = [
+    { id: 'content', title: t`Content`, entries: sections },
+    {
+      id: 'operations',
+      title: t`Operations`,
+      entries: [
+        {
+          id: 'tasks',
+          label: t`Tasks`,
+          path: formatPath(Paths.core.task.list),
+          alternativePaths: [altPath(Paths.core.task.detail)],
+          icon: TasksIcon,
+        },
+        status,
+        {
+          id: 'signing-services',
+          label: t`Signing services`,
+          path: formatPath(Paths.core.signature_keys),
+          icon: KeyIcon,
+        },
+      ],
+    },
+    {
+      id: 'access',
+      title: t`Access`,
+      entries: [
+        {
+          id: 'users-and-groups',
+          label: t`Users and groups`,
+          icon: UsersIcon,
+          entries: [
+            {
+              id: 'users',
+              label: t`Users`,
+              path: formatPath(Paths.core.user.list),
+            },
+            {
+              id: 'groups',
+              label: t`Groups`,
+              path: formatPath(Paths.core.group.list),
+              alternativePaths: [altPath(Paths.core.group.detail)],
+            },
+          ],
+        },
+        {
+          id: 'roles',
+          label: t`Roles`,
+          path: formatPath(Paths.core.role.list),
+          alternativePaths: [altPath(Paths.core.role.edit)],
+          icon: ShieldAltIcon,
+        },
+      ],
+    },
+  ];
+
+  return groups.filter((group) => group.entries.length > 0);
+}
+
+function flatten(groups: IMenuGroup[]): IMenuScreen[] {
+  const screens: IMenuScreen[] = [];
+  const visit = (entry: IMenuEntry, parent?: IMenuEntry) => {
+    if (entry.path) {
+      screens.push({
+        id: entry.id,
+        label: parent ? `${parent.label} - ${entry.label}` : entry.label,
+        path: entry.path,
+        alternativePaths: entry.alternativePaths ?? [],
+      });
+    }
+    entry.entries?.forEach((child) => visit(child, entry));
+  };
+  groups.forEach((group) => group.entries.forEach((entry) => visit(entry)));
+  return screens;
+}
+
+// The entries the menu shows for the current session and the installed
+// plugins, as sections and as a flat list of screens. While the plugin list is
+// loading or could not be read, nothing that depends on a plugin is included.
+export function useMenuModel(): IMenuModel {
+  const { user } = useUserContext();
+  const plugins = usePlugins();
+  const signedIn = !!user;
+  const versions = plugins.state === 'ready' ? plugins.versions : null;
+
+  return useMemo(() => {
+    const installed: ReadonlySet<string> = new Set(versions?.keys() ?? []);
+    const groups = buildGroups(signedIn, installed);
+    return { groups, screens: flatten(groups), plugins };
+  }, [signedIn, versions, plugins]);
+}
+
+// A path without its trailing slash and without trailing parameters, so a
+// route pattern and a visited address compare by their fixed beginning.
+const normalize = (path: string) =>
+  path.replace(/\/$/, '').replace(/(\/:[^/:]+)+$/, '');
+
+const matches = (pathname: string, path: string) => {
+  const base = normalize(path);
+  const visited = pathname.replace(/\/$/, '');
+  return visited === base || visited.startsWith(`${base}/`);
+};
+
+// The screen of the list that the visited address belongs to. When several
+// paths match (a list and a screen below it), the most specific one wins.
+export function currentScreen(
+  screens: IMenuScreen[],
+  pathname: string,
+): IMenuScreen | undefined {
+  let best: IMenuScreen | undefined;
+  let bestLength = -1;
+  for (const entry of screens) {
+    for (const path of [entry.path, ...entry.alternativePaths]) {
+      const length = normalize(path).length;
+      if (matches(pathname, path) && length > bestLength) {
+        best = entry;
+        bestLength = length;
+      }
+    }
+  }
+  return best;
+}
+
+function isCurrent(entry: IMenuEntry, pathname: string): boolean {
+  if (entry.entries) {
+    return entry.entries.some((child) => isCurrent(child, pathname));
+  }
+  return [entry.path, ...(entry.alternativePaths ?? [])].some(
+    (path) => !!path && matches(pathname, path),
+  );
+}
+
+function EntryLink({
+  entry,
+  pathname,
 }: {
-  item;
-  context;
-  expandedSections;
+  entry: IMenuEntry;
+  pathname: string;
 }) {
-  return item.type === 'section' ? (
-    <MenuSection
-      section={item}
-      context={context}
-      expandedSections={expandedSections}
-    />
+  return entry.id === 'tasks' ? (
+    <TasksEntryLink entry={entry} pathname={pathname} />
   ) : (
-    <MenuItem item={item} context={context} />
+    <EntryLinkView entry={entry} pathname={pathname} />
   );
 }
 
-function MenuItem({ item, context }: { item; context }) {
-  return item.condition(context) ? (
-    <NavItem
-      isActive={item.active}
-      onClick={(e) => {
-        if (item.onclick) {
-          item.onclick();
-        }
-        e.stopPropagation();
-      }}
-    >
-      {item.url && item.external ? (
-        <ExternalLink
-          data-cy={`pulp-menu-item-${item.name}`}
-          href={item.url}
-          variant='nav'
-        >
-          {item.name}
-        </ExternalLink>
-      ) : item.url ? (
-        <Link to={item.url} data-cy={`pulp-menu-item-${item.name}`}>
-          {item.name}
-        </Link>
-      ) : (
-        item.name
-      )}
-    </NavItem>
-  ) : null;
+// The Tasks entry carries the counts of running and recently failed tasks.
+function TasksEntryLink({
+  entry,
+  pathname,
+}: {
+  entry: IMenuEntry;
+  pathname: string;
+}) {
+  const counts = useTaskCounts();
+
+  return (
+    <EntryLinkView
+      entry={entry}
+      pathname={pathname}
+      name={taskEntryName(entry.label, counts)}
+      end={<TaskCountPills {...counts} />}
+    />
+  );
 }
 
-function MenuSection({
-  section,
-  context,
-  expandedSections,
+function EntryLinkView({
+  entry,
+  pathname,
+  name,
+  end,
 }: {
-  section;
-  context;
-  expandedSections;
+  entry: IMenuEntry;
+  pathname: string;
+  // Replaces the label as the accessible name of the link.
+  name?: string;
+  // Shown after the label, at the end of the row.
+  end?: ReactNode;
 }) {
-  if (!section.condition(context)) {
-    return null;
+  const Icon = entry.icon;
+
+  return (
+    <NavItem isActive={isCurrent(entry, pathname)}>
+      <Link
+        to={entry.path as string}
+        aria-label={name}
+        data-cy={`pulp-menu-item-${entry.id}`}
+      >
+        {Icon ? (
+          <span className={navStyles.navLinkIcon} aria-hidden='true'>
+            <Icon />
+          </span>
+        ) : null}
+        <span className={navStyles.navLinkText}>{entry.label}</span>
+        {end}
+      </Link>
+    </NavItem>
+  );
+}
+
+function Entry({
+  entry,
+  pathname,
+  isExpanded,
+}: {
+  entry: IMenuEntry;
+  pathname: string;
+  isExpanded: (id: string, current: boolean) => boolean;
+}) {
+  if (!entry.entries) {
+    return <EntryLink entry={entry} pathname={pathname} />;
   }
 
-  if (
-    !section.items ||
-    !section.items.find((item) => item.condition(context))
-  ) {
-    return null;
-  }
+  const Icon = entry.icon;
+  const current = isCurrent(entry, pathname);
 
   return (
     <NavExpandable
-      title={section.name}
-      groupId={section.name}
-      isActive={section.active}
-      isExpanded={expandedSections.includes(section.name)}
-      data-cy={`pulp-menu-section-${section.name}`}
+      title={entry.label}
+      icon={Icon ? <Icon aria-hidden='true' /> : undefined}
+      groupId={entry.id}
+      isActive={current}
+      isExpanded={isExpanded(entry.id, current)}
+      data-cy={`pulp-menu-section-${entry.id}`}
     >
-      <Menu
-        items={section.items}
-        context={context}
-        expandedSections={expandedSections}
-      />
+      {entry.entries.map((child) => (
+        <EntryLink key={child.id} entry={child} pathname={pathname} />
+      ))}
     </NavExpandable>
   );
 }
 
-function Menu({
-  items,
-  context,
-  expandedSections,
-}: {
-  items;
-  context;
-  expandedSections;
-}) {
-  return (
-    <>
-      {items.map((item) => (
-        <ItemOrSection
-          key={item.url || item.name}
-          item={item}
-          context={context}
-          expandedSections={expandedSections}
-        />
-      ))}
-    </>
-  );
-}
-
-// The installed plugins as the menu conditions read them: component name to
-// version, empty until the server has answered and when it could not be read.
-function useInstalledPlugins(): Record<string, string> {
-  const plugins = usePlugins();
-  const versions = plugins.state === 'ready' ? plugins.versions : null;
-
-  return useMemo(
-    () => (versions ? Object.fromEntries(versions) : {}),
-    [versions],
-  );
-}
-
 export const PulpMenu = () => {
-  const [expandedSections, setExpandedSections] = useState([]);
-
-  const location = useLocation();
-  const [menu, setMenu] = useState([]);
-
+  const { groups, plugins } = useMenuModel();
   const { user } = useUserContext();
+  const { pathname } = useLocation();
+  // What the user opened or closed by hand. A section that was not touched
+  // follows the current route: it is open when it holds the current screen.
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
 
-  const plugins = useInstalledPlugins();
-
-  useEffect(() => {
-    setMenu(standaloneMenu());
-  }, []);
-
-  useEffect(() => {
-    activateMenu(menu, location.pathname);
-    setExpandedSections(
-      menu.filter((i) => i.type === 'section' && i.active).map((i) => i.name),
-    );
-  }, [menu, location.pathname]);
-
-  const onToggle = ({ groupId, isExpanded }) => {
-    setExpandedSections(
-      isExpanded
-        ? [...expandedSections, groupId]
-        : reject(expandedSections, (name) => name === groupId),
-    );
-  };
+  const isExpanded = (id: string, current: boolean) => toggled[id] ?? current;
 
   return (
-    <Nav onToggle={(_event, data) => onToggle(data)}>
-      <NavList>
-        <Menu
-          items={menu}
-          context={{ user, plugins }}
-          expandedSections={expandedSections}
-        />
-      </NavList>
+    <Nav
+      aria-label={t`Main`}
+      onToggle={(_event, { groupId, isExpanded: open }) =>
+        setToggled((previous) => ({ ...previous, [String(groupId)]: open }))
+      }
+    >
+      {user && plugins.state === 'error' ? (
+        // The entries that depend on the installed plugins could not be built:
+        // the reason and a way to ask again, where those entries would be.
+        <NavGroup title={t`Content`}>
+          <li className='pulp-menu__error'>
+            <ListErrorState
+              title={t`Could not read the installed plugins`}
+              message={requestErrorDescription(plugins.error)}
+              onRetry={plugins.retry}
+            />
+          </li>
+        </NavGroup>
+      ) : null}
+      {groups.map((group) => {
+        const entries = group.entries.map((entry) => (
+          <Entry
+            key={entry.id}
+            entry={entry}
+            pathname={pathname}
+            isExpanded={isExpanded}
+          />
+        ));
+
+        return group.title ? (
+          <NavGroup key={group.id} title={group.title}>
+            {entries}
+          </NavGroup>
+        ) : (
+          <NavList key={group.id}>{entries}</NavList>
+        );
+      })}
     </Nav>
   );
 };

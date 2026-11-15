@@ -1,13 +1,3 @@
-import cx from 'classnames';
-import { type HTMLProps, type ReactNode } from 'react';
+import { PageSection, type PageSectionProps } from '@patternfly/react-core';
 
-interface IProps extends HTMLProps<HTMLElement> {
-  children: ReactNode;
-  className?: string;
-}
-
-export const Main = ({ children, className, ...extra }: IProps) => (
-  <section className={cx('pf-v5-c-page__main-section', className)} {...extra}>
-    {children}
-  </section>
-);
+export const Main = (props: PageSectionProps) => <PageSection {...props} />;

@@ -3,8 +3,6 @@ import { Trans } from '@lingui/react/macro';
 import {
   type AlertProps,
   type BreadcrumbProps,
-  type ChipGroupProps,
-  type ChipProps,
   type ClipboardCopyButtonProps,
   type ClipboardCopyProps,
   type FileUploadProps,
@@ -14,8 +12,6 @@ import {
   type NavListProps,
   Alert as PFAlert,
   Breadcrumb as PFBreadcrumb,
-  Chip as PFChip,
-  ChipGroup as PFChipGroup,
   ClipboardCopy as PFCopy,
   ClipboardCopyButton as PFCopyButton,
   FileUpload as PFFileUpload,
@@ -56,18 +52,6 @@ export const Alert = ({ variant, ...props }: AlertProps) => {
 
 export const Breadcrumb = (props: BreadcrumbProps) => (
   <PFBreadcrumb aria-label={t`Breadcrumb`} {...props} />
-);
-
-export const Chip = (props: Omit<ChipProps, 'ref'>) => (
-  <PFChip closeBtnAriaLabel={t`close`} {...props} />
-);
-
-export const ChipGroup = (props: Omit<ChipGroupProps, 'ref'>) => (
-  <PFChipGroup
-    collapsedText={t`${count} more`}
-    expandedText={t`Show less`}
-    {...props}
-  />
 );
 
 export const ClipboardCopy = (props: Omit<ClipboardCopyProps, 'ref'>) => (

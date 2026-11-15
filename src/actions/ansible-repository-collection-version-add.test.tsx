@@ -139,7 +139,7 @@ describe('the add collection dialog of an ansible repository', () => {
     await waitFor(() => expect(modifies).toHaveLength(1));
     expect(modifies[0].path).toBe(`${repo.pulp_href}modify/`);
     expect(modifies[0].body).toEqual({ add_content_units: [row().pulp_href] });
-    const alerts = within(screen.getByRole('list', { name: 'alerts' }));
+    const alerts = within(await screen.findByRole('list', { name: 'alerts' }));
     expect(
       await alerts.findByText(
         'Started adding ns.col v1.0.0 to repository "r1".',
@@ -175,7 +175,7 @@ describe('the add collection dialog of an ansible repository', () => {
     await user.click(await screen.findByText('ns.col v1.0.0'));
     await user.click(selectButton());
 
-    const alerts = within(screen.getByRole('list', { name: 'alerts' }));
+    const alerts = within(await screen.findByRole('list', { name: 'alerts' }));
     expect(
       await alerts.findByText('Failed to add collection to repository "r1".'),
     ).toBeTruthy();

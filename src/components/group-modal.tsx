@@ -4,10 +4,12 @@ import {
   Form,
   FormGroup,
   Modal,
-  ModalVariant,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   TextInput,
 } from '@patternfly/react-core';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { FormFieldHelper } from 'src/components';
 import { type ErrorMessagesType } from 'src/utilities';
 
@@ -27,16 +29,43 @@ export const GroupModal = ({
   onSave,
 }: IProps) => {
   const [name, setName] = useState<string>(group?.name || '');
+  const labelId = useId();
 
   return (
     <Modal
-      variant={ModalVariant.medium}
+      aria-labelledby={labelId}
+      variant='medium'
       onClose={() => {
         onCancel();
       }}
       isOpen
-      title={t`Create a group`}
-      actions={[
+    >
+      <ModalHeader labelId={labelId} title={t`Create a group`} />
+      <ModalBody>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSave(name);
+          }}
+        >
+          <FormGroup isRequired key='name' fieldId='name' label={t`Name`}>
+            <TextInput
+              id='group_name'
+              value={name}
+              onChange={(_event, value) => {
+                setName(value);
+                clearErrors();
+              }}
+              type='text'
+              validated={errorMessage ? 'error' : 'default'}
+            />
+            <FormFieldHelper variant={errorMessage ? 'error' : 'default'}>
+              {errorMessage?.name}
+            </FormFieldHelper>
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
         <div key='create' data-cy='create-group-button'>
           <Button
             isDisabled={name.length === 0 || (group && name === group.name)}
@@ -46,34 +75,11 @@ export const GroupModal = ({
           >
             {!group ? t`Create` : t`Save`}
           </Button>
-        </div>,
+        </div>
         <Button key='cancel' variant='link' onClick={() => onCancel()}>
           {t`Cancel`}
-        </Button>,
-      ]}
-    >
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSave(name);
-        }}
-      >
-        <FormGroup isRequired key='name' fieldId='name' label={t`Name`}>
-          <TextInput
-            id='group_name'
-            value={name}
-            onChange={(_event, value) => {
-              setName(value);
-              clearErrors();
-            }}
-            type='text'
-            validated={errorMessage ? 'error' : 'default'}
-          />
-          <FormFieldHelper variant={errorMessage ? 'error' : 'default'}>
-            {errorMessage?.name}
-          </FormFieldHelper>
-        </FormGroup>
-      </Form>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

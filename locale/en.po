@@ -14,16 +14,16 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current, default)"
-msgstr "(current, default)"
+#~ msgid "(current, default)"
+#~ msgstr "(current, default)"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(current)"
-msgstr "(current)"
+#~ msgid "(current)"
+#~ msgstr "(current)"
 
 #: src/components/darkmode-switcher.tsx
-msgid "(default)"
-msgstr "(default)"
+#~ msgid "(default)"
+#~ msgstr "(default)"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -48,6 +48,11 @@ msgstr "(more)"
 #: src/components/remote-form.tsx
 msgid "(uploaded)"
 msgstr "(uploaded)"
+
+#. placeholder {0}: results.length
+#: src/shell/command-palette.tsx
+msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
+msgstr "{0, plural, =0 {No results} one {# result} other {# results}}"
 
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -95,6 +100,14 @@ msgstr "{alertType} alert:"
 #: src/components/headers/partner-header.tsx
 #~ msgid "{company} logo"
 #~ msgstr "{company} logo"
+
+#: src/shell/task-counts.tsx
+msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
+msgstr "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
+
+#: src/shell/task-counts.tsx
+msgid "{count, plural, one {# running task} other {# running tasks}}"
+msgstr "{count, plural, one {# running task} other {# running tasks}}"
 
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Dependency} other {Dependencies}}"
@@ -180,6 +193,10 @@ msgstr "{name} will stop running."
 #: src/components/wizard-modal.tsx
 msgid "{title} steps"
 msgstr "{title} steps"
+
+#: src/shell/notifications.tsx
+msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
+msgstr "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
@@ -341,20 +358,37 @@ msgstr "A ticked box publishes every new version, so any distribution serving th
 msgid "A whole number. Leave empty to use the server default."
 msgstr "A whole number. Leave empty to use the server default."
 
-#: src/layout.tsx
-msgid "About"
-msgstr "About"
+#: src/shell/shell.tsx
+#~ msgid "About"
+#~ msgstr "About"
 
 #: src/containers/about-project.tsx
-#: src/menu.tsx
+#: src/shell/help-menu.tsx
 msgid "About project"
 msgstr "About project"
+
+#: src/shell/help-menu.tsx
+msgid "About Pulp UI"
+msgstr "About Pulp UI"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/menu.tsx
 msgid "Access"
 msgstr "Access"
+
+#: src/shell/account-menu.tsx
+msgid "Account"
+msgstr "Account"
+
+#: src/shell/account-menu.tsx
+msgid "Account menu for {username}"
+msgstr "Account menu for {username}"
+
+#: src/components/stateful-dropdown.tsx
+msgid "Actions"
+msgstr "Actions"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Active user profile \"{0}\" could not be displayed."
@@ -520,8 +554,8 @@ msgstr "Add selected users to group"
 #~ msgstr "Add user"
 
 #: src/containers/group-management/group-detail.tsx
-msgid "add-user-modal"
-msgstr "add-user-modal"
+#~ msgid "add-user-modal"
+#~ msgstr "add-user-modal"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
@@ -958,6 +992,10 @@ msgstr "Cancel"
 msgid "Canceled"
 msgstr "Canceled"
 
+#: src/shell/notifications.tsx
+msgid "Canceled {when}"
+msgstr "Canceled {when}"
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
 #~ msgstr "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1122,6 +1160,7 @@ msgstr "Child tasks"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
+#: src/components/typeahead.tsx
 msgid "Clear"
 msgstr "Clear"
 
@@ -1165,7 +1204,9 @@ msgstr "Client key"
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "Clients cannot download its content until a distribution serves it."
 
+#: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/components/typeahead.tsx
 msgid "close"
 msgstr "close"
 
@@ -1174,13 +1215,29 @@ msgstr "close"
 msgid "Close"
 msgstr "Close"
 
+#: src/shell/shell.tsx
+msgid "Close navigation"
+msgstr "Close navigation"
+
+#: src/shell/notifications.tsx
+msgid "Close notifications"
+msgstr "Close notifications"
+
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
 msgstr "Close YAML editor"
 
+#: src/shell/command-palette.tsx
+msgid "Cmd K"
+msgstr "Cmd K"
+
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
 msgstr "Code"
+
+#: src/shell/sidebar.tsx
+msgid "Collapse sidebar"
+msgstr "Collapse sidebar"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
@@ -1367,7 +1424,6 @@ msgstr "Collection versions will appear once the collection is modified."
 #~ msgstr "Collection with id {0} not found."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Collections"
 msgstr "Collections"
 
@@ -1427,6 +1483,10 @@ msgstr "Community content will never be synced if this setting is enabled"
 #: src/containers/task-management/task-list-view.tsx
 msgid "Completed"
 msgstr "Completed"
+
+#: src/shell/notifications.tsx
+msgid "Completed {when}"
+msgstr "Completed {when}"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -1518,13 +1578,12 @@ msgstr "Contact your organization administrator for more information."
 #~ msgstr "Container repository name"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Containers"
 msgstr "Containers"
 
-#: src/containers/collection-detail/collection-content.tsx
-#~ msgid "Content"
-#~ msgstr "Content"
+#: src/menu.tsx
+msgid "Content"
+msgstr "Content"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1636,6 +1695,7 @@ msgstr "Could not check whether the name and base path are free: {reason}. Nothi
 #~ msgstr "Could not load import log"
 
 #: src/app-routes.tsx
+#: src/menu.tsx
 msgid "Could not read the installed plugins"
 msgstr "Could not read the installed plugins"
 
@@ -1785,6 +1845,10 @@ msgstr "Created on"
 #~ msgid "Creation started for distribution {distributionName}"
 #~ msgstr "Creation started for distribution {distributionName}"
 
+#: src/shell/command-palette.tsx
+msgid "Ctrl K"
+msgstr "Ctrl K"
+
 #: src/utilities/translate-task.ts
 #~ msgid "Curate all synclist repositories"
 #~ msgstr "Curate all synclist repositories"
@@ -1816,6 +1880,10 @@ msgstr "Current page"
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Current provider namespace"
 #~ msgstr "Current provider namespace"
+
+#: src/components/typeahead.tsx
+msgid "Current selections"
+msgstr "Current selections"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Current tags"
@@ -1853,7 +1921,7 @@ msgstr "Custom permissions"
 msgid "Danger"
 msgstr "Danger"
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Dark"
 msgstr "Dark"
 
@@ -2281,15 +2349,15 @@ msgstr "Distributions could not be loaded: {error}"
 msgid "Distributions of {0} repositories cannot be looked up"
 msgstr "Distributions of {0} repositories cannot be looked up"
 
-#: src/layout.tsx
-msgid "Docs dropdown"
-msgstr "Docs dropdown"
+#: src/shell/shell.tsx
+#~ msgid "Docs dropdown"
+#~ msgstr "Docs dropdown"
 
 #: src/components/collection-header.tsx
 #~ msgid "Docs site"
 #~ msgstr "Docs site"
 
-#: src/layout.tsx
+#: src/shell/help-menu.tsx
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -2796,6 +2864,10 @@ msgstr "Excludes"
 #~ msgid "Execution Environments"
 #~ msgstr "Execution Environments"
 
+#: src/shell/shell.tsx
+msgid "Expand sidebar"
+msgstr "Expand sidebar"
+
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Expiration"
 #~ msgstr "Expiration"
@@ -2821,6 +2893,10 @@ msgstr "Fail the whole version if any package is rejected"
 #: src/containers/task-management/task-list-view.tsx
 msgid "Failed"
 msgstr "Failed"
+
+#: src/shell/notifications.tsx
+msgid "Failed {when}"
+msgstr "Failed {when}"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Failed to {operation} tag \"{tag}\"."
@@ -3076,6 +3152,8 @@ msgstr "Fall back to defaults"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "File"
 msgstr "File"
 
@@ -3147,8 +3225,8 @@ msgstr "First name"
 #~ msgstr "Follow logs"
 
 #: src/components/sync-modal.tsx
-msgid "Force a sync to happen."
-msgstr "Force a sync to happen."
+#~ msgid "Force a sync to happen."
+#~ msgstr "Force a sync to happen."
 
 #: src/components/role-import-form.tsx
 #~ msgid "Found"
@@ -3230,6 +3308,10 @@ msgstr "Giving up waiting for task after {attempts} attempts."
 #: src/utilities/wait-for-task.ts
 #~ msgid "Giving up waiting for task after 10 attempts."
 #~ msgstr "Giving up waiting for task after 10 attempts."
+
+#: src/shell/command-palette.tsx
+msgid "Go to"
+msgstr "Go to"
 
 #: src/components/collection-info.tsx
 #~ msgid "Go to documentation"
@@ -3376,6 +3458,11 @@ msgstr "Guard: {guardName}"
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
 msgstr "Has words"
+
+#: src/shell/account-menu.tsx
+#: src/shell/help-menu.tsx
+msgid "Help"
+msgstr "Help"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Help other Ansible users by sharing the awesome roles and collections you create."
@@ -3609,16 +3696,16 @@ msgstr "Install with pip"
 #~ msgstr "Installation:"
 
 #: src/components/remote-form.tsx
-msgid "Installer files will be skipped"
-msgstr "Installer files will be skipped"
+#~ msgid "Installer files will be skipped"
+#~ msgstr "Installer files will be skipped"
 
 #: src/components/remote-form.tsx
 msgid "Installer files will be synchronized"
 msgstr "Installer files will be synchronized"
 
 #: src/components/remote-form.tsx
-msgid "Installer packages will be skipped"
-msgstr "Installer packages will be skipped"
+#~ msgid "Installer packages will be skipped"
+#~ msgstr "Installer packages will be skipped"
 
 #: src/components/remote-form.tsx
 msgid "Installer packages will be synchronized"
@@ -3809,7 +3896,7 @@ msgstr "Latest versions kept per package"
 #~ msgid "License"
 #~ msgstr "License"
 
-#: src/components/darkmode-switcher.tsx
+#: src/shell/theme-menu.tsx
 msgid "Light"
 msgstr "Light"
 
@@ -3899,9 +3986,13 @@ msgstr "Login"
 #~ msgid "Logo URL"
 #~ msgstr "Logo URL"
 
-#: src/layout.tsx
+#: src/shell/account-menu.tsx
 msgid "Logout"
 msgstr "Logout"
+
+#: src/menu.tsx
+msgid "Main"
+msgstr "Main"
 
 #: src/components/repository-form.tsx
 msgid "Make private"
@@ -3936,6 +4027,10 @@ msgstr "Manage collection remotes."
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 
+#: src/shell/theme-menu.tsx
+msgid "Match system"
+msgstr "Match system"
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
 #~ msgstr "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
@@ -3964,6 +4059,10 @@ msgstr "Mirroring cannot be combined with autopublish, so this sync only adds mi
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
 
+#: src/components/help-button.tsx
+msgid "More information"
+msgstr "More information"
+
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
 #~ msgstr "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -3989,7 +4088,7 @@ msgstr "Must be an integer."
 #~ msgstr "My namespaces"
 
 #: src/containers/settings/user-profile.tsx
-#: src/layout.tsx
+#: src/shell/account-menu.tsx
 msgid "My profile"
 msgstr "My profile"
 
@@ -4096,7 +4195,6 @@ msgstr "Namespace"
 #~ msgstr "Namespace successfully edited."
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Namespaces"
 msgstr "Namespaces"
 
@@ -4226,6 +4324,10 @@ msgstr "No distributions created"
 #: src/containers/collection-detail/collection-distributions.tsx
 #~ msgid "No distributions yet"
 #~ msgstr "No distributions yet"
+
+#: src/shell/notifications.tsx
+msgid "No finished tasks yet"
+msgstr "No finished tasks yet"
 
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
@@ -4383,6 +4485,10 @@ msgstr "No results match the filter criteria. Try changing your filter settings.
 #~ msgid "No roles yet"
 #~ msgstr "No roles yet"
 
+#: src/shell/command-palette.tsx
+msgid "No screens or repositories match"
+msgstr "No screens or repositories match"
+
 #: src/containers/signature-keys/list.tsx
 msgid "No signature keys yet"
 msgstr "No signature keys yet"
@@ -4468,7 +4574,6 @@ msgstr "Not allowed"
 msgid "Not enabled"
 msgstr "Not enabled"
 
-#: src/components/permission-chip-selector.tsx
 #: src/components/typeahead.tsx
 msgid "Not found"
 msgstr "Not found"
@@ -4522,6 +4627,18 @@ msgstr "Nothing changed in distribution {name}."
 msgid "Nothing changed in repository {name}."
 msgstr "Nothing changed in repository {name}."
 
+#: src/shell/command-palette.tsx
+msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
+msgstr "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
+
+#: src/shell/notifications.tsx
+msgid "Notifications"
+msgstr "Notifications"
+
+#: src/shell/notifications.tsx
+msgid "Notifications could not be loaded."
+msgstr "Notifications could not be loaded."
+
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
 msgstr "Number must be greater than 0"
@@ -4574,6 +4691,14 @@ msgstr "Only perform the sync if changes are reported by the remote server. To f
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
 #~ msgstr "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
 
+#: src/shell/shell.tsx
+msgid "Open navigation"
+msgstr "Open navigation"
+
+#: src/menu.tsx
+msgid "Operations"
+msgstr "Operations"
+
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
 #~ msgstr "Opt in to Ansible Lightspeed"
@@ -4593,6 +4718,10 @@ msgstr "Only perform the sync if changes are reported by the remote server. To f
 #: src/components/sync-modal.tsx
 msgid "Optimize"
 msgstr "Optimize"
+
+#: src/components/typeahead.tsx
+msgid "Options"
+msgstr "Options"
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
@@ -4686,9 +4815,12 @@ msgstr "Package types to sync. Leave all unticked to sync every type."
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/menu.tsx
 msgid "Packages"
 msgstr "Packages"
+
+#: src/menu.tsx
+msgid "Packages and artifacts"
+msgstr "Packages and artifacts"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
@@ -5035,6 +5167,10 @@ msgstr "Publish upstream release fields"
 msgid "Pull-through remote"
 msgstr "Pull-through remote"
 
+#: src/shell/sidebar.tsx
+msgid "Pulp {version}"
+msgstr "Pulp {version}"
+
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Ansible Version"
 #~ msgstr "Pulp Ansible Version"
@@ -5162,6 +5298,10 @@ msgstr "Pulp type"
 #: src/containers/login/login.tsx
 #~ msgid "Pulp UI is currently using HTTP Basic Authentication. Your credentials will be stored in your browser's sessionStorage or localStorage, in plain text."
 #~ msgstr "Pulp UI is currently using HTTP Basic Authentication. Your credentials will be stored in your browser's sessionStorage or localStorage, in plain text."
+
+#: src/shell/shell.tsx
+msgid "Pulp, {host}"
+msgstr "Pulp, {host}"
 
 #: src/constants.tsx
 #~ msgid "Pulpcore: Add and remove"
@@ -5455,7 +5595,6 @@ msgid "Remote name"
 msgstr "Remote name"
 
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Remote registries"
 msgstr "Remote registries"
 
@@ -5677,6 +5816,7 @@ msgstr "Repair task"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/menu.tsx
+#: src/shell/command-palette.tsx
 msgid "Repositories"
 msgstr "Repositories"
 
@@ -5822,7 +5962,6 @@ msgstr "Requires Python"
 msgid "Reserve resources"
 msgstr "Reserve resources"
 
-#: src/components/darkmode-switcher.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Reset"
 msgstr "Reset"
@@ -5834,6 +5973,10 @@ msgstr "Reset to browser defaults"
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Resources"
 #~ msgstr "Resources"
+
+#: src/shell/command-palette.tsx
+msgid "Results"
+msgstr "Results"
 
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
@@ -5858,6 +6001,14 @@ msgstr "Retries"
 #: src/components/list-error-state.tsx
 msgid "Retry"
 msgstr "Retry"
+
+#: src/shell/notifications.tsx
+msgid "Retry loading notifications"
+msgstr "Retry loading notifications"
+
+#: src/shell/command-palette.tsx
+msgid "Retry repository search"
+msgstr "Retry repository search"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Return Values"
@@ -6031,8 +6182,8 @@ msgid "RPM prune packages"
 msgstr "RPM prune packages"
 
 #: src/menu.tsx
-msgid "RPMs"
-msgstr "RPMs"
+#~ msgid "RPMs"
+#~ msgstr "RPMs"
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
@@ -6105,9 +6256,9 @@ msgstr "Scroll foward"
 #~ msgid "Scroll to end"
 #~ msgstr "Scroll to end"
 
+#: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
-#: src/menu.tsx
 msgid "Search"
 msgstr "Search"
 
@@ -6127,9 +6278,25 @@ msgstr "Search"
 #~ msgid "Search my namespaces"
 #~ msgstr "Search my namespaces"
 
+#: src/shell/command-palette.tsx
+msgid "Search or go to"
+msgstr "Search or go to"
+
+#: src/shell/command-palette.tsx
+msgid "Search or go to..."
+msgstr "Search or go to..."
+
+#: src/shell/command-palette.tsx
+msgid "Search screens and repositories"
+msgstr "Search screens and repositories"
+
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
 #~ msgstr "search text input"
+
+#: src/shell/command-palette.tsx
+msgid "Searching repositories..."
+msgstr "Searching repositories..."
 
 #: src/components/remote-form.tsx
 msgid "Seconds. Leave empty to use the server default."
@@ -6411,7 +6578,7 @@ msgstr "Show password"
 #~ msgid "Sign version {version}"
 #~ msgstr "Sign version {version}"
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "Sign-out did not complete"
 msgstr "Sign-out did not complete"
 
@@ -6420,7 +6587,6 @@ msgstr "Sign-out did not complete"
 #~ msgstr "Signature"
 
 #: src/containers/signature-keys/list.tsx
-#: src/menu.tsx
 msgid "Signature keys"
 msgstr "Signature keys"
 
@@ -6453,6 +6619,10 @@ msgstr "Signature keys will appear once created."
 #~ msgid "Signed and approved"
 #~ msgstr "Signed and approved"
 
+#: src/shell/account-menu.tsx
+msgid "Signed in as {username}"
+msgstr "Signed in as {username}"
+
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
 #~ msgstr "Signed only"
@@ -6469,6 +6639,10 @@ msgstr "Signature keys will appear once created."
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signing service selector:"
 #~ msgstr "Signing service selector:"
+
+#: src/menu.tsx
+msgid "Signing services"
+msgstr "Signing services"
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6512,17 +6686,25 @@ msgstr "Single sign on URL."
 msgid "Skip them"
 msgstr "Skip them"
 
+#: src/shell/shell.tsx
+msgid "Skip to content"
+msgstr "Skip to content"
+
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
 msgstr "Skipped"
+
+#: src/shell/command-palette.tsx
+msgid "Some repository lists could not be searched."
+msgstr "Some repository lists could not be searched."
 
 #: src/components/sort.tsx
 #~ msgid "Sort results"
 #~ msgstr "Sort results"
 
 #: src/components/remote-form.tsx
-msgid "Source packages will be skipped"
-msgstr "Source packages will be skipped"
+#~ msgid "Source packages will be skipped"
+#~ msgstr "Source packages will be skipped"
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be synchronized"
@@ -6585,7 +6767,6 @@ msgstr "States:"
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Status"
 msgstr "Status"
 
@@ -6720,12 +6901,12 @@ msgstr "Summary"
 #~ msgstr "Super users have all system permissions regardless of what groups they are in."
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to dark mode"
-msgstr "Switch to dark mode"
+#~ msgid "Switch to dark mode"
+#~ msgstr "Switch to dark mode"
 
 #: src/components/darkmode-switcher.tsx
-msgid "Switch to light mode"
-msgstr "Switch to light mode"
+#~ msgid "Switch to light mode"
+#~ msgstr "Switch to light mode"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -6833,8 +7014,8 @@ msgid "Sync udebs"
 msgstr "Sync udebs"
 
 #: src/components/sync-modal.tsx
-msgid "Sync will only add missing content"
-msgstr "Sync will only add missing content"
+#~ msgid "Sync will only add missing content"
+#~ msgstr "Sync will only add missing content"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Synced"
@@ -6924,7 +7105,6 @@ msgstr "Task list"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/menu.tsx
 msgid "Task management"
 msgstr "Task management"
 
@@ -6941,6 +7121,10 @@ msgstr "Task name"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Task to change tag \"{0}\" could not be completed."
 #~ msgstr "Task to change tag \"{0}\" could not be completed."
+
+#: src/menu.tsx
+msgid "Tasks"
+msgstr "Tasks"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7208,6 +7392,10 @@ msgstr "The username to be used for authentication when syncing. This is not req
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
 msgstr "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
+
+#: src/shell/theme-menu.tsx
+msgid "Theme"
+msgstr "Theme"
 
 #: src/components/access-tab.tsx
 msgid "There are currently no groups assigned."
@@ -7534,6 +7722,10 @@ msgstr "UI version"
 msgid "Untag image"
 msgstr "Untag image"
 
+#: src/shell/command-palette.tsx
+msgid "Up and Down to move, Enter to open, Esc to close"
+msgstr "Up and Down to move, Enter to open, Esc to close"
+
 #: src/utilities/translate-task.ts
 msgid "Update collection remote"
 msgstr "Update collection remote"
@@ -7842,8 +8034,8 @@ msgstr "User <0>{username}</0> will be removed from group <1>{groupname}</1>."
 #~ msgstr "User <0>{username}</0> will be removed from group<1>{groupname}</1>."
 
 #: src/menu.tsx
-msgid "User access"
-msgstr "User access"
+#~ msgid "User access"
+#~ msgstr "User access"
 
 #: src/menu.tsx
 #~ msgid "User Access"
@@ -7853,9 +8045,9 @@ msgstr "User access"
 msgid "User details"
 msgstr "User details"
 
-#: src/layout.tsx
-msgid "User dropdown"
-msgstr "User dropdown"
+#: src/shell/shell.tsx
+#~ msgid "User dropdown"
+#~ msgstr "User dropdown"
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
@@ -7888,9 +8080,9 @@ msgstr "Username"
 #~ msgid "Username: {0}"
 #~ msgstr "Username: {0}"
 
-#: src/layout.tsx
-msgid "Username: {username}"
-msgstr "Username: {username}"
+#: src/shell/shell.tsx
+#~ msgid "Username: {username}"
+#~ msgstr "Username: {username}"
 
 #: src/layout.tsx
 #~ msgid "Username: {userName}"
@@ -7905,6 +8097,10 @@ msgstr "Username: {username}"
 #: src/menu.tsx
 msgid "Users"
 msgstr "Users"
+
+#: src/menu.tsx
+msgid "Users and groups"
+msgstr "Users and groups"
 
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
@@ -7976,9 +8172,9 @@ msgstr "Versions"
 msgid "Versions kept per package"
 msgstr "Versions kept per package"
 
-#: src/constants.tsx
-#~ msgid "View all tasks"
-#~ msgstr "View all tasks"
+#: src/shell/notifications.tsx
+msgid "View all tasks"
+msgstr "View all tasks"
 
 #: src/utilities/translate-locked-role.ts
 msgid "View and cancel any task."
@@ -8158,6 +8354,10 @@ msgstr "Will verify that the checksum of all stored files matches what saved in 
 #~ msgid "Wisdom settings"
 #~ msgstr "Wisdom settings"
 
+#: src/menu.tsx
+msgid "Workers and status"
+msgstr "Workers and status"
+
 #: src/components/ratings.tsx
 #~ msgid "Works without change"
 #~ msgstr "Works without change"
@@ -8239,7 +8439,7 @@ msgstr "You are about to remove <0>{username}</0> from <1>{name}</1>.<2/>This wi
 #~ msgid "You are an SSO user. Your token will expire <0/>."
 #~ msgstr "You are an SSO user. Your token will expire <0/>."
 
-#: src/layout.tsx
+#: src/shell/shell.tsx
 msgid "You are still signed in."
 msgstr "You are still signed in."
 
@@ -8303,6 +8503,10 @@ msgstr "You don't have permission to display users."
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Your password was changed. Sign in with the new password."
+
+#: src/shell/notifications.tsx
+msgid "Your tasks appear here when they fail, complete or are canceled."
+msgstr "Your tasks appear here when they fail, complete or are canceled."
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Your token will expire <0/>."

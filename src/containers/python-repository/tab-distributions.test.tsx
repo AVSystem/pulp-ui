@@ -213,7 +213,7 @@ describe('Python repository Distributions tab: editing a distribution', () => {
     const dialog = await openEditDialog(user);
     await within(dialog).findByDisplayValue('zz-mirror');
 
-    await user.click(within(dialog).getByRole('button', { name: /Clear all/ }));
+    await user.click(within(dialog).getByRole('button', { name: 'Clear' }));
     await user.click(saveButton(dialog));
 
     await waitFor(() => expect(patchBodies).toHaveLength(1));

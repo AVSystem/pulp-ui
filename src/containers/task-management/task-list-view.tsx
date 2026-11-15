@@ -6,7 +6,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Link } from 'react-router';
 import {
@@ -34,6 +34,7 @@ import {
   RepairTaskModal,
   SortTable,
   StatusIndicator,
+  Table,
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';

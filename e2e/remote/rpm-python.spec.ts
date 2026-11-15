@@ -176,7 +176,7 @@ for (const plugin of [rpm, python]) {
 
       await page.goto(`${plugin.screens}/repositories/detail/${name}`);
       await expect(title(page, name)).toBeVisible();
-      const urlRow = page.locator('.pf-v5-c-description-list__group', {
+      const urlRow = page.locator('.pf-v6-c-description-list__group', {
         hasText: 'Repository URL',
       });
       await expect(urlRow).toContainText(reported);

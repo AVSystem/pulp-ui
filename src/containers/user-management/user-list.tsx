@@ -1,14 +1,15 @@
 import { t } from '@lingui/core/macro';
 import {
   Button,
+  DropdownItem,
   Label,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import tableStyles from '@patternfly/react-styles/css/components/Table/table.mjs';
+import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { Component } from 'react';
 import { Link, Navigate } from 'react-router';
 import { UserAPI, type UserType } from 'src/api';
@@ -30,6 +31,7 @@ import {
   Main,
   PulpPagination,
   SortTable,
+  Table,
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
@@ -267,13 +269,13 @@ class UserList extends Component<RouteProps, IState> {
           title: t`First name`,
           type: 'alpha',
           id: 'first_name',
-          className: 'pf-m-wrap',
+          className: tableStyles.modifiers.wrap,
         },
         {
           title: t`Last name`,
           type: 'alpha',
           id: 'last_name',
-          className: 'pf-m-wrap',
+          className: tableStyles.modifiers.wrap,
         },
         {
           title: t`Email`,
@@ -318,16 +320,16 @@ class UserList extends Component<RouteProps, IState> {
       dropdownItems.push(
         <DropdownItem
           key='edit'
-          component={
-            <Link
-              to={formatPath(Paths.core.user.edit, {
+          onClick={() =>
+            this.props.navigate(
+              formatPath(Paths.core.user.edit, {
                 user_id: user.id,
-              })}
-            >
-              {t`Edit`}
-            </Link>
+              }),
+            )
           }
-        />,
+        >
+          {t`Edit`}
+        </DropdownItem>,
       );
     }
 

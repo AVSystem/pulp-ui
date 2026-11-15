@@ -1,10 +1,28 @@
 import { t } from '@lingui/core/macro';
 import {
+  Button,
+  Label,
+  MenuToggle,
+  type MenuToggleElement,
   Select,
+  SelectList,
   SelectOption,
-  SelectVariant,
-} from '@patternfly/react-core/deprecated';
-import { type CSSProperties, Component, type ReactElement } from 'react';
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupUtilities,
+} from '@patternfly/react-core';
+import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactElement,
+  type RefObject,
+  useId,
+  useRef,
+  useState,
+} from 'react';
+import { LabelGroup } from 'src/components';
 
 interface IProps {
   results: { name: string; id: number | string }[];
@@ -26,96 +44,223 @@ interface IProps {
   style?: CSSProperties;
 }
 
-interface IState {
-  isOpen: boolean;
-}
+// A search field with a list of options that the caller fetches: every
+// keystroke goes to loadResults and the options are whatever the caller hands
+// back in results, so filtering happens on the server, not here.
+export const Typeahead = ({
+  results,
+  loadResults,
+  onSelect,
+  selections = [],
+  multiple,
+  placeholderText,
+  onClear,
+  isDisabled,
+  endLink,
+  menuAppendTo,
+  toggleIcon,
+  style,
+}: IProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  // null while the user is not typing, so a single selection shows its name
+  const [typedText, setTypedText] = useState<string | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listId = useId();
 
-export class Typeahead extends Component<IProps, IState> {
-  constructor(props) {
-    super(props);
+  const selectedNames = selections.map(({ name }) => name);
+  const inputValue = typedText ?? (multiple ? '' : (selectedNames[0] ?? ''));
 
-    this.state = {
-      isOpen: false,
-    };
-  }
+  // the entries the keyboard can move through: enabled options, then the link
+  const options = results.map(({ id, name }) => ({ key: String(id), name }));
+  const optionIds = options.map((_, i) => `${listId}-option-${i}`);
+  const linkId = `${listId}-end-link`;
+  const focusableIds = [...optionIds, ...(endLink ? [linkId] : [])];
+  const activeId =
+    focusedIndex === null ? undefined : focusableIds[focusedIndex];
 
-  render() {
-    let selected = null;
-    if (this.props.selections) {
-      selected = this.props.selections.map((group) => group.name);
-    }
-
-    const { isOpen } = this.state;
-    const variant = this.props.multiple
-      ? SelectVariant.typeaheadMulti
-      : SelectVariant.typeahead;
-
-    return (
-      <Select
-        menuAppendTo={this.props.menuAppendTo}
-        onClear={this.onClear}
-        onSelect={this.onSelect}
-        onToggle={(_event, isOpen) => this.onToggle(isOpen)}
-        variant={variant}
-        selections={selected}
-        isOpen={isOpen}
-        hasInlineFilter
-        onFilter={this.onFilter}
-        placeholderText={this.props.placeholderText}
-        isDisabled={this.props.isDisabled}
-        toggleIcon={this.props.toggleIcon}
-        style={this.props.style}
-      >
-        {this.getOptions()}
-      </Select>
-    );
-  }
-
-  private onClear = () => {
-    this.props.loadResults('');
-    if (this.props.onClear) {
-      this.props.onClear();
+  const open = () => {
+    if (!isDisabled) {
+      setIsOpen(true);
     }
   };
 
-  private getOptions() {
-    const options = this.props.results.map(({ id, name }) => (
-      <SelectOption key={id} value={name} />
-    ));
-
-    if (options.length === 0) {
-      options.push(
-        <SelectOption key={'not_found'} value={t`Not found`} isDisabled />,
-      );
-    }
-
-    return options;
-  }
-
-  private onFilter = (evt) => {
-    if (evt !== null) {
-      const textInput = evt.target.value;
-      this.props.loadResults(textInput);
-    }
-    return this.getOptions();
+  const close = () => {
+    setIsOpen(false);
+    setFocusedIndex(null);
   };
 
-  private onToggle = (isOpen) => {
-    this.setState({
-      isOpen,
-    });
+  const selectOption = (event, name: string) => {
+    onSelect(event, name, false);
+
+    if (!multiple) {
+      setTypedText(null);
+      close();
+      loadResults('');
+    }
+    inputRef.current?.focus();
   };
 
-  private onSelect = (event, selection, isPlaceholder) => {
-    this.props.onSelect(event, selection, isPlaceholder);
+  const onTextChange = (_event, value: string) => {
+    setTypedText(value);
+    setFocusedIndex(null);
+    open();
+    loadResults(value);
+  };
 
-    if (!this.props.multiple) {
-      this.setState(
-        {
-          isOpen: false,
-        },
-        () => this.props.loadResults(''),
-      );
+  const onClearClick = () => {
+    setTypedText(null);
+    setFocusedIndex(null);
+    loadResults('');
+    onClear?.();
+    inputRef.current?.focus();
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowUp': {
+        event.preventDefault();
+        if (!isOpen) {
+          open();
+          return;
+        }
+        if (focusableIds.length === 0) {
+          return;
+        }
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+        setFocusedIndex((current) =>
+          current === null
+            ? step === 1
+              ? 0
+              : focusableIds.length - 1
+            : (current + step + focusableIds.length) % focusableIds.length,
+        );
+        break;
+      }
+      case 'Enter': {
+        event.preventDefault();
+        if (!isOpen) {
+          open();
+        } else if (focusedIndex !== null && focusedIndex < options.length) {
+          selectOption(event, options[focusedIndex].name);
+        } else if (focusedIndex !== null && endLink) {
+          document.getElementById(linkId)?.click();
+        }
+        break;
+      }
     }
   };
-}
+
+  const toggleNode = (
+    <MenuToggle
+      ref={toggleRef as RefObject<MenuToggleElement>}
+      variant='typeahead'
+      aria-label={t`Options`}
+      aria-haspopup='listbox'
+      onClick={() => (isOpen ? close() : open())}
+      isExpanded={isOpen}
+      isDisabled={isDisabled}
+      isFullWidth
+      icon={toggleIcon}
+      style={style}
+    >
+      <TextInputGroup isPlain isDisabled={isDisabled}>
+        <TextInputGroupMain
+          value={inputValue}
+          onClick={open}
+          onChange={onTextChange}
+          onKeyDown={onKeyDown}
+          innerRef={inputRef}
+          autoComplete='off'
+          placeholder={placeholderText}
+          aria-label={placeholderText}
+          aria-activedescendant={activeId}
+          aria-controls={listId}
+          role='combobox'
+          isExpanded={isOpen}
+        >
+          {multiple && selections.length > 0 && (
+            <LabelGroup aria-label={t`Current selections`}>
+              {selections.map(({ id, name }) => (
+                <Label
+                  key={id}
+                  variant='outline'
+                  isDisabled={isDisabled}
+                  closeBtnAriaLabel={t`close`}
+                  onClose={(event: MouseEvent) => {
+                    event.stopPropagation();
+                    onSelect(event, name, false);
+                  }}
+                >
+                  {name}
+                </Label>
+              ))}
+            </LabelGroup>
+          )}
+        </TextInputGroupMain>
+        {!isDisabled && (inputValue || selections.length > 0) && (
+          <TextInputGroupUtilities>
+            <Button
+              variant='plain'
+              onClick={onClearClick}
+              aria-label={t`Clear`}
+              icon={<TimesIcon aria-hidden />}
+            />
+          </TextInputGroupUtilities>
+        )}
+      </TextInputGroup>
+    </MenuToggle>
+  );
+
+  return (
+    <Select
+      variant='typeahead'
+      isOpen={isOpen}
+      selected={selectedNames}
+      onSelect={(event, value) => {
+        if (typeof value === 'string') {
+          selectOption(event, value);
+        }
+      }}
+      onOpenChange={(nextOpen) => (nextOpen ? open() : close())}
+      toggle={{ toggleNode, toggleRef }}
+      popperProps={{
+        appendTo:
+          menuAppendTo === 'parent'
+            ? () => toggleRef.current?.parentElement ?? document.body
+            : 'inline',
+      }}
+    >
+      <SelectList id={listId}>
+        {options.length === 0 ? (
+          <SelectOption key='not_found' isDisabled>
+            {t`Not found`}
+          </SelectOption>
+        ) : (
+          options.map(({ key, name }, i) => (
+            <SelectOption
+              key={key}
+              id={optionIds[i]}
+              value={name}
+              isFocused={focusedIndex === i}
+            >
+              {name}
+            </SelectOption>
+          ))
+        )}
+        {endLink && (
+          <SelectOption
+            key='end-link'
+            id={linkId}
+            to={endLink.href}
+            isFocused={focusedIndex === options.length}
+          >
+            {endLink.name}
+          </SelectOption>
+        )}
+      </SelectList>
+    </Select>
+  );
+};

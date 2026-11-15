@@ -1,6 +1,13 @@
 import { t } from '@lingui/core/macro';
-import { Button, Modal, type ModalProps } from '@patternfly/react-core';
-import { type ReactNode } from 'react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  type ModalProps,
+} from '@patternfly/react-core';
+import { type ReactNode, useId } from 'react';
 import { Spinner } from 'src/components';
 
 interface IProps {
@@ -29,9 +36,19 @@ export const DeleteModal = ({
   spinner,
   variant = 'small',
 }: IProps) => {
+  const labelId = useId();
+
   return (
     <Modal
-      actions={[
+      aria-labelledby={labelId}
+      isOpen
+      onClose={isCancelDisabled ? undefined : cancelAction}
+      variant={variant}
+      data-cy='modal_checkbox'
+    >
+      <ModalHeader labelId={labelId} title={title} titleIconVariant='warning' />
+      <ModalBody>{children}</ModalBody>
+      <ModalFooter>
         <div data-cy='delete-button' key='delete'>
           <Button
             key='delete'
@@ -42,7 +59,7 @@ export const DeleteModal = ({
             {isRemove ? t`Remove` : t`Delete`}
             {spinner && <Spinner size='sm' />}
           </Button>
-        </div>,
+        </div>
         <Button
           key='cancel'
           onClick={cancelAction}
@@ -50,17 +67,8 @@ export const DeleteModal = ({
           isDisabled={isCancelDisabled}
         >
           {t`Cancel`}
-        </Button>,
-      ]}
-      isOpen
-      onClose={isCancelDisabled ? undefined : cancelAction}
-      showClose={!isCancelDisabled}
-      title={title}
-      titleIconVariant='warning'
-      variant={variant}
-      data-cy='modal_checkbox'
-    >
-      {children}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

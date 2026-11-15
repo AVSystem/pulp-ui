@@ -4,7 +4,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { Table, Tbody } from '@patternfly/react-table';
+import { Tbody } from '@patternfly/react-table';
 import { type ReactNode, useEffect, useState } from 'react';
 import {
   AppliedFilters,
@@ -18,6 +18,7 @@ import {
   type Query,
   type RenderTableRow,
   SortTable,
+  Table,
 } from 'src/components';
 import { type ActionType } from '../actions/action';
 import { filterIsSet } from '../utilities/filter-is-set';

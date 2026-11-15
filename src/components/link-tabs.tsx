@@ -1,4 +1,5 @@
-import cx from 'classnames';
+import { css } from '@patternfly/react-styles';
+import tabsStyles from '@patternfly/react-styles/css/components/Tabs/tabs.mjs';
 import { type ReactNode } from 'react';
 import { Link } from 'react-router';
 
@@ -14,14 +15,15 @@ export interface LinkTabsProps {
 
 const renderTab = ({ link, title, icon = null, active = false }) => (
   <li
-    className={cx({
-      'pf-v5-c-tabs__item': true,
-      'pf-m-current': active,
-    })}
+    className={css(tabsStyles.tabsItem, active && tabsStyles.modifiers.current)}
     key={title}
   >
-    <Link to={link} className='pf-v5-c-tabs__link'>
-      <span className='pf-v5-c-tabs__item-text'>
+    <Link
+      to={link}
+      className={tabsStyles.tabsLink}
+      aria-current={active ? 'page' : undefined}
+    >
+      <span className={tabsStyles.tabsItemText}>
         {icon ? <>{icon} </> : null}
         {title}
       </span>
@@ -31,8 +33,8 @@ const renderTab = ({ link, title, icon = null, active = false }) => (
 
 // We're not using the Tab react component because they don't support links.
 export const LinkTabs = ({ tabs }: LinkTabsProps) => (
-  <div className='pf-v5-c-tabs'>
-    <ul className='pf-v5-c-tabs__list'>
+  <div className={tabsStyles.tabs}>
+    <ul className={tabsStyles.tabsList}>
       {tabs.filter(Boolean).map((tab) => renderTab(tab))}
     </ul>
   </div>

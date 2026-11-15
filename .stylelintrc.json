@@ -2,6 +2,41 @@
   "extends": "stylelint-config-recommended-scss",
   "rules": {
     "custom-property-pattern": "^([a-z][a-z0-9]*)(-+[a-zA-Z0-9_]+)*$",
-    "selector-class-pattern": null
-  }
+    "selector-class-pattern": null,
+    "color-no-hex": true,
+    "color-named": "never",
+    "function-disallowed-list": [
+      "rgb",
+      "rgba",
+      "hsl",
+      "hsla",
+      "hwb",
+      "lab",
+      "lch",
+      "oklab",
+      "oklch",
+      "color",
+      "color-mix"
+    ],
+    "declaration-property-value-disallowed-list": {
+      "/.*/": [
+        "/--pf-t--color--/",
+        "/--pf-t--global--dark--/",
+        "/--pf-t--global--[a-z-]+--(100|150|200|300|400|500|600|700|800|900)\\b/",
+        "/--pf-t--temp--/",
+        "/--pf-v5-/"
+      ]
+    }
+  },
+  "overrides": [
+    {
+      "files": ["src/theme/tokens.scss"],
+      "rules": {
+        "color-no-hex": null,
+        "color-named": null,
+        "function-disallowed-list": null,
+        "declaration-property-value-disallowed-list": null
+      }
+    }
+  ]
 }

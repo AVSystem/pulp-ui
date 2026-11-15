@@ -223,7 +223,13 @@ const CardJSON = ({ status }: { status }) => {
 
   return (
     <Card isExpanded={expanded}>
-      <CardHeader onExpand={() => setExpanded(!expanded)}>
+      <CardHeader
+        onExpand={() => setExpanded(!expanded)}
+        toggleButtonProps={{
+          'aria-expanded': expanded,
+          'aria-label': t`JSON`,
+        }}
+      >
         <CardTitle onClick={() => setExpanded(!expanded)}>{t`JSON`}</CardTitle>
       </CardHeader>
       <CardExpandableContent>

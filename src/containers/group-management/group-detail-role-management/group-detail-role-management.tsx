@@ -2,12 +2,12 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Button,
+  DropdownItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DropdownItem } from '@patternfly/react-core/deprecated';
 import { Td } from '@patternfly/react-table';
 import { type FunctionComponent, useEffect, useState } from 'react';
 import {

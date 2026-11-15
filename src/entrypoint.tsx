@@ -2,8 +2,8 @@ import './app.scss';
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
 import { I18nProvider } from '@lingui/react';
-import '@patternfly/patternfly/patternfly.scss';
 import { Button } from '@patternfly/react-core';
+import '@patternfly/react-core/dist/styles/base.css';
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';
@@ -11,6 +11,8 @@ import { Alert, LoadingSpinner } from 'src/components';
 import { dataRoutes } from './app-routes';
 import './darkmode';
 import './l10n';
+import './theme/shell.scss';
+import './theme/tokens.scss';
 import { configFallback, configPromise } from './ui-config';
 
 // App entrypoint

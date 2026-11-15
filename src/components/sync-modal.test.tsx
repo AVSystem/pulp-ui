@@ -7,7 +7,7 @@ import { server } from 'src/test-utils/server';
 import { SyncModal } from './sync-modal';
 
 const mirrorSwitch = () =>
-  screen.getByRole('checkbox', {
+  screen.getByRole('switch', {
     name: /Content not present in remote|Sync will only add/,
   });
 const syncButton = () => screen.getByRole('button', { name: /^Sync/ });

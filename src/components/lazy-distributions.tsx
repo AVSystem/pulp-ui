@@ -70,9 +70,7 @@ export const LazyDistributions = ({
   if (error) {
     return (
       <Tooltip content={t`Failed to load distributions: ${error}`} key='empty'>
-        <Button variant='plain'>
-          <ExclamationCircleIcon />
-        </Button>
+        <Button icon={<ExclamationCircleIcon />} variant='plain' />
       </Tooltip>
     );
   }

@@ -281,3 +281,23 @@ describe('remote form, signed only', () => {
     expect(screen.queryByText('Download only signed collections')).toBeNull();
   });
 });
+
+describe('remote form, labels', () => {
+  it('names the SSO URL field of an ansible remote by its label', async () => {
+    renderWithProviders(<Harness plugin='ansible' onSave={vi.fn()} />);
+
+    expect(
+      await screen.findByRole('textbox', { name: /SSO URL/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('gives every help button of the form an accessible name', async () => {
+    renderWithProviders(<Harness plugin='ansible' onSave={vi.fn()} />);
+
+    await screen.findByRole('textbox', { name: /SSO URL/ });
+    const helpButtons = screen.getAllByRole('button', {
+      name: 'More information',
+    });
+    expect(helpButtons.length).toBeGreaterThan(1);
+  });
+});

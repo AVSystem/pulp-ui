@@ -1,11 +1,12 @@
 import { t } from '@lingui/core/macro';
 import {
   Dropdown,
-  DropdownPosition,
-  DropdownToggle,
-  KebabToggle,
-} from '@patternfly/react-core/deprecated';
-import { type ReactNode, useState } from 'react';
+  DropdownList,
+  MenuToggle,
+  type MenuToggleElement,
+} from '@patternfly/react-core';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import { type ReactNode, type Ref, useState } from 'react';
 
 interface IProps {
   /** List of patternfly DropdownItem components */
@@ -27,6 +28,8 @@ interface IProps {
   isPlain?: boolean;
 
   ariaLabel?: string;
+  /** Extra class on the toggle button */
+  toggleClassName?: string;
   'data-cy'?: string;
 }
 
@@ -38,52 +41,64 @@ export const StatefulDropdown = ({
   defaultText,
   isPlain = true,
   ariaLabel,
+  toggleClassName,
   'data-cy': dataCy,
 }: IProps) => {
   const [isOpen, setOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<string>(undefined);
-  const onToggle = (_event, open) => setOpen(open);
+
+  const toggleProps = {
+    'aria-label': ariaLabel,
+    className: toggleClassName,
+    'data-cy': dataCy,
+    isExpanded: isOpen,
+    onClick: () => setOpen(!isOpen),
+  };
+
+  const renderToggle = (toggleRef: Ref<MenuToggleElement>) => {
+    switch (toggleType) {
+      case 'dropdown':
+        return (
+          <MenuToggle
+            ref={toggleRef}
+            variant={isPlain ? 'plainText' : 'default'}
+            {...toggleProps}
+          >
+            {defaultText || t`Dropdown`}
+          </MenuToggle>
+        );
+      case 'icon':
+        return (
+          <MenuToggle ref={toggleRef} variant='plain' {...toggleProps}>
+            {defaultText || t`Dropdown`}
+          </MenuToggle>
+        );
+      case 'kebab':
+        return (
+          <MenuToggle
+            ref={toggleRef}
+            variant='plain'
+            {...toggleProps}
+            aria-label={ariaLabel || t`Actions`}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        );
+    }
+  };
 
   return (
     <Dropdown
-      onSelect={(e) =>
-        onSelect(e, { isOpen, onSelectProp, setOpen, setSelected })
-      }
-      toggle={renderToggle({ toggleType, defaultText, onToggle, selected })}
       isOpen={isOpen}
-      isPlain={isPlain}
-      dropdownItems={items}
-      position={position || DropdownPosition.right}
-      aria-label={ariaLabel}
-      data-cy={dataCy}
-    />
+      onOpenChange={setOpen}
+      onSelect={(event) => {
+        setOpen(false);
+        onSelectProp?.(event);
+      }}
+      shouldFocusToggleOnSelect
+      popperProps={{ position: position === 'left' ? 'start' : 'end' }}
+      toggle={renderToggle}
+    >
+      <DropdownList>{items}</DropdownList>
+    </Dropdown>
   );
 };
-
-function renderToggle({ toggleType, defaultText, onToggle, selected }) {
-  switch (toggleType) {
-    case 'dropdown':
-      return (
-        <DropdownToggle onToggle={onToggle}>
-          {selected ? selected : defaultText || t`Dropdown`}
-        </DropdownToggle>
-      );
-    case 'icon':
-      return (
-        <DropdownToggle toggleIndicator={null} onToggle={onToggle}>
-          {selected ? selected : defaultText || t`Dropdown`}
-        </DropdownToggle>
-      );
-    case 'kebab':
-      return <KebabToggle onToggle={onToggle} />;
-  }
-}
-
-function onSelect(event, { isOpen, onSelectProp, setOpen, setSelected }) {
-  setOpen(!isOpen);
-  setSelected(event.currentTarget.value);
-
-  if (onSelectProp) {
-    onSelectProp(event);
-  }
-}

@@ -19,7 +19,7 @@ test('logging out and signing in again through the menu ends on Status', async (
   await page.getByText('Logout', { exact: true }).click();
 
   // signed out: the menu offers Login instead of the user dropdown
-  await page.locator('[data-cy=pulp-menu-item-Login]').click();
+  await page.locator('[data-cy=pulp-menu-item-login]').click();
   await expect(title(page, 'Login')).toBeVisible();
 
   await signIn(page);
