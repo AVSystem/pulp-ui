@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { expect } from 'vitest';
+import { isSignedIn } from '../session/session-events';
 import { useUserContext } from '../user-context';
 import { server } from './server';
 
@@ -39,11 +40,13 @@ export function SignInAgain() {
 }
 
 // Waits until the session check has answered, so a sign-in counts as the same
-// user coming back.
+// user coming back. The session store learns of the user in an effect that runs
+// after the status is shown; a refusal reported before that would be ignored.
 export const signedIn = () =>
-  waitFor(() =>
-    expect(screen.getByTestId('session')).toHaveTextContent('authenticated'),
-  );
+  waitFor(() => {
+    expect(screen.getByTestId('session')).toHaveTextContent('authenticated');
+    expect(isSignedIn()).toBe(true);
+  });
 
 // Records every request that is not a read, as "METHOD /path".
 export function recordWrites() {

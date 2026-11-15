@@ -16,6 +16,7 @@ import { config } from 'src/ui-config';
 import { useSessionEpoch, useUserContext } from 'src/user-context';
 import { ReauthDialog } from './reauth-dialog';
 import {
+  isSignedIn,
   isSuspended,
   reportUnauthorized,
   resetSessionEvents,
@@ -84,6 +85,11 @@ function refuseExamples() {
   );
 }
 
+// The session store learns of the signed-in user, and the dialog starts
+// listening for a return to the tab, in effects that run after the screen shows
+// the status; a report or an event sent before they ran would reach nobody.
+const storeKnowsUser = () => waitFor(() => expect(isSignedIn()).toBe(true));
+
 async function renderScreen() {
   signedInAs();
   refuseExamples();
@@ -97,6 +103,7 @@ async function renderScreen() {
   await waitFor(() =>
     expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
   );
+  await storeKnowsUser();
   return rendered;
 }
 
@@ -453,6 +460,7 @@ describe('sign in again dialog contract', () => {
     await waitFor(() =>
       expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
     );
+    await storeKnowsUser();
     const dialog = await openByRequest(user);
 
     await user.click(
@@ -482,6 +490,7 @@ describe('sign in again dialog contract', () => {
       await waitFor(() =>
         expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
       );
+      await storeKnowsUser();
 
       act(() => reportUnauthorized('request'));
       await new Promise((resolve) => setTimeout(resolve, 30));
@@ -505,6 +514,7 @@ describe('sign in again dialog contract', () => {
     await waitFor(() =>
       expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
     );
+    await storeKnowsUser();
 
     const dialog = await openByRequest(user);
 
@@ -728,6 +738,7 @@ describe('returning to the tab', () => {
     await waitFor(() =>
       expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
     );
+    await storeKnowsUser();
     const counts = countRequests();
 
     returnToTab();
