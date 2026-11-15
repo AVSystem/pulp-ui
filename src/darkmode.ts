@@ -1,3 +1,9 @@
+import {
+  readStored,
+  removeStored,
+  writeStored,
+} from 'src/utilities/safe-storage';
+
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 export const reflectPreference = (value: 'dark' | 'light') => {
@@ -14,7 +20,7 @@ export const reflectPreference = (value: 'dark' | 'light') => {
 // the storage (an older build wrote the string "null" for no choice) leaves
 // the decision to the system.
 export const getUserChoice: () => 'dark' | 'light' | null = () => {
-  const stored = window.localStorage.getItem('pulp-darkmode');
+  const stored = readStored('pulp-darkmode');
   return stored === 'dark' || stored === 'light' ? stored : null;
 };
 
@@ -28,11 +34,15 @@ const reflectEffectiveTheme = () =>
 // preference applies again, and show the resulting theme.
 export const setUserChoice = (value: 'dark' | 'light' | null) => {
   if (value === 'dark' || value === 'light') {
-    window.localStorage.setItem('pulp-darkmode', value);
+    writeStored('pulp-darkmode', value);
   } else {
-    window.localStorage.removeItem('pulp-darkmode');
+    removeStored('pulp-darkmode');
   }
-  reflectEffectiveTheme();
+  // Shown from the argument, not read back, so the choice also takes effect
+  // when the storage refuses to keep it.
+  reflectPreference(
+    value === 'dark' || value === 'light' ? value : getBrowserDefault(),
+  );
 };
 
 // Show the system theme now and whenever it changes, for as long as the user

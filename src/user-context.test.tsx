@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { blockStorage } from 'src/test-utils/storage';
 import { useUserContext } from './user-context';
 
 const LOGIN_URL = '*/pulp/api/v3/login/';
@@ -54,6 +55,14 @@ async function renderSignedIn() {
 describe('user context', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('still starts and asks who is signed in when the browser storage is blocked', async () => {
+    blockStorage();
+
+    await renderSignedIn();
+
+    expect(screen.getByTestId('user')).toHaveTextContent('zoe');
   });
 
   it('on start it removes the legacy credentials keys from both storages without reading them and asks who is signed in', async () => {
