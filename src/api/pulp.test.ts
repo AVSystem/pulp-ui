@@ -1,7 +1,10 @@
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  SessionSuspendedError,
+  reportUnauthorized,
   resetSessionEvents,
+  resume,
   setSignedIn,
   subscribe,
 } from 'src/session/session-events';
@@ -204,6 +207,74 @@ describe('api client', () => {
       await new Promise((resolve) => setTimeout(resolve, 30));
 
       expect(requests).toBe(1);
+    });
+  });
+
+  describe('while the session has ended', () => {
+    afterEach(() => {
+      resetSessionEvents();
+    });
+
+    const endSession = () => {
+      setSignedIn(true);
+      reportUnauthorized('tab-return');
+    };
+
+    it('a request other than a sign-in call is held back and never leaves the browser', async () => {
+      const seen = recordRequests();
+      endSession();
+
+      await expect(new ExampleAPI().read()).rejects.toBeInstanceOf(
+        SessionSuspendedError,
+      );
+      await expect(new ExampleAPI().create('one')).rejects.toBeInstanceOf(
+        SessionSuspendedError,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 30));
+
+      expect(seen).toHaveLength(0);
+    });
+
+    it('the sign-in calls still go out', async () => {
+      let sent = 0;
+      server.use(
+        http.post('*/pulp/api/v3/login/', () => {
+          sent += 1;
+          return HttpResponse.json({});
+        }),
+        http.get('*/pulp/api/v3/login/', () => {
+          sent += 1;
+          return HttpResponse.json({});
+        }),
+      );
+      endSession();
+      const api = new ExampleAPI();
+
+      await api.login();
+      await api.whoami();
+
+      expect(sent).toBe(2);
+    });
+
+    it('requests go out again after the session resumes', async () => {
+      const seen = recordRequests();
+      endSession();
+      await expect(new ExampleAPI().read()).rejects.toBeDefined();
+
+      resume();
+      await new ExampleAPI().read();
+
+      expect(seen).toHaveLength(1);
+    });
+
+    it('a held-back request does not tell the session about a refusal', async () => {
+      endSession();
+      const listener = vi.fn();
+      subscribe(listener);
+
+      await expect(new ExampleAPI().read()).rejects.toBeDefined();
+
+      expect(listener).not.toHaveBeenCalled();
     });
   });
 });

@@ -11,6 +11,17 @@ export interface ISessionEnded {
   fromRequest: boolean;
 }
 
+// The rejection of a request that was not sent because the session has ended
+// and the user is signing in again. Nothing was asked of the server, so the
+// failure is not about the data: callers treat it like a refused request and
+// leave the explaining to the sign-in dialog.
+export class SessionSuspendedError extends Error {
+  constructor() {
+    super('The request was held back while the session is being renewed.');
+    this.name = 'SessionSuspendedError';
+  }
+}
+
 // A tiny store shared by the API layer, which has no React around it, and the
 // screens that react to a refused request.
 let signedIn = false;

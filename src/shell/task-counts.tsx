@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { TaskAPI } from 'src/api/task';
 import { Paths, formatPath } from 'src/paths';
+import { isSuspended, subscribe } from 'src/session/session-events';
 
 // How often the counts are asked for again while the page is in view.
 export const COUNT_REFRESH_MS = 60_000;
@@ -27,7 +28,9 @@ interface ITaskCounts {
 // one row each, so only the total is transferred. They are asked for when the
 // component appears, every minute while the page is in view, and when the
 // route enters or leaves the Tasks screen. Each count stands alone: a request
-// that fails clears only its own number.
+// that fails clears only its own number. While the session has ended and the
+// sign-in dialog is open nothing is asked, the numbers stay as they are, and
+// one round runs as soon as the user has signed in again.
 export function useTaskCounts(): ITaskCounts {
   const [counts, setCounts] = useState<ITaskCounts>({
     running: null,
@@ -43,6 +46,10 @@ export function useTaskCounts(): ITaskCounts {
 
   useEffect(() => {
     const load = () => {
+      if (isSuspended()) {
+        return;
+      }
+
       const current = ++latest.current;
       const since = new Date(Date.now() - FAILURE_WINDOW_MS).toISOString();
 
@@ -63,6 +70,9 @@ export function useTaskCounts(): ITaskCounts {
     };
 
     load();
+    // Notified on every change of the session; only the one that lifts the
+    // pause starts a round.
+    const unsubscribe = subscribe(load);
     const timer = setInterval(() => {
       if (document.visibilityState === 'visible') {
         load();
@@ -71,6 +81,7 @@ export function useTaskCounts(): ITaskCounts {
 
     return () => {
       clearInterval(timer);
+      unsubscribe();
       latest.current++;
     };
   }, [onTasks]);

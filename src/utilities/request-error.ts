@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { type ReactNode } from 'react';
+import { SessionSuspendedError } from 'src/session/session-events';
 import { errorMessage, jsxErrorMessage } from './fail-alerts';
 
 // A failed request does not always carry a response: a network error, a CORS
@@ -11,6 +12,18 @@ import { errorMessage, jsxErrorMessage } from './fail-alerts';
 export function requestErrorStatus(error): number | null {
   const status = error?.response?.status;
   return typeof status === 'number' ? status : null;
+}
+
+// True when the failure is the end of the session and nothing else: a 401
+// answer, or a request that was held back while the sign-in dialog is open.
+// The dialog explains it and the screen reads again after signing in, so the
+// caller shows no alert and no error state of its own. A 403 or any other
+// failure is not a session end.
+export function isSessionEnd(error): boolean {
+  return (
+    error instanceof SessionSuspendedError ||
+    requestErrorStatus(error) === 401
+  );
 }
 
 // Readable text for whatever was thrown. For an HTTP error it is the status

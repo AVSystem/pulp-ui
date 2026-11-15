@@ -2,7 +2,12 @@ import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { PulpAPI } from '../api/pulp';
 import { server } from '../test-utils/server';
-import { requestErrorStatus, requestErrorText } from './request-error';
+import { SessionSuspendedError } from 'src/session/session-events';
+import {
+  isSessionEnd,
+  requestErrorStatus,
+  requestErrorText,
+} from './request-error';
 
 // What a failed request looks like to the caller, as axios produces it.
 async function failure(handler: Parameters<typeof http.get>[1]) {
@@ -109,5 +114,37 @@ describe('requestErrorText', () => {
     expect(text).not.toContain('secret-body-text');
     expect(text).not.toContain('secret-header-text');
     expect(text).not.toMatch(/\n\s+at /);
+  });
+});
+
+describe('isSessionEnd', () => {
+  it('is true for a 401 answer', async () => {
+    const error = await failure(() =>
+      HttpResponse.json({}, { status: 401, statusText: 'Unauthorized' }),
+    );
+    expect(isSessionEnd(error)).toBe(true);
+  });
+
+  it('is true for a request that was held back while the session is renewed', () => {
+    expect(isSessionEnd(new SessionSuspendedError())).toBe(true);
+  });
+
+  it.each([403, 404, 500, 503])('is false for a %i answer', async (status) => {
+    const error = await failure(() => HttpResponse.json({}, { status }));
+    expect(isSessionEnd(error)).toBe(false);
+  });
+
+  it('is false for a network error', async () => {
+    const error = await failure(() => HttpResponse.error());
+    expect(isSessionEnd(error)).toBe(false);
+  });
+
+  it.each([
+    ['an Error', new Error('boom')],
+    ['a string', 'boom'],
+    ['null', null],
+    ['undefined', undefined],
+  ])('is false for %s', (_name, value) => {
+    expect(isSessionEnd(value)).toBe(false);
   });
 });
