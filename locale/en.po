@@ -4059,6 +4059,10 @@ msgstr "Mirroring cannot be combined with autopublish, so this sync only adds mi
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
 
+#: src/components/help-button.tsx
+msgid "More information"
+msgstr "More information"
+
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
 #~ msgstr "Moved to the <0>Namespace owners</0> <1/> tab"

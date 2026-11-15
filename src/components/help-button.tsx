@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { Button, PopoverPosition } from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import { type ReactNode } from 'react';
@@ -24,6 +25,7 @@ export const HelpButton = ({
     position={PopoverPosition.top}
   >
     <Button
+      aria-label={t`More information`}
       icon={<OutlinedQuestionCircleIcon />}
       iconPosition='left'
       style={{ padding: 0 }}

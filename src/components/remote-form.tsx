@@ -795,7 +795,7 @@ export class RemoteForm extends Component<IProps, IState> {
 
         {!disabledFields.includes('auth_url') && (
           <FormGroup
-            fieldId={'auth_url'}
+            fieldId='ssoUrl'
             label={t`SSO URL`}
             labelHelp={<HelpButton content={t`Single sign on URL.`} />}
             isRequired={requiredFields.includes('auth_url')}
