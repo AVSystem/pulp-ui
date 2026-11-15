@@ -2,7 +2,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { listOf } from 'src/test-utils/pulp';
+import { listOf, page, remote } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryForm } from './repository-form';
@@ -565,5 +565,38 @@ describe('repository form, remote choices', () => {
     expect(
       await screen.findByText(/Failed to load remotes: Error 500/),
     ).toBeInTheDocument();
+  });
+
+  it('keeps the name of the selected remote while a search lists other remotes and after the list cannot be reloaded', async () => {
+    const chosen = remote({ name: 'mirror-one' });
+    let reloads = 0;
+    server.use(
+      http.get(`*${API}/remotes/file/file/`, ({ request }) => {
+        const text = new URL(request.url).searchParams.get('name__icontains');
+        if (text === null) {
+          reloads++;
+          // The first answer lists the remote, the later full lists fail.
+          return reloads === 1
+            ? HttpResponse.json(page([chosen]))
+            : HttpResponse.json({}, { status: 500 });
+        }
+        return HttpResponse.json(page([]));
+      }),
+    );
+
+    const { user } = renderWithProviders(
+      <Harness isNew onSave={vi.fn()} initial={{ remote: chosen.pulp_href }} />,
+    );
+    const box = await screen.findByRole('combobox', {
+      name: 'Select a remote',
+    });
+    await waitFor(() => expect(box).toHaveValue('mirror-one'));
+
+    await user.clear(box);
+    await user.type(box, 'zz');
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => expect(reloads).toBeGreaterThanOrEqual(3));
+    await waitFor(() => expect(box).toHaveValue('mirror-one'));
   });
 });

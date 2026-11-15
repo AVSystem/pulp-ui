@@ -127,6 +127,56 @@ describe('Typeahead', () => {
     );
   });
 
+  it('drops typed text and asks for the full list when a single-select menu closes without a choice', async () => {
+    const loadResults = vi.fn();
+    const { user } = renderWithProviders(
+      <Harness
+        loadResults={loadResults}
+        selections={[results[0]]}
+        onSelect={() => undefined}
+      />,
+    );
+    const box = screen.getByRole('combobox');
+    expect(box).toHaveValue('admin');
+
+    await user.clear(box);
+    await user.type(box, 'zz');
+    expect(box).toHaveValue('zz');
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => expect(box).toHaveValue('admin'));
+    expect(loadResults).toHaveBeenLastCalledWith('');
+  });
+
+  it('drops typed text when the page outside the field is pressed', async () => {
+    const { user } = renderWithProviders(
+      <>
+        <Harness selections={[results[1]]} onSelect={() => undefined} />
+        <button type='button'>Elsewhere</button>
+      </>,
+    );
+    const box = screen.getByRole('combobox');
+
+    await user.clear(box);
+    await user.type(box, 'q');
+    await user.click(screen.getByRole('button', { name: 'Elsewhere' }));
+
+    await waitFor(() => expect(box).toHaveValue('adrian'));
+  });
+
+  it('keeps typed text of a multiple-select field when the menu closes', async () => {
+    const { user } = renderWithProviders(<Harness multiple />);
+    const box = screen.getByRole('combobox');
+
+    await user.type(box, 'ad');
+    await user.keyboard('{Escape}');
+
+    await waitFor(() =>
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument(),
+    );
+    expect(box).toHaveValue('ad');
+  });
+
   it('shows the selections as removable labels in multiple mode', async () => {
     const onSelect = vi.fn();
     const { user } = renderWithProviders(

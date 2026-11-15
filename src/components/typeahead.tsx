@@ -86,9 +86,20 @@ export const Typeahead = ({
     }
   };
 
-  const close = () => {
+  const hide = () => {
     setIsOpen(false);
     setFocusedIndex(null);
+  };
+
+  // Closing without a choice drops what was typed in a single-select field,
+  // so the field shows the value that is really selected, and asks for the
+  // full list again since the narrowed one no longer matches the field.
+  const close = () => {
+    hide();
+    if (!multiple && typedText !== null) {
+      setTypedText(null);
+      loadResults('');
+    }
   };
 
   const selectOption = (event, name: string) => {
@@ -96,7 +107,7 @@ export const Typeahead = ({
 
     if (!multiple) {
       setTypedText(null);
-      close();
+      hide();
       loadResults('');
     }
     inputRef.current?.focus();
