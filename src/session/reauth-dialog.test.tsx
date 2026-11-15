@@ -9,6 +9,7 @@ import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PulpAPI } from 'src/api/pulp';
+import { PulpLoginAPI } from 'src/api/pulp-login';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { config } from 'src/ui-config';
@@ -552,6 +553,29 @@ describe('returning to the tab', () => {
   const settle = () => new Promise((resolve) => setTimeout(resolve, 60));
   const WHOAMI = 'GET /pulp/api/v3/login/';
 
+  // Collects the who-is-signed-in calls the dialog makes. A test waits for a
+  // call to finish through its promise: a fixed sleep is shorter than a slow
+  // answer, and the next return to the tab would then be ignored because the
+  // first check still counts as running.
+  function trackChecks() {
+    const checks: Promise<unknown>[] = [];
+    const whoami = PulpLoginAPI.whoami;
+    vi.spyOn(PulpLoginAPI, 'whoami').mockImplementation(() => {
+      const check = whoami();
+      checks.push(check.catch(() => undefined));
+      return check;
+    });
+    return checks;
+  }
+
+  // Resolves once the check has answered and the code that reacts to its
+  // answer has run.
+  const finished = (check: Promise<unknown>) =>
+    act(async () => {
+      await check;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
   function answerWhoami(status: number | 'network') {
     server.use(
       http.get(LOGIN_URL, () =>
@@ -585,12 +609,14 @@ describe('returning to the tab', () => {
   ] as const)('%s opens nothing and adds no alert', async (_name, status) => {
     await renderScreen();
     const counts = countRequests();
+    const checks = trackChecks();
     answerWhoami(status);
 
     returnToTab();
-    await waitFor(() => expect(counts[WHOAMI]).toBe(1));
-    await settle();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
 
+    expect(counts[WHOAMI]).toBe(1);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(isSuspended()).toBe(false);
@@ -599,11 +625,13 @@ describe('returning to the tab', () => {
   it('a valid session answer opens nothing', async () => {
     await renderScreen();
     const counts = countRequests();
+    const checks = trackChecks();
 
     returnToTab();
-    await waitFor(() => expect(counts[WHOAMI]).toBe(1));
-    await settle();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
 
+    expect(counts[WHOAMI]).toBe(1);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -634,13 +662,15 @@ describe('returning to the tab', () => {
   it('checks again on a later return once the first check has finished', async () => {
     await renderScreen();
     const counts = countRequests();
+    const checks = trackChecks();
 
     returnToTab();
-    await waitFor(() => expect(counts[WHOAMI]).toBe(1));
-    await settle();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
     returnToTab();
 
     await waitFor(() => expect(counts[WHOAMI]).toBe(2));
+    await finished(checks[1]);
   });
 
   it('sends nothing when the tab becomes hidden', async () => {
