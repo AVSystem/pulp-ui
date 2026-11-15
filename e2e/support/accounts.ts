@@ -2,23 +2,27 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Accounts of a remote run. They are read from the JSON file named by
-// PULP_UI_E2E_ACCOUNTS ({"admin": {"username", "password"}, "viewer": {...}})
-// and nowhere else; the file and its contents are never logged or copied.
+// PULP_UI_E2E_ACCOUNTS ({"admin": {"username", "password"}, "viewer": {...},
+// "editor": {...}}) and nowhere else; the file and its contents are never
+// logged or copied. The viewer holds read access only; the editor holds a
+// mix of own, group and object-level roles that is neither read-only nor
+// administrative.
 
-export type Role = 'admin' | 'viewer';
+export type Role = 'admin' | 'viewer' | 'editor';
 
 export interface Credentials {
   username: string;
   password: string;
 }
 
-const roles: Role[] = ['admin', 'viewer'];
+const roles: Role[] = ['admin', 'viewer', 'editor'];
 
 function missing(detail: string): Error {
   return new Error(
     `PULP_UI_E2E_ACCOUNTS ${detail}. Remote end-to-end tests read their ` +
       'accounts from a JSON file given by this variable, shaped like ' +
-      '{"admin": {"username", "password"}, "viewer": {"username", "password"}}.',
+      '{"admin": {"username", "password"}, "viewer": {"username", "password"}, ' +
+      '"editor": {"username", "password"}}.',
   );
 }
 
