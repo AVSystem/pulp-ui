@@ -28,10 +28,13 @@ beforeAll(async () => {
 // Handlers added by one test never leak into the next one.
 afterEach(() => {
   server.resetHandlers();
+  // Unmounting runs the effects a render still had pending, and one of them
+  // may start the read of the installed plugins; it must happen before the
+  // cache is cleared, or its answer would stay cached for the next test.
+  cleanup();
   // The installed plugins are cached for the page's lifetime; a test must not
   // inherit the answer of the one before it.
   resetPluginVersionsCache();
-  cleanup();
   window.localStorage.clear();
   window.sessionStorage.clear();
 });
