@@ -1,10 +1,17 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resetSessionEvents } from 'src/session/session-events';
 import { listOf, page, remote } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  recordWrites,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import { RepositoryForm } from './repository-form';
 
 // The configuration is loaded once when the application starts, so a test that
@@ -653,5 +660,109 @@ describe('repository form, remote choices', () => {
 
     expect(screen.queryByRole('option', { name: 'alpha-old' })).toBeNull();
     expect(screen.getByRole('option', { name: 'alpha-two-new' })).toBeVisible();
+  });
+});
+
+describe('repository form after the same user signs in again', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const REMOTES = `${API}/remotes/file/file/`;
+  const STATUS = `${API}/status/`;
+  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
+  const signInAgain = (user) =>
+    user.click(screen.getByRole('button', { name: 'Sign in again' }));
+  const refused = (path: string) =>
+    http.get(`*${path}`, () =>
+      HttpResponse.json({ detail: 'no' }, { status: 401 }),
+    );
+
+  const renderForm = (isNew = true) => {
+    serveSignIn();
+    return renderWithProviders(
+      <>
+        <SignInAgain />
+        <Harness isNew={isNew} onSave={vi.fn()} />
+      </>,
+    );
+  };
+
+  it('reads the remotes again and keeps what was typed', async () => {
+    const first = listOf(REMOTES, [remote({ name: 'mirror-one' })]);
+    server.use(first.handler);
+    const { user } = renderForm();
+    await waitFor(() => expect(first.queries).toHaveLength(1));
+    await signedIn();
+    await user.type(screen.getByRole('textbox', { name: /^Name/ }), 'tools');
+    await user.type(
+      screen.getByRole('textbox', { name: /Description/ }),
+      'internal',
+    );
+    const second = listOf(REMOTES, [remote({ name: 'mirror-two' })]);
+    server.use(second.handler);
+
+    await signInAgain(user);
+
+    await waitFor(() => expect(second.queries).toHaveLength(1));
+    expect(screen.getByRole('textbox', { name: /^Name/ })).toHaveValue('tools');
+    expect(screen.getByRole('textbox', { name: /Description/ })).toHaveValue(
+      'internal',
+    );
+  });
+
+  it('shows no remotes message when the read is refused with 401, and no write is sent', async () => {
+    server.use(listOf(REMOTES, []).handler);
+    const recorded = recordWrites();
+    const { user } = renderForm();
+    await signedIn();
+    server.use(refused(REMOTES));
+
+    await signInAgain(user);
+    await pause();
+
+    expect(screen.queryByText(/Failed to load remotes/)).toBeNull();
+    expect(recorded.writes).toEqual([`POST ${API}/login/`]);
+    recorded.stop();
+  });
+
+  it('shows no remotes message when the first read is refused with 401, and reads after signing in', async () => {
+    server.use(refused(REMOTES));
+    const { user } = renderForm();
+    await signedIn();
+    await pause();
+    expect(screen.queryByText(/Failed to load remotes/)).toBeNull();
+    const served = listOf(REMOTES, [remote({ name: 'mirror-one' })]);
+    server.use(served.handler);
+
+    await signInAgain(user);
+
+    await waitFor(() => expect(served.queries).toHaveLength(1));
+  });
+
+  it('reads the URL preview again after a refused read', async () => {
+    server.use(refused(STATUS));
+    const { user } = renderForm();
+    await signedIn();
+    await user.click(
+      screen.getByRole('checkbox', { name: /Create a distribution/ }),
+    );
+    await pause();
+    expect(screen.queryByText(/URL \(preview\)/)).toBeNull();
+    expect(screen.queryByText(/The client URL is shown/)).toBeNull();
+    server.use(
+      http.get(`*${STATUS}`, () =>
+        HttpResponse.json({
+          content_settings: {
+            content_origin: 'https://pulp.example',
+            content_path_prefix: '/pulp/content/',
+          },
+        }),
+      ),
+    );
+
+    await signInAgain(user);
+
+    expect(await screen.findByText(/URL \(preview\)/)).toBeInTheDocument();
   });
 });

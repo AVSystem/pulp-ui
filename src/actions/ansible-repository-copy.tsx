@@ -5,12 +5,14 @@ import {
   type Distribution,
   repositoryDistro,
 } from '../utilities/repository-distro';
+import { isSessionEnd } from '../utilities/request-error';
 import { Action } from './action';
 
 export const ansibleRepositoryCopyAction = Action({
   title: msg`Copy CLI configuration`,
   onClick: async (item, { addAlert }) => {
     let distro: Distribution | null;
+    let sessionEnded = false;
 
     if (!item.distro) {
       addAlert({
@@ -23,9 +25,18 @@ export const ansibleRepositoryCopyAction = Action({
         item.name,
         item.pulp_href,
         AnsibleDistributionAPI,
-      ).catch(() => null);
+      ).catch((e) => {
+        sessionEnded = isSessionEnd(e);
+        return null;
+      });
     } else {
       distro = item.distro;
+    }
+
+    // The session ended while the distribution was read: the sign-in dialog
+    // explains it, and nothing is copied until the user asks again.
+    if (!distro && sessionEnded) {
+      return;
     }
 
     if (!distro) {

@@ -30,6 +30,7 @@ import {
   closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { isSuspended } from 'src/session/session-events';
 import { config } from 'src/ui-config';
 import {
   type RouteProps,
@@ -39,7 +40,10 @@ import {
   translateTask,
   withRouter,
 } from 'src/utilities';
-import { requestErrorDescription } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
 import './task.scss';
 
 interface IState {
@@ -86,9 +90,13 @@ class TaskDetail extends Component<RouteProps, IState> {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: RouteProps) {
     if (prevProps.routeParams.task !== this.props.routeParams.task) {
       this.setState({ loading: true });
+      this.loadContent();
+    } else if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      // The same user signed in again: read the task again, keeping what is
+      // on screen until the answer arrives.
       this.loadContent();
     }
   }
@@ -398,6 +406,12 @@ class TaskDetail extends Component<RouteProps, IState> {
         this.loadContent();
       })
       .catch((e) => {
+        // The session ended: the sign-in dialog explains it. The task was not
+        // stopped and nothing is repeated.
+        if (isSessionEnd(e)) {
+          this.setState({ cancelModalVisible: false });
+          return;
+        }
         this.setState({
           loading: true,
           cancelModalVisible: false,
@@ -425,8 +439,26 @@ class TaskDetail extends Component<RouteProps, IState> {
     };
 
     if (!this.state.polling && !this.state.task) {
-      setPolling(setInterval(() => this.loadContent(), 10000));
+      // Nothing is sent while the sign-in dialog is open; the poll goes on
+      // after signing in.
+      setPolling(
+        setInterval(() => {
+          if (!isSuspended()) {
+            this.loadContent();
+          }
+        }, 10000),
+      );
     }
+
+    // The related items are optional: a failed read leaves them out, except
+    // for a session that ended, which fails the whole read so it runs again
+    // after signing in.
+    const optional = (e) => {
+      if (isSessionEnd(e)) {
+        throw e;
+      }
+      return true;
+    };
 
     const taskId = this.props.routeParams.task;
     return TaskAPI.get(taskId)
@@ -447,7 +479,7 @@ class TaskDetail extends Component<RouteProps, IState> {
               .then((result) => {
                 parentTask = result.data;
               })
-              .catch(() => true),
+              .catch(optional),
           );
         }
 
@@ -459,7 +491,7 @@ class TaskDetail extends Component<RouteProps, IState> {
                 .then((result) => {
                   childTasks.push(result.data);
                 })
-                .catch(() => true),
+                .catch(optional),
             );
           });
         }
@@ -483,7 +515,7 @@ class TaskDetail extends Component<RouteProps, IState> {
                         type: resource.model,
                       });
                     })
-                    .catch(() => true),
+                    .catch(optional),
                 );
               } else {
                 resources.push({
@@ -506,7 +538,13 @@ class TaskDetail extends Component<RouteProps, IState> {
           });
         });
       })
-      .catch(() => this.setState({ notFound: true }));
+      .catch((e) => {
+        // The session ended: the sign-in dialog explains it, and the page keeps
+        // its spinner or its content until it reads again.
+        if (!isSessionEnd(e)) {
+          this.setState({ notFound: true });
+        }
+      });
   }
 }
 
