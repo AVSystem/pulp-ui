@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { setPageUrl } from 'src/test-utils/page';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { blockStorage } from 'src/test-utils/storage';
@@ -301,6 +302,37 @@ describe('user context', () => {
       expect(window.sessionStorage.getItem('pulp-ui-external-login-at')).toBe(
         '123',
       );
+    });
+  });
+  describe('on the signed out page', () => {
+    afterEach(() => setPageUrl('http://localhost/'));
+
+    it.each([
+      'https://pulp.example.com/ui/signed-out',
+      'https://pulp.example.com/ui/signed-out/',
+    ])('%s sends no request and is anonymous', async (address) => {
+      setPageUrl(address);
+      const sent: string[] = [];
+      server.events.on('request:start', ({ request }) => {
+        sent.push(`${request.method} ${new URL(request.url).pathname}`);
+      });
+
+      renderWithProviders(<SessionProbe />);
+
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      expect(sent).toEqual([]);
+      server.events.removeAllListeners();
+    });
+
+    it('another page still asks who is signed in', async () => {
+      setPageUrl('https://pulp.example.com/ui/status/');
+
+      await renderSignedIn();
+
+      expect(screen.getByTestId('user')).toHaveTextContent('zoe');
     });
   });
 });

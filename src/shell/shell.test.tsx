@@ -1,9 +1,13 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { useLocation, useRoutes } from 'react-router';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { dataRoutes } from 'src/app-routes';
 import { resetPageWidth, setPageUrl, setPageWidth } from 'src/test-utils/page';
+import { listOf } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { config } from 'src/ui-config';
 import { Shell } from './shell';
 
 function signIn() {
@@ -130,6 +134,142 @@ describe('app shell', () => {
       await screen.findByText('Sign-out did not complete'),
     ).toBeInTheDocument();
     expect(document.querySelector('[data-cy=user-dropdown]')).not.toBeNull();
+  });
+});
+
+// The shell around the guarded routes of the application, as the application
+// renders them.
+const guardedRoutes = (dataRoutes[0]?.children?.[0]?.children ?? []).filter(
+  (route) => 'path' in route,
+);
+
+function Routed() {
+  const { pathname } = useLocation();
+  return (
+    <>
+      <p data-testid='location'>{pathname}</p>
+      {useRoutes(guardedRoutes)}
+    </>
+  );
+}
+
+describe('logout', () => {
+  const logout = async (user: ReturnType<typeof renderShellRouted>['user']) => {
+    const toggle = await waitFor(() => {
+      const element = document.querySelector<HTMLElement>(
+        'button[data-cy=user-dropdown]',
+      );
+      expect(element).not.toBeNull();
+      return element as HTMLElement;
+    });
+    await user.click(toggle);
+    await user.click(
+      await screen.findByRole('menuitem', { name: /^logout$/i }),
+    );
+  };
+
+  function renderShellRouted() {
+    return renderWithProviders(
+      <Shell>
+        <Routed />
+      </Shell>,
+      { route: '/signature-keys' },
+    );
+  }
+
+  beforeEach(() => {
+    setPageUrl('https://pulp.example.com/ui/');
+    setPageWidth(1400);
+    signIn();
+    server.use(
+      listOf('/pulp/api/v3/signing-services/', []).handler,
+      http.get('*/pulp/api/v3/users/1/', () =>
+        HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    resetPageWidth();
+    config.UI_EXTERNAL_LOGIN_URI = null;
+    vi.restoreAllMocks();
+  });
+
+  describe('with an external login address', () => {
+    beforeEach(() => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+    });
+
+    it('ends the Pulp session and lands on the signed out page without a redirect', async () => {
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+      const deletes: string[] = [];
+      server.use(
+        http.delete('*/pulp/api/v3/login/', ({ request }) => {
+          deletes.push(new URL(request.url).pathname);
+          return new HttpResponse(null, { status: 204 });
+        }),
+      );
+      const { user } = renderShellRouted();
+      await screen.findByRole('heading', { name: 'Signature keys' });
+
+      await logout(user);
+
+      expect(
+        await screen.findByText('You have been signed out of Pulp.'),
+      ).toBeVisible();
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        /^\/signed-out\/?$/,
+      );
+      expect(deletes).toEqual(['/pulp/api/v3/login/']);
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      expect(replace).not.toHaveBeenCalled();
+      expect(screen.queryByText('Sign-in did not complete')).toBeNull();
+    });
+
+    it('keeps the user signed in on the current screen when the logout fails', async () => {
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+      server.use(
+        http.delete('*/pulp/api/v3/login/', () =>
+          HttpResponse.json({ detail: 'Broken.' }, { status: 500 }),
+        ),
+      );
+      const { user } = renderShellRouted();
+      await screen.findByRole('heading', { name: 'Signature keys' });
+
+      await logout(user);
+
+      expect(
+        await screen.findByText('Sign-out did not complete'),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/You are still signed in\./)).toBeInTheDocument();
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        /^\/signature-keys$/,
+      );
+      expect(
+        screen.getByRole('heading', { name: 'Signature keys' }),
+      ).toBeVisible();
+      expect(replace).not.toHaveBeenCalled();
+    });
+  });
+
+  it('without an external login address goes to the sign-in page as before', async () => {
+    server.use(
+      http.delete(
+        '*/pulp/api/v3/login/',
+        () => new HttpResponse(null, { status: 204 }),
+      ),
+    );
+    const { user } = renderShellRouted();
+    await screen.findByRole('heading', { name: 'Signature keys' });
+
+    await logout(user);
+
+    expect(await screen.findByLabelText(/username/i)).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/login\/?$/);
   });
 });
 
