@@ -14,9 +14,14 @@ export const GroupAPI = {
 
   get: (id) => base.http.get(`groups/${id}/`),
 
-  getUsers: (id) => base.http.get(`groups/${id}/users/`),
+  getUsers: (id, params?) => base.list(`groups/${id}/users/`, params),
 
   list: (params?) => base.list(`groups/`, params),
+
+  // Removes one user from the group. Pulp authorises it with the permission
+  // to change the group, not the permission to change users.
+  removeUserFromGroup: (id, userId) =>
+    base.http.delete(`groups/${id}/users/${userId}/`),
 
   update: (id, data) => base.http.put(`groups/${id}/`, data),
 };
