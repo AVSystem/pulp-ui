@@ -3480,6 +3480,7 @@ msgstr "Group name"
 msgid "Groups"
 msgstr "Groups"
 
+#: src/components/select-group.tsx
 #: src/components/user-form.tsx
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
@@ -6169,6 +6170,7 @@ msgstr "Role {0} could not be assigned to group {1}."
 msgid "Role {0} has been successfully added to {1}."
 msgstr "Role {0} has been successfully added to {1}."
 
+#: src/components/role-permissions.tsx
 #: src/containers/role-management/role-edit.tsx
 msgid "Role could not be displayed."
 msgstr "Role could not be displayed."
@@ -6228,6 +6230,7 @@ msgstr "Roles"
 #~ msgid "Roles are not currently enabled."
 #~ msgstr "Roles are not currently enabled."
 
+#: src/components/select-roles.tsx
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -8268,6 +8271,7 @@ msgstr "Users"
 msgid "Users and groups"
 msgstr "Users and groups"
 
+#: src/components/select-user.tsx
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/group-management/group-detail.tsx
