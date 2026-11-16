@@ -4,7 +4,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
-import { PermissionsKnown } from 'src/test-utils/permissions';
+import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { listOf, remote } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -111,5 +111,38 @@ describe('the ansible remote form', () => {
     );
     expect(body).toMatchObject({ name: 'zz-test-remote' });
     expect(body).not.toHaveProperty('policy');
+  });
+});
+
+describe('an ansible remote page opened by the address of an object the account cannot read', () => {
+  it('shows the insufficient permissions page and no error state, no Save button and no write', async () => {
+    servePermissions({ own: [['ansible.view_collectionremote']] });
+    const writes: string[] = [];
+    server.events.on('request:start', ({ request }) => {
+      if (request.method !== 'GET') {
+        writes.push(`${request.method} ${new URL(request.url).pathname}`);
+      }
+    });
+    server.use(listOf(`${API}/remotes/ansible/collection/`, []).handler);
+    renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route
+            path={Paths.ansible.remote.edit}
+            element={<AnsibleRemoteEdit />}
+          />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/ansible/remotes/edit/hidden' },
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Remote could not be displayed.')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(writes).toStrictEqual([]);
+    server.events.removeAllListeners();
   });
 });

@@ -52,6 +52,11 @@ const AnsibleRepositoryEdit = Page<AnsibleRepositoryType>({
     return AnsibleRepositoryAPI.list({ name })
       .then(({ data: { results } }) => results[0])
       .then((repository) => {
+        // an object the account cannot read is not in the list; the page
+        // then treats it as absent instead of failing
+        if (!repository) {
+          return repository;
+        }
         return AnsibleRepositoryAPI.myPermissions(
           parsePulpIDFromURL(repository.pulp_href),
         )

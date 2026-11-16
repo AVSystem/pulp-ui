@@ -4,7 +4,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
 import { Paths } from 'src/paths';
-import { PermissionsKnown } from 'src/test-utils/permissions';
+import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -146,5 +146,35 @@ describe('editing an ansible repository', () => {
     expect(
       screen.getByText(/Nothing changed in repository existing/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('an ansible repository page opened by the address of an object the account cannot read', () => {
+  it('shows the insufficient permissions page and no error state, no Save button and no write', async () => {
+    servePermissions({ own: [['ansible.view_ansiblerepository']] });
+    server.use(
+      listOf(`${API}/repositories/ansible/ansible/`, []).handler,
+      listOf(`${API}/remotes/ansible/collection/`, []).handler,
+      listOf(`${API}/distributions/ansible/ansible/`, []).handler,
+    );
+    renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route
+            path={Paths.ansible.repository.edit}
+            element={<AnsibleRepositoryEdit />}
+          />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/ansible/repositories/edit/hidden' },
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Repository could not be displayed.')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(writes()).toStrictEqual([]);
   });
 });
