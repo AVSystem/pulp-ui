@@ -14,11 +14,14 @@ import { loadGlobalPermissions } from './utilities/global-permissions';
 // What the signed-in user may do on every object, as the server's own answers
 // say. Nothing is known until those answers are in: while they are pending,
 // after one failed and while nobody is signed in, every check is false, so
-// nothing is offered on a guess. This is presentation only; Pulp decides every
-// request.
+// nothing is offered on a guess. The one exception is the same user signing in
+// again: what was read for them stays in place while it is read once more, so
+// the screens they are using are not torn down. This is presentation only;
+// Pulp decides every request.
 export type PermissionsState =
-  // failed: the last read did not complete; it is read again on request.
-  | { state: 'unknown'; failed: boolean }
+  // failed: the last read did not complete, with the reason in error; it is
+  // read again on request.
+  | { state: 'unknown'; failed: boolean; error?: unknown }
   | { state: 'ready'; isStaff: boolean; global: ReadonlySet<string> };
 
 export type IPermissionsContextType = PermissionsState & {
@@ -26,6 +29,8 @@ export type IPermissionsContextType = PermissionsState & {
   hasPermission: (name: string) => boolean;
   // Reads again, but only after a failed read. Meant for a route change.
   retryIfFailed: () => void;
+  // Reads again on the user's request.
+  retry: () => void;
 };
 
 const NOTHING_KNOWN: IPermissionsContextType = {
@@ -33,6 +38,7 @@ const NOTHING_KNOWN: IPermissionsContextType = {
   failed: false,
   hasPermission: () => false,
   retryIfFailed: () => undefined,
+  retry: () => undefined,
 };
 
 const PermissionsContext =
@@ -65,10 +71,18 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   // read for the one before it.
   const session = user ? (user.pulp_href ?? user.username) : null;
 
-  const read = useCallback(() => {
+  // The session the current ready state was read for, or null while nothing is
+  // ready. A read for that same session keeps the state in place until the
+  // answer arrives; any other read starts from nothing known.
+  const readyFor = useRef<string | null>(null);
+
+  const read = useCallback((keep: boolean) => {
     const mine = ++latest.current;
     const who = reading.current;
-    setPermissions({ state: 'unknown', failed: false });
+    if (!keep) {
+      readyFor.current = null;
+      setPermissions({ state: 'unknown', failed: false });
+    }
 
     if (!who) {
       return;
@@ -77,12 +91,14 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
     loadGlobalPermissions(who, epochNow.current).then(
       ({ isStaff, global }) => {
         if (mine === latest.current) {
+          readyFor.current = who.pulp_href ?? who.username;
           setPermissions({ state: 'ready', isStaff, global });
         }
       },
-      () => {
+      (error) => {
         if (mine === latest.current) {
-          setPermissions({ state: 'unknown', failed: true });
+          readyFor.current = null;
+          setPermissions({ state: 'unknown', failed: true, error });
         }
       },
     );
@@ -95,7 +111,7 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    read();
+    read(session !== null && readyFor.current === session);
     return () => {
       latest.current++;
     };
@@ -104,7 +120,13 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   const retryIfFailed = useCallback(() => {
     const now = current.current;
     if (now.state === 'unknown' && now.failed && reading.current) {
-      read();
+      read(false);
+    }
+  }, [read]);
+
+  const retry = useCallback(() => {
+    if (reading.current) {
+      read(false);
     }
   }, [read]);
 
@@ -115,8 +137,9 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
         permissions.state === 'ready' &&
         (permissions.isStaff || permissions.global.has(name)),
       retryIfFailed,
+      retry,
     }),
-    [permissions, retryIfFailed],
+    [permissions, retryIfFailed, retry],
   );
 
   return (

@@ -748,12 +748,28 @@ const AuthHandler = ({
 
   // An administration screen is shown only to a user who may view it. The
   // permissions are read once the session is known: until they are, the page is
-  // loading, and after a failed read the user is told they may not view it,
-  // because nothing is offered on a guess. The server still decides every
-  // request.
+  // loading. A failed read is offered again and never shown as a refusal,
+  // because it says nothing about what the user may do; only permissions that
+  // were read and lack the one the screen needs give the insufficient
+  // permissions page. Nothing is offered on a guess, and the server still
+  // decides every request.
   if (screenAccess) {
-    if (permissions.state === 'unknown' && !permissions.failed) {
-      return <LoadingPage />;
+    if (permissions.state === 'unknown') {
+      if (!permissions.failed) {
+        return <LoadingPage />;
+      }
+
+      return (
+        <Main>
+          <section className='pulp-section'>
+            <ListErrorState
+              title={t`Your permissions could not be read`}
+              message={requestErrorDescription(permissions.error)}
+              onRetry={permissions.retry}
+            />
+          </section>
+        </Main>
+      );
     }
 
     if (!canViewScreen(screenAccess, permissions)) {

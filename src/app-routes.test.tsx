@@ -1111,18 +1111,57 @@ describe('administration screens', () => {
     requests.stop();
   });
 
-  it('shows the insufficient permissions page after the permission read failed', async () => {
+  it('offers to read the permissions again, and no refusal, after the permission read failed', async () => {
     serveLists();
-    servePermissions({ isStaff: true });
+    servePermissions({ own: [['core.view_group']] });
+    let failing = true;
     server.use(
       http.get(`*${API}/users/7/`, () =>
-        HttpResponse.json({ detail: 'no' }, { status: 500 }),
+        failing
+          ? HttpResponse.json({ detail: 'down' }, { status: 500 })
+          : HttpResponse.json({
+              id: 7,
+              username: 'zoe',
+              pulp_href: `${API}/users/7/`,
+              is_staff: false,
+              groups: [],
+            }),
       ),
     );
+    const { user } = renderWithProviders(<RoutedInApp />, { route: '/groups' });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Your permissions could not be read',
+      }),
+    ).toBeVisible();
+    expect(screen.getByText(/Error 500/)).toBeVisible();
+    expect(refusal()).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+
+    failing = false;
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Groups', level: 1 }),
+    ).toBeVisible();
+    expect(refusal()).toBeNull();
+  });
+
+  it('still shows the insufficient permissions page when the permissions were read and lack the permission', async () => {
+    serveLists();
+    servePermissions({ own: [['file.view_filerepository']] });
 
     renderWithProviders(<RoutedInApp />, { route: '/groups' });
 
     await waitFor(() => expect(refusal()).not.toBeNull());
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Your permissions could not be read',
+      }),
+    ).toBeNull();
   });
 
   it('leaves the screens that are not administration alone', async () => {
