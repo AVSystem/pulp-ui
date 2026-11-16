@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AnsibleRepositoryAPI,
   type AnsibleRepositoryType,
@@ -8,7 +8,7 @@ import {
   type RoleType,
   UserAPI,
 } from 'src/api';
-import { AccessTab } from 'src/components';
+import { AccessTab, ListErrorState } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
 import { assignRoles, parsePulpIDFromURL } from 'src/utilities';
@@ -33,14 +33,6 @@ interface TabProps {
   };
 }
 
-// A lookup that was refused because the session ended is read again with the
-// roles after signing in; any other failure is not hidden.
-const rethrowUnlessSessionEnd = (e) => {
-  if (!isSessionEnd(e)) {
-    throw e;
-  }
-};
-
 export const RepositoryAccessTab = ({
   item,
   actionContext: {
@@ -50,9 +42,11 @@ export const RepositoryAccessTab = ({
   },
 }: TabProps) => {
   const id = item?.pulp_href && parsePulpIDFromURL(item.pulp_href);
-  const [name, setName] = useState<string>(item?.name);
+  const [name] = useState<string>(item?.name);
   const [groups, setGroups] = useState<GroupType[]>(null); // loading
   const [users, setUsers] = useState<UserType[]>(null); // loading
+  // why the roles could not be read; set only while no roles are shown
+  const [rolesError, setRolesError] = useState<unknown>(null);
   // Roles are changed only by users who may manage the roles of this object.
   const canEditOwners = !!hasObjectPermission?.(
     ACTION_PERMISSIONS.ansible.repository.manageRoles,
@@ -79,6 +73,7 @@ export const RepositoryAccessTab = ({
 
   // grows when the same user signs in again, so the roles are read again
   const epoch = useSessionEpoch();
+  const firstEpoch = useRef(epoch);
 
   // quiet: the roles are shown already; read them again without the loading
   // state, which would close the dialogs of this tab
@@ -86,6 +81,7 @@ export const RepositoryAccessTab = ({
     if (!quiet) {
       setUsers(null);
       setGroups(null);
+      setRolesError(null);
     }
 
     // TODO handle pagination
@@ -93,9 +89,9 @@ export const RepositoryAccessTab = ({
       .then(({ data: { roles } }) => {
         const { users, groups } = assignRoles(roles);
 
-        setName(name);
         setUsers(users as UserType[]);
         setGroups(groups as GroupType[]);
+        setRolesError(null);
       })
       .catch((e) => {
         // The session ended: the tab keeps its spinner or its roles and reads
@@ -104,12 +100,25 @@ export const RepositoryAccessTab = ({
           return;
         }
 
-        setUsers([]);
-        setGroups([]);
+        // A read that follows a sign-in keeps the roles on screen and says
+        // that it failed; a first read shows a failed state with Retry, never
+        // an empty list of owners.
+        if (quiet) {
+          addAlert({
+            title: t`Roles list could not be displayed.`,
+            variant: 'danger',
+            description: requestErrorDescription(e),
+          });
+        } else {
+          setRolesError(e);
+        }
       });
   };
 
   const updateRoles = ({ roles, alertSuccess, alertFailure, stateUpdate }) => {
+    // A change refused because the session ended raises no alert and leaves
+    // the dialog open with its selection, so it can be sent after signing in.
+    let sessionEnded = false;
     Promise.all(roles)
       .then(() => {
         addAlert({
@@ -119,6 +128,10 @@ export const RepositoryAccessTab = ({
         query();
       })
       .catch((e) => {
+        if (isSessionEnd(e)) {
+          sessionEnded = true;
+          return;
+        }
         addAlert({
           title: alertFailure,
           variant: 'danger',
@@ -126,7 +139,9 @@ export const RepositoryAccessTab = ({
         });
       })
       .finally(() => {
-        updateProps(stateUpdate);
+        if (!sessionEnded) {
+          updateProps(stateUpdate);
+        }
       });
   };
 
@@ -279,7 +294,7 @@ export const RepositoryAccessTab = ({
 
   // the same user signed in again: read the roles once more, keeping dialogs
   useEffect(() => {
-    if (epoch) {
+    if (epoch !== firstEpoch.current) {
       query({ quiet: true });
     }
   }, [epoch]);
@@ -294,11 +309,35 @@ export const RepositoryAccessTab = ({
       return;
     }
 
+    // an answer to an earlier name is dropped
+    let current = true;
     UserAPI.list({ username: params.user })
-      .then(({ data: { data } }) => {
-        setSelectedUser(users.find((u) => u.username === data[0].username));
+      .then(({ data: { results } }) => {
+        if (!current) {
+          return;
+        }
+        const found = results?.[0];
+        setSelectedUser(
+          found
+            ? (users.find((u) => u.username === found.username) ?? null)
+            : null,
+        );
       })
-      .catch(rethrowUnlessSessionEnd);
+      .catch((e) => {
+        // after a session end the lookup runs again with the re-read roles
+        if (!current || isSessionEnd(e)) {
+          return;
+        }
+        addAlert({
+          title: t`Users list could not be displayed.`,
+          variant: 'danger',
+          description: requestErrorDescription(e),
+        });
+      });
+
+    return () => {
+      current = false;
+    };
   }, [params?.user, users]);
 
   useEffect(() => {
@@ -311,12 +350,44 @@ export const RepositoryAccessTab = ({
       return;
     }
 
+    // an answer to an earlier name is dropped
+    let current = true;
     GroupAPI.list({ name: params.group })
-      .then(({ data: { data } }) => {
-        setSelectedGroup(groups.find((g) => g.name === data[0].name));
+      .then(({ data: { results } }) => {
+        if (!current) {
+          return;
+        }
+        const found = results?.[0];
+        setSelectedGroup(
+          found ? (groups.find((g) => g.name === found.name) ?? null) : null,
+        );
       })
-      .catch(rethrowUnlessSessionEnd);
+      .catch((e) => {
+        // after a session end the lookup runs again with the re-read roles
+        if (!current || isSessionEnd(e)) {
+          return;
+        }
+        addAlert({
+          title: t`Groups list could not be displayed.`,
+          variant: 'danger',
+          description: requestErrorDescription(e),
+        });
+      });
+
+    return () => {
+      current = false;
+    };
   }, [params?.group, groups]);
+
+  if (rolesError) {
+    return (
+      <ListErrorState
+        title={t`Roles list could not be displayed.`}
+        message={requestErrorDescription(rolesError)}
+        onRetry={() => query()}
+      />
+    );
+  }
 
   return (
     <AccessTab

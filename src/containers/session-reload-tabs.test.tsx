@@ -3,7 +3,13 @@ import { HttpResponse, delay, http } from 'msw';
 import { type ComponentType } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resetSessionEvents } from 'src/session/session-events';
-import { listOf, repository, repositoryVersion } from 'src/test-utils/pulp';
+import {
+  listOf,
+  page,
+  repository,
+  repositoryVersion,
+  user as userRecord,
+} from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -288,6 +294,48 @@ function accessTabTests({
     await signInAgain(user);
 
     expect(await screen.findByText('bob')).toBeInTheDocument();
+  });
+
+  it('keeps the shown roles and shows one alert when the read after signing in fails for another reason', async () => {
+    server.use(assigned('ann'));
+    const { user, addAlert } = renderTab();
+    await screen.findByText('ann');
+    await signedIn();
+    server.use(failed(ROLES));
+
+    await signInAgain(user);
+    await waitFor(() => expect(addAlert).toHaveBeenCalledTimes(1));
+    await pause();
+
+    expect(addAlert).toHaveBeenCalledTimes(1);
+    expect(addAlert.mock.calls[0][0].title).toBe(
+      'Roles list could not be displayed.',
+    );
+    expect(screen.getByText('ann')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Roles list could not be displayed.'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('selects the user named in the address after signing in, when its lookup was refused before', async () => {
+    server.use(assigned('ann'), refused(`${API}/users/`));
+    const { user, addAlert } = renderTab({ user: 'ann' });
+    await screen.findByText('ann');
+    await signedIn();
+    await pause();
+    expect(screen.queryByRole('heading', { name: 'User ann' })).toBeNull();
+    server.use(
+      http.get(`*${API}/users/`, () =>
+        HttpResponse.json(page([userRecord({ username: 'ann' })])),
+      ),
+    );
+
+    await signInAgain(user);
+
+    expect(
+      await screen.findByRole('heading', { name: 'User ann' }),
+    ).toBeInTheDocument();
+    expect(addAlert).not.toHaveBeenCalled();
   });
 
   it('leaves no unhandled rejection when the lookup of the selected user is refused with 401', async () => {
