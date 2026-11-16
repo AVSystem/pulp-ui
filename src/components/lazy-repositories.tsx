@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { MaybeLink, Spinner, Tooltip } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
@@ -27,24 +27,35 @@ export const LazyRepositories = ({
   // grows when the same user signs in again, so the cell reads again
   const epoch = useSessionEpoch();
 
-  const query = (prepend?) => {
+  // Every request takes a number; an answer whose number is not the latest
+  // belongs to a remote, content or session state that is gone and is dropped.
+  const latest = useRef(0);
+
+  const query = (pageToLoad: number, prepend?: unknown[]) => {
+    const read = ++latest.current;
+
     plugin2api(plugin)
       .RepositoryAPI.list({
         ...(content_href ? { with_content: content_href } : null),
         ...(remote_href ? { remote: remote_href } : null),
-        page,
+        page: pageToLoad,
         page_size: 10,
       })
       .then(({ data: { count, results } }) => {
+        if (read !== latest.current) {
+          return;
+        }
+
         setRepositories(prepend ? [...prepend, ...results] : results);
         setCount(count);
+        setPage(pageToLoad);
         setError(null);
         setLoading(false);
       })
       .catch((e) => {
         // The session ended: the cell keeps its spinner or what it shows and
         // reads again after signing in, the sign-in dialog explains it.
-        if (isSessionEnd(e)) {
+        if (read !== latest.current || isSessionEnd(e)) {
           return;
         }
 
@@ -56,32 +67,27 @@ export const LazyRepositories = ({
   };
 
   useEffect(() => {
-    if (!remote_href && !content_href) {
-      setRepositories([]);
-      setCount(null);
-      setPage(1);
-      setError(null);
-      setLoading(false);
-      return;
-    }
+    // answers of the state that is being left are dropped, also after unmount
+    const leave = () => {
+      latest.current += 1;
+    };
 
     setRepositories([]);
     setCount(null);
     setPage(1);
     setError(null);
-    setLoading(true);
 
-    query();
-  }, [content_href, remote_href, epoch]);
-
-  // support pagination, but page == 1 is handled above
-  useEffect(() => {
-    if (page === 1) {
-      return;
+    if (!remote_href && !content_href) {
+      setLoading(false);
+      return leave;
     }
 
-    query(repositories);
-  }, [page]);
+    setLoading(true);
+
+    query(1);
+
+    return leave;
+  }, [content_href, remote_href, epoch]);
 
   const errorElement = error && (
     <Tooltip content={t`Failed to load repositories: ${error}`} key='empty'>
@@ -90,7 +96,7 @@ export const LazyRepositories = ({
   );
 
   const loadMore = () => {
-    setPage((page) => page + 1);
+    query(page + 1, repositories);
   };
 
   const pluginPaths = Paths[plugin] as Record<string, Record<string, string>>;
