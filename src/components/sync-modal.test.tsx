@@ -67,6 +67,29 @@ describe('sync dialog, mirror switch', () => {
     );
   });
 
+  it('closes after the sync action answers, and stays open when it answers false', async () => {
+    const closeAction = vi.fn();
+    const syncAction = vi
+      .fn()
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(undefined);
+    const { user } = renderWithProviders(
+      <SyncModal
+        closeAction={closeAction}
+        name='tools'
+        syncAction={syncAction}
+      />,
+    );
+
+    await user.click(syncButton());
+    await waitFor(() => expect(syncAction).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(syncButton()).toBeEnabled());
+    expect(closeAction).not.toHaveBeenCalled();
+
+    await user.click(syncButton());
+    await waitFor(() => expect(closeAction).toHaveBeenCalledTimes(1));
+  });
+
   it('shows no reason line when mirroring is allowed', () => {
     renderWithProviders(
       <SyncModal closeAction={() => null} name='tools' syncAction={vi.fn()} />,

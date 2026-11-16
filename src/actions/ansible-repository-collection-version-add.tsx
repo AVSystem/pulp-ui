@@ -33,7 +33,9 @@ import './ansible-repository-collection-version-add.scss';
 import { reloadAfterContentTask } from './repository-content-task';
 
 // Adds the collection versions to the repository, then reloads the page once
-// the task is done so the tab lists the new latest version.
+// the task is done so the tab lists the new latest version. A request that
+// did not go through because the session ended leaves the dialog open with
+// the selection, and nothing is sent again by itself.
 async function add(
   { repositoryHref, repositoryName },
   collections: AnsibleCollectionVersion[],
@@ -56,7 +58,9 @@ async function add(
       data: { task },
     } = await AnsibleRepositoryAPI.addContent(pulpId, collectionVersionHrefs));
   } catch (e) {
-    failed(e);
+    if (!isSessionEnd(e)) {
+      failed(e);
+    }
     return;
   }
 

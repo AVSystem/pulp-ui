@@ -5,7 +5,7 @@ import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import { SyncModal } from '../components/sync-modal';
 import { Paths, formatPath } from '../paths';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
-import { handleHttpError } from '../utilities/fail-alerts';
+import { handleDialogWriteError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
@@ -77,7 +77,7 @@ function syncRepository({ name, pulp_href }, { addAlert, query }, syncParams) {
       query();
     })
     .catch(
-      handleHttpError(
+      handleDialogWriteError(
         t`Failed to sync repository "${name}"`,
         () => null,
         addAlert,
