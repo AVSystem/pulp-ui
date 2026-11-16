@@ -31,6 +31,7 @@ import {
 import {
   ParamHelper,
   type RouteProps,
+  downloadString,
   filterIsSet,
   withRouter,
 } from 'src/utilities';
@@ -254,10 +255,7 @@ export class SignatureKeysList extends Component<RouteProps, IState> {
     const dropdownItems = [
       <DropdownItem
         key='download-key'
-        onClick={() => {
-          document.location =
-            'data:application/octet-stream,' + encodeURIComponent(public_key);
-        }}
+        onClick={() => downloadString(public_key, `${name}.asc`)}
       >
         {t`Download key`}
       </DropdownItem>,
