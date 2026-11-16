@@ -251,6 +251,64 @@ describe('sign in again dialog', () => {
   });
 });
 
+describe('sign in again dialog cover', () => {
+  const COVER = '.pulp-reauth__backdrop';
+
+  it('covers the screen with its own backdrop while the dialog is open and leaves none behind', async () => {
+    const { user } = await renderScreen();
+    acceptLogin();
+    expect(document.querySelector(COVER)).toBeNull();
+
+    const dialog = await openByRequest(user);
+
+    const backdrop = dialog.closest('.pf-v6-c-backdrop');
+    expect(backdrop).not.toBeNull();
+    expect(backdrop).toHaveClass('pulp-reauth__backdrop');
+
+    await user.type(passwordOf(dialog), 'secret');
+    await user.click(submitOf(dialog));
+
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    );
+    expect(document.querySelector(COVER)).toBeNull();
+  });
+
+  it('covers the screen in external login mode too', async () => {
+    config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+    signedInAs();
+    refuseExamples();
+    const { user } = renderWithProviders(
+      <>
+        <Screen />
+        <ReauthDialog />
+      </>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+    );
+    await storeKnowsUser();
+
+    const dialog = await openByRequest(user);
+
+    expect(dialog.closest('.pf-v6-c-backdrop')).toHaveClass(
+      'pulp-reauth__backdrop',
+    );
+  });
+
+  it('keeps the screen mounted under the cover, with what was typed in it', async () => {
+    const { user } = await renderScreen();
+    await user.type(screen.getByLabelText('Draft'), 'unsaved words');
+    const field = screen.getByLabelText('Draft', { hidden: true });
+
+    await openByRequest(user);
+
+    expect(document.querySelector(COVER)).not.toBeNull();
+    expect(field.isConnected).toBe(true);
+    expect(field).toHaveValue('unsaved words');
+  });
+});
+
 describe('sign in again dialog contract', () => {
   it('opened by a request it shows the lead, the request note and the kept note in that order', async () => {
     const { user } = await renderScreen();
