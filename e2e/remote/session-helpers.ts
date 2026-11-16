@@ -7,6 +7,10 @@ import {
 import { basicAuthorization } from '../../src/utilities/basic-authorization';
 import { type Role, account } from '../support/accounts';
 import { origin } from '../support/env';
+import { submitLoginForm } from '../support/sign-in';
+
+export const userMenu = '[data-cy=user-dropdown]';
+export const loginMenuItem = '[data-cy=pulp-menu-item-login]';
 
 // A browser context that holds no session at all, for tests that sign in or
 // out. They never touch the storage state shared by the other tests, so
@@ -48,6 +52,40 @@ export async function logOutThroughMenu(page: Page): Promise<Response> {
   const answer = page.waitForResponse((r) => isLoginCall(r, 'DELETE'));
   await page.getByText('Logout', { exact: true }).click();
   return answer;
+}
+
+// Ends the session a test left open in its context, the way a person does:
+// through the menu of a fresh page, checking the server dropped it. A context
+// without a session cookie needs nothing.
+export async function logOutWhatRemains(
+  page: Page,
+  context: BrowserContext,
+): Promise<void> {
+  const open = async () =>
+    (await context.cookies()).some(({ name }) => name === 'sessionid');
+  if (!(await open())) {
+    return;
+  }
+  await page.goto('status');
+  await expect(page.locator(userMenu)).toBeVisible();
+  await logOutThroughMenu(page);
+  await expect(page.locator(loginMenuItem)).toBeVisible();
+  expect(await open(), 'the session cookie after the sign out').toBe(false);
+}
+
+// Signs the role's account in on a signed-out page of the application: the
+// masthead Login opens the sign-in page with the current address as the place
+// to return to, and the form is filled in like a person does. Ends when the
+// page shows the account menu again.
+export async function signInThroughLoginPage(
+  page: Page,
+  role: Role,
+): Promise<void> {
+  const { username, password } = account(role);
+  await page.locator(loginMenuItem).click();
+  await expect(page.locator('#pf-login-username-id')).toBeVisible();
+  await submitLoginForm(page, username, password);
+  await expect(page.locator(userMenu)).toBeVisible();
 }
 
 // Ends the server session behind the page's back, the way another tab or an

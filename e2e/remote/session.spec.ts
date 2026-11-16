@@ -1,4 +1,10 @@
-import { expect, test } from '@playwright/test';
+import {
+  type Page,
+  type Request,
+  type Response,
+  expect,
+  test,
+} from '@playwright/test';
 import { account } from '../support/accounts';
 import { TestObjects } from '../support/api';
 import { origin } from '../support/env';
@@ -15,6 +21,50 @@ import {
 const loginForm = '#pf-login-username-id';
 const userMenu = '[data-cy=user-dropdown]';
 const loginMenuItem = '[data-cy=pulp-menu-item-login]';
+
+// The answer to the first GET of the status endpoint that the page sends after
+// the answer to the sign out came back. Register it before pressing Logout. A
+// status read that started earlier and is answered later does not count: it
+// was made with the session and says nothing about what the page reads without
+// one.
+function statusAnswerAfterSignOut(page: Page): Promise<Response> {
+  let signedOutNow = false;
+  const after = new Set<Request>();
+  page.on('response', (response) => {
+    if (isLoginCall(response, 'DELETE')) {
+      signedOutNow = true;
+    }
+  });
+  page.on('request', (request) => {
+    if (
+      signedOutNow &&
+      request.method() === 'GET' &&
+      new URL(request.url()).pathname === '/pulp/api/v3/status/'
+    ) {
+      after.add(request);
+    }
+  });
+  return page.waitForResponse((response) => after.has(response.request()));
+}
+
+// After signing out on the Status screen nothing the administrator saw may
+// stay: no workers, no Versions card, the note for visitors is shown, and the
+// answer the page read after the sign out carries no versions.
+async function expectVisitorStatus(page: Page, answer: Promise<Response>) {
+  await expect(page.getByText('Online workers', { exact: true })).toHaveCount(
+    0,
+  );
+  await expect(page.getByText('Versions', { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByText(
+      'Versions, workers and storage are shown to signed-in users.',
+    ),
+  ).toBeVisible();
+  const body = (await (await answer).json()) as Record<string, unknown>;
+  expect('versions' in body, 'the status answer after the sign out').toBe(
+    false,
+  );
+}
 
 // The first test runs on the shared session of the admin account that the setup
 // project saved. Every test after it starts from a context of its own: tests
@@ -223,12 +273,17 @@ test.describe('sessions of their own', () => {
     await apiLogin(context);
     await page.goto('status');
     await expect(page.locator(userMenu)).toBeVisible();
+    await expect(
+      page.getByText('Online workers', { exact: true }),
+    ).toBeVisible();
 
+    const statusAnswer = statusAnswerAfterSignOut(page);
     const answer = await logOutThroughMenu(page);
     expect(answer.status()).toBe(204);
 
     await expect(page.locator(loginMenuItem)).toBeVisible();
     await expect(page.locator(userMenu)).toHaveCount(0);
+    await expectVisitorStatus(page, statusAnswer);
 
     const afterwards = await page.evaluate(
       async () =>
@@ -254,6 +309,7 @@ test.describe('sessions of their own', () => {
     expect(ended).toBe(204);
 
     await page.locator(userMenu).click();
+    const statusAnswer = statusAnswerAfterSignOut(page);
     const answer = page.waitForResponse((r) => isLoginCall(r, 'DELETE'));
     await page.getByText('Logout', { exact: true }).click();
     await answer;
@@ -261,6 +317,7 @@ test.describe('sessions of their own', () => {
     await expect(page.locator(loginMenuItem)).toBeVisible();
     await expect(page.locator(userMenu)).toHaveCount(0);
     await expect(page.locator('.pf-v6-c-alert')).toHaveCount(0);
+    await expectVisitorStatus(page, statusAnswer);
   });
 
   test.describe('behind an open edit form', () => {
