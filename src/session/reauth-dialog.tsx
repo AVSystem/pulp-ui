@@ -30,7 +30,6 @@ import { uiPath } from 'src/utilities/ui-path';
 import './reauth-dialog.scss';
 import {
   isSignedOutPath,
-  isSuspended,
   reportUnauthorized,
   resume,
   useSessionEnded,
@@ -64,11 +63,16 @@ const isSignInPage = (pathname: string) => {
 // polled; and nothing is asked while nobody is signed in, while the dialog is
 // already open or on a page that deals with signing in itself.
 function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
+  const { restoreSession } = useUserContext();
   const inFlight = useRef(false);
   // The account in memory when the tab is returned to, without rebinding the
   // listener each time the user object is replaced.
   const key = useRef(sessionKey(user));
   key.current = sessionKey(user);
+  // The latest restore, for the same reason: the listener is bound once per
+  // sign-in, and a function captured then would be stale.
+  const restore = useRef(restoreSession);
+  restore.current = restoreSession;
   const signedIn = Boolean(user);
 
   useEffect(() => {
@@ -77,22 +81,16 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
     }
 
     const onVisibilityChange = () => {
-      if (
-        document.visibilityState !== 'visible' ||
-        inFlight.current ||
-        isSuspended()
-      ) {
+      if (document.visibilityState !== 'visible' || inFlight.current) {
         return;
       }
       inFlight.current = true;
       PulpLoginAPI.whoami()
         .then(({ data }) => {
-          if (
-            sessionKey({
-              username: data.username,
-              pulp_href: data.pulp_href,
-            }) !== key.current
-          ) {
+          const next = { username: data.username, pulp_href: data.pulp_href };
+          if (sessionKey(next) === key.current) {
+            restore.current(next);
+          } else {
             window.location.assign(uiPath(formatPath(Paths.core.status)));
           }
         })

@@ -1,6 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
+import { signInThroughDialog } from 'src/test-utils/sign-in-again';
 import { usePermissions } from './permissions';
 import { servePermissions } from './test-utils/permissions';
 import { renderWithProviders } from './test-utils/render';
@@ -34,7 +35,7 @@ function Probe() {
           {permissions.hasPermission(name) ? 'yes' : 'no'}
         </p>
       ))}
-      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+      <button type='button' onClick={() => signInThroughDialog(signInAgain)}>
         Sign in again
       </button>
       <button

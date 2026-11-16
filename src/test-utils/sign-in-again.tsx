@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { expect } from 'vitest';
-import { isSignedIn } from '../session/session-events';
+import { isSignedIn, reportUnauthorized } from '../session/session-events';
 import { useUserContext } from '../user-context';
 import { server } from './server';
 
@@ -26,13 +26,23 @@ export function serveSignIn() {
   );
 }
 
+// The sign-in the dialog runs. The dialog is open only while the session has
+// ended, and the session is restored only while it has ended, so the ended
+// state is set first (a no-op for a session that already ended).
+export const signInThroughDialog = (
+  signInAgain: (username: string, password: string) => Promise<unknown>,
+) => {
+  reportUnauthorized('request');
+  return signInAgain('zoe', 'secret');
+};
+
 export function SignInAgain() {
   const { signInAgain, status } = useUserContext();
 
   return (
     <>
       <p data-testid='session'>{status}</p>
-      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+      <button type='button' onClick={() => signInThroughDialog(signInAgain)}>
         Sign in again
       </button>
     </>

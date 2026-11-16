@@ -501,6 +501,8 @@ describe('session generation', () => {
       ),
     );
 
+    await waitFor(() => expect(isSuspended()).toBe(false));
+    act(() => reportUnauthorized('request'));
     await user.click(screen.getByRole('button', { name: 'Sign in again' }));
 
     await waitFor(() =>
