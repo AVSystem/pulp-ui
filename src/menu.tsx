@@ -208,12 +208,16 @@ function buildGroups(
           icon: TasksIcon,
         },
         status,
-        {
-          id: 'signing-services',
-          label: t`Signing services`,
-          path: formatPath(Paths.core.signature_keys),
-          icon: KeyIcon,
-        },
+        ...(canView('signing-services')
+          ? [
+              {
+                id: 'signing-services',
+                label: t`Signing services`,
+                path: formatPath(Paths.core.signature_keys),
+                icon: KeyIcon,
+              },
+            ]
+          : []),
       ],
     },
     {

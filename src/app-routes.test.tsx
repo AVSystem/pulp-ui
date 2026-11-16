@@ -71,7 +71,12 @@ describe('route guard', () => {
 
   it('a protected route keeps its deep link when the session check answers 200', async () => {
     const { handler } = listOf('/pulp/api/v3/signing-services/', []);
-    server.use(handler);
+    server.use(
+      handler,
+      http.get('*/pulp/api/v3/users/1/', () =>
+        HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+      ),
+    );
     const release = holdSessionCheck(() =>
       HttpResponse.json({
         username: 'zoe',
@@ -1210,13 +1215,13 @@ describe('administration screens', () => {
   });
 
   it('leaves the screens that are not administration alone', async () => {
-    server.use(listOf(`${API}/signing-services/`, []).handler);
+    server.use(listOf(`${API}/tasks/`, []).handler);
     servePermissions({ own: [] });
 
-    renderWithProviders(<RoutedInApp />, { route: '/signature-keys' });
+    renderWithProviders(<RoutedInApp />, { route: '/tasks' });
 
     expect(
-      await screen.findByRole('heading', { name: 'Signature keys' }),
+      await screen.findByRole('heading', { name: 'Task management' }),
     ).toBeVisible();
     expect(refusal()).toBeNull();
   });

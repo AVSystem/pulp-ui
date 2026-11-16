@@ -41,6 +41,9 @@ export async function loadGlobalPermissions(
   }
 
   const { data: record } = await readOwnRecord(userId, epoch);
+  // The staff flag of the own record stands in for the superuser flag, which
+  // the sign-in answer does not expose. An account that is staff but not
+  // superuser is offered actions Pulp refuses; that is presentation only.
   if (record?.is_staff) {
     return { isStaff: true, global: new Set() };
   }

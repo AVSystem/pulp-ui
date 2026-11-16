@@ -1,9 +1,10 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
+import { dataRoutes } from 'src/app-routes';
 import {
   type IPermissionSetup,
   PermissionsKnown,
@@ -409,5 +410,66 @@ describe('the role list', () => {
     renderAs(['core.view_role'], <RoleList />, '/roles');
     await screen.findByText('zz-custom');
     expect(rowActions('zz-custom')).toBeNull();
+  });
+});
+
+describe('the signing services screen opened by its address', () => {
+  const guardedRoutes = (dataRoutes[0]?.children?.[0]?.children ?? []).filter(
+    (route) => 'path' in route,
+  );
+
+  function Routed() {
+    return <AppContextProvider>{useRoutes(guardedRoutes)}</AppContextProvider>;
+  }
+
+  const refusal = () =>
+    document.querySelector('[data-cy=InsufficientPermissions]');
+
+  function recordPaths() {
+    const paths: string[] = [];
+    server.events.on('request:start', ({ request }) => {
+      paths.push(new URL(request.url).pathname);
+    });
+    return paths;
+  }
+
+  it('shows the insufficient permissions page and asks for no signing services without core.view_signingservice', async () => {
+    server.use(listOf(`${API}/signing-services/`, []).handler);
+    servePermissions({ own: [['file.view_filerepository']] });
+    const paths = recordPaths();
+
+    renderWithProviders(<Routed />, { route: '/signature-keys' });
+
+    await waitFor(() => expect(refusal()).not.toBeNull());
+    expect(
+      screen.getByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeVisible();
+    expect(paths.filter((path) => path.includes('/signing-services/'))).toEqual(
+      [],
+    );
+  });
+
+  it('shows the list to a holder of core.view_signingservice', async () => {
+    server.use(listOf(`${API}/signing-services/`, []).handler);
+    servePermissions({ own: [['core.view_signingservice']] });
+
+    renderWithProviders(<Routed />, { route: '/signature-keys' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Signature keys' }),
+    ).toBeVisible();
+    expect(refusal()).toBeNull();
+  });
+
+  it('shows the list to staff', async () => {
+    server.use(listOf(`${API}/signing-services/`, []).handler);
+    servePermissions({ isStaff: true });
+
+    renderWithProviders(<Routed />, { route: '/signature-keys' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Signature keys' }),
+    ).toBeVisible();
+    expect(refusal()).toBeNull();
   });
 });
