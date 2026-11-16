@@ -60,6 +60,8 @@ function Page({
     hasObjectPermission: () => true,
     hasPermission: () => true,
     listQuery,
+    query: vi.fn(),
+    reloadPage: vi.fn(),
     setState: (change: Record<string, unknown>) =>
       setState((current) => ({ ...current, ...change })),
     state,
@@ -85,9 +87,9 @@ function setup(plugin: (typeof PLUGINS)[number]) {
   const listQuery = vi.fn();
   const deletes: string[] = [];
   const taskStates: object[] = [];
-  const release = { current: () => {} };
+  let release!: () => void;
   const gate = new Promise<void>((resolve) => {
-    release.current = resolve;
+    release = resolve;
   });
 
   server.use(
@@ -109,7 +111,7 @@ function setup(plugin: (typeof PLUGINS)[number]) {
   return {
     deletes,
     listQuery,
-    release: () => release.current(),
+    release,
     taskStates,
     ...view,
   };
@@ -166,9 +168,7 @@ describe.each(PLUGINS)('deleting a $name remote', (plugin) => {
       '00000000-0000-4000-8000-0000000000aa',
     );
     expect(alerts().queryByText(/Failed to remove remote/)).toBeNull();
-    expect(
-      document.querySelector('li[data-variant="danger"]'),
-    ).toBeNull();
+    expect(document.querySelector('li[data-variant="danger"]')).toBeNull();
     expect(listQuery).toHaveBeenCalledTimes(1);
   });
 
@@ -194,9 +194,7 @@ describe.each(PLUGINS)('deleting a $name remote', (plugin) => {
       '00000000-0000-4000-8000-0000000000aa',
     );
     expect(alerts().queryByText(/Failed to remove remote/)).toBeNull();
-    expect(
-      document.querySelector('li[data-variant="danger"]'),
-    ).toBeNull();
+    expect(document.querySelector('li[data-variant="danger"]')).toBeNull();
     expect(listQuery).toHaveBeenCalledTimes(1);
   });
 

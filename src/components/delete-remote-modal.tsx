@@ -6,7 +6,10 @@ import { DeleteModal } from 'src/components';
 
 interface IProps {
   closeAction: () => void;
-  deleteAction: () => void;
+  // Starts the delete. When it answers with a promise, Delete stays disabled
+  // with a spinner until that promise has settled, so one confirmation sends
+  // one request.
+  deleteAction: () => unknown;
   name: string;
 }
 
@@ -24,13 +27,10 @@ export const DeleteRemoteModal = ({
   return (
     <DeleteModal
       spinner={pending}
-      cancelAction={() => {
-        setPending(false);
-        closeAction();
-      }}
+      cancelAction={closeAction}
       deleteAction={() => {
-        setPending(false);
-        deleteAction();
+        setPending(true);
+        Promise.resolve(deleteAction()).finally(() => setPending(false));
       }}
       isDisabled={pending}
       title={t`Delete remote?`}

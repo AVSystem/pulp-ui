@@ -7399,6 +7399,10 @@ msgstr ""
 msgid "The login page returned without a signed-in session."
 msgstr ""
 
+#: src/actions/file-remote-delete.tsx
+msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr ""
@@ -7422,6 +7426,10 @@ msgstr "Het wachtwoord dat moet worden gebruikt voor authenticatie bij het synch
 #: src/app-routes.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
+msgstr ""
+
+#: src/actions/file-remote-delete.tsx
+msgid "The removal of remote {name} is still running."
 msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
