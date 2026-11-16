@@ -23,7 +23,11 @@ import { type ErrorMessagesType } from '../utilities/map-error-messages';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { isSessionEnd, requestErrorText } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
-import { TaskPending, waitForTaskUrl } from '../utilities/wait-for-task';
+import {
+  TaskPending,
+  TaskUnknown,
+  waitForTaskUrl,
+} from '../utilities/wait-for-task';
 import { Action } from './action';
 
 interface Target {
@@ -176,7 +180,17 @@ const EditModal = ({
       });
       savedAction();
     } catch (e) {
-      if (e instanceof TaskPending) {
+      if (e instanceof TaskUnknown) {
+        // the request was accepted and the update may well have been done
+        addAlert(
+          taskAlert(
+            e.taskHref,
+            t`The outcome of the update of distribution ${name} is unknown, because the task status could not be read. Check the task.`,
+            'warning',
+          ),
+        );
+        savedAction();
+      } else if (e instanceof TaskPending) {
         addAlert(
           taskAlert(
             e.taskHref,

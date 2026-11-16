@@ -7420,6 +7420,10 @@ msgstr "The outcome of the change to repository \"{repositoryName}\" is unknown,
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 msgstr "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 
+#: src/actions/python-distribution-edit.tsx
+msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
+msgstr "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
+
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
 msgstr "The password to be used for authentication when syncing."

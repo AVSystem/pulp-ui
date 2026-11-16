@@ -7419,6 +7419,10 @@ msgstr ""
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
+#: src/actions/python-distribution-edit.tsx
+msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
 msgstr "동기화 시 인증에 사용할 암호입니다."
