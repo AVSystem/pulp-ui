@@ -103,6 +103,9 @@ const rowsOf = (
   names: { repository: string; remote: string },
   paths: { repository: string; remote: string },
   actions: PluginActions,
+  // false: a role granted on one object is not read, so only permissions held
+  // on every object count for the plugin's change, sync and delete actions
+  objectRoles = true,
 ): Row[] => {
   const remoteHref = `${API}/remotes/${paths.remote}/00000000-0000-4000-8000-0000000000b1/`;
   const repositoryItem = {
@@ -128,7 +131,7 @@ const rowsOf = (
       label: `${plugin} repository edit`,
       action: actions.repositoryEdit,
       permission: repo('change'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -138,7 +141,7 @@ const rowsOf = (
       action: actions.repositorySync,
       permission: repo('sync'),
       lookalike: repo('change'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -147,7 +150,7 @@ const rowsOf = (
       label: `${plugin} repository delete`,
       action: actions.repositoryDelete,
       permission: repo('delete'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -165,7 +168,7 @@ const rowsOf = (
       label: `${plugin} remote edit`,
       action: actions.remoteEdit,
       permission: remote('change'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: remoteItem,
       listed: remoteItem,
       plugin,
@@ -174,7 +177,7 @@ const rowsOf = (
       label: `${plugin} remote delete`,
       action: actions.remoteDelete,
       permission: remote('delete'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: remoteItem,
       listed: remoteItem,
       plugin,
@@ -222,6 +225,7 @@ const ROWS: Row[] = [
       remoteEdit: debRemoteEditAction,
       remoteDelete: debRemoteDeleteAction,
     },
+    false,
   ),
   ...rowsOf(
     'rpm',

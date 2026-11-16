@@ -73,30 +73,20 @@ describe('the deb repository list', () => {
     expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
   });
 
-  it('shows the actions on the repository whose own permissions list them, and only there', async () => {
+  it('shows no row action for a role held on one repository, and asks no repository for its permissions', async () => {
     recorder = servePermissions({ own: [['deb.view_aptrepository']] });
     const { requests } = serveMyPermissions({
       [owned.pulp_href]: OWNER,
       [other.pulp_href]: ['deb.view_aptrepository'],
     });
-    const { user } = renderList();
+    renderList();
 
     await screen.findByText('owned-repo');
-    const kebab = await within(rowOf('owned-repo')).findByRole('button', {
-      name: 'Actions',
-    });
+    // gives a read that should not happen the time to start and answer
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    await user.click(kebab);
-    expect(
-      await screen.findByRole('menuitem', { name: 'Edit' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('menuitem', { name: 'Delete' }),
-    ).toBeInTheDocument();
-    expect(
-      within(rowOf('other-repo')).queryByRole('button', { name: 'Actions' }),
-    ).toBeNull();
-    expect(requests).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
+    expect(requests).toHaveLength(0);
   });
 
   it('reads no object permissions for a holder of the permissions on every object', async () => {
