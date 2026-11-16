@@ -44,6 +44,7 @@ function UserProfile(_props: RouteProps) {
     user: sessionUser,
     setUser: setSessionUser,
     endSession,
+    status,
   } = useUserContext();
   const username = sessionUser?.username;
   // Pulp lets every user read their own record but changes a user record only
@@ -109,6 +110,11 @@ function UserProfile(_props: RouteProps) {
     UserAPI.saveUser(user)
       .then(() => {
         touched.current = false;
+        // What was saved is what the record holds now, so Cancel returns to it
+        // and not to the values from before the save.
+        const saved = { ...user, password: '' };
+        setInitialState(saved);
+        setUser(saved);
         setInEditMode(false);
         addAlert({
           variant: 'success',
@@ -136,7 +142,9 @@ function UserProfile(_props: RouteProps) {
     );
   }
 
-  if (notFound) {
+  // A session that names no user address cannot lead to a record: say so
+  // instead of waiting for a read that is never started.
+  if (notFound || (status === 'authenticated' && !userId)) {
     return <NotFound />;
   }
 

@@ -15,6 +15,13 @@ describe('mapErrorMessages', () => {
     expect(mapErrorMessages({ response: { status: 502 } })).toEqual({});
   });
 
+  it.each([
+    ['a number', 5],
+    ['a boolean', true],
+  ])('returns no messages for a response body that is %s', (_name, data) => {
+    expect(mapErrorMessages({ response: { status: 500, data } })).toEqual({});
+  });
+
   it('maps a plain text body onto the field-less key', () => {
     expect(
       mapErrorMessages({ response: { status: 500, data: 'boom' } }),

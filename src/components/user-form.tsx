@@ -18,6 +18,7 @@ import {
 } from 'src/components';
 import { useSessionEpoch } from 'src/user-context';
 import { type ErrorMessagesType } from 'src/utilities';
+import { useLatestRead } from 'src/utilities/latest-read';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -56,6 +57,8 @@ export const UserForm = ({
   const epoch = useSessionEpoch();
   // the filter of the latest group search, so a re-read keeps the shown list
   const groupFilter = useRef('');
+  // numbers the group searches, so only the answer to the latest one is used
+  const groupSearches = useLatestRead();
 
   useEffect(() => {
     loadGroups(groupFilter.current);
@@ -199,38 +202,53 @@ export const UserForm = ({
     updateUser(newUser, errorMessages);
   }
 
+  // The user the parent holds is never changed in place: the parent gets a new
+  // user with a new list. A group that is no longer in the list of results
+  // (the search moved on) is not added.
   function onSelectGroup(event, selection) {
-    const newUser = { ...user };
-
-    const i = user.groups.findIndex((g) => g.name === selection);
-    if (i === -1) {
-      const addedGroup = searchGroups.find((g) => g.name === selection);
-      user.groups.push(addedGroup);
+    const selected = user.groups.some((g) => g.name === selection);
+    let groups: typeof user.groups;
+    if (selected) {
+      groups = user.groups.filter((g) => g.name !== selection);
     } else {
-      user.groups.splice(i, 1);
+      const addedGroup = searchGroups.find((g) => g.name === selection);
+      if (!addedGroup) {
+        return;
+      }
+      groups = [...user.groups, addedGroup];
     }
 
-    updateUser(newUser, errorMessages);
+    updateUser({ ...user, groups }, errorMessages);
   }
 
   function loadGroups(name) {
     groupFilter.current = name;
+    const search = groupSearches.start();
     GroupAPI.list({ name__contains: name, page_size: 5 })
-      .then((result) => setSearchGroups(result.data.results))
+      .then((result) => {
+        if (!groupSearches.isLatest(search)) {
+          return;
+        }
+        setSearchGroups(result.data.results);
+        // a read that succeeds ends an earlier failure of the field
+        setFormErrors((errors) =>
+          errors.groups ? { ...errors, groups: null } : errors,
+        );
+      })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it and the groups
         // read again after signing in.
-        if (isSessionEnd(e)) {
+        if (isSessionEnd(e) || !groupSearches.isLatest(search)) {
           return;
         }
-        setFormErrors({
-          ...formErrors,
+        setFormErrors((errors) => ({
+          ...errors,
           groups: {
             variant: 'danger',
             title: t`Groups list could not be displayed.`,
             description: requestErrorDescription(e),
           },
-        });
+        }));
       });
   }
 

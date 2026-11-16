@@ -1,7 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Flex, FlexItem, Label } from '@patternfly/react-core';
 import { Td } from '@patternfly/react-table';
-import { type FunctionComponent, useEffect, useRef, useState } from 'react';
+import {
+  type FunctionComponent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { RoleAPI, type RoleType } from 'src/api';
 import {
   AppliedFilters,
@@ -15,7 +21,11 @@ import {
 } from 'src/components';
 import { useSessionEpoch } from 'src/user-context';
 import { filterIsSet, translateLockedRole } from 'src/utilities';
-import { isSessionEnd } from 'src/utilities/request-error';
+import {
+  isSessionEnd,
+  requestErrorDescription,
+} from 'src/utilities/request-error';
+import { ListErrorState } from './list-error-state';
 
 interface SelectRolesProps {
   assignedRoles: { role: string }[];
@@ -37,6 +47,8 @@ export const SelectRoles: FunctionComponent<SelectRolesProps> = ({
   const [rolesItemCount, setRolesItemCount] = useState<number>(0);
 
   const [loading, setLoading] = useState<boolean>(true);
+  // why the last read failed; the list is not drawn while it is set
+  const [failure, setFailure] = useState<ReactNode | null>(null);
   const [localParams, setLocalParams] = useState({
     page: 1,
     page_size: 10,
@@ -65,21 +77,26 @@ export const SelectRoles: FunctionComponent<SelectRolesProps> = ({
     const read = ++latestRead.current;
     if (!quiet) {
       setLoading(true);
+      setFailure(null);
     }
     RoleAPI.list(localParams, pulpObjectType)
       .then(({ data }) => {
         if (read === latestRead.current) {
           setRoles(data.results);
           setRolesItemCount(data.count);
+          setFailure(null);
           setLoading(false);
         }
       })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it and the list
-        // reads again after signing in.
-        if (!isSessionEnd(e)) {
-          throw e;
+        // reads again after signing in. Any other failure is shown with a
+        // way to read again, so the dialog never spins without an end.
+        if (isSessionEnd(e) || read !== latestRead.current) {
+          return;
         }
+        setFailure(requestErrorDescription(e));
+        setLoading(false);
       });
   };
 
@@ -87,6 +104,18 @@ export const SelectRoles: FunctionComponent<SelectRolesProps> = ({
     return (
       <div className='pulp-custom-wizard-layout pulp-loading-wizard'>
         <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (failure) {
+    return (
+      <div className='pulp-custom-wizard-layout'>
+        <ListErrorState
+          title={t`Roles list could not be displayed.`}
+          message={failure}
+          onRetry={() => queryRoles(false)}
+        />
       </div>
     );
   }

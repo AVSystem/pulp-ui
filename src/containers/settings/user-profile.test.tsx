@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
@@ -7,6 +7,7 @@ import {
   PermissionsKnown,
   servePermissions,
 } from 'src/test-utils/permissions';
+import { listOf } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import UserProfile from './user-profile';
@@ -128,5 +129,80 @@ describe('the profile page of a user who may not list users', () => {
     renderProfile({ isStaff: true });
 
     expect(await screen.findByRole('button', { name: 'Edit' })).toBeVisible();
+  });
+});
+
+describe('the profile after a save', () => {
+  it('returns to the saved values when Edit is followed by Cancel', async () => {
+    recorder = servePermissions({ id: 7, username: 'zoe', isStaff: true });
+    const patches: unknown[] = [];
+    server.use(
+      listOf(`${API}/groups/`, []).handler,
+      http.get(`*${API}/users/`, () =>
+        HttpResponse.json({ detail: 'no' }, { status: 403 }),
+      ),
+      http.get(`*${API}/users/7/`, () =>
+        HttpResponse.json({
+          pulp_href: `${API}/users/7/`,
+          id: 7,
+          username: 'zoe',
+          first_name: 'Zo',
+          last_name: '',
+          email: '',
+          is_staff: true,
+          is_active: true,
+          date_joined: '2000-01-01T00:00:00.000000Z',
+          groups: [],
+        }),
+      ),
+      http.patch(`*${API}/users/7/`, async ({ request }) => {
+        patches.push(await request.json());
+        return HttpResponse.json({});
+      }),
+    );
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <PermissionsKnown>
+          <UserProfile />
+        </PermissionsKnown>
+      </AppContextProvider>,
+      { route: '/users/profile' },
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    const firstName = screen.getByLabelText(/First name/);
+    await user.clear(firstName);
+    await user.type(firstName, 'New');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText(/Saved changes to user/);
+    expect(patches).toHaveLength(1);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    await user.type(screen.getByLabelText(/First name/), 'x');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.getByText('New')).toBeInTheDocument());
+    expect(screen.queryByText('Zo')).toBeNull();
+    expect(screen.queryByText('Newx')).toBeNull();
+  });
+});
+
+describe('the profile of a session that names no user address', () => {
+  it('shows the not found page instead of a spinner that never ends', async () => {
+    recorder = { requests: [], stop: () => server.events.removeAllListeners() };
+    server.use(
+      http.get(`*${API}/login/`, () => HttpResponse.json({ username: 'zoe' })),
+    );
+    renderWithProviders(
+      <AppContextProvider>
+        <UserProfile />
+      </AppContextProvider>,
+      { route: '/users/profile' },
+    );
+
+    expect(
+      await screen.findByText(/couldn't find the page/),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).toBeNull();
   });
 });
