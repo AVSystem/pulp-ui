@@ -316,6 +316,45 @@ describe('route guard', () => {
       expect(replace).not.toHaveBeenCalled();
     });
 
+    it('a browser that cannot store the attempt time shows that sign-in did not complete and does not redirect', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      // writes are ignored and nothing can be read back
+      vi.spyOn(window, 'sessionStorage', 'get').mockReturnValue({
+        getItem: () => null,
+        setItem: () => undefined,
+        removeItem: () => undefined,
+      } as unknown as Storage);
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Sign-in did not complete',
+        }),
+      ).toBeVisible();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(replace).not.toHaveBeenCalled();
+    });
+
+    it('a stored time in the future counts as no recent attempt and redirects once', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      window.sessionStorage.setItem(
+        'pulp-ui-external-login-at',
+        String(Date.now() + 60000),
+      );
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      await waitFor(() => expect(replace).toHaveBeenCalledTimes(1));
+      expect(screen.queryByText('Sign-in did not complete')).toBeNull();
+    });
+
     it('a page that returns without a session after 40 seconds redirects again', async () => {
       config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
       window.sessionStorage.setItem(
@@ -1111,18 +1150,57 @@ describe('administration screens', () => {
     requests.stop();
   });
 
-  it('shows the insufficient permissions page after the permission read failed', async () => {
+  it('offers to read the permissions again, and no refusal, after the permission read failed', async () => {
     serveLists();
-    servePermissions({ isStaff: true });
+    servePermissions({ own: [['core.view_group']] });
+    let failing = true;
     server.use(
       http.get(`*${API}/users/7/`, () =>
-        HttpResponse.json({ detail: 'no' }, { status: 500 }),
+        failing
+          ? HttpResponse.json({ detail: 'down' }, { status: 500 })
+          : HttpResponse.json({
+              id: 7,
+              username: 'zoe',
+              pulp_href: `${API}/users/7/`,
+              is_staff: false,
+              groups: [],
+            }),
       ),
     );
+    const { user } = renderWithProviders(<RoutedInApp />, { route: '/groups' });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Your permissions could not be read',
+      }),
+    ).toBeVisible();
+    expect(screen.getByText(/Error 500/)).toBeVisible();
+    expect(refusal()).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+
+    failing = false;
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Groups', level: 1 }),
+    ).toBeVisible();
+    expect(refusal()).toBeNull();
+  });
+
+  it('still shows the insufficient permissions page when the permissions were read and lack the permission', async () => {
+    serveLists();
+    servePermissions({ own: [['file.view_filerepository']] });
 
     renderWithProviders(<RoutedInApp />, { route: '/groups' });
 
     await waitFor(() => expect(refusal()).not.toBeNull());
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Your permissions could not be read',
+      }),
+    ).toBeNull();
   });
 
   it('leaves the screens that are not administration alone', async () => {

@@ -15,12 +15,14 @@ export function forgetExternalLogin() {
 }
 
 // How long ago the browser was last sent to the external login, in
-// milliseconds, or null when it was not or the time cannot be read.
+// milliseconds, or null when it was not, the time cannot be read, or the stored
+// time lies in the future (a clock that moved back would otherwise make every
+// later attempt look recent).
 export function externalLoginAge(now: number): number | null {
   const stored = readStored(EXTERNAL_LOGIN_AT_KEY, 'sessionStorage');
   if (stored === null) {
     return null;
   }
   const at = Number(stored);
-  return Number.isFinite(at) ? now - at : null;
+  return Number.isFinite(at) && at <= now ? now - at : null;
 }

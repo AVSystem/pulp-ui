@@ -2484,6 +2484,7 @@ msgid "Download requirements file"
 msgstr "Bestand met vereisten downloaden"
 
 #: src/actions/ansible-remote-download-requirements.tsx
+#: src/components/page-with-tabs.test.tsx
 msgid "Download requirements YAML"
 msgstr "YAML-vereisten downloaden"
 
@@ -8641,6 +8642,10 @@ msgstr ""
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
+msgstr ""
+
+#: src/app-routes.tsx
+msgid "Your permissions could not be read"
 msgstr ""
 
 #: src/session/reauth-dialog.tsx
