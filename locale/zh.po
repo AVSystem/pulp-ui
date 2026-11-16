@@ -171,7 +171,7 @@ msgstr "{name} 将停止运行。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
-msgstr ""
+msgstr "{namespace}.{name} v{version}，已在仓库中"
 
 #: src/components/collection-card.tsx
 #: src/components/collection-header.tsx
@@ -555,7 +555,7 @@ msgstr "将所选用户添加到组"
 #: src/components/detail-list.test.tsx
 #: src/components/list-page.test.tsx
 msgid "Add thing"
-msgstr ""
+msgstr "添加项目"
 
 #: src/constants.tsx
 #~ msgid "Add user"
@@ -1125,7 +1125,7 @@ msgstr ""
 #: src/components/page-with-tabs.test.tsx
 #: src/components/page.test.tsx
 msgid "Change thing"
-msgstr ""
+msgstr "更改项目"
 
 #: src/constants.tsx
 #~ msgid "Change user"
@@ -1443,7 +1443,7 @@ msgstr "集合"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Collections already in the repository cannot be marked, so none can be selected yet."
-msgstr ""
+msgstr "已在仓库中的集合无法被标记，因此暂时无法选择任何集合。"
 
 #: src/utilities/translate-task.ts
 msgid "Collections sync"
@@ -1813,7 +1813,7 @@ msgstr "创建新用户"
 
 #: src/components/list-page.test.tsx
 msgid "Create thing"
-msgstr ""
+msgstr "创建项目"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
@@ -2128,7 +2128,7 @@ msgstr "删除角色？"
 #: src/components/page-with-tabs.test.tsx
 #: src/components/page.test.tsx
 msgid "Delete thing"
-msgstr ""
+msgstr "删除项目"
 
 #: src/constants.tsx
 #~ msgid "Delete user"
@@ -3052,7 +3052,7 @@ msgstr "加载软件仓库失败：{error}"
 
 #: src/containers/pulp-status.tsx
 msgid "Failed to load status"
-msgstr ""
+msgstr "加载状态失败"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
@@ -3340,7 +3340,7 @@ msgstr ""
 
 #: src/components/insufficient-permissions.tsx
 msgid "Go back"
-msgstr ""
+msgstr "返回"
 
 #: src/shell/command-palette.tsx
 msgid "Go to"
@@ -3368,11 +3368,11 @@ msgstr ""
 
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
-msgstr ""
+msgstr "转到登录页面"
 
 #: src/components/insufficient-permissions.tsx
 msgid "Go to the start page"
-msgstr ""
+msgstr "转到起始页"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -3659,7 +3659,7 @@ msgstr "要保留所有版本，请将此字段留空。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "In repository"
-msgstr ""
+msgstr "在仓库中"
 
 #: src/components/remote-form.tsx
 msgid "Include all dependencies when syncing a collection."
@@ -3770,7 +3770,7 @@ msgstr ""
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
-msgstr ""
+msgstr "权限不足"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
@@ -4024,7 +4024,7 @@ msgstr ""
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Log in"
-msgstr ""
+msgstr "登录"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Log In"
@@ -5348,7 +5348,7 @@ msgstr ""
 
 #: src/utilities/fail-alerts.tsx
 msgid "Pulp refused this request."
-msgstr ""
+msgstr "Pulp 拒绝了此请求。"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -5921,7 +5921,7 @@ msgstr "仓库在创建后会出现。"
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
-msgstr ""
+msgstr "仓库 \"{name}\" 已创建。其分发尚未确认。"
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
@@ -6073,7 +6073,7 @@ msgstr ""
 #: src/components/list-error-state.tsx
 #: src/menu.tsx
 msgid "Retry"
-msgstr ""
+msgstr "重试"
 
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
@@ -6081,11 +6081,11 @@ msgstr ""
 
 #: src/menu.tsx
 msgid "Retry loading the plugin list"
-msgstr ""
+msgstr "重试加载插件列表"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Retry loading the repository content"
-msgstr ""
+msgstr "重试加载仓库内容"
 
 #: src/shell/command-palette.tsx
 msgid "Retry repository search"
@@ -6156,7 +6156,7 @@ msgstr "角色 \"{name}\" 已成功删除。"
 
 #: src/containers/role-management/role-edit.tsx
 msgid "Role \"{roleName}\" could not be displayed."
-msgstr ""
+msgstr "角色 \"{roleName}\" 无法显示。"
 
 #. placeholder {0}: role.name
 #. placeholder {1}: group.name
@@ -6173,7 +6173,7 @@ msgstr "角色 {0} 已成功添加到 {1}。"
 #: src/components/role-permissions.tsx
 #: src/containers/role-management/role-edit.tsx
 msgid "Role could not be displayed."
-msgstr ""
+msgstr "角色无法显示。"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Role Header"
@@ -6658,7 +6658,7 @@ msgstr ""
 #: src/containers/signed-out.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Sign in again"
-msgstr ""
+msgstr "重新登录"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "sign state"
@@ -6679,7 +6679,7 @@ msgstr ""
 
 #: src/components/external-sign-in-incomplete.tsx
 msgid "Sign-in did not complete"
-msgstr ""
+msgstr "登录未完成"
 
 #: src/shell/shell.tsx
 msgid "Sign-out did not complete"
@@ -6732,7 +6732,7 @@ msgstr ""
 
 #: src/containers/signed-out.tsx
 msgid "Signed out"
-msgstr ""
+msgstr "已退出"
 
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signed version(s)"
@@ -7192,7 +7192,7 @@ msgstr "任务 \"{taskName}\" 成功停止。"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
-msgstr ""
+msgstr "任务无法显示。"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7347,7 +7347,7 @@ msgstr ""
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "The configuration could not be copied to the clipboard."
-msgstr ""
+msgstr "配置无法复制到剪贴板。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
@@ -7397,11 +7397,11 @@ msgstr ""
 
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
-msgstr ""
+msgstr "上一个操作未完成。请在登录后重复该操作。"
 
 #: src/components/external-sign-in-incomplete.tsx
 msgid "The login page returned without a signed-in session."
-msgstr ""
+msgstr "登录页面返回时没有已登录的会话。"
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -7409,7 +7409,7 @@ msgstr ""
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "由于无法读取任务状态，删除远程 {name} 的结果未知。请检查该任务。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
@@ -7425,7 +7425,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "由于无法读取任务状态，更新分发 {name} 的结果未知。请检查该任务。"
 
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
@@ -7438,7 +7438,7 @@ msgstr "同步时要用于身份验证的密码。在使用令牌时不需要此
 #: src/app-routes.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
-msgstr ""
+msgstr "无法加载插件列表"
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -7446,11 +7446,11 @@ msgstr ""
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
-msgstr ""
+msgstr "删除远程 {name} 仍在运行。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
-msgstr ""
+msgstr "无法读取仓库内容"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
@@ -7467,7 +7467,7 @@ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository was not removed."
-msgstr ""
+msgstr "仓库未被删除。"
 
 #: src/utilities/request-error.ts
 msgid "The request failed."
@@ -7519,15 +7519,15 @@ msgstr ""
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
-msgstr ""
+msgstr "无法检查会话"
 
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
-msgstr ""
+msgstr "在创建分发之前会话已结束。登录后，请检查分发，如果缺少则创建它。"
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."
-msgstr ""
+msgstr "状态响应中没有列出任何插件。"
 
 #: src/utilities/wait-for-task.ts
 msgid "The status of the task could not be read."
@@ -8211,7 +8211,7 @@ msgstr "用户 <0>{username}</0> 将从组<1>{groupname}</1> 中删除。"
 
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."
-msgstr ""
+msgstr "用户无法显示。"
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"
@@ -8350,7 +8350,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Versions, workers and storage are shown to signed-in users."
-msgstr ""
+msgstr "版本、工作进程和存储会显示给已登录的用户。"
 
 #: src/shell/notifications.tsx
 msgid "View all tasks"
@@ -8486,7 +8486,7 @@ msgstr "我们无法找到您要查找的页面！"
 
 #: src/session/reauth-dialog.tsx
 msgid "What you have entered on this page is kept."
-msgstr ""
+msgstr "您在此页面上输入的内容会被保留。"
 
 #: src/components/repository-form.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
@@ -8544,7 +8544,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Workers, storage and content settings are shown to administrators."
-msgstr ""
+msgstr "工作进程、存储和内容设置会显示给管理员。"
 
 #: src/components/ratings.tsx
 #~ msgid "Works without change"
@@ -8661,7 +8661,7 @@ msgstr ""
 
 #: src/utilities/fail-alerts.tsx
 msgid "You do not have permission to do this."
-msgstr ""
+msgstr "您没有权限执行此操作。"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
@@ -8669,7 +8669,7 @@ msgstr ""
 
 #: src/components/insufficient-permissions.tsx
 msgid "You do not have permission to view this page."
-msgstr ""
+msgstr "您没有权限查看此页面。"
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "You do not have the required permissions."
@@ -8690,7 +8690,7 @@ msgstr "您没有显示用户的权限。"
 
 #: src/containers/signed-out.tsx
 msgid "You have been signed out of Pulp."
-msgstr ""
+msgstr "您已退出 Pulp。"
 
 #: src/components/collection-info.tsx
 #~ msgid "You have to be logged in to be able to download the tarball."
@@ -8706,15 +8706,15 @@ msgstr ""
 
 #: src/app-routes.tsx
 msgid "Your permissions could not be read"
-msgstr ""
+msgstr "无法读取您的权限"
 
 #: src/session/reauth-dialog.tsx
 msgid "Your session has ended. Log in to continue."
-msgstr ""
+msgstr "您的会话已结束。请登录以继续。"
 
 #: src/session/reauth-dialog.tsx
 msgid "Your session has ended. You are taken to the login page and back to this page afterwards. Anything you entered on this page is lost."
-msgstr ""
+msgstr "您的会话已结束。您将被转到登录页面，之后返回此页面。您在此页面上输入的所有内容都将丢失。"
 
 #: src/shell/notifications.tsx
 msgid "Your tasks appear here when they fail, complete or are canceled."
