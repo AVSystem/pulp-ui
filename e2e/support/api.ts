@@ -52,7 +52,7 @@ interface Task {
 }
 
 // Endpoints that hold objects created by the tests, deepest dependants first:
-// distributions, publications, repositories, remotes, content guards. Only
+// distributions, publications, repositories, remotes, content guards, roles. Only
 // objects under these endpoints are ever deleted. Publications carry no name of
 // their own; every other kind must carry the scope's prefix.
 const DISTRIBUTIONS = [
@@ -81,6 +81,7 @@ const REMOTES = [
   'remotes/python/python/',
 ];
 const CONTENT_GUARDS = ['contentguards/core/rbac/'];
+const ROLES = ['roles/'];
 
 // The endpoint groups in the order objects can be deleted.
 const DELETION_ORDER = [
@@ -89,6 +90,7 @@ const DELETION_ORDER = [
   REPOSITORIES,
   REMOTES,
   CONTENT_GUARDS,
+  ROLES,
 ];
 
 // The endpoints whose objects have a name, and so can be found by the scope's
@@ -328,7 +330,7 @@ export class TestObjects {
   }
 
   // Deletes everything this scope created: registered objects dependants first
-  // (distributions, publications, repositories, remotes, content guards), then
+  // (distributions, publications, repositories, remotes, content guards, roles), then
   // anything of the scope that is still listed, for objects created through
   // the UI. Throws when something is left; always closes the API context.
   async cleanUp(): Promise<void> {
