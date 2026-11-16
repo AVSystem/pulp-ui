@@ -440,7 +440,36 @@ describe('createRepository when the session ends', () => {
       saveErrorMessages({
         response: { status: 403, data: { detail: 'Forbidden.' } },
       }),
-    ).toMatchObject({ __nofield: 'Forbidden.' });
+    ).toEqual({
+      __nofield:
+        'You do not have permission to do this. Forbidden. Contact your organization administrator for more information.',
+    });
     expect(saveErrorMessages(new Error('boom'))).toEqual({ __nofield: 'boom' });
+  });
+
+  it('tells a refused save what was refused, why and whom to ask, in that order', () => {
+    expect(
+      saveErrorMessages({
+        response: { status: 403, data: { detail: 'No.' } },
+      }),
+    ).toEqual({
+      __nofield:
+        'You do not have permission to do this. No. Contact your organization administrator for more information.',
+    });
+    expect(saveErrorMessages({ response: { status: 403, data: {} } })).toEqual({
+      __nofield:
+        'You do not have permission to do this. Pulp refused this request. Contact your organization administrator for more information.',
+    });
+  });
+
+  it('keeps the field messages of a rejected save', () => {
+    expect(
+      saveErrorMessages({
+        response: {
+          status: 400,
+          data: { name: ['This field must be unique.'] },
+        },
+      }),
+    ).toEqual({ name: ['This field must be unique.'] });
   });
 });

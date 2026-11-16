@@ -848,3 +848,16 @@ describe('repository form, who is offered a distribution', () => {
     expect(distributionBox()).toBeNull();
   });
 });
+
+describe('repository form, message that belongs to no field', () => {
+  it('shows a long unbroken refusal as a paragraph that wraps', () => {
+    const refusal = `You do not have permission to do this. ${'x'.repeat(500)} Contact your organization administrator for more information.`;
+    renderWithProviders(
+      <Harness isNew onSave={vi.fn()} errorMessages={{ __nofield: refusal }} />,
+    );
+
+    const message = screen.getByText(refusal);
+    expect(message.tagName).toBe('P');
+    expect(message).toHaveClass('pulp-break-anywhere');
+  });
+});

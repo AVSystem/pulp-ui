@@ -196,6 +196,25 @@ describe('creating a file repository', () => {
     await waitFor(() => expect(save()).toBeEnabled());
   });
 
+  it('shows the three-part refusal under the form when the save is refused with 403', async () => {
+    server.use(
+      http.post(`*${API}/repositories/file/file/`, () =>
+        HttpResponse.json({ detail: 'Not allowed here.' }, { status: 403 }),
+      ),
+    );
+    const { user } = renderEdit('/file/repositories/edit/_');
+
+    await user.type(await nameInput(), 'tools');
+    await user.click(save());
+
+    const refusal = await screen.findByText(/Not allowed here\./);
+    expect(refusal).toHaveTextContent(
+      'You do not have permission to do this. Not allowed here. Contact your organization administrator for more information.',
+    );
+    expect(refusal).toHaveClass('pulp-break-anywhere');
+    expect(screen.queryByTestId('where')).toBeNull();
+  });
+
   it('shows the server message under Name when the name is already taken', async () => {
     server.use(
       http.post(`*${API}/repositories/file/file/`, () =>
