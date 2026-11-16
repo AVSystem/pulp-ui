@@ -11,6 +11,7 @@ import {
   pythonDistribution,
   remote,
   repository,
+  task,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -20,7 +21,11 @@ import {
   serveSignIn,
   signedIn,
 } from 'src/test-utils/sign-in-again';
+import { ansibleRepositoryCollectionVersionAddAction } from '../actions/ansible-repository-collection-version-add';
+import { ansibleRepositoryCollectionVersionRemoveAction } from '../actions/ansible-repository-collection-version-remove';
 import { ansibleRepositoryCopyAction } from '../actions/ansible-repository-copy';
+import { ansibleRepositorySyncAction } from '../actions/ansible-repository-sync';
+import { ansibleRepositoryVersionRevertAction } from '../actions/ansible-repository-version-revert';
 import { pythonDistributionEditAction } from '../actions/python-distribution-edit';
 import { DeleteRepositoryModal } from './delete-repository-modal';
 import { RolePermissions } from './role-permissions';
@@ -789,5 +794,312 @@ describe('the Copy CLI configuration action', () => {
     expect(addAlert).toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'danger' }),
     );
+  });
+});
+
+describe('a write dialog when the session ends during the write', () => {
+  const REPO_HREF = `${API}/repositories/ansible/ansible/00000000-0000-4000-8000-0000000000a1/`;
+  const COLLECTIONS = `${API}/content/ansible/collection_versions/`;
+  const TASK_HREF = `${API}/tasks/00000000-0000-4000-8000-0000000000aa/`;
+  const MODIFY = `${REPO_HREF}modify/`;
+  const SYNC = `${REPO_HREF}sync/`;
+
+  // The page around a dialog: it holds the state the page holds, draws the
+  // dialog the action asks for and lists the alerts the dialog raises.
+  function Host({
+    action,
+    initial,
+  }: {
+    action: { modal?: (context) => ReactNode };
+    initial: Record<string, unknown>;
+  }) {
+    const [state, setState] = useState(initial);
+    const [alerts, setAlerts] = useState<{ title: ReactNode }[]>([]);
+
+    return (
+      <>
+        <ul aria-label='alerts'>
+          {alerts.map((alert, index) => (
+            <li key={index}>{alert.title}</li>
+          ))}
+        </ul>
+        <SignInAgain />
+        {action.modal?.({
+          addAlert: (alert) => setAlerts((all) => [...all, alert]),
+          listQuery: () => undefined,
+          query: () => undefined,
+          reloadPage: () => undefined,
+          setState,
+          state,
+        })}
+      </>
+    );
+  }
+
+  // The write answers 401 until `accept` is called, then starts a task that
+  // is already done. Every body sent is kept.
+  function serveWrite(path: string) {
+    const bodies: unknown[] = [];
+    let accepting = false;
+    server.use(
+      http.post(`*${path}`, async ({ request }) => {
+        bodies.push(await request.json());
+        return accepting
+          ? HttpResponse.json({ task: TASK_HREF }, { status: 202 })
+          : HttpResponse.json({ detail: 'no' }, { status: 401 });
+      }),
+      http.get(`*${TASK_HREF}`, () =>
+        HttpResponse.json(task({ pulp_href: TASK_HREF, state: 'completed' })),
+      ),
+    );
+    return {
+      bodies,
+      accept: () => {
+        accepting = true;
+      },
+    };
+  }
+
+  const alertsShown = () =>
+    within(screen.getByRole('list', { name: 'alerts', hidden: true }))
+      .queryAllByRole('listitem', { hidden: true })
+      .map((item) => item.textContent);
+
+  // Presses the button of the dialog, signs in again and presses it once more.
+  // Between the two presses nothing may be sent by itself.
+  async function pressAcrossSessionEnd({
+    user,
+    recorded,
+    press,
+    accept,
+    write,
+    whileOpen = () => undefined,
+  }: {
+    user;
+    recorded: ReturnType<typeof recordWrites>;
+    press: () => Promise<void>;
+    accept: () => void;
+    write: string;
+    // what the open dialog must still show after each refusal
+    whileOpen?: () => void;
+  }) {
+    await signedIn();
+    await press();
+    await pause();
+
+    expect(recorded.writes).toEqual([`POST ${write}`]);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(alertsShown()).toEqual([]);
+    whileOpen();
+
+    await signInAgain(user);
+    await pause();
+
+    expect(recorded.writes).toEqual([`POST ${write}`, `POST ${API}/login/`]);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    whileOpen();
+
+    accept();
+    await press();
+
+    await waitFor(() =>
+      expect(recorded.writes).toEqual([
+        `POST ${write}`,
+        `POST ${API}/login/`,
+        `POST ${write}`,
+      ]),
+    );
+  }
+
+  const rows = Array.from({ length: 12 }, (_, i) => ({
+    pulp_href: `${COLLECTIONS}00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}/`,
+    namespace: 'ns',
+    name: `col${String(i + 1).padStart(2, '0')}`,
+    version: '1.0.0',
+    description: 'A test collection',
+  }));
+
+  it('keeps the add collection dialog open with the selection from page two, and adds once after signing in again', async () => {
+    serveSignIn();
+    server.use(listOf(COLLECTIONS, rows).handler);
+    const written = serveWrite(MODIFY);
+    const recorded = recordWrites();
+    const { user } = renderWithProviders(
+      <Host
+        action={ansibleRepositoryCollectionVersionAddAction}
+        initial={{
+          repository: { name: 'r1', pulp_href: REPO_HREF },
+          addCollectionVersionModal: {
+            repositoryHref: REPO_HREF,
+            repositoryName: 'r1',
+            latestVersionHref: null,
+          },
+        }}
+      />,
+    );
+    await screen.findByText('ns.col01 v1.0.0');
+    await user.click(
+      screen.getAllByRole('button', { name: /go to next page/i })[0],
+    );
+    await user.click(await screen.findByText('ns.col11 v1.0.0'));
+    await user.click(screen.getByText('ns.col12 v1.0.0'));
+    const select = () => screen.getByRole('button', { name: 'Select' });
+
+    await pressAcrossSessionEnd({
+      user,
+      recorded,
+      press: () => user.click(select()),
+      accept: written.accept,
+      write: MODIFY,
+      whileOpen: () => {
+        expect(
+          screen.getByRole('checkbox', { name: 'ns.col11 v1.0.0' }),
+        ).toBeChecked();
+        expect(
+          screen.getByRole('checkbox', { name: 'ns.col12 v1.0.0' }),
+        ).toBeChecked();
+        expect(screen.queryByText('ns.col01 v1.0.0')).toBeNull();
+      },
+    });
+
+    expect(written.bodies).toEqual([
+      { add_content_units: [rows[10].pulp_href, rows[11].pulp_href] },
+      { add_content_units: [rows[10].pulp_href, rows[11].pulp_href] },
+    ]);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    recorded.stop();
+  });
+
+  it('keeps the remove collection dialog open and removes once after signing in again', async () => {
+    serveSignIn();
+    const written = serveWrite(MODIFY);
+    const recorded = recordWrites();
+    const { user } = renderWithProviders(
+      <Host
+        action={ansibleRepositoryCollectionVersionRemoveAction}
+        initial={{
+          removeCollectionVersionModal: {
+            collection: { namespace: 'ns', name: 'col01', version: '1.0.0' },
+            repositoryName: 'r1',
+            repositoryHref: REPO_HREF,
+            collectionVersionHref: rows[0].pulp_href,
+          },
+        }}
+      />,
+    );
+    const remove = () => screen.getByRole('button', { name: /^Remove/ });
+
+    await pressAcrossSessionEnd({
+      user,
+      recorded,
+      press: () => user.click(remove()),
+      accept: written.accept,
+      write: MODIFY,
+    });
+
+    expect(written.bodies).toEqual([
+      { remove_content_units: [rows[0].pulp_href] },
+      { remove_content_units: [rows[0].pulp_href] },
+    ]);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    recorded.stop();
+  });
+
+  it('keeps the sync dialog open with the changed options and syncs once after signing in again', async () => {
+    serveSignIn();
+    const written = serveWrite(SYNC);
+    const recorded = recordWrites();
+    const { user } = renderWithProviders(
+      <Host
+        action={ansibleRepositorySyncAction}
+        initial={{ syncModalOpen: { name: 'r1', pulp_href: REPO_HREF } }}
+      />,
+    );
+    const sync = () => screen.getByRole('button', { name: /^Sync/ });
+    const mirror = () =>
+      screen.getByRole('switch', { name: /Content not present in remote/ });
+    await user.click(mirror());
+    expect(mirror()).not.toBeChecked();
+
+    await pressAcrossSessionEnd({
+      user,
+      recorded,
+      press: () => user.click(sync()),
+      accept: written.accept,
+      write: SYNC,
+      whileOpen: () => expect(mirror()).not.toBeChecked(),
+    });
+
+    expect(written.bodies).toEqual([
+      expect.objectContaining({ mirror: false }),
+      expect.objectContaining({ mirror: false }),
+    ]);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    recorded.stop();
+  });
+
+  it('keeps the revert dialog open and reverts once after signing in again', async () => {
+    serveSignIn();
+    const written = serveWrite(MODIFY);
+    const recorded = recordWrites();
+    const version = `${REPO_HREF}versions/2/`;
+    const { user } = renderWithProviders(
+      <Host
+        action={ansibleRepositoryVersionRevertAction}
+        initial={{
+          revertModal: {
+            repositoryName: 'r1',
+            number: 2,
+            pulp_href: version,
+          },
+        }}
+      />,
+    );
+    const revert = () => screen.getByRole('button', { name: /^Revert/ });
+
+    await pressAcrossSessionEnd({
+      user,
+      recorded,
+      press: () => user.click(revert()),
+      accept: written.accept,
+      write: MODIFY,
+    });
+
+    expect(written.bodies).toEqual([
+      { base_version: version },
+      { base_version: version },
+    ]);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    recorded.stop();
+  });
+
+  it('still closes the dialog and shows an alert when the write fails for another reason', async () => {
+    serveSignIn();
+    server.use(
+      http.post(`*${MODIFY}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderWithProviders(
+      <Host
+        action={ansibleRepositoryCollectionVersionRemoveAction}
+        initial={{
+          removeCollectionVersionModal: {
+            collection: { namespace: 'ns', name: 'col01', version: '1.0.0' },
+            repositoryName: 'r1',
+            repositoryHref: REPO_HREF,
+            collectionVersionHref: rows[0].pulp_href,
+          },
+        }}
+      />,
+    );
+    await signedIn();
+
+    await user.click(screen.getByRole('button', { name: /^Remove/ }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(alertsShown()).toEqual([
+      'Failed to remove ns.col01 v1.0.0 from repository "r1".',
+    ]);
   });
 });
