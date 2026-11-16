@@ -1,6 +1,11 @@
 export { assignRoles } from './assign-roles';
 export { downloadString } from './download-data';
-export { errorMessage, handleHttpError, jsxErrorMessage } from './fail-alerts';
+export {
+  errorMessage,
+  handleDialogWriteError,
+  handleHttpError,
+  jsxErrorMessage,
+} from './fail-alerts';
 export { filterIsSet } from './filter-is-set';
 export { getHumanSize } from './get-human-size';
 export { getContainersURL, getDistroURL, getRepoURL } from './get-repo-url';

@@ -2,7 +2,7 @@ import { msg, t } from '@lingui/core/macro';
 import { FileRepositoryAPI } from '../api/file-repository';
 import { SyncModal } from '../components/sync-modal';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
-import { handleHttpError } from '../utilities/fail-alerts';
+import { handleDialogWriteError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
@@ -53,7 +53,7 @@ function syncRepository(
       query();
     })
     .catch(
-      handleHttpError(
+      handleDialogWriteError(
         t`Failed to sync repository "${name}"`,
         () => null,
         addAlert,

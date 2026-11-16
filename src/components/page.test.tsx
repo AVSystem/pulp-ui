@@ -1101,3 +1101,16 @@ describe('every repository and remote edit page opened by its address', () => {
     },
   );
 });
+
+describe('an edit page, for an action that outlives it', () => {
+  it('tells the action whether the page is still shown', async () => {
+    server.use(answer('alpha'));
+    const view = renderEdit('/things/edit/alpha');
+    await screen.findByText('Editing alpha');
+
+    expect(actionContext.isMounted()).toBe(true);
+    view.unmount();
+
+    expect(actionContext.isMounted()).toBe(false);
+  });
+});

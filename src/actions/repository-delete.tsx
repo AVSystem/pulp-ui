@@ -29,7 +29,7 @@ export const repositoryDeleteAction = (
     title: msg`Delete`,
     permission: ACTION_PERMISSIONS[plugin].repository.delete,
     objectLevel: ACTION_PERMISSIONS[plugin].objectRoles,
-    modal: ({ addAlert, listQuery, setState, state }) =>
+    modal: ({ addAlert, isMounted, listQuery, queueAlert, setState, state }) =>
       state.deleteModalOpen ? (
         <DeleteRepositoryModal
           key={state.deleteModalOpen.pulp_href}
@@ -47,11 +47,18 @@ export const repositoryDeleteAction = (
             });
 
             if (result.repositoryDeleted) {
+              // A delete can outlive the page it started from. A page that is
+              // gone cannot show the result, and reloading or leaving it would
+              // pull the user away from wherever they are now, so the result
+              // is queued for the next screen instead. A context that cannot
+              // tell counts as a page that is still there.
+              const pageGone = isMounted ? !isMounted() : false;
+              const report = pageGone && queueAlert ? queueAlert : addAlert;
               // The repository is gone. A failure of one of the page updates
               // below must neither reach the dialog as a failed delete nor
               // keep the other updates from running.
               attempt(() =>
-                addAlert({
+                report({
                   variant: 'success',
                   title: t`Removed repository ${name}`,
                   description: result.removed.length
@@ -69,7 +76,9 @@ export const repositoryDeleteAction = (
                     : null,
                 ),
               );
-              attempt(listQuery);
+              if (!pageGone) {
+                attempt(listQuery);
+              }
             }
 
             return result;

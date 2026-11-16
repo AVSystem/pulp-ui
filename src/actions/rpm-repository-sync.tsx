@@ -1,7 +1,11 @@
 import { msg, t } from '@lingui/core/macro';
 import { RPMRepositoryAPI } from 'src/api';
 import { SyncModal } from 'src/components';
-import { handleHttpError, parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import {
+  handleDialogWriteError,
+  parsePulpIDFromURL,
+  taskAlert,
+} from 'src/utilities';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { Action } from './action';
 
@@ -58,7 +62,7 @@ function syncRepository({ name, pulp_href }, { addAlert, query }, syncParams) {
       query();
     })
     .catch(
-      handleHttpError(
+      handleDialogWriteError(
         t`Failed to sync repository "${name}"`,
         () => null,
         addAlert,

@@ -371,6 +371,77 @@ describe('the add collection dialog, for collection versions the repository hold
     );
   });
 
+  it('follows only the newest page when the answers arrive out of order, so a held version is never offered', async () => {
+    const rows = Array.from({ length: 12 }, (_, i) =>
+      row({
+        pulp_href: `${COLLECTIONS}00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}/`,
+        name: `col${String(i + 1).padStart(2, '0')}`,
+      }),
+    );
+    const { user, modifies } = setup(rows, { held: [rows[10].pulp_href] });
+    await screen.findByText('ns.col01 v1.0.0');
+    await offered('ns.col01 v1.0.0');
+
+    // The next list answer for page 1 and every content read for page 2 wait.
+    const hold = () => {
+      let release: () => void;
+      const released = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      return { released, release: () => release() };
+    };
+    const olderPage = hold();
+    const contentOfPageTwo = hold();
+    let startedForPageTwo = 0;
+    server.use(
+      http.get(`*${COLLECTIONS}`, async ({ request }) => {
+        const query = new URL(request.url).searchParams;
+        if (isContentRead(request)) {
+          if ((query.get('pulp_href__in') ?? '').includes(rows[10].pulp_href)) {
+            startedForPageTwo += 1;
+            await contentOfPageTwo.released;
+          }
+        } else if (query.get('offset') === '0') {
+          await olderPage.released;
+        }
+        return undefined;
+      }),
+    );
+
+    // page 2, back to page 1 (its answer is held), and page 2 again
+    await user.click(
+      screen.getAllByRole('button', { name: /go to next page/i })[0],
+    );
+    await screen.findByText('ns.col11 v1.0.0');
+    await user.click(
+      screen.getAllByRole('button', { name: /go to previous page/i })[0],
+    );
+    await user.click(
+      screen.getAllByRole('button', { name: /go to next page/i })[0],
+    );
+    await waitFor(() => expect(startedForPageTwo).toBe(2));
+
+    // the answer for page 1 arrives last, then the content of page 2
+    olderPage.release();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    contentOfPageTwo.release();
+
+    await waitFor(() =>
+      expect(
+        checkboxOf('ns.col11 v1.0.0, already in the repository'),
+      ).toBeDisabled(),
+    );
+    await offered('ns.col12 v1.0.0');
+    await user.click(screen.getByText('ns.col11 v1.0.0'));
+    await user.click(screen.getByText('ns.col12 v1.0.0'));
+    await user.click(selectButton());
+
+    await waitFor(() => expect(modifies).toHaveLength(1));
+    expect(modifies[0].body).toEqual({
+      add_content_units: [rows[11].pulp_href],
+    });
+  });
+
   it('marks nothing and reads nothing for a repository without a version', async () => {
     const { contentReads } = setup([A, B], { latestVersion: null });
 

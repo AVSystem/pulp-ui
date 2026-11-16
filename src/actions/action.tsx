@@ -6,11 +6,25 @@ import { Tooltip } from '../components/patternfly-wrappers/tooltip';
 
 type ModalType = ({
   addAlert,
+  isMounted,
   listQuery,
   query,
+  queueAlert,
   reloadPage,
   setState,
   state,
+}: {
+  addAlert;
+  // whether the page the dialog belongs to is still on screen; absent where
+  // the context cannot tell
+  isMounted?: () => boolean;
+  listQuery;
+  query;
+  // keeps an alert for the next screen the user lands on
+  queueAlert?: (alert) => void;
+  reloadPage;
+  setState;
+  state;
 }) => ReactNode;
 
 interface ActionParams {

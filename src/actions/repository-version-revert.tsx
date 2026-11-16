@@ -14,6 +14,7 @@ import {
 } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
+import { isSessionEnd } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import {
   TaskPending,
@@ -35,7 +36,7 @@ const RevertModal = ({
 }: {
   version: number;
   cancelAction: () => void;
-  revertAction: () => void;
+  revertAction: () => Promise<void>;
 }) => {
   const [pending, setPending] = useState(false);
   const labelId = useId();
@@ -62,7 +63,7 @@ const RevertModal = ({
           key='revert'
           onClick={() => {
             setPending(true);
-            revertAction();
+            revertAction().finally(() => setPending(false));
           }}
           variant='danger'
           isDisabled={pending}
@@ -102,7 +103,11 @@ export const repositoryVersionRevertAction = (RepositoryAPI: RevertAPI) => {
         data: { task },
       } = await RepositoryAPI.revert(repositoryId, pulp_href));
     } catch (e) {
-      failed(e);
+      // A request that did not go through because the session ended leaves
+      // the dialog open, and nothing is sent again by itself.
+      if (!isSessionEnd(e)) {
+        failed(e);
+      }
       return;
     }
 

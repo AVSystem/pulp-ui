@@ -118,6 +118,9 @@ export const Page = function <
     // number of the latest load; the answer of an older load is ignored
     private latestQuery = 0;
 
+    // whether the page is on screen; an action that outlives the page asks
+    private mounted = false;
+
     // what the server lists for the page's object, read when a header action
     // can only be decided by it
     private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
@@ -136,6 +139,7 @@ export const Page = function <
     }
 
     componentDidMount() {
+      this.mounted = true;
       this.setState({ alerts: (this.context as IAppContextType).alerts || [] });
       (this.context as IAppContextType).setAlerts([]);
 
@@ -158,6 +162,7 @@ export const Page = function <
     }
 
     componentWillUnmount() {
+      this.mounted = false;
       this.objectPermissions.dispose();
     }
 
@@ -202,6 +207,7 @@ export const Page = function <
             (this.context as IAppContextType).hasPermission,
           ),
         hasPermission: (this.context as IAppContextType).hasPermission,
+        isMounted: () => this.mounted,
         listQuery: () => this.props.navigate(listUrl),
         navigate: this.props.navigate,
         // a failed reload is shown as the error state, so callers that do not

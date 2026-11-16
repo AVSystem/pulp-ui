@@ -5918,6 +5918,10 @@ msgstr "Repository's verschijnen zodra ze zijn aangemaakt."
 #~ msgstr ""
 
 #: src/utilities/create-repository.ts
+msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
+msgstr ""
+
+#: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
 msgstr ""
 
@@ -7487,6 +7491,10 @@ msgstr ""
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
+msgstr ""
+
+#: src/utilities/create-repository.ts
+msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr ""
 
 #: src/utilities/plugin-version.ts

@@ -669,3 +669,16 @@ describe('a detail page with tabs whose header action looks at the object', () =
     ).not.toBeInTheDocument();
   });
 });
+
+describe('a detail page with tabs, for an action that outlives it', () => {
+  it('tells the action whether the page is still shown', async () => {
+    server.use(answer('alpha'));
+    const view = renderDetail();
+    await screen.findByText('Details of alpha');
+
+    expect(actionContext.isMounted()).toBe(true);
+    view.unmount();
+
+    expect(actionContext.isMounted()).toBe(false);
+  });
+});

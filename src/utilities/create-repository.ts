@@ -33,8 +33,9 @@ export interface CreateRepositoryResult {
   // could not be read, so it is not known whether the distribution exists;
   // null otherwise
   distributionUnknown: string | null;
-  // set when the session ended before the distribution request was answered:
-  // the sign-in dialog explains it, so the result carries no failure
+  // set when the session ended before the distribution was confirmed: the
+  // sign-in dialog explains the failure, so the result carries none, and the
+  // alerts say that the distribution is not confirmed
   sessionEnded?: true;
 }
 
@@ -227,8 +228,14 @@ export function createAlerts(
   }: CreateRepositoryResult,
 ): AlertType[] {
   if (sessionEnded) {
+    // Whether the distribution exists is not known: it is never reported as
+    // created, nor as failed.
     return [
-      { variant: 'success', title: t`Successfully created repository ${name}` },
+      {
+        variant: 'warning',
+        title: t`Repository "${name}" was created. Its distribution was not confirmed.`,
+        description: t`The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing.`,
+      },
     ];
   }
 

@@ -5919,6 +5919,10 @@ msgstr "Repositories will appear once created."
 #~ msgstr "Repository \"{0}\" was created. The distribution \"{1}\" was not created: {distributionError}"
 
 #: src/utilities/create-repository.ts
+msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
+msgstr "Repository \"{name}\" was created. Its distribution was not confirmed."
+
+#: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
 msgstr "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
 
@@ -7489,6 +7493,10 @@ msgstr "The server could not be reached: {message}"
 #: src/app-routes.tsx
 msgid "The session could not be checked"
 msgstr "The session could not be checked"
+
+#: src/utilities/create-repository.ts
+msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
+msgstr "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."

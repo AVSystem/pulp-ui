@@ -38,7 +38,10 @@ interface IProps {
   repositoryHref?: string;
   // pulp_python's sync has no optimize option
   showOptimize?: boolean;
-  syncAction: (syncParams) => Promise<void>;
+  // Resolves `false` when the request did not go through because the session
+  // ended: the dialog then stays open with the options as they are. Any other
+  // answer closes it.
+  syncAction: (syncParams) => Promise<void | false>;
   name: string;
   // When given, a sync policy dropdown replaces the mirror switch (pulp_rpm).
   syncPolicies?: { id: string; label: string }[];
@@ -225,7 +228,11 @@ export const SyncModal = ({
                   ? { ...syncParams, mirror: false }
                   : syncParams,
               )
-                .then(closeAction)
+                .then((sent) => {
+                  if (sent !== false) {
+                    closeAction();
+                  }
+                })
                 .finally(() => setPending(false));
             }}
             variant='primary'

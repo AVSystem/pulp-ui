@@ -94,3 +94,19 @@ export const handleHttpError = (title, callback, addAlert) => (e) => {
 
   callback();
 };
+
+// Like handleHttpError, for a write that an open dialog started. It answers
+// `false` when the request did not go through because the session ended: no
+// alert, no callback, and the dialog is to stay open with what the user chose
+// so that one more press sends the request once the user has signed in again.
+// Any other failure is handled as handleHttpError does and answers nothing.
+export const handleDialogWriteError =
+  (title, callback, addAlert) =>
+  (e): false | undefined => {
+    if (isSessionEnd(e)) {
+      return false;
+    }
+
+    handleHttpError(title, callback, addAlert)(e);
+    return undefined;
+  };

@@ -7,12 +7,15 @@ import { DeleteModal } from '../components/delete-modal';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
+import { isSessionEnd } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
 import { reloadAfterContentTask } from './repository-content-task';
 
 // Removes the collection version from the repository, then reloads the page
-// once the task is done so the tab lists the new latest version.
+// once the task is done so the tab lists the new latest version. A request
+// that did not go through because the session ended leaves the dialog open,
+// and nothing is sent again by itself.
 async function remove(
   {
     collection: { namespace, name, version },
@@ -38,7 +41,9 @@ async function remove(
       collectionVersionHref,
     ));
   } catch (e) {
-    failed(e);
+    if (!isSessionEnd(e)) {
+      failed(e);
+    }
     return;
   }
 

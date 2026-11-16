@@ -33,11 +33,15 @@ function Harness({
   second,
   addAlert,
   listQuery = vi.fn(),
+  isMounted,
+  queueAlert,
 }: {
   first: { name: string; pulp_href: string };
   second: { name: string; pulp_href: string };
   addAlert: (alert) => void;
   listQuery?: () => void;
+  isMounted?: () => boolean;
+  queueAlert?: (alert) => void;
 }) {
   const [state, setState] = useState<State>({
     deleteModalOpen: opened(first),
@@ -45,8 +49,10 @@ function Harness({
   const context = {
     addAlert,
     hasPermission: () => true,
+    isMounted,
     listQuery,
     query: vi.fn(),
+    queueAlert,
     reloadPage: vi.fn(),
     setState: (next: State | ((old: State) => State | null)) =>
       setState((old) => ({
@@ -128,6 +134,79 @@ describe('the Delete action of a repository', () => {
 
     expect(screen.getByText('zz-second')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('queues the result and does not leave the page when the page is gone by the time the delete finishes', async () => {
+    const first = repository({ name: 'zz-first' });
+    const second = repository({ name: 'zz-second' });
+    const release = serveDelete();
+    const addAlert = vi.fn();
+    const queueAlert = vi.fn();
+    const listQuery = vi.fn();
+    let mounted = true;
+    const { user } = renderWithProviders(
+      <Harness
+        first={first}
+        second={second}
+        addAlert={addAlert}
+        isMounted={() => mounted}
+        listQuery={listQuery}
+        queueAlert={queueAlert}
+      />,
+    );
+
+    await screen.findByText(/No distribution serves this repository/);
+    await user.type(
+      screen.getByLabelText(/Type the repository name/),
+      'zz-first',
+    );
+    await user.click(screen.getByRole('button', { name: /^Delete/ }));
+    mounted = false;
+
+    release();
+    await waitFor(() =>
+      expect(queueAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: 'success',
+          title: 'Removed repository zz-first',
+        }),
+      ),
+    );
+
+    expect(addAlert).not.toHaveBeenCalled();
+    expect(listQuery).not.toHaveBeenCalled();
+  });
+
+  it('shows the result on the page and reloads it while the page is still there', async () => {
+    const first = repository({ name: 'zz-first' });
+    const second = repository({ name: 'zz-second' });
+    serveDelete()();
+    const addAlert = vi.fn();
+    const queueAlert = vi.fn();
+    const listQuery = vi.fn();
+    const { user } = renderWithProviders(
+      <Harness
+        first={first}
+        second={second}
+        addAlert={addAlert}
+        isMounted={() => true}
+        listQuery={listQuery}
+        queueAlert={queueAlert}
+      />,
+    );
+
+    await screen.findByText(/No distribution serves this repository/);
+    await user.type(
+      screen.getByLabelText(/Type the repository name/),
+      'zz-first',
+    );
+    await user.click(screen.getByRole('button', { name: /^Delete/ }));
+
+    await waitFor(() => expect(listQuery).toHaveBeenCalledTimes(1));
+    expect(addAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Removed repository zz-first' }),
+    );
+    expect(queueAlert).not.toHaveBeenCalled();
   });
 
   it('does not report a failed delete, and still closes its dialog, when a page update fails after the repository was removed', async () => {

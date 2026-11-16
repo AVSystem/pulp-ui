@@ -33,7 +33,9 @@ import './ansible-repository-collection-version-add.scss';
 import { reloadAfterContentTask } from './repository-content-task';
 
 // Adds the collection versions to the repository, then reloads the page once
-// the task is done so the tab lists the new latest version.
+// the task is done so the tab lists the new latest version. A request that
+// did not go through because the session ended leaves the dialog open with
+// the selection, and nothing is sent again by itself.
 async function add(
   { repositoryHref, repositoryName },
   collections: AnsibleCollectionVersion[],
@@ -56,7 +58,9 @@ async function add(
       data: { task },
     } = await AnsibleRepositoryAPI.addContent(pulpId, collectionVersionHrefs));
   } catch (e) {
-    failed(e);
+    if (!isSessionEnd(e)) {
+      failed(e);
+    }
     return;
   }
 
@@ -122,6 +126,8 @@ const AddCollectionVersionModal = ({
   const pageHrefs = useRef<string[]>([]);
   // numbers the content reads, so an answer for an older page is dropped
   const latestRead = useRef(0);
+  // numbers the list requests, so only the newest answer starts a content read
+  const latestList = useRef(0);
 
   const addAlert = (alert: AlertType) => {
     setAlerts([...alerts, alert]);
@@ -167,16 +173,22 @@ const AddCollectionVersionModal = ({
 
   // The plain content endpoint answers a filter it does not know with
   // "Invalid Filter", so the sort key of the list never goes on the request.
+  // Only the answer of the newest list request starts a content read: the list
+  // drops the rows of an older answer, so a read for them would replace the
+  // read for the page on screen and leave its held versions unmarked.
   // @ts-expect-error: TS2525: Initializer provides no value for this binding element and the binding element has no default value.
   const query = ({ params } = {}) => {
+    const request = ++latestList.current;
     const rest = { ...params };
     delete rest.sort;
     return CollectionVersionAPI.list(rest).then((response) => {
-      readContent(
-        response.data.results.map(
-          ({ pulp_href }: AnsibleCollectionVersion) => pulp_href,
-        ),
-      );
+      if (request === latestList.current) {
+        readContent(
+          response.data.results.map(
+            ({ pulp_href }: AnsibleCollectionVersion) => pulp_href,
+          ),
+        );
+      }
       return response;
     });
   };
