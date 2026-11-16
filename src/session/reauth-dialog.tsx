@@ -114,8 +114,11 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
 }
 
 // Shown over the current screen while the session of the signed-in user has
-// ended. It cannot be dismissed: the screen behind it looks alive but every
-// request would be refused.
+// ended. The screen is covered by an opaque layer, so nothing it read with the
+// session can be read through the dialog, and stays mounted below it, so what
+// was typed or opened in it is still there once the same account signs in
+// again. The dialog cannot be dismissed: the screen behind it would look alive
+// while every request is refused.
 export const ReauthDialog = () => {
   const { ended } = useSessionEnded();
   const { pathname } = useLocation();
@@ -215,6 +218,8 @@ const ReauthDialogContent = ({
     <Modal
       aria-describedby={bodyId}
       aria-labelledby={titleId}
+      // A translucent backdrop would leave the screen readable through it.
+      backdropClassName='pulp-reauth__backdrop'
       elementToFocus={
         external ? `.${EXTERNAL_LOGIN_CLASS} a` : `#${PASSWORD_ID}`
       }

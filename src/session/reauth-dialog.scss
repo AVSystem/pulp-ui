@@ -1,5 +1,17 @@
 // The dialog reuses the sign-in page's error color and the quiet note color of
 // the theme; nothing here introduces a color of its own.
+
+// The layer under the dialog is fully opaque, in the color the sign-in page
+// uses behind its card, so the dialog reads like that card. A translucent
+// backdrop would leave what the screen read with the ended session readable
+// through it. The two-class selector outranks the backdrop rule of the
+// component library whichever stylesheet loads first. The screen stays mounted
+// below the layer, so typed content and open dialogs return after the same
+// account signs in again.
+.pf-v6-c-backdrop.pulp-reauth__backdrop {
+  --pf-v6-c-backdrop--BackgroundColor: var(--pulp-brand);
+}
+
 .pulp-reauth__error {
   color: var(--pulp-bad);
   overflow-wrap: anywhere;
