@@ -16,4 +16,6 @@ export class TaskType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   child_tasks: any[];
   reserved_resources_record: string[];
+  // the permissions the account holds on this task, when the server lists them
+  my_permissions?: string[];
 }

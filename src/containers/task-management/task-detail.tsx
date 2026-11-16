@@ -15,6 +15,7 @@ import { capitalize } from 'lodash';
 import { Component, Fragment } from 'react';
 import { Link } from 'react-router';
 import { GenericPulpAPI, TaskAPI, type TaskType } from 'src/api';
+import { AppContext, type IAppContextType } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -40,6 +41,7 @@ import {
   translateTask,
   withRouter,
 } from 'src/utilities';
+import { ObjectPermissions } from 'src/utilities/my-permissions';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -63,7 +65,17 @@ interface IState {
   taskName: string;
 }
 
+const CHANGE_TASK = 'core.change_task';
+// the states a task can still be stopped in
+const STOPPABLE = ['running', 'waiting'];
+
 class TaskDetail extends Component<RouteProps, IState> {
+  static contextType = AppContext;
+
+  // What the server lists for the shown task, read when the change
+  // permission is not held on every task.
+  private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
+
   constructor(props) {
     super(props);
     this.state = {
@@ -85,6 +97,7 @@ class TaskDetail extends Component<RouteProps, IState> {
   }
 
   componentWillUnmount() {
+    this.objectPermissions.dispose();
     if (this.state.polling) {
       clearInterval(this.state.polling);
     }
@@ -96,9 +109,31 @@ class TaskDetail extends Component<RouteProps, IState> {
       this.loadContent();
     } else if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
       // The same user signed in again: read the task again, keeping what is
-      // on screen until the answer arrives.
+      // on screen until the answer arrives. Roles may have changed with the
+      // new session.
+      this.objectPermissions.reset();
       this.loadContent();
     }
+    this.readObjectPermissions();
+  }
+
+  // Reads the permissions the server lists for the shown task, once, when a
+  // Stop task button could be drawn: the account's global permissions are
+  // known and do not already include the change permission.
+  private readObjectPermissions() {
+    const { hasPermission, permissionsReady } = this.context as IAppContextType;
+    const { task } = this.state;
+    if (
+      !task ||
+      !permissionsReady ||
+      hasPermission(CHANGE_TASK) ||
+      !STOPPABLE.includes(task.state) ||
+      Array.isArray(task.my_permissions)
+    ) {
+      return;
+    }
+
+    this.objectPermissions.read(task.pulp_href);
   }
 
   render() {
@@ -144,7 +179,12 @@ class TaskDetail extends Component<RouteProps, IState> {
           title={taskName}
           breadcrumbs={<Breadcrumbs links={breadcrumbs} />}
           pageControls={
-            ['running', 'waiting'].includes(task.state) && (
+            STOPPABLE.includes(task.state) &&
+            this.objectPermissions.holds(
+              CHANGE_TASK,
+              task,
+              (this.context as IAppContextType).hasPermission,
+            ) && (
               <Button
                 variant='secondary'
                 onClick={() => this.setState({ cancelModalVisible: true })}
