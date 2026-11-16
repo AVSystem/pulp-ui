@@ -29,7 +29,7 @@ import { loginErrorMessage } from 'src/utilities/login-error';
 import { uiPath } from 'src/utilities/ui-path';
 import './reauth-dialog.scss';
 import {
-  SIGNED_OUT_PATH,
+  isSignedOutPath,
   isSuspended,
   reportUnauthorized,
   resume,
@@ -39,6 +39,10 @@ import {
 const PASSWORD_ID = 'pulp-reauth-password';
 const USERNAME_ID = 'pulp-reauth-username';
 const EXTERNAL_LOGIN_CLASS = 'pulp-reauth__login';
+// Each sentence above the form is a paragraph of its own with the same gap
+// below it; a sentence that does not apply is not rendered and leaves no gap.
+const TEXT_CLASS = 'pulp-reauth__text';
+const NOTE_CLASS = `${TEXT_CLASS} pulp-reauth__note`;
 
 // Pages that deal with signing in themselves: a dialog over them would ask
 // twice.
@@ -46,7 +50,7 @@ const isSignInPage = (pathname: string) => {
   const path = pathname.replace(/\/+$/, '') || '/';
   return (
     path === formatPath(Paths.meta.login).replace(/\/+$/, '') ||
-    path === SIGNED_OUT_PATH
+    isSignedOutPath(pathname)
   );
 };
 
@@ -225,7 +229,7 @@ const ReauthDialogContent = ({
       <ModalBody id={bodyId}>
         {external ? (
           <>
-            <p>
+            <p className={TEXT_CLASS}>
               {t`Your session has ended. You are taken to the login page and back to this page afterwards. Anything you entered on this page is lost.`}
             </p>
             <div className={EXTERNAL_LOGIN_CLASS}>
@@ -234,13 +238,15 @@ const ReauthDialogContent = ({
           </>
         ) : (
           <>
-            <p>{t`Your session has ended. Log in to continue.`}</p>
+            <p className={TEXT_CLASS}>
+              {t`Your session has ended. Log in to continue.`}
+            </p>
             {fromRequest ? (
-              <p className='pulp-reauth__note'>
+              <p className={NOTE_CLASS}>
                 {t`The last action was not completed. Repeat it after you log in.`}
               </p>
             ) : null}
-            <p className='pulp-reauth__note'>
+            <p className={NOTE_CLASS}>
               {t`What you have entered on this page is kept.`}
             </p>
             <Form onSubmit={onSubmit}>

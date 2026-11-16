@@ -1,25 +1,33 @@
-import { Outlet, useNavigation } from 'react-router';
+import { Outlet, useLocation, useNavigation } from 'react-router';
 import { AppContextProvider } from 'src/app-context';
 import { LoadingSpinner, UIVersion } from 'src/components';
 import { PermissionsProvider } from 'src/permissions';
 import { PluginsProvider } from 'src/plugins';
 import { ReauthDialog } from 'src/session/reauth-dialog';
+import { isSignedOutPath } from 'src/session/session-events';
 import { Shell } from 'src/shell/shell';
 import { UserContextProvider } from 'src/user-context';
 
 export default function Root() {
   const navigation = useNavigation();
   const isNavigating = Boolean(navigation.location);
+  // The signed out page asks nothing of the server and stands on its own,
+  // like the sign-in frame: no masthead, sidebar or notification panel.
+  const bare = isSignedOutPath(useLocation().pathname);
 
   return (
     <UserContextProvider>
       <PermissionsProvider>
         <AppContextProvider>
           <PluginsProvider>
-            <Shell>
-              {isNavigating && <LoadingSpinner />}
+            {bare ? (
               <Outlet />
-            </Shell>
+            ) : (
+              <Shell>
+                {isNavigating && <LoadingSpinner />}
+                <Outlet />
+              </Shell>
+            )}
             <ReauthDialog />
             <UIVersion />
           </PluginsProvider>
