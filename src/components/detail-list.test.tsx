@@ -1,8 +1,10 @@
+import { msg } from '@lingui/core/macro';
 import { Td, Tr } from '@patternfly/react-table';
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { StrictMode } from 'react';
+import { type ReactNode, StrictMode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Action, type ActionType } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { resetSessionEvents } from '../session/session-events';
 import { listOf } from '../test-utils/pulp';
@@ -23,13 +25,25 @@ interface IThing {
 
 const things = new PulpAPI();
 
-function renderList({ strict = false }: { strict?: boolean } = {}) {
+function renderList({
+  strict = false,
+  hasPermission = () => true,
+  headerActions,
+  noDataButton,
+}: {
+  strict?: boolean;
+  hasPermission?: (name: string) => boolean;
+  headerActions?: ActionType[];
+  noDataButton?: (item, actionContext) => ReactNode;
+} = {}) {
   const addAlert = vi.fn();
   const list = (
     <DetailList<IThing>
-      actionContext={{ addAlert, hasPermission: () => true, query: vi.fn() }}
+      actionContext={{ addAlert, hasPermission, query: vi.fn() }}
       defaultPageSize={10}
       errorTitle='Things could not be displayed.'
+      headerActions={headerActions}
+      noDataButton={noDataButton}
       noDataDescription='Things appear once they are created.'
       noDataTitle='No things yet'
       query={({ params }) => things.list('things/', params)}
@@ -151,6 +165,87 @@ describe('a list in a detail tab whose load succeeds', () => {
     renderList();
 
     expect(await screen.findByText('alpha')).toBeInTheDocument();
+  });
+});
+
+const addThing = Action({
+  title: msg`Add thing`,
+  permission: 'things.add_thing',
+  objectLevel: false,
+  onClick: vi.fn(),
+});
+
+const toolbarItems = () =>
+  Array.from(
+    (
+      document.querySelector('[data-cy="DetailList"]') as HTMLElement
+    ).querySelectorAll('.pf-v6-c-toolbar__item'),
+  );
+
+describe('the header actions of a list in a detail tab', () => {
+  it('draws no stray 0 and no empty toolbar item for an empty list of actions', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    renderList({ headerActions: [] });
+
+    await screen.findByText('alpha');
+
+    expect(
+      within(
+        document.querySelector('.pf-v6-c-toolbar') as HTMLElement,
+      ).queryByText('0'),
+    ).toBeNull();
+    expect(toolbarItems().every((item) => item.childElementCount > 0)).toBe(
+      true,
+    );
+  });
+
+  it('draws no toolbar item for an action that is hidden', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    renderList({ headerActions: [addThing], hasPermission: () => false });
+
+    await screen.findByText('alpha');
+
+    expect(screen.queryByRole('button', { name: 'Add thing' })).toBeNull();
+    expect(toolbarItems().every((item) => item.childElementCount > 0)).toBe(
+      true,
+    );
+  });
+
+  it('draws the button of an action that is shown', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    renderList({ headerActions: [addThing] });
+
+    expect(
+      await screen.findByRole('button', { name: 'Add thing' }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('the empty state of a list in a detail tab', () => {
+  it('has no actions area when the button renders nothing', async () => {
+    server.use(listOf(THINGS, []).handler);
+    renderList({
+      hasPermission: () => false,
+      noDataButton: (item, actionContext) =>
+        addThing.button(item, actionContext),
+    });
+
+    await screen.findByText('No things yet');
+
+    expect(document.querySelector('.pf-v6-c-empty-state__actions')).toBeNull();
+    expect(document.querySelector('.pf-v6-c-empty-state__footer')).toBeNull();
+  });
+
+  it('draws the button when there is one', async () => {
+    server.use(listOf(THINGS, []).handler);
+    renderList({
+      noDataButton: (item, actionContext) =>
+        addThing.button(item, actionContext),
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'Add thing' }),
+    ).toBeInTheDocument();
   });
 });
 
