@@ -1139,8 +1139,8 @@ msgstr ""
 
 #. placeholder {0}: this.state.selectedGroup.name
 #: src/containers/group-management/group-list.tsx
-msgid "Changes to group \"{0}\" could not be saved."
-msgstr "无法保存对组 \"{0}\" 的更改。"
+#~ msgid "Changes to group \"{0}\" could not be saved."
+#~ msgstr "无法保存对组 \"{0}\" 的更改。"
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -6224,6 +6224,7 @@ msgstr "角色"
 
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
+#: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "无法显示角色列表。"
@@ -8166,6 +8167,10 @@ msgstr "用户 <0>{username}</0> 将从组<1>{groupname}</1> 中删除。"
 #: src/menu.tsx
 #~ msgid "User Access"
 #~ msgstr "用户访问"
+
+#: src/containers/user-management/user-edit.tsx
+msgid "User could not be displayed."
+msgstr ""
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"

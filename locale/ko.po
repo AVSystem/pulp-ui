@@ -1139,8 +1139,8 @@ msgstr ""
 
 #. placeholder {0}: this.state.selectedGroup.name
 #: src/containers/group-management/group-list.tsx
-msgid "Changes to group \"{0}\" could not be saved."
-msgstr "그룹 \"{0}\"에 대한 변경 사항을 저장할 수 없습니다."
+#~ msgid "Changes to group \"{0}\" could not be saved."
+#~ msgstr "그룹 \"{0}\"에 대한 변경 사항을 저장할 수 없습니다."
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -6224,6 +6224,7 @@ msgstr "역할"
 
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
+#: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "역할 목록을 표시할 수 없습니다."
@@ -8166,6 +8167,10 @@ msgstr "사용자 <0>{username}</0>이/가 그룹 <1>{groupname}</1>에서 삭�
 #: src/menu.tsx
 #~ msgid "User Access"
 #~ msgstr "사용자 액세스"
+
+#: src/containers/user-management/user-edit.tsx
+msgid "User could not be displayed."
+msgstr ""
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"

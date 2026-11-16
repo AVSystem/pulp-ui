@@ -1140,8 +1140,8 @@ msgstr "Change thing"
 
 #. placeholder {0}: this.state.selectedGroup.name
 #: src/containers/group-management/group-list.tsx
-msgid "Changes to group \"{0}\" could not be saved."
-msgstr "Changes to group \"{0}\" could not be saved."
+#~ msgid "Changes to group \"{0}\" could not be saved."
+#~ msgstr "Changes to group \"{0}\" could not be saved."
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -6225,6 +6225,7 @@ msgstr "Roles"
 
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
+#: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "Roles list could not be displayed."
@@ -8167,6 +8168,10 @@ msgstr "User <0>{username}</0> will be removed from group <1>{groupname}</1>."
 #: src/menu.tsx
 #~ msgid "User Access"
 #~ msgstr "User Access"
+
+#: src/containers/user-management/user-edit.tsx
+msgid "User could not be displayed."
+msgstr "User could not be displayed."
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"
