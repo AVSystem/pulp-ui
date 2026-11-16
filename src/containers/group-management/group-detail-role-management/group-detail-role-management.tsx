@@ -9,7 +9,13 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Td } from '@patternfly/react-table';
-import { type FunctionComponent, useEffect, useRef, useState } from 'react';
+import {
+  type FunctionComponent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   type GroupObjectPermissionType,
   GroupRoleAPI,
@@ -22,6 +28,7 @@ import {
   EmptyStateFilter,
   EmptyStateNoData,
   ExpandableRow,
+  ListErrorState,
   ListItemActions,
   LoadingPage,
   PermissionCategories,
@@ -82,6 +89,11 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
     (params['role__icontains'] as string) || '',
   );
   const [isRoleDeleting, setIsRoleDeleting] = useState(false);
+  // the failure of a read that left the table with nothing to show
+  const [loadError, setLoadError] = useState<ReactNode>(null);
+  // true once a read answered: rows on screen are kept when a later quiet read
+  // fails
+  const rolesShown = useRef(false);
 
   // grows when the same user signs in again, so the roles are read again
   const epoch = useSessionEpoch();
@@ -114,8 +126,10 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
       sort: ParamHelper.validSortParams(params['sort'], ['role'], 'role'),
     })
       .then(({ data }) => {
+        rolesShown.current = true;
         setRoles(data.results);
         setRolesItemCount(data.count);
+        setLoadError(null);
         setLoading(false);
       })
       .catch((e) => {
@@ -129,6 +143,13 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
           'danger',
           requestErrorDescription(e),
         );
+        // A quiet read after a sign-in keeps the rows it replaces; any other
+        // failure ends the spinner and offers to read again.
+        if (quiet && rolesShown.current) {
+          return;
+        }
+        setLoading(false);
+        setLoadError(requestErrorDescription(e));
       });
   };
 
@@ -198,6 +219,21 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
     return (
       <section className='pulp-section'>
         <LoadingPage />
+      </section>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <section className='pulp-section'>
+        <ListErrorState
+          title={t`Roles list could not be displayed.`}
+          message={loadError}
+          onRetry={() => {
+            setLoadError(null);
+            queryRolesWithPermissions();
+          }}
+        />
       </section>
     );
   }

@@ -1,7 +1,6 @@
 import { type ReactNode, createContext, useContext, useState } from 'react';
 import { type AlertType } from 'src/components';
 import { usePermissions } from './permissions';
-import { useUserContext } from './user-context';
 
 export interface IAppContextType {
   alerts: AlertType[];
@@ -14,7 +13,6 @@ export interface IAppContextType {
   permissionsReady: boolean;
   queueAlert: (alert: AlertType) => void;
   setAlerts: (alerts: AlertType[]) => void;
-  user; // deprecated
 }
 
 export const AppContext = createContext<IAppContextType>(undefined);
@@ -22,7 +20,6 @@ export const useAppContext = () => useContext(AppContext);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
-  const { user } = useUserContext();
   const permissions = usePermissions();
   const { hasPermission } = permissions;
 
@@ -43,14 +40,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         permissionsReady: permissions.state === 'ready',
         queueAlert,
         setAlerts,
-        // FIXME: hack
-        user: user
-          ? {
-              username: user.username,
-              groups: [],
-              model_permissions: {},
-            }
-          : null,
       }}
     >
       {children}
