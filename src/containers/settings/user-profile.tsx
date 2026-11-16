@@ -21,6 +21,7 @@ import {
   withRouter,
 } from 'src/utilities';
 import { idFromHref } from 'src/utilities/global-permissions';
+import { readOwnRecord } from 'src/utilities/own-record';
 import {
   isSessionEnd,
   requestErrorDetail,
@@ -65,7 +66,7 @@ function UserProfile(_props: RouteProps) {
   const touched = useRef(false);
 
   const loadUser = () =>
-    UserAPI.get(userId)
+    readOwnRecord(userId, epoch)
       .then(({ data: result }) => {
         // The api doesn't return a value for the password, so set a blank one here
         // to keep react from getting confused
