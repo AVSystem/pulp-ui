@@ -53,15 +53,24 @@ const isSignInPage = (pathname: string) => {
   );
 };
 
-// Asks the server once, when the user comes back to the tab, whether the
-// session is still alive and still belongs to the account in memory. A 401 or
-// a 403 means the session has ended and opens the dialog. An answer naming
-// another account (another tab signed in as someone else) loads the start page
-// afresh, because everything in memory belongs to the previous account. A
-// server error or a lost connection says nothing about the session and is
-// ignored without a word. No timer runs, so a tab that stays in view is never
-// polled; and nothing is asked while nobody is signed in, while the dialog is
-// already open or on a page that deals with signing in itself.
+// Asks the server once, whenever the user comes back to the tab (it becomes
+// visible) or the window gains focus (a side-by-side window never becomes
+// hidden, so only its focus tells that the user is back), whether the session
+// is still alive and still belongs to the account in memory. It asks also while
+// the dialog is open: the session may have been restored in another tab, and
+// nothing else in this tab would find out. What each answer does:
+// - the same account while the dialog is open: the session is restored once and
+//   the screen reads again, with no reload;
+// - another account: the start page loads afresh, because everything in memory
+//   belongs to the previous account;
+// - a 401 or a 403: the session has ended and the dialog opens (while it is
+//   open this changes nothing);
+// - anything else, such as a server error or a lost connection: nothing, as it
+//   says nothing about the session;
+// - any answer that arrives after the user signed out: nothing.
+// A return and a focus that come together send one request. No timer runs, so a
+// tab that stays in view is never polled; and nothing is asked while nobody is
+// signed in or on a page that deals with signing in itself.
 function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
   const { restoreSession } = useUserContext();
   const inFlight = useRef(false);
@@ -80,13 +89,18 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
       return undefined;
     }
 
-    const onVisibilityChange = () => {
+    const check = () => {
       if (document.visibilityState !== 'visible' || inFlight.current) {
         return;
       }
       inFlight.current = true;
       PulpLoginAPI.whoami()
         .then(({ data }) => {
+          // Signed out while the check was under way: no account is left to
+          // continue as or to replace.
+          if (key.current === null) {
+            return;
+          }
           const next = { username: data.username, pulp_href: data.pulp_href };
           if (sessionKey(next) === key.current) {
             restore.current(next);
@@ -105,9 +119,20 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
         });
     };
 
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    return () =>
-      document.removeEventListener('visibilitychange', onVisibilityChange);
+    // Only the window's own focus means a return, not the focus of an element
+    // inside the page.
+    const onFocus = (event: Event) => {
+      if (event.target === event.currentTarget) {
+        check();
+      }
+    };
+
+    document.addEventListener('visibilitychange', check);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', check);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [signedIn, onSignInPage]);
 }
 

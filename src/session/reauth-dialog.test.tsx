@@ -1038,10 +1038,15 @@ describe('returning to the tab', () => {
   describe('when the window gains focus', () => {
     // What the browser does when a window that was visible all along is
     // clicked: no visibility change, only a focus event on the window.
-    const focusWindow = () =>
+    const focusWindow = (state: 'visible' | 'hidden' = 'visible') => {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => state,
+      });
       act(() => {
         window.dispatchEvent(new Event('focus'));
       });
+    };
 
     it('restores the session when the same account answers while the dialog is open', async () => {
       await dialogOpenedByReturn();
@@ -1097,8 +1102,7 @@ describe('returning to the tab', () => {
       await renderScreen();
       const counts = countRequests();
 
-      returnToTab('hidden');
-      focusWindow();
+      focusWindow('hidden');
       await settle();
 
       expect(counts[WHOAMI]).toBeUndefined();
