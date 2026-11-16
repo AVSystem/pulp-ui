@@ -54,6 +54,11 @@ const AnsibleRemoteEdit = Page<AnsibleRemoteType>({
     return AnsibleRemoteAPI.list({ name })
       .then(({ data: { results } }) => results[0])
       .then((remote) => {
+        // an object the account cannot read is not in the list; the page
+        // then treats it as absent instead of failing
+        if (!remote) {
+          return remote;
+        }
         return AnsibleRemoteAPI.myPermissions(
           parsePulpIDFromURL(remote.pulp_href),
         )
