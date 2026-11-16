@@ -2485,6 +2485,7 @@ msgid "Download requirements file"
 msgstr "Download requirements file"
 
 #: src/actions/ansible-remote-download-requirements.tsx
+#: src/components/page-with-tabs.test.tsx
 msgid "Download requirements YAML"
 msgstr "Download requirements YAML"
 
@@ -8643,6 +8644,10 @@ msgstr "You have been signed out of Pulp."
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Your password was changed. Sign in with the new password."
+
+#: src/app-routes.tsx
+msgid "Your permissions could not be read"
+msgstr "Your permissions could not be read"
 
 #: src/session/reauth-dialog.tsx
 msgid "Your session has ended. Log in to continue."

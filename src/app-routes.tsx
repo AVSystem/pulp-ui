@@ -699,7 +699,15 @@ const AuthHandler = ({
       setSignInIncomplete(true);
       return;
     }
-    rememberExternalLogin(Date.now());
+    const attemptedAt = Date.now();
+    rememberExternalLogin(attemptedAt);
+    // Without this very time read back, a page that comes back could not tell
+    // that it was sent away just before (an older stored time proves nothing),
+    // and the browser would loop between the two.
+    if (externalLoginAge(attemptedAt) !== 0) {
+      setSignInIncomplete(true);
+      return;
+    }
     // NOTE: also update LoginLink when changing this
     window.location.replace(loginURL(returnPath));
   }, [needsExternalLogin, returnPath]);

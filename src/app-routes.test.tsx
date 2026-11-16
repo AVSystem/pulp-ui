@@ -316,6 +316,45 @@ describe('route guard', () => {
       expect(replace).not.toHaveBeenCalled();
     });
 
+    it('a browser that cannot store the attempt time shows that sign-in did not complete and does not redirect', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      // writes are ignored and nothing can be read back
+      vi.spyOn(window, 'sessionStorage', 'get').mockReturnValue({
+        getItem: () => null,
+        setItem: () => undefined,
+        removeItem: () => undefined,
+      } as unknown as Storage);
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Sign-in did not complete',
+        }),
+      ).toBeVisible();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(replace).not.toHaveBeenCalled();
+    });
+
+    it('a stored time in the future counts as no recent attempt and redirects once', async () => {
+      config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+      window.sessionStorage.setItem(
+        'pulp-ui-external-login-at',
+        String(Date.now() + 60000),
+      );
+      const replace = vi
+        .spyOn(window.location, 'replace')
+        .mockImplementation(() => undefined);
+
+      renderWithProviders(<Routed />, { route: PROTECTED_PATH });
+
+      await waitFor(() => expect(replace).toHaveBeenCalledTimes(1));
+      expect(screen.queryByText('Sign-in did not complete')).toBeNull();
+    });
+
     it('a page that returns without a session after 40 seconds redirects again', async () => {
       config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
       window.sessionStorage.setItem(
