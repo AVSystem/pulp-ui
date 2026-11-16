@@ -839,16 +839,32 @@ describe('returning to the tab', () => {
     expect(counts[WHOAMI]).toBeUndefined();
   });
 
-  it('sends nothing while the dialog is open', async () => {
-    await renderScreen();
-    act(() => reportUnauthorized('tab-return'));
+  // The dialog opened by the check of a return to the tab, as when the
+  // session was ended in another tab.
+  async function dialogOpenedByReturn() {
+    const rendered = await renderScreen();
+    answerWhoami(401);
+    returnToTab();
     await screen.findByRole('dialog', { name: /Sign in again/ });
+    return rendered;
+  }
+
+  it('asks once while the dialog is open, and closes it when the same account answers', async () => {
+    await dialogOpenedByReturn();
     const counts = countRequests();
+    signedInAs();
 
     returnToTab();
-    await settle();
 
-    expect(counts[WHOAMI]).toBeUndefined();
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: /Sign in again/ }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(counts[WHOAMI]).toBe(1);
+    expect(isSuspended()).toBe(false);
+    expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+    expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
   });
 
   it('sends nothing when nobody is signed in', async () => {
