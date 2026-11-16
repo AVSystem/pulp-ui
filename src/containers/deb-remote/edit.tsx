@@ -3,6 +3,7 @@ import { DebRemoteAPI, type DebRemoteType } from 'src/api';
 import { Page, RemoteForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import { saveErrorMessages } from 'src/utilities/create-repository';
 
 const initialRemote: DebRemoteType = {
@@ -44,6 +45,16 @@ const DebRemoteEdit = Page<DebRemoteType>({
 
   displayName: 'DebRemoteEdit',
   errorTitle: msg`Remote could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.deb.remote.change,
+          objectLevel: ACTION_PERMISSIONS.deb.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.deb.remote.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.deb.remote.list),
   query: ({ name }) =>
     DebRemoteAPI.list({ name }).then(({ data: { results } }) => results[0]),

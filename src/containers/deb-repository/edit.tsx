@@ -6,6 +6,7 @@ import {
 } from 'src/api/deb-repository';
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   createAlerts,
   createRepository,
@@ -35,6 +36,16 @@ const DebRepositoryEdit = Page<DebRepositoryType>({
 
   displayName: 'DebRepositoryEdit',
   errorTitle: msg`Repository could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.deb.repository.change,
+          objectLevel: ACTION_PERMISSIONS.deb.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.deb.repository.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.deb.repository.list),
   query: ({ name }) =>
     DebRepositoryAPI.list({ name }).then(({ data: { results } }) => results[0]),

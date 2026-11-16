@@ -6,6 +6,7 @@ import {
 } from 'src/api/rpm-repository';
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   createAlerts,
   createRepository,
@@ -37,6 +38,16 @@ const RPMRepositoryEdit = Page<RPMRepositoryType>({
 
   displayName: 'RPMRepositoryEdit',
   errorTitle: msg`Repository could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.rpm.repository.change,
+          objectLevel: ACTION_PERMISSIONS.rpm.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.rpm.repository.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.rpm.repository.list),
   query: ({ name }) =>
     RPMRepositoryAPI.list({ name }).then(({ data: { results } }) => results[0]),

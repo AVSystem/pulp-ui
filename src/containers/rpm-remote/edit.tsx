@@ -3,6 +3,7 @@ import { RPMRemoteAPI, type RPMRemoteType } from 'src/api';
 import { Page, RemoteForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import { saveErrorMessages } from 'src/utilities/create-repository';
 
 const initialRemote: RPMRemoteType = {
@@ -37,6 +38,16 @@ const RPMRemoteEdit = Page<RPMRemoteType>({
 
   displayName: 'RPMRemoteEdit',
   errorTitle: msg`Remote could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.rpm.remote.change,
+          objectLevel: ACTION_PERMISSIONS.rpm.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.rpm.remote.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.rpm.remote.list),
   query: ({ name }) =>
     RPMRemoteAPI.list({ name }).then(({ data: { results } }) => results[0]),
