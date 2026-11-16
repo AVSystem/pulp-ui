@@ -797,6 +797,28 @@ describe('the user detail and the user edit page', () => {
       expect(screen.queryByText(/permission/i)).toBeNull();
     });
 
+    it('keeps the typed form and adds one alert when the read after signing in fails for another reason', async () => {
+      serve('Ann');
+      const { user: u } = renderAt('/users/edit/4');
+      const field = await firstName();
+      await signedIn();
+      await u.clear(field);
+      await u.type(field, 'Typed');
+      server.use(
+        http.get(`*${USER_PATH}`, () =>
+          HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+        ),
+      );
+
+      await signInAgain(u);
+
+      expect(
+        await screen.findByText('User could not be displayed.'),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/First name/)).toHaveValue('Typed');
+      expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    });
+
     it('keeps the spinner, with no unauthorized page, when the first read is refused, and shows the form after signing in', async () => {
       server.use(refused('get', USER_PATH));
       const { user: u } = renderAt('/users/edit/4');

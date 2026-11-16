@@ -1,12 +1,18 @@
 import { t } from '@lingui/core/macro';
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router';
 import { UserAPI, type UserType } from 'src/api';
 import {
+  AlertList,
+  type AlertType,
   BaseHeader,
   InsufficientPermissions,
+  ListErrorState,
   LoadingPage,
+  Main,
+  NotFound,
   UserFormPage,
+  closeAlert,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch, useUserContext } from 'src/user-context';
@@ -18,6 +24,7 @@ import {
 } from 'src/utilities';
 import {
   isSessionEnd,
+  requestErrorDescription,
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
@@ -31,6 +38,10 @@ function UserEdit(props: RouteProps) {
   const [unauthorizedDetail, setUnauthorizedDetail] = useState<string | null>(
     null,
   );
+  const [notFound, setNotFound] = useState<boolean>(false);
+  // the failure of a read that is neither a refusal nor a missing user
+  const [loadError, setLoadError] = useState<ReactNode>(null);
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [user, setUser] = useState<UserType>();
 
   const {
@@ -45,33 +56,77 @@ function UserEdit(props: RouteProps) {
   const firstEpoch = useRef(epoch);
   // true once the form was changed: a later read never replaces what was typed
   const touched = useRef(false);
+  // true while the form of the current user is on screen
+  const formShown = useRef(false);
 
   const id = props.routeParams.user_id;
 
-  const loadUser = () =>
-    UserAPI.get(id)
+  // counts the reads, so only the answer of the latest one is used: a slower
+  // answer for an earlier user or session never replaces a newer one
+  const latestRead = useRef(0);
+
+  const loadUser = () => {
+    const read = ++latestRead.current;
+    const isLatest = () => read === latestRead.current;
+
+    return UserAPI.get(id)
       .then(({ data: result }) => {
+        if (!isLatest()) {
+          return;
+        }
         const extendedResult = { ...result, password: '' };
+        formShown.current = true;
         setInitialState({ ...extendedResult });
         if (!touched.current) {
           setUser(extendedResult);
         }
         setUnauthorized(false);
         setUnauthorizedDetail(null);
+        setNotFound(false);
+        setLoadError(null);
       })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
         // keeps its spinner or its form until it reads again.
-        if (!isSessionEnd(e)) {
+        if (!isLatest() || isSessionEnd(e)) {
+          return;
+        }
+        // A form on screen is never replaced by a failure of a later read:
+        // what was typed stays, and the failure is reported next to it.
+        if (touched.current || formShown.current) {
+          setAlerts((alerts) => [
+            ...alerts,
+            {
+              variant: 'danger',
+              title: t`User could not be displayed.`,
+              description: requestErrorDescription(e),
+            },
+          ]);
+          return;
+        }
+        const status = requestErrorStatus(e);
+        if (status === 403) {
           setUnauthorized(true);
-          setUnauthorizedDetail(
-            requestErrorStatus(e) === 403 ? requestErrorDetail(e) : null,
-          );
+          setUnauthorizedDetail(requestErrorDetail(e));
+        } else if (status === 404) {
+          setNotFound(true);
+        } else {
+          setLoadError(requestErrorDescription(e));
         }
       });
+  };
 
   useEffect(() => {
+    // another user: nothing of the previous one stays on screen or in the form
     touched.current = false;
+    formShown.current = false;
+    setUser(undefined);
+    setInitialState(undefined);
+    setUnauthorized(false);
+    setUnauthorizedDetail(null);
+    setNotFound(false);
+    setLoadError(null);
+    setErrorMessages({});
     loadUser();
   }, [id]);
 
@@ -117,6 +172,28 @@ function UserEdit(props: RouteProps) {
     );
   }
 
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  if (loadError) {
+    return (
+      <>
+        <BaseHeader title={title} />
+        <Main>
+          <ListErrorState
+            title={t`User could not be displayed.`}
+            message={loadError}
+            onRetry={() => {
+              setLoadError(null);
+              loadUser();
+            }}
+          />
+        </Main>
+      </>
+    );
+  }
+
   if (!user) {
     return <LoadingPage />;
   }
@@ -131,19 +208,25 @@ function UserEdit(props: RouteProps) {
   ];
 
   return (
-    <UserFormPage
-      breadcrumbs={breadcrumbs}
-      errorMessages={errorMessages}
-      onCancel={() => setRedirect(formatPath(Paths.core.user.list))}
-      saveUser={saveUser}
-      title={title}
-      updateUser={(user, errorMessages) => {
-        touched.current = true;
-        setErrorMessages(errorMessages);
-        setUser(user);
-      }}
-      user={user}
-    />
+    <>
+      <AlertList
+        alerts={alerts}
+        closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+      />
+      <UserFormPage
+        breadcrumbs={breadcrumbs}
+        errorMessages={errorMessages}
+        onCancel={() => setRedirect(formatPath(Paths.core.user.list))}
+        saveUser={saveUser}
+        title={title}
+        updateUser={(user, errorMessages) => {
+          touched.current = true;
+          setErrorMessages(errorMessages);
+          setUser(user);
+        }}
+        user={user}
+      />
+    </>
   );
 }
 

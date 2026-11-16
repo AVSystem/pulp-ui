@@ -219,7 +219,12 @@ describe('the user edit page', () => {
             });
       }),
       http.get(`*${API}/groups/`, () =>
-        HttpResponse.json({ count: 0, next: null, previous: null, results: [] }),
+        HttpResponse.json({
+          count: 0,
+          next: null,
+          previous: null,
+          results: [],
+        }),
       ),
     );
     const { user: u } = render();
