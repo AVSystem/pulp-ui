@@ -53,6 +53,8 @@ describe('status page', () => {
 });
 
 const NOTE = 'Versions, workers and storage are shown to signed-in users.';
+const ADMIN_NOTE =
+  'Workers, storage and content settings are shown to administrators.';
 
 function renderStatus() {
   return renderWithProviders(
@@ -82,14 +84,42 @@ describe('status page for a visitor who is not signed in', () => {
     renderStatus();
 
     expect(await screen.findByText(NOTE)).toBeVisible();
-    expect(cardTitles()).toEqual([
-      'Database connection',
-      'Redis connection',
-      'JSON',
-    ]);
+    expect(cardTitles()).toEqual(['Database connection', 'Redis connection']);
     expect(screen.getByText('Connected')).toBeVisible();
     expect(screen.getByText('Not connected')).toBeVisible();
     expect(screen.queryByText('Not reported')).not.toBeInTheDocument();
+  });
+
+  it('shows no JSON toggle, so the raw answer is not shown', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({
+          database_connection: { connected: true },
+          redis_connection: { connected: true },
+        }),
+      ),
+    );
+
+    renderStatus();
+
+    await screen.findByText(NOTE);
+    expect(screen.queryByRole('button', { name: 'JSON' })).toBeNull();
+    expect(screen.queryByText(/database_connection/)).toBeNull();
+  });
+
+  it('lines the note and the cards up with the screen title inside the section wrapper', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({ database_connection: { connected: true } }),
+      ),
+    );
+
+    renderStatus();
+
+    const note = await screen.findByText(NOTE);
+    const section = note.closest('section.pulp-section');
+    expect(section).not.toBeNull();
+    expect(section?.querySelector('.pf-v6-c-card')).not.toBeNull();
   });
 
   it('shows every card and no note for the full answer', async () => {
@@ -113,6 +143,71 @@ describe('status page for a visitor who is not signed in', () => {
       'JSON',
     ]);
     expect(screen.queryByText(NOTE)).not.toBeInTheDocument();
+  });
+});
+
+describe('status page for a signed-in account that is not an administrator', () => {
+  const answer = {
+    versions: [{ component: 'core', version: '3.0.0' }],
+    database_connection: { connected: true },
+    redis_connection: { connected: true },
+  };
+
+  it('says what is left out and shows only the cards the answer holds', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () => HttpResponse.json(answer)),
+    );
+
+    renderStatus();
+
+    expect(await screen.findByText(ADMIN_NOTE)).toBeVisible();
+    expect(cardTitles()).toEqual([
+      'Versions',
+      'Database connection',
+      'Redis connection',
+      'JSON',
+    ]);
+    expect(screen.queryByText(NOTE)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'JSON' })).toBeVisible();
+  });
+
+  it('shows no note for an administrator, whose answer holds the workers', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () => HttpResponse.json(status)),
+    );
+
+    renderStatus();
+
+    await screen.findByRole('button', { name: 'JSON' });
+    expect(screen.queryByText(ADMIN_NOTE)).not.toBeInTheDocument();
+    expect(screen.queryByText(NOTE)).not.toBeInTheDocument();
+  });
+});
+
+describe('status page when the read fails', () => {
+  it('shows an error state with Retry instead of a spinner, and reads again on Retry', async () => {
+    let failing = true;
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        failing
+          ? HttpResponse.json({ detail: 'broken' }, { status: 500 })
+          : HttpResponse.json(status),
+      ),
+    );
+
+    const { user } = renderStatus();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Failed to load status' }),
+    ).toBeVisible();
+    expect(screen.getByText(/Error 500/)).toBeVisible();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+
+    failing = false;
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByText('Versions')).toBeVisible();
+    expect(screen.queryByText('Failed to load status')).toBeNull();
   });
 });
 
@@ -183,7 +278,7 @@ describe('status page after the same user signs in again', () => {
     expect(await screen.findByText('Versions')).toBeVisible();
   });
 
-  it('still shows its alert when the read fails for another reason', async () => {
+  it('still shows its error state when the read fails for another reason', async () => {
     server.use(
       http.get(STATUS, () =>
         HttpResponse.json({ detail: 'broken' }, { status: 500 }),
@@ -192,6 +287,7 @@ describe('status page after the same user signs in again', () => {
     renderSignedIn();
 
     expect(await screen.findByText('Failed to load status')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
   });
 
   it('sends no write', async () => {

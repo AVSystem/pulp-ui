@@ -3764,6 +3764,7 @@ msgstr "Installer packages will be synchronized"
 #~ msgid "Instructions"
 #~ msgstr "Instructions"
 
+#: src/app-routes.tsx
 #: src/components/insufficient-permissions.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/role-management/role-edit.tsx
@@ -8541,6 +8542,10 @@ msgstr "Will verify that the checksum of all stored files matches what saved in 
 #: src/menu.tsx
 msgid "Workers and status"
 msgstr "Workers and status"
+
+#: src/containers/pulp-status.tsx
+msgid "Workers, storage and content settings are shown to administrators."
+msgstr "Workers, storage and content settings are shown to administrators."
 
 #: src/components/ratings.tsx
 #~ msgid "Works without change"

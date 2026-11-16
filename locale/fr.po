@@ -3763,6 +3763,7 @@ msgstr ""
 #~ msgid "Instructions"
 #~ msgstr "Instructions"
 
+#: src/app-routes.tsx
 #: src/components/insufficient-permissions.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/role-management/role-edit.tsx
@@ -8539,6 +8540,10 @@ msgstr ""
 
 #: src/menu.tsx
 msgid "Workers and status"
+msgstr ""
+
+#: src/containers/pulp-status.tsx
+msgid "Workers, storage and content settings are shown to administrators."
 msgstr ""
 
 #: src/components/ratings.tsx
