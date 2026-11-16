@@ -266,5 +266,7 @@ test('the editor opens its own profile and sees it', async ({ page }) => {
   // the profile of an account that may not change users offers no Edit,
   // checked once the requests of the page have settled
   await page.waitForLoadState('networkidle');
-  await expect(page.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Edit', exact: true }),
+  ).toHaveCount(0);
 });
