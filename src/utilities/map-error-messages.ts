@@ -50,6 +50,11 @@ export function mapErrorMessages(err): ErrorMessagesType {
   //   "<field_name>": "<error_message>",
   // }
 
+  // a body that is a number or a boolean has no messages to map
+  if (typeof data !== 'object') {
+    return messages;
+  }
+
   // handle galaxy error
   if ('errors' in data && Array.isArray(data['errors'])) {
     for (const e of data.errors) {
@@ -66,11 +71,7 @@ export function mapErrorMessages(err): ErrorMessagesType {
   }
 
   // handle pulp error
-  if (typeof data === 'object') {
-    return data;
-  }
-
-  return {};
+  return data;
 }
 
 export function isFieldValid(
