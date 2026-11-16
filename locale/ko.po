@@ -3479,6 +3479,8 @@ msgid "Groups"
 msgstr "그룹"
 
 #: src/components/user-form.tsx
+#: src/containers/ansible-remote/tab-access.tsx
+#: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/group-management/group-list.tsx
 msgid "Groups list could not be displayed."
 msgstr "그룹 목록을 표시할 수 없습니다."
@@ -6220,6 +6222,8 @@ msgstr "역할"
 #~ msgid "Roles are not currently enabled."
 #~ msgstr ""
 
+#: src/containers/ansible-remote/tab-access.tsx
+#: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "역할 목록을 표시할 수 없습니다."
@@ -8225,6 +8229,8 @@ msgstr "사용자"
 msgid "Users and groups"
 msgstr ""
 
+#: src/containers/ansible-remote/tab-access.tsx
+#: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/user-management/user-list.tsx

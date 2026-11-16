@@ -13,7 +13,7 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { Component } from 'react';
+import { Component, type ReactNode } from 'react';
 import { Navigate } from 'react-router';
 import {
   GroupAPI,
@@ -35,8 +35,10 @@ import {
   EmptyStateNoData,
   InsufficientPermissions,
   LinkTabs,
+  ListErrorState,
   ListItemActions,
   LoadingPage,
+  LoadingSpinner,
   Main,
   NotFound,
   PulpPagination,
@@ -52,6 +54,7 @@ import {
   filterIsSet,
   withRouter,
 } from 'src/utilities';
+import { idFromHref } from 'src/utilities/global-permissions';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -90,6 +93,12 @@ interface IState {
   // the reason Pulp gave for refusing the read, when it gave one
   unauthorizedDetail: string | null;
   users: UserType[];
+  // why the last read of the members failed; remembered so that the read is
+  // not started again until the user asks for it
+  usersFailure: ReactNode | null;
+  // Pulp refused to list the members, with its reason when it gave one
+  usersUnauthorized: boolean;
+  usersUnauthorizedDetail: string | null;
 }
 
 class GroupDetail extends Component<RouteProps, IState> {
@@ -100,6 +109,14 @@ class GroupDetail extends Component<RouteProps, IState> {
   // Identifies the latest user search of the add dialog, so a slower answer to
   // an earlier text cannot replace the list of a later one.
   latestUserSearch = 0;
+
+  // Identifies the latest members read, so a slower answer to an earlier page
+  // or filter cannot replace the rows of a later one.
+  latestUsersRead = 0;
+
+  // True while the latest members read is in flight, so lifecycle code never
+  // starts a second one beside it.
+  loadingUsers = false;
 
   constructor(props) {
     super(props);
@@ -136,6 +153,9 @@ class GroupDetail extends Component<RouteProps, IState> {
       unauthorized: false,
       unauthorizedDetail: null,
       users: null,
+      usersFailure: null,
+      usersUnauthorized: false,
+      usersUnauthorizedDetail: null,
     };
   }
 
@@ -171,6 +191,27 @@ class GroupDetail extends Component<RouteProps, IState> {
         },
       });
     }
+
+    this.startMembersRead();
+  }
+
+  // The members are read once the group is known and the Users tab is shown.
+  // A read that failed or was refused is remembered and not started again
+  // until the user retries, so a failure never turns into a request loop.
+  private startMembersRead() {
+    const { group, params, users, usersFailure, usersUnauthorized } =
+      this.state;
+
+    if (
+      group &&
+      params.tab === 'users' &&
+      users === null &&
+      !usersFailure &&
+      !usersUnauthorized &&
+      !this.loadingUsers
+    ) {
+      this.queryUsers();
+    }
   }
 
   render() {
@@ -189,6 +230,9 @@ class GroupDetail extends Component<RouteProps, IState> {
       unauthorized,
       unauthorizedDetail,
       users,
+      usersFailure,
+      usersUnauthorized,
+      usersUnauthorizedDetail,
     } = this.state;
     const { hasPermission } = this.context as IAppContextType;
 
@@ -220,11 +264,6 @@ class GroupDetail extends Component<RouteProps, IState> {
     }
 
     if (!group) {
-      return <LoadingPage />;
-    }
-
-    if (params.tab == 'users' && !users && !unauthorized) {
-      this.queryUsers();
       return <LoadingPage />;
     }
 
@@ -281,10 +320,16 @@ class GroupDetail extends Component<RouteProps, IState> {
             </div>
           </div>
         </BaseHeader>
-        <Main data-cy='main-tabs'>
-          {params.tab == 'access' ? this.renderGroupDetail() : null}
-          {params.tab == 'users' ? this.renderUsers(users) : null}
-        </Main>
+        {params.tab == 'users' && usersUnauthorized ? (
+          <InsufficientPermissions detail={usersUnauthorizedDetail} />
+        ) : (
+          <Main data-cy='main-tabs'>
+            {params.tab == 'access' ? this.renderGroupDetail() : null}
+            {params.tab == 'users'
+              ? this.renderUsersTab(users, usersFailure)
+              : null}
+          </Main>
+        )}
       </>
     );
   }
@@ -298,14 +343,34 @@ class GroupDetail extends Component<RouteProps, IState> {
 
     return (
       <ToolbarItem>
-        <Button
-          onClick={() => this.setState({ showDeleteModal: true })}
-          variant='secondary'
-        >
+        <Button onClick={() => this.openDeleteDialog()} variant='secondary'>
           {t`Delete`}
         </Button>
       </ToolbarItem>
     );
+  }
+
+  // The delete dialog lists the affected members, so opening it reads them
+  // when they are not known yet and the user may list them.
+  private openDeleteDialog() {
+    const { hasPermission } = this.context as IAppContextType;
+
+    this.setState({ showDeleteModal: true });
+    if (
+      hasPermission('auth.view_user') &&
+      !this.state.users &&
+      !this.state.usersUnauthorized &&
+      !this.loadingUsers
+    ) {
+      this.queryUsers();
+    }
+  }
+
+  // The candidates of the add dialog are read each time it opens; the dialog
+  // appears when they are known.
+  private openAddDialog() {
+    this.setState({ addModalVisible: true, options: undefined });
+    this.loadOptions();
   }
 
   private renderGroupDetail() {
@@ -329,7 +394,6 @@ class GroupDetail extends Component<RouteProps, IState> {
 
   private renderAddModal() {
     if (this.state.options === undefined) {
-      this.loadOptions();
       return null;
     }
 
@@ -369,7 +433,9 @@ class GroupDetail extends Component<RouteProps, IState> {
                   filteredUsers = filteredUsers.filter(
                     (x) =>
                       !this.state.selected.find((s) => s.name === x.name) &&
-                      !this.state.users.find((u) => u.id === x.id),
+                      !(this.state.users ?? []).find(
+                        (u) => u.username === x.name,
+                      ),
                   );
                   this.setState({
                     options: filteredUsers,
@@ -479,11 +545,8 @@ class GroupDetail extends Component<RouteProps, IState> {
         });
     };
 
-    const view_user = hasPermission('auth.view_user');
-
-    if (!users && view_user) {
-      this.queryUsers();
-    }
+    const view_user =
+      hasPermission('auth.view_user') && !this.state.usersUnauthorized;
 
     return (
       <DeleteGroupModal
@@ -558,7 +621,9 @@ class GroupDetail extends Component<RouteProps, IState> {
         const options = result.data.results
           .filter(
             (user) =>
-              !this.state.users.find((u) => u.id === user.id) &&
+              !(this.state.users ?? []).find(
+                (u) => u.username === user.username,
+              ) &&
               // what the user already picked stays picked, not offered again
               !this.state.selected.find((s) => s.id === user.id),
           )
@@ -569,6 +634,9 @@ class GroupDetail extends Component<RouteProps, IState> {
         if (isSessionEnd(e)) {
           return;
         }
+        // The dialog opens only with its candidates, so a failed read closes
+        // it; the alert says why and Add tries again.
+        this.setState({ addModalVisible: false, options: undefined });
         this.addAlert(
           t`Users list could not be displayed.`,
           'danger',
@@ -590,6 +658,25 @@ class GroupDetail extends Component<RouteProps, IState> {
     });
   }
 
+  private renderUsersTab(users: UserType[] | null, failure: ReactNode | null) {
+    if (failure) {
+      return (
+        <ListErrorState
+          title={t`Users list could not be displayed.`}
+          message={failure}
+          onRetry={() => this.retryUsers()}
+        />
+      );
+    }
+
+    return users ? this.renderUsers(users) : <LoadingSpinner />;
+  }
+
+  private retryUsers() {
+    this.queryUsers();
+    this.setState({ usersFailure: null });
+  }
+
   private renderUsers(users) {
     const { itemCount, params } = this.state;
     const { hasPermission } = this.context as IAppContextType;
@@ -603,10 +690,7 @@ class GroupDetail extends Component<RouteProps, IState> {
           description={t`Users will appear once added to this group`}
           button={
             hasPermission('core.change_group') && (
-              <Button
-                variant='primary'
-                onClick={() => this.setState({ addModalVisible: true })}
-              >
+              <Button variant='primary' onClick={() => this.openAddDialog()}>
                 {t`Add`}
               </Button>
             )
@@ -641,9 +725,7 @@ class GroupDetail extends Component<RouteProps, IState> {
               {hasPermission('core.change_group') && (
                 <ToolbarGroup>
                   <ToolbarItem>
-                    <Button
-                      onClick={() => this.setState({ addModalVisible: true })}
-                    >
+                    <Button onClick={() => this.openAddDialog()}>
                       {t`Add`}
                     </Button>
                   </ToolbarItem>
@@ -736,20 +818,54 @@ class GroupDetail extends Component<RouteProps, IState> {
     );
   }
 
+  // The members of the group with the filter, sort and page of the tab. The
+  // endpoint only lists users, so only the username can sort.
   private queryUsers() {
-    GroupAPI.getUsers(this.state.group.id)
-      .then((result) =>
+    const current = ++this.latestUsersRead;
+    const { group, params } = this.state;
+    this.loadingUsers = true;
+
+    GroupAPI.getUsers(group.id, {
+      ...ParamHelper.getReduced(params, ['id', 'tab', 'role__icontains']),
+      sort: ParamHelper.validSortParams(
+        String(params.sort ?? ''),
+        ['username'],
+        'username',
+      ),
+    })
+      .then((result) => {
+        if (current !== this.latestUsersRead) {
+          return;
+        }
+        this.loadingUsers = false;
         this.setState({
           users: result.data.results,
           itemCount: result.data.count,
-        }),
-      )
+          usersFailure: null,
+          usersUnauthorized: false,
+          usersUnauthorizedDetail: null,
+        });
+      })
       .catch((e) => {
+        if (current !== this.latestUsersRead) {
+          return;
+        }
+        this.loadingUsers = false;
         // The session ended: the sign-in dialog explains it and the members
         // are read again after signing in.
         if (isSessionEnd(e)) {
           return;
         }
+        if (requestErrorStatus(e) === 403) {
+          // A refusal is not retried: the tab tells the user they may not
+          // list the members, with Pulp's own reason.
+          this.setState({
+            usersUnauthorized: true,
+            usersUnauthorizedDetail: requestErrorDetail(e),
+          });
+          return;
+        }
+        this.setState({ usersFailure: requestErrorDescription(e) });
         this.addAlert(
           t`Users list could not be displayed.`,
           'danger',
@@ -765,7 +881,7 @@ class GroupDetail extends Component<RouteProps, IState> {
     if (this.state.users) {
       this.queryUsers();
     }
-    if (this.state.addModalVisible && this.state.options !== undefined) {
+    if (this.state.addModalVisible) {
       this.loadOptions();
     }
   }
@@ -803,17 +919,20 @@ class GroupDetail extends Component<RouteProps, IState> {
     if (!quiet) {
       this.setState({
         users: null,
+        usersFailure: null,
+        usersUnauthorized: false,
+        usersUnauthorizedDetail: null,
       });
     }
   }
 
-  private deleteUser(user) {
-    user.groups = user.groups.filter((group) => {
-      return group.id != this.state.params.id;
-    });
-    const { name } = this.state.group;
-    // FIXME: patch
-    UserAPI.update(user.id, user)
+  // Pulp authorises this request with the permission to change the group,
+  // the one that shows the Remove control.
+  private deleteUser(user: UserType) {
+    const { group } = this.state;
+    const { name } = group;
+
+    GroupAPI.removeUserFromGroup(group.id, idFromHref(user.pulp_href))
       .then(() => {
         this.setState({
           showUserRemoveModal: null,

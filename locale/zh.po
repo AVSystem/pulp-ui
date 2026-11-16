@@ -3479,6 +3479,8 @@ msgid "Groups"
 msgstr "组"
 
 #: src/components/user-form.tsx
+#: src/containers/ansible-remote/tab-access.tsx
+#: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/group-management/group-list.tsx
 msgid "Groups list could not be displayed."
 msgstr "无法显示组列表。"
@@ -6220,6 +6222,8 @@ msgstr "角色"
 #~ msgid "Roles are not currently enabled."
 #~ msgstr ""
 
+#: src/containers/ansible-remote/tab-access.tsx
+#: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "无法显示角色列表。"
@@ -8225,6 +8229,8 @@ msgstr "用户"
 msgid "Users and groups"
 msgstr ""
 
+#: src/containers/ansible-remote/tab-access.tsx
+#: src/containers/ansible-repository/tab-access.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/user-management/user-list.tsx
