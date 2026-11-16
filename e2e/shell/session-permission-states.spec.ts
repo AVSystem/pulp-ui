@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { storageStatePath } from '../support/accounts';
 import { type PulpObject, TestObjects } from '../support/api';
+import { coveredAt } from '../support/session-cover';
 import { title } from '../support/sign-in';
 
 // Captures the surfaces of the session and permission handling on a deployed
@@ -482,6 +483,12 @@ test.describe('sign in again dialog', () => {
     await expect(page.locator('#description')).toHaveValue(
       'Notes typed before the session ended',
     );
+    // The form stays mounted below the dialog, but nothing of it can be read
+    // through the layer under the dialog.
+    expect(
+      await coveredAt(page, page.locator('#description')),
+      'the form field behind the dialog is covered by the opaque layer',
+    ).toBe(true);
 
     // The lead sentence, the request note and the kept note are one medium
     // space apart, and so is the last of them from the first field.
@@ -526,6 +533,10 @@ test.describe('sign in again dialog', () => {
 
     await expect(dialog.getByText(/invalid/i).first()).toBeVisible();
     await expect(dialog).toBeVisible();
+    expect(
+      await coveredAt(page, page.locator('#description')),
+      'the form field behind the dialog is covered by the opaque layer',
+    ).toBe(true);
     await capture(page, 's1-error-line');
   });
 
@@ -544,6 +555,13 @@ test.describe('sign in again dialog', () => {
         .or(dialog.getByRole('button', { name: 'Login' })),
     ).toBeVisible();
     await expect(dialog.getByLabel('Password')).toHaveCount(0);
+    expect(
+      await coveredAt(
+        page,
+        page.getByRole('heading', { level: 1, includeHidden: true }).first(),
+      ),
+      'the page title behind the dialog is covered by the opaque layer',
+    ).toBe(true);
     await capture(page, 's1-external-mode');
   });
 });

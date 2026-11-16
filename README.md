@@ -218,8 +218,14 @@ some states open a delete confirmation and others create two empty repositories 
 so the run fails as `viewer`. The screen crawler (`crawl-*` projects) uses the same variable and
 visits every route as that one account. The `session-switch` spec of `remote-admin` drives the
 sign-in-again dialog in a real browser: another account signing in through it, the dialog stacked
-over a sync dialog, and the return to a tab whose session another tab ended (a browser that sends
-no visibility change between tabs cannot show the last one, and the spec says so).
+over a sync dialog, and the return to a tab whose session another tab ended. That last case uses
+two pages of one context, and the return is dispatched inside the page (a visibility change on the
+document or a focus on the window), because a headless browser never tells a page that the user
+came back to it; the helper fails when the browser reports the page as hidden. The specs show the
+same account restored without a reload, another account loading the start page, and the sign in
+through the dialog of the returned tab; the Status two-tab check proves that the staff data and the
+account menu behind the dialog are covered by a fully opaque layer and that the data is back after
+signing in.
 
 Output of the remote projects (screenshots, the HTML report) can show data of that
 deployment; keep it local. These projects record no Playwright trace, because a trace keeps the
