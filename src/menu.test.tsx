@@ -762,6 +762,59 @@ describe('administration entries', () => {
     await screen.findByText('Users and groups - Groups');
     expect(screen.queryByText('Users and groups - Users')).toBeNull();
     expect(screen.queryByText('Roles')).toBeNull();
+    expect(screen.queryByText('Signing services')).toBeNull();
+  });
+});
+
+describe('the Signing services entry', () => {
+  it('is offered to a holder of core.view_signingservice and to staff', async () => {
+    signIn({ own: [['core.view_signingservice']] });
+    reportPlugins(ALL_PLUGINS);
+
+    const holder = await menuShown();
+    await waitFor(() => expect(item('signing-services')).not.toBeNull());
+    expect(item('signing-services')).toHaveAttribute(
+      'href',
+      '/signature-keys/',
+    );
+    holder.unmount();
+    server.events.removeAllListeners();
+
+    signIn({ isStaff: true });
+    await menuShown();
+    await waitFor(() => expect(item('signing-services')).not.toBeNull());
+  });
+
+  it('is not offered to a viewer without the permission, in the sidebar or the search list', async () => {
+    const { requests } = signIn({ own: [['file.view_filerepository']] });
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await waitFor(() =>
+      expect(requests.some((path) => path.includes('/roles/'))).toBe(true),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(item('signing-services')).toBeNull();
+    expect(screen.queryByText('Signing services')).toBeNull();
+    // Tasks and Workers and status stay in the Operations group.
+    expect(item('tasks')).not.toBeNull();
+    expect(item('status')).not.toBeNull();
+  });
+
+  it('is not offered while the permissions are unknown or after the read failed', async () => {
+    signIn({ own: [['core.view_signingservice']] });
+    server.use(
+      http.get('*/pulp/api/v3/users/1/', () =>
+        HttpResponse.json({ detail: 'no' }, { status: 500 }),
+      ),
+    );
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(item('signing-services')).toBeNull();
   });
 });
 
