@@ -31,6 +31,8 @@ export interface ListPage {
   outcome?: Outcome;
   viewerRefused?: boolean;
   viewerNoScreen?: boolean;
+  // The API path of the screen's data when it differs from `path`.
+  dataPath?: string;
   knownDefect?: { admin?: string; viewer?: string };
 }
 
@@ -70,7 +72,8 @@ export const listPages: ListPage[] = [
     path: 'signature-keys',
     plugin: null,
     title: 'Signature keys',
-    viewerRefused: true,
+    viewerNoScreen: true,
+    dataPath: 'signing-services',
   },
   {
     name: 'About project',
@@ -203,9 +206,19 @@ export function installedPlugins(): Promise<Set<string>> {
     const api = await apiContext();
     try {
       const response = await api.get('/pulp/api/v3/status/');
+      if (!response.ok()) {
+        throw new Error(`GET status/ answered ${response.status()}`);
+      }
+      // A request with credentials the server does not accept is answered
+      // with the health fields only, so a missing list names the cause.
       const { versions } = (await response.json()) as {
-        versions: { component: string }[];
+        versions?: { component: string }[];
       };
+      if (!Array.isArray(versions)) {
+        throw new Error(
+          'the status answer has no versions: the admin account was not accepted',
+        );
+      }
       return new Set(versions.map(({ component }) => component));
     } finally {
       await api.dispose();

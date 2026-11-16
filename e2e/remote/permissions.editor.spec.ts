@@ -113,7 +113,11 @@ function allowedRowActions(plugin: Plugin, held: Set<string>): string[] {
 // Opens a repository list once the application has read the account's
 // permissions, so that an action missing from the page is missing because of
 // them and not because they were still being read.
-async function openRepositoryList(page: Page, plugin: Plugin): Promise<void> {
+async function openRepositoryList(
+  page: Page,
+  plugin: Plugin,
+  query = '',
+): Promise<void> {
   const permissionsRead = page.waitForResponse(
     (response) =>
       response.request().method() === 'GET' &&
@@ -121,7 +125,7 @@ async function openRepositoryList(page: Page, plugin: Plugin): Promise<void> {
         new URL(response.url()).pathname,
       ),
   );
-  await page.goto(`${plugin}/repositories`);
+  await page.goto(`${plugin}/repositories${query}`);
   await permissionsRead;
   await expect(title(page, 'Repositories')).toBeVisible();
   await page.waitForLoadState('networkidle');
@@ -189,6 +193,28 @@ test('python repositories offer Add repository and no row action', async ({
   ).toHaveCount(0);
 });
 
+// The rows of the open list by repository name and whether each draws an
+// actions menu.
+async function rowsWithMenus(
+  page: Page,
+): Promise<{ name: string; toggles: number }[]> {
+  const rows = page.locator('tbody tr');
+  // a list the account may not read in part can be empty
+  await expect(
+    rows.first().or(page.getByText('No results found')),
+  ).toBeVisible();
+  const count = await rows.count();
+  const found: { name: string; toggles: number }[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const row = rows.nth(index);
+    found.push({
+      name: (await row.locator('td').first().innerText()).trim(),
+      toggles: await row.locator('[data-cy=kebab-toggle]').count(),
+    });
+  }
+  return found;
+}
+
 test('rpm repositories offer actions on the owned repository only', async ({
   page,
 }) => {
@@ -197,26 +223,48 @@ test('rpm repositories offer actions on the owned repository only', async ({
     [],
   );
 
-  await openRepositoryList(page, 'rpm');
+  // The list is filtered by name so that the result does not depend on how
+  // many repositories the server holds or on the order and size of its pages.
+  await openRepositoryList(
+    page,
+    'rpm',
+    `?name__icontains=${encodeURIComponent(owned.name)}`,
+  );
+  const ownedRows = (await rowsWithMenus(page)).filter(
+    ({ name }) => name === owned.name,
+  );
+  expect(ownedRows, 'the owned repository is listed once').toHaveLength(1);
+  expect(ownedRows[0]?.toggles, 'actions menu of the owned repository').toBe(1);
+  expect(
+    await offeredActions(
+      page.locator('tbody tr', { hasText: owned.name }).first(),
+      page,
+    ),
+  ).toEqual(expected);
+  await expect(addRepository(page)).toHaveCount(0);
 
-  const rows = page.locator('tbody tr');
-  await expect(rows.first()).toBeVisible();
-  const count = await rows.count();
-  let ownedRows = 0;
-  for (let index = 0; index < count; index += 1) {
-    const row = rows.nth(index);
-    const name = (await row.locator('td').first().innerText()).trim();
-    const toggles = await row.locator('[data-cy=kebab-toggle]').count();
-    if (name === owned.name) {
-      ownedRows += 1;
-      expect(toggles, `actions menu of the owned repository`).toBe(1);
-      expect(await offeredActions(row, page)).toEqual(expected);
-    } else {
-      expect(toggles, `actions menu of a repository that is not owned`).toBe(0);
-    }
+  // A second filtered view of a repository that exists but is not owned: the
+  // server lists only what the account may read, and no row that is listed
+  // draws a menu.
+  const others = (
+    await getJson<{ results: { name: string }[] }>(
+      '/pulp/api/v3/repositories/rpm/rpm/?limit=20&fields=name',
+    )
+  ).results
+    .map(({ name }) => name)
+    .filter((name) => !name.includes(owned.name) && !owned.name.includes(name));
+  expect(others, 'rpm repositories that are not owned').not.toEqual([]);
+  await openRepositoryList(
+    page,
+    'rpm',
+    `?name__icontains=${encodeURIComponent(others[0] as string)}`,
+  );
+  for (const { name, toggles } of await rowsWithMenus(page)) {
+    expect(
+      toggles,
+      `actions menu of ${name}, a repository that is not owned`,
+    ).toBe(0);
   }
-  expect(ownedRows, 'the owned repository is listed').toBe(1);
-
   await expect(addRepository(page)).toHaveCount(0);
 });
 
