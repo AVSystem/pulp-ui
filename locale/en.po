@@ -553,6 +553,7 @@ msgstr "Add selected users to group"
 #~ msgid "Add tag(s) to include"
 #~ msgstr "Add tag(s) to include"
 
+#: src/components/detail-list.test.tsx
 #: src/components/list-page.test.tsx
 msgid "Add thing"
 msgstr "Add thing"
@@ -7336,6 +7337,10 @@ msgstr "The client URL is shown on the repository page once the distribution exi
 #: src/components/import-modal.tsx
 #~ msgid "The collection you have selected doesn't appear to match {0}"
 #~ msgstr "The collection you have selected doesn't appear to match {0}"
+
+#: src/actions/ansible-repository-copy.tsx
+msgid "The configuration could not be copied to the clipboard."
+msgstr "The configuration could not be copied to the clipboard."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."

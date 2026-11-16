@@ -552,6 +552,7 @@ msgstr "Ajouter les utilisateurs sélectionnés au groupe"
 #~ msgid "Add tag(s) to include"
 #~ msgstr "Ajouter une ou plusieurs tags à inclure"
 
+#: src/components/detail-list.test.tsx
 #: src/components/list-page.test.tsx
 msgid "Add thing"
 msgstr ""
@@ -7335,6 +7336,10 @@ msgstr ""
 #: src/components/import-modal.tsx
 #~ msgid "The collection you have selected doesn't appear to match {0}"
 #~ msgstr "La collection que vous avez sélectionnée ne semble pas correspondre à {0}"
+
+#: src/actions/ansible-repository-copy.tsx
+msgid "The configuration could not be copied to the clipboard."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
