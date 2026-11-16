@@ -1,12 +1,23 @@
-import { type Page, expect, test } from '@playwright/test';
+import { type BrowserContext, type Page, expect, test } from '@playwright/test';
 import { account } from '../support/accounts';
 import { TestObjects } from '../support/api';
+import {
+  coveredAt,
+  loginChecks,
+  markWindow,
+  returnToTab,
+  windowMarked,
+} from '../support/session-cover';
 import { title } from '../support/sign-in';
 import {
   apiLogin,
   endSessionBehindThePage,
   logOutThroughMenu,
+  logOutWhatRemains,
+  loginMenuItem,
+  signInThroughLoginPage,
   signedOut,
+  userMenu,
 } from './session-helpers';
 
 // What the sign-in-again dialog does in a real browser when another account
@@ -15,23 +26,12 @@ import {
 // context of its own with a fresh session, because ending a session here must
 // never touch the session the other remote tests share.
 
-const userMenu = '[data-cy=user-dropdown]';
-const loginMenuItem = '[data-cy=pulp-menu-item-login]';
-
 test.use({ storageState: signedOut });
 
 // A test that signed in leaves a live session on the server unless it is
 // ended: end whatever session the context still holds, the way a person does.
 test.afterEach(async ({ page, context }) => {
-  const open = async () =>
-    (await context.cookies()).some(({ name }) => name === 'sessionid');
-  if (!(await open())) {
-    return;
-  }
-  await page.goto('status');
-  await expect(page.locator(userMenu)).toBeVisible();
-  await logOutThroughMenu(page);
-  await expect(page.locator(loginMenuItem)).toBeVisible();
+  await logOutWhatRemains(page, context);
 });
 
 // A request the page sends on its own after the session ended behind it: moving
@@ -186,58 +186,109 @@ test.describe('over an open dialog', () => {
   });
 });
 
-test('returning to a tab whose session another tab ended asks to sign in again', async ({
-  context,
-}) => {
-  await apiLogin(context);
-  const tabA = await context.newPage();
-  const tabB = await context.newPage();
-  await tabA.goto('file/repositories');
-  await tabB.goto('file/repositories');
-  await expect(title(tabA, 'Repositories')).toBeVisible();
-  await expect(title(tabB, 'Repositories')).toBeVisible();
+// Returning to a tab whose session another tab ended. One context holds both
+// pages, so they share one session. The return is dispatched inside the page
+// (see returnToTab), because a headless browser never tells a page that the
+// user came back to it.
+test.describe('returning to a tab whose session another tab ended', () => {
+  const statusAddress = 'status';
 
-  // counts what the browser tells tab A about its visibility
-  await tabA.evaluate(() => {
-    const seen: string[] = [];
-    (window as unknown as { visibilityEvents: string[] }).visibilityEvents =
-      seen;
-    document.addEventListener('visibilitychange', () =>
-      seen.push(document.visibilityState),
-    );
-  });
+  const workers = (page: Page) =>
+    page.getByText('Online workers', { exact: true });
+  const signInDialog = (page: Page) =>
+    page.getByRole('dialog', { name: 'Sign in again' });
 
-  expect(await endSessionBehindThePage(tabB)).toBe(204);
-  await tabB.bringToFront();
-  await tabA.bringToFront();
+  // Two pages of one context signed in as the administrator on the Status
+  // screen, which holds data that only an administrator sees. Page A has a
+  // marker on its window and a record of the checks it sends; the session then
+  // ends in page B, and page A learns of it on its return.
+  async function openWithSessionEndedInB(context: BrowserContext) {
+    await apiLogin(context);
+    const pageA = await context.newPage();
+    const pageB = await context.newPage();
+    await pageA.goto(statusAddress);
+    await pageB.goto(statusAddress);
+    for (const page of [pageA, pageB]) {
+      await expect(workers(page)).toBeVisible();
+    }
+    await markWindow(pageA);
+    const checks = loginChecks(pageA);
 
-  const events = await tabA
-    .waitForFunction(
-      () =>
-        (window as unknown as { visibilityEvents: string[] }).visibilityEvents
-          .length > 0,
-      undefined,
-      { timeout: 3_000 },
-    )
-    .then(() => true)
-    .catch(() => false);
+    await logOutThroughMenu(pageB);
+    await expect(pageB.locator(loginMenuItem)).toBeVisible();
 
-  if (!events) {
-    // A browser that does not switch visibility between pages of one window
-    // never tells the page the user came back, so there is nothing to react
-    // to. This is a check for a person with a real browser window.
-    console.log(
-      'the browser emitted no visibilitychange on tab switch; the tab return check stays a human check',
-    );
-    test.info().annotations.push({
-      type: 'human check',
-      description:
-        'tab return: the browser sent no visibilitychange between tabs',
-    });
-    return;
+    await returnToTab(pageA, 'visibility');
+    await expect
+      .poll(() => checks.statuses, { message: 'the check of page A' })
+      .toEqual([401]);
+    await expect(signInDialog(pageA)).toBeVisible();
+    expect(
+      await coveredAt(pageA, workers(pageA)),
+      'the staff data of page A is covered by the opaque layer',
+    ).toBe(true);
+    return { pageA, pageB, checks };
   }
 
-  await expect(
-    tabA.getByRole('dialog', { name: 'Sign in again' }),
-  ).toBeVisible();
+  test('the same account signing in on the other tab restores the session on the next return, with no reload', async ({
+    context,
+  }) => {
+    const { pageA, pageB, checks } = await openWithSessionEndedInB(context);
+
+    await signInThroughLoginPage(pageB, 'admin');
+
+    await returnToTab(pageA, 'focus');
+    await expect
+      .poll(() => checks.statuses, { message: 'the checks of page A' })
+      .toEqual([401, 200]);
+    await expect(signInDialog(pageA)).toHaveCount(0);
+    expect(
+      await menuNames(pageA, account('admin').username),
+      'the administrator is signed in on page A',
+    ).toBe(true);
+    expect(await windowMarked(pageA), 'page A was not reloaded').toBe(true);
+    await expect(workers(pageA)).toBeVisible();
+    expect(
+      await coveredAt(pageA, workers(pageA)),
+      'the staff data of page A is back and not covered',
+    ).toBe(false);
+  });
+
+  test('another account signing in on the other tab loads the start page under that account on the next return', async ({
+    context,
+  }) => {
+    const { pageA, pageB } = await openWithSessionEndedInB(context);
+
+    await signInThroughLoginPage(pageB, 'viewer');
+
+    const loaded = pageA.waitForEvent('load');
+    await returnToTab(pageA, 'visibility');
+    await loaded;
+
+    await expect(pageA).toHaveURL(/\/ui\/status\/?$/);
+    await expect(title(pageA, 'Status')).toBeVisible();
+    await expect(pageA.locator(userMenu)).toBeVisible();
+    await expect
+      .poll(() => menuNames(pageA, account('viewer').username), {
+        message: 'the viewer is signed in on page A',
+      })
+      .toBe(true);
+    await expect(signInDialog(pageA)).toHaveCount(0);
+    expect(await windowMarked(pageA), 'page A was loaded afresh').toBe(false);
+  });
+
+  test('signing in through the dialog of the returned tab closes it and keeps the page', async ({
+    context,
+  }) => {
+    const { pageA } = await openWithSessionEndedInB(context);
+
+    const dialog = signInDialog(pageA);
+    await dialog.getByLabel('Password').fill(account('admin').password);
+    await dialog.getByRole('button', { name: 'Log in' }).click();
+
+    await expect(dialog).toHaveCount(0);
+    await pageA.waitForLoadState('networkidle');
+    await expect(dialog).toHaveCount(0);
+    expect(await windowMarked(pageA), 'page A was not reloaded').toBe(true);
+    await expect(workers(pageA)).toBeVisible();
+  });
 });
