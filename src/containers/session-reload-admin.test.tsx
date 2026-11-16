@@ -1,7 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode } from 'react';
-import { Route, Routes } from 'react-router';
+import { Link, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
@@ -381,6 +381,33 @@ describe('the group detail', () => {
     expect(await screen.findByText('zz-role-a')).toBeInTheDocument();
   });
 
+  it('ends the role spinner with an error state and one alert when the roles read fails, and reads again on Retry', async () => {
+    serveGroup('zz-ops');
+    server.use(
+      http.get(`*${GROUP_PATH}roles/`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+      ),
+    );
+    const { user: u } = renderDetail();
+    await heading('zz-ops');
+
+    expect(
+      await screen.findByText('Roles list could not be displayed.'),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Permissions for group "zz-ops" could not be displayed.',
+      ),
+    ).toBeVisible();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+
+    serveGroup('zz-ops', 'zz-role-a');
+    await u.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByText('zz-role-a')).toBeVisible();
+    expect(screen.queryByText('Roles list could not be displayed.')).toBeNull();
+  });
+
   it('still shows its alert when the group read fails for another reason', async () => {
     server.use(
       http.get(`*${GROUP_PATH}`, () =>
@@ -680,6 +707,7 @@ describe('the user detail and the user edit page', () => {
       <AppContextProvider>
         <PermissionsKnown>
           <SignInAgain />
+          <Link to='/users/edit/5'>Other user</Link>
           <Routes>
             <Route path='/users/detail/:user_id' element={<UserDetail />} />
             <Route path='/users/edit/:user_id' element={<UserEdit />} />
@@ -731,6 +759,23 @@ describe('the user detail and the user edit page', () => {
       await signInAgain(u);
 
       expect(await screen.findByText('Ann')).toBeInTheDocument();
+    });
+
+    it('shows the user after signing in again when the read had answered 404', async () => {
+      server.use(
+        http.get(`*${USER_PATH}`, () =>
+          HttpResponse.json({ detail: 'gone' }, { status: 404 }),
+        ),
+      );
+      const { user: u } = renderAt('/users/detail/4');
+      expect(await screen.findByText(/not found/i)).toBeInTheDocument();
+      await signedIn();
+      serve('Ann');
+
+      await signInAgain(u);
+
+      expect(await screen.findByText('Ann')).toBeInTheDocument();
+      expect(screen.queryByText(/not found/i)).toBeNull();
     });
 
     it('still shows the not-found page when the read fails for another reason', async () => {
@@ -796,6 +841,28 @@ describe('the user detail and the user edit page', () => {
       expect(screen.queryByText(/permission/i)).toBeNull();
     });
 
+    it('keeps the typed form and adds one alert when the read after signing in fails for another reason', async () => {
+      serve('Ann');
+      const { user: u } = renderAt('/users/edit/4');
+      const field = await firstName();
+      await signedIn();
+      await u.clear(field);
+      await u.type(field, 'Typed');
+      server.use(
+        http.get(`*${USER_PATH}`, () =>
+          HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+        ),
+      );
+
+      await signInAgain(u);
+
+      expect(
+        await screen.findByText('User could not be displayed.'),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/First name/)).toHaveValue('Typed');
+      expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    });
+
     it('keeps the spinner, with no unauthorized page, when the first read is refused, and shows the form after signing in', async () => {
       server.use(refused('get', USER_PATH));
       const { user: u } = renderAt('/users/edit/4');
@@ -808,6 +875,66 @@ describe('the user detail and the user edit page', () => {
       await signInAgain(u);
 
       expect(await firstName()).toHaveValue('Ann');
+    });
+
+    describe('when another user is opened', () => {
+      const OTHER = user({ id: 5, username: 'zz-bea', first_name: 'Bea' });
+      const OTHER_PATH = `${API}/users/5/`;
+      const serveOther = () =>
+        server.use(http.get(`*${OTHER_PATH}`, () => HttpResponse.json(OTHER)));
+
+      // answers the read of user 4 only once release() is called
+      function holdFirstUser() {
+        let release: () => void;
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        server.use(
+          http.get(`*${USER_PATH}`, async () => {
+            await gate;
+            return HttpResponse.json(USER);
+          }),
+        );
+        return { release: () => release() };
+      }
+
+      it('clears the form of the previous user while the new one is read', async () => {
+        serve('Ann');
+        const { user: u } = renderAt('/users/edit/4');
+        expect(await firstName()).toHaveValue('Ann');
+        let release: () => void;
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        server.use(
+          http.get(`*${OTHER_PATH}`, async () => {
+            await gate;
+            return HttpResponse.json(OTHER);
+          }),
+        );
+
+        await u.click(screen.getByRole('link', { name: 'Other user' }));
+
+        await waitFor(() =>
+          expect(screen.queryByLabelText(/First name/)).toBeNull(),
+        );
+        expect(screen.getByRole('progressbar')).toBeVisible();
+        release();
+        expect(await firstName()).toHaveValue('Bea');
+      });
+
+      it('ignores the late answer for the previous user', async () => {
+        const first = holdFirstUser();
+        serveOther();
+        const { user: u } = renderAt('/users/edit/4');
+
+        await u.click(await screen.findByRole('link', { name: 'Other user' }));
+        expect(await firstName()).toHaveValue('Bea');
+        first.release();
+        await pause();
+
+        expect(screen.getByLabelText(/First name/)).toHaveValue('Bea');
+      });
     });
 
     it('sends no write', async () => {
@@ -977,6 +1104,39 @@ describe('the role list', () => {
     await signInAgain(u);
 
     expect(await screen.findByText('zz-role-b')).toBeInTheDocument();
+  });
+
+  it('keeps the delete dialog open, starts no read and adds no alert when the delete is refused with 401', async () => {
+    const list = listOf(ROLES, [role({ name: 'zz-role-a', locked: false })]);
+    server.use(list.handler, refused('delete', `${ROLES}:id/`));
+    const { user: u } = renderRoles();
+    await screen.findByText('zz-role-a');
+    await signedIn();
+    const readsBefore = list.queries.length;
+
+    await u.click(
+      within(screen.getByText('zz-role-a').closest('tr')).getByRole('button', {
+        name: /actions|kebab/i,
+      }),
+    );
+    await u.click(await screen.findByRole('menuitem', { name: 'Delete' }));
+    await u.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+    await pause();
+
+    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(list.queries.length).toBe(readsBefore);
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(screen.queryByText(/could not be deleted/)).toBeNull();
+
+    await signInAgain(u);
+    await waitFor(() => expect(list.queries.length).toBe(readsBefore + 1));
+    await pause();
+    expect(list.queries.length).toBe(readsBefore + 1);
+    expect(screen.queryByRole('progressbar')).toBeNull();
   });
 
   it('keeps its rows, with no alert, when the read is refused with 401', async () => {
@@ -1151,6 +1311,67 @@ describe('the role edit page', () => {
 
     await waitFor(() => expect(saved).toBeDefined());
     expect(saved).toBe(ROLE_PATH);
+  });
+
+  it('shows the form after signing in again when the first read was refused with 403', async () => {
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ detail: 'Not for you.' }, { status: 403 }),
+      ),
+    );
+    const { user: u } = renderEdit();
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Insufficient permissions',
+        level: 1,
+      }),
+    ).toBeVisible();
+    await signedIn();
+    serve('fresh text');
+
+    await signInAgain(u);
+
+    expect(await descriptionField()).toHaveValue('fresh text');
+    expect(screen.queryByText('Insufficient permissions')).toBeNull();
+  });
+
+  it('shows the form, not the not-found page, after signing in again when the first read failed', async () => {
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+      ),
+    );
+    const { user: u } = renderEdit();
+    expect(
+      await screen.findByText('Role could not be displayed.'),
+    ).toBeVisible();
+    await signedIn();
+    serve('fresh text');
+
+    await signInAgain(u);
+
+    expect(await descriptionField()).toHaveValue('fresh text');
+    expect(
+      screen.queryByText("We couldn't find the page you're looking for!"),
+    ).toBeNull();
+  });
+
+  it('reads the role once while the refusal page is shown and the session did not change', async () => {
+    let reads = 0;
+    server.use(
+      http.get(`*${ROLE_PATH}`, () => {
+        reads += 1;
+        return HttpResponse.json({ detail: 'Not for you.' }, { status: 403 });
+      }),
+    );
+    renderEdit();
+    await screen.findByRole('heading', {
+      name: 'Insufficient permissions',
+      level: 1,
+    });
+    await pause();
+
+    expect(reads).toBe(1);
   });
 
   it('keeps the form, with no alert or not-found page, when the read is refused with 401', async () => {

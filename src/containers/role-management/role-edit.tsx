@@ -70,7 +70,7 @@ class EditRole extends Component<RouteProps, IState> {
     this.state = {
       alerts: [],
       description: null,
-      editPermissions: false,
+      editPermissions: true,
       errorMessages: {},
       inputText: '',
       itemCount: 0,
@@ -94,7 +94,6 @@ class EditRole extends Component<RouteProps, IState> {
   }
 
   componentDidMount() {
-    this.setState({ editPermissions: true });
     this.queryRole();
   }
 
@@ -115,7 +114,10 @@ class EditRole extends Component<RouteProps, IState> {
             ? previous.description
             : result.data.description,
           name: result.data.name,
+          notFound: false,
           originalPermissions: result.data.permissions,
+          unauthorized: false,
+          unauthorizedDetail: null,
         }));
       })
       .catch((e) => {
@@ -307,10 +309,6 @@ class EditRole extends Component<RouteProps, IState> {
         });
     });
   };
-
-  private toError(validated: boolean) {
-    return validated ? 'default' : 'error';
-  }
 }
 
 export default withRouter(EditRole);

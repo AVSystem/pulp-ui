@@ -1139,8 +1139,8 @@ msgstr ""
 
 #. placeholder {0}: this.state.selectedGroup.name
 #: src/containers/group-management/group-list.tsx
-msgid "Changes to group \"{0}\" could not be saved."
-msgstr "Les changements au groupe \"{0}\" n’ont pas pu être sauvegardés."
+#~ msgid "Changes to group \"{0}\" could not be saved."
+#~ msgstr "Les changements au groupe \"{0}\" n’ont pas pu être sauvegardés."
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -6224,6 +6224,7 @@ msgstr "Rôles"
 
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
+#: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "La liste des rôles n’a pas pu être affichée."
@@ -8166,6 +8167,10 @@ msgstr "L’utilisateur <0>{username}</0> sera supprimé du groupe<1>{groupname}
 #: src/menu.tsx
 #~ msgid "User Access"
 #~ msgstr "Accès des utilisateurs"
+
+#: src/containers/user-management/user-edit.tsx
+msgid "User could not be displayed."
+msgstr ""
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"

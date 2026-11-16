@@ -251,6 +251,23 @@ describe('the user list', () => {
     expect(button('Create')).not.toBeNull();
   });
 
+  it('shows the empty state button only to a holder of auth.add_user', async () => {
+    serve();
+    renderAs(['auth.add_user'], <UserList />, '/users');
+    await screen.findByText('No users yet');
+    // the toolbar and the empty state each offer it
+    expect(screen.getAllByRole('button', { name: 'Create' })).toHaveLength(2);
+  });
+
+  it('shows no empty state button without auth.add_user', async () => {
+    serve();
+    renderAs(['auth.view_user'], <UserList />, '/users');
+    await screen.findByText('No users yet');
+    expect(screen.getByText('Users will appear once created')).toBeVisible();
+    expect(button('Create')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Create' })).toBeNull();
+  });
+
   it('offers Edit and Delete in a row to holders of auth.change_user and auth.delete_user', async () => {
     serve('zz-ann');
     const { user: u } = renderAs(

@@ -233,7 +233,7 @@ describe('remote form, total timeout and retries', () => {
   });
 });
 
-// The app context carries the alerts, the user and the permission check only;
+// The app context carries the alerts and the permission checks only;
 // no flag decides whether a plugin field is offered.
 function renderWithBareContext(plugin: Plugin) {
   return renderWithProviders(
@@ -245,7 +245,6 @@ function renderWithBareContext(plugin: Plugin) {
         permissionsReady: true,
         queueAlert: () => undefined,
         setAlerts: () => undefined,
-        user: null,
       }}
     >
       <RemoteForm

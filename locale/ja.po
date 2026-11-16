@@ -1139,8 +1139,8 @@ msgstr ""
 
 #. placeholder {0}: this.state.selectedGroup.name
 #: src/containers/group-management/group-list.tsx
-msgid "Changes to group \"{0}\" could not be saved."
-msgstr "グループ \"{0}\" への変更を保存できませんでした。"
+#~ msgid "Changes to group \"{0}\" could not be saved."
+#~ msgstr "グループ \"{0}\" への変更を保存できませんでした。"
 
 #. placeholder {0}: this.state.namespace.name
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -6224,6 +6224,7 @@ msgstr "ロール"
 
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
+#: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
 msgid "Roles list could not be displayed."
 msgstr "ロールリストを表示できませんでした。"
@@ -8166,6 +8167,10 @@ msgstr "ユーザー <0>{username}</0> がグループ <1>{groupname}</1> から
 #: src/menu.tsx
 #~ msgid "User Access"
 #~ msgstr "ユーザーアクセス"
+
+#: src/containers/user-management/user-edit.tsx
+msgid "User could not be displayed."
+msgstr ""
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"

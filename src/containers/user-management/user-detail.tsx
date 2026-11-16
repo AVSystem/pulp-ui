@@ -73,7 +73,9 @@ class UserDetail extends Component<RouteProps, IState> {
 
   private queryUser() {
     UserAPI.get(this.props.routeParams.user_id)
-      .then((result) => this.setState({ userDetail: result.data }))
+      .then((result) =>
+        this.setState({ userDetail: result.data, notFound: false }),
+      )
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
         // keeps its spinner or its content until it reads again.

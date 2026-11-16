@@ -252,6 +252,7 @@ class UserList extends Component<RouteProps, IState> {
 
   private renderTable(params) {
     const { users } = this.state;
+    const { hasPermission } = this.context as IAppContextType;
     if (users.length === 0) {
       return filterIsSet(params, [
         'username__contains',
@@ -265,9 +266,11 @@ class UserList extends Component<RouteProps, IState> {
           title={t`No users yet`}
           description={t`Users will appear once created`}
           button={
-            <Link to={formatPath(Paths.core.user.create)}>
-              <Button variant={'primary'}>{t`Create`}</Button>
-            </Link>
+            hasPermission('auth.add_user') && (
+              <Link to={formatPath(Paths.core.user.create)}>
+                <Button variant={'primary'}>{t`Create`}</Button>
+              </Link>
+            )
           }
         />
       );

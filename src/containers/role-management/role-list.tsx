@@ -366,6 +366,8 @@ export class RoleList extends Component<RouteProps, IState> {
 
   private deleteRole({ pulp_href, name }) {
     const roleID = parsePulpIDFromURL(pulp_href);
+    // true when the delete was refused only because the session ended
+    let sessionEnded = false;
     RoleAPI.delete(roleID)
       .then(() =>
         this.addAlert(
@@ -374,7 +376,10 @@ export class RoleList extends Component<RouteProps, IState> {
         ),
       )
       .catch((e) => {
+        // The role was not deleted and nothing is repeated: the dialog stays
+        // open, and the epoch read follows once the user signed in again.
         if (isSessionEnd(e)) {
+          sessionEnded = true;
           return;
         }
         this.addAlert(
@@ -384,6 +389,9 @@ export class RoleList extends Component<RouteProps, IState> {
         );
       })
       .then(() => {
+        if (sessionEnded) {
+          return;
+        }
         this.queryRoles();
         this.setState({ showDeleteModal: false, roleToEdit: null });
       });

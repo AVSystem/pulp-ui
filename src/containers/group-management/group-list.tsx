@@ -66,7 +66,6 @@ interface IState {
   deleteModalCount?: number;
   deleteModalUsers?: UserType[];
   deleteModalVisible: boolean;
-  editModalVisible: boolean;
   selectedGroup: GroupObjectPermissionType;
   groupError: ErrorMessagesType;
   unauthorized: boolean;
@@ -102,7 +101,6 @@ class GroupList extends Component<RouteProps, IState> {
       groups: [],
       createModalVisible: false,
       deleteModalVisible: false,
-      editModalVisible: false,
       selectedGroup: null,
       groupError: null,
       unauthorized: false,
@@ -137,7 +135,6 @@ class GroupList extends Component<RouteProps, IState> {
       loading,
       createModalVisible,
       deleteModalVisible,
-      editModalVisible,
       alerts,
       groups,
       unauthorized,
@@ -165,7 +162,6 @@ class GroupList extends Component<RouteProps, IState> {
         />
         {createModalVisible ? this.renderCreateModal() : null}
         {deleteModalVisible ? this.renderDeleteModal() : null}
-        {editModalVisible ? this.renderEditModal() : null}
         <BaseHeader title={t`Groups`} />
         {unauthorized ? (
           <InsufficientPermissions detail={unauthorizedDetail} />
@@ -275,20 +271,6 @@ class GroupList extends Component<RouteProps, IState> {
     );
   }
 
-  private renderEditModal() {
-    return (
-      <GroupModal
-        onCancel={() =>
-          this.setState({ editModalVisible: false, groupError: null })
-        }
-        onSave={(value) => this.editGroup(value)}
-        clearErrors={() => this.setState({ groupError: null })}
-        group={this.state.selectedGroup}
-        errorMessage={this.state.groupError}
-      />
-    );
-  }
-
   private renderDeleteModal() {
     const name = this.state.selectedGroup && this.state.selectedGroup.name;
     const { deleteModalUsers: users, deleteModalCount: count } = this.state;
@@ -363,38 +345,6 @@ class GroupList extends Component<RouteProps, IState> {
         });
       })
       .catch((error) => this.setState({ groupError: mapErrorMessages(error) }));
-  }
-
-  private editGroup(value) {
-    GroupAPI.update(this.state.selectedGroup.id.toString(), {
-      name: value,
-      pulp_href: this.state.selectedGroup.pulp_href,
-      id: this.state.selectedGroup.id,
-    })
-      .then((result) => {
-        this.setState({
-          redirect: '/group/' + result.data.id,
-          editModalVisible: false,
-          selectedGroup: null,
-        });
-      })
-      .catch((e) => {
-        if (isSessionEnd(e)) {
-          this.setState({ editModalVisible: false, selectedGroup: null });
-          return;
-        }
-        this.setState({
-          editModalVisible: false,
-          selectedGroup: null,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'danger',
-              title: t`Changes to group "${this.state.selectedGroup.name}" could not be saved.`,
-            },
-          ],
-        });
-      });
   }
 
   private renderTable(params) {
