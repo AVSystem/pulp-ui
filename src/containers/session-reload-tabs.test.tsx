@@ -77,21 +77,28 @@ function versionsTabTests({
   function renderTab(params: Record<string, string>) {
     serveSignIn();
     const addAlert = vi.fn();
-    const actionContext = {
-      addAlert,
-      state: { params },
-      hasPermission: () => true,
-      hasObjectPermission: () => true,
-      query: vi.fn(),
-    };
+    const tab = (shownParams: Record<string, string>) => (
+      <>
+        <SignInAgain />
+        <Tab
+          item={item}
+          actionContext={{
+            addAlert,
+            state: { params: shownParams },
+            hasPermission: () => true,
+            hasObjectPermission: () => true,
+            query: vi.fn(),
+          }}
+        />
+      </>
+    );
+    const view = renderWithProviders(tab(params));
     return {
       addAlert,
-      ...renderWithProviders(
-        <>
-          <SignInAgain />
-          <Tab item={item} actionContext={actionContext} />
-        </>,
-      ),
+      // the page shows another version: same tab, new address parameters
+      showVersion: (number: string) =>
+        view.rerender(tab({ repositoryVersion: number })),
+      ...view,
     };
   }
 
@@ -147,6 +154,106 @@ function versionsTabTests({
 
       await waitFor(() => expect(addAlert).toHaveBeenCalledTimes(1));
       expect(addAlert.mock.calls[0][0]).toMatchObject({ variant: 'danger' });
+    });
+
+    // answers by the number asked for, each after its own delay in ms; a
+    // number without an entry has no such version
+    const serveNumbers = (
+      answers: Record<string, { type: string; wait?: number }>,
+    ) =>
+      server.use(
+        http.get(`*${VERSIONS}`, async ({ request }) => {
+          const number = new URL(request.url).searchParams.get('number');
+          const answer = answers[number];
+          if (answer?.wait) {
+            await delay(answer.wait);
+          }
+          return HttpResponse.json(
+            page(
+              answer
+                ? [
+                    repositoryVersion(repo, Number(number), {
+                      content_summary: {
+                        added: {
+                          [answer.type]: { count: 3, href: `${API}/content/` },
+                        },
+                        removed: {},
+                        present: {},
+                      },
+                    }),
+                  ]
+                : [],
+            ),
+          );
+        }),
+      );
+
+    it('shows the version asked for last when the answer for the earlier one arrives after it', async () => {
+      serveNumbers({
+        '3': { type: 'file.three', wait: 200 },
+        '4': { type: 'file.four' },
+      });
+      const { showVersion } = renderTab({ repositoryVersion: '3' });
+
+      showVersion('4');
+
+      expect(await screen.findByText('file.four')).toBeInTheDocument();
+      await pause(350);
+      expect(screen.getByText('file.four')).toBeInTheDocument();
+      expect(screen.queryByText('file.three')).not.toBeInTheDocument();
+    });
+
+    it('does not show the previous version while the next one loads', async () => {
+      serveNumbers({
+        '3': { type: 'file.three' },
+        '4': { type: 'file.four', wait: 150 },
+      });
+      const { showVersion } = renderTab({ repositoryVersion: '3' });
+      await screen.findByText('file.three');
+
+      showVersion('4');
+
+      expect(screen.queryByText('file.three')).not.toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeVisible();
+      expect(await screen.findByText('file.four')).toBeInTheDocument();
+    });
+
+    it('says the version could not be displayed, with one alert and no spinner, when no version matches', async () => {
+      serveNumbers({});
+      const { user, addAlert } = renderTab({ repositoryVersion: '7' });
+
+      // the page says it once; the alert names the cause
+      expect(
+        await screen.findByText('Repository versions could not be displayed.'),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(addAlert).toHaveBeenCalledTimes(1);
+      expect(addAlert.mock.calls[0][0]).toMatchObject({
+        variant: 'danger',
+        title: 'Failed to find repository version',
+      });
+
+      await signedIn();
+      await signInAgain(user);
+      await pause();
+
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('Repository versions could not be displayed.'),
+      ).toBeInTheDocument();
+    });
+
+    it('leaves the not found state when another version is shown', async () => {
+      serveNumbers({ '8': { type: 'file.eight' } });
+      const { showVersion } = renderTab({ repositoryVersion: '7' });
+      await screen.findByText('Repository versions could not be displayed.');
+
+      showVersion('8');
+
+      expect(await screen.findByText('file.eight')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Repository versions could not be displayed.'),
+      ).not.toBeInTheDocument();
     });
 
     it('sends no write', async () => {

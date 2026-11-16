@@ -8,6 +8,7 @@ import {
   DateComponent,
   DetailList,
   Details,
+  EmptyStateCustom,
   ListItemActions,
   Spinner,
   Table,
@@ -15,6 +16,7 @@ import {
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
 import { parsePulpIDFromURL } from 'src/utilities';
+import { useLatestRead } from 'src/utilities/latest-read';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -124,40 +126,64 @@ export const RepositoryVersionsTab = ({
   const queryDetail = ({ number }) =>
     PythonRepositoryAPI.listVersions(pulpId, { number });
   const [modalState, setModalState] = useState({});
-  const [version, setVersion] = useState(null);
+  // The answer to the last read, with the version number it was asked for. A
+  // null version means the server has no such version. The answer is used only
+  // while the page still shows that number, so the previous version never stays
+  // on screen under a new number.
+  const [answer, setAnswer] = useState<{
+    number: string;
+    version: PythonRepositoryVersionType | null;
+  } | null>(null);
+  const reads = useLatestRead();
 
   // grows when the same user signs in again, so the version is read again
   const epoch = useSessionEpoch();
 
   useEffect(() => {
-    if (state.params.repositoryVersion) {
-      queryDetail({ number: state.params.repositoryVersion })
-        .then(({ data }) => {
-          if (!data?.results?.[0]) {
-            addAlert({
-              variant: 'danger',
-              title: t`Failed to find repository version`,
-            });
-          }
-          setVersion(data.results[0]);
-        })
-        .catch((e) => {
-          // The session ended: the version stays as it is (or the spinner
-          // keeps turning) and is read again after signing in.
-          if (isSessionEnd(e)) {
-            return;
-          }
+    if (!state.params.repositoryVersion) {
+      // the list is shown: answers for a version are of no use any more
+      reads.invalidate();
+      return;
+    }
 
+    const number = String(state.params.repositoryVersion);
+    const ticket = reads.start();
+
+    queryDetail({ number })
+      .then(({ data }) => {
+        if (!reads.isLatest(ticket)) {
+          return;
+        }
+
+        const version = data?.results?.[0] ?? null;
+        if (!version) {
           addAlert({
             variant: 'danger',
             title: t`Failed to find repository version`,
-            description: requestErrorDescription(e),
           });
+        }
+        setAnswer({ number, version });
+      })
+      .catch((e) => {
+        // The session ended: the version stays as it is (or the spinner
+        // keeps turning) and is read again after signing in.
+        if (!reads.isLatest(ticket) || isSessionEnd(e)) {
+          return;
+        }
+
+        addAlert({
+          variant: 'danger',
+          title: t`Failed to find repository version`,
+          description: requestErrorDescription(e),
         });
-    } else {
-      setVersion(null);
-    }
+      });
   }, [state.params.repositoryVersion, epoch]);
+
+  const answered =
+    answer && answer.number === String(state.params.repositoryVersion)
+      ? answer
+      : null;
+  const version = answered?.version;
 
   const renderTableRow = (
     item: PythonRepositoryVersionType,
@@ -231,6 +257,11 @@ export const RepositoryVersionsTab = ({
             ),
           },
         ]}
+      />
+    ) : answered ? (
+      <EmptyStateCustom
+        description={null}
+        title={t`Repository versions could not be displayed.`}
       />
     ) : (
       <Spinner size='md' />
