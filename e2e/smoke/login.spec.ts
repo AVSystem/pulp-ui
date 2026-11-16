@@ -13,10 +13,47 @@ test('signing in through the form lands on Status with the workers list', async 
 test('logging out and signing in again through the menu ends on Status', async ({
   page,
 }) => {
+  // The API requests of the page, in the order they were sent.
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    const { pathname } = new URL(request.url());
+    if (pathname.includes('/api/v3/')) {
+      requests.push(`${request.method()} ${pathname}`);
+    }
+  });
+
   await signIn(page);
 
+  const loggedOut = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'DELETE' &&
+      new URL(response.url()).pathname.endsWith('/api/v3/login/'),
+  );
   await page.locator('[data-cy=user-dropdown]').click();
   await page.getByText('Logout', { exact: true }).click();
+  await loggedOut;
+
+  // Status needs no session and stays on screen, so it must read again
+  // without the session instead of keeping what it read with it. Nothing is
+  // asserted about what the answer holds: a stock Pulp answers everyone in
+  // full.
+  await expect
+    .poll(() => {
+      const at = requests.findIndex(
+        (entry) =>
+          entry.startsWith('DELETE ') && entry.endsWith('/api/v3/login/'),
+      );
+      return (
+        at >= 0 &&
+        requests
+          .slice(at + 1)
+          .some(
+            (entry) =>
+              entry.startsWith('GET ') && entry.endsWith('/api/v3/status/'),
+          )
+      );
+    })
+    .toBe(true);
 
   // signed out: the menu offers Login instead of the user dropdown
   await page.locator('[data-cy=pulp-menu-item-login]').click();

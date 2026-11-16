@@ -659,8 +659,14 @@ const AuthHandler = ({
   plugin,
   screenAccess,
 }: IRouteConfig) => {
-  const { user, status, endReason, sessionError, retrySessionCheck } =
-    useUserContext();
+  const {
+    user,
+    status,
+    endReason,
+    sessionError,
+    retrySessionCheck,
+    generation,
+  } = useUserContext();
   const plugins = usePlugins();
   const permissions = usePermissions();
   const { retryIfFailed } = permissions;
@@ -851,7 +857,13 @@ const AuthHandler = ({
   return (
     <>
       {banner}
-      <Component path={path} />
+      {/* The screen is mounted for one signed-in account and goes with it. A
+          screen that needs no session stays on show when the user signs out,
+          and would otherwise keep what it read with the ended session, with
+          an answer still in flight landing in it. The generation grows only
+          when the account goes away, so the same account signing in again
+          keeps the screen, with what was typed and any open dialog. */}
+      <Component key={generation} path={path} />
     </>
   );
 };

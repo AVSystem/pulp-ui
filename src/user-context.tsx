@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { PulpLoginAPI } from './api/pulp-login';
@@ -39,6 +40,10 @@ interface IUserContextType {
   // Grows each time the same user signs in again after the session ended, so
   // a screen can read its data again.
   epoch: number;
+  // Grows each time the signed-in account goes away (a sign-out, an ended
+  // session that is not resumed, another account taking its place). A screen
+  // mounted for one signed-in account must not outlive that account.
+  generation: number;
   // Signs in through the dialog shown over the current screen. Resolves
   // 'same' when the same user came back and 'other' when another user signed
   // in, in which case the page is loaded afresh.
@@ -85,9 +90,23 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [status, setStatus] = useState<SessionStatus>('checking');
   const [endReason, setEndReason] = useState<string | null>(null);
   const [epoch, setEpoch] = useState(0);
+  const [generation, setGeneration] = useState(0);
   const [sessionError, setSessionError] = useState<unknown>(null);
+  // The session key of the account in memory, kept in step with the state so
+  // that every caller of setUser, including ones holding an older copy of it,
+  // is compared against the account that is really signed in.
+  const signedInKey = useRef<string | null>(null);
 
   const setUser = (next: ISessionUser | null) => {
+    const nextKey = sessionKey(next);
+    // The generation grows in the same update as the user, so no render shows
+    // the screen of the old account with the new identity. Nobody signed in
+    // before (the first check, the first sign-in) and the same account coming
+    // back (the epoch covers that) leave it alone.
+    if (signedInKey.current !== null && signedInKey.current !== nextKey) {
+      setGeneration((previous) => previous + 1);
+    }
+    signedInKey.current = nextKey;
     setUserState(next);
     setStatus(next ? 'authenticated' : 'anonymous');
     setEndReason(null);
@@ -201,6 +220,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
         endSession,
         endReason,
         epoch,
+        generation,
         signInAgain,
       }}
     >
@@ -211,3 +231,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
 // The number of times the same user signed in again; 0 outside the provider.
 export const useSessionEpoch = () => useContext(UserContext)?.epoch ?? 0;
+
+// The number of times the signed-in account went away; 0 outside the provider.
+export const useSessionGeneration = () =>
+  useContext(UserContext)?.generation ?? 0;
