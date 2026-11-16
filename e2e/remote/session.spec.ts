@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { account } from '../support/accounts';
+import { TestObjects } from '../support/api';
 import { origin } from '../support/env';
 import { submitLoginForm, title } from '../support/sign-in';
 import {
   apiLogin,
+  endSessionBehindThePage,
   isLoginCall,
   logOutThroughMenu,
   signedOut,
@@ -248,17 +250,7 @@ test.describe('sessions of their own', () => {
     await expect(page.locator(userMenu)).toBeVisible();
 
     // End the session behind the page's back, the way another tab would.
-    const ended = await page.evaluate(async () => {
-      const token = /(?:^|; )csrftoken=([^;]*)/.exec(document.cookie)?.[1];
-      const response = await fetch('/pulp/api/v3/login/', {
-        method: 'DELETE',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': token ?? '',
-        },
-      });
-      return response.status;
-    });
+    const ended = await endSessionBehindThePage(page);
     expect(ended).toBe(204);
 
     await page.locator(userMenu).click();
@@ -269,5 +261,90 @@ test.describe('sessions of their own', () => {
     await expect(page.locator(loginMenuItem)).toBeVisible();
     await expect(page.locator(userMenu)).toHaveCount(0);
     await expect(page.locator('.pf-v6-c-alert')).toHaveCount(0);
+  });
+
+  test.describe('behind an open edit form', () => {
+    let objects: TestObjects;
+
+    test.beforeAll(async () => {
+      objects = await TestObjects.open('ended-session');
+    });
+
+    test.afterAll(async () => {
+      test.setTimeout(180_000);
+      await objects.cleanUp();
+    });
+
+    test('an ended session opens the sign-in dialog and signing in again keeps the typed content without repeating the action', async ({
+      page,
+      context,
+    }) => {
+      const { username, password } = account('admin');
+      await apiLogin(context);
+      const repository = await objects.create('repositories/file/file/', {
+        name: objects.name('edit'),
+      });
+      const typed = 'typed before the session ended';
+
+      // Every request of the page to the API, in order, with the answer's
+      // status once it is known.
+      const sent: { method: string; path: string }[] = [];
+      page.on('request', (request) => {
+        const { pathname } = new URL(request.url());
+        if (pathname.startsWith('/pulp/api/')) {
+          sent.push({ method: request.method(), path: pathname });
+        }
+      });
+      const isRepositoryRead = (call: { method: string; path: string }) =>
+        call.method === 'GET' &&
+        call.path === '/pulp/api/v3/repositories/file/file/';
+      const isRepositoryWrite = (call: { method: string; path: string }) =>
+        call.method === 'PATCH' && call.path === repository.pulp_href;
+
+      await page.goto(`file/repositories/edit/${repository.name}`);
+      await expect(page.locator('#description')).toBeVisible();
+      await page.locator('#description').fill(typed);
+
+      expect(await endSessionBehindThePage(page)).toBe(204);
+
+      const refused = page.waitForResponse(
+        (response) =>
+          response.request().method() === 'PATCH' &&
+          new URL(response.url()).pathname === repository.pulp_href,
+      );
+      await page.getByRole('button', { name: 'Save' }).click();
+      expect((await refused).status(), 'the refused write').toBe(401);
+
+      const dialog = page.getByRole('dialog', { name: 'Sign in again' });
+      await expect(dialog).toBeVisible();
+      await expect(
+        dialog.getByText(
+          'The last action was not completed. Repeat it after you log in.',
+        ),
+      ).toBeVisible();
+
+      const writesBefore = sent.filter(isRepositoryWrite).length;
+      const readsBefore = sent.filter(isRepositoryRead).length;
+      expect(writesBefore, 'the one refused write').toBe(1);
+
+      await dialog.getByLabel('Username').fill(username);
+      await dialog.getByLabel('Password').fill(password);
+      await dialog.getByRole('button', { name: 'Log in' }).click();
+
+      await expect(dialog).toHaveCount(0);
+      // the screen reads the repository again; the typed text stays
+      await expect
+        .poll(() => sent.filter(isRepositoryRead).length, {
+          message: 'a read of the repository after signing in',
+        })
+        .toBeGreaterThan(readsBefore);
+      await page.waitForLoadState('networkidle');
+      await expect(page.locator('#description')).toHaveValue(typed);
+      expect(
+        sent.filter(isRepositoryWrite).length,
+        'writes of the repository after the refused one',
+      ).toBe(writesBefore);
+      await expect(page).toHaveURL(/file\/repositories\/edit\//);
+    });
   });
 });

@@ -184,14 +184,16 @@ PULP_UI_E2E_USERNAME=admin PULP_UI_E2E_PASSWORD=admin \
 npx playwright test --project=smoke
 ```
 
-The remote projects (`remote-admin` and `remote-viewer`) run against a deployment you own, with
-an administrator and a limited account. The accounts come from a JSON file named by
+The remote projects (`remote-admin`, `remote-viewer` and `remote-editor`) run against a
+deployment you own, with an administrator, a read-only account and an editor account that holds
+some roles of its own, some through a group and some on one object. The accounts come from a JSON file named by
 `PULP_UI_E2E_ACCOUNTS`, shaped like
 
 ```json
 {
   "admin": { "username": "...", "password": "..." },
-  "viewer": { "username": "...", "password": "..." }
+  "viewer": { "username": "...", "password": "..." },
+  "editor": { "username": "...", "password": "..." }
 }
 ```
 
@@ -202,7 +204,7 @@ previous section:
 ```sh
 PULP_UI_E2E_ACCOUNTS=/path/to/accounts.json \
 PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \
-npx playwright test --project=remote-admin --project=remote-viewer
+npx playwright test --project=remote-admin --project=remote-viewer --project=remote-editor
 ```
 
 Output of the remote projects (screenshots, the HTML report) can show data of that

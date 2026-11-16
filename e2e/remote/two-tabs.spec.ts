@@ -7,7 +7,7 @@ import { apiLogin, logOutThroughMenu, signedOut } from './session-helpers';
 // logging out ends the session for everything that uses it.
 test.use({ storageState: signedOut });
 
-test('after logging out in one tab, the other tab is refused by the server and recovers on reload', async ({
+test('after logging out in one tab, the other tab is refused by the server, asks to sign in again and shows the sign-in page on reload', async ({
   context,
 }) => {
   await apiLogin(context);
@@ -35,11 +35,11 @@ test('after logging out in one tab, the other tab is refused by the server and r
     .poll(() => answers, { message: 'the server refuses tab B' })
     .toContain(401);
 
-  // Nothing may crash the page. What it shows may be the request's error or
-  // the login page, both are a correct way to say the session is gone.
+  // Nothing may crash the page: it says the session has ended in a dialog that
+  // stays over the screen it left, and does not repeat the request.
   await expect(tabB.getByText('The stack trace is:')).toHaveCount(0);
   await expect(
-    tabB.locator('.pf-v6-c-alert, #pf-login-username-id').first(),
+    tabB.getByRole('dialog', { name: 'Sign in again' }),
   ).toBeVisible();
 
   await tabB.reload();

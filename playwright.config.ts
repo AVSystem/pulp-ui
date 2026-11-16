@@ -8,7 +8,8 @@ import { storageStatePath } from './e2e/support/accounts';
 // such as page.goto('deb/repositories') so the prefix is kept.
 //
 // The remote projects run against a deployment given by PULP_UI_E2E_BASE_URL
-// with the accounts listed in the JSON file named by PULP_UI_E2E_ACCOUNTS. They
+// with the accounts listed in the JSON file named by PULP_UI_E2E_ACCOUNTS (an
+// administrator, a read-only viewer and an editor with partial grants). They
 // sign in once through the API (remote-setup), reuse that session per role, and
 // end it again (remote-teardown). They are meant for a person at a terminal, not
 // for a hosted workflow: their output holds session data.
@@ -107,7 +108,7 @@ export default defineConfig({
     {
       name: 'remote-admin',
       testMatch: 'remote/**/*.spec.ts',
-      testIgnore: '**/*.viewer.spec.ts',
+      testIgnore: ['**/*.viewer.spec.ts', '**/*.editor.spec.ts'],
       use: { ...untraced, storageState: 'playwright/.auth/admin.json' },
       dependencies: ['remote-setup'],
     },
@@ -115,6 +116,12 @@ export default defineConfig({
       name: 'remote-viewer',
       testMatch: 'remote/**/*.viewer.spec.ts',
       use: { ...untraced, storageState: 'playwright/.auth/viewer.json' },
+      dependencies: ['remote-setup'],
+    },
+    {
+      name: 'remote-editor',
+      testMatch: 'remote/**/*.editor.spec.ts',
+      use: { ...untraced, storageState: 'playwright/.auth/editor.json' },
       dependencies: ['remote-setup'],
     },
     crawlProject('light', 'desktop'),
