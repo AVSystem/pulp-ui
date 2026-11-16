@@ -1,8 +1,9 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
-import { AppContextProvider } from 'src/app-context';
+import { AppContextProvider, useAppContext } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
+import { servePermissions } from 'src/test-utils/permissions';
 import { listOf, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -57,6 +58,99 @@ describe('the task list', () => {
     expect(screen.getByText('no')).toBeInTheDocument();
     expect(screen.queryByText(/Error 403/)).toBeNull();
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+});
+
+const ADMIN_ACTIONS = ['Orphan cleanup', 'Repair', 'Purge tasks'];
+
+describe('the toolbar actions of the task list', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  function Known() {
+    const { permissionsReady } = useAppContext();
+    return (
+      <p>{permissionsReady ? 'permissions known' : 'permissions pending'}</p>
+    );
+  }
+
+  function renderToolbar() {
+    server.use(listOf(TASKS, [task({ name: 'zz.alpha' })]).handler);
+    return renderWithProviders(
+      <AppContextProvider>
+        <Known />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management' },
+    );
+  }
+
+  const shown = () =>
+    ADMIN_ACTIONS.filter((name) => screen.queryByRole('button', { name }));
+
+  it('offers a viewer none of the maintenance actions and leaves no empty toolbar item', async () => {
+    servePermissions({ own: [['core.view_task']] });
+    const { container } = renderToolbar();
+
+    await screen.findByText('zz.alpha');
+    await screen.findByText('permissions known');
+
+    for (const name of ADMIN_ACTIONS) {
+      expect(screen.queryByRole('button', { name })).toBeNull();
+    }
+    // only the filter is left in the toolbar: no item without content
+    const items = Array.from(
+      container.querySelectorAll('.pf-v6-c-toolbar__item'),
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].textContent).not.toBe('');
+  });
+
+  it('offers a holder of the delete permission only Purge tasks', async () => {
+    servePermissions({ own: [['core.delete_task']] });
+    renderToolbar();
+
+    await screen.findByText('zz.alpha');
+    await screen.findByText('permissions known');
+
+    expect(shown()).toEqual(['Purge tasks']);
+  });
+
+  it('offers staff all three actions', async () => {
+    servePermissions({ isStaff: true });
+    renderToolbar();
+
+    await screen.findByText('zz.alpha');
+    await screen.findByText('permissions known');
+
+    expect(shown()).toEqual(ADMIN_ACTIONS);
+  });
+
+  it('offers none of them while the permissions are pending', async () => {
+    servePermissions({ isStaff: true });
+    renderToolbar();
+
+    await screen.findByText('zz.alpha');
+    expect(screen.getByText('permissions pending')).toBeInTheDocument();
+
+    expect(shown()).toEqual([]);
+  });
+
+  it('offers none of them after the permission read failed', async () => {
+    servePermissions({ isStaff: true });
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    renderToolbar();
+
+    await screen.findByText('zz.alpha');
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(screen.getByText('permissions pending')).toBeInTheDocument();
+    expect(shown()).toEqual([]);
   });
 });
 
