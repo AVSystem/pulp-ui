@@ -30,7 +30,7 @@ const examples = new PulpAPI();
 // A screen that reads from the API on a button press and shows the epoch.
 function Screen() {
   const epoch = useSessionEpoch();
-  const { status } = useUserContext();
+  const { status, user, logout } = useUserContext();
   const [readerShown, setReaderShown] = useState(true);
   const read = () => examples.http.get('examples/').catch(() => undefined);
 
@@ -38,6 +38,10 @@ function Screen() {
     <>
       <p data-testid='status'>{status}</p>
       <p data-testid='epoch'>{epoch}</p>
+      <p data-testid='user'>{user?.username ?? 'nobody'}</p>
+      <button type='button' onClick={() => logout().catch(() => undefined)}>
+        Log out
+      </button>
       {readerShown ? (
         <button type='button' onClick={read}>
           Read
@@ -839,16 +843,287 @@ describe('returning to the tab', () => {
     expect(counts[WHOAMI]).toBeUndefined();
   });
 
-  it('sends nothing while the dialog is open', async () => {
-    await renderScreen();
-    act(() => reportUnauthorized('tab-return'));
+  // The dialog opened by the check of a return to the tab, as when the
+  // session was ended in another tab.
+  async function dialogOpenedByReturn() {
+    const rendered = await renderScreen();
+    answerWhoami(401);
+    returnToTab();
     await screen.findByRole('dialog', { name: /Sign in again/ });
+    return rendered;
+  }
+
+  it('asks once while the dialog is open, and closes it when the same account answers', async () => {
+    await dialogOpenedByReturn();
     const counts = countRequests();
+    signedInAs();
 
     returnToTab();
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: /Sign in again/ }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(counts[WHOAMI]).toBe(1);
+    expect(isSuspended()).toBe(false);
+    expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+    expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
+  });
+
+  it('an answer naming another account while the dialog is open loads the start page and adopts nothing', async () => {
+    await dialogOpenedByReturn();
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+    const checks = trackChecks();
+    signedInAs('ann', '/pulp/api/v3/users/2/');
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(assign).toHaveBeenCalledWith(expect.stringMatching(/status\/?$/));
+    expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    expect(screen.getByTestId('user')).toHaveTextContent('zoe');
+    expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
+  });
+
+  it('an answer naming another user name, with no address, is told apart by the name', async () => {
+    await dialogOpenedByReturn();
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+    const checks = trackChecks();
+    server.use(
+      http.get(LOGIN_URL, () => HttpResponse.json({ username: 'ann' })),
+    );
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+  });
+
+  it.each([401, 403] as const)(
+    'a %s answer while the dialog is open keeps it, with its request note, and sends nothing more',
+    async (status) => {
+      const { user } = await renderScreen();
+      const dialog = await openByRequest(user);
+      const counts = countRequests();
+      answerWhoami(status);
+
+      returnToTab();
+      await waitFor(() => expect(counts[WHOAMI]).toBe(1));
+      await settle();
+
+      expect(counts[WHOAMI]).toBe(1);
+      expect(dialog).toBeVisible();
+      expect(
+        within(dialog).getByText(/The last action was not completed/),
+      ).toBeVisible();
+      expect(isSuspended()).toBe(true);
+    },
+  );
+
+  it.each([
+    ['a 500 answer', 500],
+    ['a network error', 'network'],
+  ] as const)(
+    '%s while the dialog is open changes nothing',
+    async (_name, status) => {
+      await dialogOpenedByReturn();
+      const checks = trackChecks();
+      answerWhoami(status);
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await finished(checks[0]);
+
+      expect(
+        screen.getByRole('dialog', { name: /Sign in again/ }),
+      ).toBeVisible();
+      expect(isSuspended()).toBe(true);
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    },
+  );
+
+  it('moves the epoch exactly once when the dialog sign-in is in flight while a return finds the session restored', async () => {
+    const { user } = await dialogOpenedByReturn();
+    const checks = trackChecks();
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.post(LOGIN_URL, async () => {
+        await gate;
+        return HttpResponse.json(SAME_USER, { status: 201 });
+      }),
+    );
+    const dialog = screen.getByRole('dialog', { name: /Sign in again/ });
+    await user.type(passwordOf(dialog), 'secret');
+    await user.click(within(dialog).getByRole('button', { name: 'Log in' }));
+    signedInAs();
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+    release();
     await settle();
 
-    expect(counts[WHOAMI]).toBeUndefined();
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: /Sign in again/ }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+    expect(isSuspended()).toBe(false);
+  });
+
+  describe('an answer that arrives after the user signed out', () => {
+    // The check leaves while signed in; the logout is answered first.
+    async function signOutWhileChecking(answer: object) {
+      const { user } = await renderScreen();
+      const assign = vi
+        .spyOn(window.location, 'assign')
+        .mockImplementation(() => undefined);
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const checks = trackChecks();
+      server.use(
+        http.get(LOGIN_URL, async () => {
+          await gate;
+          return HttpResponse.json(answer);
+        }),
+        http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+      );
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await user.click(screen.getByRole('button', { name: 'Log out' }));
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+      );
+      release();
+      await finished(checks[0]);
+      return assign;
+    }
+
+    it('naming another account does not load the start page', async () => {
+      const assign = await signOutWhileChecking({
+        username: 'ann',
+        pulp_href: '/pulp/api/v3/users/2/',
+      });
+
+      expect(assign).not.toHaveBeenCalled();
+      expect(screen.getByTestId('user')).toHaveTextContent('nobody');
+    });
+
+    it('naming the same account does not sign anyone in', async () => {
+      const assign = await signOutWhileChecking(SAME_USER);
+
+      expect(assign).not.toHaveBeenCalled();
+      expect(screen.getByTestId('user')).toHaveTextContent('nobody');
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous');
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    });
+  });
+
+  describe('when the window gains focus', () => {
+    // What the browser does when a window that was visible all along is
+    // clicked: no visibility change, only a focus event on the window.
+    const focusWindow = (state: 'visible' | 'hidden' = 'visible') => {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => state,
+      });
+      act(() => {
+        window.dispatchEvent(new Event('focus'));
+      });
+    };
+
+    it('restores the session when the same account answers while the dialog is open', async () => {
+      await dialogOpenedByReturn();
+      const counts = countRequests();
+      signedInAs();
+
+      focusWindow();
+
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('dialog', { name: /Sign in again/ }),
+        ).not.toBeInTheDocument(),
+      );
+      expect(counts[WHOAMI]).toBe(1);
+      expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+    });
+
+    it('opens the dialog when the session has ended', async () => {
+      await renderScreen();
+      answerWhoami(401);
+
+      focusWindow();
+
+      await screen.findByRole('dialog', { name: /Sign in again/ });
+    });
+
+    it('sends nothing for the focus of an element inside the page', async () => {
+      await renderScreen();
+      const counts = countRequests();
+
+      act(() => {
+        screen
+          .getByLabelText('Draft')
+          .dispatchEvent(new Event('focus', { bubbles: true }));
+      });
+      await settle();
+
+      expect(counts[WHOAMI]).toBeUndefined();
+    });
+
+    it('sends one request for a visibility change and a focus in the same tick', async () => {
+      await renderScreen();
+      const counts = countRequests();
+
+      returnToTab();
+      focusWindow();
+      await settle();
+
+      expect(counts[WHOAMI]).toBe(1);
+    });
+
+    it('sends nothing while the page is hidden', async () => {
+      await renderScreen();
+      const counts = countRequests();
+
+      focusWindow('hidden');
+      await settle();
+
+      expect(counts[WHOAMI]).toBeUndefined();
+    });
+
+    it('stops listening once nobody is signed in', async () => {
+      const { user } = await renderScreen();
+      server.use(
+        http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+      );
+      await user.click(screen.getByRole('button', { name: 'Log out' }));
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+      );
+      const counts = countRequests();
+
+      focusWindow();
+      await settle();
+
+      expect(counts[WHOAMI]).toBeUndefined();
+    });
   });
 
   it('sends nothing when nobody is signed in', async () => {

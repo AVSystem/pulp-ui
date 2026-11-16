@@ -1,7 +1,12 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  isSuspended,
+  reportUnauthorized,
+  resetSessionEvents,
+} from 'src/session/session-events';
 import { setPageUrl } from 'src/test-utils/page';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -22,9 +27,11 @@ function SessionProbe() {
     epoch,
     endSession,
     signInAgain,
+    restoreSession,
     setUser,
   } = useUserContext();
   const [outcome, setOutcome] = useState('none');
+  const [restored, setRestored] = useState('never');
 
   return (
     <>
@@ -33,6 +40,37 @@ function SessionProbe() {
       <p data-testid='outcome'>{outcome}</p>
       <p data-testid='generation'>{generation}</p>
       <p data-testid='epoch'>{epoch}</p>
+      <p data-testid='restored'>{restored}</p>
+      <button
+        type='button'
+        onClick={() =>
+          setRestored(
+            String(
+              restoreSession({
+                username: 'zoe',
+                pulp_href: '/pulp/api/v3/users/1/',
+              }),
+            ),
+          )
+        }
+      >
+        Restore the session
+      </button>
+      <button
+        type='button'
+        onClick={() =>
+          setRestored(
+            String(
+              restoreSession({
+                username: 'ann',
+                pulp_href: '/pulp/api/v3/users/2/',
+              }),
+            ),
+          )
+        }
+      >
+        Restore as another account
+      </button>
       <button type='button' onClick={() => endSession('password-changed')}>
         End session
       </button>
@@ -463,6 +501,8 @@ describe('session generation', () => {
       ),
     );
 
+    await waitFor(() => expect(isSuspended()).toBe(false));
+    act(() => reportUnauthorized('request'));
     await user.click(screen.getByRole('button', { name: 'Sign in again' }));
 
     await waitFor(() =>
@@ -487,5 +527,95 @@ describe('session generation', () => {
     await user.click(screen.getByRole('button', { name: 'End session' }));
     await shown('anonymous');
     expect(generation()).toHaveTextContent('2');
+  });
+});
+
+describe('restoring the session', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const restored = () => screen.getByTestId('restored');
+  const epoch = () => screen.getByTestId('epoch');
+  const generation = () => screen.getByTestId('generation');
+
+  // The session store learns of the user in an effect after the status shows.
+  async function suspended() {
+    const rendered = await renderSignedIn();
+    await waitFor(() => expect(isSuspended()).toBe(false));
+    act(() => reportUnauthorized('tab-return'));
+    expect(isSuspended()).toBe(true);
+    return rendered;
+  }
+
+  it('restores the same account once: the epoch grows by one, the session resumes, the generation stays', async () => {
+    const { user } = await suspended();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restore the session' }),
+    );
+
+    expect(restored()).toHaveTextContent('true');
+    expect(epoch()).toHaveTextContent('1');
+    expect(generation()).toHaveTextContent('0');
+    expect(screen.getByTestId('user')).toHaveTextContent('zoe');
+    expect(isSuspended()).toBe(false);
+  });
+
+  it('a second restore of the same ended session changes nothing', async () => {
+    const { user } = await suspended();
+    await user.click(
+      screen.getByRole('button', { name: 'Restore the session' }),
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restore the session' }),
+    );
+
+    expect(restored()).toHaveTextContent('false');
+    expect(epoch()).toHaveTextContent('1');
+  });
+
+  it('does nothing while the session has not ended', async () => {
+    const { user } = await renderSignedIn();
+    await waitFor(() => expect(isSuspended()).toBe(false));
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restore the session' }),
+    );
+
+    expect(restored()).toHaveTextContent('false');
+    expect(epoch()).toHaveTextContent('0');
+  });
+
+  it('does nothing for another account: it neither adopts it nor resumes', async () => {
+    const { user } = await suspended();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restore as another account' }),
+    );
+
+    expect(restored()).toHaveTextContent('false');
+    expect(epoch()).toHaveTextContent('0');
+    expect(generation()).toHaveTextContent('0');
+    expect(screen.getByTestId('user')).toHaveTextContent('zoe');
+    expect(isSuspended()).toBe(true);
+  });
+
+  it('does nothing when nobody is signed in', async () => {
+    server.use(
+      http.get(LOGIN_URL, () => new HttpResponse(null, { status: 401 })),
+    );
+    const { user } = renderWithProviders(<SessionProbe />);
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restore the session' }),
+    );
+
+    expect(restored()).toHaveTextContent('false');
+    expect(screen.getByTestId('user')).toHaveTextContent('nobody');
   });
 });

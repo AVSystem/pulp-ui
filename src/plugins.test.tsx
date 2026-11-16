@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { settle } from 'src/test-utils/settle';
+import { signInThroughDialog } from 'src/test-utils/sign-in-again';
 import { usePlugins } from './plugins';
 import { useUserContext } from './user-context';
 
@@ -71,7 +72,7 @@ function PluginsProbe() {
       >
         Start session
       </button>
-      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+      <button type='button' onClick={() => signInThroughDialog(signInAgain)}>
         Sign in again
       </button>
     </>

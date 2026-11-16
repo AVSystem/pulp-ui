@@ -4,6 +4,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import { StrictMode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { signInThroughDialog } from 'src/test-utils/sign-in-again';
 import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
@@ -468,7 +469,7 @@ function SignInAgain() {
   return (
     <>
       <p data-testid='session'>{status}</p>
-      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+      <button type='button' onClick={() => signInThroughDialog(signInAgain)}>
         Sign in again
       </button>
     </>

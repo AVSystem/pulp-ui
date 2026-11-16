@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { PulpLoginAPI } from './api/pulp-login';
 import { Paths, formatPath } from './paths';
-import { resume, setSignedIn } from './session/session-events';
+import { isSuspended, resume, setSignedIn } from './session/session-events';
 import { config } from './ui-config';
 import { forgetExternalLogin } from './utilities/external-login-attempt';
 import { removeStored } from './utilities/safe-storage';
@@ -51,6 +51,10 @@ interface IUserContextType {
     username: string,
     password: string,
   ) => Promise<'same' | 'other'>;
+  // Continues as the account in memory after its session ended and came back
+  // elsewhere. Acts only while the session is ended and only for that account;
+  // returns whether it acted, so callers that race each other restore once.
+  restoreSession: (next: ISessionUser) => boolean;
 }
 
 const UserContext = createContext<IUserContextType>(undefined);
@@ -165,11 +169,25 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     checkSession();
   }, [checkSession]);
 
+  // One restore per ended session, so screens read once however many answers
+  // (the dialog's sign-in, a check on returning to the tab) arrive for it. The
+  // account is compared with the one in memory at call time, never with a copy
+  // a listener captured earlier.
+  const restoreSession = (next: ISessionUser) => {
+    if (!isSuspended() || sessionKey(next) !== signedInKey.current) {
+      return false;
+    }
+    setUser(next);
+    setEpoch((previous) => previous + 1);
+    resume();
+    return true;
+  };
+
   const signInAgain = async (username: string, password: string) => {
     const { data } = await PulpLoginAPI.login(username, password);
     const next = { username: data.username, pulp_href: data.pulp_href };
 
-    if (sessionKey(next) !== sessionKey(user)) {
+    if (sessionKey(next) !== signedInKey.current) {
       // Everything in memory belongs to the previous user. A full page load
       // drops all of it (forms, permissions, caches) in one step, which no
       // piece of code could do reliably one state at a time.
@@ -178,9 +196,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // The same user comes back to the same screen; the screen reads again.
-    setUser(next);
-    setEpoch((previous) => previous + 1);
-    resume();
+    restoreSession(next);
     return 'same' as const;
   };
 
@@ -222,6 +238,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
         epoch,
         generation,
         signInAgain,
+        restoreSession,
       }}
     >
       {children}
