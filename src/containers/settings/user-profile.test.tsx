@@ -24,7 +24,10 @@ afterEach(() => {
 });
 
 describe('the profile page of a user who may not list users', () => {
-  function renderProfile(setup: IPermissionSetup = {}) {
+  function renderProfile(
+    setup: IPermissionSetup = {},
+    { waitForPermissions = true } = {},
+  ) {
     recorder = servePermissions({
       id: 7,
       username: 'zoe',
@@ -55,9 +58,13 @@ describe('the profile page of a user who may not list users', () => {
     );
     return renderWithProviders(
       <AppContextProvider>
-        <PermissionsKnown>
+        {waitForPermissions ? (
+          <PermissionsKnown>
+            <UserProfile />
+          </PermissionsKnown>
+        ) : (
           <UserProfile />
-        </PermissionsKnown>
+        )}
       </AppContextProvider>,
       { route: '/users/profile' },
     );
@@ -80,6 +87,18 @@ describe('the profile page of a user who may not list users', () => {
     expect(
       recorder.requests.filter((path) => path.startsWith(`${API}/users/?`)),
     ).toEqual([]);
+  });
+
+  it('reads the record once although the page and the permissions both need it', async () => {
+    // as in the application, the page does not wait for the permission read
+    renderProfile({}, { waitForPermissions: false });
+    await screen.findByText('Zo');
+    // the permission read and the page start together; they share one request
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(
+      recorder.requests.filter((path) => path === `${API}/users/7/`),
+    ).toHaveLength(1);
   });
 
   // Editing a record is offered to whoever the server would let change it,

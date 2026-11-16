@@ -895,8 +895,8 @@ describe('the profile page', () => {
 
     await signInAgain(u);
 
-    // the permission read and the profile read both ask for the record
-    await waitFor(() => expect(reads).toBe(2));
+    // the permission read and the profile read share one request for the record
+    await waitFor(() => expect(reads).toBe(1));
     await pause();
     expect(screen.getByLabelText(/Last name/)).toHaveValue('Typed');
   });

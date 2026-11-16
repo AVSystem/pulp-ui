@@ -56,6 +56,10 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   current.current = permissions;
   const reading = useRef(user);
   reading.current = user;
+  // the session epoch the read is made in, which the shared read of the own
+  // record is keyed by
+  const epochNow = useRef(epoch);
+  epochNow.current = epoch;
 
   // Who the permissions are read for. Another session never inherits what was
   // read for the one before it.
@@ -70,7 +74,7 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    loadGlobalPermissions(who).then(
+    loadGlobalPermissions(who, epochNow.current).then(
       ({ isStaff, global }) => {
         if (mine === latest.current) {
           setPermissions({ state: 'ready', isStaff, global });

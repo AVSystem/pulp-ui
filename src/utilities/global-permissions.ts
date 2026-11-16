@@ -1,8 +1,8 @@
 import { GroupRoleAPI } from '../api/group-role';
-import { UserAPI } from '../api/user';
 import { UserRoleAPI } from '../api/user-role';
 import { type ISessionUser } from '../user-context';
 import { listAll } from './list-all';
+import { readOwnRecord } from './own-record';
 
 // What a signed-in user may do on every object of a kind, as far as the
 // server's own answers say: the staff flag of their record, or the union of the
@@ -33,13 +33,14 @@ export function idFromHref(href?: string | null): string | null {
 // shown from this is presentation only: the server decides every request.
 export async function loadGlobalPermissions(
   user: ISessionUser,
+  epoch = 0,
 ): Promise<IGlobalPermissions> {
   const userId = idFromHref(user.pulp_href);
   if (!userId) {
     throw new Error('The signed-in user has no address to read roles from.');
   }
 
-  const { data: record } = await UserAPI.get(userId);
+  const { data: record } = await readOwnRecord(userId, epoch);
   if (record?.is_staff) {
     return { isStaff: true, global: new Set() };
   }
