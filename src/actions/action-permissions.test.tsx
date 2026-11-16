@@ -397,6 +397,7 @@ describe.each([
     isLatest: false,
     repositoryName: 'zz-test-repo',
   };
+  const objectRoles = plugin !== 'deb';
 
   it('is absent for a user without the modify permission', () => {
     const ctx = context({ object: {} });
@@ -411,17 +412,21 @@ describe.each([
 
     expect(revert.isShown(version, ctx)).toBe(true);
     expect(revert.dropdownItem(version, ctx)).not.toBeNull();
-    expect(ctx.hasObjectPermission).toHaveBeenCalledWith(modify, version);
   });
 
-  it('is shown when the page reports the permission for its repository', () => {
-    const ctx = {
-      hasPermission: () => false,
-      hasObjectPermission: (name: string) => name === modify,
-    };
+  it(
+    objectRoles
+      ? 'is shown when the page reports the permission for its repository'
+      : 'is absent when only the page reports the permission for its repository',
+    () => {
+      const ctx = {
+        hasPermission: () => false,
+        hasObjectPermission: (name: string) => name === modify,
+      };
 
-    expect(revert.isShown(version, ctx)).toBe(true);
-  });
+      expect(revert.isShown(version, ctx)).toBe(objectRoles);
+    },
+  );
 
   it('does not accept the change permission instead', () => {
     const ctx = context({ global: [change] });
@@ -445,7 +450,7 @@ describe('the revert action in the versions tab of a repository page', () => {
     },
   ] as const;
 
-  it.each(TABS)(
+  it.each(TABS.filter(({ plugin }) => plugin !== 'deb'))(
     'is shown for a $plugin repository whose own permissions list modify',
     async ({ plugin, path, Tab }) => {
       const { modify } = ACTION_PERMISSIONS[plugin].repository;
@@ -497,6 +502,70 @@ describe('the revert action in the versions tab of a repository page', () => {
       expect(asked.every((target) => target === item)).toBe(true);
     },
   );
+
+  // A role granted on one deb repository does not show the revert action, even
+  // when the page's own check lists the permission for its repository.
+  describe('for a deb repository', () => {
+    const { modify } = ACTION_PERMISSIONS.deb.repository;
+
+    const renderVersions = (held: boolean) => {
+      const repo = repository({
+        name: 'zz-test-repo',
+        pulp_href: `${API}/repositories/deb/apt/00000000-0000-4000-8000-0000000000c1/`,
+      });
+      const first = repositoryVersion(repo, 1);
+      const second = repositoryVersion(repo, 2);
+      const item = { ...repo, latest_version_href: second.pulp_href };
+      server.use(
+        listOf(`${API}/repositories/deb/apt/:id/versions/`, [second, first])
+          .handler,
+      );
+      const Versions = DebTab as unknown as ComponentType<{
+        item: object;
+        actionContext: object;
+      }>;
+
+      return renderWithProviders(
+        <Versions
+          item={item}
+          actionContext={{
+            addAlert: vi.fn(),
+            hasObjectPermission: (name: string) => name === modify,
+            hasPermission: (name: string) => held && name === modify,
+            query: vi.fn(),
+            state: { params: {} },
+          }}
+        />,
+      );
+    };
+
+    it('is absent for a role held on the repository only', async () => {
+      renderVersions(false);
+
+      const link = await screen.findByRole('link', { name: /^1/ });
+
+      expect(
+        within(link.closest('tr') as HTMLElement).queryByRole('button', {
+          name: 'Actions',
+        }),
+      ).toBeNull();
+    });
+
+    it('is shown for a holder of the modify permission on every object', async () => {
+      const { user } = renderVersions(true);
+
+      const link = await screen.findByRole('link', { name: /^1/ });
+      await user.click(
+        within(link.closest('tr') as HTMLElement).getByRole('button', {
+          name: 'Actions',
+        }),
+      );
+
+      expect(
+        await screen.findByRole('menuitem', { name: 'Revert to this version' }),
+      ).toBeInTheDocument();
+    });
+  });
 });
 
 // The ansible repository actions that are not rows above.

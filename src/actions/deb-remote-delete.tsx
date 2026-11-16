@@ -13,6 +13,7 @@ import { Action } from './action';
 export const debRemoteDeleteAction = Action({
   title: msg`Delete`,
   permission: ACTION_PERMISSIONS.deb.remote.delete,
+  objectLevel: ACTION_PERMISSIONS.deb.objectRoles,
   modal: ({ addAlert, listQuery, setState, state }) =>
     state.deleteModalOpen ? (
       <DeleteRemoteModal

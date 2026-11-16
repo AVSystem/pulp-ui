@@ -6,6 +6,7 @@ import { Action } from './action';
 export const debRemoteEditAction = Action({
   title: msg`Edit`,
   permission: ACTION_PERMISSIONS.deb.remote.change,
+  objectLevel: ACTION_PERMISSIONS.deb.objectRoles,
   onClick: ({ name }, { navigate }) =>
     navigate(formatPath(Paths.deb.remote.edit, { name })),
 });

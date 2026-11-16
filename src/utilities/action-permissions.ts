@@ -6,9 +6,9 @@
 export type PermissionPlugin = 'file' | 'deb' | 'rpm' | 'python' | 'ansible';
 
 export interface IPluginPermissions {
-  // true when a role can be granted on a single repository or remote, which
-  // the object's own permission list then reports; false when only
-  // permissions held on every object exist
+  // true when a role granted on a single repository or remote counts, as the
+  // object's own permission list reports it; false when only permissions held
+  // on every object decide what is shown
   objectRoles: boolean;
   remote: {
     add: string;
@@ -48,8 +48,11 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
         manageRoles: 'file.manage_roles_fileremote',
       },
     },
+    // Deb actions follow permissions held on every object only. A role granted
+    // on a single deb object does not show its actions, which hides an action
+    // the server would allow rather than showing one it would refuse.
     deb: {
-      objectRoles: true,
+      objectRoles: false,
       repository: {
         add: 'deb.add_aptrepository',
         addDistribution: 'deb.add_aptdistribution',

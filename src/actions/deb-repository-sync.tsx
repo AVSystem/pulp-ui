@@ -14,6 +14,7 @@ const MIRROR_BY_DEFAULT = false;
 export const debRepositorySyncAction = Action({
   title: msg`Sync`,
   permission: ACTION_PERMISSIONS.deb.repository.sync,
+  objectLevel: ACTION_PERMISSIONS.deb.objectRoles,
   modal: ({ addAlert, query, setState, state }) =>
     state.syncModalOpen ? (
       <SyncModal
