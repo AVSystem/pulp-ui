@@ -209,9 +209,13 @@ export const PageWithTabs = function <
       const tab = params.tab || 'details';
 
       // Only the actions the user may use are drawn; with none, no container.
-      const shownActions = (headerActions ?? []).filter((action) =>
-        action.isShown(item, actionContext),
-      );
+      // The actions act on the page's object and some look inside it, so none
+      // is asked about before the object has been read.
+      const shownActions = item
+        ? (headerActions ?? []).filter((action) =>
+            action.isShown(item, actionContext),
+          )
+        : [];
 
       if (!loading && !unauthorized && !item && error && error.status !== 404) {
         return (

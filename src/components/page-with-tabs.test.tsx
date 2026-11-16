@@ -598,3 +598,74 @@ describe('a detail page with tabs whose header actions are all hidden', () => {
     expect(shown.container.querySelector('.pulp-toolbar')).not.toBeNull();
   });
 });
+
+describe('a detail page with tabs whose header action looks at the object', () => {
+  const Downloadable = PageWithTabs<IThing & { file?: string }>({
+    breadcrumbs: ({ name }) => [{ name: 'Things' }, { name }],
+    displayName: 'DownloadableThingDetail',
+    errorTitle: msg`Thing could not be displayed.`,
+    headerActions: [
+      Action({
+        title: msg`Download requirements YAML`,
+        // reads a field of the object, as the download actions of the remote
+        // screens do
+        visible: ({ file }) => !!file,
+        onClick: () => undefined,
+      }),
+    ],
+    listUrl: '/things',
+    query: ({ name }) =>
+      things
+        .list('things/', { name, page_size: 1 })
+        .then(({ data }) => data.results[0]),
+    renderTab: (_tab, item) => <p>{`Details of ${item.name}`}</p>,
+    tabs: () => [{ title: 'Details', link: '/', active: true }],
+  });
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  function renderSlowObject(thing: object) {
+    servePermissions({ isStaff: true });
+    server.use(
+      http.get(`*${THINGS}`, async () => {
+        await delay(150);
+        return HttpResponse.json(page([thing]));
+      }),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/:name' element={<Downloadable />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/things/alpha' },
+    );
+  }
+
+  it('draws no action and does not fail while the object is still being read', async () => {
+    renderSlowObject({ name: 'alpha', file: 'content' });
+
+    // permissions are known long before the object arrives
+    await waitFor(() =>
+      expect(screen.getByRole('heading')).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Download requirements YAML' }),
+    ).not.toBeInTheDocument();
+    expect(await screen.findByText('Details of alpha')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Download requirements YAML' }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the action away from an object that has nothing to download', async () => {
+    renderSlowObject({ name: 'alpha' });
+
+    expect(await screen.findByText('Details of alpha')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Download requirements YAML' }),
+    ).not.toBeInTheDocument();
+  });
+});
