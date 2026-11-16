@@ -42,6 +42,7 @@ describe('the task list', () => {
   });
 
   it('shows the insufficient permissions page below the header, with the server reason and no alert, when the server answers 403', async () => {
+    servePermissions();
     server.use(
       http.get(`*${TASKS}`, () =>
         HttpResponse.json(
@@ -59,7 +60,9 @@ describe('the task list', () => {
       screen.getByText('You do not have permission to view this page.'),
     ).toBeInTheDocument();
     expect(screen.getByText('Not allowed.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: 'Go back' }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'Task management' }),
     ).toBeInTheDocument();

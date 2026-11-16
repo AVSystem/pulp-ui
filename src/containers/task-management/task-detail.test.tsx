@@ -268,6 +268,7 @@ describe('task detail reads that fail', () => {
   }
 
   it('shows the insufficient permissions page with the header and the server reason when the first read is refused with 403', async () => {
+    servePermissions();
     server.use(answer(403, 'Not allowed.'));
     renderRoute();
 
@@ -276,7 +277,7 @@ describe('task detail reads that fail', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Not allowed.')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Not allowed.');
-    expect(screen.getByRole('link', { name: 'Task management' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Task detail' })).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Stop task' })).toBeNull();
     expect(screen.queryByRole('progressbar')).toBeNull();
     expect(screen.queryByText(/Page not found/)).toBeNull();

@@ -1998,7 +1998,6 @@ msgstr ""
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/role-management/role-list.tsx
-#: src/containers/task-management/task-list-view.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
 msgid "Delete"
@@ -7176,6 +7175,10 @@ msgstr "Taak \"{taskName}\" kon niet worden gestopt."
 #: src/containers/task-management/task-detail.tsx
 msgid "Task \"{taskName}\" stopped successfully."
 msgstr "Taak '{taskName}' gestopt."
+
+#: src/containers/task-management/task-detail.tsx
+msgid "Task could not be displayed."
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"

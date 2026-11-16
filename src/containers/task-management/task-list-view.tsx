@@ -27,6 +27,7 @@ import {
   DateComponent,
   EmptyStateFilter,
   EmptyStateNoData,
+  InsufficientPermissions,
   LoadingSpinner,
   Main,
   OrphanCleanupTaskModal,
@@ -51,6 +52,8 @@ import { ObjectPermissions } from 'src/utilities/my-permissions';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 import './task.scss';
 
@@ -68,6 +71,9 @@ interface IState {
   orphanCleanupTaskModalVisible: boolean;
   repairTaskModalVisible: boolean;
   selectedTask: TaskType;
+  // the read of the list was refused, with the reason Pulp gave when it did
+  unauthorized: boolean;
+  unauthorizedDetail: string | null;
   inputText: string;
   purgeTask: { finished_before: string; states: string[] };
   orphanCleanupTask: { orphan_protection_time: number };
@@ -114,6 +120,8 @@ export class TaskListView extends Component<RouteProps, IState> {
       orphanCleanupTaskModalVisible: false,
       repairTaskModalVisible: false,
       selectedTask: null,
+      unauthorized: false,
+      unauthorizedDetail: null,
       inputText: '',
       purgeTask: {
         finished_before: `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
@@ -173,6 +181,8 @@ export class TaskListView extends Component<RouteProps, IState> {
       purgeTaskModalVisible,
       orphanCleanupTaskModalVisible,
       repairTaskModalVisible,
+      unauthorized,
+      unauthorizedDetail,
     } = this.state;
 
     const noData =
@@ -223,7 +233,9 @@ export class TaskListView extends Component<RouteProps, IState> {
           : null}
         {repairTaskModalVisible ? this.renderRepairTaskModal() : null}
         <BaseHeader title={t`Task management`} />
-        {noData && !loading ? (
+        {unauthorized ? (
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        ) : noData && !loading ? (
           <EmptyStateNoData
             title={t`No tasks yet`}
             description={t`Tasks will appear once created.`}
@@ -555,12 +567,26 @@ export class TaskListView extends Component<RouteProps, IState> {
             items: result.data.results,
             itemCount: result.data.count,
             loading: false,
+            unauthorized: false,
+            unauthorizedDetail: null,
           });
         })
         .catch((e) => {
           // The session ended: the sign-in dialog explains it, and the list
           // keeps its spinner or its rows until it reads again.
           if (isSessionEnd(e)) {
+            return;
+          }
+          if (requestErrorStatus(e) === 403) {
+            // A refused read is not a failure to retry: the account is told it
+            // may not view the page, with Pulp's own reason.
+            this.setState({
+              loading: false,
+              items: [],
+              itemCount: 0,
+              unauthorized: true,
+              unauthorizedDetail: requestErrorDetail(e),
+            });
             return;
           }
           this.setState({

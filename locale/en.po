@@ -1999,7 +1999,6 @@ msgstr "Debian verbatim publish"
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/role-management/role-list.tsx
-#: src/containers/task-management/task-list-view.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
 msgid "Delete"
@@ -7177,6 +7176,10 @@ msgstr "Task \"{taskName}\" could not be stopped."
 #: src/containers/task-management/task-detail.tsx
 msgid "Task \"{taskName}\" stopped successfully."
 msgstr "Task \"{taskName}\" stopped successfully."
+
+#: src/containers/task-management/task-detail.tsx
+msgid "Task could not be displayed."
+msgstr "Task could not be displayed."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"

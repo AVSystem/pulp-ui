@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import { capitalize } from 'lodash';
-import { Component, Fragment } from 'react';
+import { Component, Fragment, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { GenericPulpAPI, TaskAPI, type TaskType } from 'src/api';
 import { AppContext, type IAppContextType } from 'src/app-context';
@@ -24,6 +24,8 @@ import {
   ConfirmModal,
   DateComponent,
   EmptyStateCustom,
+  InsufficientPermissions,
+  ListErrorState,
   LoadingSpinner,
   Main,
   NotFound,
@@ -45,6 +47,8 @@ import { ObjectPermissions } from 'src/utilities/my-permissions';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 import './task.scss';
 
@@ -52,6 +56,8 @@ interface IState {
   alerts: AlertType[];
   cancelModalVisible: boolean;
   childTasks: TaskType[];
+  // why the first read failed, when it was neither refused nor a missing task
+  error: ReactNode;
   loading: boolean;
   notFound: boolean;
   parentTask: TaskType;
@@ -63,6 +69,9 @@ interface IState {
   }[];
   task: TaskType;
   taskName: string;
+  // the first read was refused, with the reason Pulp gave when it did
+  unauthorized: boolean;
+  unauthorizedDetail: string | null;
 }
 
 const CHANGE_TASK = 'core.change_task';
@@ -71,6 +80,9 @@ const STOPPABLE = ['running', 'waiting'];
 
 class TaskDetail extends Component<RouteProps, IState> {
   static contextType = AppContext;
+
+  // number of the latest read; the answer of an older one is ignored
+  private latestRead = 0;
 
   // What the server lists for the shown task, read when the change
   // permission is not held on every task.
@@ -82,6 +94,7 @@ class TaskDetail extends Component<RouteProps, IState> {
       alerts: [],
       cancelModalVisible: false,
       childTasks: [],
+      error: null,
       loading: true,
       notFound: false,
       parentTask: null,
@@ -89,6 +102,8 @@ class TaskDetail extends Component<RouteProps, IState> {
       resources: [],
       task: null,
       taskName: '',
+      unauthorized: false,
+      unauthorizedDetail: null,
     };
   }
 
@@ -105,8 +120,29 @@ class TaskDetail extends Component<RouteProps, IState> {
 
   componentDidUpdate(prevProps: RouteProps) {
     if (prevProps.routeParams.task !== this.props.routeParams.task) {
-      this.setState({ loading: true });
-      this.loadContent();
+      // Another task: forget everything of the shown one, including its
+      // polling, so the new task is read and polled on its own.
+      if (this.state.polling) {
+        clearInterval(this.state.polling);
+      }
+      this.objectPermissions.reset();
+      this.setState(
+        {
+          alerts: [],
+          childTasks: [],
+          error: null,
+          loading: true,
+          notFound: false,
+          parentTask: null,
+          polling: null,
+          resources: [],
+          task: null,
+          taskName: '',
+          unauthorized: false,
+          unauthorizedDetail: null,
+        },
+        () => this.loadContent(),
+      );
     } else if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
       // The same user signed in again: read the task again, keeping what is
       // on screen until the answer arrives. Roles may have changed with the
@@ -141,17 +177,20 @@ class TaskDetail extends Component<RouteProps, IState> {
       alerts,
       cancelModalVisible,
       childTasks,
+      error,
       loading,
       notFound,
       parentTask,
       resources,
       task,
       taskName,
+      unauthorized,
+      unauthorizedDetail,
     } = this.state;
 
     const breadcrumbs = [
       { url: formatPath(Paths.core.task.list), name: t`Task management` },
-      { name: task ? taskName : '' },
+      { name: task ? taskName : this.props.routeParams.task },
     ];
     const parentTaskId = parentTask
       ? parsePulpIDFromURL(parentTask.pulp_href)
@@ -159,6 +198,42 @@ class TaskDetail extends Component<RouteProps, IState> {
 
     if (notFound) {
       return <NotFound />;
+    }
+
+    // The first read was refused or failed: the header without any action and
+    // the reason, never the not-found page.
+    if (unauthorized || error) {
+      return (
+        <>
+          <AlertList
+            alerts={alerts}
+            closeAlert={(i) =>
+              closeAlert(i, {
+                alerts,
+                setAlerts: (alerts) => this.setState({ alerts }),
+              })
+            }
+          />
+          <BaseHeader
+            title={t`Task detail`}
+            breadcrumbs={<Breadcrumbs links={breadcrumbs} />}
+          />
+          {unauthorized ? (
+            <InsufficientPermissions detail={unauthorizedDetail} />
+          ) : (
+            <Main>
+              <ListErrorState
+                title={t`Task could not be displayed.`}
+                message={error}
+                onRetry={() => {
+                  this.setState({ error: null, loading: true });
+                  this.loadContent();
+                }}
+              />
+            </Main>
+          )}
+        </>
+      );
     }
 
     return loading ? (
@@ -500,9 +575,18 @@ class TaskDetail extends Component<RouteProps, IState> {
       return true;
     };
 
+    // The answer of a read that another one has replaced is dropped, so a
+    // slow answer for the task left behind never shows over the current one.
+    const current = ++this.latestRead;
+    const isLatest = () => current === this.latestRead;
+
     const taskId = this.props.routeParams.task;
     return TaskAPI.get(taskId)
       .then((result) => {
+        if (!isLatest()) {
+          return;
+        }
+
         const allRelatedTasks = [];
         let parentTask = null;
         const childTasks = [];
@@ -568,23 +652,71 @@ class TaskDetail extends Component<RouteProps, IState> {
         }
 
         return Promise.all(allRelatedTasks).then(() => {
+          if (!isLatest()) {
+            return;
+          }
           this.setState({
             task: result.data,
             childTasks,
             parentTask,
+            error: null,
             loading: false,
             taskName: translateTask(result.data.name),
             resources,
+            unauthorized: false,
+            unauthorizedDetail: null,
           });
         });
       })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page keeps
         // its spinner or its content until it reads again.
-        if (!isSessionEnd(e)) {
+        if (isSessionEnd(e) || !isLatest()) {
+          return;
+        }
+
+        if (this.state.task) {
+          // The task was shown: it stays, with one alert that a later failed
+          // read replaces while it is open.
+          this.setState({ loading: false });
+          this.addAlert({
+            id: 'task-read',
+            variant: 'danger',
+            title: t`Task could not be displayed.`,
+            description: requestErrorDescription(e),
+          });
+          return;
+        }
+
+        // The first read failed: nothing is polled until the user asks again.
+        setPolling(null);
+        const status = requestErrorStatus(e);
+        if (status === 404) {
           this.setState({ notFound: true });
+        } else if (status === 403) {
+          // A refused read is not a failure to retry: the account is told it
+          // may not view the page, with Pulp's own reason.
+          this.setState({
+            loading: false,
+            unauthorized: true,
+            unauthorizedDetail: requestErrorDetail(e),
+          });
+        } else {
+          this.setState({
+            loading: false,
+            error: requestErrorDescription(e),
+          });
         }
       });
+  }
+
+  private addAlert(alert: AlertType) {
+    this.setState(({ alerts }) => ({
+      alerts: [
+        ...(alert.id ? alerts.filter(({ id }) => id !== alert.id) : alerts),
+        alert,
+      ],
+    }));
   }
 }
 
