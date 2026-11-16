@@ -13,7 +13,17 @@ const LOGIN_URL = '*/pulp/api/v3/login/';
 // Shows the session state and offers a logout button that reports how the
 // logout promise ended.
 function SessionProbe() {
-  const { status, user, logout, retrySessionCheck } = useUserContext();
+  const {
+    status,
+    user,
+    logout,
+    retrySessionCheck,
+    generation,
+    epoch,
+    endSession,
+    signInAgain,
+    setUser,
+  } = useUserContext();
   const [outcome, setOutcome] = useState('none');
 
   return (
@@ -21,6 +31,22 @@ function SessionProbe() {
       <p data-testid='status'>{status}</p>
       <p data-testid='user'>{user?.username ?? 'nobody'}</p>
       <p data-testid='outcome'>{outcome}</p>
+      <p data-testid='generation'>{generation}</p>
+      <p data-testid='epoch'>{epoch}</p>
+      <button type='button' onClick={() => endSession('password-changed')}>
+        End session
+      </button>
+      <button type='button' onClick={() => signInAgain('zoe', 'secret')}>
+        Sign in again
+      </button>
+      <button
+        type='button'
+        onClick={() =>
+          setUser({ username: 'ann', pulp_href: '/pulp/api/v3/users/2/' })
+        }
+      >
+        Switch account
+      </button>
       <button
         type='button'
         onClick={() =>
@@ -334,5 +360,132 @@ describe('user context', () => {
 
       expect(screen.getByTestId('user')).toHaveTextContent('zoe');
     });
+  });
+});
+
+describe('session generation', () => {
+  const generation = () => screen.getByTestId('generation');
+  const serveOtherAccount = () =>
+    server.use(
+      http.get('*/pulp/api/v3/users/2/', () =>
+        HttpResponse.json({ id: 2, is_staff: true, groups: [] }),
+      ),
+    );
+  const shown = (status: string) =>
+    waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent(status),
+    );
+
+  it('starts at 0 and stays there when the first check answers a user', async () => {
+    await renderSignedIn();
+
+    expect(generation()).toHaveTextContent('0');
+  });
+
+  it('stays at 0 when the first check answers 401', async () => {
+    server.use(
+      http.get(LOGIN_URL, () =>
+        HttpResponse.json({ detail: 'Not authenticated.' }, { status: 401 }),
+      ),
+    );
+
+    renderWithProviders(<SessionProbe />);
+
+    await shown('anonymous');
+    expect(generation()).toHaveTextContent('0');
+  });
+
+  it.each([
+    ['204', () => new HttpResponse(null, { status: 204 })],
+    [
+      '401',
+      () =>
+        HttpResponse.json({ detail: 'Not authenticated.' }, { status: 401 }),
+    ],
+  ])('grows by one when logout is answered %s', async (_status, answer) => {
+    const { user } = await renderSignedIn();
+    server.use(http.delete(LOGIN_URL, answer));
+
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+
+    await shown('anonymous');
+    expect(generation()).toHaveTextContent('1');
+  });
+
+  it.each([
+    ['403', 403],
+    ['500', 500],
+  ])('does not change when logout is answered %s', async (_name, code) => {
+    const { user } = await renderSignedIn();
+    server.use(
+      http.delete(LOGIN_URL, () =>
+        HttpResponse.json({ detail: 'Refused.' }, { status: code }),
+      ),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('outcome')).toHaveTextContent('rejected'),
+    );
+    expect(generation()).toHaveTextContent('0');
+  });
+
+  it('grows by one when the session is ended for a changed password', async () => {
+    const { user } = await renderSignedIn();
+
+    await user.click(screen.getByRole('button', { name: 'End session' }));
+
+    await shown('anonymous');
+    expect(generation()).toHaveTextContent('1');
+  });
+
+  it('grows by one when another account takes the place of the signed-in one', async () => {
+    const { user } = await renderSignedIn();
+    serveOtherAccount();
+
+    await user.click(screen.getByRole('button', { name: 'Switch account' }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('user')).toHaveTextContent('ann'),
+    );
+    expect(generation()).toHaveTextContent('1');
+  });
+
+  it('does not change when the same account signs in again, which grows the epoch instead', async () => {
+    const { user } = await renderSignedIn();
+    server.use(
+      http.post(LOGIN_URL, () =>
+        HttpResponse.json(
+          { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' },
+          { status: 201 },
+        ),
+      ),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('epoch')).toHaveTextContent('1'),
+    );
+    expect(generation()).toHaveTextContent('0');
+  });
+
+  it('grows once more when the account signs out a second time after signing in anew', async () => {
+    const { user } = await renderSignedIn();
+    server.use(
+      http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+    );
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    await shown('anonymous');
+    serveOtherAccount();
+
+    await user.click(screen.getByRole('button', { name: 'Switch account' }));
+    await shown('authenticated');
+    expect(generation()).toHaveTextContent('1');
+
+    await user.click(screen.getByRole('button', { name: 'End session' }));
+    await shown('anonymous');
+    expect(generation()).toHaveTextContent('2');
   });
 });
