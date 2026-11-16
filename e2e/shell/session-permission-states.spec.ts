@@ -16,9 +16,15 @@ import { title } from '../support/sign-in';
 // the two empty repositories of the run, made through the API and removed
 // again.
 //
+// Besides the captures, the spec measures what a screenshot alone would leave
+// to the eye: the width and position of the refused-action alert, the spacing
+// of the sign-in dialog and of the add collection dialog, and where the text of
+// the Status screen starts.
+//
 // The screenshots show a deployment's data and stay on the machine that ran
 // the spec: they go to PULP_UI_SHELL_OUT (shell-report/ unless set), which is
-// ignored by git. A file is SURFACE-STATE-THEME-VIEWPORT.png.
+// ignored by git. A file is SURFACE-STATE-THEME-VIEWPORT.png; the surface
+// prefix (s1, s2, ...) only keeps the files of one run in a stable order.
 
 const outDir = resolve(process.env['PULP_UI_SHELL_OUT'] ?? 'shell-report');
 
@@ -37,6 +43,13 @@ const signedOut = { cookies: [], origins: [] };
 const REFUSED = 'You do not have permission to perform this action.';
 const LONG_DETAIL = 'x'.repeat(500);
 const MEDIUM_DETAIL = 'y'.repeat(200);
+
+// A task address that no task answers to; its read is always answered locally.
+const NO_SUCH_TASK = '00000000-0000-4000-8000-000000000001';
+
+// The least space, in pixels, between two blocks of text that the spacing
+// scale of the interface calls "medium".
+const MEDIUM_GAP = 16;
 
 interface IProject {
   theme: string;
@@ -86,6 +99,71 @@ async function expectNoSideScroll(page: Page, what: string): Promise<void> {
   });
   expect(scroll, `${what} scrolls sideways`).toBe(client);
 }
+
+interface IBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// The bounding box of an element that must be on screen.
+async function boxOf(locator: Locator, what: string): Promise<IBox> {
+  const box = await locator.boundingBox();
+  expect(box, `${what} has a box`).not.toBeNull();
+  return box as IBox;
+}
+
+// The left edge of the text itself, not of the box that holds it, so two
+// elements with different padding are compared by where a reader's eye starts.
+async function textLeft(locator: Locator): Promise<number> {
+  return locator.evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return range.getBoundingClientRect().left;
+  });
+}
+
+// The text starts at least one medium space inside the main area, which is the
+// inset of the section frame that the other screens use, and the offset to the
+// title (which has a larger inset of its own) is recorded.
+async function expectInsideSectionFrame(
+  page: Page,
+  text: Locator,
+): Promise<void> {
+  const main = await boxOf(
+    page.locator('.pf-v6-c-page__main'),
+    'the main area',
+  );
+  const inset = (await textLeft(text)) - main.x;
+  const heading = page.locator('h1', { hasText: 'Status' }).first();
+  const titleInset = (await textLeft(heading)) - main.x;
+  test.info().annotations.push({
+    type: 'status text edge',
+    description: `text ${Math.round(inset)}px, title ${Math.round(titleInset)}px from the main area`,
+  });
+  expect(Math.round(inset)).toBeGreaterThanOrEqual(MEDIUM_GAP);
+}
+
+// Waits for the finite transitions of the page (a dialog fading and moving in)
+// to reach their end, so that a measurement does not catch a block half way.
+async function settle(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    await Promise.all(
+      document
+        .getAnimations()
+        .filter(
+          (animation) =>
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map((animation) => animation.finished.catch(() => undefined)),
+    );
+  });
+}
+
+// The space between the bottom of one block and the top of the next.
+const gapBetween = (above: IBox, below: IBox): number =>
+  below.y - (above.y + above.height);
 
 // ---- routes -----------------------------------------------------------------
 
@@ -192,10 +270,15 @@ test.afterEach(() => {
   expect(guard.leaked, 'writes that would have reached the server').toEqual([]);
 });
 
-// ---- S2: insufficient permissions page ---------------------------------------
+// ---- insufficient permissions page --------------------------------------------
 
-const refuseFileList = (page: Page, detail?: string) =>
-  page.route(isApi('repositories/file/file/'), async (route) =>
+// Answers every read of the address with 403, with Pulp's reason when given.
+const refuseRead = (
+  page: Page,
+  matches: (url: URL) => boolean,
+  detail?: string,
+) =>
+  page.route(matches, async (route) =>
     route.request().method() === 'GET'
       ? route.fulfill({
           status: 403,
@@ -204,8 +287,13 @@ const refuseFileList = (page: Page, detail?: string) =>
       : route.fallback(),
   );
 
-test.describe('S2 insufficient permissions', () => {
-  test('S2 a refused page read @phone', async ({ page }) => {
+const refuseFileList = (page: Page, detail?: string) =>
+  refuseRead(page, isApi('repositories/file/file/'), detail);
+
+test.describe('insufficient permissions page', () => {
+  test('a refused page read shows the page with Pulp reason @phone', async ({
+    page,
+  }) => {
     await refuseFileList(page, REFUSED);
     await page.goto('file/repositories');
 
@@ -214,7 +302,9 @@ test.describe('S2 insufficient permissions', () => {
     await capture(page, 's2-refused-read');
   });
 
-  test('S2 a refused page read without a server text', async ({ page }) => {
+  test('a refused page read without a server text shows the page without a reason', async ({
+    page,
+  }) => {
     await refuseFileList(page);
     await page.goto('file/repositories');
 
@@ -222,7 +312,47 @@ test.describe('S2 insufficient permissions', () => {
     await capture(page, 's2-refused-read-no-detail');
   });
 
-  test('S2 an unbroken server text of 500 and of 200 characters wraps at 360px @phone-only', async ({
+  test('a refused task list read shows the page under the task list header @phone', async ({
+    page,
+  }) => {
+    await refuseRead(page, isApi('tasks/'), REFUSED);
+    await page.goto('tasks');
+
+    await expect(
+      page.locator('h1', { hasText: 'Task management' }),
+    ).toBeVisible();
+    await expect(title(page, 'Insufficient permissions')).toBeVisible();
+    await expect(page.getByText(REFUSED)).toBeVisible();
+    // no toolbar, table or maintenance control is drawn for a refused read
+    await expect(
+      page.getByRole('button', {
+        name: /^(Orphan cleanup|Repair|Purge tasks|Stop task)/,
+      }),
+    ).toHaveCount(0);
+    await expect(page.getByRole('table')).toHaveCount(0);
+    await capture(page, 's2-task-list-refused');
+  });
+
+  test('a refused task read shows the page under the task detail header @phone', async ({
+    page,
+  }) => {
+    await refuseRead(
+      page,
+      (url) => url.pathname === `${API}tasks/${NO_SUCH_TASK}/`,
+      REFUSED,
+    );
+    await page.goto(`tasks/detail/${NO_SUCH_TASK}`);
+
+    await expect(page.locator('h1', { hasText: 'Task detail' })).toBeVisible();
+    await expect(title(page, 'Insufficient permissions')).toBeVisible();
+    await expect(page.getByText(REFUSED)).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Stop task/ })).toHaveCount(
+      0,
+    );
+    await capture(page, 's2-task-detail-refused');
+  });
+
+  test('an unbroken server text of 500 and of 200 characters wraps at 360px @phone-only', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 844 });
@@ -235,7 +365,10 @@ test.describe('S2 insufficient permissions', () => {
       await refuseFileList(page, detail);
       await page.goto('file/repositories');
       await expect(page.getByText(detail)).toBeVisible();
-      await expectNoSideScroll(page, `S2 with ${kind} characters`);
+      await expectNoSideScroll(
+        page,
+        `insufficient permissions with ${kind} characters`,
+      );
       await capture(page, `s2-unbroken-${kind}-360`);
     }
   });
@@ -243,17 +376,25 @@ test.describe('S2 insufficient permissions', () => {
   test.describe('as the limited account', () => {
     test.use({ storageState: storageStatePath('viewer') });
 
-    test('S2 an administration screen opened by its address @phone', async ({
+    test('an administration screen opened by its address has its page header @phone', async ({
       page,
     }) => {
       await page.goto('users');
 
-      await expect(title(page, 'Insufficient permissions')).toBeVisible();
+      await expect(
+        page.locator('h1', { hasText: 'Insufficient permissions' }).first(),
+      ).toBeVisible();
       await expect(page.getByRole('button', { name: 'Go back' })).toBeVisible();
       await capture(page, 's2-administration-screen-limited-account');
+
+      // the roles list is an administration screen too
+      await page.goto('roles');
+      await expect(
+        page.locator('h1', { hasText: 'Insufficient permissions' }).first(),
+      ).toBeVisible();
     });
 
-    test('S4 a list screen offers no header action, row action or actions column', async ({
+    test('a list screen offers no header action, row action or actions column', async ({
       page,
     }) => {
       await page.goto('file/repositories');
@@ -301,7 +442,7 @@ test.describe('S2 insufficient permissions', () => {
   });
 });
 
-// ---- S1: sign in again --------------------------------------------------------
+// ---- sign in again dialog -----------------------------------------------------
 
 // Opens the edit form of the run's file repository and types into it.
 async function typeIntoEditForm(page: Page): Promise<void> {
@@ -326,8 +467,10 @@ async function saveRefusedWith(
   await page.getByRole('button', { name: 'Save' }).click();
 }
 
-test.describe('S1 sign in again', () => {
-  test('S1 over an edit form with typed content @phone', async ({ page }) => {
+test.describe('sign in again dialog', () => {
+  test('over an edit form with typed content, spaced and keeping the form @phone', async ({
+    page,
+  }) => {
     await typeIntoEditForm(page);
     await saveRefusedWith(page, 401, { detail: 'Not authenticated.' });
 
@@ -339,10 +482,36 @@ test.describe('S1 sign in again', () => {
     await expect(page.locator('#description')).toHaveValue(
       'Notes typed before the session ended',
     );
+
+    // The lead sentence, the request note and the kept note are one medium
+    // space apart, and so is the last of them from the first field.
+    await settle(page);
+    const paragraphs = dialog.locator('p');
+    expect(await paragraphs.count()).toBeGreaterThanOrEqual(3);
+    const boxes: IBox[] = [];
+    for (let index = 0; index < (await paragraphs.count()); index += 1) {
+      boxes.push(await boxOf(paragraphs.nth(index), `paragraph ${index + 1}`));
+    }
+    const username = await boxOf(
+      dialog.locator('label', { hasText: 'Username' }).first(),
+      'the Username label',
+    );
+    // each block against the next one; the last against the first field
+    const following = [...boxes.slice(1), username];
+    const gaps = boxes.map((box, index) =>
+      gapBetween(box, following[index] as IBox),
+    );
+    test.info().annotations.push({
+      type: 'dialog gaps',
+      description: gaps.map((gap) => `${Math.round(gap)}px`).join(', '),
+    });
+    for (const gap of gaps) {
+      expect(Math.round(gap)).toBeGreaterThanOrEqual(MEDIUM_GAP);
+    }
     await capture(page, 's1-form-mode');
   });
 
-  test('S1 with an error line', async ({ page }) => {
+  test('with an error line after a failed sign-in', async ({ page }) => {
     await typeIntoEditForm(page);
     await saveRefusedWith(page, 401, { detail: 'Not authenticated.' });
     const dialog = page.getByRole('dialog', { name: 'Sign in again' });
@@ -360,7 +529,9 @@ test.describe('S1 sign in again', () => {
     await capture(page, 's1-error-line');
   });
 
-  test('S1 in external login mode @phone', async ({ page }) => {
+  test('in external login mode offers a Login button and no form @phone', async ({
+    page,
+  }) => {
     await useExternalLogin(page);
     await typeIntoEditForm(page);
     await saveRefusedWith(page, 401, { detail: 'Not authenticated.' });
@@ -377,7 +548,7 @@ test.describe('S1 sign in again', () => {
   });
 });
 
-// ---- S3: refused action alert -------------------------------------------------
+// ---- refused action alert -----------------------------------------------------
 
 // Deletes the run's file repository from its list row while the server answers
 // the delete with 403 and the given text; the answer is given locally, so the
@@ -426,12 +597,14 @@ async function addCollectionRefusedWith(
 const refusalAlert = (page: Page, detail: string): Locator =>
   page.locator('[data-cy=AlertList]').filter({ hasText: detail });
 
-test.describe('S3 refused action', () => {
+test.describe('refused action alert', () => {
   for (const [kind, detail] of [
     ['short', REFUSED],
     ['very-long', LONG_DETAIL],
   ] as const) {
-    test(`S3 alert with a ${kind} server text`, async ({ page }) => {
+    test(`an add collection refused with a ${kind} server text shows the alert`, async ({
+      page,
+    }) => {
       await addCollectionRefusedWith(page, detail);
 
       const alert = refusalAlert(page, detail);
@@ -439,16 +612,40 @@ test.describe('S3 refused action', () => {
       await expect(
         alert.getByText('You do not have permission to do this.'),
       ).toBeVisible();
-      const box = await alert.boundingBox();
+      await settle(page);
+      const box = await boxOf(alert, 'the alert');
       test.info().annotations.push({
         type: 'alert box',
-        description: `S3 ${kind}: x ${Math.round(box?.x ?? 0)}, width ${Math.round(box?.width ?? 0)}`,
+        description: `${kind}: x ${Math.round(box.x)}, width ${Math.round(box.width)}`,
       });
+
+      // The alert starts right of the sidebar, ends inside the window and is
+      // no wider than a toast alert, however long the unbroken text is.
+      const sidebar = await boxOf(page.locator('#page-sidebar'), 'the sidebar');
+      const { innerWidth, rootFont } = await page.evaluate(() => ({
+        innerWidth: window.innerWidth,
+        rootFont: parseFloat(
+          getComputedStyle(document.documentElement).fontSize,
+        ),
+      }));
+      const bound = Math.min(37.5 * rootFont, innerWidth - 10);
+      expect(
+        box.x,
+        'the alert starts right of the sidebar',
+      ).toBeGreaterThanOrEqual(sidebar.x + sidebar.width);
+      expect(
+        box.x + box.width,
+        'the alert ends inside the window',
+      ).toBeLessThanOrEqual(innerWidth);
+      expect(
+        Math.round(box.width),
+        'the alert is no wider than its bound',
+      ).toBeLessThanOrEqual(Math.round(bound));
       await capture(page, `s3-alert-${kind}`);
     });
   }
 
-  test('S3 an unbroken server text of 500 and of 200 characters wraps at 360px @phone-only', async ({
+  test('an unbroken server text of 500 and of 200 characters wraps at 360px @phone-only', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 844 });
@@ -459,37 +656,54 @@ test.describe('S3 refused action', () => {
       await addCollectionRefusedWith(page, detail);
       const alert = refusalAlert(page, detail);
       await expect(alert).toBeVisible();
-      await expectNoSideScroll(page, `S3 with ${kind} characters`);
-      const box = await alert.boundingBox();
+      await expectNoSideScroll(
+        page,
+        `refused action alert with ${kind} characters`,
+      );
+      const box = await boxOf(alert, 'the alert');
       test.info().annotations.push({
         type: 'alert box',
-        description: `S3 with ${kind} characters: x ${Math.round(box?.x ?? 0)}, width ${Math.round(box?.width ?? 0)} of 360`,
+        description: `${kind} characters: x ${Math.round(box.x)}, width ${Math.round(box.width)} of 360`,
       });
       await capture(page, `s3-unbroken-${kind}-360`);
     }
   });
 
-  test('S3 a refused delete is shown inside its confirmation dialog', async ({
+  test('a refused delete of a repository without distributions says it was not removed, inside its dialog', async ({
     page,
   }) => {
     const dialog = await deleteRefusedWith(page, REFUSED);
 
+    await expect(
+      dialog.getByText('The repository was not removed.'),
+    ).toBeVisible();
+    await expect(dialog.getByText(/distributions were removed/)).toHaveCount(0);
     await expect(dialog.getByText(REFUSED)).toBeVisible();
     await capture(page, 's3-delete-refused-in-dialog');
   });
 
-  test('S3 a refused save of a form is shown inside the form', async ({
+  test('a refused save of a form is shown as three parts under the form', async ({
     page,
   }) => {
     await typeIntoEditForm(page);
     await saveRefusedWith(page, 403, { detail: REFUSED });
 
-    await expect(page.getByText(REFUSED)).toBeVisible();
+    // what happened, Pulp's reason and whom to ask, in one block of text
+    const message = page.locator('p.pulp-break-anywhere', {
+      hasText: REFUSED,
+    });
+    await expect(message).toBeVisible();
+    await expect(message).toContainText(
+      'You do not have permission to do this.',
+    );
+    await expect(message).toContainText(
+      'Contact your organization administrator for more information.',
+    );
     await capture(page, 's3-form-save-refused');
   });
 });
 
-// ---- S5: plugin list failed ---------------------------------------------------
+// ---- plugin list failed -------------------------------------------------------
 
 // Fails every read of the status document, where the plugin list comes from.
 // While `held` is set the answer waits until it is released.
@@ -531,8 +745,8 @@ async function showErrorRow(page: Page): Promise<Locator> {
   return errorRow(page);
 }
 
-test.describe('S5 plugin list failed', () => {
-  test('S5 the row with Retry @phone', async ({ page }) => {
+test.describe('plugin list row', () => {
+  test('the row with Retry @phone', async ({ page }) => {
     await failPluginList(page);
     const row = await showErrorRow(page);
 
@@ -545,7 +759,7 @@ test.describe('S5 plugin list failed', () => {
     await capture(page, 's5-row');
   });
 
-  test('S5 Retry while loading @phone', async ({ page }) => {
+  test('Retry while loading is disabled @phone', async ({ page }) => {
     const reads = await failPluginList(page);
     const row = await showErrorRow(page);
 
@@ -559,7 +773,7 @@ test.describe('S5 plugin list failed', () => {
     reads.release();
   });
 
-  test('S5 the row in every installed language at 360px keeps Retry visible @phone-only', async ({
+  test('the row in every installed language at 360px keeps Retry visible and is translated @phone-only', async ({
     page,
   }) => {
     test.setTimeout(180_000);
@@ -567,6 +781,7 @@ test.describe('S5 plugin list failed', () => {
     await failPluginList(page);
 
     let longest = { language: 'en', length: 0 };
+    const texts: Record<string, string> = {};
     for (const language of LANGUAGES) {
       await page.goto(`about?lang=${language}`);
       await openSidebar(page);
@@ -575,9 +790,8 @@ test.describe('S5 plugin list failed', () => {
 
       const retry = row.getByRole('button', { name: /.+/ });
       await expect(retry).toBeVisible();
-      const box = await retry.boundingBox();
-      expect(box, `Retry of ${language} has a box`).not.toBeNull();
-      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(360);
+      const box = await boxOf(retry, `Retry of ${language}`);
+      expect(box.x + box.width).toBeLessThanOrEqual(360);
       const { scroll, client } = await row.evaluate((element) => ({
         scroll: element.scrollWidth,
         client: element.clientWidth,
@@ -585,13 +799,19 @@ test.describe('S5 plugin list failed', () => {
       expect(scroll, `the row in ${language} overflows`).toBeLessThanOrEqual(
         client,
       );
-      const length = ((await row.textContent()) ?? '').length;
+      const text = ((await row.textContent()) ?? '').trim();
+      texts[language] = text;
+      if (language !== 'en') {
+        expect(text, `the row in ${language} is translated`).not.toBe(
+          texts['en'],
+        );
+      }
       test.info().annotations.push({
-        type: 'S5 row',
-        description: `${language}: ${length} characters, ${client}px wide`,
+        type: 'plugin list row',
+        description: `${language}: ${text.length} characters, ${client}px wide`,
       });
-      if (length > longest.length) {
-        longest = { language, length };
+      if (text.length > longest.length) {
+        longest = { language, length: text.length };
       }
     }
 
@@ -602,13 +822,14 @@ test.describe('S5 plugin list failed', () => {
     await page.goto('about?lang=');
   });
 
-  test('S5 the row in every installed language at the sidebar width keeps Retry visible', async ({
+  test('the row in every installed language at the sidebar width keeps Retry visible and is translated', async ({
     page,
   }) => {
     test.setTimeout(180_000);
     await failPluginList(page);
 
     let longest = { language: 'en', length: 0 };
+    const texts: Record<string, string> = {};
     for (const language of LANGUAGES) {
       await page.goto(`about?lang=${language}`);
       const row = errorRow(page);
@@ -616,12 +837,9 @@ test.describe('S5 plugin list failed', () => {
 
       const retry = row.getByRole('button', { name: /.+/ });
       await expect(retry).toBeVisible();
-      const sidebar = await page.locator('#page-sidebar').boundingBox();
-      const box = await retry.boundingBox();
-      expect(box).not.toBeNull();
-      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(
-        (sidebar?.x ?? 0) + (sidebar?.width ?? 0),
-      );
+      const sidebar = await boxOf(page.locator('#page-sidebar'), 'the sidebar');
+      const box = await boxOf(retry, `Retry of ${language}`);
+      expect(box.x + box.width).toBeLessThanOrEqual(sidebar.x + sidebar.width);
       const { scroll, client } = await row.evaluate((element) => ({
         scroll: element.scrollWidth,
         client: element.clientWidth,
@@ -629,13 +847,19 @@ test.describe('S5 plugin list failed', () => {
       expect(scroll, `the row in ${language} overflows`).toBeLessThanOrEqual(
         client,
       );
-      const length = ((await row.textContent()) ?? '').length;
+      const text = ((await row.textContent()) ?? '').trim();
+      texts[language] = text;
+      if (language !== 'en') {
+        expect(text, `the row in ${language} is translated`).not.toBe(
+          texts['en'],
+        );
+      }
       test.info().annotations.push({
-        type: 'S5 row',
-        description: `${language}: ${length} characters, sidebar ${Math.round(sidebar?.width ?? 0)}px, row ${client}px`,
+        type: 'plugin list row',
+        description: `${language}: ${text.length} characters, sidebar ${Math.round(sidebar.width)}px, row ${client}px`,
       });
-      if (length > longest.length) {
-        longest = { language, length };
+      if (text.length > longest.length) {
+        longest = { language, length: text.length };
       }
     }
 
@@ -646,12 +870,14 @@ test.describe('S5 plugin list failed', () => {
   });
 });
 
-// ---- S6, S9, S10: pages of the external login mode and of a failed check ------
+// ---- signed out page, sign-in did not complete, session could not be checked --
 
-test.describe('S6 signed out page', () => {
+test.describe('signed out page', () => {
   test.use({ storageState: signedOut });
 
-  test('S6 signed out in external login mode @phone', async ({ page }) => {
+  test('in external login mode it stands alone, without the application shell @phone', async ({
+    page,
+  }) => {
     await useExternalLogin(page);
     await page.goto('signed-out');
 
@@ -662,14 +888,25 @@ test.describe('S6 signed out page', () => {
     await expect(
       page.getByRole('link', { name: 'Sign in again' }),
     ).toBeVisible();
+    // no masthead and no sidebar: the page is not drawn inside the shell. The
+    // login frame's own header (the logo, no control) is the only banner.
+    await expect(page.locator('.pf-v6-c-masthead')).toHaveCount(0);
+    await expect(page.locator('#page-sidebar')).toHaveCount(0);
+    await expect(page.getByRole('navigation')).toHaveCount(0);
+    await expect(
+      page
+        .getByRole('banner')
+        .getByRole('link')
+        .or(page.getByRole('banner').getByRole('button')),
+    ).toHaveCount(0);
     await capture(page, 's6-signed-out');
   });
 });
 
-test.describe('S9 sign-in did not complete', () => {
+test.describe('sign-in did not complete', () => {
   test.use({ storageState: signedOut });
 
-  test('S9 a return from the external login without a session @phone', async ({
+  test('a return from the external login without a session says so @phone', async ({
     page,
   }) => {
     await useExternalLogin(page);
@@ -684,8 +921,8 @@ test.describe('S9 sign-in did not complete', () => {
   });
 });
 
-test.describe('S10 the session could not be checked', () => {
-  test('S10 a session check that fails @phone', async ({ page }) => {
+test.describe('session could not be checked', () => {
+  test('a session check that fails offers Retry @phone', async ({ page }) => {
     await page.route(isApi('login/'), async (route) =>
       route.request().method() === 'GET'
         ? route.fulfill({ status: 500, json: { detail: 'Failed.' } })
@@ -701,22 +938,26 @@ test.describe('S10 the session could not be checked', () => {
   });
 });
 
-// ---- S7: before sign in -------------------------------------------------------
+// ---- before sign in and the Status screen -------------------------------------
 
-test.describe('S7 before sign in', () => {
+test.describe('before sign in', () => {
   test.use({ storageState: signedOut });
 
-  test('S7 the Status screen and the sidebar of a visitor @phone', async ({
+  test('the Status screen and the sidebar of a visitor @phone', async ({
     page,
   }) => {
     await page.goto('status');
 
-    await expect(
-      page.getByText(
-        'Versions, workers and storage are shown to signed-in users.',
-      ),
-    ).toBeVisible();
+    const note = page.getByText(
+      'Versions, workers and storage are shown to signed-in users.',
+    );
+    await expect(note).toBeVisible();
     await page.waitForLoadState('networkidle');
+
+    // the note sits inside the section frame of the other screens, not flush
+    // against the sidebar, and a reduced answer has no raw JSON panel
+    await expectInsideSectionFrame(page, note);
+    await expect(page.getByRole('button', { name: 'JSON' })).toHaveCount(0);
     await capture(page, 's7-status-anonymous');
 
     await openSidebar(page);
@@ -729,7 +970,28 @@ test.describe('S7 before sign in', () => {
   });
 });
 
-// ---- S8: Add collection dialog ------------------------------------------------
+test.describe('Status screen of a signed-in account that is not an administrator', () => {
+  test.use({ storageState: storageStatePath('viewer') });
+
+  test('shows the versions and the administrators note, without workers', async ({
+    page,
+  }) => {
+    await page.goto('status');
+
+    const note = page.getByText(
+      'Workers, storage and content settings are shown to administrators.',
+    );
+    await expect(note).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText('Online workers')).toHaveCount(0);
+    await expect(page.getByText('Versions').first()).toBeVisible();
+
+    await expectInsideSectionFrame(page, note);
+    await capture(page, 's7-status-viewer');
+  });
+});
+
+// ---- add collection dialog ----------------------------------------------------
 
 const COLLECTION_VERSIONS = 'content/ansible/collection_versions/';
 
@@ -793,8 +1055,8 @@ async function openAddCollection(page: Page): Promise<Locator> {
   return dialog;
 }
 
-test.describe('S8 Add collection dialog', () => {
-  test('S8 marked rows on a page of ten', async ({ page }) => {
+test.describe('add collection dialog', () => {
+  test('marked rows on a page of ten', async ({ page }) => {
     await serveCollections(page, [2, 5, 6, 9], 'answer');
     const dialog = await openAddCollection(page);
 
@@ -806,13 +1068,30 @@ test.describe('S8 Add collection dialog', () => {
     await capture(page, 's8-marked-rows');
   });
 
-  test('S8 the content read failed', async ({ page }) => {
+  test('a failed content read shows an alert clear of the toolbar', async ({
+    page,
+  }) => {
     await serveCollections(page, [], 'fail');
     const dialog = await openAddCollection(page);
 
     await expect(
       dialog.getByText('The repository content could not be read'),
     ).toBeVisible();
+    await settle(page);
+    const alert = await boxOf(
+      dialog.locator('.pulp-collection-read-failed'),
+      'the alert',
+    );
+    const toolbar = await boxOf(
+      dialog.locator('.pf-v6-c-toolbar').first(),
+      'the toolbar',
+    );
+    const gap = gapBetween(alert, toolbar);
+    test.info().annotations.push({
+      type: 'alert to toolbar',
+      description: `${Math.round(gap)}px`,
+    });
+    expect(Math.round(gap)).toBeGreaterThanOrEqual(MEDIUM_GAP);
     await capture(page, 's8-read-failed');
   });
 });
