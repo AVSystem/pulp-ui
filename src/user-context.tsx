@@ -53,7 +53,7 @@ export const useUserContext = () => useContext(UserContext);
 
 // Tells two sessions apart: the user's address, or the name when the answer
 // carries none.
-const sessionKey = (user: ISessionUser | null) =>
+export const sessionKey = (user: ISessionUser | null) =>
   user ? (user.pulp_href ?? user.username) : null;
 
 // The address of the signed out page, below the base path the UI is served

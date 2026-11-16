@@ -1,15 +1,24 @@
 import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes, useLocation } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { useUserContext } from 'src/user-context';
 import PulpLoginPage from './login';
 
 // Prints where the router ended up, for routes the test does not render.
 function LocationProbe() {
   const { pathname, search } = useLocation();
   return <p data-testid='location'>{`${pathname}${search}`}</p>;
+}
+
+// Shows who the session context holds, so a test can wait until it knows.
+function SessionProbe() {
+  const { user, status } = useUserContext();
+  return (
+    <p data-testid='session'>{`${status} ${user?.username ?? 'nobody'}`}</p>
+  );
 }
 
 function renderLogin(route = '/login') {
@@ -256,4 +265,162 @@ describe('login page', () => {
 
     await screen.findByText('Status page');
   });
+
+  it('a login that answers another account than the one in memory loads the page afresh and keeps no state of the previous user', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/1/',
+        }),
+      ),
+      http.post('*/pulp/api/v3/login/', () =>
+        HttpResponse.json(
+          { username: 'amy', pulp_href: '/pulp/api/v3/users/2/' },
+          { status: 201 },
+        ),
+      ),
+    );
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+
+    const { user } = renderWithProviders(
+      <>
+        <SessionProbe />
+        <Routes>
+          <Route path='/login' element={<PulpLoginPage />} />
+          <Route path='/status' element={<p>Status page</p>} />
+          <Route path='*' element={<LocationProbe />} />
+        </Routes>
+      </>,
+      { route: '/login?next=/file/repositories' },
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent(
+        'authenticated zoe',
+      ),
+    );
+    await signIn(user, 'amy', 'secret');
+
+    await waitFor(() => expect(assign).toHaveBeenCalledTimes(1));
+    expect(assign).toHaveBeenCalledWith('/ui/file/repositories');
+    // the user in memory was not replaced and nothing was navigated
+    expect(screen.getByTestId('session')).toHaveTextContent(
+      'authenticated zoe',
+    );
+    expect(screen.queryByText('Status page')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('location')).not.toBeInTheDocument();
+  });
+
+  it('a login that answers the same account as the one in memory navigates without a page load', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/1/',
+        }),
+      ),
+    );
+    acceptLogin();
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+
+    const { user } = renderWithProviders(
+      <>
+        <SessionProbe />
+        <Routes>
+          <Route path='/login' element={<PulpLoginPage />} />
+          <Route path='/status' element={<p>Status page</p>} />
+        </Routes>
+      </>,
+      { route: '/login' },
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('session')).toHaveTextContent(
+        'authenticated zoe',
+      ),
+    );
+    await signIn(user, 'zoe', 'secret');
+
+    await screen.findByText('Status page');
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it('a second press of Log in while the first request is pending sends no second request and the button is disabled', async () => {
+    let posts = 0;
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.post('*/pulp/api/v3/login/', async () => {
+        posts += 1;
+        await gate;
+        return HttpResponse.json(
+          { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const { user } = renderLogin();
+    await user.type(await screen.findByLabelText(/username/i), 'zoe');
+    await user.type(screen.getByLabelText(/^password/i), 'secret');
+    const button = screen.getByRole('button', { name: 'Log in' });
+    await user.click(button);
+    await user.click(button);
+    await user.type(screen.getByLabelText(/^password/i), '{Enter}');
+
+    await waitFor(() => expect(button).toBeDisabled());
+    expect(posts).toBe(1);
+
+    release();
+    await screen.findByText('Status page');
+    expect(posts).toBe(1);
+  });
+
+  it('a new attempt clears the previous error line and can be pressed again after a failure', async () => {
+    let refuse = true;
+    let release: () => void = () => undefined;
+    server.use(
+      http.post('*/pulp/api/v3/login/', async () => {
+        if (refuse) {
+          return HttpResponse.json(
+            { detail: 'Invalid username/password.' },
+            { status: 401 },
+          );
+        }
+        await new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        return HttpResponse.json(
+          { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const { user } = renderLogin();
+    await user.type(await screen.findByLabelText(/username/i), 'zoe');
+    await user.type(screen.getByLabelText(/^password/i), 'wrong');
+    const button = screen.getByRole('button', { name: 'Log in' });
+    await user.click(button);
+    expect(await screen.findByText(/Invalid username\/password/)).toBeVisible();
+    await waitFor(() => expect(button).toBeEnabled());
+
+    refuse = false;
+    await user.click(button);
+
+    await waitFor(() =>
+      expect(screen.queryByText(/Invalid username\/password/)).toBeNull(),
+    );
+    release();
+    await screen.findByText('Status page');
+  });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });

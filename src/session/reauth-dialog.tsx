@@ -20,7 +20,11 @@ import { LoginLink } from 'src/components/login-link';
 import { Paths, formatPath } from 'src/paths';
 import { MAIN_CONTENT_ID } from 'src/shell/shell';
 import { config } from 'src/ui-config';
-import { useUserContext } from 'src/user-context';
+import {
+  type ISessionUser,
+  sessionKey,
+  useUserContext,
+} from 'src/user-context';
 import { loginErrorMessage } from 'src/utilities/login-error';
 import { uiPath } from 'src/utilities/ui-path';
 import './reauth-dialog.scss';
@@ -47,13 +51,21 @@ const isSignInPage = (pathname: string) => {
 };
 
 // Asks the server once, when the user comes back to the tab, whether the
-// session is still alive. Only a 401 counts: a server error or a lost
-// connection says nothing about the session and is ignored without a word. No
-// timer runs, so a tab that stays in view is never polled; and nothing is
-// asked while nobody is signed in, while the dialog is already open or on a
-// page that deals with signing in itself.
-function useTabReturnCheck(signedIn: boolean, onSignInPage: boolean) {
+// session is still alive and still belongs to the account in memory. A 401 or
+// a 403 means the session has ended and opens the dialog. An answer naming
+// another account (another tab signed in as someone else) loads the start page
+// afresh, because everything in memory belongs to the previous account. A
+// server error or a lost connection says nothing about the session and is
+// ignored without a word. No timer runs, so a tab that stays in view is never
+// polled; and nothing is asked while nobody is signed in, while the dialog is
+// already open or on a page that deals with signing in itself.
+function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
   const inFlight = useRef(false);
+  // The account in memory when the tab is returned to, without rebinding the
+  // listener each time the user object is replaced.
+  const key = useRef(sessionKey(user));
+  key.current = sessionKey(user);
+  const signedIn = Boolean(user);
 
   useEffect(() => {
     if (!signedIn || onSignInPage) {
@@ -70,8 +82,19 @@ function useTabReturnCheck(signedIn: boolean, onSignInPage: boolean) {
       }
       inFlight.current = true;
       PulpLoginAPI.whoami()
+        .then(({ data }) => {
+          if (
+            sessionKey({
+              username: data.username,
+              pulp_href: data.pulp_href,
+            }) !== key.current
+          ) {
+            window.location.assign(uiPath(formatPath(Paths.core.status)));
+          }
+        })
         .catch((error) => {
-          if (error?.response?.status === 401) {
+          const status = error?.response?.status;
+          if (status === 401 || status === 403) {
             reportUnauthorized('tab-return');
           }
         })
@@ -94,7 +117,7 @@ export const ReauthDialog = () => {
   const { pathname } = useLocation();
   const { user } = useUserContext();
   const hidden = isSignInPage(pathname);
-  useTabReturnCheck(Boolean(user), hidden);
+  useTabReturnCheck(user, hidden);
   // Where the focus goes once the dialog has closed after signing in again.
   const returnTo = useRef<Element | null>(null);
   const wasOpen = useRef(false);

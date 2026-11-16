@@ -613,6 +613,65 @@ describe('returning to the tab', () => {
     ).toBeVisible();
   });
 
+  it('a 403 answer opens the dialog as a 401 does', async () => {
+    await renderScreen();
+    answerWhoami(403);
+
+    returnToTab();
+
+    expect(
+      await screen.findByRole('dialog', { name: /Sign in again/ }),
+    ).toBeVisible();
+  });
+
+  it('an answer naming another account loads the start page afresh and opens no dialog', async () => {
+    await renderScreen();
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+    const checks = trackChecks();
+    signedInAs('amy', '/pulp/api/v3/users/2/');
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(assign).toHaveBeenCalledWith('/ui/status/');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('an answer naming another account without an address is told apart by the user name', async () => {
+    await renderScreen();
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+    const checks = trackChecks();
+    server.use(
+      http.get(LOGIN_URL, () => HttpResponse.json({ username: 'amy' })),
+    );
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+
+    expect(assign).toHaveBeenCalledTimes(1);
+  });
+
+  it('an answer naming the same account loads nothing', async () => {
+    await renderScreen();
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => undefined);
+    const checks = trackChecks();
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+
+    expect(assign).not.toHaveBeenCalled();
+  });
+
   it.each([
     ['a 500 answer', 500],
     ['a network error', 'network'],
