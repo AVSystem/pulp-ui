@@ -41,12 +41,42 @@ describe('the task list', () => {
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 
-  it('shows the permission message when the server answers 403', async () => {
+  it('shows the insufficient permissions page below the header, with the server reason and no alert, when the server answers 403', async () => {
     server.use(
       http.get(`*${TASKS}`, () =>
         HttpResponse.json(
-          { detail: 'no' },
+          { detail: 'Not allowed.' },
           { status: 403, statusText: 'Forbidden' },
+        ),
+      ),
+    );
+    renderTasks();
+
+    expect(
+      await screen.findByText('Insufficient permissions'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('You do not have permission to view this page.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Not allowed.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Task management' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Not allowed.');
+    expect(screen.queryByText('Tasks list could not be displayed.')).toBeNull();
+    expect(screen.queryByText(/Error 403/)).toBeNull();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Purge tasks' })).toBeNull();
+  });
+
+  it('shows the failure alert when the server answers 500', async () => {
+    server.use(
+      http.get(`*${TASKS}`, () =>
+        HttpResponse.json(
+          { detail: 'broken' },
+          { status: 500, statusText: 'Internal Server Error' },
         ),
       ),
     );
@@ -55,11 +85,7 @@ describe('the task list', () => {
     expect(
       await screen.findByText('Tasks list could not be displayed.'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('You do not have permission to do this.'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('no')).toBeInTheDocument();
-    expect(screen.queryByText(/Error 403/)).toBeNull();
+    expect(screen.queryByText('Insufficient permissions')).toBeNull();
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 });

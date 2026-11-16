@@ -1,6 +1,6 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useNavigate } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TaskAPI } from 'src/api';
 import { AppContextProvider, useAppContext } from 'src/app-context';
@@ -225,6 +225,152 @@ describe('the stop action of the task detail', () => {
 
     expect(within(button.closest('div')).getByText('Stop task')).toBeVisible();
     expect(button).not.toHaveAttribute('aria-label');
+  });
+});
+
+describe('task detail reads that fail', () => {
+  afterEach(() => {
+    resetSessionEvents();
+    vi.restoreAllMocks();
+  });
+
+  const URL_PATH = '*/pulp/api/v3/tasks/:id/';
+  const SECOND = '0192e5a1-0000-7000-8000-000000000002';
+  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
+  const answer = (status: number, detail = 'no') =>
+    http.get(URL_PATH, () =>
+      HttpResponse.json({ detail }, { status, statusText: 'Failed' }),
+    );
+  const pollOf = (spy: ReturnType<typeof vi.spyOn>) => {
+    const call = spy.mock.calls.find(([, delay]) => delay === 10000);
+    return call[0] as () => void;
+  };
+
+  function Goto({ to }: { to: string }) {
+    const navigate = useNavigate();
+    return (
+      <button type='button' onClick={() => navigate(to)}>
+        go to {to}
+      </button>
+    );
+  }
+
+  function renderRoute() {
+    return renderWithProviders(
+      <AppContextProvider>
+        <Goto to={`/tasks/${SECOND}`} />
+        <Routes>
+          <Route path='/tasks/:task' element={<TaskDetail />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/tasks/0192e5a1-0000-7000-8000-000000000001' },
+    );
+  }
+
+  it('shows the insufficient permissions page with the header and the server reason when the first read is refused with 403', async () => {
+    server.use(answer(403, 'Not allowed.'));
+    renderRoute();
+
+    expect(
+      await screen.findByText('Insufficient permissions'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Not allowed.')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Not allowed.');
+    expect(screen.getByRole('link', { name: 'Task management' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Stop task' })).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(screen.queryByText(/Page not found/)).toBeNull();
+  });
+
+  it('shows the not-found page only when the first read answers 404', async () => {
+    server.use(answer(404, 'Not found.'));
+    renderRoute();
+
+    expect(await screen.findByText(/Page not found/)).toBeInTheDocument();
+  });
+
+  it('shows a retryable failure, not the not-found page, when the first read fails with 500', async () => {
+    server.use(answer(500, 'broken'));
+    const { user } = renderRoute();
+
+    expect(
+      await screen.findByText('Task could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Page not found/)).toBeNull();
+    server.use(
+      http.get(URL_PATH, () => HttpResponse.json({ ...task, state: 'failed' })),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByText('Reserve resources')).toBeInTheDocument();
+  });
+
+  it('keeps the task on screen and adds one alert when a poll fails, and not a second while it is open', async () => {
+    const spy = vi.spyOn(window, 'setInterval');
+    server.use(
+      http.get(URL_PATH, () =>
+        HttpResponse.json({
+          ...task,
+          state: 'running',
+          progress_reports: [{ message: 'Step one', code: 'x', done: 1 }],
+        }),
+      ),
+    );
+    renderRoute();
+    await screen.findByText('Step one');
+    const poll = pollOf(spy);
+    server.use(answer(502, 'bad gateway'));
+
+    act(() => poll());
+    expect(
+      await screen.findAllByText('Task could not be displayed.'),
+    ).toHaveLength(1);
+    act(() => poll());
+    await pause();
+
+    expect(screen.getByText('Step one')).toBeInTheDocument();
+    expect(screen.getAllByText('Task could not be displayed.')).toHaveLength(1);
+    expect(screen.queryByText(/Page not found/)).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('resets the shown task and polls the new one when the address moves from a finished task to a running one', async () => {
+    const spy = vi.spyOn(window, 'setInterval');
+    server.use(
+      http.get(URL_PATH, ({ params }) =>
+        params.id === SECOND
+          ? HttpResponse.json({
+              ...task,
+              pulp_href: `/pulp/api/v3/tasks/${SECOND}/`,
+              state: 'running',
+              progress_reports: [
+                { message: 'Second task', code: 'x', done: 1 },
+              ],
+            })
+          : HttpResponse.json({
+              ...task,
+              progress_reports: [{ message: 'First task', code: 'x', done: 1 }],
+            }),
+      ),
+    );
+    const { user } = renderRoute();
+    await screen.findByText('First task');
+    // the first task was finished: its poll was started and stopped again
+    const before = spy.mock.calls.filter(([, delay]) => delay === 10000).length;
+
+    await user.click(
+      screen.getByRole('button', { name: `go to /tasks/${SECOND}` }),
+    );
+
+    expect(await screen.findByText('Second task')).toBeInTheDocument();
+    expect(screen.queryByText('First task')).toBeNull();
+    // the running task is polled: one more poll was started
+    await waitFor(() =>
+      expect(
+        spy.mock.calls.filter(([, delay]) => delay === 10000),
+      ).toHaveLength(before + 1),
+    );
   });
 });
 
