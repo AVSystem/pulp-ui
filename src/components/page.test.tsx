@@ -705,3 +705,223 @@ describe('a page whose header actions are all hidden', () => {
     expect(shown.container.querySelector('.pulp-toolbar')).not.toBeNull();
   });
 });
+
+describe('a page whose form needs a permission', () => {
+  const HREF = '/pulp/api/v3/things/1/';
+  const CHANGE = 'file.change_filerepository';
+  const ADD = 'file.add_filerepository';
+  const VIEW = 'file.view_filerepository';
+
+  let saves = 0;
+
+  const Guarded = (objectLevel = true) =>
+    Page<IThing>({
+      breadcrumbs: ({ name }) => [{ name: 'Things' }, { name: name ?? 'Add' }],
+      displayName: 'FormPermissionThingEdit',
+      errorTitle: msg`Thing could not be displayed.`,
+      formPermission: (item) =>
+        item
+          ? { permission: CHANGE, objectLevel }
+          : { permission: ADD, objectLevel: false },
+      headerActions: [
+        Action({ title: msg`Delete thing`, onClick: () => undefined }),
+      ],
+      listUrl: '/things',
+      query: ({ name }) =>
+        things
+          .list('things/', { name, page_size: 1 })
+          .then(({ data }) => data.results[0]),
+      title: ({ name }) => name || 'Add new thing',
+      transformParams: ({ name }) => ({ name: name !== '_' ? name : null }),
+      render: (item) => (
+        <form
+          aria-label='Thing form'
+          onSubmit={(event) => {
+            event.preventDefault();
+            saves += 1;
+          }}
+        >
+          <p>{item ? `Editing ${item.name}` : 'Creating a new thing'}</p>
+          <button type='submit'>Save</button>
+        </form>
+      ),
+    });
+
+  function renderGuardedEdit(route = '/things/edit/alpha', objectLevel = true) {
+    const Thing = Guarded(objectLevel);
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/edit/:name' element={<Thing />} />
+        </Routes>
+      </AppContextProvider>,
+      { route },
+    );
+  }
+
+  const saveButton = () => screen.queryByRole('button', { name: 'Save' });
+  const refusal = () =>
+    screen.queryByRole('heading', { name: 'Insufficient permissions' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+    saves = 0;
+  });
+
+  it('shows the insufficient permissions page below the header, with no form, Save button or header action, to an account that lacks the permission', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({ [HREF]: [VIEW] });
+    renderGuardedEdit();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(requests).toEqual([`${HREF}my_permissions/`]);
+    expect(screen.getByRole('heading', { name: 'alpha' })).toBeInTheDocument();
+    expect(saveButton()).not.toBeInTheDocument();
+    expect(form()).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Delete thing' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('shows the form to an account that holds the permission globally, and reads no object permissions', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderGuardedEdit();
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+    expect(refusal()).not.toBeInTheDocument();
+  });
+
+  it('shows the form to staff, and reads no object permissions', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderGuardedEdit();
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows the form when the permissions listed for the object hold the permission', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({ [HREF]: [VIEW, CHANGE] });
+    renderGuardedEdit();
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([`${HREF}my_permissions/`]);
+  });
+
+  it('shows the loading state, never the form, while the object permissions are being read', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({
+      [HREF]: { permissions: [CHANGE], delayMs: 250 },
+    });
+    renderGuardedEdit();
+
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(form()).not.toBeInTheDocument();
+    expect(refusal()).not.toBeInTheDocument();
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+  });
+
+  it.each([403, 500])(
+    'shows the insufficient permissions page when the object permission read answers %i',
+    async (status) => {
+      servePermissions({ own: [[VIEW]] });
+      serveMyPermissions({ [HREF]: { status } });
+      renderGuardedEdit();
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+    },
+  );
+
+  it('shows the loading state, never the form, while the permissions of the account are unknown', async () => {
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderGuardedEdit();
+
+    await screen.findByRole('progressbar');
+    await settled();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(form()).not.toBeInTheDocument();
+    expect(refusal()).not.toBeInTheDocument();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads no object permissions when the permission is not object level, and refuses', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderGuardedEdit('/things/edit/alpha', false);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+    expect(saveButton()).not.toBeInTheDocument();
+  });
+
+  it('shows the add form only to an account that holds the add permission globally', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    const without = renderGuardedEdit('/things/edit/_');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(saveButton()).not.toBeInTheDocument();
+    without.unmount();
+    server.events.removeAllListeners();
+
+    servePermissions({ own: [[ADD]] });
+    renderGuardedEdit('/things/edit/_');
+
+    expect(await screen.findByText('Creating a new thing')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows the loading state, never the add form, while the permissions of the account are unknown', async () => {
+    renderGuardedEdit('/things/edit/_');
+
+    await screen.findByRole('progressbar');
+    await settled();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(form()).not.toBeInTheDocument();
+    expect(refusal()).not.toBeInTheDocument();
+  });
+
+  it('sends nothing for a refused page', async () => {
+    servePermissions({ own: [[VIEW]] });
+    serveMyPermissions({ [HREF]: [VIEW] });
+    const recorded = recordWrites();
+    renderGuardedEdit();
+
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    await settled();
+    expect(recorded.writes).toEqual([]);
+    expect(saves).toBe(0);
+    recorded.stop();
+  });
+});

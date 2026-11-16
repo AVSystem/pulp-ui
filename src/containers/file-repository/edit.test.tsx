@@ -4,7 +4,11 @@ import { Route, Routes, useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
 import { Paths } from 'src/paths';
-import { PermissionsKnown } from 'src/test-utils/permissions';
+import {
+  PermissionsKnown,
+  serveMyPermissions,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -492,5 +496,118 @@ describe('creating a file repository with a distribution that takes long', () =>
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('a file repository page opened by its address', () => {
+  const HREF = `${API}/repositories/file/file/00000000-0000-4000-8000-000000000001/`;
+  const existing = repository({
+    name: 'existing',
+    pulp_href: HREF,
+    description: 'old text',
+    retain_repo_versions: 3,
+    pulp_labels: {},
+    remote: null,
+  });
+  const CHANGE = 'file.change_filerepository';
+  const ADD = 'file.add_filerepository';
+  const VIEW = 'file.view_filerepository';
+
+  const refusal = () =>
+    screen.findByRole('heading', { name: 'Insufficient permissions' });
+  const saveButton = () => screen.queryByRole('button', { name: 'Save' });
+  const settled = () => new Promise((resolve) => setTimeout(resolve, 150));
+
+  function renderAs(route: string) {
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route
+            path={Paths.file.repository.edit}
+            element={<FileRepositoryEdit />}
+          />
+        </Routes>
+      </AppContextProvider>,
+      { route },
+    );
+  }
+
+  beforeEach(() => {
+    serveSupportingLists();
+    server.use(
+      listOf(`${API}/repositories/file/file/`, [existing], {
+        matching: (row, query) => row.name === query.get('name'),
+      }).handler,
+      http.patch(`*${API}/repositories/file/file/:id/`, () =>
+        HttpResponse.json({ task: TASK_HREF }, { status: 202 }),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it('shows the insufficient permissions page, with no Save button and no write, to an account without the change permission', async () => {
+    servePermissions({ own: [[VIEW]] });
+    serveMyPermissions({ [HREF]: [VIEW] });
+    renderAs('/file/repositories/edit/existing');
+
+    await refusal();
+    expect(
+      screen.getByRole('heading', { name: 'existing' }),
+    ).toBeInTheDocument();
+    expect(saveButton()).toBeNull();
+    expect(screen.queryByDisplayValue('existing')).toBeNull();
+    await settled();
+    expect(writes()).toStrictEqual([]);
+  });
+
+  it('shows the form with Save when the repository lists the change permission for the account', async () => {
+    servePermissions({ own: [[VIEW]] });
+    serveMyPermissions({ [HREF]: [VIEW, CHANGE] });
+    renderAs('/file/repositories/edit/existing');
+
+    expect(await screen.findByDisplayValue('existing')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+  });
+
+  it('shows the form to staff without reading the permissions of the repository', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderAs('/file/repositories/edit/existing');
+
+    expect(await screen.findByDisplayValue('existing')).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows the loading state and no form while the permissions of the repository are read', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({
+      [HREF]: { permissions: [CHANGE], delayMs: 250 },
+    });
+    renderAs('/file/repositories/edit/existing');
+
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(saveButton()).toBeNull();
+    expect(await screen.findByDisplayValue('existing')).toBeInTheDocument();
+  });
+
+  it('shows the insufficient permissions page for the add page without the add permission, and the form with it', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const without = renderAs('/file/repositories/edit/_');
+
+    await refusal();
+    expect(saveButton()).toBeNull();
+    without.unmount();
+    server.events.removeAllListeners();
+
+    servePermissions({ own: [[ADD]] });
+    renderAs('/file/repositories/edit/_');
+
+    expect(await nameInput()).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
   });
 });
