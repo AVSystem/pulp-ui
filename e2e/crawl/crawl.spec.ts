@@ -28,8 +28,9 @@ import { crawlRoutes } from './routes';
 // or that rendered signed out, does.
 
 const API = '/pulp/api/';
-// The one screen that is meant to be seen without a session.
-const LOGIN_ROUTE = '/login';
+// The screens that are meant to be seen without a session: the sign-in page,
+// and the page that says the user has been signed out.
+const SIGNED_OUT_ROUTES = ['/login', '/signed-out'];
 const USER_MENU = '[data-cy=user-dropdown]';
 const SETTLE_MS = 15_000;
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
@@ -256,8 +257,9 @@ for (const route of crawlRoutes()) {
 
     // A screen that rendered signed out is the login page, not the screen the
     // route names; a crawl of it would report a clean page that was never
-    // looked at. The report is written first so the screen stays on record.
-    if (route.pattern !== LOGIN_ROUTE) {
+    // looked at. The two screens that are made to be seen signed out are the
+    // exception. The report is written first so the screen stays on record.
+    if (!SIGNED_OUT_ROUTES.includes(route.pattern)) {
       expect(
         signedIn,
         `the user menu of the ${account} account is shown on ${route.pattern}`,
