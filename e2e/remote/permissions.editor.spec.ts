@@ -254,3 +254,13 @@ test('the sidebar has no Users, Groups or Roles entry', async ({ page }) => {
     sidebar.getByRole('link', { name: /^(Users|Groups|Roles)$/ }),
   ).toHaveCount(0);
 });
+
+test('the editor opens its own profile and sees it', async ({ page }) => {
+  await page.goto('users/profile');
+
+  await expect(title(page, 'My profile')).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText(account('editor').username),
+  ).toBeVisible();
+  await expect(title(page, 'Insufficient permissions')).toHaveCount(0);
+});
