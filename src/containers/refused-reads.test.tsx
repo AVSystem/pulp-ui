@@ -184,6 +184,60 @@ describe('the user edit page', () => {
     await insufficient();
     expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
   });
+
+  it('shows the not-found page, not the refusal, when the user does not exist', async () => {
+    server.use(
+      http.get(`*${API}/users/4/`, () =>
+        HttpResponse.json({ detail: 'gone' }, { status: 404 }),
+      ),
+    );
+    render();
+
+    expect(
+      await screen.findByText("We couldn't find the page you're looking for!"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+  });
+
+  it('shows a retryable error state, not the refusal, for another failure, and reads again on Retry', async () => {
+    let reads = 0;
+    server.use(
+      http.get(`*${API}/users/4/`, () => {
+        reads += 1;
+        return reads === 1
+          ? HttpResponse.json({}, { status: 500, statusText: 'Server Error' })
+          : HttpResponse.json({
+              id: 4,
+              username: 'zz-ann',
+              first_name: 'Ann',
+              last_name: '',
+              email: '',
+              groups: [],
+              pulp_href: `${API}/users/4/`,
+            });
+      }),
+      http.get(`*${API}/groups/`, () =>
+        HttpResponse.json({ count: 0, next: null, previous: null, results: [] }),
+      ),
+    );
+    const { user: u } = render();
+
+    expect(
+      await screen.findByText('User could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Error 500 - Server Error/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeNull();
+
+    await u.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByLabelText(/First name/)).toHaveValue('Ann');
+    expect(screen.queryByText('User could not be displayed.')).toBeNull();
+    expect(reads).toBe(2);
+  });
 });
 
 function withProviderFn(ui: ReactNode) {

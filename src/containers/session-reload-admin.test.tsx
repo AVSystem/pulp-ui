@@ -1,7 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode } from 'react';
-import { Route, Routes } from 'react-router';
+import { Link, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
@@ -680,6 +680,7 @@ describe('the user detail and the user edit page', () => {
       <AppContextProvider>
         <PermissionsKnown>
           <SignInAgain />
+          <Link to='/users/edit/5'>Other user</Link>
           <Routes>
             <Route path='/users/detail/:user_id' element={<UserDetail />} />
             <Route path='/users/edit/:user_id' element={<UserEdit />} />
@@ -808,6 +809,66 @@ describe('the user detail and the user edit page', () => {
       await signInAgain(u);
 
       expect(await firstName()).toHaveValue('Ann');
+    });
+
+    describe('when another user is opened', () => {
+      const OTHER = user({ id: 5, username: 'zz-bea', first_name: 'Bea' });
+      const OTHER_PATH = `${API}/users/5/`;
+      const serveOther = () =>
+        server.use(http.get(`*${OTHER_PATH}`, () => HttpResponse.json(OTHER)));
+
+      // answers the read of user 4 only once release() is called
+      function holdFirstUser() {
+        let release: () => void;
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        server.use(
+          http.get(`*${USER_PATH}`, async () => {
+            await gate;
+            return HttpResponse.json(USER);
+          }),
+        );
+        return { release: () => release() };
+      }
+
+      it('clears the form of the previous user while the new one is read', async () => {
+        serve('Ann');
+        const { user: u } = renderAt('/users/edit/4');
+        expect(await firstName()).toHaveValue('Ann');
+        let release: () => void;
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        server.use(
+          http.get(`*${OTHER_PATH}`, async () => {
+            await gate;
+            return HttpResponse.json(OTHER);
+          }),
+        );
+
+        await u.click(screen.getByRole('link', { name: 'Other user' }));
+
+        await waitFor(() =>
+          expect(screen.queryByLabelText(/First name/)).toBeNull(),
+        );
+        expect(screen.getByRole('progressbar')).toBeVisible();
+        release();
+        expect(await firstName()).toHaveValue('Bea');
+      });
+
+      it('ignores the late answer for the previous user', async () => {
+        const first = holdFirstUser();
+        serveOther();
+        const { user: u } = renderAt('/users/edit/4');
+
+        await u.click(await screen.findByRole('link', { name: 'Other user' }));
+        expect(await firstName()).toHaveValue('Bea');
+        first.release();
+        await pause();
+
+        expect(screen.getByLabelText(/First name/)).toHaveValue('Bea');
+      });
     });
 
     it('sends no write', async () => {
