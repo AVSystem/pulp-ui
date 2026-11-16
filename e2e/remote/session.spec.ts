@@ -145,7 +145,7 @@ test.describe('sessions of their own', () => {
   }) => {
     // Letters outside Latin-1: a header built any other way than from UTF-8
     // bytes throws in the browser before the request is even sent.
-    const name = 'Żółw-ćwik';
+    const name = '\u017b\u00f3\u0142w-\u0107wik';
     const wrongPassword = 'not-the-password';
     const scriptErrors: Error[] = [];
     page.on('pageerror', (error) => scriptErrors.push(error));

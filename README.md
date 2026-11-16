@@ -197,8 +197,10 @@ some roles of its own, some through a group and some on one object. The accounts
 }
 ```
 
-Keep the file outside the repository with mode `0600`. The tests create and delete only
-objects named `zz-e2e-...`. The target is either a deployed UI or the dev server of the
+Keep the file outside the repository with mode `0600`. All three entries are required for
+every run: the setup project signs in the three accounts before any project starts, so a run
+of `remote-admin` alone fails with "has no complete ... entry" when the file lacks the viewer or
+the editor. The tests create and delete only objects named `zz-e2e-...`. The target is either a deployed UI or the dev server of the
 previous section:
 
 ```sh
@@ -206,6 +208,18 @@ PULP_UI_E2E_ACCOUNTS=/path/to/accounts.json \
 PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \
 npx playwright test --project=remote-admin --project=remote-viewer --project=remote-editor
 ```
+
+The `shell-*` projects (`shell-light-desktop`, `shell-dark-desktop`, `shell-light-phone`,
+`shell-dark-phone`) open the menus, dialogs and error states that need a click, and the
+surfaces of ended sessions and refused reads, then screenshot each one into `shell-report/`
+(or the folder named by `PULP_UI_SHELL_OUT`) and run an accessibility check on it. They run as the
+account named by `PULP_UI_CRAWL_ACCOUNT` (`admin` unless set), and they need the administrator:
+some states open a delete confirmation and others create two empty repositories through the API,
+so the run fails as `viewer`. The screen crawler (`crawl-*` projects) uses the same variable and
+visits every route as that one account. The `session-switch` spec of `remote-admin` drives the
+sign-in-again dialog in a real browser: another account signing in through it, the dialog stacked
+over a sync dialog, and the return to a tab whose session another tab ended (a browser that sends
+no visibility change between tabs cannot show the last one, and the spec says so).
 
 Output of the remote projects (screenshots, the HTML report) can show data of that
 deployment; keep it local. These projects record no Playwright trace, because a trace keeps the

@@ -1,6 +1,8 @@
 import { type Page, expect, test } from '@playwright/test';
 import { account } from '../support/accounts';
+import { TestObjects } from '../support/api';
 import { title } from '../support/sign-in';
+import { type ListPage, missingPlugin } from './list-pages';
 import { signedOut } from './session-helpers';
 
 // What the limited account is shown of the administration screens, and what a
@@ -18,6 +20,55 @@ const ADMINISTRATION = [
   'users/create',
   'roles/create',
 ];
+
+// The repository and remote forms of each plugin, by the REST endpoint that
+// lists their objects.
+const FORMS = [
+  { plugin: 'file', repositories: 'file/file', remotes: 'file/file' },
+  { plugin: 'deb', repositories: 'deb/apt', remotes: 'deb/apt' },
+  { plugin: 'rpm', repositories: 'rpm/rpm', remotes: 'rpm/rpm' },
+  { plugin: 'python', repositories: 'python/python', remotes: 'python/python' },
+  {
+    plugin: 'ansible',
+    repositories: 'ansible/ansible',
+    remotes: 'ansible/collection',
+  },
+] as const;
+
+// What creating a remote of a kind needs besides its name. The address is
+// reserved for examples and is never contacted.
+const REMOTE_BODY: Record<string, Record<string, unknown>> = {
+  'file/file': { url: 'https://pulp.example/zz-e2e/PULP_MANIFEST' },
+  'deb/apt': { url: 'https://pulp.example/zz-e2e/', distributions: 'stable' },
+  'rpm/rpm': { url: 'https://pulp.example/zz-e2e/' },
+  'python/python': { url: 'https://pulp.example/zz-e2e/' },
+  'ansible/collection': { url: 'https://pulp.example/zz-e2e/' },
+};
+
+// The insufficient permissions page is on screen once the permissions of the
+// account have been read, with nothing that saves and no request that writes.
+async function expectRefusedForm(page: Page, path: string): Promise<void> {
+  const writes: string[] = [];
+  page.on('request', (request) => {
+    const { pathname } = new URL(request.url());
+    if (
+      pathname.startsWith('/pulp/api/') &&
+      !['GET', 'HEAD', 'OPTIONS'].includes(request.method())
+    ) {
+      writes.push(`${request.method()} ${pathname}`);
+    }
+  });
+
+  await page.goto(path);
+  await expect(title(page, 'Insufficient permissions')).toBeVisible();
+  await expect(
+    page.getByText('You do not have permission to view this page.'),
+  ).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
+  await expect(page.getByText('The stack trace is:')).toHaveCount(0);
+  expect(writes, 'requests of the page that write').toEqual([]);
+}
 
 test.describe('the limited account', () => {
   test('has no Users, Groups or Roles entry in the sidebar', async ({
@@ -55,6 +106,57 @@ test.describe('the limited account', () => {
     });
   }
 
+  test('the task list offers none of the task actions', async ({ page }) => {
+    const permissionsRead = page.waitForResponse((response) =>
+      /\/pulp\/api\/v3\/users\/[^/]+\/roles\/$/.test(
+        new URL(response.url()).pathname,
+      ),
+    );
+    await page.goto('tasks');
+    await permissionsRead;
+    await expect(title(page, 'Task management')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    const actions = /Orphan cleanup|Repair|Purge tasks|Stop task/;
+    await expect(page.getByRole('button', { name: actions })).toHaveCount(0);
+    await expect(page.getByRole('menuitem', { name: actions })).toHaveCount(0);
+    await expect(page.locator('[data-cy=kebab-toggle]')).toHaveCount(0);
+  });
+
+  test('has no Signing services entry in the sidebar and is refused its address', async ({
+    page,
+  }) => {
+    await page.goto('signature-keys');
+    await expect(title(page, 'Insufficient permissions')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    await expect(
+      sidebar(page).locator('[data-cy=pulp-menu-item-status]'),
+    ).toBeVisible();
+    await expect(
+      sidebar(page).locator('[data-cy=pulp-menu-item-signing-services]'),
+    ).toHaveCount(0);
+    await expect(
+      sidebar(page).getByRole('link', { name: 'Signing services' }),
+    ).toHaveCount(0);
+  });
+
+  test('sees the Versions card and the administrators note on the Status screen and no online workers', async ({
+    page,
+  }) => {
+    await page.goto('status');
+    await expect(title(page, 'Status')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.getByText('Versions', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText(
+        'Workers, storage and content settings are shown to administrators.',
+      ),
+    ).toBeVisible();
+    await expect(page.getByText('Online workers')).toHaveCount(0);
+  });
+
   test('opens its own profile and sees it', async ({ page }) => {
     await page.goto('users/profile');
 
@@ -71,6 +173,83 @@ test.describe('the limited account', () => {
       page.getByRole('button', { name: 'Edit', exact: true }),
     ).toHaveCount(0);
   });
+});
+
+// The edit and add pages of every repository and remote form, opened by
+// address. An existing object of each kind is used when the server holds one;
+// otherwise a test object is created with the administrator and removed again.
+test.describe('the forms of repositories and remotes opened by address', () => {
+  let objects: TestObjects;
+  const names = new Map<string, Promise<string>>();
+
+  // Each worker has objects of its own, so one worker's clean-up never removes
+  // what another worker is using.
+  test.beforeAll(async () => {
+    objects = await TestObjects.open(`access-forms-${test.info().workerIndex}`);
+  });
+
+  test.afterAll(async () => {
+    test.setTimeout(180_000);
+    await objects.cleanUp();
+  });
+
+  function objectName(kind: 'repositories' | 'remotes', endpoint: string) {
+    const key = `${kind}/${endpoint}`;
+    let found = names.get(key);
+    if (!found) {
+      found = (async () => {
+        const response = await objects.api.get(`/pulp/api/v3/${key}/`, {
+          params: { limit: '1', fields: 'name' },
+        });
+        expect(response.ok(), `GET ${key}`).toBe(true);
+        const { results } = (await response.json()) as {
+          results: { name: string }[];
+        };
+        if (results[0]) {
+          return results[0].name;
+        }
+        const created = await objects.create(`${key}/`, {
+          name: objects.name(key.replace(/\//g, '-')),
+          ...(kind === 'remotes' ? REMOTE_BODY[endpoint] : {}),
+        });
+        return created.name as string;
+      })();
+      names.set(key, found);
+    }
+    return found;
+  }
+
+  for (const { plugin, repositories, remotes } of FORMS) {
+    const entry = { plugin } as ListPage;
+    for (const [kind, endpoint] of [
+      ['repositories', repositories],
+      ['remotes', remotes],
+    ] as const) {
+      const base = `${plugin}/${kind}`;
+
+      test(`the ${plugin} ${kind} edit page of an existing object shows the insufficient permissions page`, async ({
+        page,
+      }) => {
+        const absent = await missingPlugin(entry);
+        test.skip(absent !== null, absent ?? '');
+        const name = await objectName(kind, endpoint);
+
+        await expectRefusedForm(
+          page,
+          `${base}/edit/${encodeURIComponent(name)}`,
+        );
+      });
+
+      test(`the ${plugin} ${kind} add page shows the insufficient permissions page`, async ({
+        page,
+      }) => {
+        const absent = await missingPlugin(entry);
+        test.skip(absent !== null, absent ?? '');
+
+        await expectRefusedForm(page, `${base}/edit/_`);
+      });
+    }
+  }
 });
 
 test.describe('a visitor who is not signed in', () => {
