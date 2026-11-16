@@ -1377,14 +1377,15 @@ export class RemoteForm extends Component<IProps, IState> {
           </div>
         </ExpandableSection>
         {errorMessages['__nofield'] ? (
-          <span
+          <p
+            className='pulp-break-anywhere'
             style={{
               color:
                 'var(--pf-t--global--text--color--status--danger--default)',
             }}
           >
             {errorMessages['__nofield']}
-          </span>
+          </p>
         ) : null}
         {extra}
       </Form>
