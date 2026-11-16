@@ -12,6 +12,7 @@ import {
   UserFormPage,
   closeAlert,
 } from 'src/components';
+import { usePermissions } from 'src/permissions';
 import { useSessionEpoch, useUserContext } from 'src/user-context';
 import {
   type ErrorMessagesType,
@@ -44,6 +45,10 @@ function UserProfile(_props: RouteProps) {
     endSession,
   } = useUserContext();
   const username = sessionUser?.username;
+  // Pulp lets every user read their own record but changes a user record only
+  // for those who may change users, so the Edit control is offered to them
+  // alone. Until the permissions are known it is not offered.
+  const { hasPermission } = usePermissions();
   // The record is read by its own address: Pulp lets every user read their
   // own record, while the list of users is open only to those who may view
   // users.
@@ -140,7 +145,7 @@ function UserProfile(_props: RouteProps) {
 
   const breadcrumbs = [{ name: t`Settings` }, { name: t`My profile` }];
   const title = t`My profile`;
-  const extraControls = !inEditMode && (
+  const extraControls = !inEditMode && hasPermission('auth.change_user') && (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
       <div>
         <Button onClick={() => setInEditMode(true)}>{t`Edit`}</Button>

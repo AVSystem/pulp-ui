@@ -64,6 +64,10 @@ test.describe('the limited account', () => {
       page.getByRole('main').getByText(account('viewer').username),
     ).toBeVisible();
     await expect(title(page, 'Insufficient permissions')).toHaveCount(0);
+    // the profile of an account that may not change users offers no Edit,
+    // checked once the requests of the page have settled
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('button', { name: 'Edit' })).toHaveCount(0);
   });
 });
 

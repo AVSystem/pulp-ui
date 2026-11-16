@@ -843,9 +843,11 @@ describe('the profile page', () => {
   const serve = (firstName: string) =>
     server.use(
       http.get(`*${USERS}`, () =>
-        HttpResponse.json(
-          user({ id: 1, username: 'zoe', first_name: firstName }),
-        ),
+        HttpResponse.json({
+          ...user({ id: 1, username: 'zoe', first_name: firstName }),
+          // an administrator, who may change users and so is offered Edit
+          is_staff: true,
+        }),
       ),
       listOf(`${API}/groups/`, []).handler,
     );
@@ -877,7 +879,7 @@ describe('the profile page', () => {
     serve('Zo');
     const { user: u } = renderProfile();
     await screen.findByText('Zo');
-    await u.click(screen.getByRole('button', { name: 'Edit' }));
+    await u.click(await screen.findByRole('button', { name: 'Edit' }));
     const field = await screen.findByLabelText(/Last name/);
     await u.type(field, 'Typed');
     let reads = 0;

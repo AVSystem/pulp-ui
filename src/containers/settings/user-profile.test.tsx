@@ -2,7 +2,11 @@ import { screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
-import { servePermissions } from 'src/test-utils/permissions';
+import {
+  type IPermissionSetup,
+  PermissionsKnown,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import UserProfile from './user-profile';
@@ -20,8 +24,13 @@ afterEach(() => {
 });
 
 describe('the profile page of a user who may not list users', () => {
-  function renderProfile() {
-    recorder = servePermissions({ id: 7, username: 'zoe', isStaff: false });
+  function renderProfile(setup: IPermissionSetup = {}) {
+    recorder = servePermissions({
+      id: 7,
+      username: 'zoe',
+      isStaff: false,
+      ...setup,
+    });
     server.use(
       http.get(`*${API}/users/`, () =>
         HttpResponse.json(
@@ -37,7 +46,7 @@ describe('the profile page of a user who may not list users', () => {
           first_name: 'Zo',
           last_name: '',
           email: '',
-          is_staff: false,
+          is_staff: setup.isStaff ?? false,
           is_active: true,
           date_joined: '2000-01-01T00:00:00.000000Z',
           groups: [],
@@ -46,7 +55,9 @@ describe('the profile page of a user who may not list users', () => {
     );
     return renderWithProviders(
       <AppContextProvider>
-        <UserProfile />
+        <PermissionsKnown>
+          <UserProfile />
+        </PermissionsKnown>
       </AppContextProvider>,
       { route: '/users/profile' },
     );
@@ -69,5 +80,34 @@ describe('the profile page of a user who may not list users', () => {
     expect(
       recorder.requests.filter((path) => path.startsWith(`${API}/users/?`)),
     ).toEqual([]);
+  });
+
+  // Editing a record is offered to whoever the server would let change it,
+  // which is decided by the permission to change users. A user's own record is
+  // readable by that user, but a change needs that permission too.
+  it('offers no Edit to a user who may not change users', async () => {
+    renderProfile();
+    await screen.findByText('Zo');
+
+    expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+  });
+
+  it('offers no Edit to a user who may only view users', async () => {
+    renderProfile({ own: [['auth.view_user']] });
+    await screen.findByText('Zo');
+
+    expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+  });
+
+  it('offers Edit to a user who may change users', async () => {
+    renderProfile({ own: [['auth.change_user']] });
+
+    expect(await screen.findByRole('button', { name: 'Edit' })).toBeVisible();
+  });
+
+  it('offers Edit to an administrator', async () => {
+    renderProfile({ isStaff: true });
+
+    expect(await screen.findByRole('button', { name: 'Edit' })).toBeVisible();
   });
 });
