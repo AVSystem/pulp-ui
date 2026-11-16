@@ -7399,6 +7399,14 @@ msgstr ""
 msgid "The login page returned without a signed-in session."
 msgstr ""
 
+#: src/actions/ansible-remote-delete.tsx
+#: src/actions/deb-remote-delete.tsx
+#: src/actions/file-remote-delete.tsx
+#: src/actions/python-remote-delete.tsx
+#: src/actions/rpm-remote-delete.tsx
+msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr ""
@@ -7409,6 +7417,10 @@ msgstr ""
 
 #: src/actions/repository-version-revert.tsx
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
+#: src/actions/python-distribution-edit.tsx
+msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -7422,6 +7434,14 @@ msgstr "Le mot de passe à utiliser pour l'authentification lors de la synchroni
 #: src/app-routes.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
+msgstr ""
+
+#: src/actions/ansible-remote-delete.tsx
+#: src/actions/deb-remote-delete.tsx
+#: src/actions/file-remote-delete.tsx
+#: src/actions/python-remote-delete.tsx
+#: src/actions/rpm-remote-delete.tsx
+msgid "The removal of remote {name} is still running."
 msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx

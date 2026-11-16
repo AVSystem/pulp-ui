@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { UserAPI, type UserType } from 'src/api';
 import { DeleteModal } from 'src/components';
 import { useUserContext } from 'src/user-context';
@@ -27,6 +27,15 @@ export const DeleteUserModal = ({
 }: IProps) => {
   const [waiting, setWaiting] = useState(false);
   const { user: sessionUser } = useUserContext();
+  // Whether the dialog is still on screen, so the wait for the removal stops
+  // reading the user once it has been closed or taken away.
+  const shown = useRef(isOpen);
+  useEffect(() => {
+    shown.current = isOpen;
+    return () => {
+      shown.current = false;
+    };
+  }, [isOpen]);
 
   if (!user || !isOpen) {
     return null;
@@ -50,11 +59,14 @@ export const DeleteUserModal = ({
     </DeleteModal>
   );
 
-  function deleteUser() {
+  // Delete stays disabled with a spinner until the removal is confirmed, so one
+  // confirmation sends one request.
+  async function deleteUser() {
     setWaiting(true);
-    UserAPI.delete(user.id)
-      .then(() => waitForDeleteConfirm())
-      .catch((err) => {
+    try {
+      try {
+        await UserAPI.delete(user.id);
+      } catch (err) {
         // The session ended: the user was not deleted and nothing is
         // repeated; the dialog stays so the user can delete after signing in.
         if (isSessionEnd(err)) {
@@ -68,28 +80,29 @@ export const DeleteUserModal = ({
             : mapErrorMessages(err)['__nofield'],
         );
         closeModal(false);
-      })
-      .finally(() => setWaiting(false));
+        return;
+      }
+
+      await waitForDeleteConfirm();
+    } finally {
+      setWaiting(false);
+    }
   }
 
-  // Wait for the user to actually get removed from the database before closing
-  function waitForDeleteConfirm() {
-    UserAPI.get(user.id as unknown as string)
-      .then(async () => {
-        // wait half a second
-        await new Promise((r) => setTimeout(r, 500));
-        waitForDeleteConfirm();
-      })
-      .catch((err) => {
+  // Wait for the user to actually get removed from the database before
+  // closing, reading again every half second until the user is gone or the
+  // dialog is.
+  async function waitForDeleteConfirm() {
+    while (shown.current) {
+      try {
+        await UserAPI.get(user.id as unknown as string);
+      } catch (err) {
         // The session ended while waiting for the removal to show: the delete
         // itself went through, so the dialog closes and the list reads again
         // after signing in.
         if (isSessionEnd(err)) {
           closeModal(true);
-          setWaiting(false);
-          return;
-        }
-        if (requestErrorStatus(err) === 404) {
+        } else if (requestErrorStatus(err) === 404) {
           addAlert(
             t`User "${user.username}" has been successfully deleted.`,
             'success',
@@ -102,8 +115,10 @@ export const DeleteUserModal = ({
             requestErrorDescription(err),
           );
         }
+        return;
+      }
 
-        setWaiting(false);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
   }
 };

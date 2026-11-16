@@ -7400,6 +7400,14 @@ msgstr "The last action was not completed. Repeat it after you log in."
 msgid "The login page returned without a signed-in session."
 msgstr "The login page returned without a signed-in session."
 
+#: src/actions/ansible-remote-delete.tsx
+#: src/actions/deb-remote-delete.tsx
+#: src/actions/file-remote-delete.tsx
+#: src/actions/python-remote-delete.tsx
+#: src/actions/rpm-remote-delete.tsx
+msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
+msgstr "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
+
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "The outcome of removing the repository is unknown. Check the task:"
@@ -7411,6 +7419,10 @@ msgstr "The outcome of the change to repository \"{repositoryName}\" is unknown,
 #: src/actions/repository-version-revert.tsx
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
 msgstr "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
+
+#: src/actions/python-distribution-edit.tsx
+msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
+msgstr "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
 
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
@@ -7424,6 +7436,14 @@ msgstr "The password to be used for authentication when syncing. This is not req
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "The plugin list could not be loaded"
+
+#: src/actions/ansible-remote-delete.tsx
+#: src/actions/deb-remote-delete.tsx
+#: src/actions/file-remote-delete.tsx
+#: src/actions/python-remote-delete.tsx
+#: src/actions/rpm-remote-delete.tsx
+msgid "The removal of remote {name} is still running."
+msgstr "The removal of remote {name} is still running."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
