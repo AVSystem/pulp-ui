@@ -874,7 +874,13 @@ describe('plugin routes while the installed plugins are unknown', () => {
     ).toBeVisible();
     keys.unmount();
 
-    const tasks = renderWithProviders(<Routed />, { route: '/tasks' });
+    // the task list reads the app context, which the root route supplies
+    const tasks = renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: '/tasks' },
+    );
     expect(
       await screen.findByRole('heading', { name: 'Task management' }),
     ).toBeVisible();

@@ -6,6 +6,9 @@ import { useUserContext } from './user-context';
 export interface IAppContextType {
   alerts: AlertType[];
   hasPermission: (name: string) => boolean;
+  // true only when the permissions are known and the signed-in account's own
+  // record is staff; Pulp allows some administration actions to staff only
+  isStaff: boolean;
   // whether the permissions of the signed-in user are known; until then every
   // permission check answers false
   permissionsReady: boolean;
@@ -20,7 +23,8 @@ export const useAppContext = () => useContext(AppContext);
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const { user } = useUserContext();
-  const { hasPermission, state: permissionsState } = usePermissions();
+  const permissions = usePermissions();
+  const { hasPermission } = permissions;
 
   // An alert with an id replaces an open one with the same id, so a refusal
   // repeated while its alert is still shown stays one alert.
@@ -35,7 +39,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       value={{
         alerts,
         hasPermission,
-        permissionsReady: permissionsState === 'ready',
+        isStaff: permissions.state === 'ready' && permissions.isStaff,
+        permissionsReady: permissions.state === 'ready',
         queueAlert,
         setAlerts,
         // FIXME: hack

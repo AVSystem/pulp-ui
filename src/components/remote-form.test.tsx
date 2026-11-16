@@ -241,6 +241,7 @@ function renderWithBareContext(plugin: Plugin) {
       value={{
         alerts: [],
         hasPermission: () => true,
+        isStaff: false,
         permissionsReady: true,
         queueAlert: () => undefined,
         setAlerts: () => undefined,

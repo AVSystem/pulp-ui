@@ -16,6 +16,7 @@ import {
   TaskPurgeAPI,
   type TaskType,
 } from 'src/api';
+import { AppContext, type IAppContextType } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -26,6 +27,7 @@ import {
   DateComponent,
   EmptyStateFilter,
   EmptyStateNoData,
+  InsufficientPermissions,
   LoadingSpinner,
   Main,
   OrphanCleanupTaskModal,
@@ -46,9 +48,12 @@ import {
   translateTask,
   withRouter,
 } from 'src/utilities';
+import { ObjectPermissions } from 'src/utilities/my-permissions';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 import './task.scss';
 
@@ -66,6 +71,9 @@ interface IState {
   orphanCleanupTaskModalVisible: boolean;
   repairTaskModalVisible: boolean;
   selectedTask: TaskType;
+  // the read of the list was refused, with the reason Pulp gave when it did
+  unauthorized: boolean;
+  unauthorizedDetail: string | null;
   inputText: string;
   purgeTask: { finished_before: string; states: string[] };
   orphanCleanupTask: { orphan_protection_time: number };
@@ -73,8 +81,17 @@ interface IState {
 }
 
 const ORPHAN_PROTECTION_TIME = 1440;
+const CHANGE_TASK = 'core.change_task';
+// the states a task can still be stopped in
+const STOPPABLE = ['running', 'waiting'];
 
 export class TaskListView extends Component<RouteProps, IState> {
+  static contextType = AppContext;
+
+  // What the server lists for each running or waiting task, read when the
+  // change permission is not held on every task.
+  private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
+
   constructor(props) {
     super(props);
 
@@ -103,6 +120,8 @@ export class TaskListView extends Component<RouteProps, IState> {
       orphanCleanupTaskModalVisible: false,
       repairTaskModalVisible: false,
       selectedTask: null,
+      unauthorized: false,
+      unauthorizedDetail: null,
       inputText: '',
       purgeTask: {
         finished_before: `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
@@ -117,11 +136,37 @@ export class TaskListView extends Component<RouteProps, IState> {
     this.queryTasks();
   }
 
+  componentWillUnmount() {
+    this.objectPermissions.dispose();
+  }
+
   componentDidUpdate(prevProps: RouteProps) {
     // The same user signed in again: read the list again, keeping the rows on
-    // screen until the answer arrives.
+    // screen until the answer arrives. Roles may have changed with the new
+    // session.
     if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
+      this.objectPermissions.reset();
       this.queryTasks(true);
+    }
+    this.readObjectPermissions();
+  }
+
+  // Reads the permissions of each task a Stop task button could be drawn for,
+  // once, when the account's global permissions are known and do not already
+  // include the change permission.
+  private readObjectPermissions() {
+    const { hasPermission, permissionsReady } = this.context as IAppContextType;
+    if (!permissionsReady || hasPermission(CHANGE_TASK)) {
+      return;
+    }
+
+    for (const item of this.state.items) {
+      if (
+        STOPPABLE.includes(item.state) &&
+        !Array.isArray(item.my_permissions)
+      ) {
+        this.objectPermissions.read(item.pulp_href);
+      }
     }
   }
 
@@ -136,10 +181,19 @@ export class TaskListView extends Component<RouteProps, IState> {
       purgeTaskModalVisible,
       orphanCleanupTaskModalVisible,
       repairTaskModalVisible,
+      unauthorized,
+      unauthorizedDetail,
     } = this.state;
 
     const noData =
       items.length === 0 && !filterIsSet(params, ['name__contains', 'state']);
+
+    // Which maintenance actions are drawn is presentation only; Pulp decides
+    // every request. Orphan cleanup and repair are for administrators, purge
+    // for an account that may delete every task. Nothing is drawn while the
+    // permissions are unknown.
+    const { hasPermission, isStaff } = this.context as IAppContextType;
+    const canPurge = hasPermission('core.delete_task');
 
     const orphansCleanup = (
       <Button
@@ -179,7 +233,9 @@ export class TaskListView extends Component<RouteProps, IState> {
           : null}
         {repairTaskModalVisible ? this.renderRepairTaskModal() : null}
         <BaseHeader title={t`Task management`} />
-        {noData && !loading ? (
+        {unauthorized ? (
+          <InsufficientPermissions detail={unauthorizedDetail} />
+        ) : noData && !loading ? (
           <EmptyStateNoData
             title={t`No tasks yet`}
             description={t`Tasks will appear once created.`}
@@ -235,9 +291,13 @@ export class TaskListView extends Component<RouteProps, IState> {
                             ]}
                           />
                         </ToolbarItem>
-                        <ToolbarItem>{orphansCleanup}</ToolbarItem>
-                        <ToolbarItem>{repair}</ToolbarItem>
-                        <ToolbarItem>{purgeTasks}</ToolbarItem>
+                        {isStaff ? (
+                          <ToolbarItem>{orphansCleanup}</ToolbarItem>
+                        ) : null}
+                        {isStaff ? <ToolbarItem>{repair}</ToolbarItem> : null}
+                        {canPurge ? (
+                          <ToolbarItem>{purgeTasks}</ToolbarItem>
+                        ) : null}
                       </ToolbarGroup>
                     </ToolbarContent>
                   </Toolbar>
@@ -367,40 +427,28 @@ export class TaskListView extends Component<RouteProps, IState> {
   }
 
   private cancelButton(state, selectedTask) {
-    switch (state) {
-      case 'running':
-        return (
-          <Button
-            variant='secondary'
-            aria-label={t`Delete`}
-            key='delete'
-            onClick={() =>
-              this.setState({
-                cancelModalVisible: true,
-                selectedTask,
-              })
-            }
-          >
-            {t`Stop task`}
-          </Button>
-        );
-      case 'waiting':
-        return (
-          <Button
-            variant='secondary'
-            aria-label={t`Delete`}
-            key='delete'
-            onClick={() =>
-              this.setState({
-                cancelModalVisible: true,
-                selectedTask,
-              })
-            }
-          >
-            {t`Stop task`}
-          </Button>
-        );
+    const { hasPermission } = this.context as IAppContextType;
+    if (
+      !STOPPABLE.includes(state) ||
+      !this.objectPermissions.holds(CHANGE_TASK, selectedTask, hasPermission)
+    ) {
+      return null;
     }
+
+    return (
+      <Button
+        variant='secondary'
+        key='stop'
+        onClick={() =>
+          this.setState({
+            cancelModalVisible: true,
+            selectedTask,
+          })
+        }
+      >
+        {t`Stop task`}
+      </Button>
+    );
   }
 
   private renderCancelModal() {
@@ -495,7 +543,6 @@ export class TaskListView extends Component<RouteProps, IState> {
           return;
         }
         this.setState({
-          loading: true,
           cancelModalVisible: false,
           alerts: [
             ...this.state.alerts,
@@ -506,6 +553,8 @@ export class TaskListView extends Component<RouteProps, IState> {
             },
           ],
         });
+        // The rows stay on screen while the list is read again.
+        this.queryTasks(true);
       });
   }
 
@@ -518,12 +567,26 @@ export class TaskListView extends Component<RouteProps, IState> {
             items: result.data.results,
             itemCount: result.data.count,
             loading: false,
+            unauthorized: false,
+            unauthorizedDetail: null,
           });
         })
         .catch((e) => {
           // The session ended: the sign-in dialog explains it, and the list
           // keeps its spinner or its rows until it reads again.
           if (isSessionEnd(e)) {
+            return;
+          }
+          if (requestErrorStatus(e) === 403) {
+            // A refused read is not a failure to retry: the account is told it
+            // may not view the page, with Pulp's own reason.
+            this.setState({
+              loading: false,
+              items: [],
+              itemCount: 0,
+              unauthorized: true,
+              unauthorizedDetail: requestErrorDetail(e),
+            });
             return;
           }
           this.setState({
