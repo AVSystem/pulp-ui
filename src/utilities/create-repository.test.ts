@@ -390,7 +390,7 @@ describe('createRepository', () => {
 });
 
 describe('createRepository when the session ends', () => {
-  it('reports the repository as created and adds no danger alert when the distribution request is refused with 401', async () => {
+  it('reports the repository as created with a warning that the distribution was not confirmed when the distribution request is refused with 401', async () => {
     serveExistingDistributions([]);
     serveRepositoryCreate();
     serveDistributionCreate(() =>
@@ -402,8 +402,14 @@ describe('createRepository when the session ends', () => {
 
     expect(result.repositoryHref).toBe(REPOSITORY_HREF);
     expect(result.distributionError).toBeNull();
-    expect(alerts.map((alert) => alert.variant)).toEqual(['success']);
-    expect(alerts[0]?.title).toBe(`Successfully created repository ${NAME}`);
+    expect(alerts).toEqual([
+      {
+        variant: 'warning',
+        title: `Repository "${NAME}" was created. Its distribution was not confirmed.`,
+        description:
+          'The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing.',
+      },
+    ]);
     expect(requestsOf('POST', '/distributions/file/file/')).toHaveLength(1);
   });
 
