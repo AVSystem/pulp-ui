@@ -1,0 +1,26 @@
+// The width PatternFly gives a toast alert (its alert group sets it only inside
+// its own selector, so the value is repeated here).
+$toast-alert-width: 37.5rem;
+$offset-inline-end: 5px;
+
+// Refused-action and result alerts float over the page at the top right. The
+// list keeps the width of a toast alert and never grows past the window, so a
+// long unbroken server text wraps inside its alert instead of stretching the
+// list across the window and under the sidebar.
+.pulp-alert-list {
+  position: fixed;
+  top: 80px;
+  right: $offset-inline-end;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  max-inline-size: min(
+    #{$toast-alert-width},
+    calc(100vw - #{2 * $offset-inline-end})
+  );
+
+  .pf-v6-c-alert__title,
+  .pf-v6-c-alert__description {
+    overflow-wrap: anywhere;
+  }
+}

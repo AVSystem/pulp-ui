@@ -284,6 +284,69 @@ describe('the delete repository dialog', () => {
     expect(closeAction).not.toHaveBeenCalled();
   });
 
+  it('says the repository was not removed, and never that distributions were removed, when no distribution serves it and Pulp refuses the delete', async () => {
+    serve([]);
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(kept({ repositoryError: 'Not allowed here.' }));
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    expect(
+      await screen.findByText('The repository was not removed.'),
+    ).toBeVisible();
+    expect(screen.queryByText(/The distributions were removed/)).toBeNull();
+    expect(
+      screen.getByText(
+        'The repository could not be removed: Not allowed here.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('keeps the wording for distributions that were removed before the repository was kept', async () => {
+    const repo = repository({ name: REPO_NAME });
+    serve([boundTo(repo, { base_path: 'a-shown', name: 'a-shown' })]);
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(
+        kept({ removed: ['a-shown'], repositoryError: 'Not allowed here.' }),
+      );
+    const { user } = renderModal({ deleteAction, repo });
+    await screen.findByText('a-shown');
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    expect(
+      await screen.findByText(
+        'The distributions were removed but the repository was kept.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('keeps the wording for a distribution that was not removed', async () => {
+    serve([]);
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(
+        kept({ failed: [{ name: 'refused-one', reason: 'no' }] }),
+      );
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    expect(
+      await screen.findByText(
+        'The repository was kept because not every distribution was removed.',
+      ),
+    ).toBeVisible();
+  });
+
   it('says the outcome is unknown, with the task link, for a delete whose task status could not be read', async () => {
     serve([]);
     const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000cc/`;

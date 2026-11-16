@@ -461,13 +461,14 @@ export const RepositoryForm = ({
       )}
 
       {errorMessages['__nofield'] ? (
-        <span
+        <p
+          className='pulp-break-anywhere'
           style={{
             color: 'var(--pf-t--global--text--color--status--danger--default)',
           }}
         >
           {errorMessages['__nofield']}
-        </span>
+        </p>
       ) : null}
 
       <ActionGroup key='actions'>

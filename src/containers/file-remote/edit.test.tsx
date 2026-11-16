@@ -75,7 +75,7 @@ describe('saving a new file remote that the server does not accept', () => {
     expect(urlInput()).toHaveValue('https://pulp.example/files/');
   });
 
-  it('shows the server detail message when the answer carries no field', async () => {
+  it('shows the three-part refusal when the answer is a 403 without a field', async () => {
     server.use(
       http.post(`*${API}/remotes/file/file/`, () =>
         HttpResponse.json({ detail: 'Not allowed here.' }, { status: 403 }),
@@ -85,7 +85,12 @@ describe('saving a new file remote that the server does not accept', () => {
 
     await fillAndSave(user, 'tools', 'https://pulp.example/files/');
 
-    expect(await screen.findByText('Not allowed here.')).toBeInTheDocument();
+    const refusal = await screen.findByText(/Not allowed here\./);
+    expect(refusal).toHaveTextContent(
+      'You do not have permission to do this. Not allowed here. Contact your organization administrator for more information.',
+    );
+    expect(refusal).toHaveClass('pulp-break-anywhere');
+    expect(screen.queryByTestId('where')).toBeNull();
   });
 });
 

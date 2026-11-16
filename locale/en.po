@@ -7465,6 +7465,10 @@ msgstr "The repository is still being removed:"
 msgid "The repository was kept because not every distribution was removed."
 msgstr "The repository was kept because not every distribution was removed."
 
+#: src/components/delete-repository-modal.tsx
+msgid "The repository was not removed."
+msgstr "The repository was not removed."
+
 #: src/utilities/request-error.ts
 msgid "The request failed."
 msgstr "The request failed."

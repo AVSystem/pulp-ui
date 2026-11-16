@@ -22,10 +22,12 @@ const hiddenFields = [
 function Harness({
   plugin,
   initial = {},
+  errorMessages = {},
   onSave,
 }: {
   plugin: Plugin;
   initial?: Record<string, unknown>;
+  errorMessages?: Record<string, string>;
   onSave: (remote: Record<string, unknown>) => void;
 }) {
   const [remote, setRemote] = useState({
@@ -44,7 +46,7 @@ function Harness({
       <RemoteForm
         allowEditName
         closeModal={() => undefined}
-        errorMessages={{}}
+        errorMessages={errorMessages}
         plugin={plugin}
         remote={remote as never}
         saveRemote={() => onSave(remote)}
@@ -300,5 +302,22 @@ describe('remote form, labels', () => {
       name: 'More information',
     });
     expect(helpButtons.length).toBeGreaterThan(1);
+  });
+});
+
+describe('remote form, message that belongs to no field', () => {
+  it('shows a long unbroken refusal as a paragraph that wraps', () => {
+    const refusal = `You do not have permission to do this. ${'x'.repeat(500)} Contact your organization administrator for more information.`;
+    renderWithProviders(
+      <Harness
+        plugin='file'
+        onSave={vi.fn()}
+        errorMessages={{ __nofield: refusal }}
+      />,
+    );
+
+    const message = screen.getByText(refusal);
+    expect(message.tagName).toBe('P');
+    expect(message).toHaveClass('pulp-break-anywhere');
   });
 });

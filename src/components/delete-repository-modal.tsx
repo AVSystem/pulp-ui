@@ -119,21 +119,27 @@ const DistributionList = ({
   </List>
 );
 
+// The title says what is true of the distributions: some were not removed, all
+// of them were removed, or none was involved at all.
+function keptTitle(result: DeleteRepositoryResult): string {
+  if (
+    result.failed.length ||
+    result.pending.length ||
+    result.unknown.length ||
+    result.unlisted.length
+  ) {
+    return t`The repository was kept because not every distribution was removed.`;
+  }
+  if (result.removed.length) {
+    return t`The distributions were removed but the repository was kept.`;
+  }
+  return t`The repository was not removed.`;
+}
+
 // What happened when the repository was kept: what was removed, what was not
 // and why, and what is still being removed.
 const KeptReport = ({ result }: { result: DeleteRepositoryResult }) => (
-  <Alert
-    isInline
-    title={
-      result.failed.length ||
-      result.pending.length ||
-      result.unknown.length ||
-      result.unlisted.length
-        ? t`The repository was kept because not every distribution was removed.`
-        : t`The distributions were removed but the repository was kept.`
-    }
-    variant='danger'
-  >
+  <Alert isInline title={keptTitle(result)} variant='danger'>
     {result.removed.length ? (
       <>
         <Content component='p'>

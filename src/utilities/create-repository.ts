@@ -83,7 +83,8 @@ export function failureReason(e): string {
 
 // Maps whatever a save attempt threw onto the form: a blocked create keeps its
 // per-field messages, a server rejection is shown by field, anything without a
-// response is shown without one.
+// response is shown without one. A refusal (403) is shown as the three-part
+// refusal under the form.
 export function saveErrorMessages(e): ErrorMessagesType {
   // The end of a session is explained by the sign-in dialog, not by the form.
   if (isSessionEnd(e)) {
@@ -92,6 +93,12 @@ export function saveErrorMessages(e): ErrorMessagesType {
 
   if (e instanceof CreateBlocked) {
     return e.errors;
+  }
+
+  // A refused save says what was refused, why and whom to ask, not only the
+  // server's bare sentence.
+  if (requestErrorStatus(e) === 403) {
+    return { __nofield: failureReason(e) };
   }
 
   if (e?.response) {
