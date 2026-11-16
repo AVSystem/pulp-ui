@@ -298,8 +298,8 @@ describe('sign in again dialog cover', () => {
 
   it('keeps the screen mounted under the cover, with what was typed in it', async () => {
     const { user } = await renderScreen();
-    await user.type(screen.getByLabelText('Draft'), 'unsaved words');
-    const field = screen.getByLabelText('Draft', { hidden: true });
+    const field = screen.getByLabelText('Draft');
+    await user.type(field, 'unsaved words');
 
     await openByRequest(user);
 
