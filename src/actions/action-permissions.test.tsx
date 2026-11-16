@@ -1,6 +1,12 @@
-import { render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { type ComponentType, type ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { listOf, repository, repositoryVersion } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -587,15 +593,130 @@ describe('the ansible repository actions that need more than a table row', () =>
     });
   });
 
-  // The copy action only reads the distribution of the repository and puts a
-  // client configuration on the clipboard: it changes nothing, so it carries
-  // no permission and every reader of the repository is offered it.
+  // The copy action puts a client configuration on the clipboard, and is
+  // offered to those who may change the content of repositories only: the
+  // permission held on every repository decides, never one listed for a
+  // single repository.
   describe('the copy action', () => {
-    it('declares no permission and is offered to a viewer', () => {
-      const ctx = context({ global: ['ansible.view_ansiblerepository'] });
+    const copy = ansibleRepositoryCopyAction;
 
-      expect(ansibleRepositoryCopyAction.permission).toBeUndefined();
-      expect(ansibleRepositoryCopyAction.isShown(repo, ctx)).toBe(true);
+    it('declares the modify permission, held on every object', () => {
+      expect(copy.permission).toBe(MODIFY);
+      expect(copy.objectLevel).toBe(false);
+    });
+
+    it('is absent, not disabled, for a viewer', () => {
+      const ctx = context({
+        global: ['ansible.view_ansiblerepository'],
+        object: { [repo.pulp_href]: ['ansible.view_ansiblerepository'] },
+      });
+
+      expect(copy.isShown(repo, ctx)).toBe(false);
+      expect(copy.button(repo, ctx)).toBeNull();
+      expect(copy.dropdownItem(repo, ctx)).toBeNull();
+    });
+
+    it('is shown to a holder of the modify permission on every object', () => {
+      const ctx = context({ global: [MODIFY] });
+
+      expect(copy.isShown(repo, ctx)).toBe(true);
+    });
+
+    it('is absent when only the repository lists the modify permission', () => {
+      const ctx = context({ object: { [repo.pulp_href]: [MODIFY] } });
+
+      expect(copy.isShown(repo, ctx)).toBe(false);
+      expect(ctx.hasObjectPermission).not.toHaveBeenCalled();
+    });
+
+    describe('pressed', () => {
+      const distro = {
+        name: 'zz-distribution',
+        pulp_href: `${API}/distributions/ansible/ansible/00000000-0000-4000-8000-0000000000d1/`,
+        base_url: 'https://pulp.example.test/pulp_ansible/galaxy/zz/',
+      };
+      const original = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+
+      const setClipboard = (value: unknown) =>
+        Object.defineProperty(navigator, 'clipboard', {
+          configurable: true,
+          value,
+        });
+
+      afterEach(() => {
+        if (original) {
+          Object.defineProperty(navigator, 'clipboard', original);
+        } else {
+          delete (navigator as { clipboard?: unknown }).clipboard;
+        }
+      });
+
+      // presses the button as a holder of the modify permission would
+      const press = async () => {
+        const addAlert = vi.fn();
+        const ctx = { ...context({ global: [MODIFY] }), addAlert };
+        render(<>{copy.button({ ...repo, distro }, ctx)}</>);
+        // fireEvent: user-event installs a clipboard of its own on setup
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Copy CLI configuration' }),
+        );
+        await waitFor(() => expect(addAlert).toHaveBeenCalled());
+        return addAlert;
+      };
+
+      it('copies the configuration and says so once it is on the clipboard', async () => {
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        setClipboard({ writeText });
+
+        const addAlert = await press();
+
+        expect(writeText).toHaveBeenCalledWith(
+          expect.stringContaining('server_list = zz-distribution'),
+        );
+        expect(addAlert).toHaveBeenCalledTimes(1);
+        expect(addAlert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'copy-cli-config',
+            title: 'Successfully copied to clipboard',
+            variant: 'success',
+          }),
+        );
+      });
+
+      it.each([
+        ['is unavailable', undefined],
+        [
+          'refuses the write',
+          { writeText: () => Promise.reject(new Error('denied')) },
+        ],
+        [
+          'throws on the write',
+          {
+            writeText: () => {
+              throw new Error('denied');
+            },
+          },
+        ],
+      ])(
+        'shows the configuration for manual copying when the clipboard %s',
+        async (_, clipboard) => {
+          setClipboard(clipboard);
+
+          const addAlert = await press();
+
+          expect(addAlert).toHaveBeenCalledTimes(1);
+          const alert = addAlert.mock.calls[0][0];
+          expect(alert).toMatchObject({
+            id: 'copy-cli-config',
+            title: 'The configuration could not be copied to the clipboard.',
+            variant: 'danger',
+          });
+          const { container } = render(<>{alert.description}</>);
+          expect(container.querySelector('pre')?.textContent).toContain(
+            'server_list = zz-distribution',
+          );
+        },
+      );
     });
   });
 
