@@ -17,8 +17,20 @@ import { UserForm } from './user-form';
 // selected groups in the user the parent owns. These tests replace the search
 // field with a plain one that reports every text typed, so the order of the
 // answers and the objects handed to the parent are what is observed.
+interface IMockTypeaheadProps {
+  results: { name: string; id: number }[];
+  loadResults: (text: string) => void;
+  onSelect: (event: unknown, name: string) => void;
+  selections: { name: string }[];
+}
+
 vi.mock('./typeahead', () => ({
-  Typeahead: ({ results, loadResults, onSelect, selections }) => (
+  Typeahead: ({
+    results,
+    loadResults,
+    onSelect,
+    selections,
+  }: IMockTypeaheadProps) => (
     <div>
       <input
         aria-label='group search'

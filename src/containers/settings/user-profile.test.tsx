@@ -135,7 +135,7 @@ describe('the profile page of a user who may not list users', () => {
 describe('the profile after a save', () => {
   it('returns to the saved values when Edit is followed by Cancel', async () => {
     recorder = servePermissions({ id: 7, username: 'zoe', isStaff: true });
-    const patches: object[] = [];
+    const patches: unknown[] = [];
     server.use(
       listOf(`${API}/groups/`, []).handler,
       http.get(`*${API}/users/`, () =>
