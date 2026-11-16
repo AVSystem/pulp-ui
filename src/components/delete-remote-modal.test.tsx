@@ -5,7 +5,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { task as taskBody } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { ansibleRemoteDeleteAction } from '../actions/ansible-remote-delete';
+import { debRemoteDeleteAction } from '../actions/deb-remote-delete';
 import { fileRemoteDeleteAction } from '../actions/file-remote-delete';
+import { pythonRemoteDeleteAction } from '../actions/python-remote-delete';
+import { rpmRemoteDeleteAction } from '../actions/rpm-remote-delete';
 import type * as WaitForTask from '../utilities/wait-for-task';
 
 // The polling of an unfinished task gives up after a few quick attempts, so a
@@ -32,10 +36,18 @@ const TASK_URL = `*${API}/tasks/00000000-0000-4000-8000-0000000000aa/`;
 
 const PLUGINS = [
   {
-    name: 'file',
-    action: fileRemoteDeleteAction,
-    path: 'remotes/file/file',
+    name: 'ansible',
+    action: ansibleRemoteDeleteAction,
+    path: 'remotes/ansible/collection',
   },
+  { name: 'deb', action: debRemoteDeleteAction, path: 'remotes/deb/apt' },
+  { name: 'file', action: fileRemoteDeleteAction, path: 'remotes/file/file' },
+  {
+    name: 'python',
+    action: pythonRemoteDeleteAction,
+    path: 'remotes/python/python',
+  },
+  { name: 'rpm', action: rpmRemoteDeleteAction, path: 'remotes/rpm/rpm' },
 ];
 
 interface Alert {
