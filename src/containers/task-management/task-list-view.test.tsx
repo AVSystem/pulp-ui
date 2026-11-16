@@ -129,6 +129,13 @@ describe('the toolbar actions of the task list', () => {
 
   it('offers none of them while the permissions are pending', async () => {
     servePermissions({ isStaff: true });
+    // the own record answers late, so the permissions stay unknown
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+      }),
+    );
     renderToolbar();
 
     await screen.findByText('zz.alpha');
