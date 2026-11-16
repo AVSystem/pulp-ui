@@ -1132,6 +1132,25 @@ describe('the role edit page', () => {
     });
   });
 
+  it('sends the save to the role address with a single trailing slash', async () => {
+    serve('first text');
+    const { user: u } = renderEdit();
+    await descriptionField();
+    await signedIn();
+    let saved: string | undefined;
+    server.use(
+      http.patch(`*${ROLE_PATH}`, ({ request }) => {
+        saved = new URL(request.url).pathname;
+        return HttpResponse.json(ROLE);
+      }),
+    );
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(saved).toBeDefined());
+    expect(saved).toBe(ROLE_PATH);
+  });
+
   it('keeps the form, with no alert or not-found page, when the read is refused with 401', async () => {
     serve('first text');
     const { user: u } = renderEdit();
