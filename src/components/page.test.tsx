@@ -2,10 +2,21 @@ import { msg } from '@lingui/core/macro';
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import { Route, Routes } from 'react-router';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
+import AnsibleRemoteEdit from '../containers/ansible-remote/edit';
+import AnsibleRepositoryEdit from '../containers/ansible-repository/edit';
+import DebRemoteEdit from '../containers/deb-remote/edit';
+import DebRepositoryEdit from '../containers/deb-repository/edit';
+import FileRemoteEdit from '../containers/file-remote/edit';
+import FileRepositoryEdit from '../containers/file-repository/edit';
+import PythonRemoteEdit from '../containers/python-remote/edit';
+import PythonRepositoryEdit from '../containers/python-repository/edit';
+import RPMRemoteEdit from '../containers/rpm-remote/edit';
+import RPMRepositoryEdit from '../containers/rpm-repository/edit';
+import { Paths } from '../paths';
 import { resetSessionEvents } from '../session/session-events';
 import {
   serveMyPermissions,
@@ -924,4 +935,169 @@ describe('a page whose form needs a permission', () => {
     expect(saves).toBe(0);
     recorded.stop();
   });
+});
+
+describe('every repository and remote edit page opened by its address', () => {
+  const API = '/pulp/api/v3';
+
+  // route: where the page is mounted; list: the collection its object is read
+  // from; view: a permission the account holds that is not the edit permission
+  const pages = [
+    {
+      name: 'ansible remote',
+      Edit: AnsibleRemoteEdit,
+      route: Paths.ansible.remote.edit,
+      list: 'remotes/ansible/collection/',
+    },
+    {
+      name: 'ansible repository',
+      Edit: AnsibleRepositoryEdit,
+      route: Paths.ansible.repository.edit,
+      list: 'repositories/ansible/ansible/',
+    },
+    {
+      name: 'deb remote',
+      Edit: DebRemoteEdit,
+      route: Paths.deb.remote.edit,
+      list: 'remotes/deb/apt/',
+    },
+    {
+      name: 'deb repository',
+      Edit: DebRepositoryEdit,
+      route: Paths.deb.repository.edit,
+      list: 'repositories/deb/apt/',
+    },
+    {
+      name: 'file remote',
+      Edit: FileRemoteEdit,
+      route: Paths.file.remote.edit,
+      list: 'remotes/file/file/',
+    },
+    {
+      name: 'file repository',
+      Edit: FileRepositoryEdit,
+      route: Paths.file.repository.edit,
+      list: 'repositories/file/file/',
+    },
+    {
+      name: 'python remote',
+      Edit: PythonRemoteEdit,
+      route: Paths.python.remote.edit,
+      list: 'remotes/python/python/',
+    },
+    {
+      name: 'python repository',
+      Edit: PythonRepositoryEdit,
+      route: Paths.python.repository.edit,
+      list: 'repositories/python/python/',
+    },
+    {
+      name: 'rpm remote',
+      Edit: RPMRemoteEdit,
+      route: Paths.rpm.remote.edit,
+      list: 'remotes/rpm/rpm/',
+    },
+    {
+      name: 'rpm repository',
+      Edit: RPMRepositoryEdit,
+      route: Paths.rpm.repository.edit,
+      list: 'repositories/rpm/rpm/',
+    },
+  ];
+
+  const hrefOf = ({ list }: { list: string }) =>
+    `${API}/${list}00000000-0000-4000-8000-000000000001/`;
+
+  const fill = (path: string) => path.replace(':name', 'existing');
+
+  function renderPage(
+    { Edit, route, list }: (typeof pages)[number],
+    at: string,
+  ) {
+    const href = hrefOf({ list });
+    server.use(
+      http.get(`*${API}/${list}`, () =>
+        HttpResponse.json(page([{ name: 'existing', pulp_href: href }])),
+      ),
+    );
+    return {
+      href,
+      ...renderWithProviders(
+        <AppContextProvider>
+          <Routes>
+            <Route path={route} element={<Edit />} />
+          </Routes>
+        </AppContextProvider>,
+        { route: at },
+      ),
+    };
+  }
+
+  const saveButton = () => screen.queryByRole('button', { name: 'Save' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  // every read of a form that a test does not serve answers an empty list; it
+  // is registered first so that the handlers of a test take precedence
+  beforeEach(() => {
+    server.use(http.get(`*${API}/*`, () => HttpResponse.json(page([]))));
+  });
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it.each(pages)(
+    'shows the insufficient permissions page and no Save button for the $name to an account without its change permission',
+    async (row) => {
+      servePermissions({ own: [['core.view_task']] });
+      serveMyPermissions({ [hrefOf(row)]: ['core.view_task'] });
+      const recorded = recordWrites();
+      renderPage(row, fill(row.route));
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+      await settled();
+      expect(recorded.writes).toEqual([]);
+      recorded.stop();
+    },
+  );
+
+  it.each(pages)(
+    'shows the insufficient permissions page and no Save button for the $name add page to an account without its add permission',
+    async (row) => {
+      servePermissions({ own: [['core.view_task']] });
+      renderPage(row, row.route.replace(':name', '_'));
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(pages)(
+    'shows the $name form with Save to staff, for an existing object and for a new one',
+    async (row) => {
+      servePermissions({ isStaff: true });
+      serveMyPermissions({ [hrefOf(row)]: [] });
+      const existing = renderPage(row, fill(row.route));
+
+      expect(await screen.findByDisplayValue('existing')).toBeInTheDocument();
+      expect(saveButton()).toBeInTheDocument();
+      existing.unmount();
+
+      renderPage(row, row.route.replace(':name', '_'));
+
+      expect(
+        await screen.findByRole('textbox', { name: /^Name/ }),
+      ).toBeInTheDocument();
+      expect(saveButton()).toBeInTheDocument();
+    },
+  );
 });
