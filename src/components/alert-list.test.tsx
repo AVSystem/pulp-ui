@@ -39,4 +39,17 @@ describe('the alert list', () => {
 
     expect(closeAlert).toHaveBeenCalledWith(1);
   });
+
+  it('bounds the list by a class instead of inline positioning', () => {
+    const { container } = renderWithProviders(
+      <AlertList
+        alerts={[{ variant: 'danger', title: 'Could not save' }]}
+        closeAlert={vi.fn()}
+      />,
+    );
+
+    const list = container.querySelector('[data-cy="AlertList"]');
+    expect(list).toHaveClass('pulp-alert-list');
+    expect(list).not.toHaveAttribute('style');
+  });
 });
