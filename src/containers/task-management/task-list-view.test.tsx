@@ -1,9 +1,12 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
-import { servePermissions } from 'src/test-utils/permissions';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { listOf, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -160,6 +163,143 @@ describe('the toolbar actions of the task list', () => {
     expect(shown()).toEqual([]);
   });
 });
+
+describe('the stop action of the task list', () => {
+  afterEach(() => {
+    resetSessionEvents();
+    server.events.removeAllListeners();
+  });
+
+  const CHANGE = 'core.change_task';
+  const running = task({ name: 'zz.running', state: 'running' });
+  const waiting = task({ name: 'zz.waiting', state: 'waiting' });
+  const done = task({ name: 'zz.done', state: 'completed' });
+
+  function Known() {
+    const { permissionsReady } = useAppContext();
+    return (
+      <p>{permissionsReady ? 'permissions known' : 'permissions pending'}</p>
+    );
+  }
+
+  function renderRows() {
+    server.use(listOf(TASKS, [running, waiting, done]).handler);
+    return renderWithProviders(
+      <AppContextProvider>
+        <Known />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management' },
+    );
+  }
+
+  const stops = () => screen.queryAllByRole('button', { name: 'Stop task' });
+  const rowOf = (name: string) => screen.getByText(name).closest('tr');
+
+  it('shows a viewer no Stop task and reads no task permissions while they are pending', async () => {
+    servePermissions({ own: [['core.view_task']] });
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        return HttpResponse.json({ id: 7, is_staff: false, groups: [] });
+      }),
+    );
+    const { requests } = serveMyPermissions({});
+    renderRows();
+
+    await screen.findByText('zz.running');
+    expect(screen.getByText('permissions pending')).toBeInTheDocument();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(stops()).toHaveLength(0);
+    expect(requests).toEqual([]);
+  });
+
+  it('shows a holder of the change permission Stop task on running and waiting rows only, reading nothing per task', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderRows();
+
+    await screen.findByText('zz.running');
+    await screen.findByText('permissions known');
+
+    expect(stops()).toHaveLength(2);
+    expect(
+      within(rowOf('zz.done')).queryByRole('button', { name: 'Stop task' }),
+    ).toBeNull();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows Stop task on the rows whose own permissions list it, one read per running or waiting row', async () => {
+    servePermissions({ own: [['core.view_task']] });
+    const { requests } = serveMyPermissions({
+      [running.pulp_href]: [CHANGE],
+      [waiting.pulp_href]: ['core.view_task'],
+    });
+    renderRows();
+
+    await screen.findByText('zz.running');
+    await screen.findByText('permissions known');
+    await waitFor(() => expect(requests).toHaveLength(2));
+
+    await waitFor(() => expect(stops()).toHaveLength(1));
+    expect(
+      within(rowOf('zz.running')).getByRole('button', { name: 'Stop task' }),
+    ).toBeInTheDocument();
+    expect(
+      within(rowOf('zz.waiting')).queryByRole('button', { name: 'Stop task' }),
+    ).toBeNull();
+    expect([...requests].sort()).toEqual(
+      [
+        `${running.pulp_href}my_permissions/`,
+        `${waiting.pulp_href}my_permissions/`,
+      ].sort(),
+    );
+  });
+
+  it('names the button Stop task for assistive technology', async () => {
+    servePermissions({ isStaff: true });
+    renderRows();
+
+    await screen.findByText('zz.running');
+
+    expect(
+      await screen.findAllByRole('button', { name: 'Stop task' }),
+    ).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
+  });
+
+  it('shows the failure and the rows again when stopping fails, without a spinner', async () => {
+    servePermissions({ isStaff: true });
+    server.use(
+      http.patch('*/pulp/api/v3/tasks/:id/', () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderRows();
+
+    await user.click(
+      within(await waitForRow('zz.running')).getByRole('button', {
+        name: 'Stop task',
+      }),
+    );
+    await user.click(await screen.findByRole('button', { name: 'Yes, stop' }));
+
+    expect(await screen.findByText(/could not be stopped/)).toBeInTheDocument();
+    expect(await screen.findByText('zz.running')).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+});
+
+async function waitForRow(name: string) {
+  const cell = await screen.findByText(name);
+  await waitFor(() =>
+    expect(
+      within(cell.closest('tr')).queryByRole('button', { name: 'Stop task' }),
+    ).not.toBeNull(),
+  );
+  return cell.closest('tr');
+}
 
 describe('the task list after the same user signs in again', () => {
   afterEach(() => {

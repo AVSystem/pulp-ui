@@ -1,15 +1,19 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TaskAPI } from 'src/api';
-import { AppContextProvider } from 'src/app-context';
+import { AppContextProvider, useAppContext } from 'src/app-context';
 import {
   reportUnauthorized,
   resetSessionEvents,
   resume,
   setSignedIn,
 } from 'src/session/session-events';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -87,6 +91,7 @@ describe('task detail', () => {
   });
 
   it('lists the progress messages newest first and keeps that order when the page redraws', async () => {
+    servePermissions({ isStaff: true });
     const { user } = renderDetail({ state: 'running' });
     const messages = () =>
       screen
@@ -102,10 +107,124 @@ describe('task detail', () => {
 
     // Opening the stop dialog redraws the page without loading the task
     // again.
-    await user.click(screen.getByRole('button', { name: 'Stop task' }));
+    await user.click(await screen.findByRole('button', { name: 'Stop task' }));
     await screen.findByRole('dialog');
 
     expect(messages()).toEqual(first);
+  });
+});
+
+describe('the stop action of the task detail', () => {
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  const CHANGE = 'core.change_task';
+
+  function Known() {
+    const { permissionsReady } = useAppContext();
+    return (
+      <p>{permissionsReady ? 'permissions known' : 'permissions pending'}</p>
+    );
+  }
+
+  function renderWithKnown(overrides: Partial<typeof task> = {}) {
+    server.use(
+      http.get('*/pulp/api/v3/tasks/:id/', () =>
+        HttpResponse.json({ ...task, ...overrides }),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Known />
+        <Routes>
+          <Route path='/tasks/:task' element={<TaskDetail />} />
+        </Routes>
+      </AppContextProvider>,
+      { route: '/tasks/0192e5a1-0000-7000-8000-000000000001' },
+    );
+  }
+
+  const stop = () => screen.queryByRole('button', { name: 'Stop task' });
+
+  it('shows a viewer no Stop task and reads no task permissions while they are pending', async () => {
+    servePermissions({ own: [['core.view_task']] });
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        return HttpResponse.json({ id: 7, is_staff: false, groups: [] });
+      }),
+    );
+    const { requests } = serveMyPermissions({});
+    renderWithKnown({ state: 'running' });
+
+    await screen.findByText('Reserve resources');
+    expect(screen.getByText('permissions pending')).toBeInTheDocument();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(stop()).toBeNull();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows a viewer no Stop task once the permissions are known', async () => {
+    servePermissions({ own: [['core.view_task']] });
+    serveMyPermissions({ [task.pulp_href]: ['core.view_task'] });
+    renderWithKnown({ state: 'running' });
+
+    await screen.findByText('Reserve resources');
+    await screen.findByText('permissions known');
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+
+    expect(stop()).toBeNull();
+  });
+
+  it('shows a holder of the change permission Stop task on a running and a waiting task, reading nothing per task', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    const first = renderWithKnown({ state: 'waiting' });
+
+    expect(
+      await screen.findByRole('button', { name: 'Stop task' }),
+    ).toBeInTheDocument();
+    expect(requests).toEqual([]);
+    first.unmount();
+
+    renderWithKnown({ state: 'running' });
+    expect(
+      await screen.findByRole('button', { name: 'Stop task' }),
+    ).toBeInTheDocument();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows no Stop task on a finished task whatever the account holds', async () => {
+    servePermissions({ isStaff: true });
+    renderWithKnown({ state: 'completed' });
+
+    await screen.findByText('Reserve resources');
+    await screen.findByText('permissions known');
+
+    expect(stop()).toBeNull();
+  });
+
+  it('shows Stop task when only the task own permissions list the change permission, reading them once', async () => {
+    servePermissions({ own: [['core.view_task']] });
+    const { requests } = serveMyPermissions({ [task.pulp_href]: [CHANGE] });
+    renderWithKnown({ state: 'running' });
+
+    expect(
+      await screen.findByRole('button', { name: 'Stop task' }),
+    ).toBeInTheDocument();
+    expect(requests).toEqual([`${task.pulp_href}my_permissions/`]);
+  });
+
+  it('names the page header button Stop task for assistive technology', async () => {
+    servePermissions({ isStaff: true });
+    renderWithKnown({ state: 'running' });
+
+    const button = await screen.findByRole('button', { name: 'Stop task' });
+
+    expect(within(button.closest('div')).getByText('Stop task')).toBeVisible();
+    expect(button).not.toHaveAttribute('aria-label');
   });
 });
 
