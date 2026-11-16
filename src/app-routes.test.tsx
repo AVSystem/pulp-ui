@@ -1086,7 +1086,16 @@ describe('administration screens', () => {
 
       await waitFor(() => expect(refusal()).not.toBeNull());
       expect(
-        screen.getByRole('heading', { name: 'Insufficient permissions' }),
+        screen.getByRole('heading', {
+          level: 1,
+          name: 'Insufficient permissions',
+        }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole('heading', {
+          level: 4,
+          name: 'Insufficient permissions',
+        }),
       ).toBeVisible();
       expect(
         screen.getByText('You do not have permission to view this page.'),

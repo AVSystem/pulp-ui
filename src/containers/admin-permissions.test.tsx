@@ -442,12 +442,41 @@ describe('the signing services screen opened by its address', () => {
 
     await waitFor(() => expect(refusal()).not.toBeNull());
     expect(
-      screen.getByRole('heading', { name: 'Insufficient permissions' }),
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Insufficient permissions',
+      }),
     ).toBeVisible();
     expect(paths.filter((path) => path.includes('/signing-services/'))).toEqual(
       [],
     );
   });
+
+  it.each([
+    ['the users list', '/users'],
+    ['a group detail', '/groups/detail/zz-group'],
+    ['the roles list', '/roles'],
+  ])(
+    'puts a page header above the insufficient permissions page for %s',
+    async (_name, route) => {
+      servePermissions({ own: [['file.view_filerepository']] });
+
+      renderWithProviders(<Routed />, { route });
+
+      await waitFor(() => expect(refusal()).not.toBeNull());
+      const header = screen.getByRole('heading', {
+        level: 1,
+        name: 'Insufficient permissions',
+      });
+      expect(header).toBeVisible();
+      // The header comes first, the page with Go back follows it.
+      expect(
+        header.compareDocumentPosition(refusal() as Element) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Go back' })).toBeVisible();
+    },
+  );
 
   it('shows the list to a holder of core.view_signingservice', async () => {
     server.use(listOf(`${API}/signing-services/`, []).handler);

@@ -5,6 +5,7 @@ import WrenchIcon from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
 import { type ElementType, useEffect, useRef, useState } from 'react';
 import { Navigate, redirect, useLocation } from 'react-router';
 import {
+  BaseHeader,
   ErrorBoundary,
   ExternalLink,
   LoadingPage,
@@ -782,7 +783,13 @@ const AuthHandler = ({
     }
 
     if (!canViewScreen(screenAccess, permissions)) {
-      return <InsufficientPermissions />;
+      // The screen's own header is not drawn, so the page names itself.
+      return (
+        <>
+          <BaseHeader title={t`Insufficient permissions`} />
+          <InsufficientPermissions />
+        </>
+      );
     }
   }
 
