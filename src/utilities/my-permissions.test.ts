@@ -66,13 +66,17 @@ describe('ObjectPermissions after a failed read', () => {
   const object = { pulp_href: HREF };
   const held = () => false;
 
-  it('holds nothing and does not know the object', async () => {
+  it('holds nothing, does not know the object and tells the screen', async () => {
     fail();
-    const cache = new ObjectPermissions(vi.fn());
+    const changed = vi.fn();
+    const cache = new ObjectPermissions(changed);
 
     cache.read(HREF);
+    expect(cache.failed(object)).toBe(false);
     await settle();
 
+    expect(changed).toHaveBeenCalledTimes(1);
+    expect(cache.failed(object)).toBe(true);
     expect(cache.knows(object)).toBe(false);
     expect(cache.holds('file.change_filerepository', object, held)).toBe(false);
   });
@@ -98,8 +102,8 @@ describe('ObjectPermissions after a failed read', () => {
 
     expect(get).toHaveBeenCalledTimes(2);
     expect(cache.knows(object)).toBe(true);
+    expect(cache.failed(object)).toBe(false);
     expect(cache.holds('file.change_filerepository', object, held)).toBe(true);
-    expect(changed).toHaveBeenCalled();
   });
 
   it('waits the pause again after a second failure', async () => {

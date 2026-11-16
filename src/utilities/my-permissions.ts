@@ -91,11 +91,10 @@ export class ObjectPermissions {
 
       if (list === null) {
         this.failures.set(href, Date.now());
-        return;
+      } else {
+        this.failures.delete(href);
+        this.lists.set(href, list);
       }
-
-      this.failures.delete(href);
-      this.lists.set(href, list);
       this.changed();
     });
   }
@@ -110,6 +109,13 @@ export class ObjectPermissions {
       Array.isArray(object?.my_permissions) ||
       this.lists.has(object?.pulp_href ?? '')
     );
+  }
+
+  // True when the last read for the object's address failed and no later read
+  // has answered. The object's permissions are still unknown then, but a
+  // screen that waits for them has an answer to act on: nothing is shown.
+  failed(object: { pulp_href?: string } | null | undefined): boolean {
+    return this.failures.has(object?.pulp_href ?? '');
   }
 
   // True when the permission is held everywhere, or listed for the object:
