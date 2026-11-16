@@ -4,6 +4,7 @@ import {
 } from '@patternfly/react-core';
 import { type ReactNode } from 'react';
 import { Alert } from 'src/components';
+import './alert-list.scss';
 
 interface IProps {
   /** List of alerts to display */
@@ -21,17 +22,7 @@ export interface AlertType {
 }
 
 export const AlertList = ({ alerts, closeAlert }: IProps) => (
-  <div
-    style={{
-      position: 'fixed',
-      right: '5px',
-      top: '80px', // 76 + 4
-      zIndex: 300,
-      display: 'flex',
-      flexDirection: 'column',
-    }}
-    data-cy='AlertList'
-  >
+  <div className='pulp-alert-list' data-cy='AlertList'>
     {alerts.map((alert, i) => (
       <Alert
         style={{ marginBottom: '16px' }}
