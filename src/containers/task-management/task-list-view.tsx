@@ -16,6 +16,7 @@ import {
   TaskPurgeAPI,
   type TaskType,
 } from 'src/api';
+import { AppContext, type IAppContextType } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -75,6 +76,8 @@ interface IState {
 const ORPHAN_PROTECTION_TIME = 1440;
 
 export class TaskListView extends Component<RouteProps, IState> {
+  static contextType = AppContext;
+
   constructor(props) {
     super(props);
 
@@ -140,6 +143,13 @@ export class TaskListView extends Component<RouteProps, IState> {
 
     const noData =
       items.length === 0 && !filterIsSet(params, ['name__contains', 'state']);
+
+    // Which maintenance actions are drawn is presentation only; Pulp decides
+    // every request. Orphan cleanup and repair are for administrators, purge
+    // for an account that may delete every task. Nothing is drawn while the
+    // permissions are unknown.
+    const { hasPermission, isStaff } = this.context as IAppContextType;
+    const canPurge = hasPermission('core.delete_task');
 
     const orphansCleanup = (
       <Button
@@ -235,9 +245,13 @@ export class TaskListView extends Component<RouteProps, IState> {
                             ]}
                           />
                         </ToolbarItem>
-                        <ToolbarItem>{orphansCleanup}</ToolbarItem>
-                        <ToolbarItem>{repair}</ToolbarItem>
-                        <ToolbarItem>{purgeTasks}</ToolbarItem>
+                        {isStaff ? (
+                          <ToolbarItem>{orphansCleanup}</ToolbarItem>
+                        ) : null}
+                        {isStaff ? <ToolbarItem>{repair}</ToolbarItem> : null}
+                        {canPurge ? (
+                          <ToolbarItem>{purgeTasks}</ToolbarItem>
+                        ) : null}
                       </ToolbarGroup>
                     </ToolbarContent>
                   </Toolbar>
