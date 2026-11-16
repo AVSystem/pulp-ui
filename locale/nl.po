@@ -171,7 +171,7 @@ msgstr "{name} zal stoppen met draaien."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
-msgstr ""
+msgstr "{namespace}.{name} v{version}, al in de repository"
 
 #: src/components/collection-card.tsx
 #: src/components/collection-header.tsx
@@ -555,7 +555,7 @@ msgstr "Geselecteerde gebruikers aan groep toevoegen"
 #: src/components/detail-list.test.tsx
 #: src/components/list-page.test.tsx
 msgid "Add thing"
-msgstr ""
+msgstr "Item toevoegen"
 
 #: src/constants.tsx
 #~ msgid "Add user"
@@ -1125,7 +1125,7 @@ msgstr ""
 #: src/components/page-with-tabs.test.tsx
 #: src/components/page.test.tsx
 msgid "Change thing"
-msgstr ""
+msgstr "Item wijzigen"
 
 #: src/constants.tsx
 #~ msgid "Change user"
@@ -1443,7 +1443,7 @@ msgstr "Collecties"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Collections already in the repository cannot be marked, so none can be selected yet."
-msgstr ""
+msgstr "Collecties die al in de repository staan, kunnen niet worden gemarkeerd, dus er kan nog geen worden geselecteerd."
 
 #: src/utilities/translate-task.ts
 msgid "Collections sync"
@@ -1813,7 +1813,7 @@ msgstr "Nieuwe gebruiker maken"
 
 #: src/components/list-page.test.tsx
 msgid "Create thing"
-msgstr ""
+msgstr "Item aanmaken"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
@@ -2128,7 +2128,7 @@ msgstr "Rol verwijderen?"
 #: src/components/page-with-tabs.test.tsx
 #: src/components/page.test.tsx
 msgid "Delete thing"
-msgstr ""
+msgstr "Item verwijderen"
 
 #: src/constants.tsx
 #~ msgid "Delete user"
@@ -3052,7 +3052,7 @@ msgstr "Kan externe items niet laden: {error}"
 
 #: src/containers/pulp-status.tsx
 msgid "Failed to load status"
-msgstr ""
+msgstr "Laden van de status mislukt"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
@@ -3340,7 +3340,7 @@ msgstr ""
 
 #: src/components/insufficient-permissions.tsx
 msgid "Go back"
-msgstr ""
+msgstr "Terug"
 
 #: src/shell/command-palette.tsx
 msgid "Go to"
@@ -3368,11 +3368,11 @@ msgstr ""
 
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
-msgstr ""
+msgstr "Naar de inlogpagina"
 
 #: src/components/insufficient-permissions.tsx
 msgid "Go to the start page"
-msgstr ""
+msgstr "Naar de startpagina"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -3659,7 +3659,7 @@ msgstr "Laat dit veld leeg om alle versies te behouden."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "In repository"
-msgstr ""
+msgstr "In de repository"
 
 #: src/components/remote-form.tsx
 msgid "Include all dependencies when syncing a collection."
@@ -3770,7 +3770,7 @@ msgstr ""
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 msgid "Insufficient permissions"
-msgstr ""
+msgstr "Onvoldoende machtigingen"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #~ msgid "Internal Server Error"
@@ -4024,7 +4024,7 @@ msgstr ""
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Log in"
-msgstr ""
+msgstr "Inloggen"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Log In"
@@ -5348,7 +5348,7 @@ msgstr ""
 
 #: src/utilities/fail-alerts.tsx
 msgid "Pulp refused this request."
-msgstr ""
+msgstr "Pulp heeft dit verzoek geweigerd."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -5921,7 +5921,7 @@ msgstr "Repository's verschijnen zodra ze zijn aangemaakt."
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
-msgstr ""
+msgstr "Repository \"{name}\" is gemaakt. De distributie is niet bevestigd."
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
@@ -6073,7 +6073,7 @@ msgstr ""
 #: src/components/list-error-state.tsx
 #: src/menu.tsx
 msgid "Retry"
-msgstr ""
+msgstr "Opnieuw proberen"
 
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
@@ -6081,11 +6081,11 @@ msgstr ""
 
 #: src/menu.tsx
 msgid "Retry loading the plugin list"
-msgstr ""
+msgstr "Laden van de pluginlijst opnieuw proberen"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Retry loading the repository content"
-msgstr ""
+msgstr "Laden van de inhoud van de repository opnieuw proberen"
 
 #: src/shell/command-palette.tsx
 msgid "Retry repository search"
@@ -6156,7 +6156,7 @@ msgstr "Rol \"{name}\" is verwijderd."
 
 #: src/containers/role-management/role-edit.tsx
 msgid "Role \"{roleName}\" could not be displayed."
-msgstr ""
+msgstr "Rol \"{roleName}\" kan niet worden weergegeven."
 
 #. placeholder {0}: role.name
 #. placeholder {1}: group.name
@@ -6173,7 +6173,7 @@ msgstr "Rol {0} is toegevoegd aan {1}."
 #: src/components/role-permissions.tsx
 #: src/containers/role-management/role-edit.tsx
 msgid "Role could not be displayed."
-msgstr ""
+msgstr "Rol kan niet worden weergegeven."
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "Role Header"
@@ -6658,7 +6658,7 @@ msgstr ""
 #: src/containers/signed-out.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Sign in again"
-msgstr ""
+msgstr "Opnieuw inloggen"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "sign state"
@@ -6679,7 +6679,7 @@ msgstr ""
 
 #: src/components/external-sign-in-incomplete.tsx
 msgid "Sign-in did not complete"
-msgstr ""
+msgstr "Inloggen is niet voltooid"
 
 #: src/shell/shell.tsx
 msgid "Sign-out did not complete"
@@ -6732,7 +6732,7 @@ msgstr ""
 
 #: src/containers/signed-out.tsx
 msgid "Signed out"
-msgstr ""
+msgstr "Afgemeld"
 
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signed version(s)"
@@ -7192,7 +7192,7 @@ msgstr "Taak '{taskName}' gestopt."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
-msgstr ""
+msgstr "Taak kan niet worden weergegeven."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7347,7 +7347,7 @@ msgstr ""
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "The configuration could not be copied to the clipboard."
-msgstr ""
+msgstr "De configuratie kan niet naar het klembord worden gekopieerd."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
@@ -7397,11 +7397,11 @@ msgstr ""
 
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
-msgstr ""
+msgstr "De laatste actie is niet voltooid. Herhaal deze nadat u bent ingelogd."
 
 #: src/components/external-sign-in-incomplete.tsx
 msgid "The login page returned without a signed-in session."
-msgstr ""
+msgstr "De inlogpagina is teruggekeerd zonder aangemelde sessie."
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -7409,7 +7409,7 @@ msgstr ""
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "Het resultaat van het verwijderen van afstand {name} is onbekend, omdat de taakstatus niet kon worden gelezen. Controleer de taak."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
@@ -7425,7 +7425,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "Het resultaat van de update van distributie {name} is onbekend, omdat de taakstatus niet kon worden gelezen. Controleer de taak."
 
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing."
@@ -7438,7 +7438,7 @@ msgstr "Het wachtwoord dat moet worden gebruikt voor authenticatie bij het synch
 #: src/app-routes.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
-msgstr ""
+msgstr "De pluginlijst kan niet worden geladen"
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -7446,11 +7446,11 @@ msgstr ""
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
-msgstr ""
+msgstr "Het verwijderen van afstand {name} is nog bezig."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
-msgstr ""
+msgstr "De inhoud van de repository kan niet worden gelezen"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
@@ -7467,7 +7467,7 @@ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository was not removed."
-msgstr ""
+msgstr "De repository is niet verwijderd."
 
 #: src/utilities/request-error.ts
 msgid "The request failed."
@@ -7519,15 +7519,15 @@ msgstr ""
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
-msgstr ""
+msgstr "De sessie kan niet worden gecontroleerd"
 
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
-msgstr ""
+msgstr "De sessie is beëindigd voordat de distributie kon worden gemaakt. Controleer na het inloggen de distributies en maak de distributie aan als deze ontbreekt."
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."
-msgstr ""
+msgstr "Het statusantwoord vermeldt geen plugins."
 
 #: src/utilities/wait-for-task.ts
 msgid "The status of the task could not be read."
@@ -8211,7 +8211,7 @@ msgstr "Gebruiker <0>{username}</0> zal worden verwijderd uit groep<1>{groupname
 
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."
-msgstr ""
+msgstr "Gebruiker kan niet worden weergegeven."
 
 #: src/containers/user-management/user-detail.tsx
 msgid "User details"
@@ -8350,7 +8350,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Versions, workers and storage are shown to signed-in users."
-msgstr ""
+msgstr "Versies, workers en opslag worden getoond aan aangemelde gebruikers."
 
 #: src/shell/notifications.tsx
 msgid "View all tasks"
@@ -8486,7 +8486,7 @@ msgstr "We konden de pagina die u zoekt niet vinden!"
 
 #: src/session/reauth-dialog.tsx
 msgid "What you have entered on this page is kept."
-msgstr ""
+msgstr "Wat u op deze pagina hebt ingevoerd, blijft behouden."
 
 #: src/components/repository-form.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
@@ -8544,7 +8544,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Workers, storage and content settings are shown to administrators."
-msgstr ""
+msgstr "Workers, opslag en inhoudsinstellingen worden getoond aan beheerders."
 
 #: src/components/ratings.tsx
 #~ msgid "Works without change"
@@ -8661,7 +8661,7 @@ msgstr ""
 
 #: src/utilities/fail-alerts.tsx
 msgid "You do not have permission to do this."
-msgstr ""
+msgstr "U hebt geen machtiging om dit te doen."
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "You do not have permission to view all tasks. Only tasks created by you are visible."
@@ -8669,7 +8669,7 @@ msgstr ""
 
 #: src/components/insufficient-permissions.tsx
 msgid "You do not have permission to view this page."
-msgstr ""
+msgstr "U hebt geen machtiging om deze pagina te bekijken."
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "You do not have the required permissions."
@@ -8690,7 +8690,7 @@ msgstr "U hebt geen toestemming om gebruikers weer te geven."
 
 #: src/containers/signed-out.tsx
 msgid "You have been signed out of Pulp."
-msgstr ""
+msgstr "U bent afgemeld bij Pulp."
 
 #: src/components/collection-info.tsx
 #~ msgid "You have to be logged in to be able to download the tarball."
@@ -8706,15 +8706,15 @@ msgstr ""
 
 #: src/app-routes.tsx
 msgid "Your permissions could not be read"
-msgstr ""
+msgstr "Uw machtigingen kunnen niet worden gelezen"
 
 #: src/session/reauth-dialog.tsx
 msgid "Your session has ended. Log in to continue."
-msgstr ""
+msgstr "Uw sessie is beëindigd. Log in om door te gaan."
 
 #: src/session/reauth-dialog.tsx
 msgid "Your session has ended. You are taken to the login page and back to this page afterwards. Anything you entered on this page is lost."
-msgstr ""
+msgstr "Uw sessie is beëindigd. U wordt naar de inlogpagina gebracht en daarna terug naar deze pagina. Alles wat u op deze pagina hebt ingevoerd, gaat verloren."
 
 #: src/shell/notifications.tsx
 msgid "Your tasks appear here when they fail, complete or are canceled."
