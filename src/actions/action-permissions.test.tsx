@@ -1,6 +1,12 @@
-import { render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { type ComponentType, type ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { listOf, repository, repositoryVersion } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -103,6 +109,9 @@ const rowsOf = (
   names: { repository: string; remote: string },
   paths: { repository: string; remote: string },
   actions: PluginActions,
+  // false: a role granted on one object is not read, so only permissions held
+  // on every object count for the plugin's change, sync and delete actions
+  objectRoles = true,
 ): Row[] => {
   const remoteHref = `${API}/remotes/${paths.remote}/00000000-0000-4000-8000-0000000000b1/`;
   const repositoryItem = {
@@ -128,7 +137,7 @@ const rowsOf = (
       label: `${plugin} repository edit`,
       action: actions.repositoryEdit,
       permission: repo('change'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -138,7 +147,7 @@ const rowsOf = (
       action: actions.repositorySync,
       permission: repo('sync'),
       lookalike: repo('change'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -147,7 +156,7 @@ const rowsOf = (
       label: `${plugin} repository delete`,
       action: actions.repositoryDelete,
       permission: repo('delete'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -165,7 +174,7 @@ const rowsOf = (
       label: `${plugin} remote edit`,
       action: actions.remoteEdit,
       permission: remote('change'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: remoteItem,
       listed: remoteItem,
       plugin,
@@ -174,7 +183,7 @@ const rowsOf = (
       label: `${plugin} remote delete`,
       action: actions.remoteDelete,
       permission: remote('delete'),
-      objectLevel: true,
+      objectLevel: objectRoles,
       item: remoteItem,
       listed: remoteItem,
       plugin,
@@ -222,6 +231,7 @@ const ROWS: Row[] = [
       remoteEdit: debRemoteEditAction,
       remoteDelete: debRemoteDeleteAction,
     },
+    false,
   ),
   ...rowsOf(
     'rpm',
@@ -393,6 +403,7 @@ describe.each([
     isLatest: false,
     repositoryName: 'zz-test-repo',
   };
+  const objectRoles = plugin !== 'deb';
 
   it('is absent for a user without the modify permission', () => {
     const ctx = context({ object: {} });
@@ -407,17 +418,21 @@ describe.each([
 
     expect(revert.isShown(version, ctx)).toBe(true);
     expect(revert.dropdownItem(version, ctx)).not.toBeNull();
-    expect(ctx.hasObjectPermission).toHaveBeenCalledWith(modify, version);
   });
 
-  it('is shown when the page reports the permission for its repository', () => {
-    const ctx = {
-      hasPermission: () => false,
-      hasObjectPermission: (name: string) => name === modify,
-    };
+  it(
+    objectRoles
+      ? 'is shown when the page reports the permission for its repository'
+      : 'is absent when only the page reports the permission for its repository',
+    () => {
+      const ctx = {
+        hasPermission: () => false,
+        hasObjectPermission: (name: string) => name === modify,
+      };
 
-    expect(revert.isShown(version, ctx)).toBe(true);
-  });
+      expect(revert.isShown(version, ctx)).toBe(objectRoles);
+    },
+  );
 
   it('does not accept the change permission instead', () => {
     const ctx = context({ global: [change] });
@@ -441,7 +456,7 @@ describe('the revert action in the versions tab of a repository page', () => {
     },
   ] as const;
 
-  it.each(TABS)(
+  it.each(TABS.filter(({ plugin }) => plugin !== 'deb'))(
     'is shown for a $plugin repository whose own permissions list modify',
     async ({ plugin, path, Tab }) => {
       const { modify } = ACTION_PERMISSIONS[plugin].repository;
@@ -493,6 +508,70 @@ describe('the revert action in the versions tab of a repository page', () => {
       expect(asked.every((target) => target === item)).toBe(true);
     },
   );
+
+  // A role granted on one deb repository does not show the revert action, even
+  // when the page's own check lists the permission for its repository.
+  describe('for a deb repository', () => {
+    const { modify } = ACTION_PERMISSIONS.deb.repository;
+
+    const renderVersions = (held: boolean) => {
+      const repo = repository({
+        name: 'zz-test-repo',
+        pulp_href: `${API}/repositories/deb/apt/00000000-0000-4000-8000-0000000000c1/`,
+      });
+      const first = repositoryVersion(repo, 1);
+      const second = repositoryVersion(repo, 2);
+      const item = { ...repo, latest_version_href: second.pulp_href };
+      server.use(
+        listOf(`${API}/repositories/deb/apt/:id/versions/`, [second, first])
+          .handler,
+      );
+      const Versions = DebTab as unknown as ComponentType<{
+        item: object;
+        actionContext: object;
+      }>;
+
+      return renderWithProviders(
+        <Versions
+          item={item}
+          actionContext={{
+            addAlert: vi.fn(),
+            hasObjectPermission: (name: string) => name === modify,
+            hasPermission: (name: string) => held && name === modify,
+            query: vi.fn(),
+            state: { params: {} },
+          }}
+        />,
+      );
+    };
+
+    it('is absent for a role held on the repository only', async () => {
+      renderVersions(false);
+
+      const link = await screen.findByRole('link', { name: /^1/ });
+
+      expect(
+        within(link.closest('tr') as HTMLElement).queryByRole('button', {
+          name: 'Actions',
+        }),
+      ).toBeNull();
+    });
+
+    it('is shown for a holder of the modify permission on every object', async () => {
+      const { user } = renderVersions(true);
+
+      const link = await screen.findByRole('link', { name: /^1/ });
+      await user.click(
+        within(link.closest('tr') as HTMLElement).getByRole('button', {
+          name: 'Actions',
+        }),
+      );
+
+      expect(
+        await screen.findByRole('menuitem', { name: 'Revert to this version' }),
+      ).toBeInTheDocument();
+    });
+  });
 });
 
 // The ansible repository actions that are not rows above.
@@ -514,15 +593,130 @@ describe('the ansible repository actions that need more than a table row', () =>
     });
   });
 
-  // The copy action only reads the distribution of the repository and puts a
-  // client configuration on the clipboard: it changes nothing, so it carries
-  // no permission and every reader of the repository is offered it.
+  // The copy action puts a client configuration on the clipboard, and is
+  // offered to those who may change the content of repositories only: the
+  // permission held on every repository decides, never one listed for a
+  // single repository.
   describe('the copy action', () => {
-    it('declares no permission and is offered to a viewer', () => {
-      const ctx = context({ global: ['ansible.view_ansiblerepository'] });
+    const copy = ansibleRepositoryCopyAction;
 
-      expect(ansibleRepositoryCopyAction.permission).toBeUndefined();
-      expect(ansibleRepositoryCopyAction.isShown(repo, ctx)).toBe(true);
+    it('declares the modify permission, held on every object', () => {
+      expect(copy.permission).toBe(MODIFY);
+      expect(copy.objectLevel).toBe(false);
+    });
+
+    it('is absent, not disabled, for a viewer', () => {
+      const ctx = context({
+        global: ['ansible.view_ansiblerepository'],
+        object: { [repo.pulp_href]: ['ansible.view_ansiblerepository'] },
+      });
+
+      expect(copy.isShown(repo, ctx)).toBe(false);
+      expect(copy.button(repo, ctx)).toBeNull();
+      expect(copy.dropdownItem(repo, ctx)).toBeNull();
+    });
+
+    it('is shown to a holder of the modify permission on every object', () => {
+      const ctx = context({ global: [MODIFY] });
+
+      expect(copy.isShown(repo, ctx)).toBe(true);
+    });
+
+    it('is absent when only the repository lists the modify permission', () => {
+      const ctx = context({ object: { [repo.pulp_href]: [MODIFY] } });
+
+      expect(copy.isShown(repo, ctx)).toBe(false);
+      expect(ctx.hasObjectPermission).not.toHaveBeenCalled();
+    });
+
+    describe('pressed', () => {
+      const distro = {
+        name: 'zz-distribution',
+        pulp_href: `${API}/distributions/ansible/ansible/00000000-0000-4000-8000-0000000000d1/`,
+        base_url: 'https://pulp.example.test/pulp_ansible/galaxy/zz/',
+      };
+      const original = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+
+      const setClipboard = (value: unknown) =>
+        Object.defineProperty(navigator, 'clipboard', {
+          configurable: true,
+          value,
+        });
+
+      afterEach(() => {
+        if (original) {
+          Object.defineProperty(navigator, 'clipboard', original);
+        } else {
+          delete (navigator as { clipboard?: unknown }).clipboard;
+        }
+      });
+
+      // presses the button as a holder of the modify permission would
+      const press = async () => {
+        const addAlert = vi.fn();
+        const ctx = { ...context({ global: [MODIFY] }), addAlert };
+        render(<>{copy.button({ ...repo, distro }, ctx)}</>);
+        // fireEvent: user-event installs a clipboard of its own on setup
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Copy CLI configuration' }),
+        );
+        await waitFor(() => expect(addAlert).toHaveBeenCalled());
+        return addAlert;
+      };
+
+      it('copies the configuration and says so once it is on the clipboard', async () => {
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        setClipboard({ writeText });
+
+        const addAlert = await press();
+
+        expect(writeText).toHaveBeenCalledWith(
+          expect.stringContaining('server_list = zz-distribution'),
+        );
+        expect(addAlert).toHaveBeenCalledTimes(1);
+        expect(addAlert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'copy-cli-config',
+            title: 'Successfully copied to clipboard',
+            variant: 'success',
+          }),
+        );
+      });
+
+      it.each([
+        ['is unavailable', undefined],
+        [
+          'refuses the write',
+          { writeText: () => Promise.reject(new Error('denied')) },
+        ],
+        [
+          'throws on the write',
+          {
+            writeText: () => {
+              throw new Error('denied');
+            },
+          },
+        ],
+      ])(
+        'shows the configuration for manual copying when the clipboard %s',
+        async (_, clipboard) => {
+          setClipboard(clipboard);
+
+          const addAlert = await press();
+
+          expect(addAlert).toHaveBeenCalledTimes(1);
+          const alert = addAlert.mock.calls[0][0];
+          expect(alert).toMatchObject({
+            id: 'copy-cli-config',
+            title: 'The configuration could not be copied to the clipboard.',
+            variant: 'danger',
+          });
+          const { container } = render(<>{alert.description}</>);
+          expect(container.querySelector('pre')?.textContent).toContain(
+            'server_list = zz-distribution',
+          );
+        },
+      );
     });
   });
 

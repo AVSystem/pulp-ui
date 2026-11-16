@@ -258,9 +258,8 @@ const AddCollectionVersionModal = ({
               state: modalState,
               setState: setModalState,
               query,
-              hasPermission: () => {
-                throw 'unused';
-              },
+              // nothing in this list declares a permission
+              hasPermission: () => false,
             }}
             busy={contentRead === 'pending'}
             defaultPageSize={10}

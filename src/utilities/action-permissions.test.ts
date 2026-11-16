@@ -45,6 +45,14 @@ describe('ACTION_PERMISSIONS', () => {
     }
   });
 
+  it('lets a role on a single object count for every plugin except deb', () => {
+    expect(ACTION_PERMISSIONS.file.objectRoles).toBe(true);
+    expect(ACTION_PERMISSIONS.rpm.objectRoles).toBe(true);
+    expect(ACTION_PERMISSIONS.python.objectRoles).toBe(true);
+    expect(ACTION_PERMISSIONS.ansible.objectRoles).toBe(true);
+    expect(ACTION_PERMISSIONS.deb.objectRoles).toBe(false);
+  });
+
   it('syncs with the sync permission of the repository model', () => {
     expect(ACTION_PERMISSIONS.file.repository.sync).toBe(
       'file.sync_filerepository',

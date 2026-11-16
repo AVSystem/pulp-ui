@@ -316,8 +316,13 @@ export const Page = function <
       }
 
       // Only the object's own permissions can still grant it; until they are
-      // known the form stays hidden.
-      if (required.objectLevel && item && !this.objectPermissions.knows(item)) {
+      // known the form stays hidden, and so it does when their read failed.
+      if (
+        required.objectLevel &&
+        item &&
+        !this.objectPermissions.knows(item) &&
+        !this.objectPermissions.failed(item)
+      ) {
         return 'unknown';
       }
 

@@ -140,6 +140,19 @@ export function DetailList<T>({
     </>
   );
 
+  // Only actions that are shown get a toolbar item, so a hidden action leaves
+  // no empty item behind.
+  const shownHeaderActions = (headerActions || []).filter((action) =>
+    action.isShown(null, actionContext),
+  );
+
+  // The button of the empty state, or nothing when the action is hidden, so
+  // the empty state never holds an empty actions area.
+  const emptyStateButtonContent = noDataButton?.(null, actionContext);
+  const emptyStateButton = emptyStateButtonContent ? (
+    <>{emptyStateButtonContent}</>
+  ) : undefined;
+
   const knownFilters = (filterConfig || []).map(({ id }) => id);
   const noData = items.length === 0 && !filterIsSet(params, knownFilters);
 
@@ -165,7 +178,7 @@ export function DetailList<T>({
         />
       ) : noData && !loading ? (
         <EmptyStateNoData
-          button={<>{noDataButton?.(null, actionContext)}</>}
+          button={emptyStateButton}
           description={noDataDescription}
           title={noDataTitle}
         />
@@ -186,12 +199,11 @@ export function DetailList<T>({
                       filterConfig={filterConfig || []}
                     />
                   </ToolbarItem>
-                  {headerActions?.length &&
-                    headerActions.map((action) => (
-                      <ToolbarItem key={action.title}>
-                        {action.button(null, actionContext)}
-                      </ToolbarItem>
-                    ))}
+                  {shownHeaderActions.map((action) => (
+                    <ToolbarItem key={action.title}>
+                      {action.button(null, actionContext)}
+                    </ToolbarItem>
+                  ))}
                 </ToolbarGroup>
               </ToolbarContent>
             </Toolbar>

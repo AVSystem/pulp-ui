@@ -1,5 +1,6 @@
 import { msg, t } from '@lingui/core/macro';
 import { AnsibleDistributionAPI } from '../api/ansible-distribution';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { getDistroURL } from '../utilities/get-repo-url';
 import {
   type Distribution,
@@ -9,9 +10,12 @@ import { isSessionEnd } from '../utilities/request-error';
 import { Action } from './action';
 
 // Reads the distribution of the repository and puts a client configuration on
-// the clipboard. It changes nothing, so it declares no permission.
+// the clipboard. It is shown to those who may change the content of
+// repositories, as held on every repository.
 export const ansibleRepositoryCopyAction = Action({
   title: msg`Copy CLI configuration`,
+  permission: ACTION_PERMISSIONS.ansible.repository.modify,
+  objectLevel: false,
   onClick: async (item, { addAlert }) => {
     let distro: Distribution | null;
     let sessionEnded = false;
@@ -59,7 +63,21 @@ export const ansibleRepositoryCopyAction = Action({
       'token=<put your token here>',
     ].join('\n');
 
-    navigator.clipboard.writeText(cliConfig);
+    // The clipboard is missing on a page that is not served securely and
+    // refuses the write without permission: either way nothing was copied, so
+    // the configuration is shown for copying by hand instead.
+    try {
+      await navigator.clipboard.writeText(cliConfig);
+    } catch {
+      addAlert({
+        description: <pre>{cliConfig}</pre>,
+        id: 'copy-cli-config',
+        title: t`The configuration could not be copied to the clipboard.`,
+        variant: 'danger',
+      });
+      return;
+    }
+
     addAlert({
       description: <pre>{cliConfig}</pre>,
       id: 'copy-cli-config',

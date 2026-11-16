@@ -6,6 +6,7 @@ import { Action } from './action';
 export const debRepositoryEditAction = Action({
   title: msg`Edit`,
   permission: ACTION_PERMISSIONS.deb.repository.change,
+  objectLevel: ACTION_PERMISSIONS.deb.objectRoles,
   onClick: ({ name }, { navigate }) =>
     navigate(formatPath(Paths.deb.repository.edit, { name })),
 });

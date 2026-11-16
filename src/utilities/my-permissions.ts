@@ -5,19 +5,28 @@ import { config } from '../ui-config';
 // The permissions the signed-in user holds on one object, as the server lists
 // them for it. Roles granted on a single object appear only here: a role
 // granted on every object does not (it is read once for the user instead).
-// Any failure answers none, so a refused or failed read hides what it would
-// have shown and never raises an error of its own. What is shown from this is
+// A failure, or an answer without a list, answers null: it is not an answer,
+// so it is never taken for "holds nothing" and never raises an error of its
+// own. An empty list is a real answer. What is shown from this is
 // presentation only: the server decides every request.
-export async function loadMyPermissions(href: string): Promise<string[]> {
+export async function loadMyPermissions(
+  href: string,
+): Promise<string[] | null> {
   try {
     const base = config.API_BASE_PATH;
     const path = href.startsWith(base) ? href.slice(base.length) : href;
     const { data } = await GenericPulpAPI.get(`${path}my_permissions/`);
-    return Array.isArray(data?.permissions) ? data.permissions : [];
+    return Array.isArray(data?.permissions) ? data.permissions : null;
   } catch {
-    return [];
+    return null;
   }
 }
+
+// How long an object whose read failed is left alone before it is asked again:
+// long enough that a persistent failure does not turn every render into a
+// request, short enough that a passing failure does not hide actions for the
+// rest of the visit.
+export const FAILED_READ_PAUSE_MS = 30_000;
 
 interface IPermissionContext {
   hasPermission?: (name: string) => boolean;
@@ -44,11 +53,15 @@ export function needsObjectPermissions(
 }
 
 // The object permissions read for the objects of one screen, by address. An
-// object counts as holding nothing until its read has answered. Every object
-// is read once; reset forgets all of it, for a new session.
+// object counts as holding nothing until its read has answered. An answer is
+// read once and remembered; a failed read is not remembered as an answer, and
+// the object is asked again on a later read once the pause has passed. reset
+// forgets all of it, for a new session.
 export class ObjectPermissions {
   private lists = new Map<string, string[]>();
   private reading = new Set<string>();
+  // when the last read of an object failed, by address
+  private failures = new Map<string, number>();
   // Identifies the cache's generation, so an answer that arrives after a
   // reset, or after the screen is gone, is dropped.
   private generation = 0;
@@ -60,6 +73,14 @@ export class ObjectPermissions {
       return;
     }
 
+    const failedAt = this.failures.get(href);
+    if (
+      failedAt !== undefined &&
+      Date.now() - failedAt < FAILED_READ_PAUSE_MS
+    ) {
+      return;
+    }
+
     const generation = this.generation;
     this.reading.add(href);
     loadMyPermissions(href).then((list) => {
@@ -67,7 +88,13 @@ export class ObjectPermissions {
         return;
       }
       this.reading.delete(href);
-      this.lists.set(href, list);
+
+      if (list === null) {
+        this.failures.set(href, Date.now());
+      } else {
+        this.failures.delete(href);
+        this.lists.set(href, list);
+      }
       this.changed();
     });
   }
@@ -82,6 +109,13 @@ export class ObjectPermissions {
       Array.isArray(object?.my_permissions) ||
       this.lists.has(object?.pulp_href ?? '')
     );
+  }
+
+  // True when the last read for the object's address failed and no later read
+  // has answered. The object's permissions are still unknown then, but a
+  // screen that waits for them has an answer to act on: nothing is shown.
+  failed(object: { pulp_href?: string } | null | undefined): boolean {
+    return this.failures.has(object?.pulp_href ?? '');
   }
 
   // True when the permission is held everywhere, or listed for the object:
@@ -104,6 +138,7 @@ export class ObjectPermissions {
     this.generation++;
     this.lists.clear();
     this.reading.clear();
+    this.failures.clear();
     this.changed();
   }
 

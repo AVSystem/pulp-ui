@@ -755,7 +755,7 @@ describe('the Copy CLI configuration action', () => {
       <>
         {ansibleRepositoryCopyAction.button(
           { name: repo.name, pulp_href: repo.pulp_href },
-          { addAlert },
+          { addAlert, hasPermission: () => true },
         )}
       </>,
     );
