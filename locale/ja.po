@@ -7399,7 +7399,11 @@ msgstr ""
 msgid "The login page returned without a signed-in session."
 msgstr ""
 
+#: src/actions/ansible-remote-delete.tsx
+#: src/actions/deb-remote-delete.tsx
 #: src/actions/file-remote-delete.tsx
+#: src/actions/python-remote-delete.tsx
+#: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
 msgstr ""
 
@@ -7428,7 +7432,11 @@ msgstr "同期時に認証に使用するパスワード。トークンを使用
 msgid "The plugin list could not be loaded"
 msgstr ""
 
+#: src/actions/ansible-remote-delete.tsx
+#: src/actions/deb-remote-delete.tsx
 #: src/actions/file-remote-delete.tsx
+#: src/actions/python-remote-delete.tsx
+#: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
 msgstr ""
 
