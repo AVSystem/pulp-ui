@@ -478,6 +478,7 @@ const routes: IRouteConfig[] = [
   {
     component: SignatureKeysList,
     path: Paths.core.signature_keys,
+    screenAccess: 'signing-services',
   },
   {
     component: EditUser,

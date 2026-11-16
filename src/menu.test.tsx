@@ -324,8 +324,9 @@ describe('navigation menu', () => {
 
     expect(item('tasks')).not.toBeNull();
     expect(item('status')).not.toBeNull();
-    expect(item('signing-services')).not.toBeNull();
+    // The entries that depend on the permissions follow their read.
     await waitFor(() => expect(item('roles')).not.toBeNull());
+    expect(item('signing-services')).not.toBeNull();
     expect(section('users-and-groups')).not.toBeNull();
     expect(section('repositories')).toBeNull();
     expect(section('remotes')).toBeNull();
