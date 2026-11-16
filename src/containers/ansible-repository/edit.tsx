@@ -6,6 +6,7 @@ import {
 } from 'src/api/ansible-repository';
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   createAlerts,
   createRepository,
@@ -36,6 +37,16 @@ const AnsibleRepositoryEdit = Page<AnsibleRepositoryType>({
 
   displayName: 'AnsibleRepositoryEdit',
   errorTitle: msg`Repository could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.ansible.repository.change,
+          objectLevel: ACTION_PERMISSIONS.ansible.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.ansible.repository.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.ansible.repository.list),
   query: ({ name }) => {
     return AnsibleRepositoryAPI.list({ name })

@@ -4,9 +4,11 @@ import { Route, Routes, useLocation } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
+import { PermissionsKnown } from 'src/test-utils/permissions';
 import { listOf, remote } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { serveSignIn } from 'src/test-utils/sign-in-again';
 import PythonRemoteEdit from './edit';
 
 const API = '/pulp/api/v3';
@@ -25,13 +27,19 @@ function Where() {
 }
 
 function renderEdit(route: string) {
+  serveSignIn();
   return renderWithProviders(
-    <AppContextProvider>
-      <Routes>
-        <Route path={Paths.python.remote.edit} element={<PythonRemoteEdit />} />
-        <Route path={Paths.python.remote.detail} element={<Where />} />
-      </Routes>
-    </AppContextProvider>,
+    <PermissionsKnown>
+      <AppContextProvider>
+        <Routes>
+          <Route
+            path={Paths.python.remote.edit}
+            element={<PythonRemoteEdit />}
+          />
+          <Route path={Paths.python.remote.detail} element={<Where />} />
+        </Routes>
+      </AppContextProvider>
+    </PermissionsKnown>,
     { route },
   );
 }

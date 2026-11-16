@@ -6,6 +6,7 @@ import {
 } from 'src/api/python-repository';
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   createAlerts,
   createRepository,
@@ -35,6 +36,16 @@ const PythonRepositoryEdit = Page<PythonRepositoryType>({
 
   displayName: 'PythonRepositoryEdit',
   errorTitle: msg`Repository could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.python.repository.change,
+          objectLevel: ACTION_PERMISSIONS.python.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.python.repository.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.python.repository.list),
   query: ({ name }) =>
     PythonRepositoryAPI.list({ name }).then(

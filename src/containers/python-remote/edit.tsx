@@ -3,6 +3,7 @@ import { PythonRemoteAPI, type PythonRemoteType } from 'src/api';
 import { Page, RemoteForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import { saveErrorMessages } from 'src/utilities/create-repository';
 
 const initialRemote: PythonRemoteType = {
@@ -36,6 +37,16 @@ const PythonRemoteEdit = Page<PythonRemoteType>({
 
   displayName: 'PythonRemoteEdit',
   errorTitle: msg`Remote could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.python.remote.change,
+          objectLevel: ACTION_PERMISSIONS.python.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.python.remote.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.python.remote.list),
   query: ({ name }) =>
     PythonRemoteAPI.list({ name }).then(({ data: { results } }) => results[0]),

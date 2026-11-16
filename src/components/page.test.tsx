@@ -2,10 +2,21 @@ import { msg } from '@lingui/core/macro';
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import { Route, Routes } from 'react-router';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
+import AnsibleRemoteEdit from '../containers/ansible-remote/edit';
+import AnsibleRepositoryEdit from '../containers/ansible-repository/edit';
+import DebRemoteEdit from '../containers/deb-remote/edit';
+import DebRepositoryEdit from '../containers/deb-repository/edit';
+import FileRemoteEdit from '../containers/file-remote/edit';
+import FileRepositoryEdit from '../containers/file-repository/edit';
+import PythonRemoteEdit from '../containers/python-remote/edit';
+import PythonRepositoryEdit from '../containers/python-repository/edit';
+import RPMRemoteEdit from '../containers/rpm-remote/edit';
+import RPMRepositoryEdit from '../containers/rpm-repository/edit';
+import { Paths } from '../paths';
 import { resetSessionEvents } from '../session/session-events';
 import {
   serveMyPermissions,
@@ -704,4 +715,389 @@ describe('a page whose header actions are all hidden', () => {
     await screen.findByRole('button', { name: 'Change thing' });
     expect(shown.container.querySelector('.pulp-toolbar')).not.toBeNull();
   });
+});
+
+describe('a page whose form needs a permission', () => {
+  const HREF = '/pulp/api/v3/things/1/';
+  const CHANGE = 'file.change_filerepository';
+  const ADD = 'file.add_filerepository';
+  const VIEW = 'file.view_filerepository';
+
+  let saves = 0;
+
+  const Guarded = (objectLevel = true) =>
+    Page<IThing>({
+      breadcrumbs: ({ name }) => [{ name: 'Things' }, { name: name ?? 'Add' }],
+      displayName: 'FormPermissionThingEdit',
+      errorTitle: msg`Thing could not be displayed.`,
+      formPermission: (item) =>
+        item
+          ? { permission: CHANGE, objectLevel }
+          : { permission: ADD, objectLevel: false },
+      headerActions: [
+        Action({ title: msg`Delete thing`, onClick: () => undefined }),
+      ],
+      listUrl: '/things',
+      query: ({ name }) =>
+        things
+          .list('things/', { name, page_size: 1 })
+          .then(({ data }) => data.results[0]),
+      title: ({ name }) => name || 'Add new thing',
+      transformParams: ({ name }) => ({ name: name !== '_' ? name : null }),
+      render: (item) => (
+        <form
+          aria-label='Thing form'
+          onSubmit={(event) => {
+            event.preventDefault();
+            saves += 1;
+          }}
+        >
+          <p>{item ? `Editing ${item.name}` : 'Creating a new thing'}</p>
+          <button type='submit'>Save</button>
+        </form>
+      ),
+    });
+
+  function renderGuardedEdit(route = '/things/edit/alpha', objectLevel = true) {
+    const Thing = Guarded(objectLevel);
+    server.use(
+      http.get(`*${THINGS}`, () =>
+        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
+      ),
+    );
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/things/edit/:name' element={<Thing />} />
+        </Routes>
+      </AppContextProvider>,
+      { route },
+    );
+  }
+
+  const saveButton = () => screen.queryByRole('button', { name: 'Save' });
+  const refusal = () =>
+    screen.queryByRole('heading', { name: 'Insufficient permissions' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+    saves = 0;
+  });
+
+  it('shows the insufficient permissions page below the header, with no form, Save button or header action, to an account that lacks the permission', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({ [HREF]: [VIEW] });
+    renderGuardedEdit();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(requests).toEqual([`${HREF}my_permissions/`]);
+    expect(screen.getByRole('heading', { name: 'alpha' })).toBeInTheDocument();
+    expect(saveButton()).not.toBeInTheDocument();
+    expect(form()).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Delete thing' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.getByRole('status').querySelectorAll('p')).toHaveLength(2);
+  });
+
+  it('shows the form to an account that holds the permission globally, and reads no object permissions', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    renderGuardedEdit();
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+    expect(refusal()).not.toBeInTheDocument();
+  });
+
+  it('shows the form to staff, and reads no object permissions', async () => {
+    servePermissions({ isStaff: true });
+    const { requests } = serveMyPermissions({});
+    renderGuardedEdit();
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows the form when the permissions listed for the object hold the permission', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({ [HREF]: [VIEW, CHANGE] });
+    renderGuardedEdit();
+
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([`${HREF}my_permissions/`]);
+  });
+
+  it('shows the loading state, never the form, while the object permissions are being read', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({
+      [HREF]: { permissions: [CHANGE], delayMs: 250 },
+    });
+    renderGuardedEdit();
+
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(form()).not.toBeInTheDocument();
+    expect(refusal()).not.toBeInTheDocument();
+    expect(await screen.findByText('Editing alpha')).toBeInTheDocument();
+  });
+
+  it.each([403, 500])(
+    'shows the insufficient permissions page when the object permission read answers %i',
+    async (status) => {
+      servePermissions({ own: [[VIEW]] });
+      serveMyPermissions({ [HREF]: { status } });
+      renderGuardedEdit();
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+    },
+  );
+
+  it('shows the loading state, never the form, while the permissions of the account are unknown', async () => {
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderGuardedEdit();
+
+    await screen.findByRole('progressbar');
+    await settled();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(form()).not.toBeInTheDocument();
+    expect(refusal()).not.toBeInTheDocument();
+    expect(requests).toEqual([]);
+  });
+
+  it('reads no object permissions when the permission is not object level, and refuses', async () => {
+    servePermissions({ own: [[VIEW]] });
+    const { requests } = serveMyPermissions({ [HREF]: [CHANGE] });
+    renderGuardedEdit('/things/edit/alpha', false);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    await settled();
+    expect(requests).toEqual([]);
+    expect(saveButton()).not.toBeInTheDocument();
+  });
+
+  it('shows the add form only to an account that holds the add permission globally', async () => {
+    servePermissions({ own: [[CHANGE]] });
+    const { requests } = serveMyPermissions({});
+    const without = renderGuardedEdit('/things/edit/_');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+    ).toBeInTheDocument();
+    expect(saveButton()).not.toBeInTheDocument();
+    without.unmount();
+    server.events.removeAllListeners();
+
+    servePermissions({ own: [[ADD]] });
+    renderGuardedEdit('/things/edit/_');
+
+    expect(await screen.findByText('Creating a new thing')).toBeInTheDocument();
+    expect(saveButton()).toBeInTheDocument();
+    expect(requests).toEqual([]);
+  });
+
+  it('shows the loading state, never the add form, while the permissions of the account are unknown', async () => {
+    renderGuardedEdit('/things/edit/_');
+
+    await screen.findByRole('progressbar');
+    await settled();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    expect(form()).not.toBeInTheDocument();
+    expect(refusal()).not.toBeInTheDocument();
+  });
+
+  it('sends nothing for a refused page', async () => {
+    servePermissions({ own: [[VIEW]] });
+    serveMyPermissions({ [HREF]: [VIEW] });
+    const recorded = recordWrites();
+    renderGuardedEdit();
+
+    await screen.findByRole('heading', { name: 'Insufficient permissions' });
+    await settled();
+    expect(recorded.writes).toEqual([]);
+    expect(saves).toBe(0);
+    recorded.stop();
+  });
+});
+
+describe('every repository and remote edit page opened by its address', () => {
+  const API = '/pulp/api/v3';
+
+  // route: where the page is mounted; list: the collection its object is read
+  // from; view: a permission the account holds that is not the edit permission
+  const pages = [
+    {
+      name: 'ansible remote',
+      Edit: AnsibleRemoteEdit,
+      route: Paths.ansible.remote.edit,
+      list: 'remotes/ansible/collection/',
+    },
+    {
+      name: 'ansible repository',
+      Edit: AnsibleRepositoryEdit,
+      route: Paths.ansible.repository.edit,
+      list: 'repositories/ansible/ansible/',
+    },
+    {
+      name: 'deb remote',
+      Edit: DebRemoteEdit,
+      route: Paths.deb.remote.edit,
+      list: 'remotes/deb/apt/',
+    },
+    {
+      name: 'deb repository',
+      Edit: DebRepositoryEdit,
+      route: Paths.deb.repository.edit,
+      list: 'repositories/deb/apt/',
+    },
+    {
+      name: 'file remote',
+      Edit: FileRemoteEdit,
+      route: Paths.file.remote.edit,
+      list: 'remotes/file/file/',
+    },
+    {
+      name: 'file repository',
+      Edit: FileRepositoryEdit,
+      route: Paths.file.repository.edit,
+      list: 'repositories/file/file/',
+    },
+    {
+      name: 'python remote',
+      Edit: PythonRemoteEdit,
+      route: Paths.python.remote.edit,
+      list: 'remotes/python/python/',
+    },
+    {
+      name: 'python repository',
+      Edit: PythonRepositoryEdit,
+      route: Paths.python.repository.edit,
+      list: 'repositories/python/python/',
+    },
+    {
+      name: 'rpm remote',
+      Edit: RPMRemoteEdit,
+      route: Paths.rpm.remote.edit,
+      list: 'remotes/rpm/rpm/',
+    },
+    {
+      name: 'rpm repository',
+      Edit: RPMRepositoryEdit,
+      route: Paths.rpm.repository.edit,
+      list: 'repositories/rpm/rpm/',
+    },
+  ];
+
+  const hrefOf = ({ list }: { list: string }) =>
+    `${API}/${list}00000000-0000-4000-8000-000000000001/`;
+
+  const fill = (path: string) => path.replace(':name', 'existing');
+
+  function renderPage(
+    { Edit, route, list }: (typeof pages)[number],
+    at: string,
+  ) {
+    const href = hrefOf({ list });
+    server.use(
+      http.get(`*${API}/${list}`, () =>
+        HttpResponse.json(page([{ name: 'existing', pulp_href: href }])),
+      ),
+    );
+    return {
+      href,
+      ...renderWithProviders(
+        <AppContextProvider>
+          <Routes>
+            <Route path={route} element={<Edit />} />
+          </Routes>
+        </AppContextProvider>,
+        { route: at },
+      ),
+    };
+  }
+
+  const saveButton = () => screen.queryByRole('button', { name: 'Save' });
+  const settled = () => act(() => new Promise((r) => setTimeout(r, 120)));
+
+  // every read of a form that a test does not serve answers an empty list; it
+  // is registered first so that the handlers of a test take precedence
+  beforeEach(() => {
+    server.use(http.get(`*${API}/*`, () => HttpResponse.json(page([]))));
+  });
+
+  afterEach(() => {
+    server.events.removeAllListeners();
+  });
+
+  it.each(pages)(
+    'shows the insufficient permissions page and no Save button for the $name to an account without its change permission',
+    async (row) => {
+      servePermissions({ own: [['core.view_task']] });
+      serveMyPermissions({ [hrefOf(row)]: ['core.view_task'] });
+      const recorded = recordWrites();
+      renderPage(row, fill(row.route));
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+      await settled();
+      expect(recorded.writes).toEqual([]);
+      recorded.stop();
+    },
+  );
+
+  it.each(pages)(
+    'shows the insufficient permissions page and no Save button for the $name add page to an account without its add permission',
+    async (row) => {
+      servePermissions({ own: [['core.view_task']] });
+      renderPage(row, row.route.replace(':name', '_'));
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(pages)(
+    'shows the $name form with Save to staff, for an existing object and for a new one',
+    async (row) => {
+      servePermissions({ isStaff: true });
+      serveMyPermissions({ [hrefOf(row)]: [] });
+      const existing = renderPage(row, fill(row.route));
+
+      expect(await screen.findByDisplayValue('existing')).toBeInTheDocument();
+      expect(saveButton()).toBeInTheDocument();
+      existing.unmount();
+
+      renderPage(row, row.route.replace(':name', '_'));
+
+      expect(
+        await screen.findByRole('textbox', { name: /^Name/ }),
+      ).toBeInTheDocument();
+      expect(saveButton()).toBeInTheDocument();
+    },
+  );
 });

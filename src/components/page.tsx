@@ -54,11 +54,22 @@ interface IState<T> {
 // its loading state or its content, the sign-in dialog explains the failure
 // and the page reads again once the same user has signed in.
 
+// The permission a page's form needs: the permission of the object when the
+// page shows one (objectLevel: it may be held on that object alone), the add
+// permission when the page is for a new object. A page with a form permission
+// shows its form only when it is held; presentation only, the server decides
+// every save.
+export interface FormPermission {
+  objectLevel: boolean;
+  permission: string;
+}
+
 interface PageParams<T> {
   breadcrumbs: ({ name }) => { url?: string; name: string }[];
   condition?: (context) => boolean;
   displayName: string;
   errorTitle: MessageDescriptor;
+  formPermission?: (item: T | null) => FormPermission | null;
   headerActions?: ActionType[];
   listUrl: string;
   query: ({ name }) => Promise<T>;
@@ -78,6 +89,10 @@ export const Page = function <
   displayName,
   // alert on query failure
   errorTitle,
+  // (item | null) => the permission the form needs, or null for none; the
+  // form is replaced by the loading state until that is known and by the
+  // insufficient permissions page when it is not held
+  formPermission,
   // displayed after filters
   headerActions,
   // formatPath result to navigate to - to get to the list screen
@@ -199,6 +214,8 @@ export const Page = function <
 
       const name = item?.name || transformParams(routeParams)?.name || null;
 
+      const form = this.formState();
+
       // Only the actions the user may use are drawn; with none, no container.
       const shownActions = (headerActions ?? []).filter((action) =>
         action.isShown(item, actionContext),
@@ -225,7 +242,9 @@ export const Page = function <
               />
             }
             pageControls={
-              unauthorized || !shownActions.length ? null : (
+              unauthorized ||
+              form === 'refused' ||
+              !shownActions.length ? null : (
                 <div className='pulp-toolbar'>
                   <Toolbar>
                     <ToolbarContent>
@@ -245,9 +264,11 @@ export const Page = function <
           {renderModals?.(actionContext)}
           {unauthorized ? (
             <InsufficientPermissions detail={unauthorizedDetail} />
+          ) : !loading && !error && form === 'refused' ? (
+            <InsufficientPermissions />
           ) : (
             <Main>
-              {loading ? (
+              {loading || form === 'unknown' ? (
                 <LoadingSpinner />
               ) : error ? (
                 <ListErrorState
@@ -270,6 +291,37 @@ export const Page = function <
           )}
         </>
       );
+    }
+
+    // Whether the page's form may be shown, once the object is loaded:
+    // 'unknown' while the permissions it depends on are being read, 'allowed'
+    // or 'refused' after. A page without a form permission is always allowed.
+    private formState(): 'allowed' | 'refused' | 'unknown' {
+      const required = formPermission?.(this.state.item);
+      if (!required) {
+        return 'allowed';
+      }
+
+      const { hasPermission, permissionsReady } = this
+        .context as IAppContextType;
+      if (!permissionsReady) {
+        return 'unknown';
+      }
+
+      const { item } = this.state;
+      if (
+        this.objectPermissions.holds(required.permission, item, hasPermission)
+      ) {
+        return 'allowed';
+      }
+
+      // Only the object's own permissions can still grant it; until they are
+      // known the form stays hidden.
+      if (required.objectLevel && item && !this.objectPermissions.knows(item)) {
+        return 'unknown';
+      }
+
+      return 'refused';
     }
 
     // quiet: the object is shown already; read it again without a loading
@@ -336,7 +388,7 @@ export const Page = function <
     }
 
     // Reads the permissions the server lists for the object, once, when a
-    // header action depends on them: the global permissions are known, the
+    // header action or the form depends on them: the global permissions are known, the
     // user lacks the action's permission globally (staff never do) and the
     // object does not carry the list itself.
     private readObjectPermissions() {
@@ -350,7 +402,17 @@ export const Page = function <
         return;
       }
 
+      const required = formPermission?.(item);
+      const { hasPermission, permissionsReady } = this
+        .context as IAppContextType;
+      const formNeedsObject =
+        !!required &&
+        required.objectLevel &&
+        !!permissionsReady &&
+        !hasPermission(required.permission);
+
       if (
+        formNeedsObject ||
         needsObjectPermissions(headerActions, this.context as IAppContextType)
       ) {
         this.objectPermissions.read(item.pulp_href);

@@ -3,6 +3,7 @@ import { AnsibleRemoteAPI, type AnsibleRemoteType } from 'src/api';
 import { Page, RemoteForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import { saveErrorMessages } from 'src/utilities/create-repository';
 
 const initialRemote: AnsibleRemoteType = {
@@ -38,6 +39,16 @@ const AnsibleRemoteEdit = Page<AnsibleRemoteType>({
 
   displayName: 'AnsibleRemoteEdit',
   errorTitle: msg`Remote could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.ansible.remote.change,
+          objectLevel: ACTION_PERMISSIONS.ansible.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.ansible.remote.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.ansible.remote.list),
   query: ({ name }) => {
     return AnsibleRemoteAPI.list({ name })
