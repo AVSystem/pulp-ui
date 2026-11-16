@@ -6,6 +6,7 @@ import {
 } from 'src/api/file-repository';
 import { Page, RepositoryForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
+import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   createAlerts,
   createRepository,
@@ -35,6 +36,16 @@ const FileRepositoryEdit = Page<FileRepositoryType>({
 
   displayName: 'FileRepositoryEdit',
   errorTitle: msg`Repository could not be displayed.`,
+  formPermission: (item) =>
+    item
+      ? {
+          permission: ACTION_PERMISSIONS.file.repository.change,
+          objectLevel: ACTION_PERMISSIONS.file.objectRoles,
+        }
+      : {
+          permission: ACTION_PERMISSIONS.file.repository.add,
+          objectLevel: false,
+        },
   listUrl: formatPath(Paths.file.repository.list),
   query: ({ name }) =>
     FileRepositoryAPI.list({ name }).then(

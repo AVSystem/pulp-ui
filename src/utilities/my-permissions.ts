@@ -72,6 +72,18 @@ export class ObjectPermissions {
     });
   }
 
+  // True when the object's permissions are known: it carries the list itself,
+  // or the read for its address has answered.
+  knows(
+    object:
+      { pulp_href?: string; my_permissions?: string[] } | null | undefined,
+  ): boolean {
+    return (
+      Array.isArray(object?.my_permissions) ||
+      this.lists.has(object?.pulp_href ?? '')
+    );
+  }
+
   // True when the permission is held everywhere, or listed for the object:
   // by the object itself when it carries the list, else by the answer read
   // for its address.
