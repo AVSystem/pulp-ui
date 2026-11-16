@@ -4,6 +4,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode, StrictMode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { type FilterOption } from 'src/components';
 import { Action, type ActionType } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { resetSessionEvents } from '../session/session-events';
@@ -27,11 +28,13 @@ const things = new PulpAPI();
 
 function renderList({
   strict = false,
+  filterConfig,
   hasPermission = () => true,
   headerActions,
   noDataButton,
 }: {
   strict?: boolean;
+  filterConfig?: FilterOption[];
   hasPermission?: (name: string) => boolean;
   headerActions?: ActionType[];
   noDataButton?: (item, actionContext) => ReactNode;
@@ -42,6 +45,7 @@ function renderList({
       actionContext={{ addAlert, hasPermission, query: vi.fn() }}
       defaultPageSize={10}
       errorTitle='Things could not be displayed.'
+      filterConfig={filterConfig}
       headerActions={headerActions}
       noDataButton={noDataButton}
       noDataDescription='Things appear once they are created.'
@@ -175,6 +179,8 @@ const addThing = Action({
   onClick: vi.fn(),
 });
 
+const NAME_FILTER: FilterOption[] = [{ id: 'name', title: 'Name' }];
+
 const toolbarItems = () =>
   Array.from(
     (
@@ -185,7 +191,7 @@ const toolbarItems = () =>
 describe('the header actions of a list in a detail tab', () => {
   it('draws no stray 0 and no empty toolbar item for an empty list of actions', async () => {
     server.use(listOf(THINGS, rows('alpha')).handler);
-    renderList({ headerActions: [] });
+    renderList({ filterConfig: NAME_FILTER, headerActions: [] });
 
     await screen.findByText('alpha');
 
@@ -201,7 +207,11 @@ describe('the header actions of a list in a detail tab', () => {
 
   it('draws no toolbar item for an action that is hidden', async () => {
     server.use(listOf(THINGS, rows('alpha')).handler);
-    renderList({ headerActions: [addThing], hasPermission: () => false });
+    renderList({
+      filterConfig: NAME_FILTER,
+      headerActions: [addThing],
+      hasPermission: () => false,
+    });
 
     await screen.findByText('alpha');
 
