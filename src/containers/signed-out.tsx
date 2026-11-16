@@ -23,7 +23,7 @@ export default function SignedOut() {
       loginTitle={t`Signed out`}
       brandImgSrc={PulpLogo}
     >
-      <p>{t`You have been signed out of Pulp.`}</p>
+      <p className='pulp-signed-out__text'>{t`You have been signed out of Pulp.`}</p>
       <Button
         component='a'
         href={href}

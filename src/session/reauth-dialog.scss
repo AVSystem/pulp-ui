@@ -5,6 +5,12 @@
   overflow-wrap: anywhere;
 }
 
+// The lead sentence and the notes sit one spacer apart, and the form (or the
+// external login button) follows after the same gap.
+.pulp-reauth__text {
+  margin-block-end: var(--pf-t--global--spacer--md);
+}
+
 .pulp-reauth__note {
   color: var(--pulp-text-2);
 }

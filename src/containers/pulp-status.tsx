@@ -13,22 +13,22 @@ import { sortBy } from 'lodash';
 import { Component, type ReactNode, useState } from 'react';
 import { PulpStatusAPI } from 'src/api';
 import {
-  AlertList,
-  type AlertType,
   BaseHeader,
   DateComponent,
   LoadingSpinner,
   Main,
-  closeAlert,
 } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
 import { type RouteProps, getHumanSize, withRouter } from 'src/utilities';
 import {
   isSessionEnd,
   requestErrorDescription,
 } from 'src/utilities/request-error';
+import './pulp-status.scss';
 
 interface IState {
-  alerts: AlertType[];
+  // why the last read failed, shown as an error state with Retry
+  error: ReactNode;
   status?;
 }
 
@@ -307,12 +307,34 @@ function cards(status) {
   return all.filter(({ key }) => key in status);
 }
 
+// Says what the answer leaves out, chosen by the keys it holds. A visitor who
+// is not signed in gets health only; a signed-in account that is not an
+// administrator gets the versions but neither workers, storage nor content
+// settings; an administrator's answer holds everything and needs no note.
+function statusNote(status) {
+  if (!('versions' in status)) {
+    return (
+      <p className='pulp-status-note'>
+        {t`Versions, workers and storage are shown to signed-in users.`}
+      </p>
+    );
+  }
+  if (!('online_workers' in status)) {
+    return (
+      <p className='pulp-status-note'>
+        {t`Workers, storage and content settings are shown to administrators.`}
+      </p>
+    );
+  }
+  return null;
+}
+
 class PulpStatus extends Component<RouteProps, IState> {
   constructor(props) {
     super(props);
 
     this.state = {
-      alerts: [],
+      error: null,
       status: null,
     };
   }
@@ -330,50 +352,56 @@ class PulpStatus extends Component<RouteProps, IState> {
   }
 
   render() {
-    const { alerts, status } = this.state;
+    const { error, status } = this.state;
 
     return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
         <BaseHeader title={t`Status`} />
-        {!status ? (
-          <Main>
+        <Main>
+          {error ? (
+            <section className='pulp-section'>
+              <ListErrorState
+                title={t`Failed to load status`}
+                message={error}
+                onRetry={() => this.retry()}
+              />
+            </section>
+          ) : !status ? (
             <LoadingSpinner />
-          </Main>
-        ) : (
-          <Main>
-            {'versions' in status ? null : (
-              // A visitor who is not signed in gets a reduced answer; only
-              // what it holds is shown, and this line says what is left out.
-              <p>{t`Versions, workers and storage are shown to signed-in users.`}</p>
-            )}
-            <Gallery hasGutter>
-              {cards(status).map(({ key, title, body }) => (
-                <CardItem key={key} title={title}>
-                  {body}
-                </CardItem>
-              ))}
-            </Gallery>
-            <br />
-            <CardJSON status={status} />{' '}
-          </Main>
-        )}
+          ) : (
+            <section className='pulp-section'>
+              {statusNote(status)}
+              <Gallery hasGutter>
+                {cards(status).map(({ key, title, body }) => (
+                  <CardItem key={key} title={title}>
+                    {body}
+                  </CardItem>
+                ))}
+              </Gallery>
+              {/* The raw answer is for a signed-in account: a reduced answer
+                  is shown as its cards only. */}
+              {'versions' in status ? (
+                <>
+                  <br />
+                  <CardJSON status={status} />
+                </>
+              ) : null}
+            </section>
+          )}
+        </Main>
       </>
     );
+  }
+
+  private retry() {
+    this.setState({ error: null, status: null });
+    this.query();
   }
 
   private query() {
     PulpStatusAPI.get()
       .then(({ data }) => {
-        this.setState({ status: data });
+        this.setState({ error: null, status: data });
       })
       .catch((e) => {
         // The session ended: the sign-in dialog explains it, and the page
@@ -381,16 +409,7 @@ class PulpStatus extends Component<RouteProps, IState> {
         if (isSessionEnd(e)) {
           return;
         }
-        this.setState({
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'danger',
-              title: t`Failed to load status`,
-              description: requestErrorDescription(e),
-            },
-          ],
-        });
+        this.setState({ error: requestErrorDescription(e) });
       });
   }
 }

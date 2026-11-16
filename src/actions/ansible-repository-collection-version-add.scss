@@ -16,3 +16,9 @@
     font-weight: 600;
   }
 }
+
+// The inline alert for a failed content read keeps one spacer from the toolbar
+// below it.
+.pulp-collection-read-failed {
+  margin-block-end: var(--pf-t--global--spacer--md);
+}

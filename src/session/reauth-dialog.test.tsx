@@ -282,6 +282,35 @@ describe('sign in again dialog contract', () => {
     ]);
   });
 
+  it('gives the lead and each note the same text class, so every sentence has the same gap below it', async () => {
+    const { user } = await renderScreen();
+
+    const dialog = await openByRequest(user);
+
+    const paragraphs = Array.from(dialog.querySelectorAll('p'));
+    expect(paragraphs).toHaveLength(3);
+    for (const paragraph of paragraphs) {
+      expect(paragraph).toHaveClass('pulp-reauth__text');
+    }
+    // The note color belongs to the notes, not to the lead sentence.
+    expect(paragraphs[0]).not.toHaveClass('pulp-reauth__note');
+    expect(paragraphs[1]).toHaveClass('pulp-reauth__note');
+    expect(paragraphs[2]).toHaveClass('pulp-reauth__note');
+    // The form follows the last sentence directly.
+    expect(paragraphs[2]?.nextElementSibling?.tagName).toBe('FORM');
+  });
+
+  it('leaves no empty paragraph behind when there is no request note', async () => {
+    await renderScreen();
+
+    act(() => reportUnauthorized('tab-return'));
+
+    const dialog = await screen.findByRole('dialog', { name: /Sign in again/ });
+    const paragraphs = Array.from(dialog.querySelectorAll('p'));
+    expect(paragraphs).toHaveLength(2);
+    expect(paragraphs[1]?.nextElementSibling?.tagName).toBe('FORM');
+  });
+
   it('prefills the user name, lets it be edited and puts the focus in the password field', async () => {
     const { user } = await renderScreen();
     acceptLogin({ username: 'other', pulp_href: '/pulp/api/v3/users/1/' });

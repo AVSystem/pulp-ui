@@ -257,6 +257,7 @@ const AddCollectionVersionModal = ({
                   {t`Retry`}
                 </AlertActionLink>
               }
+              className='pulp-collection-read-failed'
               isInline
               title={t`The repository content could not be read`}
               variant='danger'

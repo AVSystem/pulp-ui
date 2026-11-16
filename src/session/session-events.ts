@@ -5,6 +5,11 @@ import { Paths } from 'src/paths';
 // that page agree on the address.
 export const SIGNED_OUT_PATH = Paths.meta.signedOut;
 
+// Whether the location is the signed out page, with or without a trailing
+// slash.
+export const isSignedOutPath = (pathname: string) =>
+  (pathname.replace(/\/+$/, '') || '/') === SIGNED_OUT_PATH;
+
 // Whether the session of the signed-in user has ended, and whether a request
 // found out (as opposed to a check made on returning to the tab).
 export interface ISessionEnded {

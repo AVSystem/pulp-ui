@@ -30,3 +30,8 @@
 .pulp-login__error {
   color: var(--pulp-bad);
 }
+
+// The body line of the signed out page and its button are one spacer apart.
+.pulp-signed-out__text {
+  margin-block-end: var(--pf-t--global--spacer--md);
+}
