@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { account } from '../support/env';
 import {
+  backdropIsStill,
   coveredAt,
   endSessionBehindThePage,
   loginChecks,
@@ -34,7 +35,13 @@ test('a session ended behind the page is covered on return and comes back after 
     .toEqual([401]);
   const dialog = page.getByRole('dialog', { name: 'Sign in again' });
   await expect(dialog).toBeVisible();
-  // Measured at once, without waiting for animations: the layer has no fade-in.
+  // The layer has no fade-in: it carries no animation class and nothing is
+  // animating it, so it is opaque from its first frame. The covering is then
+  // measured at once, without waiting for animations.
+  expect(
+    await backdropIsStill(page),
+    'the backdrop has no animation class and no running animation',
+  ).toBe(true);
   expect(
     await coveredAt(page, workers, false),
     'the data on the page is covered by the opaque layer',

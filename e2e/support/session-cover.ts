@@ -141,6 +141,31 @@ export async function coveredAt(
   });
 }
 
+// True when the sign-in dialog's backdrop exists, does not carry the library's
+// animation class and has no animation or transition running on it (or on its
+// pseudo-elements, which report the backdrop as their target). Unlike a
+// measurement taken in the first frame, this holds the same way however fast or
+// slow the browser is and with a reduced-motion setting, so a fade-in that came
+// back is always found.
+export async function backdropIsStill(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const backdrop = document.querySelector(
+      '.pf-v6-c-backdrop.pulp-reauth__backdrop',
+    );
+    if (!backdrop || backdrop.classList.contains('pf-m-animate')) {
+      return false;
+    }
+    return !document
+      .getAnimations()
+      .some(
+        (animation) =>
+          animation.playState === 'running' &&
+          animation.effect instanceof KeyframeEffect &&
+          animation.effect.target === backdrop,
+      );
+  });
+}
+
 // Puts a marker on the window of the page. A page that is loaded afresh loses
 // it, so a marker that is still there proves no reload happened.
 export async function markWindow(page: Page): Promise<void> {

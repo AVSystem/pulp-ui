@@ -49,10 +49,10 @@ interface IUserContextType {
   // Grows each time the same user signs in again after the session ended, so
   // a screen can read its data again.
   epoch: number;
-  // Grows each time the signed-in account goes away or changes (a sign-out, an
-  // end of the session by the server, another account taking its place). A
-  // session that merely ended keeps the account and the generation. A screen
-  // mounted for one signed-in account must not outlive that account.
+  // Grows each time the account in memory is cleared (a sign-out, `endSession`)
+  // or replaced by another account. A suspended session (the dialog is open)
+  // keeps the account and the generation. A screen mounted for one signed-in
+  // account must not outlive that account.
   generation: number;
   // What a question about the session is asked for: the account in memory, the
   // generation, the epoch and whether the session had ended at that moment.
