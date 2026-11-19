@@ -6,20 +6,13 @@ import {
   within,
 } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import {
-  type MockInstance,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   reportUnauthorized,
   resetSessionEvents,
   resume,
 } from 'src/session/session-events';
+import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { serveUserRecords } from 'src/test-utils/permissions';
 import { type ITask, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -133,21 +126,10 @@ async function settle() {
   });
 }
 
-let intervals: MockInstance<typeof setInterval>;
+let intervals: IIntervals;
 
-// Runs the callback that was registered to fire every refresh period, as the
-// timer would after a minute.
-function refreshNow() {
-  const call = [...intervals.mock.calls]
-    .reverse()
-    .find(([, delay]) => delay === NOTIFICATIONS_REFRESH_MS);
-  if (!call) {
-    throw new Error('No refresh interval was registered');
-  }
-  act(() => {
-    (call[0] as () => void)();
-  });
-}
+// Runs the refresh interval of the list, as the timer would after a minute.
+const refreshNow = () => intervals.run(NOTIFICATIONS_REFRESH_MS);
 
 describe('notifications', () => {
   beforeEach(() => {
@@ -155,11 +137,11 @@ describe('notifications', () => {
     // server need real timers. The refresh interval is run by hand.
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(NOW);
-    intervals = vi.spyOn(globalThis, 'setInterval');
+    intervals = trackIntervals();
   });
 
   afterEach(() => {
-    intervals.mockRestore();
+    intervals.restore();
     vi.useRealTimers();
     resetSessionEvents();
     Reflect.deleteProperty(document, 'visibilityState');

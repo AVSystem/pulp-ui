@@ -1,10 +1,11 @@
 import { HttpResponse, http } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ResponseShapeError, parseResponse } from 'src/entities/response-shape';
 import { taskPage, taskRow } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import { TaskClient } from './client';
 import { isFinalState, taskPageSchema, taskSchema } from './model';
+import { taskKeys } from './queries';
 
 describe('task model', { tags: ['unit'] }, () => {
   it('parses a list page with relative hrefs and keeps fields it does not name', () => {
@@ -150,5 +151,91 @@ describe('Integration: TaskClient', { tags: ['integration'] }, () => {
     controller.abort();
 
     await expect(pending).rejects.toThrow();
+  });
+});
+
+describe('Integration: TaskClient counts and time windows', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('sends a set of states as one comma separated filter', async () => {
+    const seen: URLSearchParams[] = [];
+    server.use(
+      http.get('*/pulp/api/v3/tasks/', ({ request }) => {
+        seen.push(new URL(request.url).searchParams);
+        return HttpResponse.json(taskPage([]));
+      }),
+    );
+
+    await TaskClient.list({ state__in: 'failed,completed,canceled' });
+
+    expect(seen[0].get('state__in')).toBe('failed,completed,canceled');
+  });
+
+  it('turns a time window into a lower bound on the finish time when it asks', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2030-05-01T12:00:00.000Z'));
+    const seen: URLSearchParams[] = [];
+    server.use(
+      http.get('*/pulp/api/v3/tasks/', ({ request }) => {
+        seen.push(new URL(request.url).searchParams);
+        return HttpResponse.json(taskPage([]));
+      }),
+    );
+
+    await TaskClient.list({ finishedWithinMs: 24 * 60 * 60 * 1000 });
+    vi.setSystemTime(new Date('2030-05-01T13:00:00.000Z'));
+    await TaskClient.list({ finishedWithinMs: 24 * 60 * 60 * 1000 });
+
+    expect(seen.map((query) => query.get('finished_at__gte'))).toEqual([
+      '2030-04-30T12:00:00.000Z',
+      '2030-04-30T13:00:00.000Z',
+    ]);
+  });
+
+  it('counts the tasks of one state by asking for a single row', async () => {
+    const seen: URLSearchParams[] = [];
+    server.use(
+      http.get('*/pulp/api/v3/tasks/', ({ request }) => {
+        seen.push(new URL(request.url).searchParams);
+        return HttpResponse.json({
+          count: 42,
+          next: null,
+          previous: null,
+          results: [taskRow({ state: 'running' })],
+        });
+      }),
+    );
+
+    await expect(TaskClient.count({ state: 'running' })).resolves.toBe(42);
+
+    expect(Object.fromEntries(seen[0])).toEqual({
+      state: 'running',
+      limit: '1',
+      offset: '0',
+    });
+  });
+
+  it('refuses a count answer without a number as a response shape error', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/tasks/', () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
+
+    await expect(TaskClient.count({ state: 'running' })).rejects.toThrow(
+      ResponseShapeError,
+    );
+  });
+});
+
+describe('task query keys', { tags: ['unit'] }, () => {
+  it('keeps every key under the task prefix, so one invalidation reaches them all', () => {
+    const filter = { state: 'running' };
+
+    expect(taskKeys.count(filter).slice(0, 3)).toEqual(taskKeys.all);
+    expect(taskKeys.count(filter).slice(0, 4)).toEqual(taskKeys.counts);
+    expect(taskKeys.count(filter)[4]).toEqual(filter);
   });
 });
