@@ -870,7 +870,11 @@ describe('returning to the tab', () => {
     user: Awaited<ReturnType<typeof renderScreen>>['user'],
   ) {
     signOutOnTheServer();
-    await user.click(screen.getByRole('button', { name: 'Log out' }));
+    // The dialog may be open: the screen behind it is hidden from the
+    // accessibility tree but still there.
+    await user.click(
+      screen.getByRole('button', { name: 'Log out', hidden: true }),
+    );
     await waitFor(() =>
       expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
     );
@@ -893,8 +897,11 @@ describe('returning to the tab', () => {
       expect(isSuspended()).toBe(true);
     });
 
-    it("an answer for the previous account after a sign-out and another account's sign-in loads nothing", async () => {
-      const { user } = await renderScreen();
+    // The question left while the session had ended, so the previous account
+    // answering would restore it. The account that signed in since is another
+    // one, so nothing may act on the answer.
+    it("an answer for the previous account, asked while the session had ended, loads nothing after a sign-out and another account's sign-in", async () => {
+      const { user } = await dialogOpenedByReturn();
       const assign = vi
         .spyOn(window.location, 'assign')
         .mockImplementation(() => undefined);
@@ -912,7 +919,38 @@ describe('returning to the tab', () => {
 
       expect(assign).not.toHaveBeenCalled();
       expect(screen.getByTestId('user')).toHaveTextContent('amy');
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    // Here the account in memory when the answer arrives is the one the
+    // question was asked for, and its session has ended again, so the restore
+    // would accept the answer: only the generation, which grew with the
+    // sign-out, tells that this is not the session the question was asked in.
+    it('an answer asked while the session had ended does not restore the session of the same account after a sign-out, its sign-in and a second end', async () => {
+      const { user } = await dialogOpenedByReturn();
+      const checks = trackChecks();
+      const release = holdWhoami(() => HttpResponse.json(SAME_USER));
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as the same account' }),
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+      );
+      await storeKnowsUser();
+      await openByRequest(user);
+      release();
+      await finished(checks[0]);
+
+      expect(
+        screen.getByRole('dialog', { name: /Sign in again/ }),
+      ).toBeVisible();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+      expect(isSuspended()).toBe(true);
     });
 
     it('an answer naming the new account after a sign-out and its sign-in loads nothing', async () => {
