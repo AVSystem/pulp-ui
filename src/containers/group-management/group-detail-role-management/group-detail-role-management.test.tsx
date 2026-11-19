@@ -4,7 +4,7 @@ import { Route, Routes, useNavigate } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
-import { group, listOf } from 'src/test-utils/pulp';
+import { group, listOf, role as roleRow } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import GroupDetail from '../group-detail';
@@ -288,5 +288,171 @@ describe('removing a role from the group', () => {
     await pause(300);
 
     expect(count(`DELETE ${ROLES}${idOf('zz-role-a')}/`)).toBe(1);
+  });
+});
+
+describe('adding roles to the group', () => {
+  const ALL_ROLES = `${API}/roles/`;
+  const offered = (...names: string[]) =>
+    server.use(
+      listOf(
+        ALL_ROLES,
+        names.map((name) =>
+          roleRow({ name, description: `${name} role`, permissions: [] }),
+        ),
+      ).handler,
+    );
+
+  const posted: unknown[] = [];
+
+  const serveWrites = (
+    answer: (role: string) => Response | Promise<Response>,
+  ) =>
+    server.use(
+      http.post(`*${ROLES}`, async ({ request }) => {
+        const body = (await request.json()) as { role: string };
+        posted.push(body);
+        return answer(body.role);
+      }),
+    );
+
+  const created = () => HttpResponse.json({}, { status: 201 });
+
+  const open = async (person: ReturnType<typeof renderTab>['user']) => {
+    await person.click(screen.getByRole('button', { name: 'Add roles' }));
+    await screen.findByRole('dialog');
+  };
+
+  const pick = async (
+    person: ReturnType<typeof renderTab>['user'],
+    ...names: string[]
+  ) => {
+    for (const name of names) {
+      const row = await screen.findByRole('row', {
+        name: new RegExp(`${name} role`),
+      });
+      await person.click(within(row).getByRole('checkbox'));
+    }
+    await person.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('The following roles will be applied to group:');
+  };
+
+  beforeEach(() => {
+    posted.length = 0;
+  });
+
+  it('sends one POST per picked role, reads the roles of the group once more and closes', async () => {
+    serveRoles('zz-role-a');
+    offered('zz-role-a', 'zz-pick-1', 'zz-pick-2');
+    serveWrites(created);
+    const { user: person } = renderTab();
+    await screen.findByText('zz-role-a');
+    await open(person);
+    await pick(person, 'zz-pick-1', 'zz-pick-2');
+
+    await person.click(screen.getByRole('button', { name: 'Add' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(posted).toEqual([
+      { role: 'zz-pick-1', content_object: null },
+      { role: 'zz-pick-2', content_object: null },
+    ]);
+    expect(count(`GET ${ROLES}`)).toBe(2);
+    expect(
+      screen.getByText('Role zz-pick-1 has been successfully added to zz-ops.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Role zz-pick-2 has been successfully added to zz-ops.'),
+    ).toBeInTheDocument();
+  });
+
+  it('reports each role on its own when one is refused, with the reason Pulp gave', async () => {
+    serveRoles('zz-role-a');
+    offered('zz-role-a', 'zz-pick-1', 'zz-pick-2');
+    serveWrites((role) =>
+      role === 'zz-pick-2'
+        ? HttpResponse.json(
+            { non_field_errors: ['The role is already assigned.'] },
+            { status: 400 },
+          )
+        : created(),
+    );
+    const { user: person } = renderTab();
+    await screen.findByText('zz-role-a');
+    await open(person);
+    await pick(person, 'zz-pick-1', 'zz-pick-2');
+
+    await person.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(
+      await screen.findByText(
+        'Role zz-pick-2 could not be assigned to group zz-ops.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('The role is already assigned.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Role zz-pick-1 has been successfully added to zz-ops.'),
+    ).toBeInTheDocument();
+    expect(alerts()).toBe(2);
+    expect(count(`GET ${ROLES}`)).toBe(2);
+  });
+
+  it('sends one set of requests for two presses of Add', async () => {
+    serveRoles('zz-role-a');
+    offered('zz-role-a', 'zz-pick-1');
+    serveWrites(async () => {
+      await delay(150);
+      return created();
+    });
+    const { user: person } = renderTab();
+    await screen.findByText('zz-role-a');
+    await open(person);
+    await pick(person, 'zz-pick-1');
+    const press = screen.getByRole('button', { name: 'Add' });
+
+    await person.click(press);
+    await person.click(press);
+    await pause(300);
+
+    expect(posted).toHaveLength(1);
+  });
+
+  it('shows a role the group already holds on the page ticked and disabled', async () => {
+    serveRoles('zz-role-a');
+    offered('zz-role-a', 'zz-pick-1');
+    const { user: person } = renderTab();
+    await screen.findByText('zz-role-a');
+
+    await open(person);
+
+    const row = await screen.findByRole('row', { name: /zz-role-a role/ });
+    expect(within(row).getByRole('checkbox')).toBeDisabled();
+    expect(
+      within(
+        await screen.findByRole('row', { name: /zz-pick-1 role/ }),
+      ).getByRole('checkbox'),
+    ).toBeEnabled();
+  });
+
+  it('shows the failure of the role list inside the wizard with Retry', async () => {
+    serveRoles('zz-role-a');
+    server.use(
+      http.get(`*${ALL_ROLES}`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+      ),
+    );
+    const { user: person } = renderTab();
+    await screen.findByText('zz-role-a');
+
+    await open(person);
+
+    expect(
+      await screen.findByText('Roles list could not be displayed.'),
+    ).toBeVisible();
+    offered('zz-pick-1');
+    await person.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('zz-pick-1 role')).toBeVisible();
   });
 });
