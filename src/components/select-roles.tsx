@@ -27,6 +27,8 @@ import {
 } from 'src/utilities/request-error';
 import { ListErrorState } from './list-error-state';
 
+// The role picker of the screens that still read through the legacy client.
+// Screens on the data hooks use RoleSelector.
 interface SelectRolesProps {
   assignedRoles: { role: string }[];
   selectedRoles: RoleType[];

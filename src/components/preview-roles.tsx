@@ -1,12 +1,19 @@
 import { Trans } from '@lingui/react/macro';
 import { Divider, Flex, FlexItem, Label } from '@patternfly/react-core';
 import { Fragment } from 'react';
-import { type RoleType } from 'src/api';
 import { Tooltip } from 'src/components';
 import { translateLockedRole } from 'src/utilities';
 
+// What the preview reads of a role: the role of the legacy client and the role
+// of the role entity both fit.
+interface PreviewRole {
+  name: string;
+  description?: string | null;
+  permissions?: string[] | null;
+}
+
 interface IProps {
-  selectedRoles: RoleType[];
+  selectedRoles: PreviewRole[];
   user?: {
     username: string;
   };
@@ -53,7 +60,7 @@ export const PreviewRoles = ({ user, group, selectedRoles }: IProps) => {
               {role.description &&
                 `- ${translateLockedRole(role.name, role.description)}`}
               <Flex className='pulp-permissions'>
-                {role.permissions.map((permission) => (
+                {(role.permissions ?? []).map((permission) => (
                   <FlexItem
                     key={permission}
                     className='pulp-permission'

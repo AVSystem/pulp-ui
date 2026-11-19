@@ -2270,6 +2270,7 @@ msgstr "不允许删除自己。"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/role-list-table.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-details.tsx
@@ -4168,6 +4169,7 @@ msgstr "我的配置集"
 #: src/components/remote-form.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
@@ -4332,6 +4334,7 @@ msgstr "否"
 msgid "No assignable groups."
 msgstr "没有可分配组。"
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "No assignable roles."
 msgstr "无可分配角色。"
@@ -6133,6 +6136,7 @@ msgstr ""
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role"
@@ -6143,7 +6147,7 @@ msgstr "角色"
 msgid "Role \"{0}\" could not be created."
 msgstr "角色 \"{0}\" 无法被创建。"
 
-#. placeholder {0}: selectedDeleteRole.role
+#. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role \"{0}\" could not be deleted."
 msgstr "角色 \"{0}\" 无法被删除。"
@@ -6153,7 +6157,7 @@ msgstr "角色 \"{0}\" 无法被删除。"
 #~ msgid "Role \"{0}\" could not be displayed."
 #~ msgstr "角色 \"{0}\" 无法被显示。"
 
-#. placeholder {0}: selectedDeleteRole.role
+#. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role \"{0}\" has been successfully removed."
 msgstr "角色 \"{0}\" 已被成功删除。"
@@ -6242,6 +6246,7 @@ msgstr "角色"
 #~ msgid "Roles are not currently enabled."
 #~ msgstr ""
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
@@ -6515,6 +6520,7 @@ msgstr "选择的组"
 #~ msgid "Selected provider namespace"
 #~ msgstr ""
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "Selected roles"
 msgstr "选择的角色"
@@ -7601,6 +7607,7 @@ msgstr "当前没有角色"
 msgid "There are currently no roles assigned to this group."
 msgstr "目前没有为这个组分配的角色。"
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "There are currently no roles that can be assigned to this group."
 msgstr "目前没有可分配给此组的角色。"
