@@ -32,9 +32,15 @@ applications are read from the schema itself.
 ## Commands
 
 ```
-npm run import-schema -w @pulp-ui/sdk -- <dumped schema file>
+npm run regenerate -w @pulp-ui/sdk -- <dumped schema file>
 npm run generate -w @pulp-ui/sdk
+npm run import-schema -w @pulp-ui/sdk -- <dumped schema file>
+PULP_SCHEMA_IMAGE=<local image> npm run dump-schema -w @pulp-ui/sdk -- <output file>
 ```
+
+`regenerate` is the one command for a schema update. It runs `import-schema`, then
+`generate`, then the package build, and stops at the first failure. Commit the changed
+`schema/pulp.json`, `pulp-versions.json` and `src/<app>/` together.
 
 `import-schema` writes `schema/pulp.json` and `pulp-versions.json`. Importing the
 same dump twice gives identical bytes. It exits 2 without an argument and 1 when
@@ -42,6 +48,41 @@ the schema declares no application versions.
 
 `generate` runs offline from the committed schema and writes `src/<app>/`. A
 second run on an unchanged schema changes nothing.
+
+`dump-schema` is for development only, see below. It exits 2 without an output
+file and when `PULP_SCHEMA_IMAGE` is not set.
+
+## Updating the schema
+
+Canonical path: take the schema file that the build of the image a release uses
+published, and give it to `regenerate`. That file describes exactly the plugins
+and forks of that image, and `pulp-versions.json` records their versions and
+source commits.
+
+Development path: dump the schema from a Pulp image on your machine.
+
+```
+PULP_SCHEMA_IMAGE=<local image> npm run dump-schema -w @pulp-ui/sdk -- /tmp/pulp.json
+npm run regenerate -w @pulp-ui/sdk -- /tmp/pulp.json
+```
+
+The image is named only by the environment variable, with no default: this
+repository names no image or registry. The container runs without a network and
+without mounts, with a fixed hash seed, so the dump cannot depend on or reach a
+running installation and two dumps of one image are identical. The image needs
+`pulpcore-manager`. A dump of a local image carries that image's plugin commits and
+can order enumeration descriptions differently from the canonical file; commit
+the result of a development dump only when you mean to update the schema to that
+image.
+
+CI runs `generate` on every change and fails when `git status --porcelain
+packages/sdk` prints anything afterwards (a changed file, a file that generation
+writes and the commit lacks), and when a file under `src/` or `schema/` holds a
+byte above 0x7F. Run `generate` locally before pushing a schema change.
+
+`pulp-versions.json` is the record of the versions the generated code targets. The
+version note of the About window is meant to compare it with the versions the
+server reports, to tell an administrator when they differ.
 
 ## Applications
 

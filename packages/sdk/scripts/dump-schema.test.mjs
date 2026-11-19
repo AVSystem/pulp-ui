@@ -90,12 +90,19 @@ describe('Unit: the command', { tags: ['unit'] }, () => {
     const stub = join(dir, 'docker');
     writeFileSync(stub, `#!/bin/sh\ntouch '${marker}'\nexit 0\n`);
     chmodSync(stub, 0o755);
-    const env = { ...process.env, PATH: `${dir}${delimiter}${process.env.PATH}` };
+    const env = {
+      ...process.env,
+      PATH: `${dir}${delimiter}${process.env.PATH}`,
+    };
     delete env.PULP_SCHEMA_IMAGE;
-    const result = spawnSync(process.execPath, [SCRIPT, join(dir, 'out.json')], {
-      env,
-      encoding: 'utf8',
-    });
+    const result = spawnSync(
+      process.execPath,
+      [SCRIPT, join(dir, 'out.json')],
+      {
+        env,
+        encoding: 'utf8',
+      },
+    );
     expect(result.status).toBe(2);
     expect(result.stderr).toContain('PULP_SCHEMA_IMAGE is not set');
     expect(existsSync(marker)).toBe(false);

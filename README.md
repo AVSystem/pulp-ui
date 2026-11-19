@@ -145,6 +145,13 @@ API_PROXY=https://pulp.example.org npm start
 - The dev server serves its own `pulp-ui-config.json` (the repository's default), not the one
   of the target deployment.
 
+### Typed API clients
+
+The clients and Zod models in `packages/sdk` are generated from one committed Pulp schema,
+offline. To regenerate them, or to update the schema, see
+[packages/sdk/README.md](packages/sdk/README.md); CI fails when the committed code differs from
+a fresh generation.
+
 ### Build
 
 ```sh

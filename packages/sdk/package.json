@@ -10,6 +10,7 @@
   "type": "module",
   "scripts": {
     "import-schema": "node ./scripts/import-schema.mjs",
+    "dump-schema": "node ./scripts/dump-schema.mjs",
     "regenerate": "node ./scripts/regenerate.mjs",
     "generate": "orval --config ./orval.config.ts",
     "typecheck": "tsc --noEmit -p ./tsconfig.json",
