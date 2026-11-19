@@ -5,17 +5,50 @@
  * Fetch, Upload, Organize, and Distribute Software Packages
  * OpenAPI spec version: v3
  */
-import { pulpFetch } from '../mutator/pulp-fetch.ts';
-import type { LoginReadParams } from './models/login/login-read-params.zod.ts';
-import type { LoginResponse } from './models/login/login-response.zod.ts';
-import type { LoginUpdateResponse } from './models/login/login-update-response.zod.ts';
-import type { PatchedLoginUpdate } from './models/login/patched-login-update.zod.ts';
+import type {
+  LoginReadParams
+} from './models/login/login-read-params.zod.ts';
 
-export const getLoginReadUrl = (params?: LoginReadParams) => {
+import type {
+  LoginResponse
+} from './models/login/login-response.zod.ts';
+
+import type {
+  LoginUpdateResponse
+} from './models/login/login-update-response.zod.ts';
+
+import type {
+  PatchedLoginUpdate
+} from './models/login/patched-login-update.zod.ts';
+
+import { pulpFetch } from '../mutator/pulp-fetch.ts';
+
+
+export const getLogoutUrl = () => {
+
+
+
+
+  return `/pulp/api/v3/login/`
+}
+
+export const logout = async ( options?: Parameters<typeof pulpFetch>[1]): Promise<void> => {
+
+  return pulpFetch<void>(getLogoutUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+export const getLoginReadUrl = (params?: LoginReadParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    const explodeParameters = ['fields', 'exclude_fields'];
+    const explodeParameters = ["fields","exclude_fields"];
 
     if (Array.isArray(value) && explodeParameters.includes(key)) {
       value.forEach((v) => {
@@ -23,93 +56,78 @@ export const getLoginReadUrl = (params?: LoginReadParams) => {
       });
       return;
     }
+
+
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/pulp/api/v3/login/?${stringifiedParams}`
-    : `/pulp/api/v3/login/`;
-};
+  return stringifiedParams.length > 0 ? `/pulp/api/v3/login/?${stringifiedParams}` : `/pulp/api/v3/login/`
+}
 
-export const loginRead = async (
-  params?: LoginReadParams,
-  options?: Parameters<typeof pulpFetch>[1],
-): Promise<LoginResponse> => {
-  return pulpFetch<LoginResponse>(getLoginReadUrl(params), {
+export const loginRead = async (params?: LoginReadParams, options?: Parameters<typeof pulpFetch>[1]): Promise<LoginResponse> => {
+
+  return pulpFetch<LoginResponse>(getLoginReadUrl(params),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
 
-export const getLoginUrl = () => {
-  return `/pulp/api/v3/login/`;
-};
 
-export const login = async (
-  options?: Parameters<typeof pulpFetch>[1],
-): Promise<LoginResponse> => {
-  return pulpFetch<LoginResponse>(getLoginUrl(), {
-    ...options,
-    method: 'POST',
-  });
-};
+  }
+);}
+
 
 export const getLoginUpdateUrl = () => {
-  return `/pulp/api/v3/login/`;
-};
 
-export const loginUpdate = async (
-  patchedLoginUpdate: PatchedLoginUpdate,
-  options?: Parameters<typeof pulpFetch>[1],
-): Promise<LoginUpdateResponse> => {
-  const getHeaders = (
-    h?: NonNullable<RequestInit['headers']>,
-  ): Record<string, string | readonly string[]> => {
-    if (!h) {
-      return {};
-    }
-    if (h instanceof Headers) {
-      return Object.fromEntries(h.entries());
-    }
+
+
+
+  return `/pulp/api/v3/login/`
+}
+
+export const loginUpdate = async (patchedLoginUpdate: PatchedLoginUpdate, options?: Parameters<typeof pulpFetch>[1]): Promise<LoginUpdateResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(
-          h as Iterable<Iterable<string>>,
-          (entry) => Array.from(entry) as [string, string],
-        ),
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
-    for (const [name, value] of Object.entries<
-      string | readonly string[] | undefined
-    >(h)) {
-      if (value !== undefined) {
-        headers[name] = value;
-      }
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
     }
     return headers;
   };
-  return pulpFetch<LoginUpdateResponse>(getLoginUpdateUrl(), {
+return pulpFetch<LoginUpdateResponse>(getLoginUpdateUrl(),
+  {
     ...options,
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getHeaders(options?.headers),
-    },
-    body: JSON.stringify(patchedLoginUpdate),
-  });
-};
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(patchedLoginUpdate)
+  }
+);}
 
-export const getLogoutUrl = () => {
-  return `/pulp/api/v3/login/`;
-};
 
-export const logout = async (
-  options?: Parameters<typeof pulpFetch>[1],
-): Promise<void> => {
-  return pulpFetch<void>(getLogoutUrl(), {
+export const getLoginUrl = () => {
+
+
+
+
+  return `/pulp/api/v3/login/`
+}
+
+export const login = async ( options?: Parameters<typeof pulpFetch>[1]): Promise<LoginResponse> => {
+
+  return pulpFetch<LoginResponse>(getLoginUrl(),
+  {
     ...options,
-    method: 'DELETE',
-  });
-};
+    method: 'POST'
+
+
+  }
+);}
+
+

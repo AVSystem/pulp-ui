@@ -8,9 +8,9 @@
 import * as zod from 'zod';
 
 export const LoginReadParams = zod.object({
-  fields: zod.array(zod.string()).optional(),
-  exclude_fields: zod.array(zod.string()).optional(),
-});
+  "fields": zod.array(zod.string()).optional(),
+  "exclude_fields": zod.array(zod.string()).optional()
+})
 
 export type LoginReadParams = zod.input<typeof LoginReadParams>;
 export type LoginReadParamsOutput = zod.output<typeof LoginReadParams>;

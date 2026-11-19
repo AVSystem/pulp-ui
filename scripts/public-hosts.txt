@@ -36,6 +36,8 @@ pulpproject.org
 ansible.com
 *.ansible.com
 redhat.com
+packaging.python.org
+fedoraproject.org
 
 # Badges, chat, standards, licences and logo metadata
 img.shields.io
@@ -52,3 +54,5 @@ www.rfc-editor.org
 # Placeholder single-label names used in documentation and test fixtures
 h
 elsewhere
+host
+ol7_x86_64_oracle

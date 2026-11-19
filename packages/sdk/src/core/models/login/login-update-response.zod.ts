@@ -7,29 +7,19 @@
  */
 import * as zod from 'zod';
 
-export const loginUpdateResponseUsernameMax = 150;
-
 export const loginUpdateResponseFirstNameMax = 150;
 
 export const loginUpdateResponseLastNameMax = 150;
 
+export const loginUpdateResponseUsernameMax = 150;
+
+
+
 export const LoginUpdateResponse = zod.object({
-  username: zod
-    .string()
-    .max(loginUpdateResponseUsernameMax)
-    .optional()
-    .describe('150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
-  first_name: zod
-    .string()
-    .max(loginUpdateResponseFirstNameMax)
-    .optional()
-    .describe('First name'),
-  last_name: zod
-    .string()
-    .max(loginUpdateResponseLastNameMax)
-    .optional()
-    .describe('Last name'),
-  email: zod.email().optional().describe('Email address'),
+  "email": zod.email().optional().describe('Email address'),
+  "first_name": zod.string().max(loginUpdateResponseFirstNameMax).optional().describe('First name'),
+  "last_name": zod.string().max(loginUpdateResponseLastNameMax).optional().describe('Last name'),
+  "username": zod.string().max(loginUpdateResponseUsernameMax).optional().describe('150 characters or fewer. Letters, digits and @/./+/-/_ only.')
 });
 
 export type LoginUpdateResponse = zod.input<typeof LoginUpdateResponse>;

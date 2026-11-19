@@ -8,15 +8,9 @@
 import * as zod from 'zod';
 
 export const AppStatusResponse = zod.object({
-  name: zod.string().optional().describe('The name of the worker.'),
-  last_heartbeat: zod.iso
-    .datetime({ offset: true })
-    .optional()
-    .describe('Timestamp of the last time the worker talked to the service.'),
-  versions: zod
-    .record(zod.string(), zod.string().nullable())
-    .optional()
-    .describe('Versions of the components installed.'),
+  "last_heartbeat": zod.iso.datetime({"offset":true}).optional().describe('Timestamp of the last time the worker talked to the service.'),
+  "name": zod.string().optional().describe('The name of the worker.'),
+  "versions": zod.record(zod.string(), zod.string().nullable()).optional().describe('Versions of the components installed.')
 });
 
 export type AppStatusResponse = zod.input<typeof AppStatusResponse>;

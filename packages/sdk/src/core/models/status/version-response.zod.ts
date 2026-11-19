@@ -7,19 +7,13 @@
  */
 import * as zod from 'zod';
 
-export const VersionResponse = zod
-  .object({
-    component: zod.string().describe('Name of a versioned component of Pulp'),
-    version: zod.string().describe('Version of the component (e.g. 3.0.0)'),
-    package: zod
-      .string()
-      .describe('Python package name providing the component'),
-    module: zod.string().describe('Python module name of the component'),
-    domain_compatible: zod
-      .boolean()
-      .describe('Domain feature compatibility of component'),
-  })
-  .describe('Serializer for the version information of Pulp components');
+export const VersionResponse = zod.object({
+  "component": zod.string().describe('Name of a versioned component of Pulp'),
+  "domain_compatible": zod.boolean().describe('Domain feature compatibility of component'),
+  "module": zod.string().describe('Python module name of the component'),
+  "package": zod.string().describe('Python package name providing the component'),
+  "version": zod.string().describe('Version of the component (e.g. 3.0.0)')
+}).describe('Serializer for the version information of Pulp components');
 
 export type VersionResponse = zod.input<typeof VersionResponse>;
 export type VersionResponseOutput = zod.output<typeof VersionResponse>;

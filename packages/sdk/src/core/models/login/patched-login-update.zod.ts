@@ -7,32 +7,23 @@
  */
 import * as zod from 'zod';
 
-export const patchedLoginUpdateUsernameMax = 150;
-
 export const patchedLoginUpdateFirstNameMax = 150;
 
 export const patchedLoginUpdateLastNameMax = 150;
 
+
+
+export const patchedLoginUpdateUsernameMax = 150;
+
+
+
 export const PatchedLoginUpdate = zod.object({
-  username: zod
-    .string()
-    .min(1)
-    .max(patchedLoginUpdateUsernameMax)
-    .optional()
-    .describe('150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
-  old_password: zod.string().min(1).optional().describe('Old password'),
-  new_password: zod.string().min(1).optional().describe('New password'),
-  first_name: zod
-    .string()
-    .max(patchedLoginUpdateFirstNameMax)
-    .optional()
-    .describe('First name'),
-  last_name: zod
-    .string()
-    .max(patchedLoginUpdateLastNameMax)
-    .optional()
-    .describe('Last name'),
-  email: zod.email().optional().describe('Email address'),
+  "email": zod.email().optional().describe('Email address'),
+  "first_name": zod.string().max(patchedLoginUpdateFirstNameMax).optional().describe('First name'),
+  "last_name": zod.string().max(patchedLoginUpdateLastNameMax).optional().describe('Last name'),
+  "new_password": zod.string().min(1).optional().describe('New password'),
+  "old_password": zod.string().min(1).optional().describe('Old password'),
+  "username": zod.string().min(1).max(patchedLoginUpdateUsernameMax).optional().describe('150 characters or fewer. Letters, digits and @/./+/-/_ only.')
 });
 
 export type PatchedLoginUpdate = zod.input<typeof PatchedLoginUpdate>;
