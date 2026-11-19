@@ -256,6 +256,57 @@ export function task(overrides: Partial<ITask> = {}): ITask {
   };
 }
 
+export interface ITaskRow {
+  pulp_href: string;
+  prn: string;
+  name: string;
+  state: string;
+  pulp_created: string;
+  started_at: string | null;
+  finished_at: string | null;
+  error: { description: string } | null;
+  worker: string | null;
+  logging_cid: string;
+  parent_task: string | null;
+  child_tasks: string[];
+  created_resources: string[];
+  reserved_resources_record: string[];
+  progress_reports: object[];
+  [field: string]: unknown;
+}
+
+// A task as the task list and the task screens read it: every field the
+// server lists is present, with a relative address and a finished state.
+export function taskRow(overrides: Partial<ITaskRow> = {}): ITaskRow {
+  const id = href('tasks');
+  return {
+    pulp_href: id,
+    prn: `prn:core.task:${id.split('/').filter(Boolean).pop()}`,
+    name: `pulp_task.${sequence}`,
+    state: 'completed',
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    started_at: '2000-01-01T00:00:01.000000Z',
+    finished_at: '2000-01-01T00:00:02.000000Z',
+    error: null,
+    worker: null,
+    logging_cid: `cid-${sequence}`,
+    parent_task: null,
+    child_tasks: [],
+    created_resources: [],
+    reserved_resources_record: [],
+    progress_reports: [],
+    ...overrides,
+  };
+}
+
+// One page of a task list answer.
+export function taskPage(
+  rows: ITaskRow[],
+  options: { count?: number; next?: string } = {},
+): IPage<ITaskRow> {
+  return page(rows, options);
+}
+
 export interface IContentGuard {
   pulp_href: string;
   name: string;

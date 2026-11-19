@@ -1,5 +1,6 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
+import { useNavigate } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
@@ -7,7 +8,7 @@ import {
   serveMyPermissions,
   servePermissions,
 } from 'src/test-utils/permissions';
-import { listOf, task } from 'src/test-utils/pulp';
+import { listOf, taskPage, taskRow } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -93,6 +94,92 @@ describe('the task list', () => {
   });
 });
 
+function Navigate({ to }: { to: string }) {
+  const navigate = useNavigate();
+  return (
+    <button type='button' onClick={() => navigate(to)}>
+      {`go ${to}`}
+    </button>
+  );
+}
+
+describe('what the task list reads', () => {
+  it('asks for the page, order and filters of the address', async () => {
+    const list = listOf(TASKS, [taskRow({ name: 'zz.alpha' })]);
+    server.use(list.handler);
+    renderWithProviders(
+      <AppContextProvider>
+        <TaskListView />
+      </AppContextProvider>,
+      {
+        route:
+          '/task-management?name__contains=alpha&state=running&page=2&page_size=5&sort=name',
+      },
+    );
+
+    await screen.findByText('zz.alpha');
+
+    expect(list.queries).toHaveLength(1);
+    expect(Object.fromEntries(list.queries[0])).toEqual({
+      offset: '5',
+      limit: '5',
+      ordering: 'name',
+      name__contains: 'alpha',
+      state: 'running',
+    });
+  });
+
+  it('lists ten rows, newest first, when the address names nothing', async () => {
+    const list = listOf(TASKS, [taskRow({ name: 'zz.alpha' })]);
+    server.use(list.handler);
+    renderTasks();
+
+    await screen.findByText('zz.alpha');
+
+    expect(Object.fromEntries(list.queries[0])).toEqual({
+      offset: '0',
+      limit: '10',
+      ordering: '-pulp_created',
+    });
+  });
+
+  it('shows only the rows of the newest filter when an older answer arrives last', async () => {
+    let releaseOlder: () => void = () => undefined;
+    const older = new Promise<void>((resolve) => {
+      releaseOlder = resolve;
+    });
+    server.use(
+      http.get(`*${TASKS}`, async ({ request }) => {
+        const filter = new URL(request.url).searchParams.get('name__contains');
+        if (filter === null) {
+          await older;
+          return HttpResponse.json(taskPage([taskRow({ name: 'zz.older' })]));
+        }
+        return HttpResponse.json(taskPage([taskRow({ name: 'zz.newer' })]));
+      }),
+    );
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <Navigate to='/task-management?name__contains=newer' />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management' },
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'go /task-management?name__contains=newer',
+      }),
+    );
+    expect(await screen.findByText('zz.newer')).toBeInTheDocument();
+    releaseOlder();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+
+    expect(screen.getByText('zz.newer')).toBeInTheDocument();
+    expect(screen.queryByText('zz.older')).toBeNull();
+  });
+});
+
 const ADMIN_ACTIONS = ['Orphan cleanup', 'Repair', 'Purge tasks'];
 
 describe('the toolbar actions of the task list', () => {
@@ -108,7 +195,7 @@ describe('the toolbar actions of the task list', () => {
   }
 
   function renderToolbar() {
-    server.use(listOf(TASKS, [task({ name: 'zz.alpha' })]).handler);
+    server.use(listOf(TASKS, [taskRow({ name: 'zz.alpha' })]).handler);
     return renderWithProviders(
       <AppContextProvider>
         <Known />
@@ -200,9 +287,9 @@ describe('the stop action of the task list', () => {
   });
 
   const CHANGE = 'core.change_task';
-  const running = task({ name: 'zz.running', state: 'running' });
-  const waiting = task({ name: 'zz.waiting', state: 'waiting' });
-  const done = task({ name: 'zz.done', state: 'completed' });
+  const running = taskRow({ name: 'zz.running', state: 'running' });
+  const waiting = taskRow({ name: 'zz.waiting', state: 'waiting' });
+  const done = taskRow({ name: 'zz.done', state: 'completed' });
 
   function Known() {
     const { permissionsReady } = useAppContext();
@@ -345,7 +432,7 @@ describe('the task list after the same user signs in again', () => {
     server.use(
       listOf(
         TASKS,
-        names.map((name) => task({ name })),
+        names.map((name) => taskRow({ name })),
       ).handler,
     );
 
