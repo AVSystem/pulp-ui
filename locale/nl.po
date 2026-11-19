@@ -8221,6 +8221,7 @@ msgstr "Gebruiker <0>{username}</0> zal worden verwijderd uit groep<1>{groupname
 #~ msgid "User Access"
 #~ msgstr "Toegang gebruiker"
 
+#: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."
