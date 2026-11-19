@@ -31,6 +31,10 @@ import {
   serveSignIn,
   signedIn,
 } from '../test-utils/sign-in-again';
+import {
+  ACTION_PERMISSIONS,
+  type PermissionPlugin,
+} from '../utilities/action-permissions';
 import { Page } from './page';
 
 const withDeleteAction = (condition?: () => boolean) =>
@@ -1164,6 +1168,38 @@ describe('every repository and remote edit page opened by its address', () => {
         }),
       ).toBeInTheDocument();
       expect(saveButton()).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(pages)(
+    'shows the not-found page, no form and no write for the $name edit address of a name the list does not return, to an account that holds its add permission',
+    async (row) => {
+      const [plugin, kind] = row.name.split(' ') as [
+        PermissionPlugin,
+        'remote' | 'repository',
+      ];
+      servePermissions({ own: [[ACTION_PERMISSIONS[plugin][kind].add]] });
+      const recorded = recordWrites();
+      // the list answers an empty page for every name (see beforeEach)
+      renderWithProviders(
+        <AppContextProvider>
+          <Routes>
+            <Route path={row.route} element={<row.Edit />} />
+          </Routes>
+        </AppContextProvider>,
+        { route: row.route.replace(':name', 'no-such-name') },
+      );
+
+      expect(
+        await screen.findByRole('heading', { name: '404 - Page not found' }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('textbox', { name: /^Name/ }),
+      ).not.toBeInTheDocument();
+      await settled();
+      expect(recorded.writes).toEqual([]);
+      recorded.stop();
     },
   );
 
