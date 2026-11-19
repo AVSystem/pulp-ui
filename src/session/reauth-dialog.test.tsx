@@ -69,6 +69,18 @@ function Screen() {
       <button type='button' onClick={() => setUser(OTHER_USER)}>
         Sign in as another account
       </button>
+      <button
+        type='button'
+        onClick={() => {
+          // The account is gone from memory while the listener of the previous
+          // render is still attached: React renders only after the handler.
+          setUser(null);
+          document.dispatchEvent(new Event('visibilitychange'));
+          setUser(SAME_USER);
+        }}
+      >
+        Return while the account is cleared
+      </button>
       <input aria-label='Draft' defaultValue='' />
     </>
   );
@@ -1119,6 +1131,65 @@ describe('returning to the tab', () => {
 
     expect(counts[WHOAMI]).toBe(1);
     expect(assign).toHaveBeenCalledTimes(1);
+  });
+
+  it('a sign-in as the same account after a navigation that did not happen re-arms the tab-return check', async () => {
+    const { user } = await renderScreen();
+    const { assign } = recordNavigation();
+    const checks = trackChecks();
+    signedInAs('amy', '/pulp/api/v3/users/2/');
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+    expect(assign).toHaveBeenCalledTimes(1);
+
+    // The page was not replaced: the user signs in again as the account of
+    // this tab and the screen runs on.
+    acceptLogin();
+    const dialog = await screen.findByRole('dialog', { name: /Sign in again/ });
+    await user.type(passwordOf(dialog), 'secret');
+    await user.click(submitOf(dialog));
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    );
+    expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+
+    signedInAs();
+    const counts = countRequests();
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(2));
+    await finished(checks[1]);
+
+    expect(counts[WHOAMI]).toBe(1);
+  });
+
+  it('a check with no account in memory sends nothing and leaves the next return able to check', async () => {
+    const { user } = await renderScreen();
+    const { assign } = recordNavigation();
+    const checks = trackChecks();
+    const counts = countRequests();
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => 'visible',
+    });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Return while the account is cleared',
+      }),
+    );
+    await settle();
+
+    expect(counts[WHOAMI]).toBeUndefined();
+    expect(assign).not.toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+
+    expect(counts[WHOAMI]).toBe(1);
   });
 
   it('an answer naming another user name, with no address, is told apart by the name', async () => {
