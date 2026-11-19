@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test';
+import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
 import { TestObjects } from '../support/api';
+import { apiCall } from '../support/sdk-request';
 import { title } from '../support/sign-in';
 
 // The row actions of the role list against a real server: a custom role is
 // edited and then deleted from its row, and each change is read back from the
 // server. Built-in roles are not touched.
 
-const ROLES = 'roles/';
+const ROLES = getRolesListUrl();
 
 let objects: TestObjects;
 
@@ -63,6 +65,8 @@ test('a custom role is edited and deleted from the role list', async ({
   await dialog.getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText(/has been successfully deleted/)).toBeVisible();
 
-  const gone = await objects.api.get(role.pulp_href);
-  expect(gone.status(), 'a read of the deleted role').toBe(404);
+  const gone = await apiCall(objects.api, 'GET', role.pulp_href, {
+    accept: [404],
+  });
+  expect(gone.status, 'a read of the deleted role').toBe(404);
 });

@@ -1,4 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, request, test } from '@playwright/test';
+import { getOrphansCleanupCleanupUrl } from '@pulp-ui/sdk/core/orphans-cleanup';
+import { basicAuthorization } from '../../src/utilities/basic-authorization';
+import { account, origin } from '../support/env';
+import { apiPost } from '../support/sdk-request';
 import { signIn, title } from '../support/sign-in';
 
 // Every list page opens with its title once signed in. A page that fails to
@@ -34,6 +38,54 @@ test.describe('pages of a signed-in session', () => {
       await expect(title(page, heading)).toBeVisible();
     });
   }
+
+  // A task has its own address, /tasks/<id>, and the address that links used
+  // before it ends on the new one. The task is an orphan cleanup the run starts
+  // itself with the throwaway Pulp's administrator; with the default
+  // protection time it removes nothing.
+  test('a task opens from the list at its own address and the old address ends on it', async ({
+    page,
+  }) => {
+    const { username, password } = account();
+    const api = await request.newContext({
+      baseURL: origin(),
+      extraHTTPHeaders: {
+        Authorization: basicAuthorization(username, password),
+      },
+    });
+    let taskId: string;
+    try {
+      const started = await apiPost<{ task: string }>(
+        api,
+        getOrphansCleanupCleanupUrl(),
+        { orphan_protection_time: 1440 },
+      );
+      taskId = started.task.split('/').filter(Boolean).pop() as string;
+    } finally {
+      await api.dispose();
+    }
+
+    await page.goto('tasks?page_size=100');
+    await expect(title(page, 'Task management')).toBeVisible();
+    await page.locator(`a[href*="/tasks/${taskId}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}/?$`));
+    await expect(title(page, 'Task detail')).toBeVisible();
+
+    await page.goto(`tasks/detail/${taskId}`);
+    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}/?$`));
+    await expect(title(page, 'Task detail')).toBeVisible();
+  });
+
+  // The old address of a task that does not exist ends on the new address,
+  // which says the page is not there.
+  test('the old address of an unknown task ends on the new address and shows the 404 page', async ({
+    page,
+  }) => {
+    const unknown = '00000000-0000-4000-8000-000000000000';
+    await page.goto(`tasks/detail/${unknown}`);
+    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${unknown}/?$`));
+    await expect(title(page, '404 - Page not found')).toBeVisible();
+  });
 
   // A screen that needs an API this UI does not use yet says so instead of
   // failing.

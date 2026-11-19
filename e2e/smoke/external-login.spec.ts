@@ -5,8 +5,8 @@ import {
   expect,
   test,
 } from '@playwright/test';
-import { basicAuthorization } from '../../src/utilities/basic-authorization';
-import { account, origin } from '../support/env';
+import { account } from '../support/env';
+import { apiLoginAs } from '../support/session';
 import { title } from '../support/sign-in';
 
 // An installation that signs in through an external login service sends the
@@ -58,21 +58,9 @@ async function useStandInLogin(
   return { visits: () => visits };
 }
 
-// Signs the account of the run in with the login API inside the context. The
-// context's request client shares the cookie jar of its pages, so every page of
-// the context is signed in afterwards.
-async function apiLogin(context: BrowserContext): Promise<void> {
-  const { username, password } = account();
-  const response = await context.request.post(
-    `${origin()}/pulp/api/v3/login/`,
-    {
-      headers: {
-        Authorization: basicAuthorization(username, password),
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    },
-  );
-  expect(response.status(), 'API sign in').toBe(201);
+// Signs the account of the run in with the login API inside the context.
+function apiLogin(context: BrowserContext): Promise<void> {
+  return apiLoginAs(context, account());
 }
 
 // Collects every request the page sends to the Pulp API from now on.

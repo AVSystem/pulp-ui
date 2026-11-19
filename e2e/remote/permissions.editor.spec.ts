@@ -5,9 +5,16 @@ import {
   expect,
   test,
 } from '@playwright/test';
+import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
+import {
+  getRepositoriesRpmRpmListRolesUrl,
+  getRepositoriesRpmRpmListUrl,
+} from '@pulp-ui/sdk/rpm/repositories-rpm';
 import { ACTION_PERMISSIONS } from '../../src/utilities/action-permissions';
 import { account } from '../support/accounts';
-import { apiContext } from '../support/api';
+import { apiContext, listAll } from '../support/api';
+import { apiGet } from '../support/sdk-request';
+import { isPermissionsRead } from '../support/session';
 import { title } from '../support/sign-in';
 
 // What an account that is neither administrator nor read-only is shown. The
@@ -36,15 +43,11 @@ let filePermissions: Set<string>;
 let pythonPermissions: Set<string>;
 let owned: { name: string; permissions: Set<string> };
 
-async function getJson<T>(path: string): Promise<T> {
-  const response = await api.get(path);
-  expect(response.ok(), `GET ${path}`).toBe(true);
-  return (await response.json()) as T;
-}
-
 async function rolePermissions(role: string): Promise<Set<string>> {
-  const { results } = await getJson<{ results: { permissions: string[] }[] }>(
-    `/pulp/api/v3/roles/?name=${encodeURIComponent(role)}`,
+  const { results } = await apiGet<{ results: { permissions: string[] }[] }>(
+    api,
+    getRolesListUrl(),
+    { name: role },
   );
   expect(results, `the role ${role} exists on the server`).toHaveLength(1);
   return new Set(results[0]?.permissions);
@@ -56,31 +59,22 @@ async function ownedRpmRepository(
   editor: string,
   permissions: Set<string>,
 ): Promise<{ name: string; permissions: Set<string> }> {
-  const found: string[] = [];
-  for (let offset = 0; ; offset += 100) {
-    const page = await getJson<{
-      results: { name: string; pulp_href: string }[];
-      next: string | null;
-    }>(
-      `/pulp/api/v3/repositories/rpm/rpm/?limit=100&offset=${offset}&fields=name,pulp_href`,
-    );
-    const assignments = await Promise.all(
-      page.results.map(async ({ name, pulp_href }) => {
-        const { roles } = await getJson<{
-          roles: { role: string; users: string[] }[];
-        }>(`${pulp_href}list_roles/`);
-        return roles.some(
-          ({ role, users }) => role === RPM_ROLE && users.includes(editor),
-        )
-          ? name
-          : null;
-      }),
-    );
-    found.push(...assignments.filter((name): name is string => !!name));
-    if (!page.next) {
-      break;
-    }
-  }
+  const repositories = await listAll(api, getRepositoriesRpmRpmListUrl(), {
+    fields: 'name,pulp_href',
+  });
+  const assignments = await Promise.all(
+    repositories.map(async ({ name, pulp_href }) => {
+      const { roles } = await apiGet<{
+        roles: { role: string; users: string[] }[];
+      }>(api, getRepositoriesRpmRpmListRolesUrl(pulp_href));
+      return roles.some(
+        ({ role, users }) => role === RPM_ROLE && users.includes(editor),
+      )
+        ? name
+        : null;
+    }),
+  );
+  const found = assignments.filter((name): name is string => !!name);
   expect(
     found,
     'rpm repositories the editor holds the owner role on',
@@ -118,13 +112,7 @@ async function openRepositoryList(
   plugin: Plugin,
   query = '',
 ): Promise<void> {
-  const permissionsRead = page.waitForResponse(
-    (response) =>
-      response.request().method() === 'GET' &&
-      /\/pulp\/api\/v3\/users\/[^/]+\/roles\/$/.test(
-        new URL(response.url()).pathname,
-      ),
-  );
+  const permissionsRead = page.waitForResponse(isPermissionsRead);
   await page.goto(`${plugin}/repositories${query}`);
   await permissionsRead;
   await expect(title(page, 'Repositories')).toBeVisible();
@@ -247,8 +235,10 @@ test('rpm repositories offer actions on the owned repository only', async ({
   // server lists only what the account may read, and no row that is listed
   // draws a menu.
   const others = (
-    await getJson<{ results: { name: string }[] }>(
-      '/pulp/api/v3/repositories/rpm/rpm/?limit=20&fields=name',
+    await apiGet<{ results: { name: string }[] }>(
+      api,
+      getRepositoriesRpmRpmListUrl(),
+      { limit: '20', fields: 'name' },
     )
   ).results
     .map(({ name }) => name)
@@ -279,11 +269,7 @@ test('deb repositories offer no action', async ({ page }) => {
 });
 
 test('the sidebar has no Users, Groups or Roles entry', async ({ page }) => {
-  const permissionsRead = page.waitForResponse((response) =>
-    /\/pulp\/api\/v3\/users\/[^/]+\/roles\/$/.test(
-      new URL(response.url()).pathname,
-    ),
-  );
+  const permissionsRead = page.waitForResponse(isPermissionsRead);
   await page.goto('status');
   await permissionsRead;
   await expect(title(page, 'Status')).toBeVisible();

@@ -4,37 +4,21 @@ import {
   type Response,
   expect,
 } from '@playwright/test';
-import { basicAuthorization } from '../../src/utilities/basic-authorization';
 import { type Role, account } from '../support/accounts';
-import { origin } from '../support/env';
+import { apiLoginAs } from '../support/session';
 import { submitLoginForm } from '../support/sign-in';
 
 export const userMenu = '[data-cy=user-dropdown]';
 export const loginMenuItem = '[data-cy=pulp-menu-item-login]';
 
-// A browser context that holds no session at all, for tests that sign in or
-// out. They never touch the storage state shared by the other tests, so
-// ending a session here cannot break a later test.
-export const signedOut = { cookies: [], origins: [] };
+export { signedOut } from '../support/session';
 
-// Signs the role's account in inside the given context with the login API. The
-// context's request client shares the cookie jar of its pages, so every page
-// opened afterwards in that context is signed in.
-export async function apiLogin(
+// Signs the role's account in inside the given context with the login API.
+export function apiLogin(
   context: BrowserContext,
   role: Role = 'admin',
 ): Promise<void> {
-  const { username, password } = account(role);
-  const response = await context.request.post(
-    `${origin()}/pulp/api/v3/login/`,
-    {
-      headers: {
-        Authorization: basicAuthorization(username, password),
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    },
-  );
-  expect(response.status(), 'API sign in').toBe(201);
+  return apiLoginAs(context, account(role));
 }
 
 // True for a call to the login endpoint made with the given method.

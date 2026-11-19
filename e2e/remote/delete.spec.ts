@@ -1,4 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards-rbac';
+import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
+import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
+import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
 import { type PulpObject, TestObjects } from '../support/api';
 import { title } from '../support/sign-in';
 
@@ -7,8 +11,8 @@ import { title } from '../support/sign-in';
 // protects. The dialog names all three, marks the guarded one and asks for the
 // repository name before it deletes anything.
 
-const REPOSITORIES = 'repositories/file/file/';
-const DISTRIBUTIONS = 'distributions/file/file/';
+const REPOSITORIES = getRepositoriesFileFileListUrl();
+const DISTRIBUTIONS = getDistributionsFileFileListUrl();
 
 let objects: TestObjects;
 let repository: PulpObject;
@@ -24,10 +28,10 @@ test.beforeAll(async () => {
   repository = await objects.create(REPOSITORIES, {
     name: objects.name('doomed'),
   });
-  const publication = await objects.create('publications/file/file/', {
+  const publication = await objects.create(getPublicationsFileFileListUrl(), {
     repository: repository.pulp_href,
   });
-  const guard = await objects.create('contentguards/core/rbac/', {
+  const guard = await objects.create(getContentguardsCoreRbacListUrl(), {
     name: objects.name('guard'),
   });
 

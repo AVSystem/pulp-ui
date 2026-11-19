@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { storageStatePath } from '../support/accounts';
 import { type PulpObject, TestObjects } from '../support/api';
+import { signedOut } from '../support/session';
 import { coveredAt } from '../support/session-cover';
 import { title } from '../support/sign-in';
 
@@ -38,8 +39,6 @@ const NO_SUCH_USER = 'zz-e2e-no-such-user';
 const NO_SUCH_PASSWORD = 'zz-e2e-no-such-password';
 
 const LANGUAGES = ['en', 'es', 'fr', 'ko', 'nl', 'ja', 'zh'];
-
-const signedOut = { cookies: [], origins: [] };
 
 // The server's own sentence for a refusal.
 const REFUSED = 'You do not have permission to perform this action.';
