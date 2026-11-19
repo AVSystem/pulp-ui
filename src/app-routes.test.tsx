@@ -1149,15 +1149,14 @@ describe('administration screens', () => {
       renderWithProviders(<RoutedInApp />, { route });
 
       await waitFor(() => expect(refusal()).not.toBeNull());
+      // The page header names the screen; the page under it does not repeat
+      // the title.
+      expect(
+        screen.getAllByRole('heading', { name: 'Insufficient permissions' }),
+      ).toHaveLength(1);
       expect(
         screen.getByRole('heading', {
           level: 1,
-          name: 'Insufficient permissions',
-        }),
-      ).toBeVisible();
-      expect(
-        screen.getByRole('heading', {
-          level: 4,
           name: 'Insufficient permissions',
         }),
       ).toBeVisible();

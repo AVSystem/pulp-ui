@@ -469,6 +469,9 @@ describe('the signing services screen opened by its address', () => {
         name: 'Insufficient permissions',
       });
       expect(header).toBeVisible();
+      expect(
+        screen.getAllByRole('heading', { name: 'Insufficient permissions' }),
+      ).toHaveLength(1);
       // The header comes first, the page with Go back follows it.
       expect(
         header.compareDocumentPosition(refusal() as Element) &

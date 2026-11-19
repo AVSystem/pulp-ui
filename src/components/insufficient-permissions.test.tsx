@@ -111,20 +111,32 @@ describe('the insufficient permissions page', () => {
     );
   });
 
-  it('offers the Login link with the current address and no Go back when nobody is signed in', async () => {
+  it('shows a visitor the same page: no Login link, the same actions', async () => {
     renderWithProviders(<InsufficientPermissions detail='nope' />, {
       route: '/things?page=2',
     });
 
-    expect(await screen.findByRole('link', { name: 'Login' })).toHaveAttribute(
-      'href',
-      `/login/?next=${encodeURIComponent('/things?page=2')}`,
-    );
     expect(
-      screen.queryByRole('button', { name: 'Go back' }),
-    ).not.toBeInTheDocument();
+      await screen.findByRole('button', { name: 'Go back' }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Go to the start page' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Login' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Login' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('nope')).toBeInTheDocument();
+  });
+
+  it('leaves out its own title when the screen draws a header with the same title', () => {
+    renderWithProviders(<InsufficientPermissions showTitle={false} />);
+
+    expect(screen.queryAllByRole('heading')).toHaveLength(0);
+    expect(
+      screen.getByText('You do not have permission to view this page.'),
     ).toBeInTheDocument();
   });
 });
