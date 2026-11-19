@@ -27,12 +27,14 @@ interface IThing {
 const things = new PulpAPI();
 
 function renderList({
+  compact,
   strict = false,
   filterConfig,
   hasPermission = () => true,
   headerActions,
   noDataButton,
 }: {
+  compact?: boolean;
   strict?: boolean;
   filterConfig?: FilterOption[];
   hasPermission?: (name: string) => boolean;
@@ -43,6 +45,7 @@ function renderList({
   const list = (
     <DetailList<IThing>
       actionContext={{ addAlert, hasPermission, query: vi.fn() }}
+      compact={compact}
       defaultPageSize={10}
       errorTitle='Things could not be displayed.'
       filterConfig={filterConfig}
@@ -182,6 +185,21 @@ describe('a list in a detail tab whose load succeeds', () => {
     renderList();
 
     expect(await screen.findByText('alpha')).toBeInTheDocument();
+  });
+
+  it('draws regular rows unless the list asks for compact ones', async () => {
+    server.use(listOf(THINGS, rows('alpha')).handler);
+    const { unmount } = renderList();
+
+    expect(await screen.findByRole('grid', { name: 'Things' })).not.toHaveClass(
+      'pf-m-compact',
+    );
+    unmount();
+
+    renderList({ compact: true });
+    expect(await screen.findByRole('grid', { name: 'Things' })).toHaveClass(
+      'pf-m-compact',
+    );
   });
 });
 
