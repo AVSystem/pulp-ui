@@ -19,6 +19,7 @@ const taskSchema = z.looseObject({
   error: z.record(z.string(), z.unknown()).nullish(),
   worker: z.string().nullish(),
   logging_cid: z.string().nullish(),
+  task_group: z.string().nullish(),
   parent_task: z.string().nullish(),
   child_tasks: z.array(z.string()).optional(),
   created_resources: z.array(z.string()).optional(),

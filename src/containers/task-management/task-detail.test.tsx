@@ -3,6 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { Route, Routes, useNavigate } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
+import { Paths, formatPath } from 'src/paths';
 import {
   reportUnauthorized,
   resetSessionEvents,
@@ -696,7 +697,7 @@ describe('task detail on the data hooks', () => {
     expect(count(`/tasks/${ID}/`)).toBeGreaterThanOrEqual(4);
   });
 
-  it('links the parent and the child tasks to /tasks/<id>', async () => {
+  it('links the parent and the child tasks to their own detail', async () => {
     const PARENT = '0192e5a1-0000-7000-8000-0000000000b1';
     const CHILD = '0192e5a1-0000-7000-8000-0000000000b2';
     server.use(
@@ -718,10 +719,13 @@ describe('task detail on the data hooks', () => {
 
     expect(
       await screen.findByRole('link', { name: 'parent.task' }),
-    ).toHaveAttribute('href', `/tasks/${PARENT}/`);
+    ).toHaveAttribute(
+      'href',
+      formatPath(Paths.core.task.detail, { task: PARENT }),
+    );
     expect(screen.getByRole('link', { name: 'child.task' })).toHaveAttribute(
       'href',
-      `/tasks/${CHILD}/`,
+      formatPath(Paths.core.task.detail, { task: CHILD }),
     );
   });
 
@@ -804,9 +808,7 @@ describe('task detail on the data hooks', () => {
 
     expect(await screen.findByText('Canceled')).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Task "pulpcore.app.tasks.orphan.orphan_cleanup" stopped successfully.',
-      ),
+      screen.getByText('Task "Orphan cleanup" stopped successfully.'),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Stop task' })).toBeNull();
     expect(patches).toEqual([{ state: 'canceled' }]);

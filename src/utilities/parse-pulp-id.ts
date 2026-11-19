@@ -64,9 +64,13 @@ export function parsePulpResource(value: string): PulpResource {
 }
 
 export function translatePulpResourceToURL(resource: PulpResource): string {
-  // Doesn't handle PulpResources from pdrns
+  // Doesn't handle PulpResources from pdrns. A kind this table does not know
+  // has no address: null, never a path built from "undefined".
   const model_label = resource.plugin + '.' + resource.model;
   const urlPrefix = ModelLabelToURL[model_label];
+  if (!urlPrefix) {
+    return null;
+  }
   return config.API_BASE_PATH + urlPrefix + '/' + resource.id + '/';
 }
 
