@@ -211,6 +211,70 @@ describe('status page when the read fails', () => {
   });
 });
 
+describe('status page when the read is refused', () => {
+  it('shows the insufficient permissions page with the reason Pulp gave, and no Retry', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({ detail: 'Not for you.' }, { status: 403 }),
+      ),
+    );
+
+    renderStatus();
+
+    expect(
+      await screen.findByText('You do not have permission to view this page.'),
+    ).toBeVisible();
+    expect(screen.getByText('Not for you.')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    expect(screen.queryByText('Failed to load status')).toBeNull();
+  });
+
+  it('shows an error state, not a blank page, when the answer has the wrong shape', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({ versions: [{ component: 7 }] }),
+      ),
+    );
+
+    renderStatus();
+
+    expect(await screen.findByText('Failed to load status')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+  });
+});
+
+describe('status page and the plugin list', () => {
+  it('send one request to status/ between them when a signed-in account opens the screen', async () => {
+    serveSignIn();
+    let requests = 0;
+    server.events.on('request:start', ({ request }) => {
+      if (
+        request.method === 'GET' &&
+        new URL(request.url).pathname.endsWith('/status/')
+      ) {
+        requests += 1;
+      }
+    });
+    server.use(
+      http.get('*/pulp/api/v3/status/', () => HttpResponse.json(status)),
+    );
+
+    renderWithProviders(
+      <AppContextProvider>
+        <PulpStatus />
+      </AppContextProvider>,
+      { route: '/status', signedIn: true },
+    );
+
+    expect(await screen.findByText('Versions')).toBeVisible();
+    // Give the plugin list time to read, which it does once the session check
+    // has answered.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(requests).toBe(1);
+  });
+});
+
 describe('status page after the same user signs in again', () => {
   const STATUS = '*/pulp/api/v3/status/';
   const reduced = { database_connection: { connected: true } };
