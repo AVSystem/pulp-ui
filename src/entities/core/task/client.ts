@@ -4,6 +4,7 @@ import { parseResponse } from 'src/entities/response-shape';
 import {
   DEFAULT_PAGE_SIZE,
   type Task,
+  type TaskCountFilter,
   type TaskListParams,
   type TaskPage,
   taskPageSchema,
@@ -28,6 +29,14 @@ function toRequestParams(params: TaskListParams): TasksListParams {
   if (params.state) {
     request.state = params.state as TasksListParams['state'];
   }
+  if (params.state__in) {
+    request.state__in = params.state__in.split(',').filter(Boolean);
+  }
+  if (params.finishedWithinMs !== undefined) {
+    request.finished_at__gte = new Date(
+      Date.now() - params.finishedWithinMs,
+    ).toISOString();
+  }
 
   return request;
 }
@@ -43,6 +52,16 @@ async function list(
   return parseResponse(taskPageSchema, data);
 }
 
+// How many tasks match the filter, taken from the total of a page of one row,
+// so nothing but the total is transferred.
+async function count(
+  filter: TaskCountFilter,
+  options?: RequestInit,
+): Promise<number> {
+  const page = await list({ ...filter, page_size: 1 }, options);
+  return page.count;
+}
+
 // Reads one task by its address.
 async function retrieve(href: string, options?: RequestInit): Promise<Task> {
   const data = await tasksRead(href, undefined, options);
@@ -55,4 +74,4 @@ async function cancel(href: string, options?: RequestInit): Promise<Task> {
   return parseResponse(taskSchema, data);
 }
 
-export const TaskClient = { list, retrieve, cancel };
+export const TaskClient = { list, count, retrieve, cancel };

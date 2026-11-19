@@ -40,14 +40,24 @@ type TaskPage = z.infer<typeof taskPageSchema>;
 
 // What a task list is asked for, in the terms of the address of the screen:
 // the page and its size, the column to sort by (a leading minus sorts down),
-// and the two filters the screen offers.
+// and the filters the screens offer. `state__in` is a comma separated set of
+// states. `finishedWithinMs` keeps the tasks that finished in the last that
+// many milliseconds; the lower bound is worked out when the request is sent,
+// so a read that is repeated over hours keeps asking for the same window and
+// the query key does not change with the clock.
 interface TaskListParams {
   page?: number;
   page_size?: number;
   sort?: string;
   name__contains?: string;
   state?: string;
+  state__in?: string;
+  finishedWithinMs?: number;
 }
+
+// What a count of tasks is asked for: the tasks in one state, optionally only
+// those that finished within a window.
+type TaskCountFilter = Pick<TaskListParams, 'state' | 'finishedWithinMs'>;
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -59,4 +69,4 @@ function isFinalState(state: string): boolean {
 }
 
 export { DEFAULT_PAGE_SIZE, isFinalState, taskPageSchema, taskSchema };
-export type { Task, TaskListParams, TaskPage };
+export type { Task, TaskCountFilter, TaskListParams, TaskPage };
