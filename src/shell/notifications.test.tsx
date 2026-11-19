@@ -10,13 +10,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   reportUnauthorized,
   resetSessionEvents,
-  resume,
 } from 'src/session/session-events';
 import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { serveUserRecords } from 'src/test-utils/permissions';
 import { type ITask, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { SignInAgain, serveSignIn } from 'src/test-utils/sign-in-again';
+import { useUserContext } from 'src/user-context';
 import {
   NOTIFICATIONS_REFRESH_MS,
   NOTIFICATIONS_SEEN_KEY,
@@ -32,6 +33,7 @@ const NOW = new Date('2030-05-01T12:00:00.000Z');
 const SEEN = 'pulp-notifications-seen';
 
 function signIn() {
+  serveSignIn();
   serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
@@ -88,12 +90,31 @@ function answerWith(answer: () => Answer) {
 
 const serve = (rows: Answer) => answerWith(() => rows);
 
+function OtherAccount() {
+  const { setUser } = useUserContext();
+
+  return (
+    <button
+      type='button'
+      onClick={() =>
+        setUser({ username: 'other', pulp_href: '/pulp/api/v3/users/2/' })
+      }
+    >
+      other account
+    </button>
+  );
+}
+
 function renderShell() {
   signIn();
   return renderWithProviders(
-    <Shell>
-      <h1>Screen title</h1>
-    </Shell>,
+    <>
+      <OtherAccount />
+      <SignInAgain />
+      <Shell>
+        <h1>Screen title</h1>
+      </Shell>
+    </>,
     { route: '/status' },
   );
 }
@@ -487,6 +508,52 @@ describe('notifications', () => {
     });
   });
 
+  describe('another account', () => {
+    it('shows nothing of the previous account until the read for the new one answers', async () => {
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let calls = 0;
+      server.use(
+        http.get(TASKS, async ({ request }) => {
+          if (!new URL(request.url).searchParams.has('state__in')) {
+            return HttpResponse.json({ count: 0, results: [] });
+          }
+          calls++;
+          if (calls > 2) {
+            await gate;
+          }
+          const results =
+            calls > 2
+              ? [ended('completed', 2, 'second-user-task')]
+              : [ended('failed', 3, 'first-user-task')];
+          return HttpResponse.json({
+            count: results.length,
+            next: null,
+            previous: null,
+            results,
+          });
+        }),
+      );
+      const { user } = await openPanel();
+      await screen.findByRole('link', { name: 'first-user-task' });
+      serveUserRecords({ id: 2, username: 'other', isStaff: true });
+
+      await user.click(screen.getByRole('button', { name: 'other account' }));
+
+      await waitFor(() => expect(calls).toBe(3));
+      expect(screen.queryByText('first-user-task')).not.toBeInTheDocument();
+      expect(screen.queryByText('second-user-task')).not.toBeInTheDocument();
+
+      release();
+      expect(
+        await screen.findByRole('link', { name: 'second-user-task' }),
+      ).toBeInTheDocument();
+      expect(screen.queryByText('first-user-task')).not.toBeInTheDocument();
+    });
+  });
+
   describe('keyboard', () => {
     it('moves the focus to the header on opening and back to the bell on Escape', async () => {
       serve([ended('failed', 3)]);
@@ -576,9 +643,7 @@ describe('notifications', () => {
       await settle();
       expect(queries).toHaveLength(1);
 
-      act(() => {
-        resume();
-      });
+      await user.click(screen.getByRole('button', { name: 'Sign in again' }));
       await waitFor(() => expect(queries).toHaveLength(2));
       await settle();
       expect(queries).toHaveLength(2);
