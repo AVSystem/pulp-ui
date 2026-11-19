@@ -85,6 +85,7 @@ export {
   RoleListTable,
 } from './role-list-table';
 export { RolePermissions } from './role-permissions';
+export { RoleSelector } from './role-selector';
 export { SelectGroup } from './select-group';
 export { SelectRoles } from './select-roles';
 export { SelectUser } from './select-user';

@@ -16,7 +16,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { type RoleType } from 'src/api';
 import {
   AppliedFilters,
   CompoundFilter,
@@ -32,7 +31,7 @@ import {
   PreviewRoles,
   PulpPagination,
   RoleListTable,
-  SelectRoles,
+  RoleSelector,
   WizardModal,
 } from 'src/components';
 import {
@@ -44,6 +43,7 @@ import {
   useGroupRoles,
   useRemoveGroupRole,
 } from 'src/entities/core/group-role/queries';
+import { type Role } from 'src/entities/core/role/model';
 import {
   ParamHelper,
   type ParamType,
@@ -84,7 +84,7 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
 }) => {
   const [showAddRolesModal, setShowAddRolesModal] = useState<boolean>(false);
   const [selectedDeleteRole, setSelectedDeleteRole] = useState<GroupRole>(null);
-  const [selectedRoles, setSelectedRoles] = useState<RoleType[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
   const [inputText, setInputText] = useState<string>(
     (params['role__icontains'] as string) || '',
   );
@@ -288,7 +288,7 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
       id: 0,
       name: t`Select role(s)`,
       children: (
-        <SelectRoles
+        <RoleSelector
           assignedRoles={roles}
           selectedRoles={selectedRoles}
           onRolesUpdate={(roles) => setSelectedRoles(roles)}
