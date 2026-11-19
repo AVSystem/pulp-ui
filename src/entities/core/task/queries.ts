@@ -1,8 +1,22 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  type Query,
+  useMutation,
+  useQueries,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
+import { useSessionEnded } from 'src/session/session-events';
 import { requestErrorStatus } from 'src/utilities/request-error';
 import { TaskClient } from './client';
-import type { TaskCountFilter, TaskListParams } from './model';
+import {
+  type Task,
+  type TaskCountFilter,
+  type TaskListParams,
+  isFinalState,
+} from './model';
+
+// How often a task that has not finished is read again.
+export const TASK_POLL_MS = 10_000;
 
 const all = ['pulp', 'core', 'task'] as const;
 
@@ -67,6 +81,65 @@ export function useTasks(
         ? previous
         : undefined;
     },
+  });
+}
+
+// Whether a task that is read again should be left alone: it has finished and
+// no longer changes, it was refused or does not exist, or its first read
+// failed and the screen waits for the user to ask again. A later poll that
+// fails for another reason on a task that is shown is tried again.
+function stopsPolling(query: Query<Task>): boolean {
+  const { data, error } = query.state;
+  if (data && isFinalState(data.state)) {
+    return true;
+  }
+  if (!error) {
+    return false;
+  }
+  const status = requestErrorStatus(error);
+  return !data || status === 403 || status === 404;
+}
+
+// How a read of one task behaves beyond its address.
+export interface TaskDetailOptions {
+  // Reads again this often until the task has finished; false reads once.
+  refetchInterval?: number | false;
+  // How long a read of the task is taken as current.
+  staleTime?: number;
+}
+
+// One task by its address, read again every few seconds until it has
+// finished. A null address is the address of nothing: no request is sent. The
+// query layer never starts a second read while one is running, so a first
+// answer that is slow is waited for, not overtaken by the next poll.
+export function useTask(href: string | null, options: TaskDetailOptions = {}) {
+  const { refetchInterval = TASK_POLL_MS, staleTime } = options;
+
+  return useSessionQuery({
+    queryKey: taskKeys.detail(href ?? ''),
+    queryFn: ({ signal }) => TaskClient.retrieve(href as string, { signal }),
+    enabled: href !== null,
+    ...(staleTime === undefined ? {} : { staleTime }),
+    refetchInterval:
+      refetchInterval === false
+        ? false
+        : (query) => (stopsPolling(query) ? false : refetchInterval),
+  });
+}
+
+// The tasks a task points to (its parent and children), one read for each
+// address, each read once per visit and never polled.
+export function useRelatedTasks(hrefs: string[]) {
+  const { ended } = useSessionEnded();
+
+  return useQueries({
+    queries: hrefs.map((href) => ({
+      queryKey: taskKeys.detail(href),
+      queryFn: ({ signal }: { signal: AbortSignal }) =>
+        TaskClient.retrieve(href, { signal }),
+      staleTime: Infinity,
+      enabled: !ended,
+    })),
   });
 }
 

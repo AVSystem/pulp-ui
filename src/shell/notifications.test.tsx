@@ -310,7 +310,7 @@ describe('notifications', () => {
         name: 'pulpcore.app.tasks.sync',
       });
       const id = failed.pulp_href.split('/').filter(Boolean).pop();
-      expect(link).toHaveAttribute('href', `/tasks/detail/${id}/`);
+      expect(link).toHaveAttribute('href', `/tasks/${id}/`);
       expect(link).toHaveAttribute('title', 'pulpcore.app.tasks.sync');
       expect(first).toHaveTextContent('Failed 3 minutes ago');
       expect(second).toHaveTextContent('Completed 3 hours ago');

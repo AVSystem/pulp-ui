@@ -1,15 +1,16 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes, useNavigate } from 'react-router';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { TaskAPI } from 'src/api';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
+import { Paths, formatPath } from 'src/paths';
 import {
   reportUnauthorized,
   resetSessionEvents,
   resume,
   setSignedIn,
 } from 'src/session/session-events';
+import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import {
   serveMyPermissions,
   servePermissions,
@@ -229,7 +230,12 @@ describe('the stop action of the task detail', () => {
 });
 
 describe('task detail reads that fail', () => {
+  let intervals: IIntervals;
+  beforeEach(() => {
+    intervals = trackIntervals();
+  });
   afterEach(() => {
+    intervals.restore();
     resetSessionEvents();
     vi.restoreAllMocks();
   });
@@ -241,11 +247,6 @@ describe('task detail reads that fail', () => {
     http.get(URL_PATH, () =>
       HttpResponse.json({ detail }, { status, statusText: 'Failed' }),
     );
-  const pollOf = (spy: ReturnType<typeof vi.spyOn>) => {
-    const call = spy.mock.calls.find(([, delay]) => delay === 10000);
-    return call[0] as () => void;
-  };
-
   function Goto({ to }: { to: string }) {
     const navigate = useNavigate();
     return (
@@ -308,7 +309,6 @@ describe('task detail reads that fail', () => {
   });
 
   it('keeps the task on screen and adds one alert when a poll fails, and not a second while it is open', async () => {
-    const spy = vi.spyOn(window, 'setInterval');
     server.use(
       http.get(URL_PATH, () =>
         HttpResponse.json({
@@ -320,14 +320,13 @@ describe('task detail reads that fail', () => {
     );
     renderRoute();
     await screen.findByText('Step one');
-    const poll = pollOf(spy);
     server.use(answer(502, 'bad gateway'));
 
-    act(() => poll());
+    intervals.run(10000);
     expect(
       await screen.findAllByText('Task could not be displayed.'),
     ).toHaveLength(1);
-    act(() => poll());
+    intervals.run(10000);
     await pause();
 
     expect(screen.getByText('Step one')).toBeInTheDocument();
@@ -337,7 +336,6 @@ describe('task detail reads that fail', () => {
   });
 
   it('resets the shown task and polls the new one when the address moves from a finished task to a running one', async () => {
-    const spy = vi.spyOn(window, 'setInterval');
     server.use(
       http.get(URL_PATH, ({ params }) =>
         params.id === SECOND
@@ -357,8 +355,6 @@ describe('task detail reads that fail', () => {
     );
     const { user } = renderRoute();
     await screen.findByText('First task');
-    // the first task was finished: its poll was started and stopped again
-    const before = spy.mock.calls.filter(([, delay]) => delay === 10000).length;
 
     await user.click(
       screen.getByRole('button', { name: `go to /tasks/${SECOND}` }),
@@ -366,17 +362,31 @@ describe('task detail reads that fail', () => {
 
     expect(await screen.findByText('Second task')).toBeInTheDocument();
     expect(screen.queryByText('First task')).toBeNull();
-    // the running task is polled: one more poll was started
-    await waitFor(() =>
-      expect(
-        spy.mock.calls.filter(([, delay]) => delay === 10000),
-      ).toHaveLength(before + 1),
+    // the running task is polled again
+    server.use(
+      http.get(URL_PATH, ({ params }) =>
+        HttpResponse.json({
+          ...task,
+          pulp_href: `/pulp/api/v3/tasks/${params.id}/`,
+          state: 'running',
+          progress_reports: [
+            { message: 'Second task, later', code: 'x', done: 2 },
+          ],
+        }),
+      ),
     );
+    intervals.run(10000);
+    expect(await screen.findByText('Second task, later')).toBeInTheDocument();
   });
 });
 
 describe('task detail after the same user signs in again', () => {
+  let intervals: IIntervals;
+  beforeEach(() => {
+    intervals = trackIntervals();
+  });
   afterEach(() => {
+    intervals.restore();
     resetSessionEvents();
     vi.restoreAllMocks();
   });
@@ -468,45 +478,32 @@ describe('task detail after the same user signs in again', () => {
   });
 
   describe('the poll of a running task', () => {
-    // the callback the page registered for its 10 second poll
-    const pollOf = (spy: ReturnType<typeof vi.spyOn>) => {
-      const call = spy.mock.calls.find(([, delay]) => delay === 10000);
-      return call[0] as () => void;
-    };
-
     it('asks for nothing while the sign-in dialog is open and reads again after signing in', async () => {
-      const spy = vi.spyOn(window, 'setInterval');
-      // counts the attempts: the request layer would hold a request back
-      // while the dialog is open, so the poll itself must not try
-      const attempts = vi.spyOn(TaskAPI, 'get');
-      serve({ state: 'running', ...progress('Step one') });
+      const reads = serve({ state: 'running', ...progress('Step one') });
       renderSignedIn();
       await screen.findByText('Step one');
       await signedIn();
-      const poll = pollOf(spy);
 
       setSignedIn(true);
       act(() => reportUnauthorized('request'));
-      const before = attempts.mock.calls.length;
-      act(() => poll());
+      const before = reads.count;
+      intervals.run(10000);
       await pause();
-      expect(attempts.mock.calls.length).toBe(before);
+      expect(reads.count).toBe(before);
 
       act(() => resume());
-      act(() => poll());
-      await waitFor(() => expect(attempts.mock.calls.length).toBe(before + 1));
+      intervals.run(10000);
+      await waitFor(() => expect(reads.count).toBeGreaterThan(before));
     });
 
     it('adds no alert when a poll is refused with 401', async () => {
-      const spy = vi.spyOn(window, 'setInterval');
       serve({ state: 'running', ...progress('Step one') });
       renderSignedIn();
       await screen.findByText('Step one');
       await signedIn();
-      const poll = pollOf(spy);
       server.use(refused);
 
-      act(() => poll());
+      intervals.run(10000);
       await pause();
 
       expect(screen.getByText('Step one')).toBeInTheDocument();
@@ -527,5 +524,294 @@ describe('task detail after the same user signs in again', () => {
 
     expect(recorded.writes).toEqual(['POST /pulp/api/v3/login/']);
     recorded.stop();
+  });
+});
+
+describe('task detail on the data hooks', () => {
+  let intervals: IIntervals;
+  beforeEach(() => {
+    intervals = trackIntervals();
+  });
+  afterEach(() => {
+    intervals.restore();
+    resetSessionEvents();
+    vi.restoreAllMocks();
+  });
+
+  const ID = '0192e5a1-0000-7000-8000-000000000001';
+  const URL_PATH = '*/pulp/api/v3/tasks/:id/';
+  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
+
+  // Answers the task with the state the test sets, counting the reads.
+  function serveTask(state: { value: string; error?: boolean }) {
+    const reads = { count: 0 };
+    server.use(
+      http.get(URL_PATH, ({ params }) => {
+        if (params.id !== ID) {
+          return HttpResponse.json({ detail: 'Not found.' }, { status: 404 });
+        }
+        reads.count++;
+        return HttpResponse.json({ ...task, state: state.value });
+      }),
+    );
+    return reads;
+  }
+
+  function renderPage(route = `/tasks/${ID}`) {
+    return renderWithProviders(
+      <AppContextProvider>
+        <Routes>
+          <Route path='/tasks/:task' element={<TaskDetail />} />
+        </Routes>
+      </AppContextProvider>,
+      { route },
+    );
+  }
+
+  it('reads a running task every 10 seconds and stops once it has finished', async () => {
+    const state = { value: 'running' };
+    const reads = serveTask(state);
+    renderPage();
+    await screen.findByText('Reserve resources');
+    expect(reads.count).toBe(1);
+
+    intervals.run(10000);
+    await waitFor(() => expect(reads.count).toBe(2));
+    state.value = 'completed';
+    intervals.run(10000);
+    await waitFor(() => expect(reads.count).toBe(3));
+    await screen.findByText('Completed');
+
+    intervals.run(10000);
+    intervals.run(10000);
+    await pause();
+    expect(reads.count).toBe(3);
+  });
+
+  it.each(['failed', 'canceled'])(
+    'stops reading once the task is %s',
+    async (final) => {
+      const state = { value: 'running' };
+      const reads = serveTask(state);
+      renderPage();
+      await screen.findByText('Reserve resources');
+
+      state.value = final;
+      intervals.run(10000);
+      await waitFor(() => expect(reads.count).toBe(2));
+      intervals.run(10000);
+      await pause();
+
+      expect(reads.count).toBe(2);
+    },
+  );
+
+  it('shows the task when the first answer takes longer than the poll interval, with no second read started', async () => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const reads = { started: 0 };
+    server.use(
+      http.get(URL_PATH, async () => {
+        reads.started++;
+        await gate;
+        return HttpResponse.json({ ...task, state: 'running' });
+      }),
+    );
+    renderPage();
+    await waitFor(() => expect(reads.started).toBe(1));
+
+    intervals.run(10000);
+    intervals.run(10000);
+    await pause();
+    expect(reads.started).toBe(1);
+    expect(screen.getByRole('progressbar')).toBeVisible();
+
+    release();
+
+    expect(await screen.findByText('Reserve resources')).toBeInTheDocument();
+    expect(reads.started).toBe(1);
+  });
+
+  it('reads no domain, and every other resource and related task once across three poll rounds', async () => {
+    const REPO = '0192e5a1-0000-7000-8000-0000000000a1';
+    const FILE = '0192e5a1-0000-7000-8000-0000000000a2';
+    const DOMAIN = '0192e5a1-0000-7000-8000-0000000000a3';
+    const PARENT = '0192e5a1-0000-7000-8000-0000000000b1';
+    const CHILD = '0192e5a1-0000-7000-8000-0000000000b2';
+    const seen: string[] = [];
+    server.use(
+      http.get('*/pulp/api/v3/*', ({ request }) => {
+        seen.push(new URL(request.url).pathname);
+        return undefined;
+      }),
+      http.get(URL_PATH, ({ params }) => {
+        if (params.id === ID) {
+          return HttpResponse.json({
+            ...task,
+            state: 'running',
+            parent_task: `/pulp/api/v3/tasks/${PARENT}/`,
+            child_tasks: [`/pulp/api/v3/tasks/${CHILD}/`],
+            reserved_resources_record: [
+              `prn:core.domain:${DOMAIN}`,
+              `prn:rpm.rpmrepository:${REPO}`,
+              `shared:prn:file.filerepository:${FILE}`,
+            ],
+          });
+        }
+        return HttpResponse.json({
+          ...task,
+          pulp_href: `/pulp/api/v3/tasks/${params.id}/`,
+          name: params.id === PARENT ? 'parent.task' : 'child.task',
+        });
+      }),
+      http.get('*/pulp/api/v3/domains/:id/', () =>
+        HttpResponse.json({ name: 'a-domain' }),
+      ),
+      http.get('*/pulp/api/v3/repositories/rpm/rpm/:id/', () =>
+        HttpResponse.json({ name: 'rpm-repo' }),
+      ),
+      http.get('*/pulp/api/v3/repositories/file/file/:id/', () =>
+        HttpResponse.json({ name: 'file-repo' }),
+      ),
+    );
+    renderPage();
+
+    expect(await screen.findByText('rpm-repo')).toBeInTheDocument();
+    expect(await screen.findByText('file-repo')).toBeInTheDocument();
+    expect(await screen.findByText('parent.task')).toBeInTheDocument();
+    expect(await screen.findByText('child.task')).toBeInTheDocument();
+    for (let round = 0; round < 3; round++) {
+      intervals.run(10000);
+      await pause();
+    }
+
+    const count = (needle: string) =>
+      seen.filter((path) => path.includes(needle)).length;
+    expect(count('/domains/')).toBe(0);
+    expect(count(`/repositories/rpm/rpm/${REPO}/`)).toBe(1);
+    expect(count(`/repositories/file/file/${FILE}/`)).toBe(1);
+    expect(count(`/tasks/${PARENT}/`)).toBe(1);
+    expect(count(`/tasks/${CHILD}/`)).toBe(1);
+    expect(count(`/tasks/${ID}/`)).toBeGreaterThanOrEqual(4);
+  });
+
+  it('links the parent and the child tasks to their own detail', async () => {
+    const PARENT = '0192e5a1-0000-7000-8000-0000000000b1';
+    const CHILD = '0192e5a1-0000-7000-8000-0000000000b2';
+    server.use(
+      http.get(URL_PATH, ({ params }) =>
+        HttpResponse.json({
+          ...task,
+          pulp_href: `/pulp/api/v3/tasks/${params.id}/`,
+          name: params.id === PARENT ? 'parent.task' : 'child.task',
+          ...(params.id === ID
+            ? {
+                parent_task: `/pulp/api/v3/tasks/${PARENT}/`,
+                child_tasks: [`/pulp/api/v3/tasks/${CHILD}/`],
+              }
+            : {}),
+        }),
+      ),
+    );
+    renderPage();
+
+    expect(
+      await screen.findByRole('link', { name: 'parent.task' }),
+    ).toHaveAttribute(
+      'href',
+      formatPath(Paths.core.task.detail, { task: PARENT }),
+    );
+    expect(screen.getByRole('link', { name: 'child.task' })).toHaveAttribute(
+      'href',
+      formatPath(Paths.core.task.detail, { task: CHILD }),
+    );
+  });
+
+  it('shows not found without a request when the id in the address is not an id', async () => {
+    const reads = serveTask({ value: 'running' });
+    renderPage('/tasks/not-a-uuid');
+
+    expect(await screen.findByText(/Page not found/)).toBeInTheDocument();
+    await pause();
+    expect(reads.count).toBe(0);
+  });
+
+  it('shows the insufficient permissions page for 403 and polls no more', async () => {
+    servePermissions();
+    let reads = 0;
+    server.use(
+      http.get(URL_PATH, () => {
+        reads++;
+        return HttpResponse.json({ detail: 'Not allowed.' }, { status: 403 });
+      }),
+    );
+    renderPage();
+
+    expect(
+      await screen.findByText('Insufficient permissions'),
+    ).toBeInTheDocument();
+    intervals.run(10000);
+    await pause();
+    expect(reads).toBe(1);
+  });
+
+  it('shows a retryable failure for 500 with no polling until Retry is pressed', async () => {
+    let reads = 0;
+    server.use(
+      http.get(URL_PATH, () => {
+        reads++;
+        return HttpResponse.json({ detail: 'broken' }, { status: 500 });
+      }),
+    );
+    const { user } = renderPage();
+
+    expect(
+      await screen.findByText('Task could not be displayed.'),
+    ).toBeInTheDocument();
+    intervals.run(10000);
+    intervals.run(10000);
+    await pause();
+    expect(reads).toBe(1);
+
+    server.use(
+      http.get(URL_PATH, () => {
+        reads++;
+        return HttpResponse.json({ ...task, state: 'running' });
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByText('Reserve resources')).toBeInTheDocument();
+    expect(reads).toBe(2);
+    intervals.run(10000);
+    await waitFor(() => expect(reads).toBe(3));
+  });
+
+  it('stops the task with one request and shows it canceled', async () => {
+    servePermissions({ isStaff: true });
+    const state = { value: 'running' };
+    const reads = serveTask(state);
+    const patches: unknown[] = [];
+    server.use(
+      http.patch(URL_PATH, async ({ request }) => {
+        patches.push(await request.json());
+        state.value = 'canceled';
+        return HttpResponse.json({ ...task, state: 'canceled' });
+      }),
+    );
+    const { user } = renderPage();
+
+    await user.click(await screen.findByRole('button', { name: 'Stop task' }));
+    await user.click(await screen.findByRole('button', { name: 'Yes, stop' }));
+
+    expect(await screen.findByText('Canceled')).toBeInTheDocument();
+    expect(
+      screen.getByText('Task "Orphan cleanup" stopped successfully.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Stop task' })).toBeNull();
+    expect(patches).toEqual([{ state: 'canceled' }]);
+    expect(reads.count).toBeGreaterThanOrEqual(2);
   });
 });

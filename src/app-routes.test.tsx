@@ -1281,3 +1281,107 @@ describe('administration screens', () => {
     expect(refusal()).toBeNull();
   });
 });
+
+describe('the address of a task', () => {
+  const ID = '0192e5a1-0000-7000-8000-000000000001';
+  const AFTER = (id: string) => new RegExp(`^/tasks/${id}/?(\\?.*)?$`);
+
+  function serveTask() {
+    signIn();
+    server.use(
+      http.get('*/pulp/api/v3/tasks/:id/', ({ params }) =>
+        HttpResponse.json({
+          pulp_href: `/pulp/api/v3/tasks/${params.id}/`,
+          name: 'pulpcore.app.tasks.orphan.orphan_cleanup',
+          state: 'completed',
+          child_tasks: [],
+          parent_task: null,
+          progress_reports: [],
+          reserved_resources_record: [],
+        }),
+      ),
+    );
+  }
+
+  function Moves() {
+    const navigate = useNavigate();
+    return (
+      <>
+        <button type='button' onClick={() => navigate(`/tasks/detail/${ID}`)}>
+          open the old address
+        </button>
+        <button type='button' onClick={() => navigate(-1)}>
+          back
+        </button>
+      </>
+    );
+  }
+
+  it('shows the task at /tasks/<id>', async () => {
+    serveTask();
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: `/tasks/${ID}` },
+    );
+
+    expect(await screen.findByText('Task name')).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(AFTER(ID));
+  });
+
+  it('moves a published link of the old address to the new one, keeping the query string', async () => {
+    serveTask();
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: `/tasks/detail/${ID}?x=1` },
+    );
+
+    expect(await screen.findByText('Task name')).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      new RegExp(`^/tasks/${ID}/?\\?x=1$`),
+    );
+  });
+
+  it('replaces the old address in the history, so Back returns to the page before it', async () => {
+    serveTask();
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Moves />
+        <Routed />
+      </AppContextProvider>,
+      { route: '/about' },
+    );
+    await user.click(
+      await screen.findByRole('button', { name: 'open the old address' }),
+    );
+    await screen.findByText('Task name');
+    expect(screen.getByTestId('location')).toHaveTextContent(AFTER(ID));
+
+    await user.click(screen.getByRole('button', { name: 'back' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/about$/);
+  });
+
+  it('shows not found, with no request for a task, when the id is not an id', async () => {
+    serveTask();
+    const requests = recordRequests();
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: '/tasks/detail/not-a-uuid' },
+    );
+
+    expect(await screen.findByText(/Page not found/)).toBeVisible();
+    expect(requests.paths.some((path) => path.includes('/tasks/'))).toBe(false);
+    requests.stop();
+  });
+});

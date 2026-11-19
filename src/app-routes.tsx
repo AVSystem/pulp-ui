@@ -3,7 +3,7 @@ import { Trans } from '@lingui/react/macro';
 import { Banner, Flex, FlexItem } from '@patternfly/react-core';
 import WrenchIcon from '@patternfly/react-icons/dist/esm/icons/wrench-icon';
 import { type ElementType, useEffect, useRef, useState } from 'react';
-import { Navigate, redirect, useLocation } from 'react-router';
+import { Navigate, redirect, useLocation, useParams } from 'react-router';
 import {
   BaseHeader,
   ErrorBoundary,
@@ -886,6 +886,24 @@ const appRoutes = () =>
     }),
   );
 
+// Task links published before tasks moved to /tasks/<id> (bookmarks, alerts
+// pasted into chats) use /tasks/detail/<id> and must keep working. The user
+// is moved to the new address with the history entry replaced, so Back does
+// not return to the old one, and the query string is kept. The redirect
+// needs no session: the page it leads to asks for one and then returns to the
+// new address.
+const LegacyTaskDetailRedirect = () => {
+  const { task } = useParams();
+  const { search } = useLocation();
+
+  return (
+    <Navigate
+      replace
+      to={{ pathname: formatPath(Paths.core.task.detail, { task }), search }}
+    />
+  );
+};
+
 export const dataRoutes = [
   {
     id: 'root',
@@ -899,6 +917,10 @@ export const dataRoutes = [
             loader: () => redirect(formatPath(Paths.core.status)),
           },
           ...appRoutes(),
+          {
+            path: Paths.core.task.legacyDetail,
+            element: <LegacyTaskDetailRedirect />,
+          },
           // "No matching route" is not handled by the error boundary.
           { path: '*', element: <NotFound /> },
         ],

@@ -129,7 +129,7 @@ describe('sync dialog, sync already queued or running', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /View the task/ })).toHaveAttribute(
       'href',
-      `/tasks/detail/${running.pulp_href.split('/').filter(Boolean).pop()}/`,
+      `/tasks/${running.pulp_href.split('/').filter(Boolean).pop()}/`,
     );
     expect(syncButton()).toBeDisabled();
     expect(queries).toHaveLength(1);

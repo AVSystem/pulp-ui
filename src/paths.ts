@@ -93,7 +93,9 @@ export const Paths = {
     signature_keys: '/signature-keys',
     status: '/status',
     task: {
-      detail: '/tasks/detail/:task',
+      detail: '/tasks/:task',
+      // The address published links use; it moves to the one above.
+      legacyDetail: '/tasks/detail/:task',
       list: '/tasks',
     },
     user: {

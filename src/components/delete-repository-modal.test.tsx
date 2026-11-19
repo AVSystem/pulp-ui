@@ -278,7 +278,7 @@ describe('the delete repository dialog', () => {
     expect(screen.getByText(/slow-one/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'task' })).toHaveAttribute(
       'href',
-      '/tasks/detail/00000000-0000-4000-8000-0000000000aa/',
+      '/tasks/00000000-0000-4000-8000-0000000000aa/',
     );
     expect(deleteButton()).toBeDisabled();
     expect(closeAction).not.toHaveBeenCalled();
@@ -367,7 +367,7 @@ describe('the delete repository dialog', () => {
     expect(screen.queryByText('Not removed')).toBeNull();
     expect(screen.getByRole('link', { name: 'task' })).toHaveAttribute(
       'href',
-      '/tasks/detail/00000000-0000-4000-8000-0000000000cc/',
+      '/tasks/00000000-0000-4000-8000-0000000000cc/',
     );
   });
 

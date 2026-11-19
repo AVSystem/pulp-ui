@@ -13,10 +13,10 @@ import {
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Alert, FormFieldHelper, HelpButton, Spinner } from 'src/components';
+import { taskUrlId } from 'src/entities/core/task/href';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
 import { isSessionEnd } from 'src/utilities/request-error';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import {
   type IRunningTask,
   type SyncPlugin,
@@ -267,7 +267,7 @@ const RunningTaskAlert = ({ task }: { task: IRunningTask }) => {
     <Alert isInline title={title} variant='warning'>
       <Link
         to={formatPath(Paths.core.task.detail, {
-          task: parsePulpIDFromURL(task.pulp_href),
+          task: taskUrlId(task.pulp_href),
         })}
       >
         {t`View the task`}

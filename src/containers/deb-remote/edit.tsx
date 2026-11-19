@@ -2,9 +2,10 @@ import { msg, t } from '@lingui/core/macro';
 import { DebRemoteAPI, type DebRemoteType } from 'src/api';
 import { Page, RemoteForm } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { parsePulpIDFromURL, taskAlert } from 'src/utilities';
+import { taskAlert } from 'src/utilities';
 import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import { saveErrorMessages } from 'src/utilities/create-repository';
+import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 
 const initialRemote: DebRemoteType = {
   name: '',

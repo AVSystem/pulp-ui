@@ -12,10 +12,16 @@ import {
 } from '@patternfly/react-core';
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import { capitalize } from 'lodash';
-import { Component, Fragment, type ReactNode } from 'react';
-import { Link } from 'react-router';
-import { GenericPulpAPI, TaskAPI, type TaskType } from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+import {
+  type ComponentProps,
+  Fragment,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import { Link, useParams } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -32,17 +38,16 @@ import {
   StatusIndicator,
   closeAlert,
 } from 'src/components';
-import { Paths, formatPath } from 'src/paths';
-import { isSuspended } from 'src/session/session-events';
-import { config } from 'src/ui-config';
+import { useResources } from 'src/entities/core/resource/queries';
+import { resourceReference } from 'src/entities/core/resource/reference';
+import { taskHref, taskUrlId } from 'src/entities/core/task/href';
 import {
-  type RouteProps,
-  parsePulpIDFromURL,
-  parsePulpResource,
-  translatePulpResourceToURL,
-  translateTask,
-  withRouter,
-} from 'src/utilities';
+  useCancelTask,
+  useRelatedTasks,
+  useTask,
+} from 'src/entities/core/task/queries';
+import { Paths, formatPath } from 'src/paths';
+import { useSessionEpoch } from 'src/user-context';
 import { ObjectPermissions } from 'src/utilities/my-permissions';
 import {
   isSessionEnd,
@@ -50,115 +55,76 @@ import {
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { translateTask } from 'src/utilities/translate-task';
 import './task.scss';
-
-interface IState {
-  alerts: AlertType[];
-  cancelModalVisible: boolean;
-  childTasks: TaskType[];
-  // why the first read failed, when it was neither refused nor a missing task
-  error: ReactNode;
-  loading: boolean;
-  notFound: boolean;
-  parentTask: TaskType;
-  polling: ReturnType<typeof setInterval>;
-  resources: {
-    name?: string;
-    pluginName?: string;
-    type: string;
-  }[];
-  task: TaskType;
-  taskName: string;
-  // the first read was refused, with the reason Pulp gave when it did
-  unauthorized: boolean;
-  unauthorizedDetail: string | null;
-}
 
 const CHANGE_TASK = 'core.change_task';
 // the states a task can still be stopped in
 const STOPPABLE = ['running', 'waiting'];
 
-class TaskDetail extends Component<RouteProps, IState> {
-  static contextType = AppContext;
+// The indicator knows the states Pulp names; a state it does not know is shown
+// as it is.
+type TaskStatus = ComponentProps<typeof StatusIndicator>['status'];
 
-  // number of the latest read; the answer of an older one is ignored
-  private latestRead = 0;
+// One resource as the detail shows it.
+interface ResourceView {
+  name?: string;
+  pluginName?: string;
+  type: string;
+}
+
+// The address holds the id of one task. Another task is another screen: what
+// the one left behind showed, its alerts and its open dialog go with it.
+const TaskDetail = () => {
+  const { task: urlId } = useParams();
+
+  return <TaskDetailScreen key={urlId} urlId={urlId} />;
+};
+
+const TaskDetailScreen = ({ urlId }: { urlId: string }) => {
+  const { hasPermission, permissionsReady } = useAppContext();
+  const sessionEpoch = useSessionEpoch();
+
+  // The id of the address becomes an address of the API only here; an id that
+  // is not one has no task and asks for nothing.
+  const href = taskHref(urlId);
+  const query = useTask(href);
+  const task = query.data;
+
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [cancelModalVisible, setCancelModalVisible] = useState(false);
+  const cancelTask = useCancelTask();
+
+  const addAlert = (alert: AlertType) =>
+    setAlerts((current) => [
+      ...(alert.id ? current.filter(({ id }) => id !== alert.id) : current),
+      alert,
+    ]);
 
   // What the server lists for the shown task, read when the change
   // permission is not held on every task.
-  private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
+  const [, rerender] = useReducer((count: number) => count + 1, 0);
+  const [objectPermissions] = useState(
+    () => new ObjectPermissions(() => rerender()),
+  );
+  useEffect(() => () => objectPermissions.dispose(), [objectPermissions]);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      alerts: [],
-      cancelModalVisible: false,
-      childTasks: [],
-      error: null,
-      loading: true,
-      notFound: false,
-      parentTask: null,
-      polling: null,
-      resources: [],
-      task: null,
-      taskName: '',
-      unauthorized: false,
-      unauthorizedDetail: null,
-    };
-  }
-
-  componentDidMount() {
-    this.loadContent();
-  }
-
-  componentWillUnmount() {
-    this.objectPermissions.dispose();
-    if (this.state.polling) {
-      clearInterval(this.state.polling);
+  // The same user signed in again: roles may have changed with the new
+  // session, so what was read for the task is forgotten. The task itself is
+  // read again by the query layer, keeping what is on screen until the answer
+  // arrives.
+  const lastEpoch = useRef(sessionEpoch);
+  useEffect(() => {
+    if (lastEpoch.current !== sessionEpoch) {
+      lastEpoch.current = sessionEpoch;
+      objectPermissions.reset();
     }
-  }
-
-  componentDidUpdate(prevProps: RouteProps) {
-    if (prevProps.routeParams.task !== this.props.routeParams.task) {
-      // Another task: forget everything of the shown one, including its
-      // polling, so the new task is read and polled on its own.
-      if (this.state.polling) {
-        clearInterval(this.state.polling);
-      }
-      this.objectPermissions.reset();
-      this.setState(
-        {
-          alerts: [],
-          childTasks: [],
-          error: null,
-          loading: true,
-          notFound: false,
-          parentTask: null,
-          polling: null,
-          resources: [],
-          task: null,
-          taskName: '',
-          unauthorized: false,
-          unauthorizedDetail: null,
-        },
-        () => this.loadContent(),
-      );
-    } else if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
-      // The same user signed in again: read the task again, keeping what is
-      // on screen until the answer arrives. Roles may have changed with the
-      // new session.
-      this.objectPermissions.reset();
-      this.loadContent();
-    }
-    this.readObjectPermissions();
-  }
+  }, [sessionEpoch, objectPermissions]);
 
   // Reads the permissions the server lists for the shown task, once, when a
   // Stop task button could be drawn: the account's global permissions are
   // known and do not already include the change permission.
-  private readObjectPermissions() {
-    const { hasPermission, permissionsReady } = this.context as IAppContextType;
-    const { task } = this.state;
+  useEffect(() => {
     if (
       !task ||
       !permissionsReady ||
@@ -169,555 +135,397 @@ class TaskDetail extends Component<RouteProps, IState> {
       return;
     }
 
-    this.objectPermissions.read(task.pulp_href);
+    objectPermissions.read(task.pulp_href);
+  });
+
+  // The related tasks: only addresses of a task are followed. Each is read
+  // once; the poll of this task does not read them again.
+  const parentHref =
+    task?.parent_task && taskUrlId(task.parent_task) ? task.parent_task : null;
+  const childHrefs = (task?.child_tasks ?? []).filter(
+    (child) => taskUrlId(child) !== null,
+  );
+  const related = useRelatedTasks(
+    parentHref ? [parentHref, ...childHrefs] : childHrefs,
+  );
+  const parentResult = parentHref ? related[0] : null;
+  const parentTask = parentResult?.data ?? null;
+  const childTasks = related
+    .slice(parentHref ? 1 : 0)
+    .flatMap((result) => (result.data ? [result.data] : []));
+  const relatedPending = related.some((result) => result.isLoading);
+
+  // The resources the task reserved. A domain is shown as text and never read;
+  // the others are read once each, and one whose read failed is left out.
+  const references = (task?.reserved_resources_record ?? []).flatMap(
+    (record) => {
+      const reference = resourceReference(record);
+      return reference ? [reference] : [];
+    },
+  );
+  const resourceResults = useResources(
+    references.flatMap((reference) =>
+      reference.kind === 'read' ? [reference.href] : [],
+    ),
+  );
+  let nextRead = 0;
+  const resources = references.flatMap((reference): ResourceView[] => {
+    if (reference.kind === 'text') {
+      return [{ type: reference.type, name: reference.name }];
+    }
+    const result = resourceResults[nextRead++];
+    return result?.data
+      ? [
+          {
+            name: result.data.name ?? undefined,
+            pluginName: reference.plugin,
+            type: reference.type,
+          },
+        ]
+      : [];
+  });
+  const resourcesPending = resourceResults.some((result) => result.isLoading);
+
+  const status = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
+
+  // A failed read of a task already on screen keeps it, with one alert that a
+  // later failed read replaces while it is open.
+  const rereadFailed = query.isError && !!task && !sessionEnded;
+  useEffect(() => {
+    if (rereadFailed) {
+      addAlert({
+        id: 'task-read',
+        variant: 'danger',
+        title: t`Task could not be displayed.`,
+        description: requestErrorDescription(query.error),
+      });
+    }
+    // an alert is added once for each failed read
+  }, [rereadFailed, query.errorUpdatedAt]);
+
+  const taskName = task ? translateTask(task.name) : '';
+  const breadcrumbs = [
+    { url: formatPath(Paths.core.task.list), name: t`Task management` },
+    { name: task ? taskName : urlId },
+  ];
+  const alertList = (
+    <AlertList
+      alerts={alerts}
+      closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+    />
+  );
+
+  if (href === null || (!task && status === 404)) {
+    return <NotFound />;
   }
 
-  render() {
-    const {
-      alerts,
-      cancelModalVisible,
-      childTasks,
-      error,
-      loading,
-      notFound,
-      parentTask,
-      resources,
-      task,
-      taskName,
-      unauthorized,
-      unauthorizedDetail,
-    } = this.state;
-
-    const breadcrumbs = [
-      { url: formatPath(Paths.core.task.list), name: t`Task management` },
-      { name: task ? taskName : this.props.routeParams.task },
-    ];
-    const parentTaskId = parentTask
-      ? parsePulpIDFromURL(parentTask.pulp_href)
-      : null;
-
-    if (notFound) {
-      return <NotFound />;
-    }
-
-    // The first read was refused or failed: the header without any action and
-    // the reason, never the not-found page.
-    if (unauthorized || error) {
-      return (
-        <>
-          <AlertList
-            alerts={alerts}
-            closeAlert={(i) =>
-              closeAlert(i, {
-                alerts,
-                setAlerts: (alerts) => this.setState({ alerts }),
-              })
-            }
-          />
-          <BaseHeader
-            title={t`Task detail`}
-            breadcrumbs={<Breadcrumbs links={breadcrumbs} />}
-          />
-          {unauthorized ? (
-            <InsufficientPermissions detail={unauthorizedDetail} />
-          ) : (
-            <Main>
-              <ListErrorState
-                title={t`Task could not be displayed.`}
-                message={error}
-                onRetry={() => {
-                  this.setState({ error: null, loading: true });
-                  this.loadContent();
-                }}
-              />
-            </Main>
-          )}
-        </>
-      );
-    }
-
-    return loading ? (
-      <LoadingSpinner />
-    ) : (
+  // The first read was refused or failed: the header without any action and
+  // the reason, never the not-found page.
+  if (!task && status === 403) {
+    return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        {cancelModalVisible ? this.renderCancelModal() : null}
+        {alertList}
         <BaseHeader
-          title={taskName}
+          title={t`Task detail`}
           breadcrumbs={<Breadcrumbs links={breadcrumbs} />}
-          pageControls={
-            STOPPABLE.includes(task.state) &&
-            this.objectPermissions.holds(
-              CHANGE_TASK,
-              task,
-              (this.context as IAppContextType).hasPermission,
-            ) && (
-              <Button
-                variant='secondary'
-                onClick={() => this.setState({ cancelModalVisible: true })}
-              >
-                {t`Stop task`}
-              </Button>
-            )
-          }
-          status={
-            <StatusIndicator
-              className={'pulp-c-task-status'}
-              status={task.state}
-            />
-          }
+        />
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
+      </>
+    );
+  }
+
+  if (!task && query.isError && !sessionEnded && !query.isFetching) {
+    return (
+      <>
+        {alertList}
+        <BaseHeader
+          title={t`Task detail`}
+          breadcrumbs={<Breadcrumbs links={breadcrumbs} />}
         />
         <Main>
-          <Flex>
-            <Flex
-              direction={{ default: 'column' }}
-              flex={{ default: 'flex_1' }}
-            >
-              <FlexItem>
-                <section className='pulp-section card-area'>
-                  <Title headingLevel='h2' size='lg'>
-                    {t`Task detail`}
-                  </Title>
-                  <br />
-                  <DescriptionList isHorizontal>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t`Task name`}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {task.name}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    {task.name !== taskName && (
-                      <DescriptionListGroup>
-                        <DescriptionListTerm>{t`Description`}</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          {taskName}
-                        </DescriptionListDescription>
-                      </DescriptionListGroup>
-                    )}
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t`Finished at`}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <DateComponent date={task.finished_at} />
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t`Created on`}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <DateComponent date={task.pulp_created} />
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  </DescriptionList>
-                </section>
-              </FlexItem>
-              <FlexItem>
-                <section className='pulp-section card-area'>
-                  <Title headingLevel='h2' size='lg'>
-                    {t`Task groups`}
-                  </Title>
-                  <br />
-                  <DescriptionList isHorizontal>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t`Task group`}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {task.task_group ? task.task_group : t`No task group`}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t`Parent task`}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {parentTask ? (
-                          <Link
-                            to={formatPath(Paths.core.task.detail, {
-                              task: parentTaskId,
-                            })}
-                          >
-                            {translateTask(parentTask.name)}
-                          </Link>
-                        ) : (
-                          t`No parent task`
-                        )}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>{t`Child tasks`}</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {childTasks.length
-                          ? childTasks.map((childTask) => {
-                              const childTaskId = parsePulpIDFromURL(
-                                childTask.pulp_href,
-                              );
-                              return (
-                                <Fragment key={childTaskId}>
-                                  <Link
-                                    to={formatPath(Paths.core.task.detail, {
-                                      task: childTaskId,
-                                    })}
-                                  >
-                                    {translateTask(childTask.name)}
-                                  </Link>
-                                  <br />
-                                </Fragment>
-                              );
-                            })
-                          : t`No child task`}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  </DescriptionList>
-                </section>
-              </FlexItem>
-              <FlexItem>
-                <section className='pulp-section card-area'>
-                  <Title headingLevel='h2' size='lg'>
-                    {t`Reserve resources`}
-                  </Title>
-                  <br />
-                  {resources.length
-                    ? resources.map((resource, index) => (
-                        <Fragment key={resource.type + index}>
-                          {index ? <hr /> : null}
-                          <DescriptionList isHorizontal>
-                            <DescriptionListGroup>
-                              <DescriptionListTerm>{t`Type`}</DescriptionListTerm>
-                              <DescriptionListDescription>
-                                {resource.type}
-                              </DescriptionListDescription>
-                            </DescriptionListGroup>
-                            {resource.pluginName && (
-                              <DescriptionListGroup>
-                                <DescriptionListTerm>{t`Plugin`}</DescriptionListTerm>
-                                <DescriptionListDescription>
-                                  {resource.pluginName}
-                                </DescriptionListDescription>
-                              </DescriptionListGroup>
-                            )}
-                            {resource.name && (
-                              <DescriptionListGroup>
-                                <DescriptionListTerm>{t`Name`}</DescriptionListTerm>
-                                <DescriptionListDescription>
-                                  {resource.name}
-                                </DescriptionListDescription>
-                              </DescriptionListGroup>
-                            )}
-                          </DescriptionList>
-                        </Fragment>
-                      ))
-                    : t`There's no resource record`}
-                </section>
-              </FlexItem>
-            </Flex>
-            <Flex
-              direction={{ default: 'column' }}
-              flex={{ default: 'flex_1' }}
-            >
-              <FlexItem>
-                {!task.error && (
-                  <section className='pulp-section card-area'>
-                    <Title headingLevel='h2' size='lg'>
-                      {t`Progress messages`}
-                    </Title>
-                    <br />
-                    {task.progress_reports.length ? (
-                      [...task.progress_reports]
-                        .reverse()
-                        .map((report, index) => (
-                          <Fragment key={index}>
-                            <hr />
-                            <DescriptionList isHorizontal>
-                              {Object.keys(report).map((key, index) => {
-                                return (
-                                  !!report[key] && (
-                                    <DescriptionListGroup key={key + index}>
-                                      <DescriptionListTerm>
-                                        {{
-                                          message: t`Message`,
-                                          code: t`Code`,
-                                          state: t`State`,
-                                          done: t`Done`,
-                                        }[key] || capitalize(key)}
-                                      </DescriptionListTerm>
-                                      <DescriptionListDescription>
-                                        {report[key]}
-                                      </DescriptionListDescription>
-                                    </DescriptionListGroup>
-                                  )
-                                );
-                              })}
-                            </DescriptionList>
-                          </Fragment>
-                        ))
-                    ) : (
-                      <EmptyStateCustom
-                        icon={CubesIcon}
-                        title={t`There is no progress message.`}
-                        description={t`There is no progress message.`}
-                      />
-                    )}
-                  </section>
-                )}
-                {!!task.error && (
-                  <section className='pulp-section card-area'>
-                    <Title headingLevel='h2' size='lg'>
-                      {t`Error message`}
-                    </Title>
-                    <br />
-                    <>
-                      <Title headingLevel='h3'>{t`Description`}</Title>
-                      <CodeBlock>{task.error.description}</CodeBlock>
-                      <Title headingLevel='h3'>{t`Traceback`}</Title>
-                      <CodeBlock className={'pulp-code-block'}>
-                        {task.error.traceback}
-                      </CodeBlock>
-                    </>
-                  </section>
-                )}
-              </FlexItem>
-            </Flex>
-          </Flex>
+          <ListErrorState
+            title={t`Task could not be displayed.`}
+            message={requestErrorDescription(query.error)}
+            onRetry={() => query.refetch()}
+          />
         </Main>
       </>
     );
   }
 
-  private renderCancelModal() {
-    const name = this.state.taskName;
-    return (
-      <ConfirmModal
-        cancelAction={() => this.setState({ cancelModalVisible: false })}
-        confirmAction={() => this.cancelTask()}
-        title={t`Stop task`}
-        confirmButtonTitle={t`Yes, stop`}
-      >
-        {t`${name} will stop running.`}
-      </ConfirmModal>
-    );
+  if (!task) {
+    return <LoadingSpinner />;
   }
 
-  private cancelTask() {
-    const { task, taskName } = this.state;
-    TaskAPI.patch(parsePulpIDFromURL(task.pulp_href), {
-      state: 'canceled',
-    })
-      .then(() => {
-        this.setState({
-          loading: true,
-          cancelModalVisible: false,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'success',
-              title: taskName,
-              description: t`Task "${taskName}" stopped successfully.`,
-            },
-          ],
+  const progressReports = task.progress_reports ?? [];
+  const name = taskName;
+
+  const stopTask = () => {
+    if (cancelTask.isPending) {
+      return;
+    }
+    cancelTask.mutate(task.pulp_href, {
+      onSuccess: () => {
+        setCancelModalVisible(false);
+        addAlert({
+          variant: 'success',
+          title: taskName,
+          description: t`Task "${taskName}" stopped successfully.`,
         });
-        this.loadContent();
-      })
-      .catch((e) => {
+      },
+      onError: (e) => {
+        setCancelModalVisible(false);
         // The session ended: the sign-in dialog explains it. The task was not
         // stopped and nothing is repeated.
         if (isSessionEnd(e)) {
-          this.setState({ cancelModalVisible: false });
           return;
         }
-        this.setState({
-          loading: true,
-          cancelModalVisible: false,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'danger',
-              title: t`Task "${taskName}" could not be stopped.`,
-              description: requestErrorDescription(e),
-            },
-          ],
+        addAlert({
+          variant: 'danger',
+          title: t`Task "${taskName}" could not be stopped.`,
+          description: requestErrorDescription(e),
         });
-        this.loadContent();
-      });
-  }
+      },
+    });
+  };
 
-  private loadContent() {
-    const setPolling = (polling) => {
-      this.setState(({ polling: old, ...state }) => {
-        if (old) {
-          clearInterval(old);
+  return (
+    <>
+      {alertList}
+      {cancelModalVisible ? (
+        <ConfirmModal
+          cancelAction={() => setCancelModalVisible(false)}
+          confirmAction={stopTask}
+          title={t`Stop task`}
+          confirmButtonTitle={t`Yes, stop`}
+        >
+          {t`${name} will stop running.`}
+        </ConfirmModal>
+      ) : null}
+      <BaseHeader
+        title={taskName}
+        breadcrumbs={<Breadcrumbs links={breadcrumbs} />}
+        pageControls={
+          STOPPABLE.includes(task.state) &&
+          objectPermissions.holds(CHANGE_TASK, task, hasPermission) && (
+            <Button
+              variant='secondary'
+              onClick={() => setCancelModalVisible(true)}
+            >
+              {t`Stop task`}
+            </Button>
+          )
         }
-        return { ...state, polling };
-      });
-    };
-
-    if (!this.state.polling && !this.state.task) {
-      // Nothing is sent while the sign-in dialog is open; the poll goes on
-      // after signing in.
-      setPolling(
-        setInterval(() => {
-          if (!isSuspended()) {
-            this.loadContent();
-          }
-        }, 10000),
-      );
-    }
-
-    // The related items are optional: a failed read leaves them out, except
-    // for a session that ended, which fails the whole read so it runs again
-    // after signing in.
-    const optional = (e) => {
-      if (isSessionEnd(e)) {
-        throw e;
-      }
-      return true;
-    };
-
-    // The answer of a read that another one has replaced is dropped, so a
-    // slow answer for the task left behind never shows over the current one.
-    const current = ++this.latestRead;
-    const isLatest = () => current === this.latestRead;
-
-    const taskId = this.props.routeParams.task;
-    return TaskAPI.get(taskId)
-      .then((result) => {
-        if (!isLatest()) {
-          return;
+        status={
+          <StatusIndicator
+            className={'pulp-c-task-status'}
+            status={task.state as TaskStatus}
+          />
         }
+      />
+      <Main>
+        <Flex>
+          <Flex direction={{ default: 'column' }} flex={{ default: 'flex_1' }}>
+            <FlexItem>
+              <section className='pulp-section card-area'>
+                <Title headingLevel='h2' size='lg'>
+                  {t`Task detail`}
+                </Title>
+                <br />
+                <DescriptionList isHorizontal>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t`Task name`}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {task.name}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  {task.name !== taskName && (
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>{t`Description`}</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {taskName}
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  )}
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t`Finished at`}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <DateComponent date={task.finished_at} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t`Created on`}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <DateComponent date={task.pulp_created} />
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
+              </section>
+            </FlexItem>
+            <FlexItem>
+              <section className='pulp-section card-area'>
+                <Title headingLevel='h2' size='lg'>
+                  {t`Task groups`}
+                </Title>
+                <br />
+                <DescriptionList isHorizontal>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t`Task group`}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {task.task_group ? task.task_group : t`No task group`}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t`Parent task`}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {parentTask ? (
+                        <Link
+                          to={formatPath(Paths.core.task.detail, {
+                            task: taskUrlId(parentTask.pulp_href),
+                          })}
+                        >
+                          {translateTask(parentTask.name)}
+                        </Link>
+                      ) : relatedPending ? null : (
+                        t`No parent task`
+                      )}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t`Child tasks`}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {childTasks.length
+                        ? childTasks.map((childTask) => (
+                            <Fragment key={childTask.pulp_href}>
+                              <Link
+                                to={formatPath(Paths.core.task.detail, {
+                                  task: taskUrlId(childTask.pulp_href),
+                                })}
+                              >
+                                {translateTask(childTask.name)}
+                              </Link>
+                              <br />
+                            </Fragment>
+                          ))
+                        : relatedPending
+                          ? null
+                          : t`No child task`}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
+              </section>
+            </FlexItem>
+            <FlexItem>
+              <section className='pulp-section card-area'>
+                <Title headingLevel='h2' size='lg'>
+                  {t`Reserve resources`}
+                </Title>
+                <br />
+                {resources.length
+                  ? resources.map((resource, index) => (
+                      <Fragment key={resource.type + index}>
+                        {index ? <hr /> : null}
+                        <DescriptionList isHorizontal>
+                          <DescriptionListGroup>
+                            <DescriptionListTerm>{t`Type`}</DescriptionListTerm>
+                            <DescriptionListDescription>
+                              {resource.type}
+                            </DescriptionListDescription>
+                          </DescriptionListGroup>
+                          {resource.pluginName && (
+                            <DescriptionListGroup>
+                              <DescriptionListTerm>{t`Plugin`}</DescriptionListTerm>
+                              <DescriptionListDescription>
+                                {resource.pluginName}
+                              </DescriptionListDescription>
+                            </DescriptionListGroup>
+                          )}
+                          {resource.name && (
+                            <DescriptionListGroup>
+                              <DescriptionListTerm>{t`Name`}</DescriptionListTerm>
+                              <DescriptionListDescription>
+                                {resource.name}
+                              </DescriptionListDescription>
+                            </DescriptionListGroup>
+                          )}
+                        </DescriptionList>
+                      </Fragment>
+                    ))
+                  : resourcesPending
+                    ? null
+                    : t`There's no resource record`}
+              </section>
+            </FlexItem>
+          </Flex>
+          <Flex direction={{ default: 'column' }} flex={{ default: 'flex_1' }}>
+            <FlexItem>
+              {!task.error && (
+                <section className='pulp-section card-area'>
+                  <Title headingLevel='h2' size='lg'>
+                    {t`Progress messages`}
+                  </Title>
+                  <br />
+                  {progressReports.length ? (
+                    [...progressReports].reverse().map((report, index) => (
+                      <Fragment key={index}>
+                        <hr />
+                        <DescriptionList isHorizontal>
+                          {Object.keys(report).map((key, index) => {
+                            return (
+                              !!report[key] && (
+                                <DescriptionListGroup key={key + index}>
+                                  <DescriptionListTerm>
+                                    {{
+                                      message: t`Message`,
+                                      code: t`Code`,
+                                      state: t`State`,
+                                      done: t`Done`,
+                                    }[key] || capitalize(key)}
+                                  </DescriptionListTerm>
+                                  <DescriptionListDescription>
+                                    {String(report[key])}
+                                  </DescriptionListDescription>
+                                </DescriptionListGroup>
+                              )
+                            );
+                          })}
+                        </DescriptionList>
+                      </Fragment>
+                    ))
+                  ) : (
+                    <EmptyStateCustom
+                      icon={CubesIcon}
+                      title={t`There is no progress message.`}
+                      description={t`There is no progress message.`}
+                    />
+                  )}
+                </section>
+              )}
+              {!!task.error && (
+                <section className='pulp-section card-area'>
+                  <Title headingLevel='h2' size='lg'>
+                    {t`Error message`}
+                  </Title>
+                  <br />
+                  <>
+                    <Title headingLevel='h3'>{t`Description`}</Title>
+                    <CodeBlock>
+                      {String(task.error['description'] ?? '')}
+                    </CodeBlock>
+                    <Title headingLevel='h3'>{t`Traceback`}</Title>
+                    <CodeBlock className={'pulp-code-block'}>
+                      {String(task.error['traceback'] ?? '')}
+                    </CodeBlock>
+                  </>
+                </section>
+              )}
+            </FlexItem>
+          </Flex>
+        </Flex>
+      </Main>
+    </>
+  );
+};
 
-        const allRelatedTasks = [];
-        let parentTask = null;
-        const childTasks = [];
-        const resources = [];
-
-        if (['canceled', 'completed', 'failed'].includes(result.data.state)) {
-          setPolling(null);
-        }
-
-        if (result.data.parent_task) {
-          const parentTaskId = parsePulpIDFromURL(result.data.parent_task);
-          allRelatedTasks.push(
-            TaskAPI.get(parentTaskId)
-              .then((result) => {
-                parentTask = result.data;
-              })
-              .catch(optional),
-          );
-        }
-
-        if (result.data.child_tasks.length) {
-          result.data.child_tasks.forEach((child) => {
-            const childTaskId = parsePulpIDFromURL(child);
-            allRelatedTasks.push(
-              TaskAPI.get(childTaskId)
-                .then((result) => {
-                  childTasks.push(result.data);
-                })
-                .catch(optional),
-            );
-          });
-        }
-
-        if (result.data.reserved_resources_record.length) {
-          result.data.reserved_resources_record.forEach((record) => {
-            // TODO: Maybe do something special if it is a shared resource
-            const resource = parsePulpResource(record.replace('shared:', ''));
-            if (resource) {
-              if (!resource.resource_label) {
-                const url = translatePulpResourceToURL(resource).replace(
-                  config.API_BASE_PATH,
-                  '',
-                );
-                allRelatedTasks.push(
-                  GenericPulpAPI.get(url)
-                    .then((result) => {
-                      resources.push({
-                        name: result.data.name,
-                        pluginName: resource.plugin,
-                        type: resource.model,
-                      });
-                    })
-                    .catch(optional),
-                );
-              } else {
-                resources.push({
-                  type: 'Domain Resource',
-                  name: resource.resource_label,
-                });
-              }
-            }
-          });
-        }
-
-        return Promise.all(allRelatedTasks).then(() => {
-          if (!isLatest()) {
-            return;
-          }
-          this.setState({
-            task: result.data,
-            childTasks,
-            parentTask,
-            error: null,
-            loading: false,
-            taskName: translateTask(result.data.name),
-            resources,
-            unauthorized: false,
-            unauthorizedDetail: null,
-          });
-        });
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it, and the page keeps
-        // its spinner or its content until it reads again.
-        if (isSessionEnd(e) || !isLatest()) {
-          return;
-        }
-
-        if (this.state.task) {
-          // The task was shown: it stays, with one alert that a later failed
-          // read replaces while it is open.
-          this.setState({ loading: false });
-          this.addAlert({
-            id: 'task-read',
-            variant: 'danger',
-            title: t`Task could not be displayed.`,
-            description: requestErrorDescription(e),
-          });
-          return;
-        }
-
-        // The first read failed: nothing is polled until the user asks again.
-        setPolling(null);
-        const status = requestErrorStatus(e);
-        if (status === 404) {
-          this.setState({ notFound: true });
-        } else if (status === 403) {
-          // A refused read is not a failure to retry: the account is told it
-          // may not view the page, with Pulp's own reason.
-          this.setState({
-            loading: false,
-            unauthorized: true,
-            unauthorizedDetail: requestErrorDetail(e),
-          });
-        } else {
-          this.setState({
-            loading: false,
-            error: requestErrorDescription(e),
-          });
-        }
-      });
-  }
-
-  private addAlert(alert: AlertType) {
-    this.setState(({ alerts }) => ({
-      alerts: [
-        ...(alert.id ? alerts.filter(({ id }) => id !== alert.id) : alerts),
-        alert,
-      ],
-    }));
-  }
-}
-
-export default withRouter(TaskDetail);
+export default TaskDetail;

@@ -1,7 +1,6 @@
 import { t } from '@lingui/core/macro';
-import { config } from 'src/ui-config';
+import { taskHref, taskUrlId } from 'src/entities/core/task/href';
 import { TaskAPI } from '../api/task';
-import { parsePulpIDFromURL } from './parse-pulp-id';
 
 interface Options {
   bailAfter?: number;
@@ -56,7 +55,7 @@ export async function waitForTask(task, options: Options = {}) {
     try {
       ({ data } = await TaskAPI.get(task));
     } catch {
-      throw new TaskUnknown(`${config.API_BASE_PATH}tasks/${task}/`);
+      throw new TaskUnknown(taskHref(task) ?? '');
     }
 
     if (failing.includes(data.state)) {
@@ -79,5 +78,5 @@ export async function waitForTask(task, options: Options = {}) {
 }
 
 export function waitForTaskUrl(taskUrl, options = {}) {
-  return waitForTask(parsePulpIDFromURL(taskUrl), options);
+  return waitForTask(taskUrlId(taskUrl), options);
 }
