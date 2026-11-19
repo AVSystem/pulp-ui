@@ -1,4 +1,3 @@
-import type { StatusResponse } from '@pulp-ui/sdk/core/models/status/status-response.zod';
 import { describe, expect, it } from 'vitest';
 import { statusSchema } from './model';
 
@@ -18,7 +17,8 @@ describe('Unit: status model', { tags: ['unit'] }, () => {
     ],
   };
 
-  // The full answer of an administrator.
+  // The full answer of an administrator. The workers carry the address the
+  // server gives them, which the generated type does not list.
   const administrator = {
     versions: [
       {
@@ -49,7 +49,7 @@ describe('Unit: status model', { tags: ['unit'] }, () => {
       content_path_prefix: '/pulp/content/',
     },
     domain_enabled: false,
-  } satisfies StatusResponse;
+  };
 
   it('reads the health-only answer a visitor gets', () => {
     const result = statusSchema.parse(anonymous);
