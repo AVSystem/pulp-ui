@@ -11,12 +11,12 @@ import {
 import { Td } from '@patternfly/react-table';
 import {
   type FunctionComponent,
-  type ReactNode,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
-import { GroupRoleAPI, type RoleType } from 'src/api';
+import { type RoleType } from 'src/api';
 import {
   AppliedFilters,
   CompoundFilter,
@@ -24,6 +24,7 @@ import {
   EmptyStateFilter,
   EmptyStateNoData,
   ExpandableRow,
+  InsufficientPermissions,
   ListErrorState,
   ListItemActions,
   LoadingPage,
@@ -34,34 +35,40 @@ import {
   SelectRoles,
   WizardModal,
 } from 'src/components';
-import { useSessionEpoch } from 'src/user-context';
+import {
+  type GroupRole,
+  type GroupRoleListParams,
+} from 'src/entities/core/group-role/model';
+import {
+  useAddGroupRoles,
+  useGroupRoles,
+  useRemoveGroupRole,
+} from 'src/entities/core/group-role/queries';
 import {
   ParamHelper,
   type ParamType,
   filterIsSet,
-  parsePulpIDFromURL,
   translateLockedRole,
 } from 'src/utilities';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 import './group-detail-role-management.scss';
 
-interface GroupRoleType {
-  pulp_href: string;
-  pulp_created: string;
-  role: string;
-  description: string;
-  permissions?: string[];
-  content_object: string;
+// A parameter that came in more than once is read as its first value.
+function single(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first === undefined || first === null ? undefined : String(first);
 }
 
 interface IProps {
   addAlert: (title, variant, description?) => void;
   canEdit: boolean;
-  // the group whose roles are shown: only its id and its name are read
-  group: { id: number; name: string };
+  // the group whose roles are shown: only its address and its name are read
+  group: { name: string; pulp_href: string };
   nonQueryParams?: string[];
   params: ParamType;
   updateParams: (params) => void;
@@ -76,112 +83,140 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
   updateParams,
 }) => {
   const [showAddRolesModal, setShowAddRolesModal] = useState<boolean>(false);
-  const [selectedDeleteRole, setSelectedDeleteRole] =
-    useState<GroupRoleType>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [roles, setRoles] = useState<GroupRoleType[]>([]);
-  const [rolesItemCount, setRolesItemCount] = useState<number>(0);
+  const [selectedDeleteRole, setSelectedDeleteRole] = useState<GroupRole>(null);
   const [selectedRoles, setSelectedRoles] = useState<RoleType[]>([]);
   const [inputText, setInputText] = useState<string>(
     (params['role__icontains'] as string) || '',
   );
-  const [isRoleDeleting, setIsRoleDeleting] = useState(false);
-  // the failure of a read that left the table with nothing to show
-  const [loadError, setLoadError] = useState<ReactNode>(null);
-  // true once a read answered: rows on screen are kept when a later quiet read
-  // fails
-  const rolesShown = useRef(false);
 
-  // grows when the same user signs in again, so the roles are read again
-  const epoch = useSessionEpoch();
-  const firstEpoch = useRef(epoch);
+  const addRolesRequest = useAddGroupRoles();
+  const removeRole = useRemoveGroupRole();
+
+  // The roles of the group for the page, the order and the filter of the
+  // address, and nothing else of it: another parameter of the address does not
+  // read the roles again.
+  const page = Number(single(params['page'])) || undefined;
+  const pageSize = Number(single(params['page_size'])) || undefined;
+  const sort = ParamHelper.validSortParams(
+    single(params['sort']) ?? 'role',
+    ['role'],
+    'role',
+  );
+  const filter = single(params['role__icontains']);
+  const listParams = useMemo<GroupRoleListParams>(
+    () => ({
+      page,
+      page_size: pageSize,
+      sort,
+      role__icontains: filter,
+    }),
+    [page, pageSize, sort, filter],
+  );
+  const query = useGroupRoles(group.pulp_href, listParams);
+  const roles = query.data?.results;
+  const rolesItemCount = query.data?.count ?? 0;
 
   useEffect(() => {
-    queryRolesWithPermissions();
-    setInputText((params['role__icontains'] as string) || '');
-  }, [params]);
+    setInputText(filter || '');
+  }, [filter]);
 
+  // A failed read is reported once, whether it left the table with nothing to
+  // show or only failed to refresh what is shown. The end of a session is not
+  // a failure: the sign-in dialog explains it and the roles are read again
+  // after signing in. A refusal with nothing to show is not an alert: the tab
+  // says so itself.
+  const failedStatus = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
+  const refused = failedStatus === 403 && !query.data;
+  const failed = query.isError && !sessionEnded && !refused;
+  const alertedFailure = useRef(0);
   useEffect(() => {
-    if (epoch !== firstEpoch.current) {
-      queryRolesWithPermissions(true);
+    if (failed && alertedFailure.current !== query.errorUpdatedAt) {
+      alertedFailure.current = query.errorUpdatedAt;
+      addAlert(
+        t`Permissions for group "${group.name}" could not be displayed.`,
+        'danger',
+        requestErrorDescription(query.error),
+      );
     }
-  }, [epoch]);
+  }, [failed, query.errorUpdatedAt, query.error]);
 
-  // A quiet read keeps the table, an open dialog and the picked roles as they
-  // are instead of showing the spinner.
-  const queryRolesWithPermissions = (quiet = false) => {
-    if (!quiet) {
-      setLoading(true);
+  const deleteRole = async () => {
+    if (!selectedDeleteRole || removeRole.isPending) {
+      return;
     }
-
-    GroupRoleAPI.listRoles(group.id, {
-      ...ParamHelper.getReduced({ ...params, content_object: null }, [
-        'id',
-        'tab',
-        ...nonQueryParams,
-      ]),
-      sort: ParamHelper.validSortParams(params['sort'], ['role'], 'role'),
-    })
-      .then(({ data }) => {
-        rolesShown.current = true;
-        setRoles(data.results);
-        setRolesItemCount(data.count);
-        setLoadError(null);
-        setLoading(false);
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it, and the table
-        // keeps its spinner or its rows until it reads again.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        addAlert(
-          t`Permissions for group "${group.name}" could not be displayed.`,
-          'danger',
-          requestErrorDescription(e),
-        );
-        // A quiet read after a sign-in keeps the rows it replaces; any other
-        // failure ends the spinner and offers to read again.
-        if (quiet && rolesShown.current) {
-          return;
-        }
-        setLoading(false);
-        setLoadError(requestErrorDescription(e));
+    const role = selectedDeleteRole;
+    try {
+      await removeRole.mutateAsync({
+        href: group.pulp_href,
+        role: role.pulp_href,
       });
-  };
-
-  const deleteRole = () => {
-    const pulpId = parsePulpIDFromURL(selectedDeleteRole.pulp_href);
-
-    let sessionEnded = false;
-    setIsRoleDeleting(true);
-    GroupRoleAPI.removeRole(group.id, pulpId)
-      .then(() => {
-        setIsRoleDeleting(false);
+      addAlert(
+        t`Role "${role.role}" has been successfully removed.`,
+        'success',
+        t`All associated permissions under this role were removed.`,
+      );
+    } catch (err) {
+      // The session ended: the role was not removed and nothing is repeated.
+      if (!isSessionEnd(err)) {
         addAlert(
-          t`Role "${selectedDeleteRole.role}" has been successfully removed.`,
-          'success',
-          t`All associated permissions under this role were removed.`,
-        );
-      })
-      .catch((err) => {
-        // The session ended: the role was not removed and nothing is repeated.
-        if (isSessionEnd(err)) {
-          sessionEnded = true;
-          return;
-        }
-        addAlert(
-          t`Role "${selectedDeleteRole.role}" could not be deleted.`,
+          t`Role "${role.role}" could not be deleted.`,
           'danger',
           requestErrorDescription(err),
         );
-      })
-      .finally(() => {
-        setIsRoleDeleting(false);
-        setSelectedDeleteRole(null);
-        // after a session end the rows stay until the epoch read replaces them
-        queryRolesWithPermissions(sessionEnded);
-      });
+      }
+    }
+    setSelectedDeleteRole(null);
+  };
+
+  // One request per picked role, and each role is reported on its own.
+  const saveRoles = async () => {
+    if (addRolesRequest.isPending) {
+      return;
+    }
+    const picked = selectedRoles;
+    const outcomes = await addRolesRequest.mutateAsync({
+      href: group.pulp_href,
+      roles: picked.map((role) => role.name),
+    });
+
+    picked.forEach((role, i) => {
+      const { error } = outcomes[i];
+      if (error === null) {
+        addAlert(
+          t`Role ${role.name} has been successfully added to ${group.name}.`,
+          'success',
+        );
+        return;
+      }
+      // cut off by the end of the session: kept below, not reported
+      if (isSessionEnd(error)) {
+        return;
+      }
+      const data = (
+        error as { response?: { data?: { non_field_errors?: string[] } } }
+      )?.response?.data;
+      const errMessage =
+        data?.non_field_errors?.length > 0
+          ? data.non_field_errors[0]
+          : requestErrorDescription(error);
+
+      addAlert(
+        t`Role ${role.name} could not be assigned to group ${group.name}.`,
+        'danger',
+        errMessage,
+      );
+    });
+
+    // A session end keeps the wizard and the roles it cut off, so the user can
+    // add them again after signing in.
+    const cutOff = picked.filter((_, i) => isSessionEnd(outcomes[i].error));
+    if (cutOff.length > 0) {
+      setSelectedRoles(cutOff);
+      return;
+    }
+    setShowAddRolesModal(false);
+    setSelectedRoles([]);
   };
 
   const deleteModal = (
@@ -189,8 +224,8 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
       title={t`Delete role: ${selectedDeleteRole?.role}`}
       cancelAction={() => setSelectedDeleteRole(null)}
       deleteAction={deleteRole}
-      spinner={isRoleDeleting}
-      isDisabled={isRoleDeleting}
+      spinner={removeRole.isPending}
+      isDisabled={removeRole.isPending}
       data-cy='DeleteModal'
     >
       <Trans>
@@ -212,25 +247,28 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
     </Button>
   );
 
-  if (loading) {
+  if (!roles) {
+    // a refused read is not a failure to retry: the user is told they may not
+    // view the roles, with Pulp's own reason
+    if (refused) {
+      return (
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
+      );
+    }
+    if (failed && !query.isFetching) {
+      return (
+        <section className='pulp-section'>
+          <ListErrorState
+            title={t`Roles list could not be displayed.`}
+            message={requestErrorDescription(query.error)}
+            onRetry={() => query.refetch()}
+          />
+        </section>
+      );
+    }
     return (
       <section className='pulp-section'>
         <LoadingPage />
-      </section>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <section className='pulp-section'>
-        <ListErrorState
-          title={t`Roles list could not be displayed.`}
-          message={loadError}
-          onRetry={() => {
-            setLoadError(null);
-            queryRolesWithPermissions();
-          }}
-        />
       </section>
     );
   }
@@ -301,48 +339,7 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
             setShowAddRolesModal(false);
             setSelectedRoles([]);
           }}
-          onSave={() => {
-            let sessionEnded = false;
-            const selectedRolesPromises = selectedRoles.map((role) =>
-              GroupRoleAPI.addRoleToGroup(group.id, role)
-                .then(() => {
-                  addAlert(
-                    t`Role ${role.name} has been successfully added to ${group.name}.`,
-                    'success',
-                  );
-                })
-                .catch((e) => {
-                  if (isSessionEnd(e)) {
-                    sessionEnded = true;
-                    return;
-                  }
-                  const data = e?.response?.data;
-
-                  const errMessage =
-                    data?.non_field_errors?.length > 0
-                      ? data.non_field_errors[0]
-                      : requestErrorDescription(e);
-
-                  addAlert(
-                    t`Role ${role.name} could not be assigned to group ${group.name}.`,
-                    'danger',
-                    errMessage,
-                  );
-                })
-                .finally(() => role),
-            );
-
-            Promise.all(selectedRolesPromises).then(() => {
-              // A session end keeps the wizard and the picked roles, so the
-              // user can add again after signing in.
-              if (sessionEnded) {
-                return;
-              }
-              queryRolesWithPermissions();
-              setShowAddRolesModal(false);
-              setSelectedRoles([]);
-            });
-          }}
+          onSave={saveRoles}
         />
       )}
       {noData ? (
@@ -416,7 +413,7 @@ const GroupDetailRoleManagement: FunctionComponent<IProps> = ({
                     rowIndex={i}
                     expandableRowContent={
                       <PermissionCategories
-                        permissions={role.permissions}
+                        permissions={role.permissions ?? []}
                         showCustom
                       />
                     }

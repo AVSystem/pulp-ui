@@ -67,7 +67,7 @@ const serveRoles = (...roles: string[]) => {
   return served;
 };
 
-let go: (query: string) => void = () => {};
+let go: (query: string) => void = () => undefined;
 
 const Navigator = () => {
   const navigate = useNavigate();
