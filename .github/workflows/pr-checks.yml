@@ -101,5 +101,24 @@ jobs:
           # commits that are already part of main never fail a pull request.
           # Merging main into a pull request branch adds a merge commit to
           # the range, so rebase the branch instead.
-          count=`git log --merges --format=%H "$BASE_SHA..$HEAD_SHA" | tee /dev/stderr | wc -l`
-          [ "$count" = 0 ]
+          #
+          # One kind of merge commit is allowed: a merge of the upstream
+          # project, whose every extra parent is a commit of the upstream main
+          # branch. That keeps the upstream history an ancestor of this
+          # repository, so later upstream changes merge without repeating
+          # old ones. A merge of any other branch, main included, still fails.
+          merges=`git log --merges --format=%H "$BASE_SHA..$HEAD_SHA"`
+          [ -z "$merges" ] && exit 0
+
+          git fetch --no-tags https://github.com/pulp/pulp-ui.git main
+          upstream=`git rev-parse FETCH_HEAD`
+          failed=0
+          for merge in $merges; do
+            for parent in `git rev-list --parents -n 1 "$merge" | cut -d' ' -f3-`; do
+              if ! git merge-base --is-ancestor "$parent" "$upstream"; then
+                echo "Merge commit $merge has a parent ($parent) that is not part of the upstream main branch" >&2
+                failed=1
+              fi
+            done
+          done
+          [ "$failed" = 0 ]

@@ -97,8 +97,13 @@ cd pulp-ui
 npm ci
 ```
 
-`npm ci` installs the exact versions of `package-lock.json` and also installs the git hooks
-described under [Git hooks](#git-hooks). Use plain `npm ci`; no extra flags are needed.
+`npm ci` installs the exact versions of `package-lock.json`, installs the git hooks
+described under [Git hooks](#git-hooks) and builds the SDK workspace (`packages/sdk`) to
+`packages/sdk/dist`, which the application imports. Use plain `npm ci`; no extra flags are
+needed.
+
+When install scripts are disabled (`npm ci --ignore-scripts`), nothing builds the SDK: run
+`npm run build -w @pulp-ui/sdk` before the tests, the linters, the dev server or the build.
 
 #### Start
 ```sh
@@ -147,7 +152,8 @@ npm run build
 ```
 
 The production build is written to `dist/`. It needs no environment variables inside a git
-checkout.
+checkout. It expects the SDK to be built already (see above); `sh scripts/build-release.sh`,
+the release build, builds the SDK first and then packs the result.
 
 CI measures the initial load, the gzip size of every script and stylesheet that `dist/index.html`
 names, against the limit in `config/bundle-budget.json`, and reports every other chunk in the job
@@ -164,10 +170,10 @@ The check fails when the initial load is over the limit. Raising the limit is a 
 
 ```sh
 npm test
-npm test -w @pulp-ui/sdk
 ```
 
-The first runs the application's unit and component tests, the second the SDK's tests.
+This runs the application's unit and component tests, the SDK's tests and the tests of the
+repository scripts in one run. The SDK workspace has no test script of its own.
 
 ### End-to-end tests
 

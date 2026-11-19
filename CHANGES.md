@@ -1,3 +1,51 @@
+## 0.1.28 (2026-11-14) {: #0.1.28 }
+
+### What's Changed
+* build(deps): bump github/codeql-action from 4.39.1 to 4.39.3 by @dependabot[bot] in https://github.com/pulp/pulp-ui/pull/404
+* build(deps): bump the lingui group with 4 updates by @dependabot[bot] in https://github.com/pulp/pulp-ui/pull/402
+
+
+**Full Changelog**: https://github.com/pulp/pulp-ui/compare/v0.1.27...v0.1.28
+
+---
+
+## 0.1.27 (2026-11-02) {: #0.1.27 }
+
+### What's Changed
+* deps: addressed minimatch cve-2026-118764 and updated cypress to 16.2.1 [#401](https://github.com/pulp/pulp-ui/pull/401)
+
+
+**Full Changelog**: https://github.com/pulp/pulp-ui/compare/v0.1.26...v0.1.27
+
+---
+
+## 0.1.26 (2026-10-31) {: #0.1.26 }
+
+### What's Changed
+* Added generated SECRET_KEY to cypress runner, so Pulp can start. [#319](https://github.com/pulp/pulp-ui/pull/319)
+* FEAT: Migration from ESLint v9 to v10 [#348](https://github.com/pulp/pulp-ui/pull/348)
+* Add shared base types for Repositories, Publications, Remotes and Distributions [#307](https://github.com/pulp/pulp-ui/pull/307)
+* chore: Migration from Lingui v5 to v6 [#350](https://github.com/pulp/pulp-ui/pull/350)
+* chore(major): migrate from cypress v15 to cypress v16 [#358](https://github.com/pulp/pulp-ui/pull/358)
+* PulpStatus - fix storage gauge when the backend reports no capacity [#346](https://github.com/pulp/pulp-ui/pull/346)
+* chore: refresh README/SECURITY.md and harden npm install-script policy [#360](https://github.com/pulp/pulp-ui/pull/360)
+* Share one SyncModal between the repository sync actions [#363](https://github.com/pulp/pulp-ui/pull/363)
+* Add deb repository and remote pages [#347](https://github.com/pulp/pulp-ui/pull/347)
+* chore: fixed circular dependency issues within actions, utilities and api. [#366](https://github.com/pulp/pulp-ui/pull/366)
+* feat: add @pulp-ui/sdk package with orval codegen and pulpFetch mutator [#367](https://github.com/pulp/pulp-ui/pull/367)
+* feat: added anti-corruption layer for login entities [#384](https://github.com/pulp/pulp-ui/pull/384)
+* feat: adds a hardened, per job-concern model for all pull requests [#397](https://github.com/pulp/pulp-ui/pull/397)
+* build(deps-dev): bump the eslint group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/pulp/pulp-ui/pull/389
+
+### New Contributors
+* @ggainey made their first contribution in https://github.com/pulp/pulp-ui/pull/319
+* @Redtigercod4 made their first contribution in https://github.com/pulp/pulp-ui/pull/348
+* @warisshaikh1 made their first contribution in https://github.com/pulp/pulp-ui/pull/346
+
+**Full Changelog**: https://github.com/pulp/pulp-ui/compare/v0.1.24...v0.1.26
+
+---
+
 ## 0.1.24 (2026-01-02) {: #0.1.24 }
 
 ### What's Changed

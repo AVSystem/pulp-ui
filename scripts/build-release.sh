@@ -8,9 +8,10 @@
 #   pulp-ui-<version>.tar.gz       the same files at the archive root
 #
 # Run it from a checkout, or from an unpacked source archive, of this
-# repository with node_modules installed. The build stamps the full commit it
-# was built from: that comes from git, so an unpacked archive (which has no git
-# metadata) must provide PULP_UI_COMMIT, a 40-character lowercase commit hash.
+# repository with node_modules installed. It builds the sdk workspace first. The
+# build stamps the full commit it was built from: that comes from git, so an
+# unpacked archive (which has no git metadata) must provide PULP_UI_COMMIT, a
+# 40-character lowercase commit hash.
 # PULP_UI_DATE optionally overrides the commit date shown in the stamp.
 # PULP_UI_CONFIG optionally names a pulp-ui-config.json to ship; it is read by
 # the build configuration and only passed through the environment here.
@@ -21,6 +22,10 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
+# The application imports the sdk from its build output. An install with
+# scripts disabled never runs the root prepare script, so nothing else would
+# build the sdk before the application build needs it.
+npm run build -w @pulp-ui/sdk
 npm run build
 
 rm -rf dist/sourcemaps
