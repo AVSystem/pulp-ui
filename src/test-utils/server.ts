@@ -38,3 +38,14 @@ export const defaultHandlers = [
 ];
 
 export const server = setupServer(...defaultHandlers);
+
+// Every request no handler answered, as "METHOD URL", in the order it was
+// sent. Screens catch failed reads, so the rejection msw produces for an
+// unmocked request never reaches the test; the setup records the request and
+// fails the test that sent it, whatever the screen did with the rejection.
+export const unhandledRequests: string[] = [];
+
+// Returns the requests recorded so far and clears the record.
+export function takeUnhandledRequests(): string[] {
+  return unhandledRequests.splice(0, unhandledRequests.length);
+}
