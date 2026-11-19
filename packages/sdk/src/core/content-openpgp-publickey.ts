@@ -46,6 +46,7 @@ import type {
 } from './models/unset-label.zod.ts';
 
 import { pulpFetch } from '../mutator/pulp-fetch.ts';
+import { pulpFormData } from '../mutator/form-data.ts';
 
 
 export const getContentCoreOpenpgpPublickeyListUrl = (params?: ContentCoreOpenpgpPublickeyListParams,) => {
@@ -100,29 +101,7 @@ export const getContentCoreOpenpgpPublickeyCreateUrl = () => {
  * @summary Create an open pgp public key
  */
 export const contentCoreOpenpgpPublickeyCreate = async (openPGPPublicKey: OpenPGPPublicKey, options?: Parameters<typeof pulpFetch>[1]): Promise<AsyncOperationResponse> => {
-    const formData = new FormData();
-if(openPGPPublicKey.downloader_config !== undefined) {
- formData.append(`downloader_config`, JSON.stringify(openPGPPublicKey.downloader_config));
- }
-if(openPGPPublicKey.file !== undefined) {
- formData.append(`file`, openPGPPublicKey.file);
- }
-if(openPGPPublicKey.file_url !== undefined) {
- formData.append(`file_url`, openPGPPublicKey.file_url);
- }
-if(openPGPPublicKey.overwrite !== undefined) {
- formData.append(`overwrite`, openPGPPublicKey.overwrite.toString())
- }
-if(openPGPPublicKey.pulp_labels !== undefined) {
- formData.append(`pulp_labels`, JSON.stringify(openPGPPublicKey.pulp_labels));
- }
-if(openPGPPublicKey.repository !== undefined) {
- formData.append(`repository`, openPGPPublicKey.repository);
- }
-if(openPGPPublicKey.upload !== undefined) {
- formData.append(`upload`, openPGPPublicKey.upload);
- }
-
+    const formData = pulpFormData(openPGPPublicKey)
   return pulpFetch<AsyncOperationResponse>(getContentCoreOpenpgpPublickeyCreateUrl(),
   {
     ...options,

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'orval';
-import { prepareSpec } from './scripts/prepare-spec.mjs';
+import { APPS, prepareSpec } from './scripts/prepare-spec.mjs';
 import { SCHEMA_SOURCES } from './scripts/schema-sources.mjs';
 
 // Generation is offline: every input is a committed schema file, never a
@@ -40,6 +40,12 @@ const app = (name: string) => ({
         path: './src/mutator/pulp-fetch.ts',
         name: 'pulpFetch',
       },
+      // A multipart body may hold object-valued fields next to files; the
+      // builder sends them as JSON text, which plain FormData would not.
+      formData: {
+        path: './src/mutator/form-data.ts',
+        name: 'pulpFormData',
+      },
       fetch: {
         includeHttpResponseReturnType: false,
       },
@@ -62,6 +68,6 @@ const app = (name: string) => ({
   },
 });
 
-export default defineConfig({
-  core: app('core'),
-});
+export default defineConfig(
+  Object.fromEntries(APPS.map((name: string) => [name, app(name)])),
+);

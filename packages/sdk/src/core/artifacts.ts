@@ -26,6 +26,7 @@ import type {
 } from './models/artifacts/paginated-artifact-response-list.zod.ts';
 
 import { pulpFetch } from '../mutator/pulp-fetch.ts';
+import { pulpFormData } from '../mutator/form-data.ts';
 
 
 export const getArtifactsListUrl = (params?: ArtifactsListParams,) => {
@@ -114,30 +115,7 @@ export const getArtifactsCreateUrl = () => {
  * @summary Create an artifact
  */
 export const artifactsCreate = async (artifact: Artifact, options?: Parameters<typeof pulpFetch>[1]): Promise<ArtifactResponse> => {
-    const formData = new FormData();
-formData.append(`file`, artifact.file);
-if(artifact.md5 !== undefined && artifact.md5 !== null) {
- formData.append(`md5`, artifact.md5);
- }
-if(artifact.sha1 !== undefined && artifact.sha1 !== null) {
- formData.append(`sha1`, artifact.sha1);
- }
-if(artifact.sha224 !== undefined && artifact.sha224 !== null) {
- formData.append(`sha224`, artifact.sha224);
- }
-if(artifact.sha256 !== undefined && artifact.sha256 !== null) {
- formData.append(`sha256`, artifact.sha256);
- }
-if(artifact.sha384 !== undefined && artifact.sha384 !== null) {
- formData.append(`sha384`, artifact.sha384);
- }
-if(artifact.sha512 !== undefined && artifact.sha512 !== null) {
- formData.append(`sha512`, artifact.sha512);
- }
-if(artifact.size !== undefined) {
- formData.append(`size`, artifact.size.toString())
- }
-
+    const formData = pulpFormData(artifact)
   return pulpFetch<ArtifactResponse>(getArtifactsCreateUrl(),
   {
     ...options,

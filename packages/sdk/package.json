@@ -26,7 +26,40 @@
     "./core/*": {
       "types": "./dist/core/*.d.ts",
       "default": "./dist/core/*.js"
-    }
+    },
+    "./ansible/*": {
+      "types": "./dist/ansible/*.d.ts",
+      "default": "./dist/ansible/*.js"
+    },
+    "./certguard/*": {
+      "types": "./dist/certguard/*.d.ts",
+      "default": "./dist/certguard/*.js"
+    },
+    "./deb/*": {
+      "types": "./dist/deb/*.d.ts",
+      "default": "./dist/deb/*.js"
+    },
+    "./file/*": {
+      "types": "./dist/file/*.d.ts",
+      "default": "./dist/file/*.js"
+    },
+    "./maven/*": {
+      "types": "./dist/maven/*.d.ts",
+      "default": "./dist/maven/*.js"
+    },
+    "./npm/*": {
+      "types": "./dist/npm/*.d.ts",
+      "default": "./dist/npm/*.js"
+    },
+    "./python/*": {
+      "types": "./dist/python/*.d.ts",
+      "default": "./dist/python/*.js"
+    },
+    "./rpm/*": {
+      "types": "./dist/rpm/*.d.ts",
+      "default": "./dist/rpm/*.js"
+    },
+    "./pulp-versions.json": "./pulp-versions.json"
   },
   "sideEffects": false
 }

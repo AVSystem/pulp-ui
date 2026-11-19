@@ -62,6 +62,7 @@ import type {
 } from './models/uploads/uploads-read-params.zod.ts';
 
 import { pulpFetch } from '../mutator/pulp-fetch.ts';
+import { pulpFormData } from '../mutator/form-data.ts';
 
 
 export const getUploadsListUrl = (params?: UploadsListParams,) => {
@@ -218,12 +219,7 @@ export const getUploadsUpdateUrl = (uploadHref: string,) => {
  */
 export const uploadsUpdate = async (uploadHref: string,
     uploadChunk: UploadChunk, options?: Parameters<typeof pulpFetch>[1]): Promise<UploadResponse> => {
-    const formData = new FormData();
-formData.append(`file`, uploadChunk.file);
-if(uploadChunk.sha256 !== undefined && uploadChunk.sha256 !== null) {
- formData.append(`sha256`, uploadChunk.sha256);
- }
-
+    const formData = pulpFormData(uploadChunk)
   return pulpFetch<UploadResponse>(getUploadsUpdateUrl(uploadHref),
   {
     ...options,
