@@ -1,5 +1,6 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
+import { useNavigate } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
@@ -7,7 +8,7 @@ import {
   serveMyPermissions,
   servePermissions,
 } from 'src/test-utils/permissions';
-import { listOf, task } from 'src/test-utils/pulp';
+import { listOf, taskPage, taskRow } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -93,6 +94,98 @@ describe('the task list', () => {
   });
 });
 
+function Navigate({ to }: { to: string }) {
+  const navigate = useNavigate();
+  return (
+    <button type='button' onClick={() => navigate(to)}>
+      {`go ${to}`}
+    </button>
+  );
+}
+
+describe('what the task list reads', () => {
+  it('asks for the page, order and filters of the address', async () => {
+    // the second page of five rows holds the sixth row and the ones after it
+    const list = listOf(TASKS, [
+      ...Array.from({ length: 5 }, (_, n) =>
+        taskRow({ name: `zz.first-${n}` }),
+      ),
+      taskRow({ name: 'zz.alpha' }),
+    ]);
+    server.use(list.handler);
+    renderWithProviders(
+      <AppContextProvider>
+        <TaskListView />
+      </AppContextProvider>,
+      {
+        route:
+          '/task-management?name__contains=alpha&state=running&page=2&page_size=5&sort=name',
+      },
+    );
+
+    await screen.findByText('zz.alpha');
+
+    expect(list.queries).toHaveLength(1);
+    expect(Object.fromEntries(list.queries[0])).toEqual({
+      offset: '5',
+      limit: '5',
+      ordering: 'name',
+      name__contains: 'alpha',
+      state: 'running',
+    });
+  });
+
+  it('lists ten rows, newest first, when the address names nothing', async () => {
+    const list = listOf(TASKS, [taskRow({ name: 'zz.alpha' })]);
+    server.use(list.handler);
+    renderTasks();
+
+    await screen.findByText('zz.alpha');
+
+    expect(Object.fromEntries(list.queries[0])).toEqual({
+      offset: '0',
+      limit: '10',
+      ordering: '-pulp_created',
+    });
+  });
+
+  it('shows only the rows of the newest filter when an older answer arrives last', async () => {
+    let releaseOlder: () => void = () => undefined;
+    const older = new Promise<void>((resolve) => {
+      releaseOlder = resolve;
+    });
+    server.use(
+      http.get(`*${TASKS}`, async ({ request }) => {
+        const filter = new URL(request.url).searchParams.get('name__contains');
+        if (filter === null) {
+          await older;
+          return HttpResponse.json(taskPage([taskRow({ name: 'zz.older' })]));
+        }
+        return HttpResponse.json(taskPage([taskRow({ name: 'zz.newer' })]));
+      }),
+    );
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <Navigate to='/task-management?name__contains=newer' />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management' },
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'go /task-management?name__contains=newer',
+      }),
+    );
+    expect(await screen.findByText('zz.newer')).toBeInTheDocument();
+    releaseOlder();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+
+    expect(screen.getByText('zz.newer')).toBeInTheDocument();
+    expect(screen.queryByText('zz.older')).toBeNull();
+  });
+});
+
 const ADMIN_ACTIONS = ['Orphan cleanup', 'Repair', 'Purge tasks'];
 
 describe('the toolbar actions of the task list', () => {
@@ -108,7 +201,7 @@ describe('the toolbar actions of the task list', () => {
   }
 
   function renderToolbar() {
-    server.use(listOf(TASKS, [task({ name: 'zz.alpha' })]).handler);
+    server.use(listOf(TASKS, [taskRow({ name: 'zz.alpha' })]).handler);
     return renderWithProviders(
       <AppContextProvider>
         <Known />
@@ -200,9 +293,9 @@ describe('the stop action of the task list', () => {
   });
 
   const CHANGE = 'core.change_task';
-  const running = task({ name: 'zz.running', state: 'running' });
-  const waiting = task({ name: 'zz.waiting', state: 'waiting' });
-  const done = task({ name: 'zz.done', state: 'completed' });
+  const running = taskRow({ name: 'zz.running', state: 'running' });
+  const waiting = taskRow({ name: 'zz.waiting', state: 'waiting' });
+  const done = taskRow({ name: 'zz.done', state: 'completed' });
 
   function Known() {
     const { permissionsReady } = useAppContext();
@@ -345,7 +438,7 @@ describe('the task list after the same user signs in again', () => {
     server.use(
       listOf(
         TASKS,
-        names.map((name) => task({ name })),
+        names.map((name) => taskRow({ name })),
       ).handler,
     );
 
@@ -415,4 +508,314 @@ describe('the task list after the same user signs in again', () => {
     recorded.stop();
     await waitFor(() => expect(screen.getByText('zz.alpha')).toBeVisible());
   });
+});
+
+describe('a task list read that fails', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  const broken = () =>
+    http.get(`*${TASKS}`, () =>
+      HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+    );
+
+  it('offers Retry instead of saying there are no tasks, and lists after a fixed read', async () => {
+    server.use(broken());
+    const { user } = renderTasks();
+
+    expect(
+      await screen.findByText('Tasks list could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('No tasks yet')).toBeNull();
+    expect(screen.queryByText('Tasks will appear once created.')).toBeNull();
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+
+    server.use(listOf(TASKS, [taskRow({ name: 'zz.alpha' })]).handler);
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByText('zz.alpha')).toBeInTheDocument();
+    expect(screen.queryByText('Tasks list could not be displayed.')).toBeNull();
+  });
+
+  it('shows a read answered in the wrong shape as a failed read', async () => {
+    server.use(
+      http.get(`*${TASKS}`, () =>
+        HttpResponse.json({
+          count: 1,
+          next: null,
+          previous: null,
+          results: [{ name: 'zz.nameless-address', state: 'running' }],
+        }),
+      ),
+    );
+    renderTasks();
+
+    expect(
+      await screen.findByText('Tasks list could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+    expect(screen.queryByText('No tasks yet')).toBeNull();
+  });
+
+  it('keeps the rows and adds one alert, no empty state, when a read of the same list fails', async () => {
+    serveSignIn();
+    server.use(listOf(TASKS, [taskRow({ name: 'zz.alpha' })]).handler);
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <SignInAgain />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management', signedIn: true },
+    );
+    await screen.findByText('zz.alpha');
+    await signedIn();
+    server.use(broken());
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(
+      await screen.findByText('Tasks list could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('zz.alpha')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('Tasks list could not be displayed.'),
+    ).toHaveLength(1);
+    expect(screen.queryByText('No tasks yet')).toBeNull();
+    expect(screen.queryByText('Tasks will appear once created.')).toBeNull();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('shows no rows of another filter when the read for the new filter fails', async () => {
+    server.use(
+      http.get(`*${TASKS}`, ({ request }) =>
+        new URL(request.url).searchParams.has('name__contains')
+          ? HttpResponse.json({ detail: 'broken' }, { status: 500 })
+          : HttpResponse.json(taskPage([taskRow({ name: 'zz.unfiltered' })])),
+      ),
+    );
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <Navigate to='/task-management?name__contains=beta' />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management' },
+    );
+    await screen.findByText('zz.unfiltered');
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'go /task-management?name__contains=beta',
+      }),
+    );
+
+    expect(
+      await screen.findByText('Tasks list could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('zz.unfiltered')).toBeNull();
+    expect(screen.queryByText('No tasks yet')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+  });
+
+  it('keeps the rows on screen while the next page of the same list loads', async () => {
+    let releaseSecond: () => void = () => undefined;
+    const second = new Promise<void>((resolve) => {
+      releaseSecond = resolve;
+    });
+    server.use(
+      http.get(`*${TASKS}`, async ({ request }) => {
+        const offset = new URL(request.url).searchParams.get('offset');
+        if (offset === '10') {
+          await second;
+          return HttpResponse.json(
+            taskPage([taskRow({ name: 'zz.page-two' })], { count: 11 }),
+          );
+        }
+        return HttpResponse.json(
+          taskPage([taskRow({ name: 'zz.page-one' })], { count: 11 }),
+        );
+      }),
+    );
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <Navigate to='/task-management?page=2' />
+        <TaskListView />
+      </AppContextProvider>,
+      { route: '/task-management' },
+    );
+    await screen.findByText('zz.page-one');
+
+    await user.click(
+      screen.getByRole('button', { name: 'go /task-management?page=2' }),
+    );
+
+    expect(screen.getByText('zz.page-one')).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    releaseSecond();
+    expect(await screen.findByText('zz.page-two')).toBeInTheDocument();
+    expect(screen.queryByText('zz.page-one')).toBeNull();
+  });
+});
+
+describe('the writes of the task list', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  // Serves the list and records every read and every write, in order.
+  function serveWith(
+    write: { path: string; method: 'post' | 'patch'; status?: number },
+    rows = [taskRow({ name: 'zz.running', state: 'running' })],
+  ) {
+    const calls: string[] = [];
+    const bodies: unknown[] = [];
+    server.use(
+      http.get(`*${TASKS}`, () => {
+        calls.push('GET list');
+        return HttpResponse.json(taskPage(rows));
+      }),
+      http[write.method](`*${write.path}`, async ({ request }) => {
+        calls.push(`${request.method} ${new URL(request.url).pathname}`);
+        bodies.push(await request.json());
+        return write.status && write.status >= 400
+          ? HttpResponse.json({ detail: 'refused' }, { status: write.status })
+          : write.method === 'patch'
+            ? HttpResponse.json({ ...rows[0], state: 'canceling' })
+            : HttpResponse.json(
+                { task: '/pulp/api/v3/tasks/started/' },
+                { status: 202 },
+              );
+      }),
+    );
+    return { calls, bodies, rows };
+  }
+
+  async function stopFirst(user) {
+    await user.click(await screen.findByRole('button', { name: 'Stop task' }));
+    await user.click(await screen.findByRole('button', { name: 'Yes, stop' }));
+  }
+
+  it('stops a task with one PATCH to its address and reads the list once more', async () => {
+    servePermissions({ isStaff: true });
+    const rows = [taskRow({ name: 'zz.running', state: 'running' })];
+    const { calls, bodies } = serveWith(
+      { path: rows[0].pulp_href, method: 'patch' },
+      rows,
+    );
+    const { user } = renderTasks();
+
+    await stopFirst(user);
+
+    expect(
+      await screen.findByText('Task "zz.running" stopped successfully.'),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(calls).toHaveLength(3));
+    expect(calls).toEqual([
+      'GET list',
+      `PATCH ${rows[0].pulp_href}`,
+      'GET list',
+    ]);
+    expect(bodies).toEqual([{ state: 'canceled' }]);
+  });
+
+  it('sends the stop once however often the confirm button is pressed', async () => {
+    servePermissions({ isStaff: true });
+    const rows = [taskRow({ name: 'zz.running', state: 'running' })];
+    const { calls } = serveWith(
+      { path: rows[0].pulp_href, method: 'patch' },
+      rows,
+    );
+    const { user } = renderTasks();
+    await user.click(await screen.findByRole('button', { name: 'Stop task' }));
+    const confirm = await screen.findByRole('button', { name: 'Yes, stop' });
+
+    await user.dblClick(confirm);
+
+    await screen.findByText('Task "zz.running" stopped successfully.');
+    expect(calls.filter((call) => call.startsWith('PATCH'))).toHaveLength(1);
+  });
+
+  it('shows the failure of a stop once and sends it once', async () => {
+    servePermissions({ isStaff: true });
+    const rows = [taskRow({ name: 'zz.running', state: 'running' })];
+    const { calls } = serveWith(
+      { path: rows[0].pulp_href, method: 'patch', status: 500 },
+      rows,
+    );
+    const { user } = renderTasks();
+
+    await stopFirst(user);
+
+    expect(await screen.findByText(/could not be stopped/)).toBeInTheDocument();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+    expect(calls.filter((call) => call.startsWith('PATCH'))).toHaveLength(1);
+    expect(screen.getByText('zz.running')).toBeInTheDocument();
+  });
+
+  const MAINTENANCE = [
+    {
+      button: 'Orphan cleanup',
+      path: '/pulp/api/v3/orphans/cleanup/',
+      started: 'Orphan cleanup started',
+      failed: 'Orphan cleanup could not be started',
+      body: { orphan_protection_time: 1440 },
+    },
+    {
+      button: 'Repair',
+      path: '/pulp/api/v3/repair/',
+      started: 'Repair artifact storage started',
+      failed: 'Repair artifact storage could not be started',
+      body: { verify_checksums: true },
+    },
+    {
+      button: 'Purge tasks',
+      path: '/pulp/api/v3/tasks/purge/',
+      started: 'Purge tasks started',
+      failed: 'Purge tasks could not be started',
+      body: { states: ['completed'] },
+    },
+  ];
+
+  for (const action of MAINTENANCE) {
+    it(`${action.button} sends one POST and reads the list again when it succeeds`, async () => {
+      servePermissions({ isStaff: true });
+      const { calls, bodies } = serveWith({
+        path: action.path,
+        method: 'post',
+      });
+      const { user } = renderTasks();
+      await screen.findByText('zz.running');
+
+      await user.click(
+        await screen.findByRole('button', { name: action.button }),
+      );
+      await user.click(await screen.findByRole('button', { name: 'Yes' }));
+
+      expect(await screen.findByText(action.started)).toBeInTheDocument();
+      await waitFor(() => expect(calls).toHaveLength(3));
+      expect(calls).toEqual(['GET list', `POST ${action.path}`, 'GET list']);
+      expect(bodies[0]).toMatchObject(action.body);
+    });
+
+    it(`${action.button} shows its failure once, sends once and does not read the list again`, async () => {
+      servePermissions({ isStaff: true });
+      const { calls } = serveWith({
+        path: action.path,
+        method: 'post',
+        status: 500,
+      });
+      const { user } = renderTasks();
+      await screen.findByText('zz.running');
+
+      await user.click(
+        await screen.findByRole('button', { name: action.button }),
+      );
+      await user.click(await screen.findByRole('button', { name: 'Yes' }));
+
+      expect(await screen.findByText(action.failed)).toBeInTheDocument();
+      await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
+      expect(calls).toEqual(['GET list', `POST ${action.path}`]);
+    });
+  }
 });
