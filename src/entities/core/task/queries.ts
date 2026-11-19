@@ -24,9 +24,12 @@ export interface TaskReadOptions {
 }
 
 // Whether two lists differ in the page only, so the rows of the one are a fair
-// stand-in for the other while it loads.
-function samePageOfSameList(a: TaskListParams, b: TaskListParams): boolean {
+// stand-in for the other while it loads. The same page of the same list is not
+// a stand-in but the same read: when the cache was emptied for another account
+// the previous rows belong to the account that left and are never shown.
+function otherPageOfSameList(a: TaskListParams, b: TaskListParams): boolean {
   return (
+    a.page !== b.page &&
     a.page_size === b.page_size &&
     a.sort === b.sort &&
     a.name__contains === b.name__contains &&
@@ -60,7 +63,7 @@ export function useTasks(
               : refetchInterval,
     placeholderData: (previous, previousQuery) => {
       const before = previousQuery?.queryKey[4] as TaskListParams | undefined;
-      return before && samePageOfSameList(before, params)
+      return before && otherPageOfSameList(before, params)
         ? previous
         : undefined;
     },

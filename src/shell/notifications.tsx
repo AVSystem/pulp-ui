@@ -12,6 +12,7 @@ import {
 } from '@patternfly/react-core';
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import { useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import {
   type KeyboardEvent,
@@ -21,17 +22,16 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Link } from 'react-router';
-import { TaskAPI } from 'src/api/task';
 import { EmptyStateCustom } from 'src/components/empty-state-custom';
+import type { Task, TaskListParams } from 'src/entities/core/task/model';
+import { taskKeys, useTasks } from 'src/entities/core/task/queries';
 import { language } from 'src/l10n';
 import { Paths, formatPath } from 'src/paths';
-import { isSuspended, subscribe } from 'src/session/session-events';
 import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
-import { isSessionEnd } from 'src/utilities/request-error';
+import { isSessionEnd, requestErrorStatus } from 'src/utilities/request-error';
 
 // Where the browser remembers when the panel was last opened.
 export const NOTIFICATIONS_SEEN_KEY = 'pulp-notifications-seen';
@@ -51,12 +51,20 @@ const BADGE_CAP = 99;
 const BELL_ID = 'pulp-notifications-bell';
 const HEADER_ID = 'pulp-notifications-header';
 
-interface IEndedTask {
-  pulp_href: string;
-  name: string;
-  state: string;
-  finished_at: string;
-}
+// A task that has a finish time: the read asks for tasks that finished, so a
+// row without one is not listed.
+type IEndedTask = Task & { finished_at: string };
+
+// What the panel lists: the tasks that ended recently, newest first.
+const LIST_PARAMS: TaskListParams = {
+  state__in: 'failed,completed,canceled',
+  finishedWithinMs: WINDOW_MS,
+  sort: '-finished_at',
+  page_size: LIST_SIZE,
+};
+
+const hasEnded = (task: Task): task is IEndedTask =>
+  typeof task.finished_at === 'string';
 
 type Status = 'loading' | 'ready' | 'error' | 'forbidden';
 
@@ -128,11 +136,11 @@ const endedMillis = (task: IEndedTask) =>
 
 // The tasks that ended recently among those the signed-in user can see, the
 // panel's open state and the read marker kept in this browser. Nothing is
-// stored on the server. The list is asked for when the provider is enabled,
-// every minute while the page is in view, and when the panel opens. While the
+// stored on the server. The list is read when the provider is enabled, every
+// minute while the page is in view, and when the panel opens. While the
 // session has ended and the sign-in dialog is open nothing is asked: the list
 // and the bell stay as they are, and the list is read once as soon as the user
-// has signed in again.
+// has signed in again. The list of one account is never shown to another.
 export const NotificationsProvider = ({
   enabled,
   children,
@@ -140,56 +148,46 @@ export const NotificationsProvider = ({
   enabled: boolean;
   children: ReactNode;
 }) => {
-  const [status, setStatus] = useState<Status>('loading');
-  const [tasks, setTasks] = useState<IEndedTask[]>([]);
+  const queryClient = useQueryClient();
   const [seen, setSeen] = useState<number | null>(null);
   const [isOpen, setOpen] = useState(false);
   // The marker as it was when the panel opened.
   const [openedAgainst, setOpenedAgainst] = useState<number | null>(null);
-  // Identifies the latest request, so an answer to an earlier one, or one that
-  // arrives after the provider is gone, is ignored.
-  const latest = useRef(0);
-  const statusRef = useRef<Status>('loading');
-  const settle = useCallback((next: Status) => {
-    statusRef.current = next;
-    setStatus(next);
-  }, []);
+  const list = useTasks(LIST_PARAMS, {
+    enabled,
+    refetchInterval: NOTIFICATIONS_REFRESH_MS,
+  });
 
-  const load = useCallback(() => {
-    if (isSuspended()) {
-      return;
+  // A refusal takes the bell away for good; a failure of the first read is
+  // shown with a retry; a later failure keeps the list the panel already has.
+  // The end of the session is not a failure of the list: the sign-in dialog
+  // explains it and the list is read again afterwards.
+  let status: Status = 'loading';
+  if (enabled) {
+    if (requestErrorStatus(list.error) === 403) {
+      status = 'forbidden';
+    } else if (list.data) {
+      status = 'ready';
+    } else if (list.isError && !isSessionEnd(list.error)) {
+      status = 'error';
     }
+  }
 
-    const current = ++latest.current;
-    const since = new Date(Date.now() - WINDOW_MS).toISOString();
+  const tasks = useMemo(
+    () => (enabled && list.data ? list.data.results.filter(hasEnded) : []),
+    [enabled, list.data],
+  );
 
-    TaskAPI.list({
-      state__in: 'failed,completed,canceled',
-      finished_at__gte: since,
-      sort: '-finished_at',
-      page_size: LIST_SIZE,
-    }).then(
-      ({ data }) => {
-        if (current === latest.current) {
-          setTasks(Array.isArray(data?.results) ? data.results : []);
-          settle('ready');
-        }
-      },
-      (error) => {
-        if (current !== latest.current || isSessionEnd(error)) {
-          // An ended session is not a failure of the list: the sign-in dialog
-          // explains it and the list is read again afterwards.
-          return;
-        }
-        if (error?.response?.status === 403) {
-          settle('forbidden');
-        } else if (statusRef.current !== 'ready') {
-          // A later failure keeps the list the panel already has.
-          settle('error');
-        }
-      },
-    );
-  }, [settle]);
+  // Reads the list again now, unless nobody is signed in or the session has
+  // ended: marking the read out of date reads only what is in use.
+  const refresh = useCallback(
+    () =>
+      void queryClient.invalidateQueries({
+        queryKey: taskKeys.list(LIST_PARAMS),
+        exact: true,
+      }),
+    [queryClient],
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -197,32 +195,16 @@ export const NotificationsProvider = ({
       // with a closed panel and no list.
       setOpen(false);
       setOpenedAgainst(null);
-      setTasks([]);
       setSeen(null);
-      settle('loading');
-      return undefined;
+      queryClient.removeQueries({
+        queryKey: taskKeys.list(LIST_PARAMS),
+        exact: true,
+      });
+      return;
     }
 
     setSeen(startingSeen());
-    load();
-    const timer = setInterval(() => {
-      if (
-        document.visibilityState === 'visible' &&
-        statusRef.current !== 'forbidden'
-      ) {
-        load();
-      }
-    }, NOTIFICATIONS_REFRESH_MS);
-    // Notified on every change of the session; only the one that lifts the
-    // pause starts a round.
-    const unsubscribe = subscribe(load);
-
-    return () => {
-      clearInterval(timer);
-      unsubscribe();
-      latest.current++;
-    };
-  }, [enabled, load, settle]);
+  }, [enabled, queryClient]);
 
   const open = useCallback(() => {
     const now = Date.now();
@@ -230,8 +212,8 @@ export const NotificationsProvider = ({
     setSeen(now);
     writeSeen(now);
     setOpen(true);
-    load();
-  }, [seen, load]);
+    refresh();
+  }, [seen, refresh]);
 
   const close = useCallback((restoreFocus = false) => {
     setOpen(false);
@@ -240,10 +222,7 @@ export const NotificationsProvider = ({
     }
   }, []);
 
-  const retry = useCallback(() => {
-    settle('loading');
-    load();
-  }, [load, settle]);
+  const retry = refresh;
 
   const reference = isOpen ? openedAgainst : seen;
   const isUnread = useCallback(
