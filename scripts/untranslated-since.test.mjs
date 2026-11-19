@@ -66,6 +66,47 @@ describe('parsePo', () => {
   });
 });
 
+describe('parsePo with gettext plural entries', () => {
+  const plural = (forms, rest = '') =>
+    HEADER +
+    'msgid "One file"\nmsgid_plural "{count} files"\n' +
+    forms.map((form, n) => `msgstr[${n}] "${form}"\n`).join('') +
+    rest;
+
+  it('reads the forms of a plural entry and joins them', () => {
+    const map = parsePo(plural(['Un archivo', '{count} archivos']));
+    expect([...map]).toEqual([
+      ['One file', 'Un archivo\u0001{count} archivos'],
+    ]);
+  });
+
+  it('holds an empty translation when any form is empty', () => {
+    const map = parsePo(plural(['Un archivo', '']));
+    expect([...map]).toEqual([['One file', '']]);
+  });
+
+  it('joins continuation lines to the form they follow, not to the id', () => {
+    const text =
+      HEADER +
+      'msgid "One file"\nmsgid_plural "Many "\n"files"\n' +
+      'msgstr[0] "Un "\n"archivo"\nmsgstr[1] "Muchos"\n';
+    expect([...parsePo(text)]).toEqual([
+      ['One file', 'Un archivo\u0001Muchos'],
+    ]);
+  });
+
+  it('keeps the entries after a plural entry intact', () => {
+    const map = parsePo(
+      plural(
+        ['Un archivo', '{count} archivos'],
+        '\nmsgid "Go back"\nmsgstr "Volver"\n',
+      ),
+    );
+    expect([...map.keys()]).toEqual(['One file', 'Go back']);
+    expect(map.get('Go back')).toBe('Volver');
+  });
+});
+
 describe('newIds', () => {
   it('lists the ids of the new catalog that the old one lacks, in order', () => {
     const oldMap = parsePo(catalog(['A', 'A'], ['B', 'B']));
@@ -90,6 +131,51 @@ describe('placeholders', () => {
 
   it('returns an empty list for plain text', () => {
     expect(placeholders('Go back')).toEqual([]);
+  });
+
+  it('names a plural by its argument only, not by its branch text', () => {
+    expect(
+      placeholders(
+        '{0, plural, =0 {No results} one {# result} other {# results}}',
+      ),
+    ).toEqual(['{0}']);
+  });
+
+  it('names a select by its argument only', () => {
+    expect(
+      placeholders('{kind, select, repo {A repository} other {Something}}'),
+    ).toEqual(['{kind}']);
+  });
+
+  it('collects arguments and tags nested in the branches once', () => {
+    expect(
+      placeholders(
+        '{count, plural, one {Failed for "{name}".} other {Failed for "{name}" <0>now</0>.}}',
+      ),
+    ).toEqual(['</0>', '<0>', '{count}', '{name}']);
+  });
+
+  it('collects the arguments around a plural', () => {
+    expect(
+      placeholders(
+        '{user}: {count, plural, one {# task} other {# tasks}} <0/>',
+      ),
+    ).toEqual(['{count}', '{user}']);
+  });
+
+  it('names a formatted argument by its name', () => {
+    expect(placeholders('{when, date, short} {n, number}')).toEqual([
+      '{n}',
+      '{when}',
+    ]);
+  });
+
+  it('ignores a brace quoted with an apostrophe', () => {
+    expect(placeholders("Type '{' to start {name}")).toEqual(['{name}']);
+  });
+
+  it('does not fail on an unbalanced brace', () => {
+    expect(placeholders('Broken {name')).toEqual(['{name}']);
   });
 });
 
@@ -118,6 +204,58 @@ describe('problems', () => {
     );
     expect(problems(ids, cat)).toEqual([
       { id: 'Role {name}', kind: 'placeholders' },
+    ]);
+  });
+
+  it('accepts a correct translation of a plural', () => {
+    const id = '{0, plural, =0 {No results} one {# result} other {# results}}';
+    const cat = parsePo(
+      catalog([
+        id,
+        '{0, plural, =0 {Sin resultados} one {# resultado} other {# resultados}}',
+      ]),
+    );
+    expect(problems([id], cat)).toEqual([]);
+  });
+
+  it('accepts a translation that has fewer plural branches', () => {
+    const id =
+      '{count, plural, one {# task for {name}} other {# tasks for {name}}}';
+    const cat = parsePo(
+      catalog([id, '{count, plural, other {# tareas para {name}}}']),
+    );
+    expect(problems([id], cat)).toEqual([]);
+  });
+
+  it('reports a plural translation that drops an argument inside a branch', () => {
+    const id =
+      '{0, plural, one {Failed to add a collection to \\"{repositoryName}\\".} other {Failed to add collections to \\"{repositoryName}\\".}}';
+    const cat = parsePo(
+      catalog([
+        id,
+        '{0, plural, one {No se pudo agregar una coleccion.} other {No se pudo agregar colecciones.}}',
+      ]),
+    );
+    expect(problems([id], cat)).toEqual([{ id, kind: 'placeholders' }]);
+  });
+
+  it('reports a plural translation that renames the counted argument', () => {
+    const id = '{count, plural, one {# task} other {# tasks}}';
+    const cat = parsePo(
+      catalog([id, '{n, plural, one {# tarea} other {# tareas}}']),
+    );
+    expect(problems([id], cat)).toEqual([{ id, kind: 'placeholders' }]);
+  });
+
+  it('reports an empty gettext plural entry as untranslated and compares the forms of a full one', () => {
+    const text =
+      HEADER +
+      'msgid "{count} file"\nmsgid_plural "{count} files"\nmsgstr[0] "{count} archivo"\nmsgstr[1] "{total} archivos"\n\n' +
+      'msgid "One tag"\nmsgid_plural "Tags"\nmsgstr[0] "Una etiqueta"\nmsgstr[1] ""\n';
+    const cat = parsePo(text);
+    expect(problems(['{count} file', 'One tag'], cat)).toEqual([
+      { id: '{count} file', kind: 'placeholders' },
+      { id: 'One tag', kind: 'untranslated' },
     ]);
   });
 
