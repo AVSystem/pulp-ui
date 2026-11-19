@@ -299,7 +299,7 @@ msgstr "<0>{name}</0>이/가 영구적으로 삭제됩니다."
 #~ msgid "<0>Removed in version</0> {0}"
 #~ msgstr ""
 
-#. placeholder {0}: roleToEdit.name
+#. placeholder {0}: roleToDelete.name
 #: src/containers/role-management/role-list.tsx
 msgid "<0>Role <1>{0}</1> will be permanently deleted.</0><2>This will also remove all associated permissions under this role.</2>"
 msgstr "<0>역할 <1>{0}</1>은 영구적으로 삭제됩니다.</0>이 역할 아래에 연결된 모든 관련 권한도 제거됩니다.<2></2>"
@@ -6139,10 +6139,11 @@ msgstr ""
 #: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
+#: src/containers/role-management/role-edit.tsx
 msgid "Role"
 msgstr "역할"
 
-#. placeholder {0}: this.state.name
+#. placeholder {0}: form.name
 #: src/containers/role-management/role-create.tsx
 msgid "Role \"{0}\" could not be created."
 msgstr "역할 \"{0}\"을/를 생성할 수 없습니다."

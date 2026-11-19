@@ -18,6 +18,8 @@ interface IProps {
   description: string;
   descriptionHelperText: string;
   descriptionValidated: 'default' | 'warning' | 'success' | 'error';
+  // What belongs to no field, such as a refused save, shown under the form.
+  errorMessage?: string;
   isSavingDisabled: boolean;
   name: string;
   nameDisabled?: boolean;
@@ -35,6 +37,7 @@ export const RoleForm = ({
   description,
   descriptionHelperText,
   descriptionValidated,
+  errorMessage,
   isSavingDisabled,
   name,
   nameDisabled,
@@ -126,6 +129,19 @@ export const RoleForm = ({
             showEmpty
           />
         </div>
+
+        {errorMessage ? (
+          // Pulp's reason is plain text that wraps instead of widening the form
+          <p
+            className='pulp-break-anywhere'
+            style={{
+              color:
+                'var(--pf-t--global--text--color--status--danger--default)',
+            }}
+          >
+            {errorMessage}
+          </p>
+        ) : null}
 
         <ActionGroup>
           <Button

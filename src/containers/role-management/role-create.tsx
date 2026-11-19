@@ -1,7 +1,6 @@
 import { t } from '@lingui/core/macro';
-import { Component } from 'react';
+import { useState } from 'react';
 import { Navigate } from 'react-router';
-import { RoleAPI } from 'src/api';
 import {
   AlertList,
   type AlertType,
@@ -10,161 +9,115 @@ import {
   RoleHeader,
   closeAlert,
 } from 'src/components';
+import { useCreateRole } from 'src/entities/core/role/queries';
 import { Paths, formatPath } from 'src/paths';
-import {
-  type RouteProps,
-  mapNetworkErrors,
-  validateInput,
-  withRouter,
-} from 'src/utilities';
+import { type ErrorMessagesType } from 'src/utilities/map-error-messages';
+import { validateInput } from 'src/utilities/map-role-errors';
 import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { roleSaveErrors } from './save-errors';
 
-interface IState {
-  saving: boolean;
-  errorMessages: Record<string, string>;
-  redirect?: string;
-  permissions: string[];
-  name: string;
-  description: string;
-  nameHelperText: string;
-  nameValidated: string;
-  alerts: AlertType[];
-}
+const RoleCreate = () => {
+  const createRole = useCreateRole();
 
-class RoleCreate extends Component<RouteProps, IState> {
-  constructor(props) {
-    super(props);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [errorMessages, setErrorMessages] = useState<ErrorMessagesType>({});
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [redirect, setRedirect] = useState<string>();
 
-    this.state = {
-      saving: false,
-      nameValidated: '',
-      nameHelperText: '',
-      errorMessages: {},
-      permissions: [],
-      name: '',
-      description: '',
-      alerts: [],
-    };
-  }
-
-  render() {
-    if (this.state.redirect) {
-      return <Navigate to={this.state.redirect} />;
+  const saveRole = (permissions: string[] | undefined) => {
+    if (createRole.isPending) {
+      return;
     }
 
-    const { alerts, errorMessages, description, name, saving } = this.state;
+    const form = { name, description };
 
-    const breadcrumbs = [
-      { url: formatPath(Paths.core.role.list), name: t`Roles` },
-      { name: t`Create new role` },
-    ];
+    // The promise, not a callback of the screen: the outcome of a save is
+    // acted on even when the screen has gone by then.
+    createRole
+      .mutateAsync({ ...form, permissions: permissions ?? [] })
+      .then(() => {
+        setErrorMessages({});
+        setRedirect(formatPath(Paths.core.role.list));
+      })
+      .catch((error) => {
+        // The session ended: nothing was created and nothing is repeated; the
+        // form stays as typed.
+        if (isSessionEnd(error)) {
+          return;
+        }
+        const status = requestErrorStatus(error);
+        if (status === 400 || status === 403) {
+          setErrorMessages(roleSaveErrors(error));
+          return;
+        }
+        setErrorMessages({});
+        setAlerts((current) => [
+          ...current,
+          {
+            variant: 'danger',
+            title: t`Role "${form.name}" could not be created.`,
+            description: requestErrorDescription(error),
+          },
+        ]);
+      });
+  };
 
-    return (
-      <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        <RoleHeader title={t`Create a new role`} breadcrumbs={breadcrumbs} />
-        <Main>
-          <section className='pulp-section'>
-            <RoleForm
-              nameValidated={errorMessages['name'] ? 'error' : null}
-              nameHelperText={errorMessages['name']}
-              name={name}
-              onNameChange={(value) => {
-                this.setState({ name: value }, () => {
-                  const errors = validateInput(
-                    value,
-                    'name',
-                    this.state.errorMessages,
-                  );
-                  this.setState({ errorMessages: errors });
-                });
-              }}
-              description={description}
-              descriptionValidated={
-                errorMessages['description'] ? 'error' : null
-              }
-              descriptionHelperText={errorMessages['description']}
-              onDescriptionChange={(value) => {
-                this.setState({ description: value }, () => {
-                  const errors = validateInput(
-                    value,
-                    'description',
-                    this.state.errorMessages,
-                  );
-                  this.setState({ errorMessages: errors });
-                });
-              }}
-              saveRole={this.createRole}
-              isSavingDisabled={
-                'description' in errorMessages || 'name' in errorMessages
-              }
-              cancelRole={this.cancelRole}
-              saving={saving}
-            />
-          </section>
-        </Main>
-      </>
-    );
+  if (redirect) {
+    return <Navigate to={redirect} />;
   }
 
-  private cancelRole = () => {
-    this.setState({
-      errorMessages: {},
-      redirect: formatPath(Paths.core.role.list),
-    });
+  const breadcrumbs = [
+    { url: formatPath(Paths.core.role.list), name: t`Roles` },
+    { name: t`Create new role` },
+  ];
+
+  const typed = (field: 'name' | 'description', value: string) => {
+    if (field === 'name') {
+      setName(value);
+    } else {
+      setDescription(value);
+    }
+    setErrorMessages((current) => validateInput(value, field, current));
   };
 
-  private createRole = (permissions) => {
-    this.setState({ saving: true }, () => {
-      const { name, description } = this.state;
+  return (
+    <>
+      <AlertList
+        alerts={alerts}
+        closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+      />
+      <RoleHeader title={t`Create a new role`} breadcrumbs={breadcrumbs} />
+      <Main>
+        <section className='pulp-section'>
+          <RoleForm
+            nameValidated={errorMessages['name'] ? 'error' : null}
+            nameHelperText={errorMessages['name']}
+            name={name}
+            onNameChange={(value) => typed('name', value)}
+            description={description}
+            descriptionValidated={errorMessages['description'] ? 'error' : null}
+            descriptionHelperText={errorMessages['description']}
+            onDescriptionChange={(value) => typed('description', value)}
+            errorMessage={errorMessages['__nofield']}
+            saveRole={saveRole}
+            isSavingDisabled={
+              'description' in errorMessages || 'name' in errorMessages
+            }
+            cancelRole={() => {
+              setErrorMessages({});
+              setRedirect(formatPath(Paths.core.role.list));
+            }}
+            saving={createRole.isPending}
+          />
+        </section>
+      </Main>
+    </>
+  );
+};
 
-      RoleAPI.create({ name, description, permissions })
-        .then(() =>
-          this.setState({
-            redirect: formatPath(Paths.core.role.list),
-            errorMessages: null,
-          }),
-        )
-        .catch((err) => {
-          // The session ended: nothing was created and nothing is repeated;
-          // the form stays as typed.
-          if (isSessionEnd(err)) {
-            this.setState({ saving: false });
-            return;
-          }
-          if (requestErrorStatus(err) === 400) {
-            const errors = mapNetworkErrors(err);
-
-            this.setState({
-              saving: false,
-              errorMessages: errors,
-            });
-          } else {
-            this.setState({
-              errorMessages: {},
-              alerts: this.state.alerts.concat({
-                variant: 'danger',
-                title: t`Role "${this.state.name}" could not be created.`,
-                description: requestErrorDescription(err),
-              }),
-              saving: false,
-            });
-          }
-        });
-    });
-  };
-}
-
-export default withRouter(RoleCreate);
+export default RoleCreate;

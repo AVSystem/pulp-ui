@@ -300,7 +300,7 @@ msgstr "<0>{name}</0> will be permanently deleted."
 #~ msgid "<0>Removed in version</0> {0}"
 #~ msgstr "<0>Removed in version</0> {0}"
 
-#. placeholder {0}: roleToEdit.name
+#. placeholder {0}: roleToDelete.name
 #: src/containers/role-management/role-list.tsx
 msgid "<0>Role <1>{0}</1> will be permanently deleted.</0><2>This will also remove all associated permissions under this role.</2>"
 msgstr "<0>Role <1>{0}</1> will be permanently deleted.</0><2>This will also remove all associated permissions under this role.</2>"
@@ -6140,10 +6140,11 @@ msgstr "Reverted repository \"{repositoryName}\" to version \"{number}\"."
 #: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
+#: src/containers/role-management/role-edit.tsx
 msgid "Role"
 msgstr "Role"
 
-#. placeholder {0}: this.state.name
+#. placeholder {0}: form.name
 #: src/containers/role-management/role-create.tsx
 msgid "Role \"{0}\" could not be created."
 msgstr "Role \"{0}\" could not be created."

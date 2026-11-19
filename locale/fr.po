@@ -299,7 +299,7 @@ msgstr "<0>{name}</0> sera définitivement supprimé."
 #~ msgid "<0>Removed in version</0> {0}"
 #~ msgstr ""
 
-#. placeholder {0}: roleToEdit.name
+#. placeholder {0}: roleToDelete.name
 #: src/containers/role-management/role-list.tsx
 msgid "<0>Role <1>{0}</1> will be permanently deleted.</0><2>This will also remove all associated permissions under this role.</2>"
 msgstr "<0>Le rôle <1>{0}</1> sera définitivement supprimé.</0><2>Cela supprimera également toutes les permissions associées à ce rôle.</2>"
@@ -6139,10 +6139,11 @@ msgstr ""
 #: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
+#: src/containers/role-management/role-edit.tsx
 msgid "Role"
 msgstr "Rôle"
 
-#. placeholder {0}: this.state.name
+#. placeholder {0}: form.name
 #: src/containers/role-management/role-create.tsx
 msgid "Role \"{0}\" could not be created."
 msgstr "Le rôle \"{0}\" n'a pas pu être créé."
