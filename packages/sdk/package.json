@@ -61,6 +61,10 @@
       "types": "./dist/rpm/*.d.ts",
       "default": "./dist/rpm/*.js"
     },
+    "./mutator/*": {
+      "types": "./dist/mutator/*.d.ts",
+      "default": "./dist/mutator/*.js"
+    },
     "./pulp-versions.json": "./pulp-versions.json"
   },
   "sideEffects": false
