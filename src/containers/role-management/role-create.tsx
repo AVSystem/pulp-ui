@@ -34,10 +34,12 @@ const RoleCreate = () => {
       return;
     }
 
+    const form = { name, description };
+
     // The promise, not a callback of the screen: the outcome of a save is
     // acted on even when the screen has gone by then.
     createRole
-      .mutateAsync({ name, description, permissions: permissions ?? [] })
+      .mutateAsync({ ...form, permissions: permissions ?? [] })
       .then(() => {
         setErrorMessages({});
         setRedirect(formatPath(Paths.core.role.list));
@@ -58,7 +60,7 @@ const RoleCreate = () => {
           ...current,
           {
             variant: 'danger',
-            title: t`Role "${name}" could not be created.`,
+            title: t`Role "${form.name}" could not be created.`,
             description: requestErrorDescription(error),
           },
         ]);

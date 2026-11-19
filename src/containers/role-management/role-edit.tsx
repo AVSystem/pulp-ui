@@ -70,6 +70,7 @@ const RoleEditScreen = ({ urlId }: { urlId: string }) => {
   // was typed stays, and the failure is reported next to it, once.
   const alertedFailure = useRef(0);
   const rereadFailed = query.isRefetchError && !sessionEnded;
+  const roleName = role?.name;
   useEffect(() => {
     if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
       alertedFailure.current = query.errorUpdatedAt;
@@ -77,14 +78,14 @@ const RoleEditScreen = ({ urlId }: { urlId: string }) => {
         ...current,
         {
           variant: 'danger',
-          title: role?.name
-            ? t`Role "${role.name}" could not be displayed.`
+          title: roleName
+            ? t`Role "${roleName}" could not be displayed.`
             : t`Role could not be displayed.`,
           description: requestErrorDescription(query.error),
         },
       ]);
     }
-  }, [rereadFailed, query.errorUpdatedAt, query.error, role?.name]);
+  }, [rereadFailed, query.errorUpdatedAt, query.error, roleName]);
 
   const saveRole = (permissions: string[] | undefined) => {
     if (updateRole.isPending || !role || !href) {

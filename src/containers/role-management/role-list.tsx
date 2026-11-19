@@ -160,6 +160,7 @@ const RoleList = () => {
     if (deleteRole.isPending) {
       return;
     }
+    const { name } = role;
     try {
       await deleteRole.mutateAsync({ href: role.pulp_href });
     } catch (error) {
@@ -170,7 +171,7 @@ const RoleList = () => {
       }
       addAlert({
         variant: 'danger',
-        title: t`Role "${role.name}" could not be deleted.`,
+        title: t`Role "${name}" could not be deleted.`,
         description: requestErrorDescription(error),
       });
       setRoleToDelete(null);
@@ -178,7 +179,7 @@ const RoleList = () => {
     }
     addAlert({
       variant: 'success',
-      title: t`Role "${role.name}" has been successfully deleted.`,
+      title: t`Role "${name}" has been successfully deleted.`,
     });
     setRoleToDelete(null);
   };
