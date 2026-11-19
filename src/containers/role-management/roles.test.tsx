@@ -1,6 +1,6 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { useNavigate } from 'react-router';
+import { Route, Routes, useNavigate } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
@@ -13,6 +13,8 @@ import {
   serveSignIn,
   signedIn,
 } from 'src/test-utils/sign-in-again';
+import RoleCreate from './role-create';
+import RoleEdit from './role-edit';
 import RoleList from './role-list';
 
 // The role screens list, create, edit and delete roles through the data
@@ -410,5 +412,438 @@ describe('deleting a role', () => {
       await screen.findByRole('menuitem', { name: 'Edit' }),
     ).toBeDisabled();
     expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeDisabled();
+  });
+});
+
+const HINT = 'Contact your organization administrator for more information.';
+const NEW_NAME = 'zz_new';
+const NEW_DESCRIPTION = 'zz description';
+
+function renderScreens(route: string) {
+  servePermissions({ isStaff: true });
+  return renderWithProviders(
+    <AppContextProvider>
+      <PermissionsKnown>
+        <Routes>
+          <Route path='/roles/create' element={<RoleCreate />} />
+          <Route path='/roles/edit/:role' element={<RoleEdit />} />
+          <Route path='/roles' element={<p>the role list page</p>} />
+        </Routes>
+      </PermissionsKnown>
+    </AppContextProvider>,
+    { route },
+  );
+}
+
+const nameField = () => screen.findByPlaceholderText('Role name');
+const descriptionField = () =>
+  screen.findByPlaceholderText('Add a role description here');
+
+async function fillAndSave(user: ReturnType<typeof renderScreens>['user']) {
+  await user.type(await nameField(), NEW_NAME);
+  await user.type(await descriptionField(), NEW_DESCRIPTION);
+  await user.click(screen.getByRole('button', { name: 'Save' }));
+}
+
+describe('creating a role', () => {
+  it('sends one POST with the name, description and permissions and returns to the list', async () => {
+    const posts: unknown[] = [];
+    server.use(
+      http.post(`*${ROLES}`, async ({ request }) => {
+        posts.push(await request.json());
+        return HttpResponse.json(roleRow({ name: NEW_NAME }), { status: 201 });
+      }),
+    );
+    const { user } = renderScreens('/roles/create');
+
+    await fillAndSave(user);
+
+    expect(await screen.findByText('the role list page')).toBeInTheDocument();
+    expect(posts).toEqual([
+      { name: NEW_NAME, description: NEW_DESCRIPTION, permissions: [] },
+    ]);
+  });
+
+  it('sends one POST when Save is pressed twice', async () => {
+    const posts: unknown[] = [];
+    server.use(
+      http.post(`*${ROLES}`, async ({ request }) => {
+        posts.push(await request.json());
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        return HttpResponse.json(roleRow({ name: NEW_NAME }), { status: 201 });
+      }),
+    );
+    const { user } = renderScreens('/roles/create');
+    await user.type(await nameField(), NEW_NAME);
+    await user.type(await descriptionField(), NEW_DESCRIPTION);
+
+    const save = screen.getByRole('button', { name: 'Save' });
+    await user.click(save);
+    await user.click(save);
+
+    await screen.findByText('the role list page');
+    expect(posts).toHaveLength(1);
+  });
+
+  it('shows the message of a rejected field under the field and keeps what was typed', async () => {
+    server.use(
+      http.post(`*${ROLES}`, () =>
+        HttpResponse.json(
+          { name: ['A role with this name already exists.'] },
+          { status: 400 },
+        ),
+      ),
+    );
+    const { user } = renderScreens('/roles/create');
+
+    await fillAndSave(user);
+
+    expect(
+      await screen.findByText('A role with this name already exists.'),
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Role name')).toHaveValue(NEW_NAME);
+    expect(
+      screen.getByPlaceholderText('Add a role description here'),
+    ).toHaveValue(NEW_DESCRIPTION);
+    expect(screen.queryByText('the role list page')).toBeNull();
+  });
+
+  it('shows the three-part refusal of a refused save and keeps what was typed', async () => {
+    server.use(
+      http.post(`*${ROLES}`, () =>
+        HttpResponse.json(
+          { detail: 'Only staff may do this.' },
+          { status: 403 },
+        ),
+      ),
+    );
+    const { user } = renderScreens('/roles/create');
+
+    await fillAndSave(user);
+
+    const refusal = await screen.findByText(
+      new RegExp(
+        `You do not have permission to do this\\. Only staff may do this\\. ${HINT.replace('.', '\\.')}`,
+      ),
+    );
+    expect(refusal.tagName).toBe('P');
+    expect(refusal).toHaveClass('pulp-break-anywhere');
+    expect(screen.getByPlaceholderText('Role name')).toHaveValue(NEW_NAME);
+    expect(screen.queryByText('the role list page')).toBeNull();
+  });
+
+  it('shows an alert for any other failure and keeps what was typed', async () => {
+    server.use(
+      http.post(`*${ROLES}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderScreens('/roles/create');
+
+    await fillAndSave(user);
+
+    expect(
+      await screen.findByText('Role "zz_new" could not be created.'),
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Role name')).toHaveValue(NEW_NAME);
+  });
+
+  it('refuses a blank or short name before anything is sent', async () => {
+    const posts: unknown[] = [];
+    server.use(
+      http.post(`*${ROLES}`, async ({ request }) => {
+        posts.push(await request.json());
+        return HttpResponse.json(roleRow(), { status: 201 });
+      }),
+    );
+    const { user } = renderScreens('/roles/create');
+
+    await user.type(await nameField(), 'ab');
+
+    expect(
+      await screen.findByText('This field must be longer than 2 characters'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(posts).toHaveLength(0);
+  });
+
+  it('returns to the list on Cancel with nothing sent', async () => {
+    const posts: unknown[] = [];
+    server.use(
+      http.post(`*${ROLES}`, () => (posts.push(1), HttpResponse.json({}))),
+    );
+    const { user } = renderScreens('/roles/create');
+    await nameField();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(await screen.findByText('the role list page')).toBeInTheDocument();
+    expect(posts).toHaveLength(0);
+  });
+});
+
+const EDIT_ID = '0192e5a1-0000-7000-8000-0000000000aa';
+const ROLE_PATH = `${ROLES}${EDIT_ID}/`;
+const OPS = roleRow({
+  pulp_href: ROLE_PATH,
+  name: 'zz-ops',
+  description: 'first text',
+  permissions: ['core.view_task'],
+});
+
+const serveOps = (over: Record<string, unknown> = {}) =>
+  server.use(
+    http.get(`*${ROLE_PATH}`, () => HttpResponse.json({ ...OPS, ...over })),
+  );
+
+function recordPatches() {
+  const patches: { path: string; body: unknown }[] = [];
+  server.use(
+    http.patch(`*${ROLE_PATH}`, async ({ request }) => {
+      patches.push({
+        path: new URL(request.url).pathname,
+        body: await request.json(),
+      });
+      return HttpResponse.json(OPS);
+    }),
+  );
+  return patches;
+}
+
+describe('editing a role', () => {
+  it('reads the role by the address built from the id and shows the form with the name fixed', async () => {
+    const reads: string[] = [];
+    server.use(
+      http.get(`*${ROLE_PATH}`, ({ request }) => {
+        reads.push(new URL(request.url).pathname);
+        return HttpResponse.json(OPS);
+      }),
+    );
+    renderScreens(`/roles/edit/${EDIT_ID}/`);
+
+    expect(await descriptionField()).toHaveValue('first text');
+    expect(screen.getByPlaceholderText('Role name')).toHaveValue('zz-ops');
+    expect(screen.getByPlaceholderText('Role name')).toBeDisabled();
+    expect(
+      screen.getByRole('heading', { name: 'Edit role permissions' }),
+    ).toBeInTheDocument();
+    expect(reads).toEqual([ROLE_PATH]);
+  });
+
+  it('shows the not found page, with no request, for an id that is not the id of a role', async () => {
+    const requests: string[] = [];
+    server.events.on('request:start', ({ request }) => {
+      requests.push(new URL(request.url).pathname);
+    });
+    renderScreens('/roles/edit/not-an-id/');
+
+    expect(
+      await screen.findByText("We couldn't find the page you're looking for!"),
+    ).toBeInTheDocument();
+    expect(requests.filter((path) => path.includes('/roles/'))).toEqual([]);
+  });
+
+  it('shows the not found page when the role does not exist', async () => {
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ detail: 'Not found.' }, { status: 404 }),
+      ),
+    );
+    renderScreens(`/roles/edit/${EDIT_ID}/`);
+
+    expect(
+      await screen.findByText("We couldn't find the page you're looking for!"),
+    ).toBeInTheDocument();
+  });
+
+  it('sends one PATCH of the role to its address with the typed description and returns to the list', async () => {
+    serveOps();
+    const patches = recordPatches();
+    const { user } = renderScreens(`/roles/edit/${EDIT_ID}/`);
+    const field = await descriptionField();
+
+    await user.clear(field);
+    await user.type(field, 'typed text');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('the role list page')).toBeInTheDocument();
+    expect(patches).toEqual([
+      {
+        path: ROLE_PATH,
+        body: {
+          name: 'zz-ops',
+          description: 'typed text',
+          permissions: ['core.view_task'],
+        },
+      },
+    ]);
+  });
+
+  it('sends one PATCH when Save is pressed twice', async () => {
+    serveOps();
+    const patches: unknown[] = [];
+    server.use(
+      http.patch(`*${ROLE_PATH}`, async ({ request }) => {
+        patches.push(await request.json());
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        return HttpResponse.json(OPS);
+      }),
+    );
+    const { user } = renderScreens(`/roles/edit/${EDIT_ID}/`);
+    await descriptionField();
+
+    const save = screen.getByRole('button', { name: 'Save' });
+    await user.click(save);
+    await user.click(save);
+
+    await screen.findByText('the role list page');
+    expect(patches).toHaveLength(1);
+  });
+
+  it('shows the insufficient permissions page, with no Retry, when the read is refused', async () => {
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ detail: 'Not for you.' }, { status: 403 }),
+      ),
+    );
+    renderScreens(`/roles/edit/${EDIT_ID}/`);
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Insufficient permissions',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Not for you.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+  });
+
+  it('offers Retry for a failed read and shows the form after a fixed read', async () => {
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderScreens(`/roles/edit/${EDIT_ID}/`);
+
+    expect(
+      await screen.findByText('Role could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Role name')).toBeNull();
+
+    serveOps();
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await descriptionField()).toHaveValue('first text');
+    expect(screen.queryByText('Role could not be displayed.')).toBeNull();
+  });
+
+  it('keeps the form and adds one alert when a later read of the role fails', async () => {
+    serveOps();
+    serveSignIn();
+    servePermissions({ isStaff: true });
+    const { user } = renderWithProviders(
+      <AppContextProvider>
+        <PermissionsKnown>
+          <SignInAgain />
+          <Routes>
+            <Route path='/roles/edit/:role' element={<RoleEdit />} />
+          </Routes>
+        </PermissionsKnown>
+      </AppContextProvider>,
+      { route: `/roles/edit/${EDIT_ID}/` },
+    );
+    const field = await descriptionField();
+    await signedIn();
+    await user.clear(field);
+    await user.type(field, 'typed text');
+    server.use(
+      http.get(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
+
+    expect(
+      await screen.findByText('Role "zz-ops" could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText('Role "zz-ops" could not be displayed.'),
+    ).toHaveLength(1);
+    expect(
+      screen.getByPlaceholderText('Add a role description here'),
+    ).toHaveValue('typed text');
+  });
+
+  it('shows the three-part refusal of a refused save and keeps what was typed', async () => {
+    serveOps();
+    server.use(
+      http.patch(`*${ROLE_PATH}`, () =>
+        HttpResponse.json(
+          { detail: 'Only staff may do this.' },
+          { status: 403 },
+        ),
+      ),
+    );
+    const { user } = renderScreens(`/roles/edit/${EDIT_ID}/`);
+    const field = await descriptionField();
+    await user.clear(field);
+    await user.type(field, 'typed text');
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const refusal = await screen.findByText(
+      new RegExp(
+        `You do not have permission to do this\\. Only staff may do this\\. ${HINT.replace('.', '\\.')}`,
+      ),
+    );
+    expect(refusal.tagName).toBe('P');
+    expect(refusal).toHaveClass('pulp-break-anywhere');
+    expect(
+      screen.getByPlaceholderText('Add a role description here'),
+    ).toHaveValue('typed text');
+    expect(screen.queryByText('the role list page')).toBeNull();
+  });
+
+  it('shows the message of a rejected field under the field', async () => {
+    serveOps();
+    server.use(
+      http.patch(`*${ROLE_PATH}`, () =>
+        HttpResponse.json(
+          { description: ['This field may not be blank.'] },
+          { status: 400 },
+        ),
+      ),
+    );
+    const { user } = renderScreens(`/roles/edit/${EDIT_ID}/`);
+    await descriptionField();
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(
+      await screen.findByText('This field may not be blank.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('the role list page')).toBeNull();
+  });
+
+  it('shows an alert for any other failed save and keeps the form', async () => {
+    serveOps();
+    server.use(
+      http.patch(`*${ROLE_PATH}`, () =>
+        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+      ),
+    );
+    const { user } = renderScreens(`/roles/edit/${EDIT_ID}/`);
+    await descriptionField();
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(
+      await screen.findByText('Changes to role "zz-ops" could not be saved.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Add a role description here'),
+    ).toHaveValue('first text');
   });
 });
