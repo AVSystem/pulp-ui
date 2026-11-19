@@ -2270,6 +2270,7 @@ msgstr "自分自身は削除できません。"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/role-list-table.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-details.tsx
@@ -4168,6 +4169,7 @@ msgstr "自分のプロファイル"
 #: src/components/remote-form.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
@@ -4332,6 +4334,7 @@ msgstr "不可"
 msgid "No assignable groups."
 msgstr "割り当て可能なグループはありません。"
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "No assignable roles."
 msgstr "割り当て可能なロールはありません。"
@@ -6133,6 +6136,7 @@ msgstr ""
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role"
@@ -6143,7 +6147,7 @@ msgstr "ロール"
 msgid "Role \"{0}\" could not be created."
 msgstr "ロール \"{0}\" を作成できませんでした。"
 
-#. placeholder {0}: selectedDeleteRole.role
+#. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role \"{0}\" could not be deleted."
 msgstr "ロール \"{0}\" を削除できませんでした。"
@@ -6153,7 +6157,7 @@ msgstr "ロール \"{0}\" を削除できませんでした。"
 #~ msgid "Role \"{0}\" could not be displayed."
 #~ msgstr "ロール \"{0}\" を表示できませんでした。"
 
-#. placeholder {0}: selectedDeleteRole.role
+#. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role \"{0}\" has been successfully removed."
 msgstr "ロール \"{0}\" は正常に削除されました。"
@@ -6242,6 +6246,7 @@ msgstr "ロール"
 #~ msgid "Roles are not currently enabled."
 #~ msgstr ""
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
@@ -6515,6 +6520,7 @@ msgstr "選択したグループ"
 #~ msgid "Selected provider namespace"
 #~ msgstr ""
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "Selected roles"
 msgstr "選択されたロール"
@@ -7601,6 +7607,7 @@ msgstr "現在ロールはありません"
 msgid "There are currently no roles assigned to this group."
 msgstr "現在、このグループに割り当てられているロールはありません。"
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "There are currently no roles that can be assigned to this group."
 msgstr "現在、このグループに割り当てることができるロールはありません。"

@@ -2271,6 +2271,7 @@ msgstr "Deleting yourself is not allowed."
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/role-list-table.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-details.tsx
@@ -4169,6 +4170,7 @@ msgstr "My profile"
 #: src/components/remote-form.tsx
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-group.tsx
 #: src/components/select-roles.tsx
 #: src/components/select-user.tsx
@@ -4333,6 +4335,7 @@ msgstr "No"
 msgid "No assignable groups."
 msgstr "No assignable groups."
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "No assignable roles."
 msgstr "No assignable roles."
@@ -6134,6 +6137,7 @@ msgstr "Reverted repository \"{repositoryName}\" to version \"{number}\"."
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role"
@@ -6144,7 +6148,7 @@ msgstr "Role"
 msgid "Role \"{0}\" could not be created."
 msgstr "Role \"{0}\" could not be created."
 
-#. placeholder {0}: selectedDeleteRole.role
+#. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role \"{0}\" could not be deleted."
 msgstr "Role \"{0}\" could not be deleted."
@@ -6154,7 +6158,7 @@ msgstr "Role \"{0}\" could not be deleted."
 #~ msgid "Role \"{0}\" could not be displayed."
 #~ msgstr "Role \"{0}\" could not be displayed."
 
-#. placeholder {0}: selectedDeleteRole.role
+#. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Role \"{0}\" has been successfully removed."
 msgstr "Role \"{0}\" has been successfully removed."
@@ -6243,6 +6247,7 @@ msgstr "Roles"
 #~ msgid "Roles are not currently enabled."
 #~ msgstr "Roles are not currently enabled."
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
@@ -6516,6 +6521,7 @@ msgstr "Selected group"
 #~ msgid "Selected provider namespace"
 #~ msgstr "Selected provider namespace"
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "Selected roles"
 msgstr "Selected roles"
@@ -7602,6 +7608,7 @@ msgstr "There are currently no roles"
 msgid "There are currently no roles assigned to this group."
 msgstr "There are currently no roles assigned to this group."
 
+#: src/components/role-selector.tsx
 #: src/components/select-roles.tsx
 msgid "There are currently no roles that can be assigned to this group."
 msgstr "There are currently no roles that can be assigned to this group."
