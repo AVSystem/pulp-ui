@@ -10,7 +10,6 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { settle } from 'src/test-utils/settle';
-import { resetPluginVersionsCache } from 'src/utilities/plugin-version';
 import { dataRoutes } from './app-routes';
 import { PulpMenu, useMenuModel } from './menu';
 
@@ -544,7 +543,6 @@ describe('navigation menu', () => {
     expect(item('rpm-repositories')).not.toBeNull();
     withRpm.unmount();
 
-    resetPluginVersionsCache();
     reportPlugins(['core', 'file']);
     await menuShown();
     await screen.findByRole('button', { name: 'Repositories' });

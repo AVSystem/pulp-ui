@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
   type ReactNode,
   createContext,
@@ -9,10 +10,7 @@ import {
   useState,
 } from 'react';
 import { useUserContext } from './user-context';
-import {
-  plugin_versions,
-  resetPluginVersionsCache,
-} from './utilities/plugin-version';
+import { plugin_versions } from './utilities/plugin-version';
 
 // What the server reports as installed, read once per signed-in session and
 // shared by everything that needs it. A failed answer is its own state: it
@@ -40,6 +38,7 @@ export const usePlugins = () => useContext(PluginsContext);
 
 export const PluginsProvider = ({ children }: { children: ReactNode }) => {
   const { user, status, epoch } = useUserContext();
+  const queryClient = useQueryClient();
   const [plugins, setPlugins] = useState<PluginsState>({ state: 'loading' });
   // Identifies the latest load, so an answer to an earlier one, or one that
   // arrives after the provider is gone, is ignored.
@@ -60,33 +59,38 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
   // quietly: a failed read is not reported at once. The state stays as it is
   // and one more read follows after PLUGIN_RETRY_DELAY_MS; only when that one
   // fails too is the failure reported.
-  const load = useCallback(function read(fresh = false, quietly = false) {
-    clearTimeout(timer.current);
-    const current = ++latest.current;
-    plugin_versions({ fresh }).then(
-      (list) => {
-        if (current === latest.current) {
-          setPlugins({
-            state: 'ready',
-            versions: new Map(list.map(({ name, version }) => [name, version])),
-          });
-        }
-      },
-      (error) => {
-        if (current !== latest.current) {
-          return;
-        }
-        if (quietly) {
-          timer.current = setTimeout(
-            () => read(true, false),
-            PLUGIN_RETRY_DELAY_MS,
-          );
-        } else {
-          setPlugins({ state: 'error', error });
-        }
-      },
-    );
-  }, []);
+  const load = useCallback(
+    function read(fresh = false, quietly = false) {
+      clearTimeout(timer.current);
+      const current = ++latest.current;
+      plugin_versions({ fresh, queryClient }).then(
+        (list) => {
+          if (current === latest.current) {
+            setPlugins({
+              state: 'ready',
+              versions: new Map(
+                list.map(({ name, version }) => [name, version]),
+              ),
+            });
+          }
+        },
+        (error) => {
+          if (current !== latest.current) {
+            return;
+          }
+          if (quietly) {
+            timer.current = setTimeout(
+              () => read(true, false),
+              PLUGIN_RETRY_DELAY_MS,
+            );
+          } else {
+            setPlugins({ state: 'error', error });
+          }
+        },
+      );
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     // Until the session check has answered nothing is known: no request, and
@@ -99,12 +103,10 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
     // read once more, so a screen behind the sign-in dialog is not replaced
     // by a loading state.
     const again = readFor.current === session && readAt.current !== epoch;
-    if (
-      readFor.current !== undefined &&
-      (readFor.current !== session || again)
-    ) {
-      resetPluginVersionsCache();
-    }
+    // A read for another session, or after signing in again, must not be
+    // answered with what the query client still holds from the one before.
+    const changed =
+      readFor.current !== undefined && (readFor.current !== session || again);
     readFor.current = session;
     readAt.current = epoch;
 
@@ -116,7 +118,7 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
     if (!again) {
       setPlugins({ state: 'loading' });
     }
-    load(false, true);
+    load(changed, true);
     return () => {
       latest.current++;
       clearTimeout(timer.current);

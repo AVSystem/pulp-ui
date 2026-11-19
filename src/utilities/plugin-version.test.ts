@@ -1,7 +1,15 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { StatusClient } from 'src/entities/core/status/client';
+import { statusKeys } from 'src/entities/core/status/queries';
+import { createTestQueryClient } from 'src/test-utils/query';
 import { server } from 'src/test-utils/server';
 import { plugin_versions } from './plugin-version';
+
+// Each test reads through its own client, so no test sees what another cached.
+const read = (queryClient: QueryClient, fresh = false) =>
+  plugin_versions({ fresh, queryClient });
 
 // Answers status/ with the given statuses in turn and counts the requests.
 function answerStatus(...answers: number[]) {
@@ -22,11 +30,14 @@ function answerStatus(...answers: number[]) {
 }
 
 describe('plugin versions', () => {
+  const client = () => createTestQueryClient();
+
   it('asks the server again after a failed answer instead of repeating the failure', async () => {
     const counter = answerStatus(500, 200);
 
-    await expect(plugin_versions()).rejects.toBeTruthy();
-    const versions = await plugin_versions();
+    const queryClient = client();
+    await expect(read(queryClient)).rejects.toBeTruthy();
+    const versions = await read(queryClient);
 
     expect(counter.requests).toBe(2);
     expect(versions).toEqual([{ name: 'core', version: '3.2.0' }]);
@@ -35,9 +46,10 @@ describe('plugin versions', () => {
   it('sends one request for callers that ask at the same time', async () => {
     const counter = answerStatus(200);
 
+    const queryClient = client();
     const [first, second] = await Promise.all([
-      plugin_versions(),
-      plugin_versions(),
+      read(queryClient),
+      read(queryClient),
     ]);
 
     expect(counter.requests).toBe(1);
@@ -47,8 +59,9 @@ describe('plugin versions', () => {
   it('serves a successful answer from the cache', async () => {
     const counter = answerStatus(200);
 
-    await plugin_versions();
-    await plugin_versions();
+    const queryClient = client();
+    await read(queryClient);
+    await read(queryClient);
 
     expect(counter.requests).toBe(1);
   });
@@ -56,8 +69,9 @@ describe('plugin versions', () => {
   it('sends a new request when asked for a fresh answer although a successful one is cached', async () => {
     const counter = answerStatus(200);
 
-    await plugin_versions();
-    const versions = await plugin_versions({ fresh: true });
+    const queryClient = client();
+    await read(queryClient);
+    const versions = await read(queryClient, true);
 
     expect(counter.requests).toBe(2);
     expect(versions).toEqual([{ name: 'core', version: '3.2.0' }]);
@@ -73,7 +87,7 @@ describe('plugin versions', () => {
       ),
     );
 
-    await expect(plugin_versions()).rejects.toThrow(
+    await expect(read(client())).rejects.toThrow(
       'The status answer lists no plugins.',
     );
   });
@@ -91,10 +105,24 @@ describe('plugin versions', () => {
       }),
     );
 
-    await expect(plugin_versions()).rejects.toBeInstanceOf(Error);
-    await expect(plugin_versions()).resolves.toEqual([
+    const queryClient = client();
+    await expect(read(queryClient)).rejects.toBeInstanceOf(Error);
+    await expect(read(queryClient)).resolves.toEqual([
       { name: 'core', version: '3.0.0' },
     ]);
     expect(requests).toBe(2);
+  });
+
+  it('shares the answer with a status read of the same client', async () => {
+    const counter = answerStatus(200);
+    const queryClient = client();
+
+    await queryClient.fetchQuery({
+      queryKey: statusKeys.all,
+      queryFn: ({ signal }) => StatusClient.retrieve({ signal }),
+    });
+    await read(queryClient);
+
+    expect(counter.requests).toBe(1);
   });
 });

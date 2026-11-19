@@ -170,6 +170,18 @@ msgstr "{name} will be cancelled."
 msgid "{name} will stop running."
 msgstr "{name} will stop running."
 
+#: src/components/pulp-about-modal.tsx
+msgid "{name}: generated in the interface, not installed on this server"
+msgstr "{name}: generated in the interface, not installed on this server"
+
+#: src/components/pulp-about-modal.tsx
+msgid "{name}: not part of the generated interface"
+msgstr "{name}: not part of the generated interface"
+
+#: src/components/pulp-about-modal.tsx
+msgid "{name}: the interface was generated for {generated}, this server runs {running}"
+msgstr "{name}: the interface was generated for {generated}, this server runs {running}"
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
 msgstr "{namespace}.{name} v{version}, already in the repository"
