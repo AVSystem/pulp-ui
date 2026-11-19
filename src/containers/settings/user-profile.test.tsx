@@ -248,6 +248,11 @@ describe('the profile page when the record cannot be read', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
+    // the read of the permissions failed with the same answer: it has its own
+    // Retry once the record is shown
+    await screen.findByText('Your permissions could not be read');
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
     expect(await screen.findByText('Zo')).toBeInTheDocument();
   });
 
