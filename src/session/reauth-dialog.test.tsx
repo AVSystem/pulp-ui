@@ -307,6 +307,39 @@ describe('sign in again dialog cover', () => {
     );
   });
 
+  it("draws the layer without the library's fade-in, so it is opaque from its first frame", async () => {
+    const { user } = await renderScreen();
+
+    const dialog = await openByRequest(user);
+
+    const backdrop = dialog.closest('.pf-v6-c-backdrop');
+    expect(backdrop).toHaveClass('pulp-reauth__backdrop');
+    expect(backdrop).not.toHaveClass('pf-m-animate');
+    expect(backdrop).not.toHaveClass('pf-m-show');
+  });
+
+  it('draws the layer without the fade-in in external login mode too', async () => {
+    config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+    signedInAs();
+    refuseExamples();
+    const { user } = renderWithProviders(
+      <>
+        <Screen />
+        <ReauthDialog />
+      </>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+    );
+    await storeKnowsUser();
+
+    const dialog = await openByRequest(user);
+
+    const backdrop = dialog.closest('.pf-v6-c-backdrop');
+    expect(backdrop).toHaveClass('pulp-reauth__backdrop');
+    expect(backdrop).not.toHaveClass('pf-m-animate');
+  });
+
   it('keeps the screen mounted under the cover, with what was typed in it', async () => {
     const { user } = await renderScreen();
     const field = screen.getByLabelText('Draft');
@@ -722,12 +755,29 @@ describe('returning to the tab', () => {
     ).toBeVisible();
   });
 
-  it('an answer naming another account loads the start page afresh and opens no dialog', async () => {
-    await renderScreen();
+  // Replaces the navigation of the page and records whether the screen was
+  // already covered at the moment the start page was requested.
+  function recordNavigation() {
+    const coveredAtNavigation: boolean[] = [];
     const assign = vi
       .spyOn(window.location, 'assign')
-      .mockImplementation(() => undefined);
+      .mockImplementation(() => {
+        coveredAtNavigation.push(isSuspended());
+      });
+    return { assign, coveredAtNavigation };
+  }
+
+  // What the browser does when a window that was visible all along is clicked.
+  const focusWindow = () =>
+    act(() => {
+      window.dispatchEvent(new Event('focus'));
+    });
+
+  it('an answer naming another account covers the screen, then loads the start page afresh and asks nothing more', async () => {
+    await renderScreen();
+    const { assign, coveredAtNavigation } = recordNavigation();
     const checks = trackChecks();
+    const counts = countRequests();
     signedInAs('amy', '/pulp/api/v3/users/2/');
 
     returnToTab();
@@ -736,14 +786,21 @@ describe('returning to the tab', () => {
 
     expect(assign).toHaveBeenCalledTimes(1);
     expect(assign).toHaveBeenCalledWith('/ui/status/');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(coveredAtNavigation).toEqual([true]);
+    expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
+    expect(document.querySelector('.pulp-reauth__backdrop')).not.toBeNull();
+
+    returnToTab();
+    focusWindow();
+    await settle();
+
+    expect(counts[WHOAMI]).toBe(1);
+    expect(assign).toHaveBeenCalledTimes(1);
   });
 
-  it('an answer naming another account without an address is told apart by the user name', async () => {
+  it('an answer naming another account without an address covers the screen and loads the start page, told apart by the user name', async () => {
     await renderScreen();
-    const assign = vi
-      .spyOn(window.location, 'assign')
-      .mockImplementation(() => undefined);
+    const { assign, coveredAtNavigation } = recordNavigation();
     const checks = trackChecks();
     server.use(
       http.get(LOGIN_URL, () => HttpResponse.json({ username: 'amy' })),
@@ -754,9 +811,11 @@ describe('returning to the tab', () => {
     await finished(checks[0]);
 
     expect(assign).toHaveBeenCalledTimes(1);
+    expect(coveredAtNavigation).toEqual([true]);
+    expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
   });
 
-  it('an answer naming the same account loads nothing', async () => {
+  it('an answer naming the same account loads nothing and restores nothing', async () => {
     await renderScreen();
     const assign = vi
       .spyOn(window.location, 'assign')
@@ -768,6 +827,8 @@ describe('returning to the tab', () => {
     await finished(checks[0]);
 
     expect(assign).not.toHaveBeenCalled();
+    expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    expect(isSuspended()).toBe(false);
   });
 
   // Answers the next who-is-signed-in requests only once the returned function
@@ -1042,6 +1103,24 @@ describe('returning to the tab', () => {
     expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
   });
 
+  it('a later return sends nothing once another account was found while the dialog is open', async () => {
+    await dialogOpenedByReturn();
+    const { assign } = recordNavigation();
+    const checks = trackChecks();
+    const counts = countRequests();
+    signedInAs('ann', '/pulp/api/v3/users/2/');
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+    returnToTab();
+    focusWindow();
+    await settle();
+
+    expect(counts[WHOAMI]).toBe(1);
+    expect(assign).toHaveBeenCalledTimes(1);
+  });
+
   it('an answer naming another user name, with no address, is told apart by the name', async () => {
     await dialogOpenedByReturn();
     const assign = vi
@@ -1177,7 +1256,9 @@ describe('returning to the tab', () => {
       expect(screen.getByTestId('user')).toHaveTextContent('nobody');
     });
 
-    it('naming the same account does not sign anyone in', async () => {
+    // The restore's own guard (nobody is signed in) would reject this answer as
+    // well, so the test pins the outcome, not the check of the hook.
+    it('naming the same account leaves the user signed out and loads nothing', async () => {
       const assign = await signOutWhileChecking(SAME_USER);
 
       expect(assign).not.toHaveBeenCalled();

@@ -11,7 +11,7 @@ import { servePermissions } from 'src/test-utils/permissions';
 import { listOf, user } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { useSessionGeneration, useUserContext } from 'src/user-context';
+import { useUserContext } from 'src/user-context';
 
 // The administration screens as the application mounts them: through the route
 // guard, with the real permission provider. A screen stays mounted when the
@@ -25,8 +25,7 @@ const guardedRoutes = (dataRoutes[0]?.children?.[0]?.children ?? []).filter(
 
 function Routed() {
   const routes = useRoutes(guardedRoutes);
-  const { status } = useUserContext();
-  const generation = useSessionGeneration();
+  const { status, generation } = useUserContext();
   return (
     <>
       <p data-testid='session'>{status}</p>
