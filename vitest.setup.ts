@@ -40,21 +40,18 @@ server.listen({
 // Requests made while the configuration module loads have settled before the
 // first test body runs, so request code that reads the configuration never
 // sees it unset.
-let resetPluginVersionsCache: () => void = () => undefined;
 beforeAll(async () => {
   const { configPromise } = await import('src/ui-config');
   await configPromise;
   // The generated client resolves every URL through the application's rules.
   const { installSdkRequestPolicy } = await import('src/entities/sdk-setup');
   installSdkRequestPolicy();
-  // Imported here for the same reason: the module reads the configuration.
-  ({ resetPluginVersionsCache } = await import('src/utilities/plugin-version'));
 });
 
 afterEach(async () => {
   // Unmounting runs the effects a render still had pending, and one of them
-  // may start the read of the installed plugins; it must happen before the
-  // cache is cleared, or its answer would stay cached for the next test.
+  // may start the read of the installed plugins; the request must be sent while
+  // the handlers of the test are still in place.
   cleanup();
   // The signed-in user and the session epoch of one test never reach the next.
   resetSessionEvents();
@@ -65,9 +62,6 @@ afterEach(async () => {
   await new Promise((resolve) => setTimeout(resolve, 0));
   // Handlers added by one test never leak into the next one.
   server.resetHandlers();
-  // The installed plugins are cached for the page's lifetime; a test must not
-  // inherit the answer of the one before it.
-  resetPluginVersionsCache();
   window.localStorage.clear();
   window.sessionStorage.clear();
 

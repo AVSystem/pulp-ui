@@ -10,27 +10,24 @@ import {
   Progress,
 } from '@patternfly/react-core';
 import { sortBy } from 'lodash';
-import { Component, type ReactNode, useState } from 'react';
-import { PulpStatusAPI } from 'src/api';
+import { type ReactNode, useState } from 'react';
 import {
   BaseHeader,
   DateComponent,
   LoadingSpinner,
   Main,
 } from 'src/components';
+import { InsufficientPermissions } from 'src/components/insufficient-permissions';
 import { ListErrorState } from 'src/components/list-error-state';
-import { type RouteProps, getHumanSize, withRouter } from 'src/utilities';
+import { useStatus } from 'src/entities/core/status/queries';
+import { getHumanSize } from 'src/utilities/get-human-size';
 import {
   isSessionEnd,
   requestErrorDescription,
+  requestErrorDetail,
+  requestErrorStatus,
 } from 'src/utilities/request-error';
 import './pulp-status.scss';
-
-interface IState {
-  // why the last read failed, shown as an error state with Retry
-  error: ReactNode;
-  status?;
-}
 
 const AsJSON = ({ data }: { data }) => (
   <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(data, null, 2)}</pre>
@@ -329,89 +326,71 @@ function statusNote(status) {
   return null;
 }
 
-class PulpStatus extends Component<RouteProps, IState> {
-  constructor(props) {
-    super(props);
+// The status of the server, read through the shared query: the plugin list
+// reads the same answer, so opening this screen after the page has loaded sends
+// no second request. A read that failed is a retryable error state; a refusal
+// is the insufficient permissions page; the end of the session shows nothing new
+// because the sign-in dialog explains it and the screen reads again afterwards.
+export default function PulpStatus() {
+  const { data: status, error, isFetching, refetch } = useStatus();
 
-    this.state = {
-      error: null,
-      status: null,
-    };
-  }
+  // While Retry (or the read after signing in again) runs, the failure gives
+  // way to the spinner, as the screen has always done.
+  const failed = Boolean(error) && !isSessionEnd(error);
 
-  componentDidMount() {
-    this.query();
-  }
-
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read the status again, which now holds
-    // everything a signed-in user may see.
-    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
-      this.query();
+  if (failed && !isFetching) {
+    if (requestErrorStatus(error) === 403) {
+      return (
+        <>
+          <BaseHeader title={t`Status`} />
+          <InsufficientPermissions detail={requestErrorDetail(error)} />
+        </>
+      );
     }
-  }
-
-  render() {
-    const { error, status } = this.state;
 
     return (
       <>
         <BaseHeader title={t`Status`} />
         <Main>
-          {error ? (
-            <section className='pulp-section'>
-              <ListErrorState
-                title={t`Failed to load status`}
-                message={error}
-                onRetry={() => this.retry()}
-              />
-            </section>
-          ) : !status ? (
-            <LoadingSpinner />
-          ) : (
-            <section className='pulp-section'>
-              {statusNote(status)}
-              <Gallery hasGutter>
-                {cards(status).map(({ key, title, body }) => (
-                  <CardItem key={key} title={title}>
-                    {body}
-                  </CardItem>
-                ))}
-              </Gallery>
-              {/* The raw answer is for a signed-in account: a reduced answer
-                  is shown as its cards only. */}
-              {'versions' in status ? (
-                <>
-                  <br />
-                  <CardJSON status={status} />
-                </>
-              ) : null}
-            </section>
-          )}
+          <section className='pulp-section'>
+            <ListErrorState
+              title={t`Failed to load status`}
+              message={requestErrorDescription(error)}
+              onRetry={() => void refetch()}
+            />
+          </section>
         </Main>
       </>
     );
   }
 
-  private retry() {
-    this.setState({ error: null, status: null });
-    this.query();
-  }
-
-  private query() {
-    PulpStatusAPI.get()
-      .then(({ data }) => {
-        this.setState({ error: null, status: data });
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it, and the page
-        // keeps its spinner or its content until it reads again.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        this.setState({ error: requestErrorDescription(e) });
-      });
-  }
+  return (
+    <>
+      <BaseHeader title={t`Status`} />
+      <Main>
+        {!status || failed ? (
+          <LoadingSpinner />
+        ) : (
+          <section className='pulp-section'>
+            {statusNote(status)}
+            <Gallery hasGutter>
+              {cards(status).map(({ key, title, body }) => (
+                <CardItem key={key} title={title}>
+                  {body}
+                </CardItem>
+              ))}
+            </Gallery>
+            {/* The raw answer is for a signed-in account: a reduced answer is
+                shown as its cards only. */}
+            {'versions' in status ? (
+              <>
+                <br />
+                <CardJSON status={status} />
+              </>
+            ) : null}
+          </section>
+        )}
+      </Main>
+    </>
+  );
 }
-
-export default withRouter(PulpStatus);
