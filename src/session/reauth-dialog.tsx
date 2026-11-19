@@ -68,8 +68,13 @@ const isSignInPage = (pathname: string) => {
 //   with no reload, but only if the session had already ended when the question
 //   left; an answer to a question asked while the session was alive says
 //   nothing about a session that ended afterwards;
-// - another account: the start page loads afresh, because everything in memory
-//   belongs to the previous account;
+// - another account: the cookie now belongs to that account, and until the new
+//   page replaces this one the previous account's screen must neither stay
+//   readable nor send requests as the other account. So the screen is covered
+//   first (the dialog over the opaque layer, every request held), then the
+//   start page loads afresh, because everything in memory belongs to the
+//   previous account; nothing more is asked in this page. The dialog's text
+//   stays true for the account in this tab;
 // - a 401 or a 403: the session has ended and the dialog opens (while it is
 //   open this changes nothing);
 // - anything else, such as a server error or a lost connection: nothing, as it
@@ -81,6 +86,9 @@ const isSignInPage = (pathname: string) => {
 function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
   const context = useUserContext();
   const inFlight = useRef(false);
+  // Set once the start page has been requested for another account: the page
+  // is about to be replaced, so no further question is sent from it.
+  const leaving = useRef(false);
   // The latest context functions: the listener is bound once per sign-in, and
   // a function captured then would be stale.
   const latest = useRef(context);
@@ -93,7 +101,11 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
     }
 
     const check = () => {
-      if (document.visibilityState !== 'visible' || inFlight.current) {
+      if (
+        leaving.current ||
+        document.visibilityState !== 'visible' ||
+        inFlight.current
+      ) {
         return;
       }
       inFlight.current = true;
@@ -109,6 +121,8 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
               latest.current.restoreSession(next);
             }
           } else {
+            reportUnauthorized('tab-return');
+            leaving.current = true;
             window.location.assign(uiPath(formatPath(Paths.core.status)));
           }
         })
@@ -253,6 +267,9 @@ const ReauthDialogContent = ({
       elementToFocus={
         external ? `.${EXTERNAL_LOGIN_CLASS} a` : `#${PASSWORD_ID}`
       }
+      // The layer is drawn without the library's fade-in, so it is opaque from
+      // its first frame and the screen is never readable through it.
+      hasAnimations={false}
       isOpen
       variant='small'
     >

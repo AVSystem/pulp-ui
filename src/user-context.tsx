@@ -290,7 +290,3 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
 // The number of times the same user signed in again; 0 outside the provider.
 export const useSessionEpoch = () => useContext(UserContext)?.epoch ?? 0;
-
-// The number of times the signed-in account went away; 0 outside the provider.
-export const useSessionGeneration = () =>
-  useContext(UserContext)?.generation ?? 0;
