@@ -7,16 +7,17 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { Component } from 'react';
-import { Link } from 'react-router';
 import {
-  OrphanCleanupAPI,
-  RepairAPI,
-  TaskAPI,
-  TaskPurgeAPI,
-  type TaskType,
-} from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+  type ComponentProps,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { OrphanCleanupAPI, RepairAPI, TaskPurgeAPI } from 'src/api';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -39,370 +40,348 @@ import {
   Table,
   closeAlert,
 } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
+import { DEFAULT_PAGE_SIZE, type Task } from 'src/entities/core/task/model';
+import { useCancelTask, useTasks } from 'src/entities/core/task/queries';
 import { Paths, formatPath } from 'src/paths';
-import {
-  ParamHelper,
-  type RouteProps,
-  filterIsSet,
-  parsePulpIDFromURL,
-  translateTask,
-  withRouter,
-} from 'src/utilities';
+import { useSessionEpoch } from 'src/user-context';
+import { filterIsSet } from 'src/utilities/filter-is-set';
 import { ObjectPermissions } from 'src/utilities/my-permissions';
+import { ParamHelper } from 'src/utilities/param-helper';
+import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { translateTask } from 'src/utilities/translate-task';
 import './task.scss';
-
-interface IState {
-  params: {
-    page?: number;
-    page_size?: number;
-  };
-  loading: boolean;
-  items: TaskType[];
-  itemCount: number;
-  alerts: AlertType[];
-  cancelModalVisible: boolean;
-  purgeTaskModalVisible: boolean;
-  orphanCleanupTaskModalVisible: boolean;
-  repairTaskModalVisible: boolean;
-  selectedTask: TaskType;
-  // the read of the list was refused, with the reason Pulp gave when it did
-  unauthorized: boolean;
-  unauthorizedDetail: string | null;
-  inputText: string;
-  purgeTask: { finished_before: string; states: string[] };
-  orphanCleanupTask: { orphan_protection_time: number };
-  repairTask: { verify_checksums: boolean };
-}
 
 const ORPHAN_PROTECTION_TIME = 1440;
 const CHANGE_TASK = 'core.change_task';
 // the states a task can still be stopped in
 const STOPPABLE = ['running', 'waiting'];
 
-export class TaskListView extends Component<RouteProps, IState> {
-  static contextType = AppContext;
+// The indicator knows the states Pulp names; a state it does not know is shown
+// as it is.
+type TaskStatus = ComponentProps<typeof StatusIndicator>['status'];
+
+const DEFAULT_SORT = '-pulp_created';
+
+// The address holds the page, its size, the order and the filters; the screen
+// shows exactly what the address says, and a change goes through the address.
+function paramsOfAddress(search: string) {
+  const params = ParamHelper.parseParamString(search, ['page', 'page_size']);
+
+  if (!params['page_size']) {
+    params['page_size'] = DEFAULT_PAGE_SIZE;
+  }
+  if (!params['sort']) {
+    params['sort'] = DEFAULT_SORT;
+  }
+
+  return params;
+}
+
+// A parameter that came in more than once is read as its first value.
+function single(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first === undefined || first === null ? undefined : String(first);
+}
+
+export const TaskListView = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { hasPermission, isStaff, permissionsReady } = useAppContext();
+  const sessionEpoch = useSessionEpoch();
+
+  const params = useMemo(
+    () => paramsOfAddress(location.search),
+    [location.search],
+  );
+
+  const query = useTasks({
+    page: params['page'],
+    page_size: params['page_size'],
+    sort: single(params['sort']),
+    name__contains: single(params['name__contains']),
+    state: single(params['state']),
+  });
+  const cancelTask = useCancelTask();
+
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [purgeTaskModalVisible, setPurgeTaskModalVisible] = useState(false);
+  const [orphanCleanupTaskModalVisible, setOrphanCleanupTaskModalVisible] =
+    useState(false);
+  const [repairTaskModalVisible, setRepairTaskModalVisible] = useState(false);
+  const [purgeTask, setPurgeTask] = useState(() => {
+    const today = new Date();
+    return {
+      finished_before: `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
+      states: ['completed'],
+    };
+  });
+  const [orphanCleanupTask, setOrphanCleanupTask] = useState({
+    orphan_protection_time: ORPHAN_PROTECTION_TIME,
+  });
+  const [repairTask, setRepairTask] = useState({ verify_checksums: true });
+
+  const addAlert = (alert: AlertType) =>
+    setAlerts((current) => [...current, alert]);
 
   // What the server lists for each running or waiting task, read when the
   // change permission is not held on every task.
-  private objectPermissions = new ObjectPermissions(() => this.forceUpdate());
+  const [, rerender] = useReducer((count: number) => count + 1, 0);
+  const [objectPermissions] = useState(
+    () => new ObjectPermissions(() => rerender()),
+  );
+  useEffect(() => () => objectPermissions.dispose(), [objectPermissions]);
 
-  constructor(props) {
-    super(props);
-
-    const params = ParamHelper.parseParamString(props.location.search, [
-      'page',
-      'page_size',
-    ]);
-
-    if (!params['page_size']) {
-      params['page_size'] = 10;
+  // The same user signed in again: roles may have changed with the new
+  // session, so what was read per task is forgotten. The list itself is read
+  // again by the query layer, keeping the rows on screen until the answer
+  // arrives.
+  const lastEpoch = useRef(sessionEpoch);
+  useEffect(() => {
+    if (lastEpoch.current !== sessionEpoch) {
+      lastEpoch.current = sessionEpoch;
+      objectPermissions.reset();
     }
+  }, [sessionEpoch, objectPermissions]);
 
-    if (!params['sort']) {
-      params['sort'] = '-pulp_created';
-    }
-    const today = new Date();
-
-    this.state = {
-      params,
-      items: [],
-      loading: true,
-      itemCount: 0,
-      alerts: [],
-      cancelModalVisible: false,
-      purgeTaskModalVisible: false,
-      orphanCleanupTaskModalVisible: false,
-      repairTaskModalVisible: false,
-      selectedTask: null,
-      unauthorized: false,
-      unauthorizedDetail: null,
-      inputText: '',
-      purgeTask: {
-        finished_before: `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
-        states: ['completed'],
-      },
-      orphanCleanupTask: { orphan_protection_time: ORPHAN_PROTECTION_TIME },
-      repairTask: { verify_checksums: true },
-    };
-  }
-
-  componentDidMount() {
-    this.queryTasks();
-  }
-
-  componentWillUnmount() {
-    this.objectPermissions.dispose();
-  }
-
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read the list again, keeping the rows on
-    // screen until the answer arrives. Roles may have changed with the new
-    // session.
-    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
-      this.objectPermissions.reset();
-      this.queryTasks(true);
-    }
-    this.readObjectPermissions();
-  }
+  const rows = query.data?.results;
+  const items = useMemo(() => rows ?? [], [rows]);
 
   // Reads the permissions of each task a Stop task button could be drawn for,
   // once, when the account's global permissions are known and do not already
-  // include the change permission.
-  private readObjectPermissions() {
-    const { hasPermission, permissionsReady } = this.context as IAppContextType;
+  // include the change permission. Asking again is cheap: a task already read
+  // or read a moment ago is left alone.
+  useEffect(() => {
     if (!permissionsReady || hasPermission(CHANGE_TASK)) {
       return;
     }
 
-    for (const item of this.state.items) {
+    for (const item of items) {
       if (
         STOPPABLE.includes(item.state) &&
         !Array.isArray(item.my_permissions)
       ) {
-        this.objectPermissions.read(item.pulp_href);
+        objectPermissions.read(item.pulp_href);
       }
     }
-  }
+  });
 
-  render() {
-    const {
-      params,
-      itemCount,
-      loading,
-      items,
-      alerts,
-      cancelModalVisible,
-      purgeTaskModalVisible,
-      orphanCleanupTaskModalVisible,
-      repairTaskModalVisible,
-      unauthorized,
-      unauthorizedDetail,
-    } = this.state;
+  const status = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
 
-    const noData =
-      items.length === 0 && !filterIsSet(params, ['name__contains', 'state']);
+  // A failed read of rows already on screen keeps the rows and says so once.
+  const alertedFailure = useRef(0);
+  const rereadFailed = query.isRefetchError && !sessionEnded && status !== 403;
+  useEffect(() => {
+    if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
+      alertedFailure.current = query.errorUpdatedAt;
+      addAlert({
+        variant: 'danger',
+        title: t`Tasks list could not be displayed.`,
+        description: requestErrorDescription(query.error),
+      });
+    }
+  }, [rereadFailed, query.errorUpdatedAt, query.error]);
 
-    // Which maintenance actions are drawn is presentation only; Pulp decides
-    // every request. Orphan cleanup and repair are for administrators, purge
-    // for an account that may delete every task. Nothing is drawn while the
-    // permissions are unknown.
-    const { hasPermission, isStaff } = this.context as IAppContextType;
-    const canPurge = hasPermission('core.delete_task');
+  const updateParams = (next) =>
+    navigate({ search: '?' + ParamHelper.getQueryString(next) });
 
-    const orphansCleanup = (
-      <Button
-        variant={'primary'}
-        onClick={() => this.setState({ orphanCleanupTaskModalVisible: true })}
-      >{t`Orphan cleanup`}</Button>
-    );
-    const repair = (
-      <Button
-        variant={'primary'}
-        onClick={() => this.setState({ repairTaskModalVisible: true })}
-      >{t`Repair`}</Button>
-    );
+  const stopSelectedTask = () => {
+    if (!selectedTask || cancelTask.isPending) {
+      return;
+    }
+    const name = translateTask(selectedTask.name);
 
-    const purgeTasks = (
-      <Button
-        variant={'primary'}
-        onClick={() => this.setState({ purgeTaskModalVisible: true })}
-      >{t`Purge tasks`}</Button>
-    );
+    cancelTask.mutate(selectedTask.pulp_href, {
+      onSuccess: () => {
+        setSelectedTask(null);
+        addAlert({
+          variant: 'success',
+          title: name,
+          description: t`Task "${name}" stopped successfully.`,
+        });
+      },
+      onError: (e) => {
+        setSelectedTask(null);
+        // The session ended: the sign-in dialog explains it. The task was not
+        // stopped and nothing is repeated.
+        if (isSessionEnd(e)) {
+          return;
+        }
+        addAlert({
+          variant: 'danger',
+          title: t`Task "${name}" could not be stopped.`,
+          description: requestErrorDescription(e),
+        });
+      },
+    });
+  };
+
+  const startMaintenance = (
+    start: () => Promise<unknown>,
+    started: string,
+    failed: string,
+  ) => {
+    start()
+      .then(() => addAlert({ variant: 'success', title: started }))
+      .catch((e) => {
+        if (!isSessionEnd(e)) {
+          addAlert({ variant: 'danger', title: failed });
+        }
+      });
+  };
+
+  const noData =
+    items.length === 0 && !filterIsSet(params, ['name__contains', 'state']);
+
+  // Which maintenance actions are drawn is presentation only; Pulp decides
+  // every request. Orphan cleanup and repair are for administrators, purge
+  // for an account that may delete every task. Nothing is drawn while the
+  // permissions are unknown.
+  const canPurge = hasPermission('core.delete_task');
+
+  const header = <BaseHeader title={t`Task management`} />;
+
+  const stopModal = (task: Task) => {
+    const name = translateTask(task.name);
 
     return (
-      <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        {cancelModalVisible ? this.renderCancelModal() : null}
-        {purgeTaskModalVisible ? this.renderPurgeTaskModal() : null}
-        {orphanCleanupTaskModalVisible
-          ? this.renderOrphanCleanupTaskModal()
-          : null}
-        {repairTaskModalVisible ? this.renderRepairTaskModal() : null}
-        <BaseHeader title={t`Task management`} />
-        {unauthorized ? (
-          <InsufficientPermissions detail={unauthorizedDetail} />
-        ) : noData && !loading ? (
-          <EmptyStateNoData
-            title={t`No tasks yet`}
-            description={t`Tasks will appear once created.`}
-          />
-        ) : (
-          <Main>
-            {loading ? (
-              <LoadingSpinner />
-            ) : (
-              <section className='pulp-section'>
-                <div className='pulp-toolbar'>
-                  <Toolbar>
-                    <ToolbarContent>
-                      <ToolbarGroup>
-                        <ToolbarItem>
-                          <CompoundFilter
-                            inputText={this.state.inputText}
-                            onChange={(text) =>
-                              this.setState({ inputText: text })
-                            }
-                            updateParams={(p) =>
-                              this.updateParams(p, () => this.queryTasks())
-                            }
-                            params={params}
-                            filterConfig={[
-                              {
-                                id: 'name__contains',
-                                title: t`Task name`,
-                              },
-                              {
-                                id: 'state',
-                                title: t`Status`,
-                                inputType: 'select',
-                                options: [
-                                  {
-                                    id: 'completed',
-                                    title: t`Completed`,
-                                  },
-                                  {
-                                    id: 'failed',
-                                    title: t`Failed`,
-                                  },
-                                  {
-                                    id: 'running',
-                                    title: t`Running`,
-                                  },
-                                  {
-                                    id: 'waiting',
-                                    title: t`Waiting`,
-                                  },
-                                ],
-                              },
-                            ]}
-                          />
-                        </ToolbarItem>
-                        {isStaff ? (
-                          <ToolbarItem>{orphansCleanup}</ToolbarItem>
-                        ) : null}
-                        {isStaff ? <ToolbarItem>{repair}</ToolbarItem> : null}
-                        {canPurge ? (
-                          <ToolbarItem>{purgeTasks}</ToolbarItem>
-                        ) : null}
-                      </ToolbarGroup>
-                    </ToolbarContent>
-                  </Toolbar>
-                  <PulpPagination
-                    params={params}
-                    updateParams={(p) =>
-                      this.updateParams(p, () => this.queryTasks())
-                    }
-                    count={itemCount}
-                    isTop
-                  />
-                </div>
-                <div>
-                  <AppliedFilters
-                    updateParams={(p) => {
-                      this.updateParams(p, () => this.queryTasks());
-                      this.setState({ inputText: '' });
-                    }}
-                    params={params}
-                    ignoredParams={['page_size', 'page', 'sort', 'ordering']}
-                    niceNames={{
-                      name__contains: t`Task name`,
-                      state: t`Status`,
-                    }}
-                  />
-                </div>
-                {loading ? <LoadingSpinner /> : this.renderTable(params)}
+      <ConfirmModal
+        cancelAction={() => setSelectedTask(null)}
+        title={t`Stop task?`}
+        confirmAction={stopSelectedTask}
+        confirmButtonTitle={t`Yes, stop`}
+      >{t`${name} will be cancelled.`}</ConfirmModal>
+    );
+  };
 
-                <PulpPagination
-                  params={params}
-                  updateParams={(p) =>
-                    this.updateParams(p, () => this.queryTasks())
-                  }
-                  count={itemCount}
-                />
-              </section>
-            )}
-          </Main>
-        )}
+  const modals = (
+    <>
+      {selectedTask ? stopModal(selectedTask) : null}
+      {purgeTaskModalVisible ? (
+        <PurgeTaskModal
+          taskValue={purgeTask}
+          cancelAction={() => setPurgeTaskModalVisible(false)}
+          confirmAction={() => {
+            startMaintenance(
+              () => TaskPurgeAPI.create(purgeTask),
+              t`Purge tasks started`,
+              t`Purge tasks could not be started`,
+            );
+            setPurgeTaskModalVisible(false);
+          }}
+          updateTask={setPurgeTask}
+        ></PurgeTaskModal>
+      ) : null}
+      {orphanCleanupTaskModalVisible ? (
+        <OrphanCleanupTaskModal
+          taskValue={orphanCleanupTask}
+          cancelAction={() => setOrphanCleanupTaskModalVisible(false)}
+          confirmAction={() => {
+            startMaintenance(
+              () => OrphanCleanupAPI.create(orphanCleanupTask),
+              t`Orphan cleanup started`,
+              t`Orphan cleanup could not be started`,
+            );
+            setOrphanCleanupTaskModalVisible(false);
+          }}
+          updateTask={setOrphanCleanupTask}
+        ></OrphanCleanupTaskModal>
+      ) : null}
+      {repairTaskModalVisible ? (
+        <RepairTaskModal
+          taskValue={repairTask}
+          cancelAction={() => setRepairTaskModalVisible(false)}
+          confirmAction={() => {
+            startMaintenance(
+              () => RepairAPI.create(repairTask),
+              t`Repair artifact storage started`,
+              t`Repair artifact storage could not be started`,
+            );
+            setRepairTaskModalVisible(false);
+          }}
+          updateTask={setRepairTask}
+        ></RepairTaskModal>
+      ) : null}
+    </>
+  );
+
+  const alertList = (
+    <AlertList
+      alerts={alerts}
+      closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+    />
+  );
+
+  // A refused read is not a failure to retry: the account is told it may not
+  // view the page, with Pulp's own reason.
+  if (status === 403) {
+    return (
+      <>
+        {alertList}
+        {header}
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
       </>
     );
   }
 
-  private renderTable(params) {
-    const { items } = this.state;
+  const failed =
+    query.isError && !sessionEnded && !query.data && !query.isFetching;
+  const loading = !query.data && !failed;
 
-    if (items.length === 0) {
-      return <EmptyStateFilter />;
-    }
-
-    const sortTableOptions = {
-      headers: [
-        {
-          title: t`Task name`,
-          type: 'alpha',
-          id: 'name',
-        },
-        {
-          title: t`Description`,
-          type: 'none',
-          id: 'description',
-        },
-        {
-          title: t`Created on`,
-          type: 'numeric',
-          id: 'pulp_created',
-        },
-        {
-          title: t`Started at`,
-          type: 'numeric',
-          id: 'started_at',
-        },
-        {
-          title: t`Finished at`,
-          type: 'numeric',
-          id: 'finished_at',
-        },
-        {
-          title: t`Status`,
-          type: 'alpha',
-          id: 'state',
-        },
-      ],
-    };
-
+  if (query.data && noData) {
     return (
-      <Table aria-label={t`Task list`}>
-        <SortTable
-          options={sortTableOptions}
-          params={params}
-          updateParams={(p) => this.updateParams(p, () => this.queryTasks())}
+      <>
+        {alertList}
+        {modals}
+        {header}
+        <EmptyStateNoData
+          title={t`No tasks yet`}
+          description={t`Tasks will appear once created.`}
         />
-        <Tbody>{items.map((item, i) => this.renderTableRow(item, i))}</Tbody>
-      </Table>
+      </>
     );
   }
 
-  private renderTableRow(item, index: number) {
+  const sortTableOptions = {
+    headers: [
+      { title: t`Task name`, type: 'alpha', id: 'name' },
+      { title: t`Description`, type: 'none', id: 'description' },
+      { title: t`Created on`, type: 'numeric', id: 'pulp_created' },
+      { title: t`Started at`, type: 'numeric', id: 'started_at' },
+      { title: t`Finished at`, type: 'numeric', id: 'finished_at' },
+      { title: t`Status`, type: 'alpha', id: 'state' },
+    ],
+  };
+
+  const stopButton = (item: Task) =>
+    STOPPABLE.includes(item.state) &&
+    objectPermissions.holds(CHANGE_TASK, item, hasPermission) ? (
+      <Button
+        variant='secondary'
+        key='stop'
+        onClick={() => setSelectedTask(item)}
+      >
+        {t`Stop task`}
+      </Button>
+    ) : null;
+
+  const renderRow = (item: Task) => {
     const { name, state, pulp_created, started_at, finished_at, pulp_href } =
       item;
     const taskId = parsePulpIDFromURL(pulp_href);
     const description = translateTask(name);
 
     return (
-      <Tr key={index}>
+      <Tr key={pulp_href}>
         <Td>
           <Link to={formatPath(Paths.core.task.detail, { task: taskId })}>
             {name}
@@ -419,255 +398,138 @@ export class TaskListView extends Component<RouteProps, IState> {
           <DateComponent date={finished_at} />
         </Td>
         <Td>
-          <StatusIndicator status={state} />
+          <StatusIndicator status={state as TaskStatus} />
         </Td>
-        <Td>{this.cancelButton(state, item)}</Td>
+        <Td>{stopButton(item)}</Td>
       </Tr>
     );
-  }
+  };
 
-  private cancelButton(state, selectedTask) {
-    const { hasPermission } = this.context as IAppContextType;
-    if (
-      !STOPPABLE.includes(state) ||
-      !this.objectPermissions.holds(CHANGE_TASK, selectedTask, hasPermission)
-    ) {
-      return null;
+  const body = () => {
+    if (failed) {
+      return (
+        <ListErrorState
+          title={t`Tasks list could not be displayed.`}
+          message={requestErrorDescription(query.error)}
+          onRetry={() => query.refetch()}
+        />
+      );
+    }
+    if (items.length === 0) {
+      return <EmptyStateFilter />;
     }
 
     return (
-      <Button
-        variant='secondary'
-        key='stop'
-        onClick={() =>
-          this.setState({
-            cancelModalVisible: true,
-            selectedTask,
-          })
-        }
-      >
-        {t`Stop task`}
-      </Button>
+      <Table aria-label={t`Task list`}>
+        <SortTable
+          options={sortTableOptions}
+          params={params}
+          updateParams={updateParams}
+        />
+        <Tbody>{items.map(renderRow)}</Tbody>
+      </Table>
     );
-  }
+  };
 
-  private renderCancelModal() {
-    const { selectedTask } = this.state;
-    const name = translateTask(selectedTask.name);
+  return (
+    <>
+      {alertList}
+      {modals}
+      {header}
+      <Main>
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <section className='pulp-section'>
+            <div className='pulp-toolbar'>
+              <Toolbar>
+                <ToolbarContent>
+                  <ToolbarGroup>
+                    <ToolbarItem>
+                      <CompoundFilter
+                        inputText={inputText}
+                        onChange={setInputText}
+                        updateParams={updateParams}
+                        params={params}
+                        filterConfig={[
+                          { id: 'name__contains', title: t`Task name` },
+                          {
+                            id: 'state',
+                            title: t`Status`,
+                            inputType: 'select',
+                            options: [
+                              { id: 'completed', title: t`Completed` },
+                              { id: 'failed', title: t`Failed` },
+                              { id: 'running', title: t`Running` },
+                              { id: 'waiting', title: t`Waiting` },
+                            ],
+                          },
+                        ]}
+                      />
+                    </ToolbarItem>
+                    {isStaff ? (
+                      <ToolbarItem>
+                        <Button
+                          variant={'primary'}
+                          onClick={() => setOrphanCleanupTaskModalVisible(true)}
+                        >{t`Orphan cleanup`}</Button>
+                      </ToolbarItem>
+                    ) : null}
+                    {isStaff ? (
+                      <ToolbarItem>
+                        <Button
+                          variant={'primary'}
+                          onClick={() => setRepairTaskModalVisible(true)}
+                        >{t`Repair`}</Button>
+                      </ToolbarItem>
+                    ) : null}
+                    {canPurge ? (
+                      <ToolbarItem>
+                        <Button
+                          variant={'primary'}
+                          onClick={() => setPurgeTaskModalVisible(true)}
+                        >{t`Purge tasks`}</Button>
+                      </ToolbarItem>
+                    ) : null}
+                  </ToolbarGroup>
+                </ToolbarContent>
+              </Toolbar>
+              {query.data ? (
+                <PulpPagination
+                  params={params}
+                  updateParams={updateParams}
+                  count={query.data.count}
+                  isTop
+                />
+              ) : null}
+            </div>
+            <div>
+              <AppliedFilters
+                updateParams={(p) => {
+                  updateParams(p);
+                  setInputText('');
+                }}
+                params={params}
+                ignoredParams={['page_size', 'page', 'sort', 'ordering']}
+                niceNames={{
+                  name__contains: t`Task name`,
+                  state: t`Status`,
+                }}
+              />
+            </div>
+            {body()}
+            {query.data ? (
+              <PulpPagination
+                params={params}
+                updateParams={updateParams}
+                count={query.data.count}
+              />
+            ) : null}
+          </section>
+        )}
+      </Main>
+    </>
+  );
+};
 
-    return (
-      <ConfirmModal
-        cancelAction={() => this.setState({ cancelModalVisible: false })}
-        title={t`Stop task?`}
-        confirmAction={() => this.selectedTask(selectedTask, name)}
-        confirmButtonTitle={t`Yes, stop`}
-      >{t`${name} will be cancelled.`}</ConfirmModal>
-    );
-  }
-  private renderPurgeTaskModal() {
-    const { purgeTask } = this.state;
-    return (
-      <PurgeTaskModal
-        taskValue={purgeTask}
-        cancelAction={() => this.setState({ purgeTaskModalVisible: false })}
-        confirmAction={() => {
-          this.purge(purgeTask);
-          this.setState({ purgeTaskModalVisible: false });
-        }}
-        updateTask={(task) => {
-          this.setState({ purgeTask: task });
-        }}
-      ></PurgeTaskModal>
-    );
-  }
-  private renderOrphanCleanupTaskModal() {
-    const { orphanCleanupTask } = this.state;
-
-    return (
-      <OrphanCleanupTaskModal
-        taskValue={orphanCleanupTask}
-        cancelAction={() =>
-          this.setState({ orphanCleanupTaskModalVisible: false })
-        }
-        confirmAction={() => {
-          this.orphanCleanup(orphanCleanupTask);
-          this.setState({ orphanCleanupTaskModalVisible: false });
-        }}
-        updateTask={(task) => {
-          this.setState({ orphanCleanupTask: task });
-        }}
-      ></OrphanCleanupTaskModal>
-    );
-  }
-  private renderRepairTaskModal() {
-    const { repairTask } = this.state;
-
-    return (
-      <RepairTaskModal
-        taskValue={repairTask}
-        cancelAction={() => this.setState({ repairTaskModalVisible: false })}
-        confirmAction={() => {
-          this.repair(repairTask);
-          this.setState({ repairTaskModalVisible: false });
-        }}
-        updateTask={(task) => this.setState({ repairTask: task })}
-      ></RepairTaskModal>
-    );
-  }
-
-  private selectedTask({ pulp_href }, name) {
-    TaskAPI.patch(parsePulpIDFromURL(pulp_href), {
-      state: 'canceled',
-    })
-      .then(() => {
-        this.setState({
-          loading: true,
-          selectedTask: null,
-          cancelModalVisible: false,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'success',
-              title: name,
-              description: t`Task "${name}" stopped successfully.`,
-            },
-          ],
-        });
-        this.queryTasks();
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it. The task was not
-        // stopped and nothing is repeated.
-        if (isSessionEnd(e)) {
-          this.setState({ cancelModalVisible: false });
-          return;
-        }
-        this.setState({
-          cancelModalVisible: false,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'danger',
-              title: t`Task "${name}" could not be stopped.`,
-              description: requestErrorDescription(e),
-            },
-          ],
-        });
-        // The rows stay on screen while the list is read again.
-        this.queryTasks(true);
-      });
-  }
-
-  // A quiet read keeps the rows on screen instead of showing the spinner.
-  private queryTasks(quiet = false) {
-    this.setState({ loading: quiet ? this.state.loading : true }, () => {
-      TaskAPI.list(this.state.params)
-        .then((result) => {
-          this.setState({
-            items: result.data.results,
-            itemCount: result.data.count,
-            loading: false,
-            unauthorized: false,
-            unauthorizedDetail: null,
-          });
-        })
-        .catch((e) => {
-          // The session ended: the sign-in dialog explains it, and the list
-          // keeps its spinner or its rows until it reads again.
-          if (isSessionEnd(e)) {
-            return;
-          }
-          if (requestErrorStatus(e) === 403) {
-            // A refused read is not a failure to retry: the account is told it
-            // may not view the page, with Pulp's own reason.
-            this.setState({
-              loading: false,
-              items: [],
-              itemCount: 0,
-              unauthorized: true,
-              unauthorizedDetail: requestErrorDetail(e),
-            });
-            return;
-          }
-          this.setState({
-            loading: false,
-            items: [],
-            itemCount: 0,
-            alerts: [
-              ...this.state.alerts,
-              {
-                variant: 'danger',
-                title: t`Tasks list could not be displayed.`,
-                description: requestErrorDescription(e),
-              },
-            ],
-          });
-        });
-    });
-  }
-
-  private addAlert(title, variant, description?) {
-    this.setState({
-      alerts: [
-        ...this.state.alerts,
-        {
-          description,
-          title,
-          variant,
-        },
-      ],
-    });
-  }
-
-  private orphanCleanup(task: { orphan_protection_time: number }) {
-    OrphanCleanupAPI.create(task)
-      .then(() => {
-        this.addAlert(t`Orphan cleanup started`, 'success');
-        this.queryTasks();
-      })
-      .catch((e) => {
-        if (!isSessionEnd(e)) {
-          this.addAlert(t`Orphan cleanup could not be started`, 'danger');
-        }
-      });
-  }
-
-  private repair(task: { verify_checksums: boolean }) {
-    RepairAPI.create(task)
-      .then(() => {
-        this.addAlert(t`Repair artifact storage started`, 'success');
-        this.queryTasks();
-      })
-      .catch((e) => {
-        if (!isSessionEnd(e)) {
-          this.addAlert(
-            t`Repair artifact storage could not be started`,
-            'danger',
-          );
-        }
-      });
-  }
-
-  private purge(task: { finished_before: string; states: string[] }) {
-    TaskPurgeAPI.create(task)
-      .then(() => {
-        this.addAlert(t`Purge tasks started`, 'success');
-        this.queryTasks();
-      })
-      .catch((e) => {
-        if (!isSessionEnd(e)) {
-          this.addAlert(t`Purge tasks could not be started`, 'danger');
-        }
-      });
-  }
-
-  private updateParams(params, callback = null) {
-    ParamHelper.updateParams({
-      params,
-      navigate: (to) => this.props.navigate(to),
-      setState: (state) => this.setState(state, callback),
-    });
-  }
-}
-
-export default withRouter(TaskListView);
+export default TaskListView;

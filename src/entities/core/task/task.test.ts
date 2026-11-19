@@ -28,7 +28,8 @@ describe('task model', { tags: ['unit'] }, () => {
   });
 
   it('refuses a row without pulp_href as a response shape error', () => {
-    const { pulp_href: _omitted, ...row } = taskRow();
+    const row: Record<string, unknown> = taskRow();
+    delete row['pulp_href'];
 
     expect(() =>
       parseResponse(taskPageSchema, taskPage([row as never])),
