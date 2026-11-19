@@ -4,6 +4,7 @@ import { tasksDelete, tasksRead } from '@pulp-ui/sdk/core/tasks';
 import { HttpResponse, http } from 'msw';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PulpAPI } from 'src/api/pulp';
+import type * as RequestPolicy from 'src/session/request-policy';
 import { handleFailure, prepareRequest } from 'src/session/request-policy';
 import {
   SessionSuspendedError,
@@ -23,8 +24,7 @@ import {
 // The real policy, with every call recorded so a test can read what the two
 // clients handed to it.
 vi.mock('src/session/request-policy', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('src/session/request-policy')>();
+  const actual = await importOriginal<typeof RequestPolicy>();
   return {
     ...actual,
     prepareRequest: vi.fn(actual.prepareRequest),
