@@ -11,11 +11,12 @@ import {
 import { useCreateUser } from 'src/entities/core/user/queries';
 import { Paths, formatPath } from 'src/paths';
 import { type ErrorMessagesType } from 'src/utilities/map-error-messages';
+import { isSessionEnd } from 'src/utilities/request-error';
 import { userSaveErrors } from './save-errors';
 
 const UserCreate = () => {
   const createUser = useCreateUser();
-  const { permissionsFailed } = useAppContext();
+  const { permissionsFailed, permissionsError } = useAppContext();
 
   const [errorMessages, setErrorMessages] = useState<ErrorMessagesType>({});
   const [redirect, setRedirect] = useState<string>();
@@ -41,7 +42,9 @@ const UserCreate = () => {
 
   const title = t`Create new user`;
 
-  if (permissionsFailed && !touched) {
+  // A permission read that stopped only because the session ended is not a
+  // failure to show: the sign-in dialog explains it.
+  if (permissionsFailed && !isSessionEnd(permissionsError) && !touched) {
     return <PermissionsFailed title={title} />;
   }
 
