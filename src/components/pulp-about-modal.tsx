@@ -1,8 +1,19 @@
 import { t } from '@lingui/core/macro';
-import { AboutModal, Content, ContentVariants } from '@patternfly/react-core';
+import {
+  AboutModal,
+  Content,
+  ContentVariants,
+  HelperText,
+  HelperTextItem,
+} from '@patternfly/react-core';
 import { type ReactNode } from 'react';
 import { Link } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import { DateComponent, ExternalLink, MaybeLink } from 'src/components';
+import {
+  type VersionDifference,
+  versionDifferences,
+} from 'src/entities/core/status/generated-versions';
 import { Paths, formatPath } from 'src/paths';
 import { usePlugins } from 'src/plugins';
 import { config } from 'src/ui-config';
@@ -19,6 +30,22 @@ const Value = ({ children }: { children: ReactNode }) => (
   <Content component={ContentVariants.dd}>{children}</Content>
 );
 
+const differenceText = ({
+  name,
+  kind,
+  generated,
+  running,
+}: VersionDifference) => {
+  switch (kind) {
+    case 'different':
+      return t`${name}: the interface was generated for ${generated}, this server runs ${running}`;
+    case 'not-generated':
+      return t`${name}: not part of the generated interface`;
+    case 'not-installed':
+      return t`${name}: generated in the interface, not installed on this server`;
+  }
+};
+
 interface IProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,10 +54,20 @@ interface IProps {
 
 export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
   const plugins = usePlugins();
+  const { isStaff, permissionsReady } = useAppContext();
   // e.g. 3.65.0; unknown until the server has answered and when it could not
   // be read
   const pulp_core_version =
     plugins.state === 'ready' ? plugins.versions.get('core') : undefined;
+
+  // Helps an administrator notice that the typed client of the interface was
+  // generated against other plugin versions than the server runs. It only
+  // informs and blocks nothing; everyone else sees nothing, and nothing is
+  // shown until both the permissions and the plugin versions are known.
+  const differences =
+    isStaff && permissionsReady && plugins.state === 'ready'
+      ? versionDifferences(plugins.versions)
+      : [];
 
   const ui_hash = UI_BUILD_INFO?.hash;
   const ui_sha = ui_hash?.slice(0, 12);
@@ -126,6 +163,15 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
             ))}
           </Value>
         </Content>
+        {differences.length ? (
+          <HelperText component='ul'>
+            {differences.map((difference) => (
+              <HelperTextItem component='li' key={difference.name}>
+                {differenceText(difference)}
+              </HelperTextItem>
+            ))}
+          </HelperText>
+        ) : null}
       </Content>
     </AboutModal>
   );
