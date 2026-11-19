@@ -43,6 +43,9 @@ let resetPluginVersionsCache: () => void = () => undefined;
 beforeAll(async () => {
   const { configPromise } = await import('src/ui-config');
   await configPromise;
+  // The generated client resolves every URL through the application's rules.
+  const { installSdkRequestPolicy } = await import('src/entities/sdk-setup');
+  installSdkRequestPolicy();
   // Imported here for the same reason: the module reads the configuration.
   ({ resetPluginVersionsCache } = await import('src/utilities/plugin-version'));
 });

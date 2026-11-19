@@ -1,8 +1,12 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { config } from 'src/ui-config';
 import { isLoginUrl, resolveApiUrl } from './request-policy';
 
-const defaultBase = config.API_BASE_PATH;
+// The configuration is loaded by the test setup before the first test runs.
+let defaultBase: string;
+beforeAll(() => {
+  defaultBase = config.API_BASE_PATH;
+});
 
 afterEach(() => {
   config.API_BASE_PATH = defaultBase;

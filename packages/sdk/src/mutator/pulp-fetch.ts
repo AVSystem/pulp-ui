@@ -37,6 +37,9 @@ function defineHeaders(options: RequestInit): Headers {
 
 /**
  * Reads and parses a response body based on its Content-Type or Status Code.
+ * A failed answer without a Content-Type has no body to read: it must still
+ * become a request error, or a bare 401 or 403 would never reach the failure
+ * hook and the end of a session would go unnoticed.
  * @param {Response} res Response to read.
  * @returns {unknown} The parsed JSON body, raw test for non-JSON or undefined.
  */
@@ -48,6 +51,9 @@ function getBody(res: Response): unknown {
   const contentType = res.headers.get('content-type');
 
   if (!contentType) {
+    if (!res.ok) {
+      return undefined;
+    }
     throw new Error('Response missing Content-Type header');
   }
 
@@ -58,16 +64,64 @@ function getBody(res: Response): unknown {
 }
 
 /**
- * Builds an Error returning the response status and parsed body for a failed request.
- * @param {number} status HTTP Status code.
- * @param {unknown} data Parsed response body.
- * @returns {Error & { status: number; data: unknown }} Error with status and reponse body attached.
+ * The error of a request the server answered with a failure status. It carries
+ * the status and body directly and as a `response` object, the shape the
+ * application's error helpers read.
  */
-function buildResponseError(status: number, data: unknown): Error {
-  return Object.assign(new Error(`Request failed with status ${status}`), {
-    status,
-    data,
-  });
+class PulpRequestError extends Error {
+  readonly status: number;
+  readonly data: unknown;
+  readonly response: { status: number; statusText: string; data: unknown };
+
+  constructor(status: number, statusText: string, data: unknown) {
+    super(`Request failed with status ${status}`);
+    this.name = 'PulpRequestError';
+    this.status = status;
+    this.data = data;
+    this.response = { status, statusText, data };
+  }
+}
+
+/**
+ * The application's rules for every request, registered once at startup. The
+ * sdk cannot import application code, so the application hands them in.
+ */
+interface PulpFetchHooks<TContext = unknown> {
+  /**
+   * Turns a generated or server-issued path into the URL to request, or throws
+   * to refuse the request. Runs before anything else, so a refused request
+   * never reaches the network.
+   */
+  resolveUrl(url: string): string;
+  /**
+   * Runs once the URL is resolved and may add headers or throw to hold the
+   * request back. The value it returns is the request context, handed to
+   * onFailure unchanged if the request fails.
+   */
+  beforeRequest(
+    url: string,
+    method: string,
+    headers: Headers,
+  ): Promise<TContext> | TContext;
+  /**
+   * Sees every answer with a failure status once, before the error reaches the
+   * caller. The error is thrown afterwards whatever this does.
+   */
+  onFailure?(error: PulpRequestError, context: TContext): Promise<void> | void;
+}
+
+let hooks: PulpFetchHooks | null = null;
+
+/**
+ * Registers the application's request rules, or removes them with null.
+ * Without rules a request goes out as given.
+ * @param {PulpFetchHooks | null} next The rules to apply to every request.
+ * @returns {void}
+ */
+function configurePulpFetch<TContext>(
+  next: PulpFetchHooks<TContext> | null,
+): void {
+  hooks = next as PulpFetchHooks | null;
 }
 
 /**
@@ -77,9 +131,18 @@ function buildResponseError(status: number, data: unknown): Error {
  * @returns {Promise<T>} Parsed response body on success.
  */
 async function pulpFetch<T>(url: string, options: RequestInit): Promise<T> {
+  const rules = hooks;
+  const target = rules ? rules.resolveUrl(url) : url;
   const headers = defineHeaders(options);
+  const context = rules
+    ? await rules.beforeRequest(
+        target,
+        (options.method ?? 'GET').toUpperCase(),
+        headers,
+      )
+    : undefined;
 
-  const response = await fetch(url, {
+  const response = await fetch(target, {
     ...options,
     headers,
     credentials: 'include',
@@ -88,10 +151,17 @@ async function pulpFetch<T>(url: string, options: RequestInit): Promise<T> {
   const data = await getBody(response);
 
   if (!response.ok) {
-    throw buildResponseError(response.status, data);
+    const error = new PulpRequestError(
+      response.status,
+      response.statusText,
+      data,
+    );
+    await rules?.onFailure?.(error, context);
+    throw error;
   }
 
   return data as Promise<T>;
 }
 
-export { pulpFetch };
+export { PulpRequestError, configurePulpFetch, pulpFetch };
+export type { PulpFetchHooks };

@@ -8,6 +8,7 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 import { Alert, LoadingSpinner } from 'src/components';
+import { installSdkRequestPolicy } from 'src/entities/sdk-setup';
 import { dataRoutes } from './app-routes';
 import './darkmode';
 import './l10n';
@@ -41,6 +42,8 @@ function redirect(UI_BASE_PATH) {
 }
 
 configPromise.then(({ UI_BASE_PATH }) => redirect(UI_BASE_PATH));
+
+installSdkRequestPolicy();
 
 const root = createRoot(document.getElementById('root'));
 root.render(

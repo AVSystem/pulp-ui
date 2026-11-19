@@ -1,11 +1,15 @@
 import { statusRead } from '@pulp-ui/sdk/core/status';
 import { tasksRead } from '@pulp-ui/sdk/core/tasks';
 import { HttpResponse, http } from 'msw';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { server } from 'src/test-utils/server';
 import { config } from 'src/ui-config';
 
-const defaultBase = config.API_BASE_PATH;
+// The configuration is loaded by the test setup before the first test runs.
+let defaultBase: string;
+beforeAll(() => {
+  defaultBase = config.API_BASE_PATH;
+});
 
 afterEach(() => {
   config.API_BASE_PATH = defaultBase;

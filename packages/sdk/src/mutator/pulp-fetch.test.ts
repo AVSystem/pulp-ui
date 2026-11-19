@@ -383,9 +383,9 @@ describe('Unit: PulpRequestError', { tags: ['unit'] }, () => {
       ),
     );
 
-    const error = await pulpFetch('/pulp/api/v3/status/', {
+    const error = await pulpFetch<never>('/pulp/api/v3/status/', {
       method: 'GET',
-    }).catch((e) => e);
+    }).catch((e: PulpRequestError) => e);
 
     expect(error).toBeInstanceOf(PulpRequestError);
     expect(error).toBeInstanceOf(Error);
@@ -407,9 +407,9 @@ describe('Unit: PulpRequestError', { tags: ['unit'] }, () => {
       }),
     );
 
-    const error = await pulpFetch('/pulp/api/v3/status/', {
+    const error = await pulpFetch<never>('/pulp/api/v3/status/', {
       method: 'GET',
-    }).catch((e) => e);
+    }).catch((e: PulpRequestError) => e);
 
     expect(error).toBeInstanceOf(PulpRequestError);
     expect(error.response.status).toBe(401);
