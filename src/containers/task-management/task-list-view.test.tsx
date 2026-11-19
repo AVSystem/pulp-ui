@@ -31,6 +31,21 @@ function renderTasks() {
 }
 
 describe('the task list', () => {
+  it('links the name of a task to /tasks/<id>', async () => {
+    const row = taskRow({ name: 'pulp_file.app.tasks.synchronize' });
+    server.use(listOf(TASKS, [row]).handler);
+    renderTasks();
+
+    const link = await screen.findByRole('link', {
+      name: 'pulp_file.app.tasks.synchronize',
+    });
+
+    expect(link).toHaveAttribute(
+      'href',
+      `/tasks/${row.pulp_href.split('/').filter(Boolean).pop()}/`,
+    );
+  });
+
   it('shows a readable message and no spinner when the request fails without a response', async () => {
     server.use(http.get(`*${TASKS}`, () => HttpResponse.error()));
     renderTasks();

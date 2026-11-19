@@ -5,7 +5,7 @@ import { crawlRoutes, fillPattern, parseRoutes, slugOf } from './routes.ts';
 
 const PATHS = `
 export const Paths = {
-  core: { status: '/status', task: { detail: '/tasks/detail/:task' } },
+  core: { status: '/status', task: { detail: '/tasks/:task' } },
   meta: { login: '/login' },
   container: { detail: '/container/containers/detail/:namespace?/:container' },
 };
@@ -28,7 +28,7 @@ describe('parseRoutes', () => {
     );
     expect(routes.map((r) => r.pattern)).toEqual([
       '/status',
-      '/tasks/detail/:task',
+      '/tasks/:task',
       '/',
       '*',
     ]);
