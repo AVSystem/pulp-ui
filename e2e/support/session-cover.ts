@@ -46,6 +46,23 @@ export function loginChecks(page: Page): { statuses: number[] } {
   return { statuses };
 }
 
+// Ends the server session behind the page's back, the way another tab or an
+// expiry would: the page still looks signed in until its next request. Returns
+// the status of the DELETE.
+export async function endSessionBehindThePage(page: Page): Promise<number> {
+  return page.evaluate(async () => {
+    const token = /(?:^|; )csrftoken=([^;]*)/.exec(document.cookie)?.[1];
+    const response = await fetch('/pulp/api/v3/login/', {
+      method: 'DELETE',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': token ?? '',
+      },
+    });
+    return response.status;
+  });
+}
+
 // Waits until every finite animation and transition of the page has ended, so
 // a layer that is still fading in is not mistaken for one that is partly
 // transparent.
@@ -71,12 +88,17 @@ async function settle(page: Page): Promise<void> {
 // Neither the painted layer nor an ancestor may be faded. The element is
 // scrolled to the middle of the view first, so its centre is inside the window.
 // An element that is not covered is the topmost element itself, which lies
-// outside the backdrop.
+// outside the backdrop. By default the measurement waits for finite animations
+// to end; with `settleAnimations` false it is taken at once, which proves the
+// layer is opaque from its first frame.
 export async function coveredAt(
   page: Page,
   locator: Locator,
+  settleAnimations = true,
 ): Promise<boolean> {
-  await settle(page);
+  if (settleAnimations) {
+    await settle(page);
+  }
   return locator.evaluate((element) => {
     // Alpha of a computed colour: rgb(r, g, b) is opaque, rgba(r, g, b, a) and
     // the slash form of the newer colour syntaxes carry it.

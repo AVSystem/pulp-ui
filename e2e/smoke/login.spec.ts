@@ -23,6 +23,15 @@ test('logging out and signing in again through the menu ends on Status', async (
   });
 
   await signIn(page);
+  // The heading of the screen that is mounted while signed in: a screen that is
+  // mounted afresh after the sign out replaces it, so the old element ends up
+  // detached.
+  const heading = await page
+    .getByRole('main')
+    .getByRole('heading', { level: 1 })
+    .first()
+    .elementHandle();
+  expect(heading).not.toBeNull();
 
   const loggedOut = page.waitForResponse(
     (response) =>
@@ -34,9 +43,14 @@ test('logging out and signing in again through the menu ends on Status', async (
   await loggedOut;
 
   // Status needs no session and stays on screen, so it must read again
-  // without the session instead of keeping what it read with it. Nothing is
-  // asserted about what the answer holds: a stock Pulp answers everyone in
-  // full.
+  // without the session instead of keeping what it read with it, on a screen
+  // that is mounted afresh. Nothing is asserted about what the answer holds: a
+  // stock Pulp answers everyone in full.
+  await expect
+    .poll(() => heading?.evaluate((element) => element.isConnected), {
+      message: 'the screen mounted before the sign out is gone',
+    })
+    .toBe(false);
   await expect
     .poll(() => {
       const at = requests.findIndex(
