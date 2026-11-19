@@ -4,13 +4,19 @@ import {
   groupsList,
   groupsRead,
 } from '@pulp-ui/sdk/core/groups';
-import { groupsUsersList } from '@pulp-ui/sdk/core/groups-users';
+import {
+  groupsUsersCreate,
+  groupsUsersDelete,
+  groupsUsersList,
+} from '@pulp-ui/sdk/core/groups-users';
 import type { GroupsListParams } from '@pulp-ui/sdk/core/models/groups/groups-list-params.zod';
 import { parseResponse } from 'src/entities/response-shape';
+import { groupMemberHref } from './href';
 import {
   DEFAULT_PAGE_SIZE,
   type Group,
   type GroupListParams,
+  type GroupMember,
   type GroupMemberPage,
   type GroupPage,
   type NewGroup,
@@ -74,11 +80,75 @@ async function remove(href: string, options?: RequestInit): Promise<void> {
 // by group.
 async function members(
   href: string,
-  { limit = 10 }: { limit?: number } = {},
+  { limit = 10, offset = 0 }: { limit?: number; offset?: number } = {},
   options?: RequestInit,
 ): Promise<GroupMemberPage> {
-  const data = await groupsUsersList(href, { limit, offset: 0 }, options);
+  const data = await groupsUsersList(href, { limit, offset }, options);
   return parseResponse(groupMemberPageSchema, data);
 }
 
-export const GroupClient = { list, retrieve, create, remove, members };
+// How many members one request of allMembers asks for.
+const MEMBERS_CHUNK = 1000;
+
+// Reads every member of a group, page after page from the group's own
+// endpoint, until the server says there is no next page or a page comes back
+// empty (a list that shrank while it was read never loops). Each page starts
+// where the received members end; a member that shows on two pages because the
+// list changed in between is kept once.
+async function allMembers(
+  href: string,
+  options?: RequestInit,
+): Promise<GroupMember[]> {
+  const byName = new Map<string, GroupMember>();
+  let received = 0;
+
+  for (;;) {
+    const page = await members(
+      href,
+      { limit: MEMBERS_CHUNK, offset: received },
+      options,
+    );
+    for (const member of page.results) {
+      byName.set(member.username, member);
+    }
+    received += page.results.length;
+    if (!page.next || page.results.length === 0) {
+      return Array.from(byName.values());
+    }
+  }
+}
+
+// Adds one user to a group, by username, with one request.
+async function addMember(
+  href: string,
+  username: string,
+  options?: RequestInit,
+): Promise<void> {
+  await groupsUsersCreate(href, { username }, options);
+}
+
+// Takes one member out of a group with one request. The endpoint is built from
+// the address of the group and the member's own address; a member without the
+// address of a user has none, and no request is sent.
+async function removeMember(
+  groupHref: string,
+  memberHref: string | null | undefined,
+  options?: RequestInit,
+): Promise<void> {
+  const target = groupMemberHref(groupHref, memberHref);
+  if (target === null) {
+    throw new Error('The member has no address to be removed by.');
+  }
+  await groupsUsersDelete(target, options);
+}
+
+export const GroupClient = {
+  list,
+  retrieve,
+  create,
+  remove,
+  members,
+  allMembers,
+  addMember,
+  removeMember,
+};

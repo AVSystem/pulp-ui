@@ -37,6 +37,7 @@ const groupMemberPageSchema = z.looseObject({
 });
 
 type Group = z.infer<typeof groupSchema>;
+type GroupMember = z.infer<typeof groupMemberSchema>;
 type GroupPage = z.infer<typeof groupPageSchema>;
 type GroupMemberPage = z.infer<typeof groupMemberPageSchema>;
 
@@ -57,6 +58,46 @@ interface NewGroup {
   name: string;
 }
 
+// What the members of a group are shown by on a screen: the page and its size,
+// the column to sort by (a leading minus sorts down; the username is the only
+// column) and the text the username must contain.
+interface GroupMemberListParams {
+  page?: number;
+  page_size?: number;
+  sort?: string;
+  username?: string;
+}
+
+// One page of members, cut from every member of the group. The members
+// endpoint of the server lists and pages but does not filter or sort, so a
+// screen that offers a filter and an order asks for all members once and cuts
+// the page here. The count is the number of members that match the filter.
+function pageOfMembers(
+  members: GroupMember[],
+  params: GroupMemberListParams,
+): { count: number; results: GroupMember[] } {
+  const text = params.username?.toLowerCase() ?? '';
+  const matching = text
+    ? members.filter((member) => member.username.toLowerCase().includes(text))
+    : [...members];
+
+  const down = params.sort === '-username';
+  matching.sort((a, b) => {
+    const order = a.username.localeCompare(b.username, undefined, {
+      sensitivity: 'base',
+    });
+    return down ? -order : order;
+  });
+
+  const size = Math.max(1, Math.trunc(params.page_size ?? DEFAULT_PAGE_SIZE));
+  const first = (Math.max(1, Math.trunc(params.page ?? 1)) - 1) * size;
+
+  return {
+    count: matching.length,
+    results: matching.slice(first, first + size),
+  };
+}
+
 const DEFAULT_PAGE_SIZE = 10;
 
 export {
@@ -64,5 +105,14 @@ export {
   groupMemberPageSchema,
   groupPageSchema,
   groupSchema,
+  pageOfMembers,
 };
-export type { Group, GroupListParams, GroupMemberPage, GroupPage, NewGroup };
+export type {
+  Group,
+  GroupListParams,
+  GroupMember,
+  GroupMemberListParams,
+  GroupMemberPage,
+  GroupPage,
+  NewGroup,
+};

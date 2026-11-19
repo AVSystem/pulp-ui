@@ -335,7 +335,9 @@ export interface IGroup {
 
 // A group as the server returns it; the numeric id follows the href sequence.
 export function group(overrides: Partial<IGroup> = {}): IGroup {
-  const id = bump();
+  // an id given by the test names the group's address too, as on the server
+  const fresh = bump();
+  const id = overrides.id ?? fresh;
   return {
     pulp_href: `/pulp/api/v3/groups/${id}/`,
     id,
@@ -374,7 +376,9 @@ export interface IUser {
 
 // A user as the server returns it, with no group and a blank name.
 export function user(overrides: Partial<IUser> = {}): IUser {
-  const id = bump();
+  // an id given by the test names the user's address too, as on the server
+  const fresh = bump();
+  const id = overrides.id ?? fresh;
   return {
     pulp_href: `/pulp/api/v3/users/${id}/`,
     id,
