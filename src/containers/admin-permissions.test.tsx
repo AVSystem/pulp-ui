@@ -125,7 +125,7 @@ describe('the group list', () => {
     expect(rowActions('zz-alpha')).toBeNull();
   });
 
-  it('shows the list to a holder of core.view_group without a page-level check of its own', async () => {
+  it('shows the list to a staff account that holds no role, whatever the page checks', async () => {
     serve('zz-alpha');
     renderAs([], <GroupList />, '/groups', { isStaff: true });
     expect(await screen.findByText('zz-alpha')).toBeVisible();

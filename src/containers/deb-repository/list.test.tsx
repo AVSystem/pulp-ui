@@ -3,8 +3,11 @@ import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
-import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
-import { serveMyPermissions } from 'src/test-utils/permissions';
+import {
+  PermissionsKnown,
+  serveMyPermissions,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { listOf, repository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
