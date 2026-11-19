@@ -28,14 +28,14 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      # The install runs the prepare script, which builds the sdk to
+      # packages/sdk/dist; the application and its tests import that build.
       - name: 'Install dependencies'
         run: npm ci
 
-      - name: 'App unit tests'
+      # One run covers the application and the sdk workspace.
+      - name: 'Unit tests'
         run: npm test
-
-      - name: 'sdk unit tests'
-        run: npm test -w @pulp-ui/sdk
 
       - name: 'sdk type-check'
         run: npm run typecheck -w @pulp-ui/sdk
