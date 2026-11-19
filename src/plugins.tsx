@@ -59,33 +59,38 @@ export const PluginsProvider = ({ children }: { children: ReactNode }) => {
   // quietly: a failed read is not reported at once. The state stays as it is
   // and one more read follows after PLUGIN_RETRY_DELAY_MS; only when that one
   // fails too is the failure reported.
-  const load = useCallback(function read(fresh = false, quietly = false) {
-    clearTimeout(timer.current);
-    const current = ++latest.current;
-    plugin_versions({ fresh, queryClient }).then(
-      (list) => {
-        if (current === latest.current) {
-          setPlugins({
-            state: 'ready',
-            versions: new Map(list.map(({ name, version }) => [name, version])),
-          });
-        }
-      },
-      (error) => {
-        if (current !== latest.current) {
-          return;
-        }
-        if (quietly) {
-          timer.current = setTimeout(
-            () => read(true, false),
-            PLUGIN_RETRY_DELAY_MS,
-          );
-        } else {
-          setPlugins({ state: 'error', error });
-        }
-      },
-    );
-  }, [queryClient]);
+  const load = useCallback(
+    function read(fresh = false, quietly = false) {
+      clearTimeout(timer.current);
+      const current = ++latest.current;
+      plugin_versions({ fresh, queryClient }).then(
+        (list) => {
+          if (current === latest.current) {
+            setPlugins({
+              state: 'ready',
+              versions: new Map(
+                list.map(({ name, version }) => [name, version]),
+              ),
+            });
+          }
+        },
+        (error) => {
+          if (current !== latest.current) {
+            return;
+          }
+          if (quietly) {
+            timer.current = setTimeout(
+              () => read(true, false),
+              PLUGIN_RETRY_DELAY_MS,
+            );
+          } else {
+            setPlugins({ state: 'error', error });
+          }
+        },
+      );
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     // Until the session check has answered nothing is known: no request, and

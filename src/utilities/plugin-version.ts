@@ -1,5 +1,5 @@
-import { type QueryClient } from '@tanstack/react-query';
 import { t } from '@lingui/core/macro';
+import { type QueryClient } from '@tanstack/react-query';
 import { StatusClient } from 'src/entities/core/status/client';
 import { statusKeys } from 'src/entities/core/status/queries';
 

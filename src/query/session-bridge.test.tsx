@@ -1,8 +1,9 @@
+import { type QueryClient } from '@tanstack/react-query';
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode, useState } from 'react';
 import { describe, expect, it } from 'vitest';
-import { useStatus } from 'src/entities/core/status/queries';
+import { StatusClient } from 'src/entities/core/status/client';
 import { reportUnauthorized } from 'src/session/session-events';
 import { page } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -13,13 +14,23 @@ import {
   signedIn,
 } from 'src/test-utils/sign-in-again';
 import { useUserContext } from 'src/user-context';
+import { useSessionQuery } from './use-session-query';
 
 const answer = (version: string) => ({
   versions: [{ component: 'core', version }],
 });
 
+// The probe reads the status answer under a key of its own. The plugin list
+// reads the shared status query whenever someone is signed in, so a test about
+// what the bridge does to a screen's query must not use that one.
+const probeKey = ['pulp', 'test', 'probe'] as const;
+
 function StatusProbe() {
-  const status = useStatus();
+  const status = useSessionQuery({
+    queryKey: probeKey,
+    queryFn: ({ signal }) =>
+      StatusClient.retrieve({ signal, headers: { 'x-probe': 'yes' } }),
+  });
 
   if (status.isPending) {
     return <p data-testid='probe'>{status.fetchStatus}</p>;
@@ -80,10 +91,13 @@ function Screen() {
   );
 }
 
-// The generated client sends no Accept header; the legacy client, which the
-// plugin list still uses to read the same endpoint, always does. Only the
-// reads of the query layer are of interest here.
-const isQueryRead = (request: Request) => !request.headers.has('accept');
+// Only the reads of the probe are of interest here, not those of the plugin
+// list.
+const isQueryRead = (request: Request) => request.headers.has('x-probe');
+
+// The queries the probe holds in the cache.
+const probeQueries = (queryClient: QueryClient) =>
+  queryClient.getQueryCache().findAll({ queryKey: probeKey });
 
 // Answers every read of the status with the version the test names and counts
 // the reads of the query layer.
@@ -113,15 +127,13 @@ describe('Integration: SessionQueryBridge', { tags: ['integration'] }, () => {
 
     await user.click(screen.getByRole('button', { name: 'Show' }));
     expect(await screen.findByText('1')).toBeInTheDocument();
-    expect(queryClient.getQueryCache().getAll()).toHaveLength(1);
+    expect(probeQueries(queryClient)).toHaveLength(1);
     expect(requests).toHaveLength(1);
 
     await user.click(screen.getByRole('button', { name: 'Hide' }));
     await user.click(screen.getByRole('button', { name: 'End session' }));
 
-    await waitFor(() =>
-      expect(queryClient.getQueryCache().getAll()).toHaveLength(0),
-    );
+    await waitFor(() => expect(probeQueries(queryClient)).toHaveLength(0));
 
     await user.click(screen.getByRole('button', { name: 'Show' }));
     expect(await screen.findByText('1')).toBeInTheDocument();
@@ -152,13 +164,11 @@ describe('Integration: SessionQueryBridge', { tags: ['integration'] }, () => {
     await user.click(screen.getByRole('button', { name: 'Show' }));
     expect(await screen.findByText('1')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Hide' }));
-    expect(queryClient.getQueryCache().getAll()).toHaveLength(1);
+    expect(probeQueries(queryClient)).toHaveLength(1);
 
     await user.click(screen.getByRole('button', { name: 'Other account' }));
 
-    await waitFor(() =>
-      expect(queryClient.getQueryCache().getAll()).toHaveLength(0),
-    );
+    await waitFor(() => expect(probeQueries(queryClient)).toHaveLength(0));
   });
 
   it('keeps the cache when nothing about the account changes', async () => {
@@ -175,7 +185,7 @@ describe('Integration: SessionQueryBridge', { tags: ['integration'] }, () => {
     await user.click(screen.getByRole('button', { name: 'Show' }));
 
     expect(await screen.findByText('1')).toBeInTheDocument();
-    expect(queryClient.getQueryCache().getAll()).toHaveLength(1);
+    expect(probeQueries(queryClient)).toHaveLength(1);
   });
 
   it('sends no request while the session has ended and one after the same user signs in again', async () => {
