@@ -86,9 +86,13 @@ const isSignInPage = (pathname: string) => {
 function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
   const context = useUserContext();
   const inFlight = useRef(false);
-  // Set once the start page has been requested for another account: the page
-  // is about to be replaced, so no further question is sent from it.
-  const leaving = useRef(false);
+  // The epoch of the session in which the start page was requested for another
+  // account: the page is about to be replaced, so no further question is sent
+  // from that session. The latch belongs to the session it was set in, not to
+  // the page, because the navigation can fail to replace the page (the user or
+  // the browser stops it); once the account signs in again the epoch has moved
+  // and the tab must keep noticing account changes.
+  const leavingAtEpoch = useRef<number | null>(null);
   // The latest context functions: the listener is bound once per sign-in, and
   // a function captured then would be stale.
   const latest = useRef(context);
@@ -101,15 +105,18 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
     }
 
     const check = () => {
+      const mark = latest.current.sessionMark();
       if (
-        leaving.current ||
+        leavingAtEpoch.current === mark.epoch ||
+        // No account in memory (the account was just cleared and the listener
+        // is not yet removed): an answer could only be read as another account.
+        mark.key === null ||
         document.visibilityState !== 'visible' ||
         inFlight.current
       ) {
         return;
       }
       inFlight.current = true;
-      const mark = latest.current.sessionMark();
       PulpLoginAPI.whoami()
         .then(({ data }) => {
           if (!latest.current.isCurrentSession(mark)) {
@@ -122,7 +129,7 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
             }
           } else {
             reportUnauthorized('tab-return');
-            leaving.current = true;
+            leavingAtEpoch.current = mark.epoch;
             window.location.assign(uiPath(formatPath(Paths.core.status)));
           }
         })
