@@ -926,11 +926,57 @@ describe('lazily loaded screens', () => {
       ),
     );
 
+    // Load the code of the lazy screen first, so the wait below does not
+    // depend on how long a chunk takes to arrive on a busy machine.
+    await import('src/containers/pulp-status');
+
     renderWithProviders(<Routed />, { route: '/status' });
 
     expect(
       await screen.findByRole('heading', { name: 'Status' }),
     ).toBeVisible();
+  });
+
+  it('reads status once when a signed-in account opens the status screen', async () => {
+    server.use(
+      http.get('*/pulp/api/v3/users/1/', () =>
+        HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+      ),
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/1/',
+        }),
+      ),
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({
+          versions: [{ component: 'core', version: '3.0.0' }],
+          database_connection: { connected: true },
+        }),
+      ),
+    );
+    await import('src/containers/pulp-status');
+    let requests = 0;
+    server.events.on('request:start', ({ request }) => {
+      if (
+        request.method === 'GET' &&
+        new URL(request.url).pathname.endsWith('/status/')
+      ) {
+        requests += 1;
+      }
+    });
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: '/status', signedIn: true },
+    );
+
+    expect(await screen.findByText('Versions')).toBeVisible();
+    // The plugin list reads once the session check has answered.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(requests).toBe(1);
   });
 
   it('shows a plugin section screen on a deep link once its code has loaded', async () => {
