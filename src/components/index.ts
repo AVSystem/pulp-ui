@@ -30,6 +30,7 @@ export { LazyDistributions } from './lazy-distributions';
 export { LazyRepositories } from './lazy-repositories';
 export { LinkTabs, type LinkTabsProps } from './link-tabs';
 export { ListErrorState } from './list-error-state';
+export { PermissionsFailed } from './permissions-failed';
 export { ListItemActions } from './list-item-actions';
 export {
   ListPage,

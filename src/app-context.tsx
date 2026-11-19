@@ -8,10 +8,17 @@ export interface IAppContextType {
   // true only when the permissions are known and the signed-in account's own
   // record is staff; Pulp allows some administration actions to staff only
   isStaff: boolean;
+  // the last read of the permissions failed; the reason is in permissionsError.
+  // Only a screen that shows this state itself uses it: every permission check
+  // answers false until a read has answered
+  permissionsFailed: boolean;
+  permissionsError: unknown;
   // whether the permissions of the signed-in user are known; until then every
   // permission check answers false
   permissionsReady: boolean;
   queueAlert: (alert: AlertType) => void;
+  // reads the permissions again, on the user's request
+  retryPermissions: () => void;
   setAlerts: (alerts: AlertType[]) => void;
 }
 
@@ -37,8 +44,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         alerts,
         hasPermission,
         isStaff: permissions.state === 'ready' && permissions.isStaff,
+        permissionsFailed:
+          permissions.state === 'unknown' && permissions.failed,
+        permissionsError:
+          permissions.state === 'unknown' ? permissions.error : undefined,
         permissionsReady: permissions.state === 'ready',
         queueAlert,
+        retryPermissions: permissions.retry,
         setAlerts,
       }}
     >

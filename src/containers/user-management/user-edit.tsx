@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useParams } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -10,6 +11,7 @@ import {
   LoadingPage,
   Main,
   NotFound,
+  PermissionsFailed,
   UserFormPage,
   closeAlert,
 } from 'src/components';
@@ -45,6 +47,7 @@ const UserEditScreen = ({ urlId }: { urlId: string }) => {
   const href = userHref(urlId);
   const query = useUser(href);
   const updateUser = useUpdateUser();
+  const { permissionsFailed } = useAppContext();
 
   const {
     user: sessionUser,
@@ -128,6 +131,12 @@ const UserEditScreen = ({ urlId }: { urlId: string }) => {
   }
 
   const title = t`Edit user`;
+
+  // The permissions could not be read: nothing is offered on a guess. A form
+  // the user has changed stays, as a later read never replaces what was typed.
+  if (permissionsFailed && !edit) {
+    return <PermissionsFailed title={title} />;
+  }
 
   if (href === null || (!form && status === 404)) {
     return <NotFound />;
