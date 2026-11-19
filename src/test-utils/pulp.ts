@@ -376,6 +376,20 @@ export function user(overrides: Partial<IUser> = {}): IUser {
   };
 }
 
+// A user as the user list and the user screens read it: the address is
+// relative and every field the server lists is present.
+export function userRow(overrides: Partial<IUser> = {}): IUser {
+  return user(overrides);
+}
+
+// One page of a user list answer.
+export function userPage(
+  rows: IUser[],
+  options: { count?: number; next?: string } = {},
+): IPage<IUser> {
+  return page(rows, options);
+}
+
 export interface IRole {
   pulp_href: string;
   name: string;
