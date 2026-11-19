@@ -1,11 +1,13 @@
 import { screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { PulpAboutModal } from './pulp-about-modal';
 
 function signIn() {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({

@@ -7,9 +7,10 @@ import {
 } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PulpAPI } from 'src/api/pulp';
 import { PulpLoginAPI } from 'src/api/pulp-login';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { config } from 'src/ui-config';
@@ -131,6 +132,13 @@ async function renderScreen() {
   await storeKnowsUser();
   return rendered;
 }
+
+// The accounts the tests sign in as are staff, so the permission read of every
+// screen is answered and the tests are about the session.
+beforeEach(() => {
+  serveUserRecords({ id: 1, username: 'zoe', isStaff: true });
+  serveUserRecords({ id: 2, username: 'amy', isStaff: true });
+});
 
 afterEach(() => {
   resetSessionEvents();

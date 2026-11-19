@@ -36,6 +36,8 @@ describe('the profile page of a user who may not list users', () => {
       ...setup,
     });
     server.use(
+      // the group selector of the user form reads the first groups as it opens
+      listOf(`${API}/groups/`, []).handler,
       http.get(`*${API}/users/`, () =>
         HttpResponse.json(
           { detail: 'You do not have permission to perform this action.' },
@@ -189,7 +191,7 @@ describe('the profile after a save', () => {
 
 describe('the profile of a session that names no user address', () => {
   it('shows the not found page instead of a spinner that never ends', async () => {
-    recorder = { requests: [], stop: () => server.events.removeAllListeners() };
+    recorder = { requests: [], stop: () => undefined };
     server.use(
       http.get(`*${API}/login/`, () => HttpResponse.json({ username: 'zoe' })),
     );

@@ -16,6 +16,7 @@ import {
   resetSessionEvents,
   resume,
 } from 'src/session/session-events';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { COUNT_REFRESH_MS } from './task-counts';
@@ -23,6 +24,7 @@ import { COUNT_REFRESH_MS } from './task-counts';
 const TASKS = '*/pulp/api/v3/tasks/';
 
 function signIn() {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({

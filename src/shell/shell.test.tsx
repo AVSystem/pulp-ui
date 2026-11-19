@@ -4,6 +4,7 @@ import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dataRoutes } from 'src/app-routes';
 import { resetPageWidth, setPageUrl, setPageWidth } from 'src/test-utils/page';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { listOf } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -11,6 +12,7 @@ import { config } from 'src/ui-config';
 import { Shell } from './shell';
 
 function signIn() {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({
@@ -181,12 +183,7 @@ describe('logout', () => {
     setPageUrl('https://pulp.example.com/ui/');
     setPageWidth(1400);
     signIn();
-    server.use(
-      listOf('/pulp/api/v3/signing-services/', []).handler,
-      http.get('*/pulp/api/v3/users/1/', () =>
-        HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
-      ),
-    );
+    server.use(listOf('/pulp/api/v3/signing-services/', []).handler);
   });
 
   afterEach(() => {
