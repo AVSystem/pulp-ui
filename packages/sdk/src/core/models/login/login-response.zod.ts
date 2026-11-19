@@ -8,9 +8,9 @@
 import * as zod from 'zod';
 
 export const LoginResponse = zod.object({
-  pulp_href: zod.url().optional(),
-  prn: zod.string().optional(),
-  username: zod.string().optional(),
+  "prn": zod.string().optional(),
+  "pulp_href": zod.string().optional(),
+  "username": zod.string().optional()
 });
 
 export type LoginResponse = zod.input<typeof LoginResponse>;

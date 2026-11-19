@@ -5,15 +5,22 @@
  * Fetch, Upload, Organize, and Distribute Software Packages
  * OpenAPI spec version: v3
  */
-import { pulpFetch } from '../mutator/pulp-fetch.ts';
-import type { StatusReadParams } from './models/status/status-read-params.zod.ts';
-import type { StatusResponse } from './models/status/status-response.zod.ts';
+import type {
+  StatusReadParams
+} from './models/status/status-read-params.zod.ts';
 
-export const getStatusReadUrl = (params?: StatusReadParams) => {
+import type {
+  StatusResponse
+} from './models/status/status-response.zod.ts';
+
+import { pulpFetch } from '../mutator/pulp-fetch.ts';
+
+
+export const getStatusReadUrl = (params?: StatusReadParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    const explodeParameters = ['fields', 'exclude_fields'];
+    const explodeParameters = ["fields","exclude_fields"];
 
     if (Array.isArray(value) && explodeParameters.includes(key)) {
       value.forEach((v) => {
@@ -21,14 +28,14 @@ export const getStatusReadUrl = (params?: StatusReadParams) => {
       });
       return;
     }
+
+
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/pulp/api/v3/status/?${stringifiedParams}`
-    : `/pulp/api/v3/status/`;
-};
+  return stringifiedParams.length > 0 ? `/pulp/api/v3/status/?${stringifiedParams}` : `/pulp/api/v3/status/`
+}
 
 /**
  * Returns status and app information about Pulp.
@@ -42,12 +49,15 @@ export const getStatusReadUrl = (params?: StatusReadParams) => {
  *  * disk usage information
  * @summary Inspect status of Pulp
  */
-export const statusRead = async (
-  params?: StatusReadParams,
-  options?: Parameters<typeof pulpFetch>[1],
-): Promise<StatusResponse> => {
-  return pulpFetch<StatusResponse>(getStatusReadUrl(params), {
+export const statusRead = async (params?: StatusReadParams, options?: Parameters<typeof pulpFetch>[1]): Promise<StatusResponse> => {
+
+  return pulpFetch<StatusResponse>(getStatusReadUrl(params),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+

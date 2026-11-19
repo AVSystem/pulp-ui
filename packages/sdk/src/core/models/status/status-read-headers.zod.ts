@@ -8,8 +8,8 @@
 import * as zod from 'zod';
 
 export const StatusReadHeaders = zod.object({
-  'X-Task-Diagnostics': zod.array(zod.string()).optional(),
-});
+  "X-Task-Diagnostics": zod.array(zod.string()).optional()
+})
 
 export type StatusReadHeaders = zod.input<typeof StatusReadHeaders>;
 export type StatusReadHeadersOutput = zod.output<typeof StatusReadHeaders>;

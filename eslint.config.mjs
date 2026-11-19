@@ -121,7 +121,11 @@ export default defineConfig([
     },
   },
   {
-    files: ['scripts/**/*.mjs', 'e2e/**/*.mjs'],
+    files: [
+      'scripts/**/*.mjs',
+      'e2e/**/*.mjs',
+      'packages/sdk/scripts/**/*.mjs',
+    ],
     languageOptions: {
       globals: { ...globals.node },
     },

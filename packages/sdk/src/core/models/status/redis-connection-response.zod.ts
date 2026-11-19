@@ -7,15 +7,9 @@
  */
 import * as zod from 'zod';
 
-export const RedisConnectionResponse = zod
-  .object({
-    connected: zod
-      .boolean()
-      .describe('Info about whether the app can connect to Redis'),
-  })
-  .describe('Serializer for information about the Redis connection');
+export const RedisConnectionResponse = zod.object({
+  "connected": zod.boolean().describe('Info about whether the app can connect to Redis')
+}).describe('Serializer for information about the Redis connection');
 
 export type RedisConnectionResponse = zod.input<typeof RedisConnectionResponse>;
-export type RedisConnectionResponseOutput = zod.output<
-  typeof RedisConnectionResponse
->;
+export type RedisConnectionResponseOutput = zod.output<typeof RedisConnectionResponse>;

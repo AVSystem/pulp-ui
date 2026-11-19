@@ -8,8 +8,8 @@
 import * as zod from 'zod';
 
 export const LoginHeaders = zod.object({
-  'X-Task-Diagnostics': zod.array(zod.string()).optional(),
-});
+  "X-Task-Diagnostics": zod.array(zod.string()).optional()
+})
 
 export type LoginHeaders = zod.input<typeof LoginHeaders>;
 export type LoginHeadersOutput = zod.output<typeof LoginHeaders>;

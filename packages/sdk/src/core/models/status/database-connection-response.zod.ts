@@ -7,17 +7,9 @@
  */
 import * as zod from 'zod';
 
-export const DatabaseConnectionResponse = zod
-  .object({
-    connected: zod
-      .boolean()
-      .describe('Info about whether the app can connect to the database'),
-  })
-  .describe('Serializer for the database connection information');
+export const DatabaseConnectionResponse = zod.object({
+  "connected": zod.boolean().describe('Info about whether the app can connect to the database')
+}).describe('Serializer for the database connection information');
 
-export type DatabaseConnectionResponse = zod.input<
-  typeof DatabaseConnectionResponse
->;
-export type DatabaseConnectionResponseOutput = zod.output<
-  typeof DatabaseConnectionResponse
->;
+export type DatabaseConnectionResponse = zod.input<typeof DatabaseConnectionResponse>;
+export type DatabaseConnectionResponseOutput = zod.output<typeof DatabaseConnectionResponse>;

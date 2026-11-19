@@ -8,9 +8,9 @@
 import * as zod from 'zod';
 
 export const StatusReadParams = zod.object({
-  fields: zod.array(zod.string()).optional(),
-  exclude_fields: zod.array(zod.string()).optional(),
-});
+  "fields": zod.array(zod.string()).optional(),
+  "exclude_fields": zod.array(zod.string()).optional()
+})
 
 export type StatusReadParams = zod.input<typeof StatusReadParams>;
 export type StatusReadParamsOutput = zod.output<typeof StatusReadParams>;

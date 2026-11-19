@@ -7,21 +7,10 @@
  */
 import * as zod from 'zod';
 
-export const ContentSettingsResponse = zod
-  .object({
-    content_origin: zod
-      .string()
-      .nullish()
-      .describe('The CONTENT_ORIGIN setting for this Pulp instance'),
-    content_path_prefix: zod
-      .string()
-      .describe('The CONTENT_PATH_PREFIX setting for this Pulp instance'),
-  })
-  .describe(
-    'Serializer for information about content-app-settings for the pulp instance',
-  );
+export const ContentSettingsResponse = zod.object({
+  "content_origin": zod.string().nullish().describe('The CONTENT_ORIGIN setting for this Pulp instance'),
+  "content_path_prefix": zod.string().describe('The CONTENT_PATH_PREFIX setting for this Pulp instance')
+}).describe('Serializer for information about content-app-settings for the pulp instance');
 
 export type ContentSettingsResponse = zod.input<typeof ContentSettingsResponse>;
-export type ContentSettingsResponseOutput = zod.output<
-  typeof ContentSettingsResponse
->;
+export type ContentSettingsResponseOutput = zod.output<typeof ContentSettingsResponse>;

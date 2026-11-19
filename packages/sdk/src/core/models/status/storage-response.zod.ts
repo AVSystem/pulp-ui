@@ -7,31 +7,19 @@
  */
 import * as zod from 'zod';
 
+export const storageResponseFreeMin = 0;
+
 export const storageResponseTotalMin = 0;
 
 export const storageResponseUsedMin = 0;
 
-export const storageResponseFreeMin = 0;
 
-export const StorageResponse = zod
-  .object({
-    total: zod
-      .int()
-      .min(storageResponseTotalMin)
-      .nullable()
-      .describe('Total number of bytes'),
-    used: zod
-      .int()
-      .min(storageResponseUsedMin)
-      .nullable()
-      .describe('Number of bytes in use'),
-    free: zod
-      .int()
-      .min(storageResponseFreeMin)
-      .nullable()
-      .describe('Number of free bytes'),
-  })
-  .describe('Serializer for information about the storage system');
+
+export const StorageResponse = zod.object({
+  "free": zod.int().min(storageResponseFreeMin).nullable().describe('Number of free bytes'),
+  "total": zod.int().min(storageResponseTotalMin).nullable().describe('Total number of bytes'),
+  "used": zod.int().min(storageResponseUsedMin).nullable().describe('Number of bytes in use')
+}).describe('Serializer for information about the storage system');
 
 export type StorageResponse = zod.input<typeof StorageResponse>;
 export type StorageResponseOutput = zod.output<typeof StorageResponse>;
