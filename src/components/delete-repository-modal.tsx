@@ -119,8 +119,10 @@ const DistributionList = ({
   </List>
 );
 
-// The title says what is true of the distributions: some were not removed, all
-// of them were removed, or none was involved at all.
+// The title says what is true: some distributions were not removed, the
+// repository's own removal is not confirmed yet (its task is still running or
+// its status could not be read, so the repository may be gone), all
+// distributions were removed, or none was involved at all.
 function keptTitle(result: DeleteRepositoryResult): string {
   if (
     result.failed.length ||
@@ -129,6 +131,9 @@ function keptTitle(result: DeleteRepositoryResult): string {
     result.unlisted.length
   ) {
     return t`The repository was kept because not every distribution was removed.`;
+  }
+  if (result.repositoryPending || result.repositoryUnknown) {
+    return t`The removal of the repository has not been confirmed.`;
   }
   if (result.removed.length) {
     return t`The distributions were removed but the repository was kept.`;

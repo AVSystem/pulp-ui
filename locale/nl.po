@@ -496,7 +496,7 @@ msgstr "Collectie toevoegen"
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Add new remote"
-msgstr "Nieuwe afstand toevoegen"
+msgstr "Nieuwe remote toevoegen"
 
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-repository/edit.tsx
@@ -528,7 +528,7 @@ msgstr ""
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
 msgid "Add remote"
-msgstr "Afstand toevoegen"
+msgstr "Remote toevoegen"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Add remote registry"
@@ -795,7 +795,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Approve, reject and sync collections from remotes."
-msgstr "Collecties van externe items goedkeuren, afwijzen en synchroniseren."
+msgstr "Collecties van remotes goedkeuren, afwijzen en synchroniseren."
 
 #: src/components/import-console.tsx
 #~ msgid "approved"
@@ -818,7 +818,7 @@ msgstr ""
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
-msgstr "Weet u zeker dat u de afstand <0>{name}</0> wilt verwijderen?<1/><2>Opmerking:</2> hiermee worden ook alle gekoppelde bronnen onder deze afstand verwijderd."
+msgstr "Weet u zeker dat u de remote <0>{name}</0> wilt verwijderen?<1/><2>Opmerking:</2> hiermee worden ook alle gekoppelde bronnen onder deze remote verwijderd."
 
 #: src/components/delete-repository-modal.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
@@ -1829,7 +1829,7 @@ msgstr "Item aanmaken"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
-msgstr "Namespaces van de collectie aanmaken, verwijderen en wijzigen. Collecties uploaden en verwijderen. Collecties van externe items synchroniseren. Collecties goedkeuren en weigeren."
+msgstr "Namespaces van de collectie aanmaken, verwijderen en wijzigen. Collecties uploaden en verwijderen. Collecties van remotes synchroniseren. Collecties goedkeuren en weigeren."
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
@@ -2110,7 +2110,7 @@ msgstr "Groep verwijderen?"
 
 #: src/components/delete-remote-modal.tsx
 msgid "Delete remote?"
-msgstr "Afstand verwijderen?"
+msgstr "Remote verwijderen?"
 
 #: src/utilities/translate-task.ts
 msgid "Delete repository version"
@@ -2588,7 +2588,7 @@ msgstr "Bewerken in YAML-editor"
 
 #: src/components/remote-form.tsx
 msgid "Edit remote"
-msgstr "Op afstand bewerken"
+msgstr "Remote bewerken"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Edit remote registry"
@@ -3032,7 +3032,7 @@ msgstr "Kan distributies niet laden: {error}"
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
-msgstr "Kan geen afstanden laden: {remotesError}"
+msgstr "Kan geen remotes laden: {remotesError}"
 
 #: src/components/lazy-repositories.tsx
 msgid "Failed to load repositories: {error}"
@@ -3111,7 +3111,7 @@ msgstr "Kan {namespace}.{name} v{version} niet uit repository \"{repositoryName}
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "Failed to remove remote {name}"
-msgstr "Kan extern item {name} niet verwijderen"
+msgstr "Kan remote {name} niet verwijderen"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -3586,7 +3586,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "If you populate this requirements file, this remote will only sync collections from this file, otherwise all collections will be synchronized."
-msgstr "Als u dit eisenbestand invult, zal deze afstand alleen collecties uit dit bestand synchroniseren, anders worden alle collecties gesynchroniseerd."
+msgstr "Als u dit eisenbestand invult, zal deze remote alleen collecties uit dit bestand synchroniseren, anders worden alle collecties gesynchroniseerd."
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Image \"{digest}\" could not be deleted."
@@ -4083,7 +4083,7 @@ msgstr "Beheer ansible repository's."
 
 #: src/utilities/translate-locked-role.ts
 msgid "Manage collection remotes."
-msgstr "Beheer collectie-afstanden."
+msgstr "Beheer collectie-remotes."
 
 #: src/components/tag-manifest-modal.tsx
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
@@ -4523,7 +4523,7 @@ msgstr ""
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 msgid "No remotes yet"
-msgstr "Nog geen afstanden"
+msgstr "Nog geen remotes"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -5644,7 +5644,7 @@ msgstr ""
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Remote"
-msgstr "Afstand"
+msgstr "Remote"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
@@ -5657,7 +5657,7 @@ msgstr "Afstand"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Remote could not be displayed."
-msgstr "Afstand kan niet worden weergegeven."
+msgstr "Remote kan niet worden weergegeven."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -5670,7 +5670,7 @@ msgstr "Afstand kan niet worden weergegeven."
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "Remote name"
-msgstr "Externe naam"
+msgstr "Naam van de remote"
 
 #: src/containers/coming-soon-screens.tsx
 msgid "Remote registries"
@@ -5713,7 +5713,7 @@ msgstr ""
 #: src/containers/rpm-remote/list.tsx
 #: src/menu.tsx
 msgid "Remotes"
-msgstr "Externe items"
+msgstr "Remotes"
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
@@ -5721,7 +5721,7 @@ msgstr "Externe items"
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 msgid "Remotes could not be displayed."
-msgstr "Afstanden kunnen niet worden weergegeven."
+msgstr "Remotes kunnen niet worden weergegeven."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
@@ -5729,7 +5729,7 @@ msgstr "Afstanden kunnen niet worden weergegeven."
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 msgid "Remotes will appear once created."
-msgstr "Afstanden verschijnen zodra ze zijn aangemaakt."
+msgstr "Remotes verschijnen zodra ze zijn aangemaakt."
 
 #: src/actions/ansible-repository-collection-version-remove.tsx
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
@@ -5747,7 +5747,7 @@ msgstr "Verwijdering van {namespace}.{name} v{version} uit repository \"{reposit
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "Removal started for remote {name}"
-msgstr "Verwijdering gestart voor afstand {name}"
+msgstr "Verwijdering gestart voor remote {name}"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -6146,7 +6146,7 @@ msgstr "Rol"
 #. placeholder {0}: form.name
 #: src/containers/role-management/role-create.tsx
 msgid "Role \"{0}\" could not be created."
-msgstr "Rol '{0}' kan niet worden aangemaakt."
+msgstr "Rol \"{0}\" kan niet worden aangemaakt."
 
 #. placeholder {0}: role.role
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6354,7 +6354,7 @@ msgstr "Opslaan"
 
 #: src/containers/settings/user-profile.tsx
 msgid "Saved changes to user \"{username}\"."
-msgstr "Wijzigingen opgeslagen naar gebruiker '{username}'."
+msgstr "Wijzigingen opgeslagen naar gebruiker \"{username}\"."
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
@@ -6441,7 +6441,7 @@ msgstr "Een groep selecteren"
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
 msgid "Select a remote"
-msgstr "Een afstand selecteren"
+msgstr "Een remote selecteren"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Select a tag"
@@ -6548,7 +6548,7 @@ msgstr "Fout bij de server. Kom a.u.b. later terug."
 
 #: src/components/repository-form.tsx
 msgid "Setting a remote allows a repository to sync from elsewhere."
-msgstr "Door een afstand in te stellen kan een repository van elders gesynchroniseerd worden."
+msgstr "Door een remote in te stellen kan een repository van elders gesynchroniseerd worden."
 
 #: src/containers/settings/user-profile.tsx
 msgid "Settings"
@@ -6953,7 +6953,7 @@ msgstr "Succesvol gekopieerd naar klembord!"
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
-msgstr "Afstand {0} succesvol gemaakt"
+msgstr "Remote {0} succesvol gemaakt"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -7199,7 +7199,7 @@ msgstr "Taak \"{name}\" kon niet worden gestopt."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Task \"{name}\" stopped successfully."
-msgstr "Taak '{name}' gestopt."
+msgstr "Taak \"{name}\" gestopt."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task \"{taskName}\" could not be stopped."
@@ -7207,7 +7207,7 @@ msgstr "Taak \"{taskName}\" kon niet worden gestopt."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task \"{taskName}\" stopped successfully."
-msgstr "Taak '{taskName}' gestopt."
+msgstr "Taak \"{taskName}\" gestopt."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
@@ -7428,7 +7428,7 @@ msgstr "De inlogpagina is teruggekeerd zonder aangemelde sessie."
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
-msgstr "Het resultaat van het verwijderen van afstand {name} is onbekend, omdat de taakstatus niet kon worden gelezen. Controleer de taak."
+msgstr "Het resultaat van het verwijderen van remote {name} is onbekend, omdat de taakstatus niet kon worden gelezen. Controleer de taak."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
@@ -7465,7 +7465,11 @@ msgstr "De pluginlijst kan niet worden geladen"
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
-msgstr "Het verwijderen van afstand {name} is nog bezig."
+msgstr "Het verwijderen van remote {name} is nog bezig."
+
+#: src/components/delete-repository-modal.tsx
+msgid "The removal of the repository has not been confirmed."
+msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -7510,7 +7514,7 @@ msgstr ""
 
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
-msgstr "De geselecteerde rollen worden toegevoegd aan deze specifieke Ansible afstand."
+msgstr "De geselecteerde rollen worden toegevoegd aan deze specifieke Ansible-remote."
 
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible repository."
@@ -7631,7 +7635,7 @@ msgstr ""
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 msgid "There are no remotes associated with this repository."
-msgstr "Er zijn geen afstanden verbonden aan deze repository."
+msgstr "Er zijn geen remotes verbonden aan deze repository."
 
 #: src/components/repositories/remote-repository-table.tsx
 #~ msgid "There are no repos associated with this remote."
@@ -7929,7 +7933,7 @@ msgstr ""
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Update started for remote {0}"
-msgstr "Update gestart voor afstand {0}"
+msgstr "Update gestart voor remote {0}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx

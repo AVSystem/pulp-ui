@@ -7467,6 +7467,10 @@ msgstr "플러그인 목록을 불러올 수 없습니다"
 msgid "The removal of remote {name} is still running."
 msgstr "원격 {name} 제거가 아직 진행 중입니다."
 
+#: src/components/delete-repository-modal.tsx
+msgid "The removal of the repository has not been confirmed."
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
 msgstr "리포지토리 콘텐츠를 읽을 수 없습니다"

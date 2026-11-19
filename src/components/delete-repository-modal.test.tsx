@@ -306,6 +306,78 @@ describe('the delete repository dialog', () => {
     ).toBeVisible();
   });
 
+  it('says the removal is not confirmed, not that the repository was not removed, while the repository task is still running', async () => {
+    serve([]);
+    const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000dd/`;
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(kept({ repositoryPending: taskHref }));
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    expect(
+      await screen.findByText(
+        'The removal of the repository has not been confirmed.',
+      ),
+    ).toBeVisible();
+    expect(screen.queryByText('The repository was not removed.')).toBeNull();
+    expect(
+      screen.getByText(/The repository is still being removed:/),
+    ).toBeVisible();
+    expect(screen.getByRole('link', { name: 'task' })).toHaveAttribute(
+      'href',
+      '/tasks/00000000-0000-4000-8000-0000000000dd/',
+    );
+  });
+
+  it('says the removal is not confirmed when the status of the repository task could not be read', async () => {
+    serve([]);
+    const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000ee/`;
+    const deleteAction = vi
+      .fn()
+      .mockResolvedValue(kept({ repositoryUnknown: taskHref }));
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    expect(
+      await screen.findByText(
+        'The removal of the repository has not been confirmed.',
+      ),
+    ).toBeVisible();
+    expect(screen.queryByText('The repository was not removed.')).toBeNull();
+    expect(
+      screen.getByText(/The outcome of removing the repository is unknown/),
+    ).toBeVisible();
+  });
+
+  it('keeps the distribution title when a distribution failed and the repository task is still running', async () => {
+    serve([]);
+    const taskHref = `${API}/tasks/00000000-0000-4000-8000-0000000000ff/`;
+    const deleteAction = vi.fn().mockResolvedValue(
+      kept({
+        failed: [{ name: 'refused-one', reason: 'no' }],
+        repositoryPending: taskHref,
+      }),
+    );
+    const { user } = renderModal({ deleteAction });
+    await screen.findByText(/No distribution serves this repository/);
+
+    await user.type(nameInput(), REPO_NAME);
+    await user.click(deleteButton());
+
+    expect(
+      await screen.findByText(
+        'The repository was kept because not every distribution was removed.',
+      ),
+    ).toBeVisible();
+  });
+
   it('keeps the wording for distributions that were removed before the repository was kept', async () => {
     const repo = repository({ name: REPO_NAME });
     serve([boundTo(repo, { base_path: 'a-shown', name: 'a-shown' })]);

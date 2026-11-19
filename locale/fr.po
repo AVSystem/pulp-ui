@@ -496,7 +496,7 @@ msgstr "Ajouter collection"
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Add new remote"
-msgstr "Ajouter un utilisateur à distance"
+msgstr "Ajouter une source distante"
 
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-repository/edit.tsx
@@ -528,7 +528,7 @@ msgstr ""
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
 msgid "Add remote"
-msgstr "Ajouter un utilisateur à distance"
+msgstr "Ajouter une source distante"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Add remote registry"
@@ -795,7 +795,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Approve, reject and sync collections from remotes."
-msgstr "Approuver, rejeter et synchroniser les collections à distance."
+msgstr "Approuver, rejeter et synchroniser les collections depuis des sources distantes."
 
 #: src/components/import-console.tsx
 #~ msgid "approved"
@@ -818,7 +818,7 @@ msgstr ""
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
-msgstr "Êtes-vous sûr de vouloir supprimer la télécommande <0>{name}</0>?<1/><2>Note :</2> Cette opération supprimera également toutes les ressources associées à cette télécommande."
+msgstr "Êtes-vous sûr de vouloir supprimer la source distante <0>{name}</0>?<1/><2>Note :</2> Cette opération supprimera également toutes les ressources associées à cette source distante."
 
 #: src/components/delete-repository-modal.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
@@ -1829,7 +1829,7 @@ msgstr "Créer un élément"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Create, delete and change collection namespaces. Upload and delete collections. Sync collections from remotes. Approve and reject collections."
-msgstr "Créer, supprimer et modifier les espaces de noms des collections. Télécharger et supprimer des collections. Synchroniser des collections à partir de sites distants. Approuver et rejeter des collections."
+msgstr "Créer, supprimer et modifier les espaces de noms des collections. Télécharger et supprimer des collections. Synchroniser des collections à partir de sources distantes. Approuver et rejeter des collections."
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
@@ -2110,7 +2110,7 @@ msgstr "Supprimer le groupe ?"
 
 #: src/components/delete-remote-modal.tsx
 msgid "Delete remote?"
-msgstr "Supprimer l’utilisateur distant ?"
+msgstr "Supprimer la source distante ?"
 
 #: src/utilities/translate-task.ts
 msgid "Delete repository version"
@@ -2588,7 +2588,7 @@ msgstr "Modifier dans l'éditeur YAML"
 
 #: src/components/remote-form.tsx
 msgid "Edit remote"
-msgstr "Modifier l’utilisateur à distance"
+msgstr "Modifier la source distante"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Edit remote registry"
@@ -3032,7 +3032,7 @@ msgstr "Échec du chargement des distributions : {error}"
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
-msgstr "Échec du chargement des utilisateurs à distance : {remotesError}"
+msgstr "Échec du chargement des sources distantes : {remotesError}"
 
 #: src/components/lazy-repositories.tsx
 msgid "Failed to load repositories: {error}"
@@ -3111,7 +3111,7 @@ msgstr "Échec de la suppression de {namespace}.{name} v{version} du référenti
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "Failed to remove remote {name}"
-msgstr "N'a pas pu supprimer l’utilisateur à distance {name}"
+msgstr "N'a pas pu supprimer la source distante {name}"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -3586,7 +3586,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "If you populate this requirements file, this remote will only sync collections from this file, otherwise all collections will be synchronized."
-msgstr "Si vous remplissez ce fichier d'exigences, la télécommande ne synchronisera que les collections de ce fichier, sinon toutes les collections seront synchronisées."
+msgstr "Si vous remplissez ce fichier d'exigences, cette source distante ne synchronisera que les collections de ce fichier, sinon toutes les collections seront synchronisées."
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Image \"{digest}\" could not be deleted."
@@ -4083,7 +4083,7 @@ msgstr "Gérer les référentiels ansible."
 
 #: src/utilities/translate-locked-role.ts
 msgid "Manage collection remotes."
-msgstr "Changer la collection d’utilisateurs à distance."
+msgstr "Gérer les sources distantes des collections."
 
 #: src/components/tag-manifest-modal.tsx
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
@@ -4523,7 +4523,7 @@ msgstr ""
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 msgid "No remotes yet"
-msgstr "Pas encore de télécommandes"
+msgstr "Pas encore de sources distantes"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -5644,7 +5644,7 @@ msgstr ""
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Remote"
-msgstr "Utilisateur à distance"
+msgstr "Source distante"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
@@ -5657,7 +5657,7 @@ msgstr "Utilisateur à distance"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Remote could not be displayed."
-msgstr "L’utilisateur à distance n’a pas pu être affiché."
+msgstr "La source distante n’a pas pu être affichée."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -5670,7 +5670,7 @@ msgstr "L’utilisateur à distance n’a pas pu être affiché."
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "Remote name"
-msgstr "Nom de l’utilisateur à distance"
+msgstr "Nom de la source distante"
 
 #: src/containers/coming-soon-screens.tsx
 msgid "Remote registries"
@@ -5713,7 +5713,7 @@ msgstr ""
 #: src/containers/rpm-remote/list.tsx
 #: src/menu.tsx
 msgid "Remotes"
-msgstr "Utilisateurs à distance"
+msgstr "Sources distantes"
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
@@ -5721,7 +5721,7 @@ msgstr "Utilisateurs à distance"
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 msgid "Remotes could not be displayed."
-msgstr "Les utilisateurs à distance n’ont pas pu être affichés."
+msgstr "Les sources distantes n’ont pas pu être affichées."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
@@ -5729,7 +5729,7 @@ msgstr "Les utilisateurs à distance n’ont pas pu être affichés."
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 msgid "Remotes will appear once created."
-msgstr "Les utilisateurs à distance apparaîtront une fois créés."
+msgstr "Les sources distantes apparaîtront une fois créées."
 
 #: src/actions/ansible-repository-collection-version-remove.tsx
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
@@ -5747,7 +5747,7 @@ msgstr "Suppression de {namespace}.{name} v{version} du référentiel \"{reposit
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "Removal started for remote {name}"
-msgstr "Début de la suppression pour les utilisateurs à distance {name}"
+msgstr "Début de la suppression de la source distante {name}"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -6441,7 +6441,7 @@ msgstr "Sélectionner un groupe"
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
 msgid "Select a remote"
-msgstr "Sélectionner un utilisateur à distance"
+msgstr "Sélectionner une source distante"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Select a tag"
@@ -6548,7 +6548,7 @@ msgstr "Erreur de serveur. Veuillez essayer plus tard."
 
 #: src/components/repository-form.tsx
 msgid "Setting a remote allows a repository to sync from elsewhere."
-msgstr "La définition d'une distance permet à un référentiel de se synchroniser à partir d'un autre endroit."
+msgstr "La définition d'une source distante permet à un référentiel de se synchroniser à partir d'un autre endroit."
 
 #: src/containers/settings/user-profile.tsx
 msgid "Settings"
@@ -6953,7 +6953,7 @@ msgstr "Copie réussie dans le presse-papiers !"
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
-msgstr "Création de l’utilisateur à distance {0} réussie"
+msgstr "Création de la source distante {0} réussie"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -7428,7 +7428,7 @@ msgstr "La page de connexion est revenue sans session ouverte."
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
-msgstr "Le résultat de la suppression de l'utilisateur à distance {name} est inconnu, car l'état de la tâche n'a pas pu être lu. Vérifiez la tâche."
+msgstr "Le résultat de la suppression de la source distante {name} est inconnu, car l'état de la tâche n'a pas pu être lu. Vérifiez la tâche."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
@@ -7465,7 +7465,11 @@ msgstr "La liste des plugins n'a pas pu être chargée"
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
-msgstr "La suppression de l'utilisateur à distance {name} est toujours en cours."
+msgstr "La suppression de la source distante {name} est toujours en cours."
+
+#: src/components/delete-repository-modal.tsx
+msgid "The removal of the repository has not been confirmed."
+msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -7510,7 +7514,7 @@ msgstr ""
 
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
-msgstr "Les rôles sélectionnés seront ajoutés à cet utilisateur à distance Ansible spécifique."
+msgstr "Les rôles sélectionnés seront ajoutés à cette source distante Ansible spécifique."
 
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible repository."
@@ -7631,7 +7635,7 @@ msgstr ""
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 msgid "There are no remotes associated with this repository."
-msgstr "Il n'y a pas de référentiel associé à cet utilisateur à distance."
+msgstr "Il n'y a aucune source distante associée à ce référentiel."
 
 #: src/components/repositories/remote-repository-table.tsx
 #~ msgid "There are no repos associated with this remote."
@@ -7929,7 +7933,7 @@ msgstr ""
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Update started for remote {0}"
-msgstr "Démarrage de la mise à jour pour l'application à distance {0}"
+msgstr "Démarrage de la mise à jour de la source distante {0}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx

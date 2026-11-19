@@ -10,7 +10,9 @@
 // catalog the ones it lacks or holds with an empty translation. It also
 // reports a translation that does not carry the same placeholders as its
 // source ({name}, {0}, <0>...</0>), because a changed placeholder breaks the
-// sentence at run time or shows the placeholder name to the user.
+// sentence at run time or shows the placeholder name to the user. A plural or
+// select message is compared by the names of its arguments, never by the text
+// of its branches, which is translated on purpose.
 //
 // Obsolete entries (marked "#~") are ignored in both catalogs. The languages
 // are the ones listed in lingui.config.js, without the source language.
@@ -32,9 +34,13 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Raised for input that cannot be checked; the command line maps it to 2.
-class InputError extends Error {}
+export class InputError extends Error {}
 
 const CONTEXT_SEPARATOR = '\u0004';
+
+// Joins the forms of a gettext plural entry (msgstr[0], msgstr[1], ...) into
+// the one string a catalog map holds for the message.
+const FORM_SEPARATOR = '\u0001';
 
 const UNESCAPES = { n: '\n', t: '\t', r: '\r', '"': '"', '\\': '\\' };
 
@@ -52,24 +58,36 @@ function unquote(line) {
  * id, so two messages with the same text stay apart. The header entry and
  * obsolete entries are skipped. Handles multi-line msgid, msgstr and msgctxt
  * and escaped quotes, backslashes and line breaks.
+ *
+ * A gettext plural entry (msgid, msgid_plural, msgstr[0], msgstr[1], ...) is
+ * keyed by its msgid and holds its forms joined by a separator; it holds an
+ * empty translation when it has no form or any form is empty, because a user
+ * of the language would then meet the source text for that count.
  */
 export function parsePo(text) {
   const messages = new Map();
   let ctx = null;
   let id = null;
   let str = null;
+  let forms = null;
   let field = null;
 
   const flush = () => {
     if (id !== null) {
       const key = ctx === null ? id : `${ctx}${CONTEXT_SEPARATOR}${id}`;
       if (key !== '') {
-        messages.set(key, str ?? '');
+        if (forms !== null) {
+          const empty = forms.length === 0 || forms.some((form) => form === '');
+          messages.set(key, empty ? '' : forms.join(FORM_SEPARATOR));
+        } else {
+          messages.set(key, str ?? '');
+        }
       }
     }
     ctx = null;
     id = null;
     str = null;
+    forms = null;
     field = null;
   };
 
@@ -85,12 +103,20 @@ export function parsePo(text) {
       }
       ctx = unquote(line.slice('msgctxt '.length));
       field = 'ctx';
+    } else if (line.startsWith('msgid_plural ')) {
+      // The plural source text is not a key; its forms are read below.
+      forms = [];
+      field = 'plural';
     } else if (line.startsWith('msgid ')) {
       if (id !== null) {
         flush();
       }
       id = unquote(line.slice('msgid '.length));
       field = 'id';
+    } else if (/^msgstr\[\d+\]\s/.test(line)) {
+      forms ??= [];
+      forms.push(unquote(line.slice(line.indexOf(' ') + 1)));
+      field = 'form';
     } else if (line.startsWith('msgstr ')) {
       str = unquote(line.slice('msgstr '.length));
       field = 'str';
@@ -102,6 +128,8 @@ export function parsePo(text) {
         id += part;
       } else if (field === 'str') {
         str += part;
+      } else if (field === 'form') {
+        forms[forms.length - 1] += part;
       }
     }
   }
@@ -114,15 +142,104 @@ export function newIds(oldMap, newMap) {
   return [...newMap.keys()].filter((id) => !oldMap.has(id));
 }
 
-/** The placeholders of a message, sorted: {name}, {0}, <0> and </0>. */
+const ICU_BRANCHING = new Set(['plural', 'select', 'selectordinal']);
+
+/** Index of the brace that closes the one opened at `open`, or -1. */
+function closingBrace(text, open) {
+  let depth = 0;
+  for (let i = open; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "'" && (text[i + 1] === '{' || text[i + 1] === '}')) {
+      const end = text.indexOf("'", i + 1);
+      i = end === -1 ? text.length : end;
+    } else if (ch === '{') {
+      depth += 1;
+    } else if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+/**
+ * The placeholders found in ICU text, as { all, nested }: `all` lists every
+ * argument and tag as it occurs, `nested` the ones found inside the branches
+ * of plural and select arguments (each listed once per argument, however many
+ * branches repeat it, since a language may have fewer or more branches).
+ */
+function scanText(text) {
+  const found = [];
+  let plain = '';
+  const flushPlain = () => {
+    found.push(...(plain.match(/<\/?\d+>/g) ?? []));
+    plain = '';
+  };
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "'" && text[i + 1] === "'") {
+      i += 1;
+    } else if (ch === "'" && (text[i + 1] === '{' || text[i + 1] === '}')) {
+      const end = text.indexOf("'", i + 1);
+      i = end === -1 ? text.length : end;
+    } else if (ch === '{') {
+      flushPlain();
+      const close = closingBrace(text, i);
+      const inner = text.slice(i + 1, close === -1 ? text.length : close);
+      const parts =
+        /^\s*([^\s,{}]+)\s*(?:,\s*([a-zA-Z]+)\s*(?:,([\s\S]*))?)?$/.exec(inner);
+      if (parts === null) {
+        // Not an argument we understand: keep its text out of the comparison.
+        i = close === -1 ? text.length : close;
+        continue;
+      }
+      found.push(`{${parts[1]}}`);
+      if (ICU_BRANCHING.has(parts[2]) && parts[3] !== undefined) {
+        const branchTokens = new Set();
+        let rest = parts[3];
+        for (;;) {
+          const open = rest.indexOf('{');
+          if (open === -1) {
+            break;
+          }
+          const end = closingBrace(rest, open);
+          const body = rest.slice(open + 1, end === -1 ? rest.length : end);
+          for (const token of scanText(body)) {
+            branchTokens.add(token);
+          }
+          if (end === -1) {
+            break;
+          }
+          rest = rest.slice(end + 1);
+        }
+        found.push(...branchTokens);
+      }
+      i = close === -1 ? text.length : close;
+    } else {
+      plain += ch;
+    }
+  }
+  flushPlain();
+  return found;
+}
+
+/**
+ * The placeholders of a message, sorted: {name}, {0}, <0> and </0>. A plural
+ * or select argument counts as its argument name; the arguments and tags
+ * nested in its branches count once each, and the branch text counts for
+ * nothing.
+ */
 export function placeholders(text) {
-  return (text.match(/\{[^{}]*\}|<\/?\d+>/g) ?? []).sort();
+  return scanText(text).sort();
 }
 
 /**
  * The problems of a catalog for a list of ids: { id, kind } with kind
  * "untranslated" for a missing or empty translation and "placeholders" for a
- * translation whose placeholders differ from those of its id.
+ * translation whose placeholders differ from those of its id. The forms of a
+ * gettext plural entry are each compared, as a set of names, with the id.
  */
 export function problems(ids, catalogMap) {
   const found = [];
@@ -133,8 +250,16 @@ export function problems(ids, catalogMap) {
       continue;
     }
     const source = placeholders(id.slice(id.indexOf(CONTEXT_SEPARATOR) + 1));
-    const target = placeholders(translation);
-    if (source.join('\n') !== target.join('\n')) {
+    const targets = translation.split(FORM_SEPARATOR);
+    const differs =
+      targets.length === 1
+        ? source.join('\n') !== placeholders(translation).join('\n')
+        : targets.some(
+            (form) =>
+              [...new Set(placeholders(form))].join('\n') !==
+              [...new Set(source)].join('\n'),
+          );
+    if (differs) {
       found.push({ id, kind: 'placeholders' });
     }
   }
@@ -156,7 +281,7 @@ export function readLocales(configText) {
   return codes.filter((code) => code !== sourceLocale);
 }
 
-function readFile(path) {
+export function readFile(path) {
   if (!existsSync(path)) {
     throw new InputError(`cannot read ${path}`);
   }
@@ -203,7 +328,7 @@ function parseArgs(args) {
   return options;
 }
 
-const display = (id) =>
+export const display = (id) =>
   id.slice(id.indexOf(CONTEXT_SEPARATOR) + 1).replace(/\n/g, '\\n');
 
 function main(args) {
