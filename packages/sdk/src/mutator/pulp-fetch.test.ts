@@ -143,7 +143,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('resolves with undefined on a 204 No Content response', async () => {
     server.use(
       http.delete('/pulp/api/v3/rpm/rpm/1234567890', () => {
-        return new HttpResponse(null, { status: 204 });
+        return new HttpResponse(undefined, { status: 204 });
       }),
     );
 
@@ -166,5 +166,19 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
     await expect(
       pulpFetch('/pulp/api/v3/status/', { method: 'GET' }),
     ).rejects.toThrow('Response missing Content-Type header');
+  });
+
+  it('sends "X-Requested-With: XMLHttpRequest" header on every request', async () => {
+    let expectedHeader: string | null = null;
+    server.use(
+      http.get('/pulp/api/v3/status/', ({ request }) => {
+        expectedHeader = request.headers.get('x-requested-with');
+        return HttpResponse.json({ version: [] });
+      }),
+    );
+
+    await pulpFetch('/pulp/api/v3/status/', { method: 'GET' });
+
+    expect(expectedHeader).toStrictEqual('XMLHttpRequest');
   });
 });

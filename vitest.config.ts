@@ -7,11 +7,17 @@ import { defineConfig } from 'vitest/config';
 // HTTP mock server and the lingui macro transform, "node" runs the tests of the
 // repository scripts under scripts/, of the build configuration under config/
 // and of the crawler's report tooling under e2e/crawl/ with no setup at all.
-// The sdk workspace keeps its own configuration and is run through its own
-// test script, so nothing under packages/ is collected here. There is
-// deliberately no passWithNoTests: an include pattern that matches no file must
-// fail the run, never pass silently.
-const exclude = ['node_modules/**', 'dist/**', 'e2e/**', 'packages/**'];
+// The sdk workspace has no configuration of its own: its tests under
+// packages/sdk/src run in the app project, and only its build output and
+// installed packages are left out. There is deliberately no passWithNoTests: an
+// include pattern that matches no file must fail the run, never pass silently.
+const exclude = [
+  'node_modules/**',
+  'dist/**',
+  'e2e/**',
+  'packages/*/dist/**',
+  'packages/*/node_modules/**',
+];
 // The end-to-end directory belongs to Playwright except for the report tooling
 // tests, which are plain Node tests.
 const nodeExclude = exclude.filter((pattern) => pattern !== 'e2e/**');
@@ -37,6 +43,19 @@ export default defineConfig({
     }),
   },
   test: {
+    // Every test file declares one of these tags; an undeclared tag fails the run.
+    tags: [
+      {
+        name: 'integration',
+        description:
+          'ACL client functions tested against MSW-mocked Pulp responses - not a real backend',
+      },
+      {
+        name: 'unit',
+        description:
+          'Pure functions, Zod schemas, and ACL codecs - no network or DOM',
+      },
+    ],
     // In CI the verbose reporter names every test file in the job log, so a
     // test file that stops being collected is visible there.
     reporters: process.env['CI'] ? ['verbose'] : ['default'],
@@ -47,7 +66,7 @@ export default defineConfig({
           name: 'app',
           environment: 'happy-dom',
           setupFiles: ['./vitest.setup.ts'],
-          include: ['src/**/*.test.{ts,tsx}'],
+          include: ['src/**/*.test.{ts,tsx}', 'packages/sdk/src/**/*.test.ts'],
           exclude,
           // The class maps of PatternFly components import their stylesheet;
           // Node cannot load it, the test transform turns it into an empty module.
