@@ -15,6 +15,7 @@ registry.npmjs.org
 npmjs.com
 www.npmjs.com
 github.com
+gh.io
 *.github.com
 raw.githubusercontent.com
 *.githubusercontent.com
