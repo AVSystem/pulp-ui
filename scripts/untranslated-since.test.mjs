@@ -229,7 +229,7 @@ describe('problems', () => {
 
   it('reports a plural translation that drops an argument inside a branch', () => {
     const id =
-      '{0, plural, one {Failed to add a collection to \\"{repositoryName}\\".} other {Failed to add collections to \\"{repositoryName}\\".}}';
+      '{0, plural, one {Failed to add a collection to {repositoryName}.} other {Failed to add collections to {repositoryName}.}}';
     const cat = parsePo(
       catalog([
         id,
