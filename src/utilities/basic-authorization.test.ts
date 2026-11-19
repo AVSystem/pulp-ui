@@ -24,12 +24,17 @@ describe('basicAuthorization', () => {
   });
 });
 
-// The Basic header carries the password, so it is built for the one sign-in
-// request and nowhere else: no other module may import the builder or encode
-// a Basic header itself, and nothing about it is ever stored.
+// The Basic header carries the password, so it is built for the sign-in
+// request and nowhere else: only the sign-in request builders (the login API
+// module and the login entity codec) may import the builder, no module may
+// encode a Basic header itself, and nothing about it is ever stored.
 describe('the single place that builds the Basic header', () => {
   const root = resolve(import.meta.dirname, '..');
-  const only = ['api/pulp-login.ts', 'utilities/basic-authorization.test.ts'];
+  const only = [
+    'api/pulp-login.ts',
+    'entities/core/login/model.ts',
+    'utilities/basic-authorization.test.ts',
+  ];
 
   const sources = (directory: string): string[] =>
     readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -46,7 +51,7 @@ describe('the single place that builds the Basic header', () => {
       .map((file) => relative(root, file))
       .sort();
 
-  it("is imported only by src/api/pulp-login.ts and the builder's own test", () => {
+  it("is imported only by the sign-in request builders and the builder's own test", () => {
     const importers = named(
       /(?:from|import\(|require\()\s*['"][^'"]*basic-authorization['"]/,
     ).filter((file) => file !== 'utilities/basic-authorization.ts');

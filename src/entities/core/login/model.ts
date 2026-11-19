@@ -1,6 +1,7 @@
 import { LoginResponse } from '@pulp-ui/sdk/core/models/login/login-response.zod';
 import { loginUpdateResponseUsernameMax } from '@pulp-ui/sdk/core/models/login/login-update-response.zod';
 import { z } from 'zod';
+import { basicAuthorization } from 'src/utilities/basic-authorization';
 
 const pulpHrefSchema = z
   .string()
@@ -57,14 +58,7 @@ const credentialsCodec = z.codec(z.string(), credentialsSchema, {
       'A Basic Auth header cannot be decoded back into user credentials.',
     );
   },
-  encode: ({ username, password }) => {
-    const bytes = new TextEncoder().encode(`${username}:${password}`);
-    let binary = '';
-    bytes.forEach((byte) => {
-      binary += String.fromCharCode(byte);
-    });
-    return `Basic ${btoa(binary)}`;
-  },
+  encode: ({ username, password }) => basicAuthorization(username, password),
 });
 
 export { loginResponseCodec, credentialsCodec };
