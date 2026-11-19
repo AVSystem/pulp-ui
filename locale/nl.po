@@ -7467,6 +7467,10 @@ msgstr "De pluginlijst kan niet worden geladen"
 msgid "The removal of remote {name} is still running."
 msgstr "Het verwijderen van afstand {name} is nog bezig."
 
+#: src/components/delete-repository-modal.tsx
+msgid "The removal of the repository has not been confirmed."
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
 msgstr "De inhoud van de repository kan niet worden gelezen"

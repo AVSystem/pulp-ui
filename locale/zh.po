@@ -7467,6 +7467,10 @@ msgstr "无法加载插件列表"
 msgid "The removal of remote {name} is still running."
 msgstr "删除远程 {name} 仍在运行。"
 
+#: src/components/delete-repository-modal.tsx
+msgid "The removal of the repository has not been confirmed."
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
 msgstr "无法读取仓库内容"

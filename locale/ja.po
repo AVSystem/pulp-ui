@@ -7467,6 +7467,10 @@ msgstr "プラグイン一覧を読み込めませんでした"
 msgid "The removal of remote {name} is still running."
 msgstr "リモート {name} の削除はまだ実行中です。"
 
+#: src/components/delete-repository-modal.tsx
+msgid "The removal of the repository has not been confirmed."
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
 msgstr "リポジトリーのコンテンツを読み取れませんでした"
