@@ -67,9 +67,7 @@ describe('the user list', () => {
     expect(screen.getByText('Lee')).toBeInTheDocument();
     expect(screen.getByText('ann@example.com')).toBeInTheDocument();
     expect(screen.getByText('zz-group')).toBeInTheDocument();
-    expect(
-      screen.getByRole('table', { name: 'User list' }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('User list')).toBeInTheDocument();
   });
 
   it('lists ten rows by username when the address names nothing', async () => {

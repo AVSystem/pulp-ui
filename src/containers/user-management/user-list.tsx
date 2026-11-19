@@ -10,10 +10,9 @@ import {
 } from '@patternfly/react-core';
 import tableStyles from '@patternfly/react-styles/css/components/Table/table.mjs';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { Component } from 'react';
-import { Link, Navigate } from 'react-router';
-import { UserAPI, type UserType } from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -34,13 +33,13 @@ import {
   Table,
   closeAlert,
 } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
+import { userUrlId } from 'src/entities/core/user/href';
+import { DEFAULT_PAGE_SIZE, type User } from 'src/entities/core/user/model';
+import { useUsers } from 'src/entities/core/user/queries';
 import { Paths, formatPath } from 'src/paths';
-import {
-  ParamHelper,
-  type RouteProps,
-  filterIsSet,
-  withRouter,
-} from 'src/utilities';
+import { filterIsSet } from 'src/utilities/filter-is-set';
+import { ParamHelper } from 'src/utilities/param-helper';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -48,218 +47,126 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 
-interface IState {
-  params: {
-    page?: number;
-    page_size?: number;
-  };
-  redirect?: string;
-  users: UserType[];
-  loading: boolean;
-  itemCount: number;
-  deleteUser: UserType;
-  showDeleteModal: boolean;
-  alerts: AlertType[];
-  unauthorized: boolean;
-  // the reason Pulp gave for refusing the read, when it gave one
-  unauthorizedDetail: string | null;
-  inputText: string;
+const DEFAULT_SORT = 'username';
+
+const FILTERS = [
+  'username__contains',
+  'first_name__contains',
+  'last_name__contains',
+  'email__contains',
+];
+
+// The address holds the page, its size, the order and the filters; the screen
+// shows exactly what the address says, and a change goes through the address.
+function paramsOfAddress(search: string) {
+  const params = ParamHelper.parseParamString(search, ['page', 'page_size']);
+
+  if (!params['page_size']) {
+    params['page_size'] = DEFAULT_PAGE_SIZE;
+  }
+  if (!params['sort']) {
+    params['sort'] = DEFAULT_SORT;
+  }
+
+  return params;
 }
 
-class UserList extends Component<RouteProps, IState> {
-  static contextType = AppContext;
+// A parameter that came in more than once is read as its first value.
+function single(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first === undefined || first === null ? undefined : String(first);
+}
 
-  constructor(props) {
-    super(props);
+const UserList = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { hasPermission } = useAppContext();
 
-    const params = ParamHelper.parseParamString(props.location.search, [
-      'page',
-      'page_size',
-    ]);
+  const params = useMemo(
+    () => paramsOfAddress(location.search),
+    [location.search],
+  );
 
-    if (!params['page_size']) {
-      params['page_size'] = 10;
+  const query = useUsers({
+    page: params['page'],
+    page_size: params['page_size'],
+    sort: single(params['sort']),
+    username__contains: single(params['username__contains']),
+    first_name__contains: single(params['first_name__contains']),
+    last_name__contains: single(params['last_name__contains']),
+    email__contains: single(params['email__contains']),
+  });
+
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
+
+  const addAlert = (alert: AlertType) =>
+    setAlerts((current) => [...current, alert]);
+
+  const items = useMemo(() => query.data?.results ?? [], [query.data]);
+
+  const status = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
+
+  // A failed read of rows already on screen keeps the rows and says so once.
+  const alertedFailure = useRef(0);
+  const rereadFailed = query.isRefetchError && !sessionEnded && status !== 403;
+  useEffect(() => {
+    if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
+      alertedFailure.current = query.errorUpdatedAt;
+      setAlerts((current) => [
+        ...current,
+        {
+          variant: 'danger',
+          title: t`Users list could not be displayed.`,
+          description: requestErrorDescription(query.error),
+        },
+      ]);
     }
+  }, [rereadFailed, query.errorUpdatedAt, query.error]);
 
-    if (!params['sort']) {
-      params['sort'] = 'username';
-    }
+  const updateParams = (next) =>
+    navigate({ search: '?' + ParamHelper.getQueryString(next) });
 
-    this.state = {
-      deleteUser: undefined,
-      showDeleteModal: false,
-      params,
-      users: [],
-      loading: true,
-      itemCount: 0,
-      alerts: [],
-      unauthorized: false,
-      unauthorizedDetail: null,
-      inputText: '',
-    };
-  }
+  const header = <BaseHeader title={t`Users`} />;
 
-  componentDidMount() {
-    this.queryUsers();
-  }
+  const alertList = (
+    <AlertList
+      alerts={alerts}
+      closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+    />
+  );
 
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read the list again, keeping the rows on
-    // screen until the answer arrives.
-    if (
-      prevProps.sessionEpoch !== this.props.sessionEpoch &&
-      !this.state.unauthorized
-    ) {
-      this.queryUsers(true);
-    }
-  }
-
-  render() {
-    const {
-      params,
-      itemCount,
-      loading,
-      redirect,
-      showDeleteModal,
-      deleteUser,
-      alerts,
-      unauthorized,
-      unauthorizedDetail,
-    } = this.state;
-
-    const { hasPermission } = this.context as IAppContextType;
-
-    if (redirect) {
-      return <Navigate to={redirect} />;
-    }
-
+  // A refused read is not a failure to retry: the user is told they may not
+  // view the list, with Pulp's own reason.
+  if (status === 403) {
     return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        <DeleteUserModal
-          isOpen={showDeleteModal}
-          closeModal={this.closeModal}
-          user={deleteUser}
-          addAlert={(text, variant, description = undefined) =>
-            this.setState({
-              alerts: alerts.concat([
-                { title: text, variant: variant, description: description },
-              ]),
-            })
-          }
-        />
-        <BaseHeader title={t`Users`} />
-        {unauthorized ? (
-          <InsufficientPermissions detail={unauthorizedDetail} />
-        ) : (
-          <Main>
-            <section className='pulp-section'>
-              <div className='pulp-toolbar'>
-                <Toolbar>
-                  <ToolbarContent>
-                    <ToolbarGroup>
-                      <ToolbarItem>
-                        <CompoundFilter
-                          inputText={this.state.inputText}
-                          onChange={(input) =>
-                            this.setState({ inputText: input })
-                          }
-                          updateParams={(p) =>
-                            this.updateParams(p, () => this.queryUsers())
-                          }
-                          params={params}
-                          filterConfig={[
-                            {
-                              id: 'username__contains',
-                              title: t`Username`,
-                            },
-                            {
-                              id: 'first_name__contains',
-                              title: t`First name`,
-                            },
-                            {
-                              id: 'last_name__contains',
-                              title: t`Last name`,
-                            },
-                            {
-                              id: 'email__contains',
-                              title: t`Email`,
-                            },
-                          ]}
-                        />
-                      </ToolbarItem>
-                    </ToolbarGroup>
-                    {hasPermission('auth.add_user') ? (
-                      <ToolbarGroup>
-                        <ToolbarItem>
-                          <Link to={formatPath(Paths.core.user.create)}>
-                            <Button>{t`Create`}</Button>
-                          </Link>
-                        </ToolbarItem>
-                      </ToolbarGroup>
-                    ) : null}
-                  </ToolbarContent>
-                </Toolbar>
-
-                <PulpPagination
-                  params={params}
-                  updateParams={(p) =>
-                    this.updateParams(p, () => this.queryUsers())
-                  }
-                  count={itemCount}
-                  isTop
-                />
-              </div>
-              <div>
-                <AppliedFilters
-                  updateParams={(p) => {
-                    this.updateParams(p, () => this.queryUsers());
-                    this.setState({ inputText: '' });
-                  }}
-                  params={params}
-                  ignoredParams={['page_size', 'page', 'sort']}
-                  niceNames={{
-                    username__contains: t`Username`,
-                    first_name__contains: t`First name`,
-                    last_name__contains: t`Last name`,
-                    email__contains: t`Email`,
-                  }}
-                />
-              </div>
-              {loading ? <LoadingSpinner /> : this.renderTable(params)}
-
-              <PulpPagination
-                params={params}
-                updateParams={(p) =>
-                  this.updateParams(p, () => this.queryUsers())
-                }
-                count={itemCount}
-              />
-            </section>
-          </Main>
-        )}
+        {alertList}
+        {header}
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
       </>
     );
   }
 
-  private renderTable(params) {
-    const { users } = this.state;
-    const { hasPermission } = this.context as IAppContextType;
-    if (users.length === 0) {
-      return filterIsSet(params, [
-        'username__contains',
-        'first_name__contains',
-        'last_name__contains',
-        'email__contains',
-      ]) ? (
+  const failed =
+    query.isError && !sessionEnded && !query.data && !query.isFetching;
+  const loading = !query.data && !failed;
+
+  const renderTable = () => {
+    if (failed) {
+      return (
+        <ListErrorState
+          title={t`Users list could not be displayed.`}
+          message={requestErrorDescription(query.error)}
+          onRetry={() => query.refetch()}
+        />
+      );
+    }
+
+    if (items.length === 0) {
+      return filterIsSet(params, FILTERS) ? (
         <EmptyStateFilter />
       ) : (
         <EmptyStateNoData
@@ -323,27 +230,23 @@ class UserList extends Component<RouteProps, IState> {
         <SortTable
           options={sortTableOptions}
           params={params}
-          updateParams={(p) => this.updateParams(p, () => this.queryUsers())}
+          updateParams={updateParams}
         />
-        <Tbody>{users.map((user, i) => this.renderTableRow(user, i))}</Tbody>
+        <Tbody>{items.map((user) => renderTableRow(user))}</Tbody>
       </Table>
     );
-  }
+  };
 
-  private renderTableRow(user: UserType, index: number) {
+  const renderTableRow = (user: User) => {
     const dropdownItems = [];
-    const { hasPermission } = this.context as IAppContextType;
+    const urlId = userUrlId(user.pulp_href);
 
     if (hasPermission('auth.change_user')) {
       dropdownItems.push(
         <DropdownItem
           key='edit'
           onClick={() =>
-            this.props.navigate(
-              formatPath(Paths.core.user.edit, {
-                user_id: user.id,
-              }),
-            )
+            navigate(formatPath(Paths.core.user.edit, { user_id: urlId }))
           }
         >
           {t`Edit`}
@@ -353,16 +256,16 @@ class UserList extends Component<RouteProps, IState> {
 
     if (hasPermission('auth.delete_user')) {
       dropdownItems.push(
-        <DropdownItem key='delete' onClick={() => this.deleteUser(user)}>
+        <DropdownItem key='delete' onClick={() => setDeleteUser(user)}>
           {t`Delete`}
         </DropdownItem>,
       );
     }
 
     return (
-      <Tr data-cy={`UserList-row-${user.username}`} key={index}>
+      <Tr data-cy={`UserList-row-${user.username}`} key={user.pulp_href}>
         <Td>
-          <Link to={formatPath(Paths.core.user.detail, { user_id: user.id })}>
+          <Link to={formatPath(Paths.core.user.detail, { user_id: urlId })}>
             {user.username}
           </Link>
         </Td>
@@ -371,7 +274,7 @@ class UserList extends Component<RouteProps, IState> {
         <Td>{user.email}</Td>
         <Td>
           <LabelGroup>
-            {user.groups.map((g) => (
+            {(user.groups ?? []).map((g) => (
               <Label key={g.id}>{g.name}</Label>
             ))}
           </LabelGroup>
@@ -382,78 +285,99 @@ class UserList extends Component<RouteProps, IState> {
         <ListItemActions kebabItems={dropdownItems} />
       </Tr>
     );
-  }
-
-  private deleteUser = (user) => {
-    this.setState({ deleteUser: user, showDeleteModal: true });
   };
 
-  private closeModal = (didDelete) =>
-    this.setState(
-      {
-        deleteUser: undefined,
-        showDeleteModal: false,
-      },
-      () => {
-        if (didDelete) {
-          this.queryUsers();
+  return (
+    <>
+      {alertList}
+      <DeleteUserModal
+        isOpen={deleteUser !== null}
+        closeModal={() => setDeleteUser(null)}
+        user={deleteUser ?? undefined}
+        addAlert={(text, variant, description = undefined) =>
+          addAlert({ title: text, variant, description })
         }
-      },
-    );
+      />
+      {header}
+      <Main>
+        <section className='pulp-section'>
+          <div className='pulp-toolbar'>
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarGroup>
+                  <ToolbarItem>
+                    <CompoundFilter
+                      inputText={inputText}
+                      onChange={setInputText}
+                      updateParams={updateParams}
+                      params={params}
+                      filterConfig={[
+                        {
+                          id: 'username__contains',
+                          title: t`Username`,
+                        },
+                        {
+                          id: 'first_name__contains',
+                          title: t`First name`,
+                        },
+                        {
+                          id: 'last_name__contains',
+                          title: t`Last name`,
+                        },
+                        {
+                          id: 'email__contains',
+                          title: t`Email`,
+                        },
+                      ]}
+                    />
+                  </ToolbarItem>
+                </ToolbarGroup>
+                {hasPermission('auth.add_user') ? (
+                  <ToolbarGroup>
+                    <ToolbarItem>
+                      <Link to={formatPath(Paths.core.user.create)}>
+                        <Button>{t`Create`}</Button>
+                      </Link>
+                    </ToolbarItem>
+                  </ToolbarGroup>
+                ) : null}
+              </ToolbarContent>
+            </Toolbar>
 
-  // A quiet read keeps the rows on screen instead of showing the spinner.
-  private queryUsers(quiet = false) {
-    this.setState({ loading: quiet ? this.state.loading : true }, () =>
-      UserAPI.list(this.state.params)
-        .then((result) => {
-          this.setState({
-            users: result.data.results,
-            itemCount: result.data.count,
-            loading: false,
-          });
-        })
-        .catch((e) => {
-          // The session ended: the sign-in dialog explains it, and the list
-          // keeps its spinner or its rows until it reads again.
-          if (isSessionEnd(e)) {
-            return;
-          }
-          // A refused read is not a failure to retry: the user is told they
-          // may not view the list, with Pulp's own reason.
-          if (requestErrorStatus(e) === 403) {
-            this.setState({
-              users: [],
-              itemCount: 0,
-              loading: false,
-              unauthorized: true,
-              unauthorizedDetail: requestErrorDetail(e),
-            });
-            return;
-          }
-          this.setState({
-            users: [],
-            itemCount: 0,
-            loading: false,
-            alerts: [
-              ...this.state.alerts,
-              {
-                variant: 'danger',
-                title: t`Users list could not be displayed.`,
-                description: requestErrorDescription(e),
-              },
-            ],
-          });
-        }),
-    );
-  }
+            <PulpPagination
+              params={params}
+              updateParams={updateParams}
+              count={query.data?.count ?? 0}
+              isTop
+            />
+          </div>
+          <div>
+            <AppliedFilters
+              updateParams={(p) => {
+                updateParams(p);
+                setInputText('');
+              }}
+              params={params}
+              ignoredParams={['page_size', 'page', 'sort']}
+              niceNames={{
+                username__contains: t`Username`,
+                first_name__contains: t`First name`,
+                last_name__contains: t`Last name`,
+                email__contains: t`Email`,
+              }}
+            />
+          </div>
+          {loading ? <LoadingSpinner /> : renderTable()}
 
-  private updateParams(params, callback = null) {
-    ParamHelper.updateParams({
-      params,
-      navigate: (to) => this.props.navigate(to),
-      setState: (state) => this.setState(state, callback),
-    });
-  }
-}
+          <PulpPagination
+            params={params}
+            updateParams={updateParams}
+            count={query.data?.count ?? 0}
+          />
+        </section>
+      </Main>
+    </>
+  );
+};
 
-export default withRouter(UserList);
+export default UserList;

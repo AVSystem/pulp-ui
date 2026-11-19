@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
-import { UserAPI, type UserType } from 'src/api';
+import { UserAPI } from 'src/api';
 import { DeleteModal } from 'src/components';
 import { useUserContext } from 'src/user-context';
 import { mapErrorMessages } from 'src/utilities';
@@ -16,7 +16,7 @@ interface IProps {
   addAlert: (message, variant, description?) => void;
   closeModal: (didDelete: boolean) => void;
   isOpen: boolean;
-  user?: UserType;
+  user?: { id?: number | null; username: string };
 }
 
 export const DeleteUserModal = ({
