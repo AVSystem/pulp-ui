@@ -2,6 +2,7 @@ import { i18n } from '@lingui/core';
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll } from 'vitest';
+import { resetSessionEvents } from 'src/session/session-events';
 import {
   server,
   takeUnhandledRequests,
@@ -55,6 +56,8 @@ afterEach(async () => {
   // may start the read of the installed plugins; it must happen before the
   // cache is cleared, or its answer would stay cached for the next test.
   cleanup();
+  // The signed-in user and the session epoch of one test never reach the next.
+  resetSessionEvents();
   // A request a screen sent just before the test ended, or while it unmounted,
   // reaches the mock server a moment later. It must meet the handlers of the
   // test that sent it: after the handlers are reset it would count as an

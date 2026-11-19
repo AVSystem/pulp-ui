@@ -12,6 +12,7 @@ import {
   isMarkedSessionEnd,
   reportUnauthorized,
   resetSessionEvents,
+  resume,
   setSignedIn,
   subscribe,
 } from './session-events';
@@ -176,30 +177,26 @@ describe('prepareRequest', () => {
 });
 
 describe('handleFailure', () => {
-  const context = prepareRequest('things/', 'GET', new Headers());
+  // Made at the time of the call, so it carries the epoch the test is in.
+  const freshContext = () => prepareRequest('things/', 'GET', new Headers());
   const answer = (status: number) => ({ response: { status } });
 
   it('reports a 401 of any call except the login calls, once', async () => {
     setSignedIn(true);
     const listener = vi.fn();
     subscribe(listener);
+    const sent = freshContext();
 
-    await handleFailure(401, 'things/', answer(401), vi.fn(), context);
-    await handleFailure(401, 'login/', answer(401), vi.fn(), context);
-    await handleFailure(
-      401,
-      '/pulp/api/v3/login/',
-      answer(401),
-      vi.fn(),
-      context,
-    );
+    await handleFailure(401, 'things/', answer(401), vi.fn(), sent);
+    await handleFailure(401, 'login/', answer(401), vi.fn(), sent);
+    await handleFailure(401, '/pulp/api/v3/login/', answer(401), vi.fn(), sent);
 
     expect(listener).toHaveBeenCalledTimes(1);
     expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
   });
 
   it('ignores a 401 while nobody is signed in', async () => {
-    await handleFailure(401, 'things/', answer(401), vi.fn(), context);
+    await handleFailure(401, 'things/', answer(401), vi.fn(), freshContext());
 
     expect(getSnapshot().ended).toBe(false);
   });
@@ -209,7 +206,13 @@ describe('handleFailure', () => {
     const check = vi.fn();
 
     for (const status of [400, 404, 500, 502]) {
-      await handleFailure(status, 'things/', answer(status), check, context);
+      await handleFailure(
+        status,
+        'things/',
+        answer(status),
+        check,
+        freshContext(),
+      );
     }
 
     expect(check).not.toHaveBeenCalled();
@@ -225,7 +228,7 @@ describe('handleFailure', () => {
       'things/',
       error,
       () => Promise.resolve({ username: 'zoe' }),
-      context,
+      freshContext(),
     );
 
     expect(isMarkedSessionEnd(error)).toBe(false);
@@ -243,7 +246,7 @@ describe('handleFailure', () => {
         'things/',
         error,
         () => Promise.reject(answer(status)),
-        context,
+        freshContext(),
       );
 
       expect(isMarkedSessionEnd(error)).toBe(true);
@@ -265,7 +268,7 @@ describe('handleFailure', () => {
         'things/',
         error,
         () => Promise.reject(failure),
-        context,
+        freshContext(),
       );
 
       expect(isMarkedSessionEnd(error)).toBe(false);
@@ -276,9 +279,9 @@ describe('handleFailure', () => {
   it('asks nothing for a 403 while nobody is signed in or of the login calls', async () => {
     const check = vi.fn();
 
-    await handleFailure(403, 'things/', answer(403), check, context);
+    await handleFailure(403, 'things/', answer(403), check, freshContext());
     setSignedIn(true);
-    await handleFailure(403, 'login/', answer(403), check, context);
+    await handleFailure(403, 'login/', answer(403), check, freshContext());
 
     expect(check).not.toHaveBeenCalled();
   });
@@ -294,8 +297,20 @@ describe('handleFailure', () => {
     );
     const secondCheck = vi.fn(() => Promise.resolve({}));
 
-    const first = handleFailure(403, 'a/', answer(403), firstCheck, context);
-    const second = handleFailure(403, 'b/', answer(403), secondCheck, context);
+    const first = handleFailure(
+      403,
+      'a/',
+      answer(403),
+      firstCheck,
+      freshContext(),
+    );
+    const second = handleFailure(
+      403,
+      'b/',
+      answer(403),
+      secondCheck,
+      freshContext(),
+    );
     finish({});
     await Promise.all([first, second]);
 
@@ -307,9 +322,88 @@ describe('handleFailure', () => {
     setSignedIn(true);
     const check = vi.fn(() => Promise.resolve({}));
 
-    await handleFailure(403, 'a/', answer(403), check, context);
-    await handleFailure(403, 'b/', answer(403), check, context);
+    await handleFailure(403, 'a/', answer(403), check, freshContext());
+    await handleFailure(403, 'b/', answer(403), check, freshContext());
 
     expect(check).toHaveBeenCalledTimes(2);
+  });
+
+  describe('a refusal that belongs to an older session', () => {
+    it.each([401, 403])(
+      'ignores a %i of a request sent before the session was resumed',
+      async (status) => {
+        setSignedIn(true);
+        const sentBefore = freshContext();
+        resume();
+        const check = vi.fn(() => Promise.reject(answer(401)));
+        const error = answer(status);
+
+        await handleFailure(status, 'things/', error, check, sentBefore);
+
+        expect(check).not.toHaveBeenCalled();
+        expect(isMarkedSessionEnd(error)).toBe(false);
+        expect(getSnapshot().ended).toBe(false);
+      },
+    );
+
+    it('ignores a refusal of a request sent for a user who has since signed out and in again', async () => {
+      setSignedIn(true);
+      const sentBefore = freshContext();
+      setSignedIn(false);
+      setSignedIn(true);
+
+      await handleFailure(401, 'things/', answer(401), vi.fn(), sentBefore);
+
+      expect(getSnapshot().ended).toBe(false);
+    });
+
+    it.each([401, 403])(
+      'acts on a %i of a request sent after the session was resumed',
+      async (status) => {
+        setSignedIn(true);
+        resume();
+        const sentAfter = freshContext();
+
+        await handleFailure(
+          status,
+          'things/',
+          answer(status),
+          () => Promise.reject(answer(401)),
+          sentAfter,
+        );
+
+        expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
+      },
+    );
+
+    it('ignores the outcome of a check that was answered after the session was resumed', async () => {
+      setSignedIn(true);
+      const sentBefore = freshContext();
+      let answerCheck: (value: unknown) => void = () => undefined;
+      const check = vi.fn(
+        () =>
+          new Promise((_, reject) => {
+            answerCheck = () => reject(answer(401));
+          }),
+      );
+      const error = answer(403);
+
+      const pending = handleFailure(403, 'things/', error, check, sentBefore);
+      resume();
+      answerCheck(null);
+      await pending;
+
+      expect(check).toHaveBeenCalledTimes(1);
+      expect(isMarkedSessionEnd(error)).toBe(false);
+      expect(getSnapshot().ended).toBe(false);
+    });
+
+    it('still reports a refusal when the request has no context', async () => {
+      setSignedIn(true);
+
+      await handleFailure(401, 'things/', answer(401), vi.fn(), undefined);
+
+      expect(getSnapshot().ended).toBe(true);
+    });
   });
 });

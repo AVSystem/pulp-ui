@@ -11,6 +11,7 @@ import {
   getSnapshot,
   reportUnauthorized,
   resetSessionEvents,
+  resume,
   setSignedIn,
 } from 'src/session/session-events';
 import { server } from 'src/test-utils/server';
@@ -218,6 +219,76 @@ describe('the sdk and the session', () => {
     expect(requestErrorStatus(error)).toBe(403);
     expect(isSessionEnd(error)).toBe(false);
     expect(requestErrorDetail(error)).toBe('Forbidden here.');
+    expect(getSnapshot().ended).toBe(false);
+  });
+
+  // A request that has reached the server and is answered only when the test
+  // says so, so the session can be resumed in between.
+  function holdAnswer(path: string, status: number) {
+    let release: () => void = () => undefined;
+    let reached: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const arrived = new Promise<void>((resolve) => {
+      reached = resolve;
+    });
+    server.use(
+      http.get(path, async () => {
+        reached();
+        await gate;
+        return HttpResponse.json({ detail: 'No.' }, { status });
+      }),
+    );
+    return { arrived, release };
+  }
+
+  it('ignores the 401 of a call sent before the session was resumed', async () => {
+    setSignedIn(true);
+    const held = holdAnswer('*/pulp/api/v3/status/', 401);
+    const pending = statusRead().catch((e) => e);
+    await held.arrived;
+
+    resume();
+    held.release();
+    const error = await pending;
+
+    expect(requestErrorStatus(error)).toBe(401);
+    expect(getSnapshot()).toEqual({ ended: false, fromRequest: false });
+  });
+
+  it('acts on the 401 of a call sent after the session was resumed', async () => {
+    setSignedIn(true);
+    resume();
+    const held = holdAnswer('*/pulp/api/v3/status/', 401);
+    const pending = statusRead().catch((e) => e);
+    await held.arrived;
+
+    held.release();
+    await pending;
+
+    expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
+  });
+
+  it('asks who is signed in nothing for a 403 of a call sent before the session was resumed', async () => {
+    setSignedIn(true);
+    const held = holdAnswer('*/pulp/api/v3/status/', 403);
+    let checks = 0;
+    server.use(
+      http.get('*/pulp/api/v3/login/', () => {
+        checks += 1;
+        return HttpResponse.json({ detail: 'No.' }, { status: 401 });
+      }),
+    );
+    const pending = statusRead().catch((e) => e);
+    await held.arrived;
+
+    resume();
+    held.release();
+    const error = await pending;
+
+    expect(requestErrorStatus(error)).toBe(403);
+    expect(checks).toBe(0);
     expect(getSnapshot().ended).toBe(false);
   });
 

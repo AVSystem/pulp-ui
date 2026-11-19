@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import { config } from 'src/ui-config';
 import {
   SessionSuspendedError,
+  currentRequestEpoch,
   isSignedIn,
   isSuspended,
   markSessionEnd,
@@ -77,6 +78,8 @@ interface IHeaderSink {
 export interface IRequestContext {
   readonly url: string;
   readonly method: string;
+  // The session the request was sent for.
+  readonly epoch: number;
 }
 
 // Runs before every request of either client. While the session has ended and
@@ -106,7 +109,7 @@ export function prepareRequest(
     }
   }
 
-  return { url, method: upperMethod };
+  return { url, method: upperMethod, epoch: currentRequestEpoch() };
 }
 
 // The one who-is-signed-in request that tells an ended session from a real
@@ -129,8 +132,19 @@ function sessionEnded(check: () => Promise<unknown>): Promise<boolean> {
   return sessionCheck;
 }
 
+// True when the request was sent for a session that has since been resumed or
+// replaced. A request without a context was never sent.
+const isForOlderSession = (context: IRequestContext | undefined) =>
+  context !== undefined && context.epoch < currentRequestEpoch();
+
 // Runs for every failed answer of either client, before the error reaches the
 // caller, and never changes it except to note a session end.
+//
+// A refusal that answers a request sent for a session that has since been
+// resumed or replaced says nothing about the current one, and acting on it
+// would open the sign-in dialog a second time for one session end. It is
+// ignored, and so is the outcome of a who-is-signed-in request that was
+// answered after such a change.
 //
 // A 401 of any call except the sign-in calls means the session ended. The
 // request is only reported, never repeated: repeating it could run a delete or
@@ -146,16 +160,16 @@ export async function handleFailure(
   url: string,
   error: unknown,
   checkSession: () => Promise<unknown>,
-  _context: IRequestContext | undefined,
+  context: IRequestContext | undefined,
 ): Promise<void> {
-  if (isLoginUrl(url)) {
+  if (isLoginUrl(url) || isForOlderSession(context)) {
     return;
   }
 
   if (status === 401) {
     reportUnauthorized('request');
   } else if (status === 403 && isSignedIn()) {
-    if (await sessionEnded(checkSession)) {
+    if ((await sessionEnded(checkSession)) && !isForOlderSession(context)) {
       markSessionEnd(error);
       reportUnauthorized('request');
     }

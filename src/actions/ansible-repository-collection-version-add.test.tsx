@@ -89,12 +89,14 @@ function setup(
     held = [],
     latestVersion = LATEST,
     contentHandler,
+    signedIn = false,
   }: {
     taskState?: string;
     modifyDelay?: number;
     held?: string[];
     latestVersion?: string | null;
     contentHandler?: ReturnType<typeof http.get>;
+    signedIn?: boolean;
   } = {},
 ) {
   const repo = repository({
@@ -150,6 +152,7 @@ function setup(
 
   const view = renderWithProviders(
     <Page repo={repo} reloadPage={reloadPage} />,
+    { signedIn },
   );
 
   return {
@@ -552,6 +555,7 @@ describe('the add collection dialog, while it does not know what the repository 
           ? HttpResponse.json({ detail: 'no' }, { status: 401 })
           : undefined,
       ),
+      signedIn: true,
     });
 
     await screen.findByText('ns.alpha v1.0.0');

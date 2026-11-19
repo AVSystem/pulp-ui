@@ -17,7 +17,7 @@ import PythonRepositoryEdit from '../containers/python-repository/edit';
 import RPMRemoteEdit from '../containers/rpm-remote/edit';
 import RPMRepositoryEdit from '../containers/rpm-repository/edit';
 import { Paths } from '../paths';
-import { resetSessionEvents } from '../session/session-events';
+import { resetSessionEvents, setSignedIn } from '../session/session-events';
 import {
   serveMyPermissions,
   servePermissions,
@@ -162,9 +162,20 @@ describe('an edit page whose load fails', () => {
     expect(form()).not.toBeInTheDocument();
   });
 
-  it('keeps its loading state without an error or alert for a 401', async () => {
+  it('shows the status of the 401 a visitor gets and no form', async () => {
     server.use(failing(401, 'Unauthorized'));
     renderEdit('/things/edit/alpha');
+
+    expect(
+      await screen.findByText('Error 401 - Unauthorized'),
+    ).toBeInTheDocument();
+    expect(form()).not.toBeInTheDocument();
+  });
+
+  it('keeps its loading state without an error or alert for the 401 of a signed-in user', async () => {
+    server.use(failing(401, 'Unauthorized'));
+    renderEdit('/things/edit/alpha');
+    setSignedIn(true);
 
     await waitFor(() => expect(screen.getByRole('progressbar')).toBeVisible());
     await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
@@ -306,7 +317,7 @@ function renderAfterSignIn(route = '/things/edit/alpha') {
         </Routes>
       </AppContextProvider>
     </>,
-    { route },
+    { route, signedIn: true },
   );
 }
 

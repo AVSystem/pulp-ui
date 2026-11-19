@@ -11,6 +11,7 @@ import { AppContextProvider } from '../app-context';
 import {
   reportUnauthorized,
   resetSessionEvents,
+  setSignedIn,
 } from '../session/session-events';
 import {
   serveMyPermissions,
@@ -176,9 +177,21 @@ describe('a list page whose API answers with an error status', () => {
     expect(retry()).toBeInTheDocument();
   });
 
-  it('shows no error state for a 401: the sign-in dialog explains it', async () => {
+  it('shows the error state with Retry for the 401 a visitor gets, because no dialog explains it', async () => {
     server.use(failing(401, 'Unauthorized'));
     renderList();
+
+    expect(
+      await screen.findByText('Error 401 - Unauthorized'),
+    ).toBeInTheDocument();
+    expect(retry()).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('shows no error state for the 401 of a signed-in user: the sign-in dialog explains it', async () => {
+    server.use(failing(401, 'Unauthorized'));
+    renderList();
+    setSignedIn(true);
 
     await waitFor(() => expect(spinner()).toBeInTheDocument());
     await new Promise((resolve) => setTimeout(resolve, 60));

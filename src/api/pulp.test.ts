@@ -175,6 +175,80 @@ describe('api client', () => {
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
+    // A request that has reached the server and is answered only when the
+    // test says so, so the session can be resumed in between.
+    function holdAnswer(status: number) {
+      let release: () => void = () => undefined;
+      let reached: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const arrived = new Promise<void>((resolve) => {
+        reached = resolve;
+      });
+      server.use(
+        http.get('*/pulp/api/v3/examples/', async () => {
+          reached();
+          await gate;
+          return HttpResponse.json({ detail: 'No.' }, { status });
+        }),
+      );
+      return { arrived, release };
+    }
+
+    it('a 401 of a call sent before the session was resumed tells nobody', async () => {
+      setSignedIn(true);
+      const listener = vi.fn();
+      subscribe(listener);
+      const held = holdAnswer(401);
+      const pending = new ExampleAPI().read().catch((e) => e);
+      await held.arrived;
+
+      resume();
+      listener.mockClear();
+      held.release();
+      const error = await pending;
+
+      expect(error.response.status).toBe(401);
+      expect(listener).not.toHaveBeenCalled();
+      expect(getSnapshot().ended).toBe(false);
+    });
+
+    it('a 401 of a call sent after the session was resumed tells the session', async () => {
+      setSignedIn(true);
+      resume();
+      const held = holdAnswer(401);
+      const pending = new ExampleAPI().read().catch((e) => e);
+      await held.arrived;
+
+      held.release();
+      await pending;
+
+      expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
+    });
+
+    it('a 403 of a call sent before the session was resumed asks who is signed in nothing', async () => {
+      setSignedIn(true);
+      let checks = 0;
+      server.use(
+        http.get('*/pulp/api/v3/login/', () => {
+          checks += 1;
+          return HttpResponse.json({ detail: 'No.' }, { status: 401 });
+        }),
+      );
+      const held = holdAnswer(403);
+      const pending = new ExampleAPI().read().catch((e) => e);
+      await held.arrived;
+
+      resume();
+      held.release();
+      const error = await pending;
+
+      expect(error.response.status).toBe(403);
+      expect(checks).toBe(0);
+      expect(getSnapshot().ended).toBe(false);
+    });
+
     it('a 401 of the login call and of the who-is-signed-in call tells nobody', async () => {
       setSignedIn(true);
       refuse(401);

@@ -31,6 +31,11 @@ export class SessionSuspendedError extends Error {
 // A tiny store shared by the API layer, which has no React around it, and the
 // screens that react to a refused request.
 let signedIn = false;
+// Counts the sessions of this page load: it grows each time the session is
+// resumed and each time the signed-in value changes, and never goes back.
+// A request is stamped with it when it is sent, so its answer can later be
+// told from an answer about the current session.
+let requestEpoch = 0;
 let snapshot: ISessionEnded = { ended: false, fromRequest: false };
 const listeners = new Set<() => void>();
 
@@ -60,7 +65,14 @@ export function reportUnauthorized(origin: 'request' | 'tab-return') {
 
 // The user signed in again; the session is usable.
 export function resume() {
+  requestEpoch += 1;
   publish({ ended: false, fromRequest: false });
+}
+
+// The session a request is sent for. A refusal that answers a request stamped
+// with an older value says nothing about the current session.
+export function currentRequestEpoch() {
+  return requestEpoch;
 }
 
 // True while a user who signed in during this page load has not been signed
@@ -89,9 +101,12 @@ export function isMarkedSessionEnd(error: unknown): boolean {
 }
 
 export function setSignedIn(value: boolean) {
-  signedIn = value;
+  if (value !== signedIn) {
+    signedIn = value;
+    requestEpoch += 1;
+  }
   if (!value) {
-    resume();
+    publish({ ended: false, fromRequest: false });
   }
 }
 
@@ -114,6 +129,8 @@ export function getSnapshot() {
 // Puts the store back to its start, for tests.
 export function resetSessionEvents() {
   signedIn = false;
+  // Answers to requests sent before the reset belong to an older session.
+  requestEpoch += 1;
   snapshot = { ended: false, fromRequest: false };
   listeners.clear();
 }

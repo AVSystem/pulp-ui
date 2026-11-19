@@ -233,7 +233,7 @@ describe('status page after the same user signs in again', () => {
         <SignInAgain />
         <PulpStatus />
       </AppContextProvider>,
-      { route: '/status' },
+      { route: '/status', signedIn: true },
     );
   }
 

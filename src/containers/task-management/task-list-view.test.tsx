@@ -356,7 +356,7 @@ describe('the task list after the same user signs in again', () => {
         <SignInAgain />
         <TaskListView />
       </AppContextProvider>,
-      { route: '/task-management' },
+      { route: '/task-management', signedIn: true },
     );
   }
 

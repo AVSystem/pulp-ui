@@ -411,7 +411,7 @@ describe('task detail after the same user signs in again', () => {
           <Route path='/tasks/:task' element={<TaskDetail />} />
         </Routes>
       </AppContextProvider>,
-      { route: '/tasks/0192e5a1-0000-7000-8000-000000000001' },
+      { route: '/tasks/0192e5a1-0000-7000-8000-000000000001', signedIn: true },
     );
   }
 
