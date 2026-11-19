@@ -1,16 +1,45 @@
-import {
-  type APIRequestContext,
-  type APIResponse,
-  request,
-} from '@playwright/test';
+import { type APIRequestContext, request } from '@playwright/test';
+import { getRepositoriesAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/repositories-ansible';
+import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards-rbac';
+import type { AsyncOperationResponse } from '@pulp-ui/sdk/core/models/async-operation-response.zod';
+import type { TaskResponse } from '@pulp-ui/sdk/core/models/tasks/task-response.zod';
+import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
+import { getTasksReadUrl } from '@pulp-ui/sdk/core/tasks';
+import { getDistributionsDebAptListUrl } from '@pulp-ui/sdk/deb/distributions-apt';
+import { getPublicationsDebAptListUrl } from '@pulp-ui/sdk/deb/publications-apt';
+import { getRemotesDebAptListUrl } from '@pulp-ui/sdk/deb/remotes-apt';
+import { getRepositoriesDebAptListUrl } from '@pulp-ui/sdk/deb/repositories-apt';
+import { getContentFileFilesCreateUrl } from '@pulp-ui/sdk/file/content-files';
+import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
+import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
+import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
+import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
+import { getDistributionsPythonPypiListUrl } from '@pulp-ui/sdk/python/distributions-pypi';
+import { getPublicationsPythonPypiListUrl } from '@pulp-ui/sdk/python/publications-pypi';
+import { getRemotesPythonPythonListUrl } from '@pulp-ui/sdk/python/remotes-python';
+import { getRepositoriesPythonPythonListUrl } from '@pulp-ui/sdk/python/repositories-python';
+import { getDistributionsRpmRpmListUrl } from '@pulp-ui/sdk/rpm/distributions-rpm';
+import { getPublicationsRpmRpmListUrl } from '@pulp-ui/sdk/rpm/publications-rpm';
+import { getRemotesRpmRpmListUrl } from '@pulp-ui/sdk/rpm/remotes-rpm';
+import { getRepositoriesRpmRpmListUrl } from '@pulp-ui/sdk/rpm/repositories-rpm';
 import { randomBytes } from 'node:crypto';
 import { basicAuthorization } from '../../src/utilities/basic-authorization';
 import { account } from './accounts';
 import { origin } from './env';
+import {
+  apiCall,
+  apiDelete,
+  apiGet,
+  apiPatch,
+  apiPostForm,
+  resolveApiUrl,
+} from './sdk-request';
 
 // Set-up and clean-up of the objects a remote test needs, through the REST API
 // with the admin account of the run. Basic-authenticated calls carry no session
-// and need no CSRF token.
+// and need no CSRF token. Every address comes from a URL builder of the
+// generated client (or from a href the server returned) and every answer is
+// typed by its models; sdk-request.ts sends them.
 //
 // Every object a test writes is named zz-e2e-<run id>-<scope>-<suffix>. The run
 // id is chosen once per run (and handed to the worker processes through the
@@ -45,10 +74,16 @@ export interface PulpObject {
   [field: string]: unknown;
 }
 
-interface Task {
+// What a task reports of itself that the helpers read; the rest of the model
+// is the generated one.
+type Task = TaskResponse & {
   state: string;
   created_resources: string[];
-  error?: { description?: string } | null;
+};
+
+interface Page {
+  results: PulpObject[];
+  next: string | null;
 }
 
 // Endpoints that hold objects created by the tests, deepest dependants first:
@@ -56,32 +91,32 @@ interface Task {
 // objects under these endpoints are ever deleted. Publications carry no name of
 // their own; every other kind must carry the scope's prefix.
 const DISTRIBUTIONS = [
-  'distributions/file/file/',
-  'distributions/deb/apt/',
-  'distributions/rpm/rpm/',
-  'distributions/python/pypi/',
+  getDistributionsFileFileListUrl(),
+  getDistributionsDebAptListUrl(),
+  getDistributionsRpmRpmListUrl(),
+  getDistributionsPythonPypiListUrl(),
 ];
 const PUBLICATIONS = [
-  'publications/file/file/',
-  'publications/deb/apt/',
-  'publications/rpm/rpm/',
-  'publications/python/pypi/',
+  getPublicationsFileFileListUrl(),
+  getPublicationsDebAptListUrl(),
+  getPublicationsRpmRpmListUrl(),
+  getPublicationsPythonPypiListUrl(),
 ];
 const REPOSITORIES = [
-  'repositories/file/file/',
-  'repositories/deb/apt/',
-  'repositories/rpm/rpm/',
-  'repositories/python/python/',
-  'repositories/ansible/ansible/',
+  getRepositoriesFileFileListUrl(),
+  getRepositoriesDebAptListUrl(),
+  getRepositoriesRpmRpmListUrl(),
+  getRepositoriesPythonPythonListUrl(),
+  getRepositoriesAnsibleAnsibleListUrl(),
 ];
 const REMOTES = [
-  'remotes/file/file/',
-  'remotes/deb/apt/',
-  'remotes/rpm/rpm/',
-  'remotes/python/python/',
+  getRemotesFileFileListUrl(),
+  getRemotesDebAptListUrl(),
+  getRemotesRpmRpmListUrl(),
+  getRemotesPythonPythonListUrl(),
 ];
-const CONTENT_GUARDS = ['contentguards/core/rbac/'];
-const ROLES = ['roles/'];
+const CONTENT_GUARDS = [getContentguardsCoreRbacListUrl()];
+const ROLES = [getRolesListUrl()];
 
 // The endpoint groups in the order objects can be deleted.
 const DELETION_ORDER = [
@@ -101,18 +136,16 @@ const NAMED_DELETION_ORDER = DELETION_ORDER.filter(
 const NAMED_ENDPOINTS = NAMED_DELETION_ORDER.flat();
 
 function groupOf(href: string): number {
+  const target = resolveApiUrl(href);
   return DELETION_ORDER.findIndex((endpoints) =>
-    endpoints.some((path) => href.startsWith(`${API_BASE}${path}`)),
+    endpoints.some((endpoint) => target.startsWith(endpoint)),
   );
 }
 
+// An address as a spec gives it: a builder's address or a server href, or a
+// path below the API root.
 function url(pathOrHref: string): string {
   return pathOrHref.startsWith('/') ? pathOrHref : `${API_BASE}${pathOrHref}`;
-}
-
-async function fail(what: string, response: APIResponse): Promise<never> {
-  const body = (await response.text()).slice(0, 300);
-  throw new Error(`${what}: ${response.status()} ${body}`);
 }
 
 // The objects of one spec file on one deployment. Create them through this
@@ -142,16 +175,11 @@ export class TestObjects {
   async list(path: string, params: Record<string, string> = {}) {
     const results: PulpObject[] = [];
     for (let offset = 0; ; offset += 100) {
-      const response = await this.api.get(url(path), {
-        params: { ...params, limit: '100', offset: String(offset) },
+      const page = await apiGet<Page>(this.api, url(path), {
+        ...params,
+        limit: '100',
+        offset: String(offset),
       });
-      if (!response.ok()) {
-        await fail(`GET ${path}`, response);
-      }
-      const page = (await response.json()) as {
-        results: PulpObject[];
-        next: string | null;
-      };
       results.push(...page.results);
       if (!page.next) {
         return results;
@@ -160,25 +188,21 @@ export class TestObjects {
   }
 
   async get(href: string): Promise<PulpObject> {
-    const response = await this.api.get(url(href));
-    if (!response.ok()) {
-      await fail(`GET ${href}`, response);
-    }
-    return (await response.json()) as PulpObject;
+    return apiGet<PulpObject>(this.api, url(href));
   }
 
   // Waits for a task to finish and returns it; a failed or canceled task throws.
   async waitForTask(taskHref: string, timeoutMs = 120_000): Promise<Task> {
     const deadline = Date.now() + timeoutMs;
     for (;;) {
-      const task = (await this.get(taskHref)) as unknown as Task;
+      const task = await apiGet<Task>(this.api, getTasksReadUrl(taskHref));
       if (task.state === 'completed') {
         return task;
       }
       if (task.state === 'failed' || task.state === 'canceled') {
-        throw new Error(
-          `task ${taskHref} ${task.state}: ${task.error?.description ?? ''}`,
-        );
+        const description = (task.error as { description?: string } | undefined)
+          ?.description;
+        throw new Error(`task ${taskHref} ${task.state}: ${description ?? ''}`);
       }
       if (Date.now() > deadline) {
         throw new Error(
@@ -202,17 +226,15 @@ export class TestObjects {
       );
     }
 
-    const response = await this.api.post(url(path), { data: body });
-    if (!response.ok()) {
-      await fail(`POST ${path}`, response);
-    }
-    const answer = (await response.json()) as PulpObject & { task?: string };
-    if (response.status() === 201) {
+    const { status, body: answer } = await apiCall<
+      PulpObject & AsyncOperationResponse
+    >(this.api, 'POST', url(path), { data: body });
+    if (status === 201) {
       this.registered.push(answer.pulp_href);
       return answer;
     }
 
-    const task = await this.waitForTask(answer.task as string);
+    const task = await this.waitForTask(answer.task);
     const href = task.created_resources[0] as string;
     this.registered.push(href);
     return this.get(href);
@@ -220,11 +242,11 @@ export class TestObjects {
 
   // Changes an object and waits for the task the server starts.
   async patch(href: string, body: Record<string, unknown>) {
-    const response = await this.api.patch(url(href), { data: body });
-    if (!response.ok()) {
-      await fail(`PATCH ${href}`, response);
-    }
-    const answer = (await response.json()) as { task?: string };
+    const answer = await apiPatch<Partial<AsyncOperationResponse>>(
+      this.api,
+      url(href),
+      body,
+    );
     if (answer.task) {
       await this.waitForTask(answer.task);
     }
@@ -240,14 +262,13 @@ export class TestObjects {
       throw new Error(`refusing to delete ${href}: not a known test endpoint`);
     }
 
-    const current = await this.api.get(url(href));
-    if (current.status() === 404) {
+    const current = await apiCall<PulpObject>(this.api, 'GET', url(href), {
+      accept: [404],
+    });
+    if (current.status === 404) {
       return;
     }
-    if (!current.ok()) {
-      await fail(`GET ${href}`, current);
-    }
-    const { name } = (await current.json()) as PulpObject;
+    const { name } = current.body;
     // a publication belongs to a repository version and has no name
     const unnamedKind = DELETION_ORDER[group] === PUBLICATIONS;
     if (
@@ -259,17 +280,9 @@ export class TestObjects {
       );
     }
 
-    const response = await this.api.delete(url(href));
-    if (response.status() === 404) {
-      return;
-    }
-    if (!response.ok()) {
-      await fail(`DELETE ${href}`, response);
-    }
-    if (response.status() === 202) {
-      await this.waitForTask(
-        ((await response.json()) as { task: string }).task,
-      );
+    const answer = await apiDelete(this.api, url(href), [404]);
+    if (answer.status === 202 && answer.body?.task) {
+      await this.waitForTask(answer.body.task);
     }
   }
 
@@ -293,8 +306,10 @@ export class TestObjects {
       );
     }
 
-    const response = await this.api.post(url('content/file/files/'), {
-      multipart: {
+    const answer = await apiPostForm<AsyncOperationResponse>(
+      this.api,
+      getContentFileFilesCreateUrl(),
+      {
         file: {
           name: relativePath.split('/').pop() as string,
           mimeType: 'text/plain',
@@ -303,11 +318,7 @@ export class TestObjects {
         relative_path: relativePath,
         repository: repositoryHref,
       },
-    });
-    if (!response.ok()) {
-      await fail('POST content/file/files/', response);
-    }
-    const answer = (await response.json()) as { task: string };
+    );
     return this.waitForTask(answer.task);
   }
 
