@@ -76,7 +76,10 @@ interface IUser {
 
 // The parent owns the user, as the pages that use the form do. Every user the
 // form hands over is recorded.
-function renderForm(initial: IUser) {
+function renderForm(
+  initial: IUser,
+  props: { isMe?: boolean; isReadonly?: boolean } = {},
+) {
   const handedOver: IUser[] = [];
   function Harness() {
     const [user, setUser] = useState(initial);
@@ -86,6 +89,7 @@ function renderForm(initial: IUser) {
         <UserForm
           errorMessages={{}}
           isNewUser
+          {...props}
           onCancel={() => null}
           saveUser={() => null}
           updateUser={(u) => {
@@ -109,6 +113,55 @@ const newUser = (): IUser => ({
   groups: [],
 });
 
+// A form that does not draw the group search asks the server for no group:
+// what it does not show is not read.
+describe('the groups a user form reads', () => {
+  function recordGroupReads() {
+    const reads: string[] = [];
+    server.events.on('request:start', ({ request }) => {
+      const { pathname } = new URL(request.url);
+      if (pathname === GROUPS) {
+        reads.push(pathname);
+      }
+    });
+    server.use(listOf(GROUPS, [{ name: 'ops', id: 1 }]).handler);
+    return reads;
+  }
+
+  it('reads the first groups once for an editable form and offers them', async () => {
+    const reads = recordGroupReads();
+    renderForm(newUser());
+
+    expect(await screen.findByRole('button', { name: 'ops' })).toBeVisible();
+    await reacted();
+    expect(reads).toHaveLength(1);
+  });
+
+  it('reads no group for a read-only form', async () => {
+    const reads = recordGroupReads();
+    renderForm(
+      { ...newUser(), groups: [{ name: 'ops', id: 1 }] },
+      { isReadonly: true },
+    );
+
+    expect(await screen.findByText('ops')).toBeVisible();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(reads).toEqual([]);
+  });
+
+  it('reads no group for the form of the own profile', async () => {
+    const reads = recordGroupReads();
+    renderForm(
+      { ...newUser(), groups: [{ name: 'ops', id: 1 }] },
+      { isMe: true },
+    );
+
+    expect(await screen.findByText('ops')).toBeVisible();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(reads).toEqual([]);
+  });
+});
+
 describe('the group search of the user form', () => {
   it('lists the answer to the latest search when an earlier answer arrives last', async () => {
     let releaseFirst: () => void = () => undefined;
@@ -118,7 +171,8 @@ describe('the group search of the user form', () => {
     const searched: string[] = [];
     server.use(
       http.get(`*${GROUPS}`, async ({ request }) => {
-        const text = new URL(request.url).searchParams.get('name__contains');
+        const text =
+          new URL(request.url).searchParams.get('name__contains') ?? '';
         searched.push(text);
         if (text === 'a') {
           await firstAnswer;

@@ -9,7 +9,6 @@ import {
   PermissionsKnown,
   servePermissions,
 } from 'src/test-utils/permissions';
-import { listOf } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -44,8 +43,6 @@ describe('the profile page of a user who may not list users', () => {
       ...setup,
     });
     server.use(
-      // the group selector of the user form reads the first groups as it opens
-      listOf(`${API}/groups/`, []).handler,
       http.get(`*${API}/users/`, () =>
         HttpResponse.json(
           { detail: 'You do not have permission to perform this action.' },
@@ -112,6 +109,17 @@ describe('the profile page of a user who may not list users', () => {
     ).toHaveLength(2);
   });
 
+  it('reads no group list: the profile shows the groups of the record', async () => {
+    renderProfile({ own: [['auth.change_user']] });
+    await screen.findByText('Zo');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(recorder.requests).not.toContain(`${API}/groups/`);
+    expect(
+      recorder.requests.filter((path) => path.startsWith(`${API}/groups/?`)),
+    ).toEqual([]);
+  });
+
   // Editing a record is offered to whoever the server would let change it,
   // which is decided by the permission to change users. A user's own record is
   // readable by that user, but a change needs that permission too.
@@ -160,7 +168,6 @@ describe('the profile after a save', () => {
       groups: [],
     };
     server.use(
-      listOf(`${API}/groups/`, []).handler,
       http.get(`*${API}/users/`, () =>
         HttpResponse.json({ detail: 'no' }, { status: 403 }),
       ),
@@ -241,7 +248,6 @@ describe('the profile page when the record cannot be read', () => {
     expect(screen.queryByRole('progressbar')).toBeNull();
 
     server.use(
-      listOf(`${API}/groups/`, []).handler,
       http.get(`*${API}/users/7/`, () =>
         HttpResponse.json({ ...RECORD, is_staff: false }),
       ),
@@ -303,7 +309,6 @@ describe('the profile page after signing in again', () => {
           is_staff: true,
         }),
       ),
-      listOf(`${API}/groups/`, []).handler,
     );
     const { user } = renderAfterSession();
     await user.click(await screen.findByRole('button', { name: 'Edit' }));
@@ -343,7 +348,6 @@ describe('the profile page after signing in again', () => {
           is_staff: true,
         });
       }),
-      listOf(`${API}/groups/`, []).handler,
     );
     const { user } = renderAfterSession();
     await signedIn();
@@ -366,7 +370,6 @@ describe('the profile page while the permissions cannot be read', () => {
       own: [['auth.change_user']],
     });
     server.use(
-      listOf(`${API}/groups/`, []).handler,
       http.get(`*${API}/users/7/`, () =>
         HttpResponse.json({ ...RECORD, is_staff: false }),
       ),
