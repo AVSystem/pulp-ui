@@ -67,12 +67,12 @@ test.describe('pages of a signed-in session', () => {
 
     await page.goto('tasks?page_size=100');
     await expect(title(page, 'Task management')).toBeVisible();
-    await page.locator(`a[href$="/tasks/${taskId}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}$`));
+    await page.locator(`a[href*="/tasks/${taskId}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}/?$`));
     await expect(title(page, 'Task detail')).toBeVisible();
 
     await page.goto(`tasks/detail/${taskId}`);
-    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}$`));
+    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}/?$`));
     await expect(title(page, 'Task detail')).toBeVisible();
   });
 
@@ -83,7 +83,7 @@ test.describe('pages of a signed-in session', () => {
   }) => {
     const unknown = '00000000-0000-4000-8000-000000000000';
     await page.goto(`tasks/detail/${unknown}`);
-    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${unknown}$`));
+    await expect(page).toHaveURL(new RegExp(`/ui/tasks/${unknown}/?$`));
     await expect(title(page, '404 - Page not found')).toBeVisible();
   });
 

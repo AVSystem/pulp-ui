@@ -40,7 +40,7 @@ test.afterAll(async () => {
 test('a finished task is listed, found by its status, opened at its own address and reached from the old one', async ({
   page,
 }) => {
-  const link = () => page.locator(`a[href$="/tasks/${taskId}"]`);
+  const link = () => page.locator(`a[href*="/tasks/${taskId}"]`);
   const completedOnPage = () =>
     page.getByText('Completed', { exact: true }).first();
 
@@ -70,12 +70,12 @@ test('a finished task is listed, found by its status, opened at its own address 
 
   // opening the task lands on its address and shows how it ended
   await link().click();
-  await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}$`));
+  await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}/?$`));
   await expect(completedOnPage()).toBeVisible();
 
   // the address links used before tasks had their own address ends on the new
   // one
   await page.goto(`tasks/detail/${taskId}`);
-  await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}$`));
+  await expect(page).toHaveURL(new RegExp(`/ui/tasks/${taskId}/?$`));
   await expect(completedOnPage()).toBeVisible();
 });
