@@ -1,16 +1,10 @@
 import type { LoginResponse } from '@pulp-ui/sdk/core/models/login/login-response.zod';
 import { HttpResponse, http } from 'msw';
-import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { server } from 'src/test-utils/server';
 import { LoginClient } from './client';
 
 describe('Integration: LoginClient', { tags: ['integration'] }, () => {
-  const server = setupServer();
-
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-
   const loginResponseBody = {
     pulp_href: '/pulp/api/v3/users/4/',
     prn: 'prn:auth.user:4',
@@ -22,7 +16,7 @@ describe('Integration: LoginClient', { tags: ['integration'] }, () => {
 
   it('retrieve decodes the current session user', async () => {
     server.use(
-      http.get('/pulp/api/v3/login/', () =>
+      http.get('*/pulp/api/v3/login/', () =>
         HttpResponse.json(loginResponseBody),
       ),
     );
@@ -37,7 +31,7 @@ describe('Integration: LoginClient', { tags: ['integration'] }, () => {
   it('login sends the credentials as a UTF-8 Basic Auth header', async () => {
     let authorization: string | null = null;
     server.use(
-      http.post('/pulp/api/v3/login/', ({ request }) => {
+      http.post('*/pulp/api/v3/login/', ({ request }) => {
         authorization = request.headers.get('authorization');
         return HttpResponse.json(loginResponseBody, { status: 201 });
       }),
@@ -50,7 +44,7 @@ describe('Integration: LoginClient', { tags: ['integration'] }, () => {
 
   it('login rejects with the status on invalid credentials', async () => {
     server.use(
-      http.post('/pulp/api/v3/login/', () =>
+      http.post('*/pulp/api/v3/login/', () =>
         HttpResponse.json(
           { detail: 'Invalid username/password' },
           { status: 401 },
@@ -65,7 +59,7 @@ describe('Integration: LoginClient', { tags: ['integration'] }, () => {
 
   it('login rejects when a 201 response is missing a required field', async () => {
     server.use(
-      http.post('/pulp/api/v3/login/', () =>
+      http.post('*/pulp/api/v3/login/', () =>
         HttpResponse.json(
           {
             pulp_href: loginResponseBody.pulp_href,

@@ -1,18 +1,12 @@
 import { HttpResponse, http } from 'msw';
-import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { server } from '../../../../src/test-utils/server';
 import { pulpFetch } from './pulp-fetch';
 
 describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
-  const server = setupServer();
-
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-
   it('resolves with the parsed JSON body on a 2xx response', async () => {
     server.use(
-      http.get('/pulp/api/v3/status/', () =>
+      http.get('*/pulp/api/v3/status/', () =>
         HttpResponse.json({ version: [] }),
       ),
     );
@@ -24,7 +18,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
 
   it('throws error carrying the status and parsed body on a non-2xx JSON response', async () => {
     server.use(
-      http.get('/pulp/api/v3/status/', () =>
+      http.get('*/pulp/api/v3/status/', () =>
         HttpResponse.json({ detail: 'Not found.' }, { status: 404 }),
       ),
     );
@@ -40,7 +34,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('sets Content-Type: application/json when a body is present and none is set', async () => {
     let contentType: string | null = null;
     server.use(
-      http.post('/pulp/api/v3/repositories', async ({ request }) => {
+      http.post('*/pulp/api/v3/repositories', async ({ request }) => {
         contentType = request.headers.get('content-type');
         return HttpResponse.json({});
       }),
@@ -57,7 +51,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('throws with the raw text body when a non-2xx non-JSON response', async () => {
     server.use(
       http.get(
-        '/pulp/api/v3/status',
+        '*/pulp/api/v3/status',
         () =>
           new HttpResponse('<html>Internal Server Error</html>', {
             status: 500,
@@ -77,7 +71,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('does not override a Content-Type header the caller has already set', async () => {
     let contentType: string | null = null;
     server.use(
-      http.post('/pulp/api/v3/repositories', async ({ request }) => {
+      http.post('*/pulp/api/v3/repositories', async ({ request }) => {
         contentType = request.headers.get('content-type');
         return HttpResponse.json({});
       }),
@@ -95,7 +89,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('sends credentials: include on every request', async () => {
     let credentials: Request['credentials'] | undefined;
     server.use(
-      http.get('/pulp/api/v3/status/', ({ request }) => {
+      http.get('*/pulp/api/v3/status/', ({ request }) => {
         credentials = request.credentials;
         return HttpResponse.json({ version: [] });
       }),
@@ -109,7 +103,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('does not set Content-Type when there is no body', async () => {
     let contentType: string | null = null;
     server.use(
-      http.get('/pulp/api/v3/status/', ({ request }) => {
+      http.get('*/pulp/api/v3/status/', ({ request }) => {
         contentType = request.headers.get('content-type');
         return HttpResponse.json({ version: [] });
       }),
@@ -124,7 +118,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
     let contentType: string | null = null;
     server.use(
       http.patch(
-        '/pulp/api/v3/repositories/rpm/rpm/1234567890/',
+        '*/pulp/api/v3/repositories/rpm/rpm/1234567890/',
         ({ request }) => {
           contentType = request.headers.get('content-type');
           return HttpResponse.json({});
@@ -142,7 +136,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
 
   it('resolves with undefined on a 204 No Content response', async () => {
     server.use(
-      http.delete('/pulp/api/v3/rpm/rpm/1234567890', () => {
+      http.delete('*/pulp/api/v3/rpm/rpm/1234567890', () => {
         return new HttpResponse(undefined, { status: 204 });
       }),
     );
@@ -156,7 +150,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
 
   it('throws when a 2xx response is missing Content-Type', async () => {
     server.use(
-      http.get('/pulp/api/v3/status/', () => {
+      http.get('*/pulp/api/v3/status/', () => {
         const res = new HttpResponse('No Headers', { status: 200 });
         res.headers.delete('content-type');
         return res;
@@ -171,7 +165,7 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
   it('sends "X-Requested-With: XMLHttpRequest" header on every request', async () => {
     let expectedHeader: string | null = null;
     server.use(
-      http.get('/pulp/api/v3/status/', ({ request }) => {
+      http.get('*/pulp/api/v3/status/', ({ request }) => {
         expectedHeader = request.headers.get('x-requested-with');
         return HttpResponse.json({ version: [] });
       }),
