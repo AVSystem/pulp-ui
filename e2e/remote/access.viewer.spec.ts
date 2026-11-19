@@ -1,6 +1,8 @@
 import { type Page, expect, test } from '@playwright/test';
 import { account } from '../support/accounts';
 import { TestObjects } from '../support/api';
+import { apiGet } from '../support/sdk-request';
+import { isPermissionsRead } from '../support/session';
 import { title } from '../support/sign-in';
 import { type ListPage, missingPlugin } from './list-pages';
 import { signedOut } from './session-helpers';
@@ -107,11 +109,7 @@ test.describe('the limited account', () => {
   }
 
   test('the task list offers none of the task actions', async ({ page }) => {
-    const permissionsRead = page.waitForResponse((response) =>
-      /\/pulp\/api\/v3\/users\/[^/]+\/roles\/$/.test(
-        new URL(response.url()).pathname,
-      ),
-    );
+    const permissionsRead = page.waitForResponse(isPermissionsRead);
     await page.goto('tasks');
     await permissionsRead;
     await expect(title(page, 'Task management')).toBeVisible();
@@ -157,6 +155,23 @@ test.describe('the limited account', () => {
     await expect(page.getByText('Online workers')).toHaveCount(0);
   });
 
+  test('sees the versions of the installed plugins on the Status screen and no workers, storage or content settings', async ({
+    page,
+  }) => {
+    await page.goto('status');
+    await expect(title(page, 'Status')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    // each plugin shows with its version in the Versions card
+    const main = page.getByRole('main');
+    await expect(main.getByText('Versions', { exact: true })).toBeVisible();
+    await expect(main.getByText(/^core$/)).toBeVisible();
+
+    for (const card of ['Online workers', 'Storage', 'Content settings']) {
+      await expect(main.getByText(card, { exact: true }), card).toHaveCount(0);
+    }
+  });
+
   test('opens its own profile and sees it', async ({ page }) => {
     await page.goto('users/profile');
 
@@ -198,13 +213,11 @@ test.describe('the forms of repositories and remotes opened by address', () => {
     let found = names.get(key);
     if (!found) {
       found = (async () => {
-        const response = await objects.api.get(`/pulp/api/v3/${key}/`, {
-          params: { limit: '1', fields: 'name' },
-        });
-        expect(response.ok(), `GET ${key}`).toBe(true);
-        const { results } = (await response.json()) as {
-          results: { name: string }[];
-        };
+        const { results } = await apiGet<{ results: { name: string }[] }>(
+          objects.api,
+          `/pulp/api/v3/${key}/`,
+          { limit: '1', fields: 'name' },
+        );
         if (results[0]) {
           return results[0].name;
         }
