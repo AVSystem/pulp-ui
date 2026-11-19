@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import { useId, useState } from 'react';
 import { FormFieldHelper } from 'src/components';
-import { type ErrorMessagesType } from 'src/utilities';
+import { type ErrorMessagesType } from 'src/utilities/map-error-messages';
 
 interface IProps {
   clearErrors?: () => void;
@@ -30,6 +30,9 @@ export const GroupModal = ({
 }: IProps) => {
   const [name, setName] = useState<string>(group?.name || '');
   const labelId = useId();
+  const nameError = errorMessage?.name;
+  // what belongs to no field, such as a refused save
+  const generalError = errorMessage?.['__nofield'];
 
   return (
     <Modal
@@ -57,12 +60,23 @@ export const GroupModal = ({
                 clearErrors();
               }}
               type='text'
-              validated={errorMessage ? 'error' : 'default'}
+              validated={nameError ? 'error' : 'default'}
             />
-            <FormFieldHelper variant={errorMessage ? 'error' : 'default'}>
-              {errorMessage?.name}
+            <FormFieldHelper variant={nameError ? 'error' : 'default'}>
+              {nameError}
             </FormFieldHelper>
           </FormGroup>
+          {generalError ? (
+            <p
+              className='pulp-break-anywhere'
+              style={{
+                color:
+                  'var(--pf-t--global--text--color--status--danger--default)',
+              }}
+            >
+              {generalError}
+            </p>
+          ) : null}
         </Form>
       </ModalBody>
       <ModalFooter>

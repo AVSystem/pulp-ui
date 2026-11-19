@@ -70,6 +70,15 @@ describe('the group list', () => {
       ).handler,
     );
 
+  // the members of whichever group the delete dialog asks about, as the
+  // group's own endpoint answers
+  const serveMembers = (...names: string[]) =>
+    server.use(
+      http.get(`*${API}/groups/:id/users/`, () =>
+        HttpResponse.json(page(names.map((username) => ({ username })))),
+      ),
+    );
+
   // the text box of the open create dialog
   const nameField = async () =>
     within(await screen.findByRole('dialog')).getByRole('textbox');
@@ -173,12 +182,7 @@ describe('the group list', () => {
 
   it('lists the users a delete would affect from a Pulp-shaped answer', async () => {
     serve('zz-alpha');
-    server.use(
-      listOf(`${API}/users/`, [
-        user({ username: 'zz-ann' }),
-        user({ username: 'zz-bob' }),
-      ]).handler,
-    );
+    serveMembers('zz-ann', 'zz-bob');
     const { user: u } = renderGroups();
     await screen.findByText('zz-alpha');
     await signedIn();
@@ -195,7 +199,7 @@ describe('the group list', () => {
     const { user: u } = renderGroups();
     await screen.findByText('zz-alpha');
     await signedIn();
-    server.use(refused('get', `${API}/users/`));
+    server.use(refused('get', `${API}/groups/:id/users/`));
 
     await openDeleteDialog(u);
     await pause();
@@ -209,8 +213,8 @@ describe('the group list', () => {
     const { user: u } = renderGroups();
     await screen.findByText('zz-alpha');
     await signedIn();
+    serveMembers();
     server.use(
-      listOf(`${API}/users/`, []).handler,
       http.delete(`*${API}/groups/:id/`, () =>
         HttpResponse.json({ detail: 'no' }, { status: 401 }),
       ),
@@ -236,8 +240,8 @@ describe('the group list', () => {
     const { user: u } = renderGroups();
     await screen.findByText('zz-alpha');
     await signedIn();
+    serveMembers();
     server.use(
-      listOf(`${API}/users/`, []).handler,
       http.delete(`*${API}/groups/:id/`, () =>
         HttpResponse.json({ detail: 'broken' }, { status: 500 }),
       ),

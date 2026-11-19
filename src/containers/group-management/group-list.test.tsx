@@ -45,7 +45,11 @@ afterEach(() => {
 
 describe('the group list', () => {
   it('shows the rows with links to the group', async () => {
-    const row = groupRow({ id: 31, name: 'zz-ops' });
+    const row = groupRow({
+      id: 31,
+      pulp_href: '/pulp/api/v3/groups/31/',
+      name: 'zz-ops',
+    });
     server.use(listOf(GROUPS, [row]).handler);
     renderGroups();
 

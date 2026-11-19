@@ -1,7 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { List, ListItem } from '@patternfly/react-core';
-import { type UserType } from 'src/api';
 import { Alert, DeleteModal, Spinner } from 'src/components';
 
 interface IProps {
@@ -9,8 +8,12 @@ interface IProps {
   cancelAction: () => void;
   count?: number;
   deleteAction: () => void;
+  // True while the deletion is under way: Delete stays disabled with a
+  // spinner, so one confirmation sends one request.
+  isDeleting?: boolean;
   name: string;
-  users?: UserType[];
+  // The users the deletion affects; only their names are shown.
+  users?: { username: string }[];
 }
 
 export const DeleteGroupModal = ({
@@ -18,12 +21,15 @@ export const DeleteGroupModal = ({
   cancelAction,
   count,
   deleteAction,
+  isDeleting,
   name,
   users,
 }: IProps) => (
   <DeleteModal
     cancelAction={cancelAction}
     deleteAction={deleteAction}
+    isDisabled={isDeleting}
+    spinner={isDeleting}
     title={t`Delete group?`}
   >
     <Trans>
