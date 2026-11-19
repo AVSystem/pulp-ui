@@ -74,7 +74,13 @@ describe('route guard', () => {
     server.use(
       handler,
       http.get('*/pulp/api/v3/users/1/', () =>
-        HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+        HttpResponse.json({
+          id: 1,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/1/',
+          is_staff: true,
+          groups: [],
+        }),
       ),
     );
     const release = holdSessionCheck(() =>
@@ -415,7 +421,13 @@ describe('route guard', () => {
 function signIn() {
   server.use(
     http.get('*/pulp/api/v3/users/1/', () =>
-      HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+      HttpResponse.json({
+        id: 1,
+        username: 'zoe',
+        pulp_href: '/pulp/api/v3/users/1/',
+        is_staff: true,
+        groups: [],
+      }),
     ),
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({
@@ -940,7 +952,13 @@ describe('lazily loaded screens', () => {
   it('reads status once when a signed-in account opens the status screen', async () => {
     server.use(
       http.get('*/pulp/api/v3/users/1/', () =>
-        HttpResponse.json({ id: 1, is_staff: true, groups: [] }),
+        HttpResponse.json({
+          id: 1,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/1/',
+          is_staff: true,
+          groups: [],
+        }),
       ),
       http.get('*/pulp/api/v3/login/', () =>
         HttpResponse.json({
@@ -1197,7 +1215,13 @@ describe('administration screens', () => {
     server.use(
       http.get(`*${API}/users/7/`, async () => {
         await gate;
-        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+        return HttpResponse.json({
+          id: 7,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/7/',
+          is_staff: true,
+          groups: [],
+        });
       }),
     );
     const requests = recordRequests();

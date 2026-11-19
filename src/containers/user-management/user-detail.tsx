@@ -37,7 +37,8 @@ const UserDetail = () => {
 };
 
 const UserDetailScreen = ({ urlId }: { urlId: string }) => {
-  const { hasPermission, permissionsFailed } = useAppContext();
+  const { hasPermission, permissionsFailed, permissionsError } =
+    useAppContext();
 
   // The id of the address becomes an address of the API only here; an id that
   // is not one has no user and asks for nothing.
@@ -78,11 +79,6 @@ const UserDetailScreen = ({ urlId }: { urlId: string }) => {
     return <Navigate to={redirect} />;
   }
 
-  // The permissions could not be read: no action is offered on a guess.
-  if (permissionsFailed) {
-    return <PermissionsFailed title={t`User details`} />;
-  }
-
   if (href === null || (!form && status === 404)) {
     return <NotFound />;
   }
@@ -111,6 +107,14 @@ const UserDetailScreen = ({ urlId }: { urlId: string }) => {
         </Main>
       </>
     );
+  }
+
+  // The permissions could not be read: no action is offered on a guess. A
+  // failed read of the user is decided before this, and a permission read that
+  // stopped only because the session ended is not a failure to show: the
+  // sign-in dialog explains it.
+  if (permissionsFailed && !isSessionEnd(permissionsError)) {
+    return <PermissionsFailed title={t`User details`} />;
   }
 
   if (!form) {

@@ -344,6 +344,20 @@ export function group(overrides: Partial<IGroup> = {}): IGroup {
   };
 }
 
+// A group as the group list reads it: the address is relative and every field
+// the server lists is present.
+export function groupRow(overrides: Partial<IGroup> = {}): IGroup {
+  return group(overrides);
+}
+
+// One page of a group list answer.
+export function groupPage(
+  rows: IGroup[],
+  options: { count?: number; next?: string } = {},
+): IPage<IGroup> {
+  return page(rows, options);
+}
+
 export interface IUser {
   pulp_href: string;
   id: number;

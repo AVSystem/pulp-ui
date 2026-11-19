@@ -8,15 +8,9 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { Component } from 'react';
-import { Link, Navigate } from 'react-router';
-import {
-  GroupAPI,
-  type GroupObjectPermissionType,
-  UserAPI,
-  type UserType,
-} from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -36,15 +30,23 @@ import {
   Table,
   closeAlert,
 } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
+import { groupUrlId } from 'src/entities/core/group/href';
+import { DEFAULT_PAGE_SIZE, type Group } from 'src/entities/core/group/model';
+import {
+  useCreateGroup,
+  useDeleteGroup,
+  useGroupMembers,
+  useGroups,
+} from 'src/entities/core/group/queries';
 import { Paths, formatPath } from 'src/paths';
+import { saveErrorMessages } from 'src/utilities/create-repository';
+import { filterIsSet } from 'src/utilities/filter-is-set';
 import {
   type ErrorMessagesType,
-  ParamHelper,
-  type RouteProps,
-  filterIsSet,
   mapErrorMessages,
-  withRouter,
-} from 'src/utilities';
+} from 'src/utilities/map-error-messages';
+import { ParamHelper } from 'src/utilities/param-helper';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -52,304 +54,224 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 
-interface IState {
-  params: {
-    page?: number;
-    page_size?: number;
-  };
-  redirect?: string;
-  loading: boolean;
-  itemCount: number;
-  alerts: AlertType[];
-  groups: GroupObjectPermissionType[];
-  createModalVisible: boolean;
-  deleteModalCount?: number;
-  deleteModalUsers?: UserType[];
-  deleteModalVisible: boolean;
-  selectedGroup: GroupObjectPermissionType;
-  groupError: ErrorMessagesType;
-  unauthorized: boolean;
-  // the reason Pulp gave for refusing the read, when it gave one
-  unauthorizedDetail: string | null;
-  inputText: string;
+const DEFAULT_SORT = 'name';
+
+const FILTERS = ['name__icontains'];
+
+// How many affected users the delete dialog lists by name.
+const MEMBERS_SHOWN = 10;
+
+// The address holds the page, its size, the order and the filter; the screen
+// shows exactly what the address says, and a change goes through the address.
+function paramsOfAddress(search: string) {
+  const params = ParamHelper.parseParamString(search, ['page', 'page_size']);
+
+  if (!params['page_size']) {
+    params['page_size'] = DEFAULT_PAGE_SIZE;
+  }
+  if (!params['sort']) {
+    params['sort'] = DEFAULT_SORT;
+  }
+
+  return params;
 }
 
-class GroupList extends Component<RouteProps, IState> {
-  static contextType = AppContext;
+// A parameter that came in more than once is read as its first value.
+function single(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first === undefined || first === null ? undefined : String(first);
+}
 
-  constructor(props) {
-    super(props);
+// What the create dialog shows for a failed save. A refusal says what was
+// refused, Pulp's reason and whom to ask; any other answer is shown by field
+// as the server gave it. The end of a session maps to nothing: the sign-in
+// dialog explains it.
+function createErrors(error: unknown): ErrorMessagesType {
+  return requestErrorStatus(error) === 403
+    ? saveErrorMessages(error)
+    : mapErrorMessages(error);
+}
 
-    const params = ParamHelper.parseParamString(props.location.search, [
-      'page',
-      'page_size',
-    ]);
+const GroupList = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const {
+    alerts: queuedAlerts,
+    setAlerts: setQueuedAlerts,
+    hasPermission,
+  } = useAppContext();
 
-    if (!params['page_size']) {
-      params['page_size'] = 10;
+  const params = useMemo(
+    () => paramsOfAddress(location.search),
+    [location.search],
+  );
+
+  const query = useGroups(
+    {
+      page: params['page'],
+      page_size: params['page_size'],
+      sort: single(params['sort']),
+      name__icontains: single(params['name__icontains']),
+    },
+    { keep: 'other-page' },
+  );
+  const createGroup = useCreateGroup();
+  const deleteGroup = useDeleteGroup();
+
+  // What other screens queued for this one is shown once, then forgotten.
+  const [alerts, setAlerts] = useState<AlertType[]>(() => queuedAlerts ?? []);
+  useEffect(() => {
+    setQueuedAlerts([]);
+    // only at the first showing of the screen
+  }, []);
+
+  const [inputText, setInputText] = useState('');
+  const [createVisible, setCreateVisible] = useState(false);
+  const [groupError, setGroupError] = useState<ErrorMessagesType | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
+
+  const addAlert = (alert: AlertType) =>
+    setAlerts((current) => [...current, alert]);
+
+  const items = useMemo(() => query.data?.results ?? [], [query.data]);
+
+  const status = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
+
+  // A failed read of rows already on screen keeps the rows and says so once.
+  const alertedFailure = useRef(0);
+  const rereadFailed = query.isRefetchError && !sessionEnded && status !== 403;
+  useEffect(() => {
+    if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
+      alertedFailure.current = query.errorUpdatedAt;
+      setAlerts((current) => [
+        ...current,
+        {
+          variant: 'danger',
+          title: t`Groups list could not be displayed.`,
+          description: requestErrorDescription(query.error),
+        },
+      ]);
     }
+  }, [rereadFailed, query.errorUpdatedAt, query.error]);
 
-    if (!params['sort']) {
-      params['sort'] = 'name';
+  // The users a deletion would affect are the members of the group, read only
+  // for the dialog that is open and only by someone who may see users.
+  const canViewUsers = hasPermission('auth.view_user');
+  const members = useGroupMembers(groupToDelete?.pulp_href ?? null, {
+    limit: MEMBERS_SHOWN,
+    enabled: canViewUsers,
+  });
+
+  // A failed read of the members closes the dialog and says so once. The end
+  // of a session keeps it: the sign-in dialog explains it and the members are
+  // read again after signing in.
+  const membersFailed = members.isError && !isSessionEnd(members.error);
+  const alertedMembers = useRef(0);
+  useEffect(() => {
+    if (membersFailed && alertedMembers.current !== members.errorUpdatedAt) {
+      alertedMembers.current = members.errorUpdatedAt;
+      setGroupToDelete(null);
+      addAlert({
+        variant: 'danger',
+        title: t`Users list could not be displayed.`,
+        description: requestErrorDescription(members.error),
+      });
     }
+  }, [membersFailed, members.errorUpdatedAt, members.error]);
 
-    this.state = {
-      params,
-      loading: true,
-      itemCount: 0,
-      alerts: [],
-      groups: [],
-      createModalVisible: false,
-      deleteModalVisible: false,
-      selectedGroup: null,
-      groupError: null,
-      unauthorized: false,
-      unauthorizedDetail: null,
-      inputText: '',
-    };
-  }
+  const updateParams = (next) =>
+    navigate({ search: '?' + ParamHelper.getQueryString(next) });
 
-  componentDidMount() {
-    this.setState({ alerts: (this.context as IAppContextType).alerts || [] });
-    (this.context as IAppContextType).setAlerts([]);
+  const header = <BaseHeader title={t`Groups`} />;
 
-    this.queryGroups();
-  }
+  const alertList = (
+    <AlertList
+      alerts={alerts}
+      closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+    />
+  );
 
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read the list again, keeping the rows on
-    // screen until the answer arrives.
-    if (
-      prevProps.sessionEpoch !== this.props.sessionEpoch &&
-      !this.state.unauthorized
-    ) {
-      this.queryGroups(true);
-    }
-  }
-
-  render() {
-    const {
-      redirect,
-      itemCount,
-      params,
-      loading,
-      createModalVisible,
-      deleteModalVisible,
-      alerts,
-      groups,
-      unauthorized,
-      unauthorizedDetail,
-    } = this.state;
-
-    const { hasPermission } = this.context as IAppContextType;
-    const noData =
-      groups.length === 0 && !filterIsSet(params, ['name__icontains']);
-
-    if (redirect) {
-      return <Navigate to={redirect} />;
-    }
-
+  // A refused read is not a failure to retry: the user is told they may not
+  // view the list, with Pulp's own reason.
+  if (status === 403) {
     return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        {createModalVisible ? this.renderCreateModal() : null}
-        {deleteModalVisible ? this.renderDeleteModal() : null}
-        <BaseHeader title={t`Groups`} />
-        {unauthorized ? (
-          <InsufficientPermissions detail={unauthorizedDetail} />
-        ) : loading ? (
-          <LoadingSpinner />
-        ) : noData ? (
-          <EmptyStateNoData
-            title={t`No groups yet`}
-            description={t`Groups will appear once created`}
-            button={
-              hasPermission('core.add_group') && (
-                <Button
-                  variant='primary'
-                  onClick={() => this.setState({ createModalVisible: true })}
-                >
-                  {t`Create`}
-                </Button>
-              )
-            }
-          />
-        ) : (
-          <Main>
-            <section className='pulp-section'>
-              <div className='pulp-toolbar'>
-                <Toolbar>
-                  <ToolbarContent>
-                    <ToolbarGroup>
-                      <ToolbarItem>
-                        <CompoundFilter
-                          inputText={this.state.inputText}
-                          onChange={(val) => this.setState({ inputText: val })}
-                          updateParams={(p) =>
-                            this.updateParams(p, () => this.queryGroups())
-                          }
-                          params={params}
-                          filterConfig={[
-                            {
-                              id: 'name__icontains',
-                              title: t`Group name`,
-                            },
-                          ]}
-                        />
-                      </ToolbarItem>
-                    </ToolbarGroup>
-                    {hasPermission('core.add_group') && (
-                      <ToolbarGroup>
-                        <ToolbarItem>
-                          <Button
-                            onClick={() =>
-                              this.setState({ createModalVisible: true })
-                            }
-                          >{t`Create`}</Button>
-                        </ToolbarItem>
-                      </ToolbarGroup>
-                    )}
-                  </ToolbarContent>
-                </Toolbar>
-
-                <PulpPagination
-                  params={params}
-                  updateParams={(p) =>
-                    this.updateParams(p, () => this.queryGroups())
-                  }
-                  count={itemCount}
-                  isTop
-                />
-              </div>
-              <div>
-                <AppliedFilters
-                  updateParams={(p) => {
-                    this.updateParams(p, () => this.queryGroups());
-                    this.setState({ inputText: '' });
-                  }}
-                  params={params}
-                  ignoredParams={['page_size', 'page', 'sort']}
-                  niceNames={{
-                    name__icontains: t`Group name`,
-                  }}
-                />
-              </div>
-              {loading ? <LoadingSpinner /> : this.renderTable(params)}
-
-              <PulpPagination
-                params={params}
-                updateParams={(p) =>
-                  this.updateParams(p, () => this.queryGroups())
-                }
-                count={itemCount}
-              />
-            </section>
-          </Main>
-        )}
+        {alertList}
+        {header}
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
       </>
     );
   }
 
-  private renderCreateModal() {
-    return (
-      <GroupModal
-        onCancel={() =>
-          this.setState({ createModalVisible: false, groupError: null })
-        }
-        onSave={(value) => this.saveGroup(value)}
-        clearErrors={() => this.setState({ groupError: null })}
-        errorMessage={this.state.groupError}
-      />
-    );
-  }
+  const failed =
+    query.isError && !sessionEnded && !query.data && !query.isFetching;
+  const loading = !query.data && !failed;
+  const noData =
+    !!query.data && items.length === 0 && !filterIsSet(params, FILTERS);
 
-  private renderDeleteModal() {
-    const name = this.state.selectedGroup && this.state.selectedGroup.name;
-    const { deleteModalUsers: users, deleteModalCount: count } = this.state;
-    const { hasPermission } = this.context as IAppContextType;
-    const view_user = hasPermission('auth.view_user');
+  const saveGroup = async (name: string) => {
+    if (createGroup.isPending) {
+      return;
+    }
+    try {
+      const created = await createGroup.mutateAsync({ name });
+      const urlId = groupUrlId(created.pulp_href);
+      setCreateVisible(false);
+      if (urlId) {
+        navigate(formatPath(Paths.core.group.detail, { group: urlId }));
+      }
+    } catch (error) {
+      // The session ended: nothing was created and nothing is repeated; the
+      // dialog stays with what was typed.
+      if (!isSessionEnd(error)) {
+        setGroupError(createErrors(error));
+      }
+    }
+  };
 
-    if (!users && view_user) {
-      this.queryUsers();
+  const confirmDelete = async (group: Group) => {
+    if (deleteGroup.isPending) {
+      return;
+    }
+    try {
+      await deleteGroup.mutateAsync({ href: group.pulp_href });
+    } catch (error) {
+      // The session ended: nothing was deleted and nothing is repeated.
+      if (!isSessionEnd(error)) {
+        addAlert({
+          variant: 'danger',
+          title: t`Error deleting group.`,
+          description: requestErrorDescription(error),
+        });
+      }
+      return;
+    }
+    setGroupToDelete(null);
+    addAlert({
+      variant: 'success',
+      title: t`Group "${group.name}" has been successfully deleted.`,
+    });
+  };
+
+  const createButton = hasPermission('core.add_group') && (
+    <Button variant='primary' onClick={() => setCreateVisible(true)}>
+      {t`Create`}
+    </Button>
+  );
+
+  const renderTable = () => {
+    if (failed) {
+      return (
+        <ListErrorState
+          title={t`Groups list could not be displayed.`}
+          message={requestErrorDescription(query.error)}
+          onRetry={() => query.refetch()}
+        />
+      );
     }
 
-    return (
-      <DeleteGroupModal
-        count={count}
-        cancelAction={() => this.hideDeleteModal()}
-        deleteAction={() => this.selectedGroup(this.state.selectedGroup)}
-        name={name}
-        users={users}
-        canViewUsers={view_user}
-      />
-    );
-  }
-
-  private hideDeleteModal() {
-    this.setState({
-      deleteModalCount: null,
-      deleteModalUsers: null,
-      deleteModalVisible: false,
-    });
-  }
-
-  private queryUsers() {
-    UserAPI.list({
-      groups__name: this.state.selectedGroup.name,
-      page: 0,
-      page_size: 10,
-    })
-      .then((result) =>
-        this.setState({
-          deleteModalUsers: result.data.results,
-          deleteModalCount: result.data.count,
-        }),
-      )
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it and the dialog
-        // keeps its notice while the users are read again.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        this.setState({
-          deleteModalVisible: false,
-          selectedGroup: null,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'danger',
-              title: t`Users list could not be displayed.`,
-              description: requestErrorDescription(e),
-            },
-          ],
-        });
-      });
-  }
-
-  private saveGroup(value) {
-    GroupAPI.create({ name: value })
-      .then((result) => {
-        this.setState({
-          redirect: formatPath(Paths.core.group.detail, {
-            group: result.data.id,
-          }),
-          createModalVisible: false,
-        });
-      })
-      .catch((error) => this.setState({ groupError: mapErrorMessages(error) }));
-  }
-
-  private renderTable(params) {
-    const { groups } = this.state;
-    if (groups.length === 0) {
+    if (items.length === 0) {
       return <EmptyStateFilter />;
     }
 
@@ -373,134 +295,143 @@ class GroupList extends Component<RouteProps, IState> {
         <SortTable
           options={sortTableOptions}
           params={params}
-          updateParams={(p) => this.updateParams(p, () => this.queryGroups())}
+          updateParams={updateParams}
         />
-        <Tbody>{groups.map((group, i) => this.renderTableRow(group, i))}</Tbody>
+        <Tbody>{items.map((group) => renderTableRow(group))}</Tbody>
       </Table>
     );
-  }
+  };
 
-  private renderTableRow(group, index: number) {
-    const { hasPermission } = this.context as IAppContextType;
+  const renderTableRow = (group: Group) => {
+    const urlId = groupUrlId(group.pulp_href);
     const dropdownItems = [
       hasPermission('core.delete_group') && (
         <DropdownItem
           aria-label='Delete'
           key='delete'
-          onClick={() => {
-            this.setState({
-              selectedGroup: group,
-              deleteModalVisible: true,
-            });
-          }}
+          onClick={() => setGroupToDelete(group)}
         >
           {t`Delete`}
         </DropdownItem>
       ),
     ];
+
     return (
-      <Tr data-cy={`GroupList-row-${group.name}`} key={index}>
+      <Tr data-cy={`GroupList-row-${group.name}`} key={group.pulp_href}>
         <Td>
-          <Link
-            to={formatPath(Paths.core.group.detail, {
-              group: group.id,
-            })}
-          >
-            {group.name}
-          </Link>
+          {urlId ? (
+            <Link to={formatPath(Paths.core.group.detail, { group: urlId })}>
+              {group.name}
+            </Link>
+          ) : (
+            group.name
+          )}
         </Td>
         <ListItemActions kebabItems={dropdownItems} />
       </Tr>
     );
-  }
+  };
 
-  private updateParams(params, callback = null) {
-    ParamHelper.updateParams({
-      params,
-      navigate: (to) => this.props.navigate(to),
-      setState: (state) => this.setState(state, callback),
-    });
-  }
+  return (
+    <>
+      {alertList}
+      {createVisible ? (
+        <GroupModal
+          onCancel={() => {
+            setCreateVisible(false);
+            setGroupError(null);
+          }}
+          onSave={saveGroup}
+          clearErrors={() => setGroupError(null)}
+          errorMessage={groupError}
+        />
+      ) : null}
+      {groupToDelete ? (
+        <DeleteGroupModal
+          count={members.data?.count}
+          cancelAction={() => setGroupToDelete(null)}
+          deleteAction={() => confirmDelete(groupToDelete)}
+          isDeleting={deleteGroup.isPending}
+          name={groupToDelete.name}
+          users={members.data?.results}
+          canViewUsers={canViewUsers}
+        />
+      ) : null}
+      {header}
+      {loading ? (
+        <LoadingSpinner />
+      ) : noData ? (
+        <EmptyStateNoData
+          title={t`No groups yet`}
+          description={t`Groups will appear once created`}
+          button={createButton}
+        />
+      ) : (
+        <Main>
+          <section className='pulp-section'>
+            <div className='pulp-toolbar'>
+              <Toolbar>
+                <ToolbarContent>
+                  <ToolbarGroup>
+                    <ToolbarItem>
+                      <CompoundFilter
+                        inputText={inputText}
+                        onChange={setInputText}
+                        updateParams={updateParams}
+                        params={params}
+                        filterConfig={[
+                          {
+                            id: 'name__icontains',
+                            title: t`Group name`,
+                          },
+                        ]}
+                      />
+                    </ToolbarItem>
+                  </ToolbarGroup>
+                  {hasPermission('core.add_group') && (
+                    <ToolbarGroup>
+                      <ToolbarItem>
+                        <Button
+                          onClick={() => setCreateVisible(true)}
+                        >{t`Create`}</Button>
+                      </ToolbarItem>
+                    </ToolbarGroup>
+                  )}
+                </ToolbarContent>
+              </Toolbar>
 
-  private selectedGroup(group) {
-    GroupAPI.delete(group.id)
-      .then(() => {
-        this.hideDeleteModal();
-        this.setState({
-          loading: true,
-          selectedGroup: null,
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'success',
-              title: t`Group "${group.name}" has been successfully deleted.`,
-            },
-          ],
-        });
-        this.queryGroups();
-      })
-      .catch((e) => {
-        // The session ended: nothing was deleted and nothing is repeated.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        this.setState({
-          alerts: [
-            ...this.state.alerts,
-            {
-              variant: 'danger',
-              title: t`Error deleting group.`,
-            },
-          ],
-        });
-      });
-  }
+              <PulpPagination
+                params={params}
+                updateParams={updateParams}
+                count={query.data?.count ?? 0}
+                isTop
+              />
+            </div>
+            <div>
+              <AppliedFilters
+                updateParams={(p) => {
+                  updateParams(p);
+                  setInputText('');
+                }}
+                params={params}
+                ignoredParams={['page_size', 'page', 'sort']}
+                niceNames={{
+                  name__icontains: t`Group name`,
+                }}
+              />
+            </div>
+            {renderTable()}
 
-  // A quiet read keeps the rows on screen instead of showing the spinner.
-  private queryGroups(quiet = false) {
-    this.setState({ loading: quiet ? this.state.loading : true }, () =>
-      GroupAPI.list(this.state.params)
-        .then((result) => {
-          this.setState({
-            groups: result.data.results,
-            itemCount: result.data.count,
-            loading: false,
-          });
-        })
-        .catch((e) => {
-          // The session ended: the sign-in dialog explains it, and the list
-          // keeps its spinner or its rows until it reads again.
-          if (isSessionEnd(e)) {
-            return;
-          }
-          // A refused read is not a failure to retry: the user is told they
-          // may not view the list, with Pulp's own reason.
-          if (requestErrorStatus(e) === 403) {
-            this.setState({
-              groups: [],
-              itemCount: 0,
-              loading: false,
-              unauthorized: true,
-              unauthorizedDetail: requestErrorDetail(e),
-            });
-            return;
-          }
-          this.setState({
-            groups: [],
-            itemCount: 0,
-            loading: false,
-            alerts: [
-              ...this.state.alerts,
-              {
-                variant: 'danger',
-                title: t`Groups list could not be displayed.`,
-                description: requestErrorDescription(e),
-              },
-            ],
-          });
-        }),
-    );
-  }
-}
+            <PulpPagination
+              params={params}
+              updateParams={updateParams}
+              count={query.data?.count ?? 0}
+            />
+          </section>
+        </Main>
+      )}
+    </>
+  );
+};
 
-export default withRouter(GroupList);
+export default GroupList;

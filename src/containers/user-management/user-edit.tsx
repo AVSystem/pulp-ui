@@ -47,7 +47,7 @@ const UserEditScreen = ({ urlId }: { urlId: string }) => {
   const href = userHref(urlId);
   const query = useUser(href);
   const updateUser = useUpdateUser();
-  const { permissionsFailed } = useAppContext();
+  const { permissionsFailed, permissionsError } = useAppContext();
 
   const {
     user: sessionUser,
@@ -132,12 +132,6 @@ const UserEditScreen = ({ urlId }: { urlId: string }) => {
 
   const title = t`Edit user`;
 
-  // The permissions could not be read: nothing is offered on a guess. A form
-  // the user has changed stays, as a later read never replaces what was typed.
-  if (permissionsFailed && !edit) {
-    return <PermissionsFailed title={title} />;
-  }
-
   if (href === null || (!form && status === 404)) {
     return <NotFound />;
   }
@@ -164,6 +158,15 @@ const UserEditScreen = ({ urlId }: { urlId: string }) => {
         </Main>
       </>
     );
+  }
+
+  // The permissions could not be read: nothing is offered on a guess. A failed
+  // read of the user is decided before this; a form the user has changed
+  // stays, as a later read never replaces what was typed; and a permission
+  // read that stopped only because the session ended is not a failure to show:
+  // the sign-in dialog explains it.
+  if (permissionsFailed && !isSessionEnd(permissionsError) && !edit) {
+    return <PermissionsFailed title={title} />;
   }
 
   if (!form) {

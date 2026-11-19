@@ -97,16 +97,16 @@ describe('the profile page of a user who may not list users', () => {
     ).toEqual([]);
   });
 
-  it('reads the record once for itself and never again while it is shown', async () => {
+  it('reads the record once although the page and the permissions both need it', async () => {
     // as in the application, the page does not wait for the permission read,
-    // which reads the same record for the staff flag and the groups
+    // which needs the same record for the staff flag and the groups
     renderProfile({}, { waitForPermissions: false });
     await screen.findByText('Zo');
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(
       recorder.requests.filter((path) => path === `${API}/users/7/`),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   it('reads no group list: the profile shows the groups of the record', async () => {

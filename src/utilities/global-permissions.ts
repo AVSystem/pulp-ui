@@ -2,7 +2,6 @@ import { GroupRoleAPI } from '../api/group-role';
 import { UserRoleAPI } from '../api/user-role';
 import { type ISessionUser } from '../user-context';
 import { listAll } from './list-all';
-import { readOwnRecord } from './own-record';
 
 // What a signed-in user may do on every object of a kind, as far as the
 // server's own answers say: the staff flag of their record, or the union of the
@@ -25,22 +24,29 @@ export function idFromHref(href?: string | null): string | null {
   return segments.length ? segments[segments.length - 1] : null;
 }
 
+// What the permission read needs of the signed-in user's own record.
+export interface IOwnRecord {
+  is_staff?: boolean | null;
+  groups?: { id?: number | null; pulp_href?: string | null }[] | null;
+}
+
 // Reads the permissions the user holds without any object. Only standard
-// endpoints are used: the user's own record, their own roles and the roles of
-// each group listed in that record. A role granted on one object is not read
+// endpoints are used: the user's own record (read by the caller, so that a
+// screen showing the same record shares the read), their own roles and the
+// roles of each group listed in that record. A role granted on one object is not read
 // here; that is what an object's my_permissions list answers. Any failed read
 // rejects, so a partial answer is never mistaken for the whole one. What is
 // shown from this is presentation only: the server decides every request.
 export async function loadGlobalPermissions(
   user: ISessionUser,
-  epoch = 0,
+  readRecord: () => Promise<IOwnRecord>,
 ): Promise<IGlobalPermissions> {
   const userId = idFromHref(user.pulp_href);
   if (!userId) {
     throw new Error('The signed-in user has no address to read roles from.');
   }
 
-  const { data: record } = await readOwnRecord(userId, epoch);
+  const record = await readRecord();
   // The staff flag of the own record stands in for the superuser flag, which
   // the sign-in answer does not expose. An account that is staff but not
   // superuser is offered actions Pulp refuses; that is presentation only.

@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
   type ReactNode,
   createContext,
@@ -8,6 +9,9 @@ import {
   useRef,
   useState,
 } from 'react';
+import { UserClient } from './entities/core/user/client';
+import { userHref, userUrlId } from './entities/core/user/href';
+import { userKeys } from './entities/core/user/queries';
 import { useUserContext } from './user-context';
 import { loadGlobalPermissions } from './utilities/global-permissions';
 
@@ -48,6 +52,7 @@ export const usePermissions = () => useContext(PermissionsContext);
 
 export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   const { user, status, epoch } = useUserContext();
+  const queryClient = useQueryClient();
   const [permissions, setPermissions] = useState<PermissionsState>({
     state: 'unknown',
     failed: false,
@@ -62,11 +67,6 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   current.current = permissions;
   const reading = useRef(user);
   reading.current = user;
-  // the session epoch the read is made in, which the shared read of the own
-  // record is keyed by
-  const epochNow = useRef(epoch);
-  epochNow.current = epoch;
-
   // Who the permissions are read for. Another session never inherits what was
   // read for the one before it.
   const session = user ? (user.pulp_href ?? user.username) : null;
@@ -76,33 +76,53 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   // answer arrives; any other read starts from nothing known.
   const readyFor = useRef<string | null>(null);
 
-  const read = useCallback((keep: boolean) => {
-    const mine = ++latest.current;
-    const who = reading.current;
-    if (!keep) {
-      readyFor.current = null;
-      setPermissions({ state: 'unknown', failed: false });
-    }
+  const read = useCallback(
+    (keep: boolean) => {
+      const mine = ++latest.current;
+      const who = reading.current;
+      if (!keep) {
+        readyFor.current = null;
+        setPermissions({ state: 'unknown', failed: false });
+      }
 
-    if (!who) {
-      return;
-    }
+      if (!who) {
+        return;
+      }
 
-    loadGlobalPermissions(who, epochNow.current).then(
-      ({ isStaff, global }) => {
-        if (mine === latest.current) {
-          readyFor.current = who.pulp_href ?? who.username;
-          setPermissions({ state: 'ready', isStaff, global });
+      // The own record is read through the query cache, under the entry of that
+      // user's detail: a screen that shows the same record at the same time
+      // shares the one request, and a read asked for again reads fresh.
+      const readRecord = () => {
+        const href = userHref(userUrlId(who.pulp_href));
+        if (!href) {
+          throw new Error(
+            'The signed-in user has no address to read roles from.',
+          );
         }
-      },
-      (error) => {
-        if (mine === latest.current) {
-          readyFor.current = null;
-          setPermissions({ state: 'unknown', failed: true, error });
-        }
-      },
-    );
-  }, []);
+        return queryClient.fetchQuery({
+          queryKey: userKeys.detail(href),
+          queryFn: ({ signal }) => UserClient.retrieve(href, { signal }),
+          staleTime: 0,
+        });
+      };
+
+      loadGlobalPermissions(who, readRecord).then(
+        ({ isStaff, global }) => {
+          if (mine === latest.current) {
+            readyFor.current = who.pulp_href ?? who.username;
+            setPermissions({ state: 'ready', isStaff, global });
+          }
+        },
+        (error) => {
+          if (mine === latest.current) {
+            readyFor.current = null;
+            setPermissions({ state: 'unknown', failed: true, error });
+          }
+        },
+      );
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     // Until the session check has answered nothing is known and nothing is
