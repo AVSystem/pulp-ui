@@ -150,14 +150,13 @@ describe('editing an ansible repository', () => {
 });
 
 describe('an ansible repository page opened by the address of an object the account cannot read', () => {
-  it('shows the insufficient permissions page and no error state, no Save button and no write', async () => {
-    servePermissions({ own: [['ansible.view_ansiblerepository']] });
+  function renderAt(route: string) {
     server.use(
       listOf(`${API}/repositories/ansible/ansible/`, []).handler,
       listOf(`${API}/remotes/ansible/collection/`, []).handler,
       listOf(`${API}/distributions/ansible/ansible/`, []).handler,
     );
-    renderWithProviders(
+    return renderWithProviders(
       <AppContextProvider>
         <Routes>
           <Route
@@ -166,15 +165,45 @@ describe('an ansible repository page opened by the address of an object the acco
           />
         </Routes>
       </AppContextProvider>,
-      { route: '/ansible/repositories/edit/hidden' },
+      { route },
     );
+  }
+
+  const noForm = () => {
+    expect(screen.queryByRole('textbox', { name: /^Name/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
+    expect(screen.queryByText('Repository could not be displayed.')).toBeNull();
+  };
+
+  it.each([
+    ['the view permission only', 'ansible.view_ansiblerepository'],
+    ['the add permission', 'ansible.add_ansiblerepository'],
+  ])(
+    'shows the not-found page, no form and no write, to an account that holds %s',
+    async (_, permission) => {
+      servePermissions({ own: [[permission]] });
+      renderAt('/ansible/repositories/edit/hidden');
+
+      expect(
+        await screen.findByRole('heading', { name: '404 - Page not found' }),
+      ).toBeInTheDocument();
+      noForm();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      noForm();
+      expect(writes()).toStrictEqual([]);
+    },
+  );
+
+  it('still shows the add form to an account that holds the add permission when the address has no name', async () => {
+    servePermissions({ own: [['ansible.add_ansiblerepository']] });
+    renderAt('/ansible/repositories/edit/_');
 
     expect(
-      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+      await screen.findByRole('textbox', { name: /^Name/ }),
     ).toBeInTheDocument();
-    expect(screen.queryByText('Repository could not be displayed.')).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    expect(writes()).toStrictEqual([]);
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: '404 - Page not found' }),
+    ).toBeNull();
   });
 });

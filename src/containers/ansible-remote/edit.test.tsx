@@ -115,7 +115,7 @@ describe('the ansible remote form', () => {
 });
 
 describe('an ansible remote page opened by the address of an object the account cannot read', () => {
-  it('shows the insufficient permissions page and no error state, no Save button and no write', async () => {
+  it('shows the not-found page and no error state, no Save button and no write', async () => {
     servePermissions({ own: [['ansible.view_collectionremote']] });
     const writes: string[] = [];
     server.events.on('request:start', ({ request }) => {
@@ -137,7 +137,7 @@ describe('an ansible remote page opened by the address of an object the account 
     );
 
     expect(
-      await screen.findByRole('heading', { name: 'Insufficient permissions' }),
+      await screen.findByRole('heading', { name: '404 - Page not found' }),
     ).toBeInTheDocument();
     expect(screen.queryByText('Remote could not be displayed.')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();

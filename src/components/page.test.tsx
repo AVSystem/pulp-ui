@@ -31,6 +31,10 @@ import {
   serveSignIn,
   signedIn,
 } from '../test-utils/sign-in-again';
+import {
+  ACTION_PERMISSIONS,
+  type PermissionPlugin,
+} from '../utilities/action-permissions';
 import { Page } from './page';
 
 const withDeleteAction = (condition?: () => boolean) =>
@@ -758,13 +762,15 @@ describe('a page whose form needs a permission', () => {
       ),
     });
 
-  function renderGuardedEdit(route = '/things/edit/alpha', objectLevel = true) {
+  function renderGuardedEdit(
+    route = '/things/edit/alpha',
+    objectLevel = true,
+    served: { name: string; pulp_href: string }[] = [
+      { name: 'alpha', pulp_href: HREF },
+    ],
+  ) {
     const Thing = Guarded(objectLevel);
-    server.use(
-      http.get(`*${THINGS}`, () =>
-        HttpResponse.json(page([{ name: 'alpha', pulp_href: HREF }])),
-      ),
-    );
+    server.use(http.get(`*${THINGS}`, () => HttpResponse.json(page(served))));
     return renderWithProviders(
       <AppContextProvider>
         <Routes>
@@ -935,6 +941,90 @@ describe('a page whose form needs a permission', () => {
     expect(saves).toBe(0);
     recorded.stop();
   });
+
+  describe('opened by the address of an object that is not listed', () => {
+    const notFound = () =>
+      screen.findByRole('heading', { name: '404 - Page not found' });
+
+    it('shows the not-found page, never the add form, to an account that holds the add permission', async () => {
+      servePermissions({ own: [[ADD]] });
+      const { requests } = serveMyPermissions({});
+      const recorded = recordWrites();
+      renderGuardedEdit('/things/edit/missing', true, []);
+
+      expect(await notFound()).toBeInTheDocument();
+      await settled();
+      expect(form()).not.toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Creating a new thing'),
+      ).not.toBeInTheDocument();
+      expect(refusal()).not.toBeInTheDocument();
+      expect(requests).toEqual([]);
+      expect(recorded.writes).toEqual([]);
+      expect(saves).toBe(0);
+      recorded.stop();
+    });
+
+    it('shows the not-found page and no header action to an account that holds the add and change permissions', async () => {
+      servePermissions({ own: [[ADD, CHANGE]] });
+      renderGuardedEdit('/things/edit/missing', true, []);
+
+      expect(await notFound()).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Delete thing' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the not-found page, not a refusal, to an account that holds no permission for the page', async () => {
+      servePermissions({ own: [[VIEW]] });
+      renderGuardedEdit('/things/edit/missing', true, []);
+
+      expect(await notFound()).toBeInTheDocument();
+      expect(refusal()).not.toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+    });
+
+    it('still shows the add form to an account that holds the add permission when the route has no name', async () => {
+      servePermissions({ own: [[ADD]] });
+      renderGuardedEdit('/things/edit/_', true, []);
+
+      expect(
+        await screen.findByText('Creating a new thing'),
+      ).toBeInTheDocument();
+      expect(saveButton()).toBeInTheDocument();
+      expect(
+        screen.queryByRole('heading', { name: '404 - Page not found' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the loading state, not the not-found page, while the object is being read', async () => {
+      servePermissions({ own: [[ADD]] });
+      const Thing = Guarded();
+      server.use(
+        http.get(`*${THINGS}`, async () => {
+          await delay(150);
+          return HttpResponse.json(page([]));
+        }),
+      );
+      renderWithProviders(
+        <AppContextProvider>
+          <Routes>
+            <Route path='/things/edit/:name' element={<Thing />} />
+          </Routes>
+        </AppContextProvider>,
+        { route: '/things/edit/missing' },
+      );
+
+      await screen.findByRole('progressbar');
+      expect(
+        screen.queryByRole('heading', { name: '404 - Page not found' }),
+      ).not.toBeInTheDocument();
+      expect(form()).not.toBeInTheDocument();
+      expect(await notFound()).toBeInTheDocument();
+    });
+  });
 });
 
 describe('every repository and remote edit page opened by its address', () => {
@@ -1078,6 +1168,38 @@ describe('every repository and remote edit page opened by its address', () => {
         }),
       ).toBeInTheDocument();
       expect(saveButton()).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(pages)(
+    'shows the not-found page, no form and no write for the $name edit address of a name the list does not return, to an account that holds its add permission',
+    async (row) => {
+      const [plugin, kind] = row.name.split(' ') as [
+        PermissionPlugin,
+        'remote' | 'repository',
+      ];
+      servePermissions({ own: [[ACTION_PERMISSIONS[plugin][kind].add]] });
+      const recorded = recordWrites();
+      // the list answers an empty page for every name (see beforeEach)
+      renderWithProviders(
+        <AppContextProvider>
+          <Routes>
+            <Route path={row.route} element={<row.Edit />} />
+          </Routes>
+        </AppContextProvider>,
+        { route: row.route.replace(':name', 'no-such-name') },
+      );
+
+      expect(
+        await screen.findByRole('heading', { name: '404 - Page not found' }),
+      ).toBeInTheDocument();
+      expect(saveButton()).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('textbox', { name: /^Name/ }),
+      ).not.toBeInTheDocument();
+      await settled();
+      expect(recorded.writes).toEqual([]);
+      recorded.stop();
     },
   );
 

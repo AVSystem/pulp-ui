@@ -16,6 +16,7 @@ import {
   InsufficientPermissions,
   LoadingSpinner,
   Main,
+  NotFound,
   closeAlert,
 } from 'src/components';
 import { type RouteProps, withRouter } from 'src/utilities';
@@ -48,6 +49,9 @@ interface IState<T> {
 //   the read was refused (403) or the screen's condition does not hold
 // error - the load failed, header and ListErrorState with a retry; render is
 //   never called, so a form for an existing object is not shown without it
+// missing - the route names an object and the finished read gave none: the
+//   not-found page and the alerts; render is never called, so the page cannot
+//   turn into the form of a new object
 // (data) - renders detail, or the form of a new object when the route has no name
 //
 // A load that fails because the session ended changes nothing: the page keeps
@@ -220,6 +224,35 @@ export const Page = function <
 
       const name = item?.name || transformParams(routeParams)?.name || null;
 
+      // An edit address names an existing object. When the finished read gave
+      // none (it does not exist, or the account cannot see it) the page says
+      // so and never turns into the form of a new object, which would create
+      // an object from a mistyped address. Render is not called, so no save
+      // action of the page is reachable either.
+      const missing =
+        !!transformParams(routeParams)?.name &&
+        !loading &&
+        !error &&
+        !unauthorized &&
+        !item;
+
+      if (missing) {
+        return (
+          <>
+            <AlertList
+              alerts={alerts}
+              closeAlert={(i) =>
+                closeAlert(i, {
+                  alerts,
+                  setAlerts: (alerts) => this.setState({ alerts }),
+                })
+              }
+            />
+            <NotFound />
+          </>
+        );
+      }
+
       const form = this.formState();
 
       // Only the actions the user may use are drawn; with none, no container.
@@ -302,8 +335,12 @@ export const Page = function <
     // Whether the page's form may be shown, once the object is loaded:
     // 'unknown' while the permissions it depends on are being read, 'allowed'
     // or 'refused' after. A page without a form permission is always allowed.
+    // A route that names an object has no form permission until the object is
+    // there: the add permission is for a route without a name only.
     private formState(): 'allowed' | 'refused' | 'unknown' {
-      const required = formPermission?.(this.state.item);
+      const named = !!transformParams(this.props.routeParams)?.name;
+      const required =
+        named && !this.state.item ? null : formPermission?.(this.state.item);
       if (!required) {
         return 'allowed';
       }
