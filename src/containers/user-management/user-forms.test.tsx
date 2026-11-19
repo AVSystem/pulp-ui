@@ -501,3 +501,93 @@ describe('the user screens while the permissions cannot be read', () => {
     expect(screen.queryByText('Your permissions could not be read')).toBeNull();
   });
 });
+
+describe('the user screens when the permission read stops because the session ended', () => {
+  const failed = 'Your permissions could not be read';
+
+  it.each([
+    {
+      screen: 'detail',
+      route: '/users/detail/4',
+      shown: async () => {
+        expect(await screen.findByText('zz-ann')).toBeInTheDocument();
+      },
+    },
+    {
+      screen: 'edit page',
+      route: '/users/edit/4',
+      shown: async () => {
+        expect(await field(/First name/)).toHaveValue('Ann');
+      },
+    },
+    {
+      screen: 'create page',
+      route: '/users/create',
+      shown: async () => {
+        expect(await field(/^Username/)).toHaveValue('');
+      },
+    },
+  ])(
+    'keeps the $screen on screen and does not say the permissions could not be read',
+    async ({ route, shown }) => {
+      serveSignIn();
+      serveAnn();
+      server.use(listOf(`${API}/groups/`, []).handler);
+      const { user: u } = renderWithProviders(
+        <AppContextProvider>
+          <PermissionsKnown>
+            <SignInAgain />
+            <Routes>
+              <Route path='/users/create' element={<UserCreate />} />
+              <Route path='/users/detail/:user_id' element={<UserDetail />} />
+              <Route path='/users/edit/:user_id' element={<UserEdit />} />
+            </Routes>
+          </PermissionsKnown>
+        </AppContextProvider>,
+        { route },
+      );
+      await shown();
+      await signedIn();
+      // the permissions of the signed-in user are read again after signing in
+      // and that read is refused because the session has ended
+      server.use(
+        http.get(`*${API}/users/1/`, () =>
+          HttpResponse.json({ detail: 'no' }, { status: 401 }),
+        ),
+      );
+
+      await u.click(
+        screen.getByRole('button', { name: 'Sign in again', hidden: true }),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(screen.queryByText(failed)).toBeNull();
+      await shown();
+    },
+  );
+});
+
+describe('the user screens when the record and the permissions both fail to read', () => {
+  it.each([
+    { screen: 'detail', route: '/users/detail/4' },
+    { screen: 'edit page', route: '/users/edit/4' },
+  ])(
+    'decides the failed read of the record first on the $screen',
+    async ({ route }) => {
+      server.use(
+        http.get(`*${USER_PATH}`, () =>
+          HttpResponse.json({ detail: 'Not found.' }, { status: 404 }),
+        ),
+      );
+      renderScreens(route, {
+        waitForPermissions: false,
+        failPermissionsOnce: true,
+      });
+
+      expect(await screen.findByText(/not found/i)).toBeInTheDocument();
+      expect(
+        screen.queryByText('Your permissions could not be read'),
+      ).toBeNull();
+    },
+  );
+});
