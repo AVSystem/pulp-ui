@@ -99,7 +99,13 @@ describe('the permission provider', () => {
     server.use(
       http.get(`*${API}/users/7/`, async () => {
         await new Promise((resolve) => setTimeout(resolve, 150));
-        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+        return HttpResponse.json({
+          id: 7,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/7/',
+          is_staff: true,
+          groups: [],
+        });
       }),
     );
     renderWithProviders(<Probe />);
@@ -269,7 +275,13 @@ describe('the permission provider', () => {
       http.get(`*${API}/users/7/`, async () => {
         reads += 1;
         await held;
-        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+        return HttpResponse.json({
+          id: 7,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/7/',
+          is_staff: true,
+          groups: [],
+        });
       }),
     );
     await user.click(screen.getByRole('button', { name: 'Sign in again' }));
@@ -316,7 +328,13 @@ describe('the permission provider', () => {
     server.use(
       http.get(`*${API}/users/9/`, async () => {
         await new Promise((resolve) => setTimeout(resolve, 200));
-        return HttpResponse.json({ id: 9, is_staff: false, groups: [] });
+        return HttpResponse.json({
+          id: 9,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/9/',
+          is_staff: false,
+          groups: [],
+        });
       }),
       http.get(`*${API}/users/9/roles/`, () =>
         HttpResponse.json({
@@ -345,7 +363,13 @@ describe('the permission provider', () => {
       http.get(`*${API}/users/7/`, () =>
         failing
           ? HttpResponse.json({ detail: 'down' }, { status: 500 })
-          : HttpResponse.json({ id: 7, is_staff: true, groups: [] }),
+          : HttpResponse.json({
+              id: 7,
+              username: 'zoe',
+              pulp_href: '/pulp/api/v3/users/7/',
+              is_staff: true,
+              groups: [],
+            }),
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Sign in again' }));

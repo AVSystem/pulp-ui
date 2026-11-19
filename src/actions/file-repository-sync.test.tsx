@@ -103,7 +103,13 @@ describe('the sync action of file repositories', () => {
     server.use(
       http.get(`*${API}/users/7/`, async () => {
         await new Promise((resolve) => setTimeout(resolve, 200));
-        return HttpResponse.json({ id: 7, is_staff: true, groups: [] });
+        return HttpResponse.json({
+          id: 7,
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/7/',
+          is_staff: true,
+          groups: [],
+        });
       }),
     );
     renderWithProviders(<Harness item={repository({ remote: REMOTE })} />);
