@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  currentRequestEpoch,
   getSnapshot,
   isSuspended,
+  markSessionEnd,
   reportUnauthorized,
   resetSessionEvents,
   resume,
@@ -106,5 +108,52 @@ describe('session events', () => {
     setSignedIn(true);
 
     expect(getSnapshot()).toBe(before);
+  });
+
+  describe('the request epoch', () => {
+    it('grows when the session is resumed, also while nothing had ended', () => {
+      const before = currentRequestEpoch();
+
+      resume();
+
+      expect(currentRequestEpoch()).toBe(before + 1);
+    });
+
+    it('grows when the signed-in value changes and only then', () => {
+      const start = currentRequestEpoch();
+
+      setSignedIn(true);
+      const afterSignIn = currentRequestEpoch();
+      setSignedIn(true);
+      const afterRepeat = currentRequestEpoch();
+      setSignedIn(false);
+      const afterSignOut = currentRequestEpoch();
+      setSignedIn(false);
+
+      expect(afterSignIn).toBe(start + 1);
+      expect(afterRepeat).toBe(afterSignIn);
+      expect(afterSignOut).toBe(afterSignIn + 1);
+      expect(currentRequestEpoch()).toBe(afterSignOut);
+    });
+
+    it('does not grow for a refusal, a tab-return check or a session mark', () => {
+      setSignedIn(true);
+      const before = currentRequestEpoch();
+
+      reportUnauthorized('request');
+      reportUnauthorized('tab-return');
+      markSessionEnd(new Error('ended'));
+
+      expect(currentRequestEpoch()).toBe(before);
+    });
+
+    it('never goes back, not even when the store is reset', () => {
+      setSignedIn(true);
+      const before = currentRequestEpoch();
+
+      resetSessionEvents();
+
+      expect(currentRequestEpoch()).toBeGreaterThanOrEqual(before);
+    });
   });
 });
