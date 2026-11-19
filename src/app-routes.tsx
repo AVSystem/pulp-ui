@@ -789,11 +789,12 @@ const AuthHandler = ({
     }
 
     if (!canViewScreen(screenAccess, permissions)) {
-      // The screen's own header is not drawn, so the page names itself.
+      // The screen's own header is not drawn, so the page names itself once,
+      // in a header; the page under it does not repeat the title.
       return (
         <>
           <BaseHeader title={t`Insufficient permissions`} />
-          <InsufficientPermissions />
+          <InsufficientPermissions showTitle={false} />
         </>
       );
     }
