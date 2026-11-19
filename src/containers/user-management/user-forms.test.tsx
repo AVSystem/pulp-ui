@@ -8,6 +8,11 @@ import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { listOf, user } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import {
+  SignInAgain,
+  serveSignIn,
+  signedIn,
+} from 'src/test-utils/sign-in-again';
 import UserCreate from './user-create';
 import UserDetail from './user-detail';
 import UserEdit from './user-edit';
@@ -457,4 +462,42 @@ describe('the user screens while the permissions cannot be read', () => {
       ).toBeNull();
     },
   );
+
+  it('keeps a form the user changed when the permissions cannot be read after signing in again', async () => {
+    serveSignIn();
+    serveAnn();
+    server.use(listOf(`${API}/groups/`, []).handler);
+    const { user: u } = renderWithProviders(
+      <AppContextProvider>
+        <PermissionsKnown>
+          <SignInAgain />
+          <Routes>
+            <Route path='/users/edit/:user_id' element={<UserEdit />} />
+          </Routes>
+        </PermissionsKnown>
+      </AppContextProvider>,
+      { route: '/users/edit/4' },
+    );
+    const first = await field(/First name/);
+    await signedIn();
+    await u.clear(first);
+    await u.type(first, 'Typed');
+    // the permissions of the signed-in user are read again after signing in
+    server.use(
+      http.get(`*${API}/users/1/`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+      ),
+    );
+
+    await u.click(
+      screen.getByRole('button', { name: 'Sign in again', hidden: true }),
+    );
+
+    await waitFor(() =>
+      expect(screen.getByLabelText(/First name/)).toHaveValue('Typed'),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(screen.getByLabelText(/First name/)).toBe(first);
+    expect(screen.queryByText('Your permissions could not be read')).toBeNull();
+  });
 });
