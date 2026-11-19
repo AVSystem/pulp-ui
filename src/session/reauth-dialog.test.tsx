@@ -27,10 +27,13 @@ const EXAMPLES_URL = '*/pulp/api/v3/examples/';
 
 const examples = new PulpAPI();
 
+const SAME_USER = { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' };
+const OTHER_USER = { username: 'amy', pulp_href: '/pulp/api/v3/users/2/' };
+
 // A screen that reads from the API on a button press and shows the epoch.
 function Screen() {
   const epoch = useSessionEpoch();
-  const { status, user, logout } = useUserContext();
+  const { status, user, logout, setUser } = useUserContext();
   const [readerShown, setReaderShown] = useState(true);
   const read = () => examples.http.get('examples/').catch(() => undefined);
 
@@ -59,6 +62,12 @@ function Screen() {
         }}
       >
         Read three times
+      </button>
+      <button type='button' onClick={() => setUser(SAME_USER)}>
+        Sign in as the same account
+      </button>
+      <button type='button' onClick={() => setUser(OTHER_USER)}>
+        Sign in as another account
       </button>
       <input aria-label='Draft' defaultValue='' />
     </>
@@ -117,8 +126,6 @@ afterEach(() => {
   config.UI_EXTERNAL_LOGIN_URI = null;
   vi.restoreAllMocks();
 });
-
-const SAME_USER = { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' };
 
 function acceptLogin(body: object = SAME_USER) {
   server.use(
@@ -298,6 +305,39 @@ describe('sign in again dialog cover', () => {
     expect(dialog.closest('.pf-v6-c-backdrop')).toHaveClass(
       'pulp-reauth__backdrop',
     );
+  });
+
+  it("draws the layer without the library's fade-in, so it is opaque from its first frame", async () => {
+    const { user } = await renderScreen();
+
+    const dialog = await openByRequest(user);
+
+    const backdrop = dialog.closest('.pf-v6-c-backdrop');
+    expect(backdrop).toHaveClass('pulp-reauth__backdrop');
+    expect(backdrop).not.toHaveClass('pf-m-animate');
+    expect(backdrop).not.toHaveClass('pf-m-show');
+  });
+
+  it('draws the layer without the fade-in in external login mode too', async () => {
+    config.UI_EXTERNAL_LOGIN_URI = 'https://login.example/start';
+    signedInAs();
+    refuseExamples();
+    const { user } = renderWithProviders(
+      <>
+        <Screen />
+        <ReauthDialog />
+      </>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+    );
+    await storeKnowsUser();
+
+    const dialog = await openByRequest(user);
+
+    const backdrop = dialog.closest('.pf-v6-c-backdrop');
+    expect(backdrop).toHaveClass('pulp-reauth__backdrop');
+    expect(backdrop).not.toHaveClass('pf-m-animate');
   });
 
   it('keeps the screen mounted under the cover, with what was typed in it', async () => {
@@ -715,12 +755,29 @@ describe('returning to the tab', () => {
     ).toBeVisible();
   });
 
-  it('an answer naming another account loads the start page afresh and opens no dialog', async () => {
-    await renderScreen();
+  // Replaces the navigation of the page and records whether the screen was
+  // already covered at the moment the start page was requested.
+  function recordNavigation() {
+    const coveredAtNavigation: boolean[] = [];
     const assign = vi
       .spyOn(window.location, 'assign')
-      .mockImplementation(() => undefined);
+      .mockImplementation(() => {
+        coveredAtNavigation.push(isSuspended());
+      });
+    return { assign, coveredAtNavigation };
+  }
+
+  // What the browser does when a window that was visible all along is clicked.
+  const focusWindow = () =>
+    act(() => {
+      window.dispatchEvent(new Event('focus'));
+    });
+
+  it('an answer naming another account covers the screen, then loads the start page afresh and asks nothing more', async () => {
+    await renderScreen();
+    const { assign, coveredAtNavigation } = recordNavigation();
     const checks = trackChecks();
+    const counts = countRequests();
     signedInAs('amy', '/pulp/api/v3/users/2/');
 
     returnToTab();
@@ -729,14 +786,21 @@ describe('returning to the tab', () => {
 
     expect(assign).toHaveBeenCalledTimes(1);
     expect(assign).toHaveBeenCalledWith('/ui/status/');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(coveredAtNavigation).toEqual([true]);
+    expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
+    expect(document.querySelector('.pulp-reauth__backdrop')).not.toBeNull();
+
+    returnToTab();
+    focusWindow();
+    await settle();
+
+    expect(counts[WHOAMI]).toBe(1);
+    expect(assign).toHaveBeenCalledTimes(1);
   });
 
-  it('an answer naming another account without an address is told apart by the user name', async () => {
+  it('an answer naming another account without an address covers the screen and loads the start page, told apart by the user name', async () => {
     await renderScreen();
-    const assign = vi
-      .spyOn(window.location, 'assign')
-      .mockImplementation(() => undefined);
+    const { assign, coveredAtNavigation } = recordNavigation();
     const checks = trackChecks();
     server.use(
       http.get(LOGIN_URL, () => HttpResponse.json({ username: 'amy' })),
@@ -747,9 +811,11 @@ describe('returning to the tab', () => {
     await finished(checks[0]);
 
     expect(assign).toHaveBeenCalledTimes(1);
+    expect(coveredAtNavigation).toEqual([true]);
+    expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
   });
 
-  it('an answer naming the same account loads nothing', async () => {
+  it('an answer naming the same account loads nothing and restores nothing', async () => {
     await renderScreen();
     const assign = vi
       .spyOn(window.location, 'assign')
@@ -761,6 +827,153 @@ describe('returning to the tab', () => {
     await finished(checks[0]);
 
     expect(assign).not.toHaveBeenCalled();
+    expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    expect(isSuspended()).toBe(false);
+  });
+
+  // Answers the next who-is-signed-in requests only once the returned function
+  // is called, so a test decides what happens in the meantime.
+  function holdWhoami(
+    answer: () => Response = () => HttpResponse.json(SAME_USER),
+  ) {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(LOGIN_URL, async () => {
+        await gate;
+        return answer();
+      }),
+    );
+    return () => release();
+  }
+
+  const signOutOnTheServer = () =>
+    server.use(
+      http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+    );
+
+  async function signOut(
+    user: Awaited<ReturnType<typeof renderScreen>>['user'],
+  ) {
+    signOutOnTheServer();
+    await user.click(screen.getByRole('button', { name: 'Log out' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+    );
+  }
+
+  describe('an answer for a session that is no longer the one in memory', () => {
+    it('an answer to a check sent while the session was alive does not restore a session that ended before it arrived', async () => {
+      const { user } = await renderScreen();
+      const checks = trackChecks();
+      const release = holdWhoami();
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      const dialog = await openByRequest(user);
+      release();
+      await finished(checks[0]);
+
+      expect(dialog).toBeVisible();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+      expect(isSuspended()).toBe(true);
+    });
+
+    it("an answer for the previous account after a sign-out and another account's sign-in loads nothing", async () => {
+      const { user } = await renderScreen();
+      const assign = vi
+        .spyOn(window.location, 'assign')
+        .mockImplementation(() => undefined);
+      const checks = trackChecks();
+      const release = holdWhoami(() => HttpResponse.json(SAME_USER));
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as another account' }),
+      );
+      release();
+      await finished(checks[0]);
+
+      expect(assign).not.toHaveBeenCalled();
+      expect(screen.getByTestId('user')).toHaveTextContent('amy');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('an answer naming the new account after a sign-out and its sign-in loads nothing', async () => {
+      const { user } = await renderScreen();
+      const assign = vi
+        .spyOn(window.location, 'assign')
+        .mockImplementation(() => undefined);
+      const checks = trackChecks();
+      const release = holdWhoami(() => HttpResponse.json(OTHER_USER));
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as another account' }),
+      );
+      release();
+      await finished(checks[0]);
+
+      expect(assign).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    });
+
+    it("a refusal answered after a sign-out and the same account's sign-in opens no dialog", async () => {
+      const { user } = await renderScreen();
+      const checks = trackChecks();
+      const release = holdWhoami(() =>
+        HttpResponse.json({ detail: 'No.' }, { status: 401 }),
+      );
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as the same account' }),
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+      );
+      await storeKnowsUser();
+      release();
+      await finished(checks[0]);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(isSuspended()).toBe(false);
+    });
+
+    it('an answer to a check sent while the session was ended does not restore a later ended session', async () => {
+      const { user } = await dialogOpenedByReturn();
+      const checks = trackChecks();
+      const release = holdWhoami();
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+
+      acceptLogin();
+      const dialog = screen.getByRole('dialog', { name: /Sign in again/ });
+      await user.type(passwordOf(dialog), 'secret');
+      await user.click(submitOf(dialog));
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+      );
+      expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+      await openByRequest(user);
+      release();
+      await finished(checks[0]);
+
+      expect(
+        screen.getByRole('dialog', { name: /Sign in again/ }),
+      ).toBeVisible();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+      expect(isSuspended()).toBe(true);
+    });
   });
 
   it.each([
@@ -888,6 +1101,24 @@ describe('returning to the tab', () => {
     expect(screen.getByTestId('epoch')).toHaveTextContent('0');
     expect(screen.getByTestId('user')).toHaveTextContent('zoe');
     expect(screen.getByRole('dialog', { name: /Sign in again/ })).toBeVisible();
+  });
+
+  it('a later return sends nothing once another account was found while the dialog is open', async () => {
+    await dialogOpenedByReturn();
+    const { assign } = recordNavigation();
+    const checks = trackChecks();
+    const counts = countRequests();
+    signedInAs('ann', '/pulp/api/v3/users/2/');
+
+    returnToTab();
+    await waitFor(() => expect(checks).toHaveLength(1));
+    await finished(checks[0]);
+    returnToTab();
+    focusWindow();
+    await settle();
+
+    expect(counts[WHOAMI]).toBe(1);
+    expect(assign).toHaveBeenCalledTimes(1);
   });
 
   it('an answer naming another user name, with no address, is told apart by the name', async () => {
@@ -1025,7 +1256,9 @@ describe('returning to the tab', () => {
       expect(screen.getByTestId('user')).toHaveTextContent('nobody');
     });
 
-    it('naming the same account does not sign anyone in', async () => {
+    // The restore's own guard (nobody is signed in) would reject this answer as
+    // well, so the test pins the outcome, not the check of the hook.
+    it('naming the same account leaves the user signed out and loads nothing', async () => {
       const assign = await signOutWhileChecking(SAME_USER);
 
       expect(assign).not.toHaveBeenCalled();

@@ -88,22 +88,8 @@ export async function signInThroughLoginPage(
   await expect(page.locator(userMenu)).toBeVisible();
 }
 
-// Ends the server session behind the page's back, the way another tab or an
-// expiry would: the page still looks signed in until its next request. Returns
-// the status of the DELETE.
-export async function endSessionBehindThePage(page: Page): Promise<number> {
-  return page.evaluate(async () => {
-    const token = /(?:^|; )csrftoken=([^;]*)/.exec(document.cookie)?.[1];
-    const response = await fetch('/pulp/api/v3/login/', {
-      method: 'DELETE',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': token ?? '',
-      },
-    });
-    return response.status;
-  });
-}
+// Ends the server session behind the page's back; shared with the smoke specs.
+export { endSessionBehindThePage } from '../support/session-cover';
 
 export interface ApiCall {
   method: string;

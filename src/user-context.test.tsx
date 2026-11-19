@@ -1,6 +1,6 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   isSuspended,
@@ -98,6 +98,55 @@ function SessionProbe() {
       </button>
       <button type='button' onClick={() => retrySessionCheck()}>
         Check again
+      </button>
+    </>
+  );
+}
+
+// Takes marks of the session and reports whether each is still current, both
+// through the latest context function and through a copy captured at the first
+// render, as a listener bound once would hold.
+function MarkProbe() {
+  const { sessionMark, isCurrentSession, setUser } = useUserContext();
+  const firstCopy = useRef(isCurrentSession);
+  const taken = useRef<ReturnType<typeof sessionMark> | null>(null);
+  const [current, setCurrent] = useState('untaken');
+  const [currentByCopy, setCurrentByCopy] = useState('untaken');
+  const [ended, setEnded] = useState('untaken');
+  const [generationOfMark, setGenerationOfMark] = useState('untaken');
+
+  return (
+    <>
+      <p data-testid='mark-current'>{current}</p>
+      <p data-testid='mark-current-by-copy'>{currentByCopy}</p>
+      <p data-testid='mark-ended'>{ended}</p>
+      <p data-testid='mark-generation'>{generationOfMark}</p>
+      <button
+        type='button'
+        onClick={() => {
+          taken.current = sessionMark();
+          setEnded(String(taken.current.ended));
+          setGenerationOfMark(String(taken.current.generation));
+        }}
+      >
+        Take a mark
+      </button>
+      <button
+        type='button'
+        onClick={() => {
+          setCurrent(String(isCurrentSession(taken.current)));
+          setCurrentByCopy(String(firstCopy.current(taken.current)));
+        }}
+      >
+        Ask about the mark
+      </button>
+      <button
+        type='button'
+        onClick={() =>
+          setUser({ username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' })
+        }
+      >
+        Sign in as the same account
       </button>
     </>
   );
@@ -617,5 +666,143 @@ describe('restoring the session', () => {
 
     expect(restored()).toHaveTextContent('false');
     expect(screen.getByTestId('user')).toHaveTextContent('nobody');
+  });
+});
+
+describe('session mark', () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  async function renderMarked() {
+    server.use(
+      http.get(LOGIN_URL, () =>
+        HttpResponse.json({
+          username: 'zoe',
+          pulp_href: '/pulp/api/v3/users/1/',
+        }),
+      ),
+    );
+    const rendered = renderWithProviders(
+      <>
+        <SessionProbe />
+        <MarkProbe />
+      </>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+    );
+    await waitFor(() => expect(isSuspended()).toBe(false));
+    return rendered;
+  }
+
+  const take = (user: Awaited<ReturnType<typeof renderMarked>>['user']) =>
+    user.click(screen.getByRole('button', { name: 'Take a mark' }));
+  const ask = async (
+    user: Awaited<ReturnType<typeof renderMarked>>['user'],
+  ) => {
+    await user.click(
+      screen.getByRole('button', { name: 'Ask about the mark' }),
+    );
+    // Both ways of asking agree: a copy held since the first render reads the
+    // session really in memory.
+    expect(screen.getByTestId('mark-current-by-copy')).toHaveTextContent(
+      screen.getByTestId('mark-current').textContent ?? '',
+    );
+    return screen.getByTestId('mark-current').textContent;
+  };
+
+  it('is current while the same account stays signed in', async () => {
+    const { user } = await renderMarked();
+
+    await take(user);
+
+    expect(await ask(user)).toBe('true');
+  });
+
+  it('is not current after a sign-out', async () => {
+    const { user } = await renderMarked();
+    server.use(
+      http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+    );
+    await take(user);
+
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+    );
+
+    expect(await ask(user)).toBe('false');
+  });
+
+  it('stays not current after the same account signs in again, because the generation grew', async () => {
+    const { user } = await renderMarked();
+    server.use(
+      http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+    );
+    await take(user);
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Sign in as the same account' }),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+    );
+
+    expect(await ask(user)).toBe('false');
+  });
+
+  it('is not current after the session was restored, because the epoch grew', async () => {
+    const { user } = await renderMarked();
+    act(() => reportUnauthorized('tab-return'));
+    await take(user);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restore the session' }),
+    );
+
+    expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+    expect(await ask(user)).toBe('false');
+  });
+
+  it('stays current while the session merely ended', async () => {
+    const { user } = await renderMarked();
+    await take(user);
+
+    act(() => reportUnauthorized('request'));
+
+    expect(await ask(user)).toBe('true');
+  });
+
+  it('records whether the session had ended when the mark was taken', async () => {
+    const { user } = await renderMarked();
+
+    await take(user);
+    expect(screen.getByTestId('mark-ended')).toHaveTextContent('false');
+
+    act(() => reportUnauthorized('request'));
+    await take(user);
+    expect(screen.getByTestId('mark-ended')).toHaveTextContent('true');
+  });
+
+  it('carries the generation in memory when it is taken', async () => {
+    const { user } = await renderMarked();
+    server.use(
+      http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+    );
+    await take(user);
+    expect(screen.getByTestId('mark-generation')).toHaveTextContent('0');
+
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('generation')).toHaveTextContent('1'),
+    );
+    await take(user);
+
+    expect(screen.getByTestId('mark-generation')).toHaveTextContent('1');
   });
 });

@@ -20,6 +20,15 @@ export interface ISessionUser {
   pulp_href?: string;
 }
 
+// The state of the session when a question about it was asked; see
+// `sessionMark` and `isCurrentSession` of the context.
+export interface ISessionMark {
+  key: string | null;
+  generation: number;
+  epoch: number;
+  ended: boolean;
+}
+
 // 'unknown' is a first check that got no usable answer: only a 401 means
 // signed out and only a 2xx means signed in.
 type SessionStatus = 'checking' | 'anonymous' | 'authenticated' | 'unknown';
@@ -40,10 +49,23 @@ interface IUserContextType {
   // Grows each time the same user signs in again after the session ended, so
   // a screen can read its data again.
   epoch: number;
-  // Grows each time the signed-in account goes away (a sign-out, an ended
-  // session that is not resumed, another account taking its place). A screen
+  // Grows each time the signed-in account goes away or changes (a sign-out, an
+  // end of the session by the server, another account taking its place). A
+  // session that merely ended keeps the account and the generation. A screen
   // mounted for one signed-in account must not outlive that account.
   generation: number;
+  // What a question about the session is asked for: the account in memory, the
+  // generation, the epoch and whether the session had ended at that moment.
+  sessionMark: () => ISessionMark;
+  // Whether the session in memory is still the one the mark was taken for. The
+  // generation grows whenever the account in memory goes away or changes, so
+  // an unchanged generation means the same account stayed in memory without a
+  // break (comparing keys alone would miss a sign-out followed by the same
+  // account signing in again). The epoch grows on every restore, so an
+  // unchanged epoch means no restore happened in between. Both functions read
+  // only values kept in step with the state, so a copy held by a listener
+  // answers about the session really in memory.
+  isCurrentSession: (mark: ISessionMark) => boolean;
   // Signs in through the dialog shown over the current screen. Resolves
   // 'same' when the same user came back and 'other' when another user signed
   // in, in which case the page is loaded afresh.
@@ -100,6 +122,11 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   // that every caller of setUser, including ones holding an older copy of it,
   // is compared against the account that is really signed in.
   const signedInKey = useRef<string | null>(null);
+  // The generation and the epoch, kept in step with their state in the same
+  // statements, so a callback that runs when a request is answered reads the
+  // values really in memory even before React has rendered them.
+  const generationRef = useRef(0);
+  const epochRef = useRef(0);
 
   const setUser = (next: ISessionUser | null) => {
     const nextKey = sessionKey(next);
@@ -108,7 +135,8 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     // before (the first check, the first sign-in) and the same account coming
     // back (the epoch covers that) leave it alone.
     if (signedInKey.current !== null && signedInKey.current !== nextKey) {
-      setGeneration((previous) => previous + 1);
+      generationRef.current += 1;
+      setGeneration(generationRef.current);
     }
     signedInKey.current = nextKey;
     setUserState(next);
@@ -178,10 +206,22 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
     setUser(next);
-    setEpoch((previous) => previous + 1);
+    epochRef.current += 1;
+    setEpoch(epochRef.current);
     resume();
     return true;
   };
+
+  const sessionMark = (): ISessionMark => ({
+    key: signedInKey.current,
+    generation: generationRef.current,
+    epoch: epochRef.current,
+    ended: isSuspended(),
+  });
+
+  const isCurrentSession = (mark: ISessionMark) =>
+    mark.generation === generationRef.current &&
+    mark.epoch === epochRef.current;
 
   const signInAgain = async (username: string, password: string) => {
     const { data } = await PulpLoginAPI.login(username, password);
@@ -237,6 +277,8 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
         endReason,
         epoch,
         generation,
+        sessionMark,
+        isCurrentSession,
         signInAgain,
         restoreSession,
       }}
@@ -248,7 +290,3 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
 // The number of times the same user signed in again; 0 outside the provider.
 export const useSessionEpoch = () => useContext(UserContext)?.epoch ?? 0;
-
-// The number of times the signed-in account went away; 0 outside the provider.
-export const useSessionGeneration = () =>
-  useContext(UserContext)?.generation ?? 0;

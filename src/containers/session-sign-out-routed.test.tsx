@@ -14,7 +14,7 @@ import { servePermissions } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { config } from 'src/ui-config';
-import { useSessionGeneration, useUserContext } from 'src/user-context';
+import { useUserContext } from 'src/user-context';
 
 // Signing out on a screen that needs no session, as the application mounts it:
 // through the real route table, the real providers and the shell, against a
@@ -158,6 +158,12 @@ const screenHeading = async () => {
   return heading as HTMLElement;
 };
 
+// Shows how often the signed-in account went away.
+function GenerationProbe() {
+  const { generation } = useUserContext();
+  return <p data-testid='generation'>{generation}</p>;
+}
+
 const settle = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
 
 // Presses Logout in the account menu.
@@ -287,8 +293,10 @@ describe('signing out on the status screen with the built-in login', () => {
       release = resolve;
     });
     const session = serveSession({ hold });
-    const { user } = renderRouted();
+    const { user } = renderRouted(STATUS_ADDRESS, <GenerationProbe />);
     await screen.findByRole('progressbar');
+    const heading = await screenHeading();
+    expect(screen.getByTestId('generation')).toHaveTextContent('0');
 
     await pressLogout(user);
     expect(await screen.findByText(NOTE)).toBeVisible();
@@ -300,13 +308,16 @@ describe('signing out on the status screen with the built-in login', () => {
 
     expectNothingOfTheSession();
     expect(screen.getByText(NOTE)).toBeVisible();
+    // the screen was mounted afresh by the sign-out, which is why the late
+    // answer reached nobody
+    expect(screen.getByTestId('generation')).toHaveTextContent('1');
+    expect(heading.isConnected).toBe(false);
   });
 });
 
 describe('signing in again as the same account on the status screen', () => {
   function Probes() {
-    const { status } = useUserContext();
-    const generation = useSessionGeneration();
+    const { status, generation } = useUserContext();
     return (
       <>
         <p data-testid='session'>{status}</p>

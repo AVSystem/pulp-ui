@@ -176,7 +176,10 @@ credential is stored in the repository. `PULP_UI_E2E_BASE_URL` is the UI root an
 `/ui/`. Install the browser once with `npx playwright install chromium`.
 
 The smoke project signs in with one account against a built UI served next to a throwaway Pulp
-(this is what CI runs):
+(this is what CI runs). It also ends the session behind the page, and checks that the sign-in
+dialog covers the screen from its first frame and uncovers it after signing in again. Against a
+deployment that is not throwaway, run it with `--trace off`, because a trace keeps the sign-in
+request with its credential:
 
 ```sh
 PULP_UI_E2E_BASE_URL=http://127.0.0.1:8002/ui/ \

@@ -58,30 +58,41 @@ const isSignInPage = (pathname: string) => {
 // hidden, so only its focus tells that the user is back), whether the session
 // is still alive and still belongs to the account in memory. It asks also while
 // the dialog is open: the session may have been restored in another tab, and
-// nothing else in this tab would find out. What each answer does:
-// - the same account while the dialog is open: the session is restored once and
-//   the screen reads again, with no reload;
-// - another account: the start page loads afresh, because everything in memory
-//   belongs to the previous account;
+// nothing else in this tab would find out. The answer is judged against the
+// session as it was when the question left, not as it is when the answer
+// arrives. What each answer does:
+// - an answer for a session that is no longer the one in memory (a sign-out,
+//   another account, or a restore since the question left): nothing, whatever
+//   it says;
+// - the same account: the session is restored once and the screen reads again,
+//   with no reload, but only if the session had already ended when the question
+//   left; an answer to a question asked while the session was alive says
+//   nothing about a session that ended afterwards;
+// - another account: the cookie now belongs to that account, and until the new
+//   page replaces this one the previous account's screen must neither stay
+//   readable nor send requests as the other account. So the screen is covered
+//   first (the dialog over the opaque layer, every request held), then the
+//   start page loads afresh, because everything in memory belongs to the
+//   previous account; nothing more is asked in this page. The dialog's text
+//   stays true for the account in this tab;
 // - a 401 or a 403: the session has ended and the dialog opens (while it is
 //   open this changes nothing);
 // - anything else, such as a server error or a lost connection: nothing, as it
-//   says nothing about the session;
-// - any answer that arrives after the user signed out: nothing.
-// A return and a focus that come together send one request. No timer runs, so a
-// tab that stays in view is never polled; and nothing is asked while nobody is
-// signed in or on a page that deals with signing in itself.
+//   says nothing about the session.
+// A return and a focus that come while a check is in flight send one request.
+// No timer runs, so a tab that stays in view is never polled; and nothing is
+// asked while nobody is signed in or on a page that deals with signing in
+// itself.
 function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
-  const { restoreSession } = useUserContext();
+  const context = useUserContext();
   const inFlight = useRef(false);
-  // The account in memory when the tab is returned to, without rebinding the
-  // listener each time the user object is replaced.
-  const key = useRef(sessionKey(user));
-  key.current = sessionKey(user);
-  // The latest restore, for the same reason: the listener is bound once per
-  // sign-in, and a function captured then would be stale.
-  const restore = useRef(restoreSession);
-  restore.current = restoreSession;
+  // Set once the start page has been requested for another account: the page
+  // is about to be replaced, so no further question is sent from it.
+  const leaving = useRef(false);
+  // The latest context functions: the listener is bound once per sign-in, and
+  // a function captured then would be stale.
+  const latest = useRef(context);
+  latest.current = context;
   const signedIn = Boolean(user);
 
   useEffect(() => {
@@ -90,27 +101,37 @@ function useTabReturnCheck(user: ISessionUser | null, onSignInPage: boolean) {
     }
 
     const check = () => {
-      if (document.visibilityState !== 'visible' || inFlight.current) {
+      if (
+        leaving.current ||
+        document.visibilityState !== 'visible' ||
+        inFlight.current
+      ) {
         return;
       }
       inFlight.current = true;
+      const mark = latest.current.sessionMark();
       PulpLoginAPI.whoami()
         .then(({ data }) => {
-          // Signed out while the check was under way: no account is left to
-          // continue as or to replace.
-          if (key.current === null) {
+          if (!latest.current.isCurrentSession(mark)) {
             return;
           }
           const next = { username: data.username, pulp_href: data.pulp_href };
-          if (sessionKey(next) === key.current) {
-            restore.current(next);
+          if (sessionKey(next) === mark.key) {
+            if (mark.ended) {
+              latest.current.restoreSession(next);
+            }
           } else {
+            reportUnauthorized('tab-return');
+            leaving.current = true;
             window.location.assign(uiPath(formatPath(Paths.core.status)));
           }
         })
         .catch((error) => {
           const status = error?.response?.status;
-          if (status === 401 || status === 403) {
+          if (
+            (status === 401 || status === 403) &&
+            latest.current.isCurrentSession(mark)
+          ) {
             reportUnauthorized('tab-return');
           }
         })
@@ -246,6 +267,9 @@ const ReauthDialogContent = ({
       elementToFocus={
         external ? `.${EXTERNAL_LOGIN_CLASS} a` : `#${PASSWORD_ID}`
       }
+      // The layer is drawn without the library's fade-in, so it is opaque from
+      // its first frame and the screen is never readable through it.
+      hasAnimations={false}
       isOpen
       variant='small'
     >
