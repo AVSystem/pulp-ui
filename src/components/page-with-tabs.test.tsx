@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { Action } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
-import { resetSessionEvents } from '../session/session-events';
+import { resetSessionEvents, setSignedIn } from '../session/session-events';
 import {
   serveMyPermissions,
   servePermissions,
@@ -136,9 +136,21 @@ describe('a detail page with tabs whose load fails', () => {
     expect(await screen.findByText(NOT_FOUND)).toBeInTheDocument();
   });
 
-  it('keeps its loading state without an error, alert or not-found page for a 401', async () => {
+  it('shows the error state, not the not-found page, for the 401 a visitor gets', async () => {
     server.use(failing(401, 'Unauthorized'));
     renderDetail();
+
+    expect(
+      await screen.findByText('Error 401 - Unauthorized'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(NOT_FOUND)).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('keeps its loading state without an error, alert or not-found page for the 401 of a signed-in user', async () => {
+    server.use(failing(401, 'Unauthorized'));
+    renderDetail();
+    setSignedIn(true);
 
     await waitFor(() => expect(screen.getByRole('progressbar')).toBeVisible());
     await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
@@ -229,7 +241,7 @@ function renderAfterSignIn() {
         </Routes>
       </AppContextProvider>
     </>,
-    { route: '/things/alpha' },
+    { route: '/things/alpha', signedIn: true },
   );
 }
 

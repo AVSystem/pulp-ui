@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type FilterOption } from 'src/components';
 import { Action, type ActionType } from '../actions/action';
 import { PulpAPI } from '../api/pulp';
-import { resetSessionEvents } from '../session/session-events';
+import { resetSessionEvents, setSignedIn } from '../session/session-events';
 import { listOf } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
@@ -99,9 +99,22 @@ describe('a list in a detail tab whose load fails', () => {
     expect(addAlert).not.toHaveBeenCalled();
   });
 
-  it('keeps its loading state without an error state or alert for a 401', async () => {
+  it('shows the error state with Retry for the 401 a visitor gets', async () => {
     server.use(failing(401, 'Unauthorized'));
     const { addAlert } = renderList();
+
+    expect(
+      await screen.findByText('Error 401 - Unauthorized'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(addAlert).not.toHaveBeenCalled();
+  });
+
+  it('keeps its loading state without an error state or alert for the 401 of a signed-in user', async () => {
+    server.use(failing(401, 'Unauthorized'));
+    const { addAlert } = renderList();
+    setSignedIn(true);
 
     await waitFor(() => expect(screen.getByRole('progressbar')).toBeVisible());
     await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
@@ -290,6 +303,7 @@ describe('a list in a detail tab after the same user signs in again', () => {
           title='Things'
         />
       </>,
+      { signedIn: true },
     );
   }
 

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { type ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import { SessionSuspendedError } from 'src/session/session-events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SessionSuspendedError, setSignedIn } from 'src/session/session-events';
 import { renderWithProviders } from '../test-utils/render';
 import { errorMessage, handleHttpError, jsxErrorMessage } from './fail-alerts';
 
@@ -33,7 +33,21 @@ function run(error: unknown, title = 'Could not load') {
   return { alerts, callback };
 }
 
+describe('handleHttpError for the 401 a visitor gets', () => {
+  it('adds the alert, because no sign-in dialog explains the failure', () => {
+    const { alerts, callback } = run(answered(401, 'Unauthorized'));
+
+    expect(alerts).toHaveLength(1);
+    expect(String(alerts[0]?.description)).toContain('401');
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('handleHttpError for the end of a session', () => {
+  beforeEach(() => {
+    setSignedIn(true);
+  });
+
   it('adds no alert for a 401 and still calls its callback', () => {
     const { alerts, callback } = run(answered(401, 'Unauthorized'));
 

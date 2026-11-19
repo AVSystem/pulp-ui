@@ -91,6 +91,7 @@ describe('SelectRoles', () => {
     serveRoles('alpha', 'beta', 'gamma');
     const { user } = renderWithProviders(
       <Harness initial={[role('alpha'), role('beta')]} />,
+      { signedIn: true },
     );
     await screen.findByText('gamma role');
     await signedIn();
@@ -107,7 +108,7 @@ describe('SelectRoles', () => {
   it('keeps a role ticked after the sign-in and the re-read', async () => {
     serveSignIn();
     serveRoles('alpha', 'beta');
-    const { user } = renderWithProviders(<Harness />);
+    const { user } = renderWithProviders(<Harness />, { signedIn: true });
     await screen.findByText('beta role');
     await signedIn();
     await user.click(within(rowOf('beta')).getByRole('checkbox'));
@@ -122,7 +123,9 @@ describe('SelectRoles', () => {
   it('keeps its rows, with no alert, when the read is refused with 401', async () => {
     serveSignIn();
     serveRoles('alpha', 'beta');
-    const { user } = renderWithProviders(<Harness initial={[role('beta')]} />);
+    const { user } = renderWithProviders(<Harness initial={[role('beta')]} />, {
+      signedIn: true,
+    });
     await screen.findByText('beta role');
     await signedIn();
     server.use(refused(`${API}/roles/`));
@@ -141,7 +144,7 @@ describe('SelectRoles', () => {
     serveSignIn();
     server.use(refused(`${API}/roles/`));
     const answers = answeredRequests(`${API}/roles/`);
-    const { user } = renderWithProviders(<Harness />);
+    const { user } = renderWithProviders(<Harness />, { signedIn: true });
     await signedIn();
     await answers.untilAnswered();
     expect(screen.getByRole('progressbar')).toBeVisible();
@@ -157,7 +160,7 @@ describe('SelectRoles', () => {
     serveSignIn();
     serveRoles('alpha');
     const recorded = recordWrites();
-    const { user } = renderWithProviders(<Harness />);
+    const { user } = renderWithProviders(<Harness />, { signedIn: true });
     await screen.findByText('alpha role');
     await signedIn();
 
@@ -206,7 +209,9 @@ function pickerTests<T extends { name: string }>({
     it('reads again, shows the fresh rows and keeps the selection', async () => {
       serveSignIn();
       serve('alpha', 'beta');
-      const { user } = renderWithProviders(<Harness initial={row('beta')} />);
+      const { user } = renderWithProviders(<Harness initial={row('beta')} />, {
+        signedIn: true,
+      });
       await screen.findByText('alpha');
       await signedIn();
       serve('alpha', 'beta', 'gamma');
@@ -221,7 +226,7 @@ function pickerTests<T extends { name: string }>({
     it('keeps a choice made before the sign-in', async () => {
       serveSignIn();
       serve('alpha', 'beta');
-      const { user } = renderWithProviders(<Harness />);
+      const { user } = renderWithProviders(<Harness />, { signedIn: true });
       await screen.findByText('alpha');
       await signedIn();
       await user.click(radioOf('alpha'));
@@ -236,7 +241,9 @@ function pickerTests<T extends { name: string }>({
     it('keeps its rows, with no alert, when the read is refused with 401', async () => {
       serveSignIn();
       serve('alpha', 'beta');
-      const { user } = renderWithProviders(<Harness initial={row('beta')} />);
+      const { user } = renderWithProviders(<Harness initial={row('beta')} />, {
+        signedIn: true,
+      });
       await screen.findByText('alpha');
       await signedIn();
       server.use(refused(`${API}/${path}/`));
@@ -255,7 +262,7 @@ function pickerTests<T extends { name: string }>({
       serveSignIn();
       server.use(refused(`${API}/${path}/`));
       const answers = answeredRequests(`${API}/${path}/`);
-      const { user } = renderWithProviders(<Harness />);
+      const { user } = renderWithProviders(<Harness />, { signedIn: true });
       await signedIn();
       await answers.untilAnswered();
       expect(screen.getByRole('progressbar')).toBeVisible();
@@ -271,7 +278,7 @@ function pickerTests<T extends { name: string }>({
       serveSignIn();
       serve('alpha');
       const recorded = recordWrites();
-      const { user } = renderWithProviders(<Harness />);
+      const { user } = renderWithProviders(<Harness />, { signedIn: true });
       await screen.findByText('alpha');
       await signedIn();
 
@@ -328,6 +335,7 @@ describe('RolePermissions', () => {
         <SignInAgain />
         <RolePermissions name='reader' />
       </>,
+      { signedIn: true },
     );
 
   it('reads the role again and shows the fresh description', async () => {
@@ -431,7 +439,7 @@ describe('UserForm', () => {
   it('reads the groups again and keeps what was typed', async () => {
     serveSignIn();
     const first = serveGroups('ops');
-    const { user } = renderWithProviders(<Harness />);
+    const { user } = renderWithProviders(<Harness />, { signedIn: true });
     await waitFor(() => expect(first).toHaveLength(1));
     await signedIn();
     await user.type(screen.getByLabelText(/Last name/), 'Miller');
@@ -450,7 +458,7 @@ describe('UserForm', () => {
     serveSignIn();
     server.use(refused(GROUPS));
     const firstRead = answeredRequests(GROUPS);
-    const { user } = renderWithProviders(<Harness />);
+    const { user } = renderWithProviders(<Harness />, { signedIn: true });
     await signedIn();
     await firstRead.untilAnswered();
 
@@ -470,7 +478,7 @@ describe('UserForm', () => {
         HttpResponse.json({ detail: 'broken' }, { status: 500 }),
       ),
     );
-    renderWithProviders(<Harness />);
+    renderWithProviders(<Harness />, { signedIn: true });
 
     expect(
       await screen.findByText('Groups list could not be displayed.'),
@@ -481,7 +489,7 @@ describe('UserForm', () => {
     serveSignIn();
     const queries = serveGroups('ops');
     const recorded = recordWrites();
-    const { user } = renderWithProviders(<Harness />);
+    const { user } = renderWithProviders(<Harness />, { signedIn: true });
     await waitFor(() => expect(queries).toHaveLength(1));
     await signedIn();
 
@@ -530,6 +538,7 @@ describe('DeleteRepositoryModal', () => {
           pulpHref={repo.pulp_href}
         />
       </>,
+      { signedIn: true },
     );
 
   it('lists the distributions again and keeps the typed name', async () => {
@@ -685,7 +694,7 @@ describe('the edit dialog of a Python distribution', () => {
     serveSignIn();
     serveDistribution({ allow_uploads: true });
     serveRemotes();
-    const { user } = renderWithProviders(<Dialog />);
+    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
     await waitFor(() => expect(uploads()).toBeChecked());
     await signedIn();
     serveDistribution({ allow_uploads: false });
@@ -700,7 +709,7 @@ describe('the edit dialog of a Python distribution', () => {
     serveDistribution({ allow_uploads: true });
     const queries = serveRemotes('mirror');
     const recorded = recordWrites();
-    const { user } = renderWithProviders(<Dialog />);
+    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
     await waitFor(() => expect(uploads()).toBeChecked());
     await signedIn();
     await user.click(uploads());
@@ -721,7 +730,7 @@ describe('the edit dialog of a Python distribution', () => {
     serveSignIn();
     serveDistribution({ allow_uploads: true });
     serveRemotes();
-    const { user } = renderWithProviders(<Dialog />);
+    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
     await waitFor(() => expect(uploads()).toBeChecked());
     await signedIn();
     server.use(refused(dist.pulp_href), refused(REMOTES));
@@ -738,7 +747,7 @@ describe('the edit dialog of a Python distribution', () => {
     serveSignIn();
     server.use(refused(dist.pulp_href), refused(REMOTES));
     const answers = answeredRequests(REMOTES);
-    const { user } = renderWithProviders(<Dialog />);
+    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
     await signedIn();
     await answers.untilAnswered();
     expect(screen.getByRole('progressbar')).toBeVisible();
@@ -759,7 +768,7 @@ describe('the edit dialog of a Python distribution', () => {
       ),
     );
     serveRemotes();
-    renderWithProviders(<Dialog />);
+    renderWithProviders(<Dialog />, { signedIn: true });
 
     expect(
       await screen.findByText(/Failed to load the distribution/),
@@ -772,7 +781,7 @@ describe('the Copy CLI configuration action', () => {
   const DISTRIBUTIONS = `${API}/distributions/ansible/ansible/`;
 
   // renders the button the action draws and clicks it
-  const run = async (addAlert) => {
+  const run = async (addAlert, signedIn = false) => {
     const reads = answeredRequests(DISTRIBUTIONS);
     const { user } = renderWithProviders(
       <>
@@ -781,6 +790,7 @@ describe('the Copy CLI configuration action', () => {
           { addAlert, hasPermission: () => true },
         )}
       </>,
+      { signedIn },
     );
     await user.click(
       screen.getByRole('button', { name: 'Copy CLI configuration' }),
@@ -788,11 +798,22 @@ describe('the Copy CLI configuration action', () => {
     await reads.untilAnswered();
   };
 
-  it('adds no failure alert when the distribution read is refused with 401', async () => {
+  it('says there is no distribution when the read is refused with the 401 a visitor gets', async () => {
     server.use(refused(DISTRIBUTIONS));
     const addAlert = vi.fn();
 
     await run(addAlert);
+
+    expect(addAlert).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'danger' }),
+    );
+  });
+
+  it('adds no failure alert when the distribution read is refused with 401 for a signed-in user', async () => {
+    server.use(refused(DISTRIBUTIONS));
+    const addAlert = vi.fn();
+
+    await run(addAlert, true);
 
     expect(addAlert).not.toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'danger' }),
@@ -958,6 +979,7 @@ describe('a write dialog when the session ends during the write', () => {
           },
         }}
       />,
+      { signedIn: true },
     );
     await screen.findByText('ns.col01 v1.0.0');
     await user.click(
@@ -1008,6 +1030,7 @@ describe('a write dialog when the session ends during the write', () => {
           },
         }}
       />,
+      { signedIn: true },
     );
     const remove = () => screen.getByRole('button', { name: /^Remove/ });
 
@@ -1036,6 +1059,7 @@ describe('a write dialog when the session ends during the write', () => {
         action={ansibleRepositorySyncAction}
         initial={{ syncModalOpen: { name: 'r1', pulp_href: REPO_HREF } }}
       />,
+      { signedIn: true },
     );
     const sync = () => screen.getByRole('button', { name: /^Sync/ });
     const mirror = () =>
@@ -1076,6 +1100,7 @@ describe('a write dialog when the session ends during the write', () => {
           },
         }}
       />,
+      { signedIn: true },
     );
     const revert = () => screen.getByRole('button', { name: /^Revert/ });
 
@@ -1114,6 +1139,7 @@ describe('a write dialog when the session ends during the write', () => {
           },
         }}
       />,
+      { signedIn: true },
     );
     await signedIn();
 

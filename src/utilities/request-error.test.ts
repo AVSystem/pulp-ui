@@ -1,7 +1,13 @@
 import { HttpResponse, http } from 'msw';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
-import { SessionSuspendedError } from 'src/session/session-events';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  SessionSuspendedError,
+  getSnapshot,
+  resetSessionEvents,
+  setSignedIn,
+  subscribe,
+} from 'src/session/session-events';
 import { PulpAPI } from '../api/pulp';
 import { server } from '../test-utils/server';
 import {
@@ -121,11 +127,40 @@ describe('requestErrorText', () => {
 });
 
 describe('isSessionEnd', () => {
-  it('is true for a 401 answer', async () => {
+  afterEach(() => {
+    resetSessionEvents();
+  });
+
+  it('is true for a 401 answer while a user is signed in', async () => {
+    setSignedIn(true);
     const error = await failure(() =>
       HttpResponse.json({}, { status: 401, statusText: 'Unauthorized' }),
     );
     expect(isSessionEnd(error)).toBe(true);
+    expect(getSnapshot().ended).toBe(true);
+  });
+
+  it('is false for the 401 answer a visitor gets, which reports no ended session', async () => {
+    const listener = vi.fn();
+    subscribe(listener);
+
+    const error = await failure(() =>
+      HttpResponse.json({}, { status: 401, statusText: 'Unauthorized' }),
+    );
+
+    expect(isSessionEnd(error)).toBe(false);
+    expect(requestErrorStatus(error)).toBe(401);
+    expect(listener).not.toHaveBeenCalled();
+    expect(getSnapshot().ended).toBe(false);
+  });
+
+  it('is false for a 401 answer once the user has signed out', async () => {
+    setSignedIn(true);
+    setSignedIn(false);
+
+    const error = await failure(() => HttpResponse.json({}, { status: 401 }));
+
+    expect(isSessionEnd(error)).toBe(false);
   });
 
   it('is true for a request that was held back while the session is renewed', () => {

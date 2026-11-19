@@ -6,11 +6,17 @@ import { type ReactElement, type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
 import { PermissionsProvider } from 'src/permissions';
 import { PluginsProvider } from 'src/plugins';
+import { setSignedIn } from 'src/session/session-events';
 import { UserContextProvider } from 'src/user-context';
 
 interface IRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   // The location the router starts at, including any query string.
   route?: string;
+  // Counts the user as signed in from the first request on, as in the
+  // application, where a screen is shown only after the session check has
+  // answered. Without it the screen's own first read races the session check
+  // in the provider, and its refusal is that of a visitor.
+  signedIn?: boolean;
 }
 
 // Renders the element inside the providers the application supplies: message
@@ -18,7 +24,7 @@ interface IRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 // result carries a user-event instance bound to the same document.
 export function renderWithProviders(
   ui: ReactElement,
-  { route = '/', ...options }: IRenderOptions = {},
+  { route = '/', signedIn = false, ...options }: IRenderOptions = {},
 ) {
   const user = userEvent.setup();
 
@@ -34,5 +40,11 @@ export function renderWithProviders(
     </I18nProvider>
   );
 
-  return { user, ...render(ui, { wrapper: Wrapper, ...options }) };
+  const rendered = render(ui, { wrapper: Wrapper, ...options });
+  // The provider's own effect has just recorded that nobody is signed in.
+  if (signedIn) {
+    setSignedIn(true);
+  }
+
+  return { user, ...rendered };
 }

@@ -104,9 +104,18 @@ describe.each(pickers)('$name', ({ path, title, rows, shown, element }) => {
     expect(served.queries).toHaveLength(1);
   });
 
-  it('keeps the spinner and shows nothing when the read ends the session', async () => {
+  it('shows the failure with Retry for the 401 a visitor gets', async () => {
     server.use(failWith(path, 401));
     renderWithProviders(element());
+
+    expect(await screen.findByText(title)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('keeps the spinner and shows nothing when the read ends the session', async () => {
+    server.use(failWith(path, 401));
+    renderWithProviders(element(), { signedIn: true });
     await pause();
 
     expect(screen.getByRole('progressbar')).toBeVisible();
@@ -154,9 +163,22 @@ describe('the role permission view', () => {
     expect(screen.queryByText('Role could not be displayed.')).toBeNull();
   });
 
-  it('keeps the spinner and shows nothing when the read ends the session', async () => {
+  it('shows the failure with Retry for the 401 a visitor gets', async () => {
     server.use(failWith(ROLES, 401));
     renderWithProviders(<RolePermissions name='editor' />);
+
+    expect(
+      await screen.findByText('Role could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('keeps the spinner and shows nothing when the read ends the session', async () => {
+    server.use(failWith(ROLES, 401));
+    renderWithProviders(<RolePermissions name='editor' />, {
+      signedIn: true,
+    });
     await pause();
 
     expect(screen.getByRole('progressbar')).toBeVisible();

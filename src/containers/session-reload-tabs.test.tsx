@@ -92,7 +92,7 @@ function versionsTabTests({
         />
       </>
     );
-    const view = renderWithProviders(tab(params));
+    const view = renderWithProviders(tab(params), { signedIn: true });
     return {
       addAlert,
       // the page shows another version: same tab, new address parameters
@@ -343,6 +343,7 @@ function accessTabTests({
           <SignInAgain />
           <Tab item={item} actionContext={actionContext} />
         </>,
+        { signedIn: true },
       ),
     };
   }
@@ -523,7 +524,7 @@ describe('the ansible collection versions tab', () => {
         />
       </>
     );
-    const view = renderWithProviders(tab(shown));
+    const view = renderWithProviders(tab(shown), { signedIn: true });
     return { addAlert, ...view, showAgain: (next) => view.rerender(tab(next)) };
   }
 

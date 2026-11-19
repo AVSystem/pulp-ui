@@ -2,7 +2,7 @@ import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileDistributionAPI } from 'src/api/file-distribution';
 import { FileRepositoryAPI } from 'src/api/file-repository';
-import { SessionSuspendedError } from 'src/session/session-events';
+import { SessionSuspendedError, setSignedIn } from 'src/session/session-events';
 import { type IDistribution, distribution, listOf } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import {
@@ -390,6 +390,10 @@ describe('createRepository', () => {
 });
 
 describe('createRepository when the session ends', () => {
+  beforeEach(() => {
+    setSignedIn(true);
+  });
+
   it('reports the repository as created with a warning that the distribution was not confirmed when the distribution request is refused with 401', async () => {
     serveExistingDistributions([]);
     serveRepositoryCreate();

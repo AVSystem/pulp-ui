@@ -95,6 +95,7 @@ describe('repositories that use a remote after the session ended', () => {
         <SignInAgain />
         <LazyRepositories plugin='file' remote_href={REMOTE} />
       </>,
+      { signedIn: true },
     );
   }
 
@@ -170,6 +171,7 @@ describe('repositories that continue on a second page', () => {
         <SignInAgain />
         <LazyRepositories plugin='file' remote_href={remote} />
       </>,
+      { signedIn: true },
     );
     return view;
   }

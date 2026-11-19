@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { SessionSuspendedError } from 'src/session/session-events';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { SessionSuspendedError, setSignedIn } from 'src/session/session-events';
 import { handleHttpError } from './fail-alerts';
 import {
   alertErrorsWithoutFields,
@@ -37,7 +37,25 @@ describe('mapErrorMessages', () => {
   });
 });
 
+describe('mapErrorMessages for the 401 a visitor gets', () => {
+  it('maps the answer like any other refusal, so the form shows why it failed', () => {
+    expect(
+      mapErrorMessages({
+        response: {
+          status: 401,
+          statusText: 'Unauthorized',
+          data: { detail: 'Authentication credentials were not provided.' },
+        },
+      }),
+    ).not.toEqual({});
+  });
+});
+
 describe('mapErrorMessages and a session end', () => {
+  beforeEach(() => {
+    setSignedIn(true);
+  });
+
   const unauthorized = {
     response: {
       status: 401,

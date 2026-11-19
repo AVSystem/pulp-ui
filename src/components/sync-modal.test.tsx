@@ -297,6 +297,7 @@ describe('sync dialog after the same user signs in again', () => {
             syncAction={syncAction}
           />
         </>,
+        { signedIn: true },
       ),
     };
   }

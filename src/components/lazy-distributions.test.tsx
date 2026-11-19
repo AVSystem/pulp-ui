@@ -36,6 +36,7 @@ function renderAfterSignIn() {
       <SignInAgain />
       <LazyDistributions plugin='ansible' repositoryHref={REPOSITORY} />
     </>,
+    { signedIn: true },
   );
 }
 
