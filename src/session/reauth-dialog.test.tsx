@@ -27,10 +27,13 @@ const EXAMPLES_URL = '*/pulp/api/v3/examples/';
 
 const examples = new PulpAPI();
 
+const SAME_USER = { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' };
+const OTHER_USER = { username: 'amy', pulp_href: '/pulp/api/v3/users/2/' };
+
 // A screen that reads from the API on a button press and shows the epoch.
 function Screen() {
   const epoch = useSessionEpoch();
-  const { status, user, logout } = useUserContext();
+  const { status, user, logout, setUser } = useUserContext();
   const [readerShown, setReaderShown] = useState(true);
   const read = () => examples.http.get('examples/').catch(() => undefined);
 
@@ -59,6 +62,12 @@ function Screen() {
         }}
       >
         Read three times
+      </button>
+      <button type='button' onClick={() => setUser(SAME_USER)}>
+        Sign in as the same account
+      </button>
+      <button type='button' onClick={() => setUser(OTHER_USER)}>
+        Sign in as another account
       </button>
       <input aria-label='Draft' defaultValue='' />
     </>
@@ -117,8 +126,6 @@ afterEach(() => {
   config.UI_EXTERNAL_LOGIN_URI = null;
   vi.restoreAllMocks();
 });
-
-const SAME_USER = { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' };
 
 function acceptLogin(body: object = SAME_USER) {
   server.use(
@@ -761,6 +768,151 @@ describe('returning to the tab', () => {
     await finished(checks[0]);
 
     expect(assign).not.toHaveBeenCalled();
+  });
+
+  // Answers the next who-is-signed-in requests only once the returned function
+  // is called, so a test decides what happens in the meantime.
+  function holdWhoami(
+    answer: () => Response = () => HttpResponse.json(SAME_USER),
+  ) {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(LOGIN_URL, async () => {
+        await gate;
+        return answer();
+      }),
+    );
+    return () => release();
+  }
+
+  const signOutOnTheServer = () =>
+    server.use(
+      http.delete(LOGIN_URL, () => new HttpResponse(null, { status: 204 })),
+    );
+
+  async function signOut(
+    user: Awaited<ReturnType<typeof renderScreen>>['user'],
+  ) {
+    signOutOnTheServer();
+    await user.click(screen.getByRole('button', { name: 'Log out' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('anonymous'),
+    );
+  }
+
+  describe('an answer for a session that is no longer the one in memory', () => {
+    it('an answer to a check sent while the session was alive does not restore a session that ended before it arrived', async () => {
+      const { user } = await renderScreen();
+      const checks = trackChecks();
+      const release = holdWhoami();
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      const dialog = await openByRequest(user);
+      release();
+      await finished(checks[0]);
+
+      expect(dialog).toBeVisible();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+      expect(isSuspended()).toBe(true);
+    });
+
+    it("an answer for the previous account after a sign-out and another account's sign-in loads nothing", async () => {
+      const { user } = await renderScreen();
+      const assign = vi
+        .spyOn(window.location, 'assign')
+        .mockImplementation(() => undefined);
+      const checks = trackChecks();
+      const release = holdWhoami(() => HttpResponse.json(SAME_USER));
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as another account' }),
+      );
+      release();
+      await finished(checks[0]);
+
+      expect(assign).not.toHaveBeenCalled();
+      expect(screen.getByTestId('user')).toHaveTextContent('amy');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('an answer naming the new account after a sign-out and its sign-in loads nothing', async () => {
+      const { user } = await renderScreen();
+      const assign = vi
+        .spyOn(window.location, 'assign')
+        .mockImplementation(() => undefined);
+      const checks = trackChecks();
+      const release = holdWhoami(() => HttpResponse.json(OTHER_USER));
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as another account' }),
+      );
+      release();
+      await finished(checks[0]);
+
+      expect(assign).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('0');
+    });
+
+    it("a refusal answered after a sign-out and the same account's sign-in opens no dialog", async () => {
+      const { user } = await renderScreen();
+      const checks = trackChecks();
+      const release = holdWhoami(() =>
+        HttpResponse.json({ detail: 'No.' }, { status: 401 }),
+      );
+
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+      await signOut(user);
+      await user.click(
+        screen.getByRole('button', { name: 'Sign in as the same account' }),
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId('status')).toHaveTextContent('authenticated'),
+      );
+      await storeKnowsUser();
+      release();
+      await finished(checks[0]);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(isSuspended()).toBe(false);
+    });
+
+    it('an answer to a check sent while the session was ended does not restore a later ended session', async () => {
+      const { user } = await dialogOpenedByReturn();
+      const checks = trackChecks();
+      const release = holdWhoami();
+      returnToTab();
+      await waitFor(() => expect(checks).toHaveLength(1));
+
+      acceptLogin();
+      const dialog = screen.getByRole('dialog', { name: /Sign in again/ });
+      await user.type(passwordOf(dialog), 'secret');
+      await user.click(submitOf(dialog));
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+      );
+      expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+      await openByRequest(user);
+      release();
+      await finished(checks[0]);
+
+      expect(
+        screen.getByRole('dialog', { name: /Sign in again/ }),
+      ).toBeVisible();
+      expect(screen.getByTestId('epoch')).toHaveTextContent('1');
+      expect(isSuspended()).toBe(true);
+    });
   });
 
   it.each([
