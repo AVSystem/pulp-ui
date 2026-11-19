@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useNavigate } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -276,5 +276,125 @@ describe('a user list read that fails', () => {
     expect(screen.queryByText('zz-all')).toBeNull();
     expect(screen.queryByText('No users yet')).toBeNull();
     expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+  });
+});
+
+describe('deleting a user from the list', () => {
+  const ann = userRow({
+    id: 41,
+    pulp_href: `${'/pulp/api/v3/users/'}41/`,
+    username: 'zz-ann',
+  });
+  const bob = userRow({
+    id: 42,
+    pulp_href: `${'/pulp/api/v3/users/'}42/`,
+    username: 'zz-bob',
+  });
+
+  // Serves the list (without ann once she is gone), ann's removal and
+  // counts the requests.
+  function serveRemoval() {
+    const calls = { lists: 0, deletes: [] as string[], reads: 0 };
+    let gone = false;
+    server.use(
+      http.get(`*${USERS}`, () => {
+        calls.lists += 1;
+        return HttpResponse.json(userPage(gone ? [bob] : [ann, bob]));
+      }),
+      http.delete(`*${USERS}41/`, ({ request }) => {
+        calls.deletes.push(new URL(request.url).pathname);
+        return new HttpResponse(null, { status: 204 });
+      }),
+      http.get(`*${USERS}41/`, () => {
+        calls.reads += 1;
+        return gone
+          ? HttpResponse.json({ detail: 'Not found.' }, { status: 404 })
+          : HttpResponse.json(ann);
+      }),
+    );
+    return {
+      calls,
+      remove: () => {
+        gone = true;
+      },
+    };
+  }
+
+  async function openDeleteDialog(
+    user: ReturnType<typeof renderUsers>['user'],
+  ) {
+    const row = (await screen.findByText('zz-ann')).closest('tr');
+    await user.click(
+      within(row as HTMLElement).getByRole('button', {
+        name: /actions|kebab/i,
+      }),
+    );
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete' }));
+    return screen.getByRole('dialog');
+  }
+
+  it('sends one DELETE to the address of the user, reads the list again and reports the success', async () => {
+    const { calls, remove } = serveRemoval();
+    remove();
+    const { user } = renderUsers();
+    const dialog = await openDeleteDialog(user);
+    expect(calls.lists).toBe(1);
+
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    expect(
+      await screen.findByText('User "zz-ann" has been successfully deleted.'),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('zz-ann')).toBeNull());
+    expect(screen.getByText('zz-bob')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(calls.deletes).toEqual(['/pulp/api/v3/users/41/']);
+    expect(calls.lists).toBe(2);
+  });
+
+  it('reports the success and reads the list once more when the dialog is closed during the confirmation', async () => {
+    const { calls, remove } = serveRemoval();
+    const { user } = renderUsers();
+    const dialog = await openDeleteDialog(user);
+
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(calls.reads).toBeGreaterThan(0));
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(calls.lists).toBe(1);
+    remove();
+
+    expect(
+      await screen.findByText(
+        'User "zz-ann" has been successfully deleted.',
+        {},
+        { timeout: 4000 },
+      ),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('zz-ann')).toBeNull());
+    expect(calls.lists).toBe(2);
+    expect(calls.deletes).toHaveLength(1);
+  });
+
+  it('keeps the rows and reports the failure when the delete is refused', async () => {
+    server.use(
+      listOf(USERS, [ann, bob]).handler,
+      http.delete(`*${USERS}41/`, () =>
+        HttpResponse.json({ detail: 'Not for you.' }, { status: 403 }),
+      ),
+    );
+    const { user } = renderUsers();
+    const dialog = await openDeleteDialog(user);
+
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    expect(
+      await screen.findByText('User "zz-ann" could not be deleted.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('You do not have permission to do this.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('zz-ann')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
