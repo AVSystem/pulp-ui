@@ -1,9 +1,12 @@
 $breakpoint-md: 1000px;
 
 // The header block of a screen: title, status, actions and tabs. The trail is
-// shown in the top bar, so the block starts with its own spacing.
+// shown in the top bar, so the block starts with its own spacing. The inline
+// inset is the one the section frame uses (app.scss), so the content under the
+// title starts at the same edge; change the two together.
 .pulp-header {
-  padding: 24px 24px 0;
+  padding-block: var(--pf-t--global--spacer--lg) 0;
+  padding-inline: var(--pf-t--global--spacer--lg);
   background-color: var(--pulp-surface);
 }
 
