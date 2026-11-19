@@ -110,6 +110,16 @@ describe('api client', () => {
     ]);
   });
 
+  it('a safe request carries no CSRF token even when the cookie is set', async () => {
+    const seen = recordRequests();
+
+    setCsrfCookie('token-a');
+    await new ExampleAPI().read();
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0]?.csrfToken).toBeNull();
+  });
+
   it('no CSRF header is sent while the cookie is absent', async () => {
     const seen = recordRequests();
 

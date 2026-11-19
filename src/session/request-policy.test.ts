@@ -1,6 +1,20 @@
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { config } from 'src/ui-config';
-import { isLoginUrl, resolveApiUrl } from './request-policy';
+import {
+  handleFailure,
+  isLoginUrl,
+  prepareRequest,
+  resolveApiUrl,
+} from './request-policy';
+import {
+  SessionSuspendedError,
+  getSnapshot,
+  isMarkedSessionEnd,
+  reportUnauthorized,
+  resetSessionEvents,
+  setSignedIn,
+  subscribe,
+} from './session-events';
 
 // The configuration is loaded by the test setup before the first test runs.
 let defaultBase: string;
@@ -10,6 +24,8 @@ beforeAll(() => {
 
 afterEach(() => {
   config.API_BASE_PATH = defaultBase;
+  resetSessionEvents();
+  document.cookie = 'csrftoken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 });
 
 describe('resolveApiUrl', () => {
@@ -91,5 +107,209 @@ describe('isLoginUrl', () => {
     '',
   ])('does not recognise %j', (url) => {
     expect(isLoginUrl(url)).toBe(false);
+  });
+});
+
+describe('prepareRequest', () => {
+  it.each(['POST', 'PUT', 'PATCH', 'DELETE', 'post', 'delete'])(
+    'sets the CSRF token from the cookie for %s',
+    (method) => {
+      document.cookie = 'csrftoken=token-a; path=/';
+      const headers = new Headers();
+
+      prepareRequest('/pulp/api/v3/things/', method, headers);
+
+      expect(headers.get('X-CSRFToken')).toBe('token-a');
+    },
+  );
+
+  it.each(['GET', 'HEAD', 'OPTIONS', 'get'])(
+    'sets no CSRF token for %s',
+    (method) => {
+      document.cookie = 'csrftoken=token-a; path=/';
+      const headers = new Headers();
+
+      prepareRequest('/pulp/api/v3/things/', method, headers);
+
+      expect(headers.has('X-CSRFToken')).toBe(false);
+    },
+  );
+
+  it('reads the cookie at request time and sets nothing while it is absent', () => {
+    const none = new Headers();
+    prepareRequest('/pulp/api/v3/things/', 'POST', none);
+    document.cookie = 'csrftoken=token-a; path=/';
+    const first = new Headers();
+    prepareRequest('/pulp/api/v3/things/', 'POST', first);
+    document.cookie = 'csrftoken=token-b; path=/';
+    const second = new Headers();
+    prepareRequest('/pulp/api/v3/things/', 'POST', second);
+
+    expect(none.has('X-CSRFToken')).toBe(false);
+    expect(first.get('X-CSRFToken')).toBe('token-a');
+    expect(second.get('X-CSRFToken')).toBe('token-b');
+  });
+
+  it('holds back every request except the login calls while the session has ended', () => {
+    setSignedIn(true);
+    reportUnauthorized('tab-return');
+
+    expect(() =>
+      prepareRequest('/pulp/api/v3/things/', 'GET', new Headers()),
+    ).toThrow(SessionSuspendedError);
+    expect(() => prepareRequest('things/', 'POST', new Headers())).toThrow(
+      SessionSuspendedError,
+    );
+    expect(() => prepareRequest('login/', 'GET', new Headers())).not.toThrow();
+    expect(() =>
+      prepareRequest('/pulp/api/v3/login/', 'POST', new Headers()),
+    ).not.toThrow();
+  });
+
+  it('returns one request context object per call', () => {
+    const first = prepareRequest('things/', 'GET', new Headers());
+    const second = prepareRequest('things/', 'GET', new Headers());
+
+    expect(first).toBeTypeOf('object');
+    expect(first).not.toBe(second);
+  });
+});
+
+describe('handleFailure', () => {
+  const context = prepareRequest('things/', 'GET', new Headers());
+  const answer = (status: number) => ({ response: { status } });
+
+  it('reports a 401 of any call except the login calls, once', async () => {
+    setSignedIn(true);
+    const listener = vi.fn();
+    subscribe(listener);
+
+    await handleFailure(401, 'things/', answer(401), vi.fn(), context);
+    await handleFailure(401, 'login/', answer(401), vi.fn(), context);
+    await handleFailure(
+      401,
+      '/pulp/api/v3/login/',
+      answer(401),
+      vi.fn(),
+      context,
+    );
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
+  });
+
+  it('ignores a 401 while nobody is signed in', async () => {
+    await handleFailure(401, 'things/', answer(401), vi.fn(), context);
+
+    expect(getSnapshot().ended).toBe(false);
+  });
+
+  it('ignores every other status', async () => {
+    setSignedIn(true);
+    const check = vi.fn();
+
+    for (const status of [400, 404, 500, 502]) {
+      await handleFailure(status, 'things/', answer(status), check, context);
+    }
+
+    expect(check).not.toHaveBeenCalled();
+    expect(getSnapshot().ended).toBe(false);
+  });
+
+  it('leaves a 403 a refusal when the check succeeds', async () => {
+    setSignedIn(true);
+    const error = answer(403);
+
+    await handleFailure(
+      403,
+      'things/',
+      error,
+      () => Promise.resolve({ username: 'zoe' }),
+      context,
+    );
+
+    expect(isMarkedSessionEnd(error)).toBe(false);
+    expect(getSnapshot().ended).toBe(false);
+  });
+
+  it.each([401, 403])(
+    'ends the session and marks the error when the check fails with %i',
+    async (status) => {
+      setSignedIn(true);
+      const error = answer(403);
+
+      await handleFailure(
+        403,
+        'things/',
+        error,
+        () => Promise.reject(answer(status)),
+        context,
+      );
+
+      expect(isMarkedSessionEnd(error)).toBe(true);
+      expect(getSnapshot()).toEqual({ ended: true, fromRequest: true });
+    },
+  );
+
+  it.each([
+    ['a server error', answer(500)],
+    ['a lost connection', new TypeError('Failed to fetch')],
+  ])(
+    'leaves a 403 a refusal when the check fails with %s',
+    async (_, failure) => {
+      setSignedIn(true);
+      const error = answer(403);
+
+      await handleFailure(
+        403,
+        'things/',
+        error,
+        () => Promise.reject(failure),
+        context,
+      );
+
+      expect(isMarkedSessionEnd(error)).toBe(false);
+      expect(getSnapshot().ended).toBe(false);
+    },
+  );
+
+  it('asks nothing for a 403 while nobody is signed in or of the login calls', async () => {
+    const check = vi.fn();
+
+    await handleFailure(403, 'things/', answer(403), check, context);
+    setSignedIn(true);
+    await handleFailure(403, 'login/', answer(403), check, context);
+
+    expect(check).not.toHaveBeenCalled();
+  });
+
+  it('shares one check between refusals that arrive together, whoever asks', async () => {
+    setSignedIn(true);
+    let finish: (value: unknown) => void = () => undefined;
+    const firstCheck = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const secondCheck = vi.fn(() => Promise.resolve({}));
+
+    const first = handleFailure(403, 'a/', answer(403), firstCheck, context);
+    const second = handleFailure(403, 'b/', answer(403), secondCheck, context);
+    finish({});
+    await Promise.all([first, second]);
+
+    expect(firstCheck).toHaveBeenCalledTimes(1);
+    expect(secondCheck).not.toHaveBeenCalled();
+  });
+
+  it('asks again for a refusal that arrives after the check answered', async () => {
+    setSignedIn(true);
+    const check = vi.fn(() => Promise.resolve({}));
+
+    await handleFailure(403, 'a/', answer(403), check, context);
+    await handleFailure(403, 'b/', answer(403), check, context);
+
+    expect(check).toHaveBeenCalledTimes(2);
   });
 });
