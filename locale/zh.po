@@ -8221,6 +8221,7 @@ msgstr "用户 <0>{username}</0> 将从组<1>{groupname}</1> 中删除。"
 #~ msgid "User Access"
 #~ msgstr "用户访问"
 
+#: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."

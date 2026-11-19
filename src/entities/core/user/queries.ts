@@ -2,7 +2,9 @@ import type { PatchedUser } from '@pulp-ui/sdk/core/models/users/patched-user.zo
 import type { User as NewUser } from '@pulp-ui/sdk/core/models/users/user.zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
+import { useUserContext } from 'src/user-context';
 import { UserClient } from './client';
+import { userHref, userUrlId } from './href';
 import { type UserListParams } from './model';
 
 const all = ['pulp', 'core', 'user'] as const;
@@ -56,6 +58,21 @@ export function useUser(href: string | null) {
     queryFn: ({ signal }) => UserClient.retrieve(href as string, { signal }),
     enabled: href !== null,
   });
+}
+
+// The address of the signed-in user's own record as the session names it, or
+// null while no user is signed in or when the session names no user address.
+export function useOwnUserHref(): string | null {
+  const { user } = useUserContext();
+
+  return userHref(userUrlId(user?.pulp_href));
+}
+
+// The signed-in user's own record, read by the address the session names. The
+// read is the one of that user's detail, so the two share what was read. With
+// no address nothing is read and the result stays without data.
+export function useOwnUser() {
+  return useUser(useOwnUserHref());
 }
 
 // The server accepted the delete but the wait for the user to be gone failed:
@@ -146,14 +163,17 @@ export interface UpdateUserRequest {
 }
 
 // Changes a user. One request is sent per call and it is never repeated by
-// itself; once it has succeeded the user and the lists are read again.
+// itself. Once it has succeeded the user is what the server answered, so a
+// screen that shows it never goes back to the values from before the save, and
+// the user and the lists are read again.
 export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ href, changes }: UpdateUserRequest) =>
       UserClient.update(href, changes),
-    onSuccess: () => {
+    onSuccess: (updated, { href }) => {
+      queryClient.setQueryData(userKeys.detail(href), updated);
       // the screen moves on at once; the lists catch up in the background
       void queryClient.invalidateQueries({ queryKey: userKeys.all });
     },

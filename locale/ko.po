@@ -8221,6 +8221,7 @@ msgstr "사용자 <0>{username}</0>이/가 그룹 <1>{groupname}</1>에서 삭�
 #~ msgid "User Access"
 #~ msgstr "사용자 액세스"
 
+#: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."

@@ -409,7 +409,7 @@ describe('the profile page', () => {
     expectNoRetryAndNoAlert();
   });
 
-  it('keeps the not-found page for another failure', async () => {
+  it('offers Retry for another failure, not the not-found page', async () => {
     server.use(
       http.get(`*${API}/users/1/`, () =>
         HttpResponse.json(
@@ -421,8 +421,12 @@ describe('the profile page', () => {
     render();
 
     expect(
-      await screen.findByText("We couldn't find the page you're looking for!"),
+      await screen.findByText('User could not be displayed.'),
     ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+    expect(
+      screen.queryByText("We couldn't find the page you're looking for!"),
+    ).toBeNull();
     expect(
       screen.queryByRole('heading', { name: 'Insufficient permissions' }),
     ).toBeNull();
