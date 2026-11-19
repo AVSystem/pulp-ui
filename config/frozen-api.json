@@ -1,0 +1,471 @@
+{
+  "ansible-distribution.ts": {
+    "AnsibleDistributionAPI": ["create", "delete", "list", "url"],
+    "AnsibleDistributionType": []
+  },
+  "ansible-remote.ts": {
+    "AnsibleRemoteAPI": [
+      "addRole",
+      "create",
+      "delete",
+      "get",
+      "list",
+      "listRoles",
+      "myPermissions",
+      "removeRole",
+      "smartUpdate"
+    ],
+    "AnsibleRemoteType": []
+  },
+  "ansible-repository.ts": {
+    "AnsibleRepositoryAPI": [
+      "addContent",
+      "addRole",
+      "copyCollectionVersion",
+      "create",
+      "delete",
+      "list",
+      "listRoles",
+      "listVersions",
+      "moveCollectionVersion",
+      "myPermissions",
+      "patch",
+      "removeContent",
+      "removeRole",
+      "revert",
+      "sync"
+    ],
+    "AnsibleRepositoryType": []
+  },
+  "base.ts": {
+    "BaseAPI": ["http", "list", "mapPageToOffset", "mapParams", "sortParam"]
+  },
+  "collection-version.ts": {
+    "AnsibleCollectionVersion": [],
+    "CollectionVersionAPI": ["get", "list"]
+  },
+  "common.ts": {
+    "AnsibleLastSyncType": [],
+    "GenericDistribution": [],
+    "GenericPublication": [],
+    "GenericRemote": [],
+    "GenericRepository": [],
+    "TaskErrorType": []
+  },
+  "container-distribution.ts": {
+    "ContainerDistributionAPI": ["list", "patch", "url"],
+    "ContainerDistributionType": [],
+    "ContainerPullThroughDistributionAPI": ["list", "url"],
+    "ContainerPullThroughDistributionType": []
+  },
+  "content-guard.ts": {
+    "ContentGuardAPI": ["list"]
+  },
+  "deb-distribution.ts": {
+    "DebDistributionAPI": ["create", "delete", "list"]
+  },
+  "deb-publication.ts": {
+    "DebPublicationAPI": ["list"],
+    "DebPublicationType": [],
+    "DebVerbatimPublicationAPI": ["list"]
+  },
+  "deb-remote.ts": {
+    "DebRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "DebRemoteType": []
+  },
+  "deb-repository.ts": {
+    "DebRepositoryAPI": [
+      "create",
+      "delete",
+      "list",
+      "listVersions",
+      "patch",
+      "revert",
+      "sync"
+    ],
+    "DebRepositoryType": []
+  },
+  "file-content.ts": {
+    "FileContentAPI": ["create", "get", "list"]
+  },
+  "file-distribution.ts": {
+    "FileDistributionAPI": ["create", "delete", "list"],
+    "FileDistributionType": []
+  },
+  "file-publication.ts": {
+    "FilePublicationAPI": ["create", "delete", "list"],
+    "FilePublicationType": []
+  },
+  "file-remote.ts": {
+    "FileRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "FileRemoteType": []
+  },
+  "file-repository.ts": {
+    "FileRepositoryAPI": [
+      "create",
+      "delete",
+      "list",
+      "listVersions",
+      "patch",
+      "revert",
+      "sync"
+    ],
+    "FileRepositoryType": []
+  },
+  "generic-pulp.ts": {
+    "GenericContentAPI": ["list"],
+    "GenericDistributionAPI": ["list"],
+    "GenericPublicationAPI": ["list"],
+    "GenericPulpAPI": ["get", "list"],
+    "GenericRemoteAPI": ["list"],
+    "GenericRepositoryAPI": ["list"],
+    "GenericRepositoryVersionAPI": ["list"]
+  },
+  "group-role.ts": {
+    "GroupRoleAPI": ["addRoleToGroup", "listRoles", "removeRole"]
+  },
+  "group.ts": {
+    "GroupAPI": [
+      "addUserToGroup",
+      "create",
+      "delete",
+      "get",
+      "getUsers",
+      "list",
+      "removeUserFromGroup",
+      "update"
+    ]
+  },
+  "index.ts": {
+    "AnsibleDistributionAPI": [],
+    "AnsibleRemoteAPI": [],
+    "AnsibleRemoteType": [],
+    "AnsibleRepositoryAPI": [],
+    "AnsibleRepositoryType": [],
+    "CollectionDetailType": [],
+    "CollectionUploadType": [],
+    "CollectionUsedByDependencies": [],
+    "CollectionVersion": [],
+    "CollectionVersionAPI": [],
+    "CollectionVersionContentType": [],
+    "CollectionVersionSearch": [],
+    "ContainerDistributionAPI": [],
+    "ContainerPullThroughDistributionAPI": [],
+    "ContentSummaryType": [],
+    "DebDistributionAPI": [],
+    "DebRemoteAPI": [],
+    "DebRemoteType": [],
+    "DebRepositoryAPI": [],
+    "DebRepositoryType": [],
+    "DocsBlobType": [],
+    "FileContentAPI": [],
+    "FileDistributionAPI": [],
+    "FilePublicationAPI": [],
+    "FileRemoteAPI": [],
+    "FileRemoteType": [],
+    "FileRepositoryAPI": [],
+    "FileRepositoryType": [],
+    "GenericContentAPI": [],
+    "GenericDistributionAPI": [],
+    "GenericPublicationAPI": [],
+    "GenericPulpAPI": [],
+    "GenericRemoteAPI": [],
+    "GenericRepositoryAPI": [],
+    "GenericRepositoryVersionAPI": [],
+    "GroupAPI": [],
+    "GroupObjectPermissionType": [],
+    "GroupRoleAPI": [],
+    "GroupType": [],
+    "ModelPermissionsType": [],
+    "OrphanCleanupAPI": [],
+    "PulpLoginAPI": [],
+    "PulpStatus": [],
+    "PulpStatusAPI": [],
+    "PythonDistributionAPI": [],
+    "PythonPackageAPI": [],
+    "PythonPackageType": [],
+    "PythonPlatform": [],
+    "PythonRemoteAPI": [],
+    "PythonRemoteType": [],
+    "PythonRepositoryAPI": [],
+    "PythonRepositoryType": [],
+    "RPMDistributionAPI": [],
+    "RPMPackageAPI": [],
+    "RPMRemoteAPI": [],
+    "RPMRemoteType": [],
+    "RPMRepositoryAPI": [],
+    "RPMRepositoryType": [],
+    "RemoteType": [],
+    "RepairAPI": [],
+    "RoleAPI": [],
+    "RoleType": [],
+    "SigningServiceAPI": [],
+    "SigningServiceType": [],
+    "TaskAPI": [],
+    "TaskPurgeAPI": [],
+    "TaskType": [],
+    "UserAPI": [],
+    "UserType": []
+  },
+  "orphan-cleanup.ts": {
+    "OrphanCleanupAPI": ["create"]
+  },
+  "pulp-login.ts": {
+    "PulpLoginAPI": ["login", "logout", "whoami"]
+  },
+  "pulp-status.ts": {
+    "PulpStatusAPI": ["get"]
+  },
+  "pulp.ts": {
+    "PulpAPI": ["mapPageToOffset", "sortParam"]
+  },
+  "python-distribution.ts": {
+    "PythonDistributionAPI": ["create", "delete", "get", "list", "patch"]
+  },
+  "python-package.ts": {
+    "PythonPackageAPI": ["list"]
+  },
+  "python-publication.ts": {
+    "PythonPublicationAPI": ["list"]
+  },
+  "python-remote.ts": {
+    "PythonPackageType": [],
+    "PythonPlatform": [],
+    "PythonRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "PythonRemoteType": []
+  },
+  "python-repository.ts": {
+    "PythonRepositoryAPI": [
+      "create",
+      "delete",
+      "list",
+      "listVersions",
+      "patch",
+      "revert",
+      "sync"
+    ],
+    "PythonRepositoryType": []
+  },
+  "repair.ts": {
+    "RepairAPI": ["create"]
+  },
+  "response-types/collection.ts": {
+    "CollectionDetailType": [
+      "all_versions",
+      "deprecated",
+      "description",
+      "download_count",
+      "id",
+      "latest_version",
+      "name",
+      "namespace",
+      "sign_state"
+    ],
+    "CollectionUploadType": ["distro_base_path", "file", "id", "sha256"],
+    "CollectionUsedByDependencies": ["repository_list", "version"],
+    "CollectionVersion": [
+      "created_at",
+      "id",
+      "metadata",
+      "name",
+      "namespace",
+      "repository_list",
+      "sign_state",
+      "version"
+    ],
+    "CollectionVersionContentType": [
+      "authors",
+      "contents",
+      "dependencies",
+      "description",
+      "docs_blob",
+      "documentation",
+      "homepage",
+      "issues",
+      "license",
+      "repository",
+      "requires_ansible",
+      "tags"
+    ],
+    "CollectionVersionSearch": [
+      "collection_version",
+      "is_deprecated",
+      "is_highest",
+      "is_signed",
+      "namespace_metadata",
+      "repository",
+      "repository_version"
+    ],
+    "ContentSummaryType": ["content_type", "description", "name"],
+    "DocsBlobType": ["collection_readme", "contents", "documentation_files"]
+  },
+  "response-types/permissions.ts": {
+    "GroupObjectPermissionType": [
+      "id",
+      "name",
+      "object_permissions",
+      "pulp_href"
+    ]
+  },
+  "response-types/pulp.ts": {
+    "PulpStatus": []
+  },
+  "response-types/remote.ts": {
+    "LastSyncType": ["error", "finished_at", "started_at", "state"],
+    "RemoteType": [
+      "architectures",
+      "auth_url",
+      "ca_cert",
+      "client_cert",
+      "client_key",
+      "components",
+      "created_at",
+      "distributions",
+      "download_concurrency",
+      "gpgkey",
+      "hidden_fields",
+      "id",
+      "last_sync_task",
+      "max_retries",
+      "name",
+      "password",
+      "policy",
+      "proxy_password",
+      "proxy_url",
+      "proxy_username",
+      "pulp_href",
+      "rate_limit",
+      "repositories",
+      "requirements_file",
+      "signed_only",
+      "sync_dependencies",
+      "sync_installer",
+      "sync_sources",
+      "sync_udebs",
+      "tls_validation",
+      "token",
+      "total_timeout",
+      "updated_at",
+      "url",
+      "username"
+    ]
+  },
+  "response-types/role.ts": {
+    "RoleType": [
+      "description",
+      "locked",
+      "name",
+      "permissions",
+      "pulp_created",
+      "pulp_href"
+    ]
+  },
+  "response-types/task.ts": {
+    "TaskType": [
+      "child_tasks",
+      "error",
+      "finished_at",
+      "my_permissions",
+      "name",
+      "parent_task",
+      "progress_reports",
+      "pulp_created",
+      "pulp_href",
+      "reserved_resources_record",
+      "started_at",
+      "state",
+      "task_group"
+    ]
+  },
+  "response-types/user.ts": {
+    "GroupType": ["id", "name", "object_roles"],
+    "ModelPermissionsType": [],
+    "UserType": [
+      "auth_provider",
+      "date_joined",
+      "email",
+      "first_name",
+      "groups",
+      "hidden_fields",
+      "id",
+      "is_active",
+      "is_staff",
+      "last_name",
+      "model_permissions",
+      "password",
+      "prn",
+      "pulp_href",
+      "username"
+    ]
+  },
+  "role.ts": {
+    "RoleAPI": [
+      "addPermission",
+      "create",
+      "delete",
+      "get",
+      "getPermissions",
+      "list",
+      "removePermission",
+      "updatePermissions"
+    ]
+  },
+  "rpm-distribution.ts": {
+    "RPMDistributionAPI": ["create", "delete", "list"],
+    "RPMDistributionType": []
+  },
+  "rpm-package.ts": {
+    "RPMPackageAPI": ["list"]
+  },
+  "rpm-publication.ts": {
+    "RPMPublicationAPI": ["list"],
+    "RPMPublicationType": []
+  },
+  "rpm-remote.ts": {
+    "RPMRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "RPMRemoteType": []
+  },
+  "rpm-repository.ts": {
+    "RPMRepositoryAPI": [
+      "create",
+      "delete",
+      "list",
+      "listVersions",
+      "patch",
+      "revert",
+      "sync"
+    ],
+    "RPMRepositoryType": []
+  },
+  "signing-service.ts": {
+    "SigningServiceAPI": ["list"],
+    "SigningServiceType": [
+      "name",
+      "pubkey_fingerprint",
+      "public_key",
+      "pulp_created",
+      "pulp_href",
+      "script"
+    ]
+  },
+  "task-purge.ts": {
+    "TaskPurgeAPI": ["create"]
+  },
+  "task.ts": {
+    "TaskAPI": ["get", "list", "patch"]
+  },
+  "user-role.ts": {
+    "UserRoleAPI": ["listRoles"]
+  },
+  "user.ts": {
+    "UserAPI": [
+      "create",
+      "delete",
+      "get",
+      "list",
+      "patch",
+      "saveUser",
+      "update"
+    ]
+  }
+}
