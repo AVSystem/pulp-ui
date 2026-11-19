@@ -25,7 +25,7 @@ function fixture() {
   return {
     openapi: '3.0.1',
     info: { title: 'Fixture', version: 'v3' },
-    servers: [{ url: 'http://localhost:24817/' }],
+    servers: [{ url: 'http://pulp.example.com/' }],
     paths: {
       '/pulp/api/v3/status/': get('status_read', {
         responses: {

@@ -27,7 +27,7 @@ const SCRIPT = join(
 );
 
 const dump = () => ({
-  servers: [{ url: 'http://localhost:24817/' }],
+  servers: [{ url: 'http://pulp.example.com/' }],
   paths: { '/b/': { get: { z: 1, a: 2 } }, '/a/': {} },
   openapi: '3.0.1',
   info: {
