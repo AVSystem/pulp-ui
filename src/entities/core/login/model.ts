@@ -1,17 +1,10 @@
-import { LoginResponse } from '@pulp-ui/sdk/core/models/login/login-response.zod';
-import { loginUpdateResponseUsernameMax } from '@pulp-ui/sdk/core/models/login/login-update-response.zod';
 import { z } from 'zod';
+import { pulpHrefSchema } from 'src/entities/href';
 import { basicAuthorization } from 'src/utilities/basic-authorization';
 
-const pulpHrefSchema = z
-  .string()
-  .startsWith('/')
-  .refine((value) => !value.startsWith('//'), {
-    error: 'pulp_href must not have a leading double slash',
-  })
-  .refine((value) => !/\s/.test(value), {
-    error: 'pulp_href must not contain whitespace',
-  });
+// The server accepts at most this many characters in a username; a longer one
+// is refused before any request is sent.
+const USERNAME_MAX_LENGTH = 150;
 
 const loginDomainSchema = z.object({
   href: pulpHrefSchema,
@@ -19,17 +12,19 @@ const loginDomainSchema = z.object({
   username: z.string(),
 });
 
-const loginResponseRequired = LoginResponse.extend({
+// The three fields of the answer the application reads, all required: a login
+// answer without one of them cannot identify the account. Any other field of
+// the answer is ignored. The generated schema of the sdk marks every field
+// optional, so it serves for types only.
+const loginResponseSchema = z.object({
   pulp_href: pulpHrefSchema,
-}).required({
-  pulp_href: true,
-  prn: true,
-  username: true,
+  prn: z.string(),
+  username: z.string(),
 });
 
 type Login = z.infer<typeof loginDomainSchema>;
 
-const loginResponseCodec = z.codec(loginResponseRequired, loginDomainSchema, {
+const loginResponseCodec = z.codec(loginResponseSchema, loginDomainSchema, {
   decode: ({ pulp_href, prn, username }) => ({
     href: pulp_href,
     prn,
@@ -46,7 +41,7 @@ const credentialsSchema = z.object({
     .refine((value) => !value.includes(':'), {
       error: 'username must not contain a colon.',
     })
-    .max(loginUpdateResponseUsernameMax),
+    .max(USERNAME_MAX_LENGTH),
   password: z.string(),
 });
 

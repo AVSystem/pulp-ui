@@ -1,6 +1,7 @@
 import type { LoginResponse } from '@pulp-ui/sdk/core/models/login/login-response.zod';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { ResponseShapeError } from 'src/entities/response-shape';
 import { server } from 'src/test-utils/server';
 import { LoginClient } from './client';
 
@@ -72,6 +73,23 @@ describe('Integration: LoginClient', { tags: ['integration'] }, () => {
 
     await expect(
       LoginClient.login({ username: 'admin', password: 'password' }),
-    ).rejects.toThrow();
+    ).rejects.toThrow(ResponseShapeError);
+  });
+
+  it('retrieve rejects an absolute pulp_href without echoing it', async () => {
+    const href = 'https://other.example/pulp/api/v3/users/4/';
+    server.use(
+      http.get('*/pulp/api/v3/login/', () =>
+        HttpResponse.json({ ...loginResponseBody, pulp_href: href }),
+      ),
+    );
+
+    const failure = await LoginClient.retrieve().catch(
+      (error: unknown) => error,
+    );
+
+    expect(failure).toBeInstanceOf(ResponseShapeError);
+    expect(failure).toMatchObject({ path: 'pulp_href' });
+    expect((failure as Error).message).not.toContain('other.example');
   });
 });
