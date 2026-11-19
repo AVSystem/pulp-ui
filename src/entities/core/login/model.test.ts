@@ -77,6 +77,25 @@ describe('Unit: login model', { tags: ['unit'] }, () => {
       ).toThrow();
     });
 
+    it('rejects an absolute pulp_href', () => {
+      expect(() =>
+        loginResponseCodec.decode({
+          ...validResponse,
+          pulp_href: 'https://host.example/pulp/api/v3/users/4/',
+        }),
+      ).toThrow();
+    });
+
+    it('ignores a field the entity does not name', () => {
+      const answer: unknown = { ...validResponse, is_superuser: true };
+
+      expect(loginResponseCodec.parse(answer)).toStrictEqual({
+        href: validResponse.pulp_href,
+        prn: validResponse.prn,
+        username: validResponse.username,
+      });
+    });
+
     it('rejects a pulp_href that is not a URL', () => {
       expect(() =>
         loginResponseCodec.decode({ ...validResponse, pulp_href: 'not-a-url' }),
