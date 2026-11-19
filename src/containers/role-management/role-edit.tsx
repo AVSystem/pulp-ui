@@ -1,12 +1,12 @@
 import { t } from '@lingui/core/macro';
-import { Component } from 'react';
-import { Navigate } from 'react-router';
-import { RoleAPI, type RoleType } from 'src/api';
+import { useEffect, useRef, useState } from 'react';
+import { Navigate, useParams } from 'react-router';
 import {
   AlertList,
   type AlertType,
   BaseHeader,
   InsufficientPermissions,
+  ListErrorState,
   LoadingPage,
   Main,
   NotFound,
@@ -14,301 +14,202 @@ import {
   RoleHeader,
   closeAlert,
 } from 'src/components';
-import { Paths, formatPath } from 'src/paths';
+import { roleHref } from 'src/entities/core/role/href';
 import {
-  type ErrorMessagesType,
-  type RouteProps,
-  mapNetworkErrors,
-  parsePulpIDFromURL,
-  translateLockedRole,
-  validateInput,
-  withRouter,
-} from 'src/utilities';
+  useRole,
+  useUpdateRolePermissions,
+} from 'src/entities/core/role/queries';
+import { Paths, formatPath } from 'src/paths';
+import { type ErrorMessagesType } from 'src/utilities/map-error-messages';
+import { validateInput } from 'src/utilities/map-role-errors';
 import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { translateLockedRole } from 'src/utilities/translate-locked-role';
+import { roleSaveErrors } from './save-errors';
 
-interface IState {
-  alerts: AlertType[];
-  description: string;
-  editPermissions: boolean;
-  errorMessages: Record<string, string>;
-  inputText: string;
-  itemCount: number;
-  name: string;
-  nameError: boolean;
-  notFound: boolean;
-  options: { id: number; name: string }[];
-  originalPermissions: string[];
-  params: {
-    id: string;
-  };
-  permissions: string[];
-  redirect?: string;
-  role: RoleType;
-  roleError: ErrorMessagesType;
-  saving: boolean;
-  selected: { id: number; name: string }[];
-  showDeleteModal: boolean;
-  unauthorized: boolean;
-  // the reason Pulp gave for refusing the read, when it gave one
-  unauthorizedDetail: string | null;
-}
+// The permissions of a role that came without any. One value, so the form is
+// not told of a change at every render.
+const NO_PERMISSIONS: string[] = [];
 
-class EditRole extends Component<RouteProps, IState> {
-  // true once the user typed a description: a later read never replaces it
-  descriptionTouched = false;
+// The address holds the id of one role. Another role is another screen:
+// nothing of the one left behind stays on screen or in the form.
+const RoleEdit = () => {
+  const { role: urlId } = useParams();
 
-  constructor(props) {
-    super(props);
+  return <RoleEditScreen key={urlId} urlId={urlId} />;
+};
 
-    const id = this.props.routeParams.role;
+const RoleEditScreen = ({ urlId }: { urlId: string }) => {
+  // The id of the address becomes an address of the API only here; an id that
+  // is not one has no role and asks for nothing.
+  const href = roleHref(urlId);
+  const query = useRole(href);
+  const updateRole = useUpdateRolePermissions();
 
-    this.state = {
-      alerts: [],
-      description: null,
-      editPermissions: true,
-      errorMessages: {},
-      inputText: '',
-      itemCount: 0,
-      name: null,
-      nameError: false,
-      notFound: false,
-      options: undefined,
-      originalPermissions: [],
-      params: {
-        id,
-      },
-      permissions: [],
-      role: null,
-      roleError: null,
-      saving: false,
-      selected: [],
-      showDeleteModal: false,
-      unauthorized: false,
-      unauthorizedDetail: null,
-    };
-  }
+  const role = query.data;
 
-  componentDidMount() {
-    this.queryRole();
-  }
+  // The description the user typed, or null while the user has not touched it:
+  // an untouched form follows every read of the role, a typed description is
+  // never replaced by a later read. The permissions follow the same rule inside
+  // the form.
+  const [typedDescription, setTypedDescription] = useState<string | null>(null);
+  const description = typedDescription ?? role?.description ?? '';
 
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read the role again. An untouched form
-    // shows the fresh role, a changed description stays as typed.
-    if (prevProps.sessionEpoch !== this.props.sessionEpoch) {
-      this.queryRole();
-    }
-  }
+  const [errorMessages, setErrorMessages] = useState<ErrorMessagesType>({});
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [redirect, setRedirect] = useState<string>();
 
-  private queryRole() {
-    RoleAPI.get(this.state.params.id)
-      .then((result) => {
-        this.setState((previous) => ({
-          role: result.data,
-          description: this.descriptionTouched
-            ? previous.description
-            : result.data.description,
-          name: result.data.name,
-          notFound: false,
-          originalPermissions: result.data.permissions,
-          unauthorized: false,
-          unauthorizedDetail: null,
-        }));
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it, and the page
-        // keeps its spinner or its form until it reads again.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        // A refused read is not a failure to retry: the user is told they
-        // may not view the role, with Pulp's own reason.
-        if (requestErrorStatus(e) === 403) {
-          this.setState({
-            unauthorized: true,
-            unauthorizedDetail: requestErrorDetail(e),
-          });
-          return;
-        }
-        // Until the role was read its name is unknown, so the title says
-        // only that the role could not be shown.
-        const roleName = this.state.role?.name;
-        this.setState({ notFound: true });
-        this.addAlert(
-          roleName
-            ? t`Role "${roleName}" could not be displayed.`
+  const status = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
+
+  // A form on screen is never replaced by the failure of a later read: what
+  // was typed stays, and the failure is reported next to it, once.
+  const alertedFailure = useRef(0);
+  const rereadFailed = query.isRefetchError && !sessionEnded;
+  useEffect(() => {
+    if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
+      alertedFailure.current = query.errorUpdatedAt;
+      setAlerts((current) => [
+        ...current,
+        {
+          variant: 'danger',
+          title: role?.name
+            ? t`Role "${role.name}" could not be displayed.`
             : t`Role could not be displayed.`,
-          'danger',
-          requestErrorDescription(e),
-        );
+          description: requestErrorDescription(query.error),
+        },
+      ]);
+    }
+  }, [rereadFailed, query.errorUpdatedAt, query.error, role?.name]);
+
+  const saveRole = (permissions: string[] | undefined) => {
+    if (updateRole.isPending || !role || !href) {
+      return;
+    }
+    const name = role.name;
+
+    // The promise, not a callback of the screen: the outcome of a save is
+    // acted on even when the screen has gone by then.
+    updateRole
+      .mutateAsync({
+        href,
+        changes: {
+          name,
+          // an untouched description goes back as it was read, null included
+          description: typedDescription ?? role.description ?? null,
+          permissions: permissions ?? [],
+        },
+      })
+      .then(() => setRedirect(formatPath(Paths.core.role.list)))
+      .catch((error) => {
+        // The session ended: nothing was saved and nothing is repeated; the
+        // form stays as typed.
+        if (isSessionEnd(error)) {
+          return;
+        }
+        const failure = requestErrorStatus(error);
+        if (failure === 400 || failure === 403) {
+          setErrorMessages(roleSaveErrors(error));
+          return;
+        }
+        setErrorMessages({});
+        setAlerts((current) => [
+          ...current,
+          {
+            variant: 'danger',
+            title: t`Changes to role "${name}" could not be saved.`,
+            description: requestErrorDescription(error),
+          },
+        ]);
       });
+  };
+
+  if (redirect) {
+    return <Navigate to={redirect} />;
   }
 
-  render() {
-    if (this.state.redirect) {
-      return <Navigate to={this.state.redirect} />;
-    }
+  if (href === null || (!role && status === 404)) {
+    return <NotFound />;
+  }
 
-    const {
-      alerts,
-      description,
-      editPermissions,
-      errorMessages,
-      name,
-      notFound,
-      role,
-      saving,
-      unauthorized,
-      unauthorizedDetail,
-    } = this.state;
-
-    if (unauthorized) {
-      return (
-        <>
-          <BaseHeader title={t`Insufficient permissions`} />
-          <InsufficientPermissions detail={unauthorizedDetail} />
-        </>
-      );
-    }
-
-    if (!role && alerts && alerts.length) {
-      return (
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-      );
-    }
-
-    if (notFound) {
-      return <NotFound />;
-    }
-
-    if (!role) {
-      return <LoadingPage />;
-    }
-
-    const breadcrumbs = [
-      { url: formatPath(Paths.core.role.list), name: t`Roles` },
-      { name: role.name },
-    ];
-
+  if (!role && status === 403) {
     return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        <RoleHeader
-          title={editPermissions ? t`Edit role permissions` : role.name}
-          subTitle={translateLockedRole(role.name, role.description)}
-          breadcrumbs={breadcrumbs}
-        />
+        <BaseHeader title={t`Insufficient permissions`} />
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
+      </>
+    );
+  }
+
+  if (!role && query.isError && !sessionEnded && !query.isFetching) {
+    return (
+      <>
+        <BaseHeader title={t`Role`} />
         <Main>
-          <section className='pulp-section'>
-            <RoleForm
-              {...this.state}
-              name={name}
-              nameDisabled
-              description={description}
-              descriptionHelperText={errorMessages['description']}
-              descriptionValidated={
-                errorMessages['description'] ? 'error' : null
-              }
-              onDescriptionChange={(value) => {
-                this.descriptionTouched = true;
-                this.setState({ description: value }, () => {
-                  const errors = validateInput(
-                    value,
-                    'description',
-                    this.state.errorMessages,
-                  );
-                  this.setState({ errorMessages: errors });
-                });
-              }}
-              saving={saving}
-              saveRole={this.editRole}
-              isSavingDisabled={
-                'description' in errorMessages || 'name' in errorMessages
-              }
-              cancelRole={this.cancelRole}
-            />
-          </section>
+          <ListErrorState
+            title={t`Role could not be displayed.`}
+            message={requestErrorDescription(query.error)}
+            onRetry={() => query.refetch()}
+          />
         </Main>
       </>
     );
   }
 
-  private cancelRole = () => {
-    this.setState({
-      errorMessages: {},
-      redirect: formatPath(Paths.core.role.list),
-    });
-  };
-
-  private addAlert(title, variant, description?) {
-    this.setState({
-      alerts: [
-        ...this.state.alerts,
-        {
-          description,
-          title,
-          variant,
-        },
-      ],
-    });
+  if (!role) {
+    return <LoadingPage />;
   }
 
-  private editRole = (permissions) => {
-    this.setState({ saving: true }, () => {
-      const { pulp_href } = this.state.role;
-      const roleID = parsePulpIDFromURL(pulp_href);
-      const { name, description } = this.state;
+  const breadcrumbs = [
+    { url: formatPath(Paths.core.role.list), name: t`Roles` },
+    { name: role.name },
+  ];
 
-      RoleAPI.updatePermissions(roleID, { name, description, permissions })
-        .then(() =>
-          this.setState({ redirect: formatPath(Paths.core.role.list) }),
-        )
-        .catch((err) => {
-          // The session ended: nothing was saved and nothing is repeated; the
-          // form stays as typed.
-          if (isSessionEnd(err)) {
-            this.setState({ saving: false });
-            return;
-          }
-          if (requestErrorStatus(err) === 400) {
-            const errors = mapNetworkErrors(err);
+  return (
+    <>
+      <AlertList
+        alerts={alerts}
+        closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+      />
+      <RoleHeader
+        title={t`Edit role permissions`}
+        subTitle={translateLockedRole(role.name, role.description ?? undefined)}
+        breadcrumbs={breadcrumbs}
+      />
+      <Main>
+        <section className='pulp-section'>
+          <RoleForm
+            name={role.name}
+            nameDisabled
+            description={description}
+            descriptionHelperText={errorMessages['description']}
+            descriptionValidated={errorMessages['description'] ? 'error' : null}
+            onDescriptionChange={(value) => {
+              setTypedDescription(value);
+              setErrorMessages((current) =>
+                validateInput(value, 'description', current),
+              );
+            }}
+            errorMessage={errorMessages['__nofield']}
+            originalPermissions={role.permissions ?? NO_PERMISSIONS}
+            saving={updateRole.isPending}
+            saveRole={saveRole}
+            isSavingDisabled={
+              'description' in errorMessages || 'name' in errorMessages
+            }
+            cancelRole={() => {
+              setErrorMessages({});
+              setRedirect(formatPath(Paths.core.role.list));
+            }}
+          />
+        </section>
+      </Main>
+    </>
+  );
+};
 
-            this.setState({ saving: false, errorMessages: errors });
-          } else {
-            this.setState({
-              errorMessages: {},
-              alerts: this.state.alerts.concat({
-                variant: 'danger',
-                title: t`Changes to role "${name}" could not be saved.`,
-                description: requestErrorDescription(err),
-              }),
-              saving: false,
-            });
-          }
-        });
-    });
-  };
-}
-
-export default withRouter(EditRole);
+export default RoleEdit;
