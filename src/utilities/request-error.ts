@@ -3,6 +3,7 @@ import { type ReactNode } from 'react';
 import {
   SessionSuspendedError,
   isMarkedSessionEnd,
+  isSignedIn,
 } from 'src/session/session-events';
 import {
   errorMessage,
@@ -31,15 +32,20 @@ export function requestErrorDetail(error): string | null {
 }
 
 // True when the failure is the end of the session and nothing else: a 401
-// answer, a request that was held back while the sign-in dialog is open, or a
-// refusal that a who-is-signed-in request showed to be an ended session. The
-// dialog explains it and the screen reads again after signing in, so the
-// caller shows no alert and no error state of its own. Any other 403 or other
-// failure is not a session end.
+// answer to a user who is signed in, a request that was held back while the
+// sign-in dialog is open, or a refusal that a who-is-signed-in request showed
+// to be an ended session. The dialog explains it and the screen reads again
+// after signing in, so the caller shows no alert and no error state of its
+// own. Any other 403 or other failure is not a session end.
+//
+// The 401 a visitor gets is an ordinary failure: nobody was signed in, so no
+// dialog opens, and treating it as a session end would leave the screen on its
+// loading state with nothing to explain it. The screen shows its error state
+// or alert instead.
 export function isSessionEnd(error): boolean {
   return (
     error instanceof SessionSuspendedError ||
-    requestErrorStatus(error) === 401 ||
+    (requestErrorStatus(error) === 401 && isSignedIn()) ||
     isMarkedSessionEnd(error)
   );
 }
