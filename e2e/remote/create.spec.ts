@@ -1,12 +1,14 @@
 import { type Page, expect, test } from '@playwright/test';
+import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
+import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
 import { type PulpObject, TestObjects } from '../support/api';
 import { title } from '../support/sign-in';
 
 // The save rules of the repository form, run against a real server with
 // objects of this file's own prefix. Plugin: file, except where noted.
 
-const REPOSITORIES = 'repositories/file/file/';
-const DISTRIBUTIONS = 'distributions/file/file/';
+const REPOSITORIES = getRepositoriesFileFileListUrl();
+const DISTRIBUTIONS = getDistributionsFileFileListUrl();
 
 let objects: TestObjects;
 
@@ -208,7 +210,7 @@ test('a double click on Save sends one repository POST', async ({ page }) => {
   await page.waitForURL(/repositories\/detail\//);
 
   expect(
-    posts.filter((path) => path.endsWith(`/${REPOSITORIES}`)),
+    posts.filter((path) => path === REPOSITORIES),
     'POST requests to the repository endpoint',
   ).toHaveLength(1);
   expect(await objects.list(REPOSITORIES, { name })).toHaveLength(1);

@@ -1,10 +1,12 @@
 import { type APIRequestContext, request } from '@playwright/test';
 import { getRepositoriesAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/repositories-ansible';
 import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards-rbac';
+import { getGroupsListUrl } from '@pulp-ui/sdk/core/groups';
 import type { AsyncOperationResponse } from '@pulp-ui/sdk/core/models/async-operation-response.zod';
 import type { TaskResponse } from '@pulp-ui/sdk/core/models/tasks/task-response.zod';
 import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
 import { getTasksReadUrl } from '@pulp-ui/sdk/core/tasks';
+import { getUsersListUrl } from '@pulp-ui/sdk/core/users';
 import { getDistributionsDebAptListUrl } from '@pulp-ui/sdk/deb/distributions-apt';
 import { getPublicationsDebAptListUrl } from '@pulp-ui/sdk/deb/publications-apt';
 import { getRemotesDebAptListUrl } from '@pulp-ui/sdk/deb/remotes-apt';
@@ -68,6 +70,27 @@ export function apiContext(): Promise<APIRequestContext> {
   });
 }
 
+// Every object of a list endpoint matching the filters, all pages, read with
+// any request context (the one of the account a spec signs in with).
+export async function listAll(
+  api: APIRequestContext,
+  path: string,
+  params: Record<string, string> = {},
+): Promise<PulpObject[]> {
+  const results: PulpObject[] = [];
+  for (let offset = 0; ; offset += 100) {
+    const page = await apiGet<Page>(api, url(path), {
+      ...params,
+      limit: '100',
+      offset: String(offset),
+    });
+    results.push(...page.results);
+    if (!page.next) {
+      return results;
+    }
+  }
+}
+
 export interface PulpObject {
   pulp_href: string;
   name?: string;
@@ -87,9 +110,10 @@ interface Page {
 }
 
 // Endpoints that hold objects created by the tests, deepest dependants first:
-// distributions, publications, repositories, remotes, content guards, roles. Only
-// objects under these endpoints are ever deleted. Publications carry no name of
-// their own; every other kind must carry the scope's prefix.
+// groups, users, distributions, publications, repositories, remotes, content
+// guards, roles. Only objects under these endpoints are ever deleted.
+// Publications carry no name of their own; users are named by their user name;
+// every other kind must carry the scope's prefix in its name.
 const DISTRIBUTIONS = [
   getDistributionsFileFileListUrl(),
   getDistributionsDebAptListUrl(),
@@ -117,9 +141,13 @@ const REMOTES = [
 ];
 const CONTENT_GUARDS = [getContentguardsCoreRbacListUrl()];
 const ROLES = [getRolesListUrl()];
+const GROUPS = [getGroupsListUrl()];
+const USERS = [getUsersListUrl()];
 
 // The endpoint groups in the order objects can be deleted.
 const DELETION_ORDER = [
+  GROUPS,
+  USERS,
   DISTRIBUTIONS,
   PUBLICATIONS,
   REPOSITORIES,
@@ -134,6 +162,25 @@ const NAMED_DELETION_ORDER = DELETION_ORDER.filter(
   (endpoints) => endpoints !== PUBLICATIONS,
 );
 const NAMED_ENDPOINTS = NAMED_DELETION_ORDER.flat();
+
+// The field that names an object of this endpoint, and the filter that finds
+// the objects whose name starts with a prefix. Users and groups are matched on
+// "contains" and checked again by the caller, because their filters offer no
+// "startswith".
+function nameField(path: string): 'username' | 'name' {
+  return USERS.some((endpoint) => path.startsWith(endpoint))
+    ? 'username'
+    : 'name';
+}
+
+function prefixFilter(path: string, prefix: string): Record<string, string> {
+  const field = nameField(path);
+  const matching = field === 'username' || GROUPS.includes(path);
+  return {
+    [`${field}__${matching ? 'contains' : 'startswith'}`]: prefix,
+    fields: `pulp_href,${field}`,
+  };
+}
 
 function groupOf(href: string): number {
   const target = resolveApiUrl(href);
@@ -172,19 +219,8 @@ export class TestObjects {
   }
 
   // Every object of a list endpoint matching the filters, all pages.
-  async list(path: string, params: Record<string, string> = {}) {
-    const results: PulpObject[] = [];
-    for (let offset = 0; ; offset += 100) {
-      const page = await apiGet<Page>(this.api, url(path), {
-        ...params,
-        limit: '100',
-        offset: String(offset),
-      });
-      results.push(...page.results);
-      if (!page.next) {
-        return results;
-      }
-    }
+  list(path: string, params: Record<string, string> = {}) {
+    return listAll(this.api, path, params);
   }
 
   async get(href: string): Promise<PulpObject> {
@@ -217,12 +253,10 @@ export class TestObjects {
   // and registers the object for clean-up. A name that does not carry this
   // scope's prefix is refused, so a typo can never write a foreign object.
   async create(path: string, body: Record<string, unknown>) {
-    if (
-      typeof body['name'] === 'string' &&
-      !body['name'].startsWith(this.prefix)
-    ) {
+    const label = body[nameField(url(path))];
+    if (typeof label === 'string' && !label.startsWith(this.prefix)) {
       throw new Error(
-        `refusing to create "${body['name']}": not under ${this.prefix}`,
+        `refusing to create "${label}": not under ${this.prefix}`,
       );
     }
 
@@ -268,7 +302,7 @@ export class TestObjects {
     if (current.status === 404) {
       return;
     }
-    const { name } = current.body;
+    const name = current.body[nameField(href)];
     // a publication belongs to a repository version and has no name
     const unnamedKind = DELETION_ORDER[group] === PUBLICATIONS;
     if (
@@ -327,21 +361,29 @@ export class TestObjects {
     this.registered.push(href);
   }
 
+  // The objects of one endpoint that carry this scope's prefix.
+  private async owned(path: string): Promise<PulpObject[]> {
+    const field = nameField(path);
+    const objects = await this.list(path, prefixFilter(path, this.prefix));
+    return objects.filter((object) =>
+      String(object[field] ?? '').startsWith(this.prefix),
+    );
+  }
+
   // Objects of this scope that still exist, by endpoint.
   async leftovers(): Promise<string[]> {
     const found: string[] = [];
     for (const path of NAMED_ENDPOINTS) {
-      const objects = await this.list(path, {
-        name__startswith: this.prefix,
-        fields: 'pulp_href,name',
-      });
-      found.push(...objects.map((object) => `${path}${object.name}`));
+      const field = nameField(path);
+      const objects = await this.owned(path);
+      found.push(...objects.map((object) => `${path}${String(object[field])}`));
     }
     return found;
   }
 
   // Deletes everything this scope created: registered objects dependants first
-  // (distributions, publications, repositories, remotes, content guards, roles), then
+  // (groups, users, distributions, publications, repositories, remotes, content
+  // guards, roles), then
   // anything of the scope that is still listed, for objects created through
   // the UI. Throws when something is left; always closes the API context.
   async cleanUp(): Promise<void> {
@@ -363,10 +405,7 @@ export class TestObjects {
 
       for (const endpoints of NAMED_DELETION_ORDER) {
         for (const path of endpoints) {
-          const objects = await this.list(path, {
-            name__startswith: this.prefix,
-            fields: 'pulp_href,name',
-          });
+          const objects = await this.owned(path);
           await Promise.all(
             objects.map(({ pulp_href }) => this.remove(pulp_href)),
           );

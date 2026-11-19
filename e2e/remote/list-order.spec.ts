@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
 import { apiContext } from '../support/api';
+import { apiGet } from '../support/sdk-request';
 import { title } from '../support/sign-in';
 
 // A list opens ordered by name, the way the server orders it, so the first
@@ -11,13 +13,12 @@ test('the file repository list opens with the repositories in the order the serv
 }) => {
   const api = await apiContext();
   const names = async (params: Record<string, string>) => {
-    const response = await api.get('/pulp/api/v3/repositories/file/file/', {
-      params: { ...params, ordering: 'name', fields: 'name' },
-    });
-    expect(response.ok(), 'the API list').toBe(true);
-    return (
-      (await response.json()) as { results: { name: string }[] }
-    ).results.map(({ name }) => name);
+    const { results } = await apiGet<{ results: { name: string }[] }>(
+      api,
+      getRepositoriesFileFileListUrl(),
+      { ...params, ordering: 'name', fields: 'name' },
+    );
+    return results.map(({ name }) => name);
   };
 
   try {

@@ -1,5 +1,7 @@
 import { type Page, expect } from '@playwright/test';
+import { getStatusReadUrl } from '@pulp-ui/sdk/core/status';
 import { apiContext } from '../support/api';
+import { apiGet } from '../support/sdk-request';
 import { title } from '../support/sign-in';
 
 // Every list page of the application, with the plugin that has to be installed
@@ -205,15 +207,11 @@ export function installedPlugins(): Promise<Set<string>> {
   installed ??= (async () => {
     const api = await apiContext();
     try {
-      const response = await api.get('/pulp/api/v3/status/');
-      if (!response.ok()) {
-        throw new Error(`GET status/ answered ${response.status()}`);
-      }
       // A request with credentials the server does not accept is answered
       // with the health fields only, so a missing list names the cause.
-      const { versions } = (await response.json()) as {
+      const { versions } = await apiGet<{
         versions?: { component: string }[];
-      };
+      }>(api, getStatusReadUrl());
       if (!Array.isArray(versions)) {
         throw new Error(
           'the status answer has no versions: the admin account was not accepted',
