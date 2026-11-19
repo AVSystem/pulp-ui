@@ -34,7 +34,7 @@ msgstr "(más reciente)"
 
 #: src/components/lazy-repositories.tsx
 msgid "(more)"
-msgstr ""
+msgstr "(más)"
 
 #: src/components/collection-header.tsx
 #~ msgid "(signed)"
@@ -51,7 +51,7 @@ msgstr "(cargado)"
 #. placeholder {0}: results.length
 #: src/shell/command-palette.tsx
 msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
-msgstr ""
+msgstr "{0, plural, =0 {Sin resultados} one {# resultado} other {# resultados}}"
 
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -82,11 +82,11 @@ msgstr "{0, plural, one {Failed to add collection to repository \"{repositoryNam
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert details"
-msgstr ""
+msgstr "Detalles de la alerta de {alertType}"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert:"
-msgstr ""
+msgstr "Alerta de {alertType}:"
 
 #: src/components/collection-header.tsx
 #~ msgid "{collectionName}'s versions."
@@ -102,11 +102,11 @@ msgstr ""
 
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
-msgstr ""
+msgstr "{count, plural, one {# tarea fallida en las últimas 24 horas} other {# tareas fallidas en las últimas 24 horas}}"
 
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# running task} other {# running tasks}}"
-msgstr ""
+msgstr "{count, plural, one {# tarea en ejecución} other {# tareas en ejecución}}"
 
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Dependency} other {Dependencies}}"
@@ -130,11 +130,11 @@ msgstr "{count} más"
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (browser default)"
-msgstr ""
+msgstr "{currentLanguage} (predeterminado del navegador)"
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (current)"
-msgstr ""
+msgstr "{currentLanguage} (actual)"
 
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
@@ -171,15 +171,15 @@ msgstr "{name} dejará de funcionar."
 
 #: src/components/pulp-about-modal.tsx
 msgid "{name}: generated in the interface, not installed on this server"
-msgstr ""
+msgstr "{name}: generado en la interfaz, no instalado en este servidor"
 
 #: src/components/pulp-about-modal.tsx
 msgid "{name}: not part of the generated interface"
-msgstr ""
+msgstr "{name}: no forma parte de la interfaz generada"
 
 #: src/components/pulp-about-modal.tsx
 msgid "{name}: the interface was generated for {generated}, this server runs {running}"
-msgstr ""
+msgstr "{name}: la interfaz se generó para {generated}, este servidor ejecuta {running}"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
@@ -211,7 +211,7 @@ msgstr "{title} pasos"
 
 #: src/shell/notifications.tsx
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
-msgstr ""
+msgstr "{unread, plural, one {Notificaciones, # notificación sin leer} other {Notificaciones, # notificaciones sin leer}}"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
@@ -322,15 +322,15 @@ msgstr "404 - Página no encontrada"
 
 #: src/components/repository-form.tsx
 msgid "A base path cannot contain a \".\" or \"..\" segment."
-msgstr ""
+msgstr "Una ruta base no puede contener un segmento \".\" ni \"..\"."
 
 #: src/components/repository-form.tsx
 msgid "A base path cannot contain spaces, \"?\" or \"#\"."
-msgstr ""
+msgstr "Una ruta base no puede contener espacios, \"?\" ni \"#\"."
 
 #: src/components/repository-form.tsx
 msgid "A base path cannot start or end with a slash or contain two slashes in a row."
-msgstr ""
+msgstr "Una ruta base no puede empezar ni terminar con una barra ni contener dos barras seguidas."
 
 #: src/components/repository-form.tsx
 #~ msgid "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
@@ -339,7 +339,7 @@ msgstr ""
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
-msgstr ""
+msgstr "Ya existe una distribución llamada \"{0}\"."
 
 #: src/components/remote-form.tsx
 msgid "A PEM encoded client certificate used for authentication."
@@ -351,11 +351,11 @@ msgstr "Una clave privada codificada en PEM utilizada para la autenticación."
 
 #: src/components/sync-modal.tsx
 msgid "A sync of this repository is already queued."
-msgstr ""
+msgstr "Ya hay una sincronización de este repositorio en cola."
 
 #: src/components/sync-modal.tsx
 msgid "A sync of this repository is already running."
-msgstr ""
+msgstr "Ya se está ejecutando una sincronización de este repositorio."
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "A tag may contain lowercase and uppercase ASCII alphabetic characters, digits, underscores, periods, and dashes. A tag must not start with a period, underscore, or a dash."
@@ -367,11 +367,11 @@ msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "A ticked box publishes every new version, so any distribution serving this repository offers it."
-msgstr ""
+msgstr "Si la casilla está marcada, se publica cada versión nueva, de modo que cualquier distribución que sirva este repositorio la ofrece."
 
 #: src/components/remote-form.tsx
 msgid "A whole number. Leave empty to use the server default."
-msgstr ""
+msgstr "Un número entero. Déjelo vacío para usar el valor predeterminado del servidor."
 
 #: src/shell/shell.tsx
 #~ msgid "About"
@@ -380,11 +380,11 @@ msgstr ""
 #: src/containers/about-project.tsx
 #: src/shell/help-menu.tsx
 msgid "About project"
-msgstr ""
+msgstr "Acerca del proyecto"
 
 #: src/shell/help-menu.tsx
 msgid "About Pulp UI"
-msgstr ""
+msgstr "Acerca de Pulp UI"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
@@ -395,15 +395,15 @@ msgstr "Acceso"
 
 #: src/shell/account-menu.tsx
 msgid "Account"
-msgstr ""
+msgstr "Cuenta"
 
 #: src/shell/account-menu.tsx
 msgid "Account menu for {username}"
-msgstr ""
+msgstr "Menú de cuenta de {username}"
 
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
-msgstr ""
+msgstr "Acciones"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Active user profile \"{0}\" could not be displayed."
@@ -446,7 +446,7 @@ msgstr "Agregar una descripción del rol aquí"
 
 #: src/utilities/translate-task.ts
 msgid "Add and remove content"
-msgstr ""
+msgstr "Añadir y eliminar contenido"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Add and remove repository"
@@ -520,7 +520,7 @@ msgstr "Añadir nuevo repositorio"
 
 #: src/utilities/translate-task.ts
 msgid "Add or remove content"
-msgstr ""
+msgstr "Añadir o eliminar contenido"
 
 #: src/actions/ansible-remote-create.tsx
 #: src/actions/deb-remote-create.tsx
@@ -589,11 +589,11 @@ msgstr "Añadir elemento"
 
 #: src/components/sync-modal.tsx
 msgid "Additive keeps everything already in the repository. Mirror content only removes what the remote no longer has. Mirror complete also reproduces the remote's metadata exactly, which kickstart trees need."
-msgstr ""
+msgstr "Aditivo conserva todo lo que ya está en el repositorio. Espejo de contenido solo elimina lo que el remoto ya no tiene. Espejo completo reproduce además los metadatos del remoto de forma exacta, algo que necesitan los árboles kickstart."
 
 #: src/actions/rpm-repository-sync.tsx
 msgid "Additive: only add new content"
-msgstr ""
+msgstr "Aditivo: solo añadir contenido nuevo"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "aliases"
@@ -619,7 +619,7 @@ msgstr "Se han eliminado todos los permisos asociados a este rol."
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "All projects"
-msgstr ""
+msgstr "Todos los proyectos"
 
 #: src/components/import-modal.tsx
 #~ msgid "All repos"
@@ -631,7 +631,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Allow all actions on a task schedule."
-msgstr ""
+msgstr "Permitir todas las acciones en una programación de tareas."
 
 #: src/utilities/translate-locked-role.ts
 msgid "Allow all actions on a task."
@@ -643,23 +643,23 @@ msgstr "Permitir todas las acciones en una tarea."
 
 #: src/components/repository-form.tsx
 msgid "Allow package substitution"
-msgstr ""
+msgstr "Permitir la sustitución de paquetes"
 
 #: src/components/repository-form.tsx
 msgid "Allow replacing an existing package with one that has the same filename but a different checksum. When off, any new repository version that would cause such a substitution is rejected, whether from sync, upload or modify."
-msgstr ""
+msgstr "Permite reemplazar un paquete existente por otro con el mismo nombre de archivo pero distinta suma de comprobación. Si está desactivado, se rechaza cualquier versión nueva del repositorio que cause tal sustitución, ya sea por sincronización, subida o modificación."
 
 #: src/components/repository-form.tsx
 msgid "Allow same-filename packages with different contents"
-msgstr ""
+msgstr "Permitir paquetes con el mismo nombre de archivo y distinto contenido"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Allow uploads to this distribution"
-msgstr ""
+msgstr "Permitir subidas a esta distribución"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Allowed"
-msgstr ""
+msgstr "Permitido"
 
 #: src/actions/repository-version-revert.tsx
 msgid "Already the current version"
@@ -671,17 +671,17 @@ msgstr "Ya está la versión actual"
 
 #: src/components/remote-form.tsx
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
-msgstr ""
+msgstr "Una clave pública con armadura ASCII. Si se define, la firma del archivo Release de origen se verifica en cada sincronización, lo que hace segura la sincronización por HTTP sin cifrar."
 
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
 msgid "Another task is already queued for this repository: {0}"
-msgstr ""
+msgstr "Ya hay otra tarea en cola para este repositorio: {0}"
 
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
 msgid "Another task is already running for this repository: {0}"
-msgstr ""
+msgstr "Ya se está ejecutando otra tarea para este repositorio: {0}"
 
 #: src/components/hub-about-modal.tsx
 #~ msgid "Ansible Automation Platform"
@@ -693,7 +693,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ansible copy content"
-msgstr ""
+msgstr "Copiar contenido de Ansible"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Ansible Lightspeed"
@@ -708,7 +708,7 @@ msgstr ""
 
 #: src/containers/coming-soon-screens.tsx
 msgid "Ansible repositories"
-msgstr ""
+msgstr "Repositorios de Ansible"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
@@ -809,12 +809,12 @@ msgstr "Aprueba, rechaza y sincroniza las colecciones desde los mandos a distanc
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Arch"
-msgstr ""
+msgstr "Arquitectura"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Architectures"
-msgstr ""
+msgstr "Arquitecturas"
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
@@ -822,7 +822,7 @@ msgstr "¿Está seguro de que desea borrar el remoto <0>{name}</0>?<1/><2>Nota:<
 
 #: src/components/delete-repository-modal.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
-msgstr ""
+msgstr "¿Está seguro de que desea eliminar el repositorio <0>{name}</0>?"
 
 #: src/components/delete-repository-modal.tsx
 #~ msgid "Are you sure you want to delete the repository <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this repository."
@@ -862,7 +862,7 @@ msgstr "¿Está seguro de que desea revertir este repositorio a la versión ante
 
 #: src/components/purge-task-modal.tsx
 msgid "At least one state has to be selected."
-msgstr ""
+msgstr "Hay que seleccionar al menos un estado."
 
 #: src/components/user-form.tsx
 #~ msgid "Authentication provider"
@@ -876,7 +876,7 @@ msgstr ""
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Autopublish"
-msgstr ""
+msgstr "Publicación automática"
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Available matching collections"
@@ -922,7 +922,7 @@ msgstr "Ruta base"
 
 #: src/components/repository-form.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
-msgstr ""
+msgstr "Las rutas base que empiezan por \"{reserved}\" están reservadas en este servidor. Elija otra ruta base."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -938,7 +938,7 @@ msgstr "Versión base"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Ruta de navegación"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Browse"
@@ -958,7 +958,7 @@ msgstr "Navegar..."
 
 #: src/utilities/translate-task.ts
 msgid "Build image from Containerfile"
-msgstr ""
+msgstr "Crear imagen desde un Containerfile"
 
 #: src/containers/role-management/role-list.tsx
 msgid "Built-in"
@@ -1014,7 +1014,7 @@ msgstr "Cancelado"
 
 #: src/shell/notifications.tsx
 msgid "Canceled {when}"
-msgstr ""
+msgstr "Cancelada {when}"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1096,7 +1096,7 @@ msgstr "Cambiar y cargar las colecciones a los espacios de nombres."
 
 #: src/utilities/translate-locked-role.ts
 msgid "Change existing containers."
-msgstr ""
+msgstr "Modificar contenedores existentes."
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Change existing execution environments."
@@ -1228,13 +1228,13 @@ msgstr "Clave de cliente"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Clients cannot download its content until a distribution serves it."
-msgstr ""
+msgstr "Los clientes no pueden descargar su contenido hasta que una distribución lo sirva."
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/typeahead.tsx
 msgid "close"
-msgstr ""
+msgstr "cerrar"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
@@ -1243,11 +1243,11 @@ msgstr "Cerrar"
 
 #: src/shell/shell.tsx
 msgid "Close navigation"
-msgstr ""
+msgstr "Cerrar la navegación"
 
 #: src/shell/notifications.tsx
 msgid "Close notifications"
-msgstr ""
+msgstr "Cerrar las notificaciones"
 
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
@@ -1255,7 +1255,7 @@ msgstr "Cerrar el editor YAML"
 
 #: src/shell/command-palette.tsx
 msgid "Cmd K"
-msgstr ""
+msgstr "Cmd K"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
@@ -1263,7 +1263,7 @@ msgstr "Código"
 
 #: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "Contraer la barra lateral"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
@@ -1459,7 +1459,7 @@ msgstr "Las colecciones que ya están en el repositorio no se pueden marcar, por
 
 #: src/utilities/translate-task.ts
 msgid "Collections sync"
-msgstr ""
+msgstr "Sincronización de colecciones"
 
 #: src/containers/approvals/approvals.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -1490,11 +1490,11 @@ msgstr "Comunidad"
 
 #: src/actions/ansible-repository-sync.tsx
 msgid "Community content will never be synced if the remote is set to only sync signed content. You can <0>edit the {name} remote</0> to change it."
-msgstr ""
+msgstr "El contenido de la comunidad nunca se sincronizará si el remoto está configurado para sincronizar solo contenido firmado. Puede <0>editar el remoto {name}</0> para cambiarlo."
 
 #: src/components/remote-form.tsx
 msgid "Community content will never be synced if this setting is enabled"
-msgstr ""
+msgstr "El contenido de la comunidad nunca se sincronizará si esta opción está activada"
 
 #: src/components/ratings.tsx
 #~ msgid "Community score"
@@ -1516,12 +1516,12 @@ msgstr "Completado"
 
 #: src/shell/notifications.tsx
 msgid "Completed {when}"
-msgstr ""
+msgstr "Completada {when}"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Components"
-msgstr ""
+msgstr "Componentes"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -1545,7 +1545,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Connected"
-msgstr ""
+msgstr "Conectado"
 
 #: src/utilities/validate-url-helper.ts
 msgid "Consider using a secure URL (https://)."
@@ -1647,7 +1647,7 @@ msgstr "El contenido en repositorios sin una distribución no será visible para
 
 #: src/components/sync-modal.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
-msgstr ""
+msgstr "El contenido que no esté en el repositorio remoto se eliminará del repositorio local"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1659,7 +1659,7 @@ msgstr "Contenido eliminado"
 
 #: src/containers/pulp-status.tsx
 msgid "Content settings"
-msgstr ""
+msgstr "Configuración del contenido"
 
 #: src/components/collection-header.tsx
 #~ msgid "Contents"
@@ -1708,7 +1708,7 @@ msgstr "Copiar al portapapeles"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Copyable input"
-msgstr ""
+msgstr "Campo de texto copiable"
 
 #: src/components/import-console.tsx
 #~ msgid "could not be determined yet"
@@ -1716,11 +1716,11 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
-msgstr ""
+msgstr "No se pudo comprobar si ya hay una sincronización en ejecución. Aun así puede iniciar una; esperará a que termine la que está en ejecución."
 
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
-msgstr ""
+msgstr "No se pudo comprobar si el nombre y la ruta base están libres: {reason}. No se creó nada."
 
 #: src/containers/collection-detail/collection-import-log.tsx
 #~ msgid "Could not load import log"
@@ -1765,11 +1765,11 @@ msgstr "Crear"
 #. placeholder {0}: repository.name
 #: src/components/repository-form.tsx
 msgid "Create a distribution \"{0}\" for this repository"
-msgstr ""
+msgstr "Crear una distribución \"{0}\" para este repositorio"
 
 #: src/components/repository-form.tsx
 msgid "Create a distribution for this repository"
-msgstr ""
+msgstr "Crear una distribución para este repositorio"
 
 #: src/components/group-modal.tsx
 msgid "Create a group"
@@ -1793,7 +1793,7 @@ msgstr "Cree una contraseña con, al menos, {minLength} caracteres, incluidos lo
 
 #: src/components/repository-form.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
-msgstr ""
+msgstr "Crea una publicación por cada versión nueva del repositorio, de modo que las distribuciones que apuntan a este repositorio siempre sirvan el contenido más reciente."
 
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Create a role namespace"
@@ -1801,7 +1801,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Create and update containers under existing container namespaces."
-msgstr ""
+msgstr "Crear y actualizar contenedores en espacios de nombres de contenedores existentes."
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Create and update execution environments under existing container namespaces."
@@ -1864,7 +1864,7 @@ msgstr "Fecha de creación"
 
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
-msgstr ""
+msgstr "Se creó la distribución \"{name}\" en la ruta base {basePath}."
 
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
@@ -1883,7 +1883,7 @@ msgstr "Creado el"
 
 #: src/shell/command-palette.tsx
 msgid "Ctrl K"
-msgstr ""
+msgstr "Ctrl K"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Curate all synclist repositories"
@@ -1911,7 +1911,7 @@ msgstr "Contenido actual"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Current page"
-msgstr ""
+msgstr "Página actual"
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Current provider namespace"
@@ -1919,7 +1919,7 @@ msgstr ""
 
 #: src/components/typeahead.tsx
 msgid "Current selections"
-msgstr ""
+msgstr "Selecciones actuales"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Current tags"
@@ -1927,7 +1927,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Current task"
-msgstr ""
+msgstr "Tarea actual"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Currently excluded tags"
@@ -1939,7 +1939,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Custom"
-msgstr ""
+msgstr "Personalizado"
 
 #: src/components/permission-categories.tsx
 msgid "Custom permissions"
@@ -1955,15 +1955,15 @@ msgstr "Permisos personalizados"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Danger"
-msgstr ""
+msgstr "Peligro"
 
 #: src/shell/theme-menu.tsx
 msgid "Dark"
-msgstr ""
+msgstr "Oscuro"
 
 #: src/containers/pulp-status.tsx
 msgid "Database connection"
-msgstr ""
+msgstr "Conexión a la base de datos"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "Date"
@@ -1975,19 +1975,19 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Debian copy content"
-msgstr ""
+msgstr "Copiar contenido de Debian"
 
 #: src/utilities/translate-task.ts
 msgid "Debian publish"
-msgstr ""
+msgstr "Publicación de Debian"
 
 #: src/utilities/translate-task.ts
 msgid "Debian sync"
-msgstr ""
+msgstr "Sincronización de Debian"
 
 #: src/utilities/translate-task.ts
 msgid "Debian verbatim publish"
-msgstr ""
+msgstr "Publicación literal de Debian"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "default"
@@ -2114,7 +2114,7 @@ msgstr "¿Borrar remoto?"
 
 #: src/utilities/translate-task.ts
 msgid "Delete repository version"
-msgstr ""
+msgstr "Eliminar versión del repositorio"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Delete repository?"
@@ -2379,16 +2379,16 @@ msgstr "Distribuciones"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Distributions could not be displayed."
-msgstr ""
+msgstr "No se pudieron mostrar las distribuciones."
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
-msgstr ""
+msgstr "No se pudieron cargar las distribuciones: {error}"
 
 #. placeholder {0}: resource?.plugin
 #: src/utilities/repository-distro.ts
 msgid "Distributions of {0} repositories cannot be looked up"
-msgstr ""
+msgstr "No se pueden consultar las distribuciones de los repositorios de {0}"
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -2416,7 +2416,7 @@ msgstr "Documentación"
 
 #: src/containers/pulp-status.tsx
 msgid "Domain enabled"
-msgstr ""
+msgstr "Dominio habilitado"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Done"
@@ -2432,7 +2432,7 @@ msgstr "Finalizado"
 
 #: src/components/pulp-download-button.tsx
 msgid "Download {filename}"
-msgstr ""
+msgstr "Descargar {filename}"
 
 #: src/actions/ansible-remote-download-ca.tsx
 msgid "Download CA certificate"
@@ -2490,7 +2490,7 @@ msgstr "Descargar solo colecciones firmadas"
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "Download policy"
-msgstr ""
+msgstr "Política de descarga"
 
 #: src/components/remote-form.tsx
 msgid "Download requirements file"
@@ -2568,7 +2568,7 @@ msgstr "Editar"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Edit distribution"
-msgstr ""
+msgstr "Editar distribución"
 
 #: src/components/repository-form.tsx
 #~ msgid "Edit execution environment"
@@ -2641,7 +2641,7 @@ msgstr "Habilitado"
 
 #: src/components/repository-form.tsx
 msgid "Enter a base path."
-msgstr ""
+msgstr "Introduzca una ruta base."
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
@@ -2717,7 +2717,7 @@ msgstr "Error al borrar el grupo."
 
 #: src/entrypoint.tsx
 msgid "Error loading /pulp-ui-config.json"
-msgstr ""
+msgstr "Error al cargar /pulp-ui-config.json"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Error loading active user."
@@ -2847,21 +2847,21 @@ msgstr "Mensaje de error"
 
 #: src/components/access-tab.tsx
 msgid "Except for members of groups below."
-msgstr ""
+msgstr "Excepto los miembros de los grupos indicados abajo."
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Excluded"
-msgstr ""
+msgstr "Excluido"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Excluded platforms"
-msgstr ""
+msgstr "Plataformas excluidas"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Excludes"
-msgstr ""
+msgstr "Exclusiones"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Execution Environment"
@@ -2908,7 +2908,7 @@ msgstr ""
 
 #: src/shell/shell.tsx
 msgid "Expand sidebar"
-msgstr ""
+msgstr "Expandir la barra lateral"
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Expiration"
@@ -2920,15 +2920,15 @@ msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "Fail on rejected packages"
-msgstr ""
+msgstr "Fallar si se rechazan paquetes"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Fail the whole version"
-msgstr ""
+msgstr "Hacer fallar la versión completa"
 
 #: src/components/repository-form.tsx
 msgid "Fail the whole version if any package is rejected"
-msgstr ""
+msgstr "Hacer fallar la versión completa si se rechaza algún paquete"
 
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
@@ -2938,7 +2938,7 @@ msgstr "Fallido"
 
 #: src/shell/notifications.tsx
 msgid "Failed {when}"
-msgstr ""
+msgstr "Fallida {when}"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Failed to {operation} tag \"{tag}\"."
@@ -3069,7 +3069,7 @@ msgstr "Error al cargar el estado"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
-msgstr ""
+msgstr "No se pudo cargar la distribución: {loadError}"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Failed to load Wisdom information."
@@ -3181,7 +3181,7 @@ msgstr "Error al sincronizar el repositorio \"{name}\""
 
 #: src/entrypoint.tsx
 msgid "Fall back to defaults"
-msgstr ""
+msgstr "Volver a los valores predeterminados"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Featured"
@@ -3197,19 +3197,19 @@ msgstr ""
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
-msgstr ""
+msgstr "Archivo"
 
 #: src/utilities/translate-task.ts
 msgid "File content publish"
-msgstr ""
+msgstr "Publicación de contenido de archivos"
 
 #: src/utilities/translate-task.ts
 msgid "File content sync"
-msgstr ""
+msgstr "Sincronización de contenido de archivos"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "File upload"
-msgstr ""
+msgstr "Subida de archivos"
 
 #. placeholder {0}: selectedFilter.id
 #. placeholder {0}: selectedFilter.id.toLowerCase()
@@ -3255,7 +3255,7 @@ msgstr "Finalizado a las"
 
 #: src/components/purge-task-modal.tsx
 msgid "Finished before:"
-msgstr ""
+msgstr "Finalizadas antes de:"
 
 #: src/components/user-form.tsx
 #: src/containers/user-management/user-list.tsx
@@ -3280,7 +3280,7 @@ msgstr "Nombre"
 
 #: src/containers/pulp-status.tsx
 msgid "Free"
-msgstr ""
+msgstr "Libre"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
@@ -3296,23 +3296,23 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "General create"
-msgstr ""
+msgstr "Creación general"
 
 #: src/utilities/translate-task.ts
 msgid "General delete"
-msgstr ""
+msgstr "Eliminación general"
 
 #: src/utilities/translate-task.ts
 msgid "General multi delete"
-msgstr ""
+msgstr "Eliminación múltiple general"
 
 #: src/utilities/translate-task.ts
 msgid "General update"
-msgstr ""
+msgstr "Actualización general"
 
 #: src/containers/about-project.tsx
 msgid "Get involved"
-msgstr ""
+msgstr "Participe"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Get the trial"
@@ -3324,7 +3324,7 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "GitHub issues"
-msgstr ""
+msgstr "Incidencias de GitHub"
 
 #: src/components/role-import-form.tsx
 #~ msgid "GitHub ref (a commit, branch or tag)"
@@ -3332,7 +3332,7 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "GitHub repository"
-msgstr ""
+msgstr "Repositorio de GitHub"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "GitHub Repository"
@@ -3345,7 +3345,7 @@ msgstr ""
 
 #: src/utilities/wait-for-task.ts
 msgid "Giving up waiting for task after {attempts} attempts."
-msgstr ""
+msgstr "Se deja de esperar a la tarea tras {attempts} intentos."
 
 #: src/utilities/wait-for-task.ts
 #~ msgid "Giving up waiting for task after 10 attempts."
@@ -3357,7 +3357,7 @@ msgstr "Volver"
 
 #: src/shell/command-palette.tsx
 msgid "Go to"
-msgstr ""
+msgstr "Ir a"
 
 #: src/components/collection-info.tsx
 #~ msgid "Go to documentation"
@@ -3365,19 +3365,19 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to first page"
-msgstr ""
+msgstr "Ir a la primera página"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to last page"
-msgstr ""
+msgstr "Ir a la última página"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to next page"
-msgstr ""
+msgstr "Ir a la página siguiente"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to previous page"
-msgstr ""
+msgstr "Ir a la página anterior"
 
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
@@ -3390,7 +3390,7 @@ msgstr "Ir a la página de inicio"
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "GPG key"
-msgstr ""
+msgstr "Clave GPG"
 
 #: src/components/access-tab.tsx
 #: src/components/select-group.tsx
@@ -3406,7 +3406,7 @@ msgstr "No se pudo agregar el grupo \"{0}\" a \"{name}\"."
 #. placeholder {0}: group.name
 #: src/containers/group-management/group-detail.tsx
 msgid "Group \"{0}\" could not be deleted."
-msgstr ""
+msgstr "No se pudo eliminar el grupo \"{0}\"."
 
 #: src/containers/group-management/group-detail.tsx
 #~ msgid "Group \"{0}\" could not be displayed."
@@ -3510,16 +3510,16 @@ msgstr "Los grupos aparecerán una vez creados"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Guard: {guardName}"
-msgstr ""
+msgstr "Protección: {guardName}"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
-msgstr ""
+msgstr "Contiene las palabras"
 
 #: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
 msgid "Help"
-msgstr ""
+msgstr "Ayuda"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Help other Ansible users by sharing the awesome roles and collections you create."
@@ -3539,7 +3539,7 @@ msgstr "Ocultar las opciones avanzadas"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Hide password"
-msgstr ""
+msgstr "Ocultar la contraseña"
 
 #: src/components/download-signature-grid-item.tsx
 #~ msgid "Hide the signature"
@@ -3547,15 +3547,15 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions."
-msgstr ""
+msgstr "Cuántas de las versiones más recientes de cada paquete se sincronizan, incluidas las preversiones si se sincronizan. Déjelo en blanco para conservar todas las versiones."
 
 #: src/components/remote-form.tsx
 msgid "How many times a failed download is tried again before the sync gives up."
-msgstr ""
+msgstr "Cuántas veces se reintenta una descarga fallida antes de que la sincronización se rinda."
 
 #: src/components/repository-form.tsx
 msgid "How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions."
-msgstr ""
+msgstr "Cuántas versiones de cada paquete se conservan; las más antiguas se descartan al sincronizar. Déjelo en blanco para conservar todas las versiones."
 
 #: src/components/delete-collection-modal.tsx
 #: src/components/delete-execution-environment-modal.tsx
@@ -3566,7 +3566,7 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
-msgstr ""
+msgstr "Si se selecciona, todo el contenido que no esté en el repositorio remoto se eliminará del repositorio local; de lo contrario, la sincronización añadirá el contenido que falte."
 
 #: src/components/remote-form.tsx
 msgid "If selected, TLS peer validation must be performed."
@@ -3582,7 +3582,7 @@ msgstr "Si se selecciona, se debe realizar la validación de pares TLS."
 
 #: src/containers/about-project.tsx
 msgid "If you find a bug or have an idea for enhancement, please feel free to file a GitHub issue. Thank you for contributing to improvement of the project."
-msgstr ""
+msgstr "Si encuentra un error o tiene una idea de mejora, no dude en abrir una incidencia en GitHub. Gracias por contribuir a mejorar el proyecto."
 
 #: src/components/remote-form.tsx
 msgid "If you populate this requirements file, this remote will only sync collections from this file, otherwise all collections will be synchronized."
@@ -3611,15 +3611,15 @@ msgstr "Si completa este archivo de requisitos, este remoto solo sincronizará l
 
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "immediate"
-msgstr ""
+msgstr "inmediata"
 
 #: src/components/remote-form.tsx
 msgid "Immediate"
-msgstr ""
+msgstr "Inmediata"
 
 #: src/components/remote-form.tsx
 msgid "Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it."
-msgstr ""
+msgstr "Inmediata descarga todo el contenido durante la sincronización y es necesaria cuando el remoto no seguirá accesible. Bajo demanda sincroniza solo los metadatos y descarga cada elemento la primera vez que un cliente lo solicita. Transmitida pasa el contenido a los clientes sin almacenarlo."
 
 #: src/components/role-import-form.tsx
 #~ msgid "Import"
@@ -3635,7 +3635,7 @@ msgstr "Importar y trasladar a la puesta en escena"
 
 #: src/utilities/translate-task.ts
 msgid "Import collection"
-msgstr ""
+msgstr "Importar colección"
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-import-log.tsx
@@ -3676,20 +3676,20 @@ msgstr "En el repositorio"
 
 #: src/components/remote-form.tsx
 msgid "Include all dependencies when syncing a collection."
-msgstr ""
+msgstr "Incluir todas las dependencias al sincronizar una colección."
 
 #: src/components/remote-form.tsx
 msgid "Include pre-release versions"
-msgstr ""
+msgstr "Incluir preversiones"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Included"
-msgstr ""
+msgstr "Incluido"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Includes"
-msgstr ""
+msgstr "Inclusiones"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Including all tags might transfer a lot of data."
@@ -3729,7 +3729,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Info"
-msgstr ""
+msgstr "Información"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "ini entries:"
@@ -3746,7 +3746,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-distributions.tsx
 msgid "Install with pip"
-msgstr ""
+msgstr "Instalar con pip"
 
 #: src/components/collection-info.tsx
 #~ msgid "Installation"
@@ -3762,7 +3762,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer files will be synchronized"
-msgstr ""
+msgstr "Se sincronizarán los archivos del instalador"
 
 #: src/components/remote-form.tsx
 #~ msgid "Installer packages will be skipped"
@@ -3770,7 +3770,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer packages will be synchronized"
-msgstr ""
+msgstr "Se sincronizarán los paquetes del instalador"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "Instructions"
@@ -3823,15 +3823,15 @@ msgstr "Seguimiento de problemas"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Items per page"
-msgstr ""
+msgstr "Elementos por página"
 
 #: src/containers/about-project.tsx
 msgid "Join our communication channels and get to know the contributors and users of Pulp's strong ecosystem."
-msgstr ""
+msgstr "Únase a nuestros canales de comunicación y conozca a los colaboradores y usuarios del sólido ecosistema de Pulp."
 
 #: src/containers/pulp-status.tsx
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
@@ -3874,7 +3874,7 @@ msgstr "Etiquetas"
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
-msgstr ""
+msgstr "Último latido"
 
 #: src/components/collection-filter.ts
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -3909,12 +3909,12 @@ msgstr "Última actualización del registro {0}"
 
 #: src/components/purge-task-modal.tsx
 msgid "Latest allowed date is today."
-msgstr ""
+msgstr "La última fecha permitida es hoy."
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Latest versions kept per package"
-msgstr ""
+msgstr "Últimas versiones conservadas por paquete"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Layers"
@@ -3968,7 +3968,7 @@ msgstr ""
 
 #: src/shell/theme-menu.tsx
 msgid "Light"
-msgstr ""
+msgstr "Claro"
 
 #: src/components/remote-form.tsx
 msgid "Limits total download rate in requests per second."
@@ -4019,15 +4019,15 @@ msgstr "Limita la velocidad total de descarga en solicitudes por segundo."
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "Loading distribution..."
-msgstr ""
+msgstr "Cargando la distribución..."
 
 #: src/components/delete-repository-modal.tsx
 msgid "Loading distributions"
-msgstr ""
+msgstr "Cargando distribuciones"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Loading..."
-msgstr ""
+msgstr "Cargando..."
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/search/multi-search.tsx
@@ -4063,7 +4063,7 @@ msgstr "Finalización de la sesión"
 
 #: src/menu.tsx
 msgid "Main"
-msgstr ""
+msgstr "Principal"
 
 #: src/components/repository-form.tsx
 msgid "Make private"
@@ -4100,7 +4100,7 @@ msgstr "Gestionar remotos de colecciones."
 
 #: src/shell/theme-menu.tsx
 msgid "Match system"
-msgstr ""
+msgstr "Igual que el sistema"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
@@ -4112,19 +4112,19 @@ msgstr "Mensaje"
 
 #: src/components/sync-modal.tsx
 msgid "Mirror"
-msgstr ""
+msgstr "Espejo"
 
 #: src/actions/rpm-repository-sync.tsx
 msgid "Mirror complete (exact copy incl. metadata)"
-msgstr ""
+msgstr "Espejo completo (copia exacta con metadatos)"
 
 #: src/actions/rpm-repository-sync.tsx
 msgid "Mirror content only"
-msgstr ""
+msgstr "Espejo de contenido"
 
 #: src/actions/file-repository-sync.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
-msgstr ""
+msgstr "El modo espejo no se puede combinar con la publicación automática, así que esta sincronización solo añade el contenido que falta."
 
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
@@ -4132,7 +4132,7 @@ msgstr ""
 
 #: src/components/help-button.tsx
 msgid "More information"
-msgstr ""
+msgstr "Más información"
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4298,7 +4298,7 @@ msgstr "Espacios de nombres"
 
 #: src/containers/ansible-repository/list.tsx
 msgid "never synced"
-msgstr ""
+msgstr "nunca sincronizado"
 
 #: src/components/import-modal.tsx
 #~ msgid "New collection"
@@ -4341,7 +4341,7 @@ msgstr "No hay roles asignables."
 
 #: src/components/select-user.tsx
 msgid "No assignable users."
-msgstr ""
+msgstr "No hay usuarios asignables."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No child task"
@@ -4384,15 +4384,15 @@ msgstr "Aún no hay versiones de colección"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "No distribution serves this repository"
-msgstr ""
+msgstr "Ninguna distribución sirve este repositorio"
 
 #: src/components/delete-repository-modal.tsx
 msgid "No distribution serves this repository. Only the repository is deleted."
-msgstr ""
+msgstr "Ninguna distribución sirve este repositorio. Solo se elimina el repositorio."
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 msgid "No distributions created"
-msgstr ""
+msgstr "No se ha creado ninguna distribución"
 
 #: src/containers/collection-detail/collection-distributions.tsx
 #~ msgid "No distributions yet"
@@ -4400,7 +4400,7 @@ msgstr ""
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
-msgstr ""
+msgstr "Todavía no hay tareas finalizadas"
 
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
@@ -4478,12 +4478,12 @@ msgstr "No hay grupos para añadir"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 msgid "No packages in the latest version"
-msgstr ""
+msgstr "No hay paquetes en la última versión"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "No packages yet"
-msgstr ""
+msgstr "Todavía no hay paquetes"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No parent task"
@@ -4507,7 +4507,7 @@ msgstr "Sin permisos"
 
 #: src/containers/ansible-repository/list.tsx
 msgid "no remote"
-msgstr ""
+msgstr "sin remoto"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "No remote registries yet"
@@ -4560,7 +4560,7 @@ msgstr "Ningún resultado coincide con los criterios de filtrado. Pruebe cambiar
 
 #: src/shell/command-palette.tsx
 msgid "No screens or repositories match"
-msgstr ""
+msgstr "Ninguna pantalla ni repositorio coincide"
 
 #: src/containers/signature-keys/list.tsx
 msgid "No signature keys yet"
@@ -4584,7 +4584,7 @@ msgstr "Todavía no hay tareas"
 
 #: src/components/list-page.test.tsx
 msgid "No things yet"
-msgstr ""
+msgstr "Todavía no hay elementos"
 
 #: src/components/delete-group-modal.tsx
 msgid "No users will be affected."
@@ -4641,11 +4641,11 @@ msgstr "Ninguno"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Not allowed"
-msgstr ""
+msgstr "No permitido"
 
 #: src/containers/pulp-status.tsx
 msgid "Not enabled"
-msgstr ""
+msgstr "No habilitado"
 
 #: src/components/typeahead.tsx
 msgid "Not found"
@@ -4657,15 +4657,15 @@ msgstr "No encontrado"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed"
-msgstr ""
+msgstr "No eliminado"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed, not shown when this dialog opened"
-msgstr ""
+msgstr "No eliminado, no se mostraba al abrir este cuadro de diálogo"
 
 #: src/containers/pulp-status.tsx
 msgid "Not reported"
-msgstr ""
+msgstr "Sin informar"
 
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
@@ -4674,11 +4674,11 @@ msgstr ""
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
 msgid "Not served: no publication"
-msgstr ""
+msgstr "No servido: sin publicación"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
-msgstr ""
+msgstr "No sincronizado"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -4694,23 +4694,23 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
-msgstr ""
+msgstr "No cambió nada en la distribución {name}."
 
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
-msgstr ""
+msgstr "No cambió nada en el repositorio {name}."
 
 #: src/shell/command-palette.tsx
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
-msgstr ""
+msgstr "Nada coincide con \"{text}\". Revise la ortografía o pruebe con una parte del nombre de un repositorio."
 
 #: src/shell/notifications.tsx
 msgid "Notifications"
-msgstr ""
+msgstr "Notificaciones"
 
 #: src/shell/notifications.tsx
 msgid "Notifications could not be loaded."
-msgstr ""
+msgstr "No se pudieron cargar las notificaciones."
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -4726,31 +4726,31 @@ msgstr "de"
 
 #: src/components/remote-form.tsx
 msgid "On demand"
-msgstr ""
+msgstr "Bajo demanda"
 
 #: src/components/remote-form.tsx
 msgid "On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it."
-msgstr ""
+msgstr "Bajo demanda obtiene el contenido cuando un cliente lo solicita. Inmediata lo descarga todo al sincronizar. Transmitida pasa el contenido sin almacenarlo."
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
-msgstr ""
+msgstr "Aplicaciones de API en línea"
 
 #: src/containers/pulp-status.tsx
 msgid "Online content apps"
-msgstr ""
+msgstr "Aplicaciones de contenido en línea"
 
 #: src/containers/pulp-status.tsx
 msgid "Online workers"
-msgstr ""
+msgstr "Workers en línea"
 
 #: src/components/sync-modal.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
-msgstr ""
+msgstr "Realizar la sincronización solo si el servidor remoto informa de cambios."
 
 #: src/components/sync-modal.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
-msgstr ""
+msgstr "Realizar la sincronización solo si el servidor remoto informa de cambios. Para forzar una sincronización, desmarque esta opción."
 
 #: src/actions/ansible-repository-sync.tsx
 #~ msgid "Only perform the sync if no changes are reported by the remote server."
@@ -4766,11 +4766,11 @@ msgstr ""
 
 #: src/shell/shell.tsx
 msgid "Open navigation"
-msgstr ""
+msgstr "Abrir la navegación"
 
 #: src/menu.tsx
 msgid "Operations"
-msgstr ""
+msgstr "Operaciones"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
@@ -4790,36 +4790,36 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "Optimize"
-msgstr ""
+msgstr "Optimizar"
 
 #: src/components/typeahead.tsx
 msgid "Options"
-msgstr ""
+msgstr "Opciones"
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
-msgstr ""
+msgstr "Origen"
 
 #: src/containers/task-management/task-list-view.tsx
 #: src/utilities/translate-task.ts
 msgid "Orphan cleanup"
-msgstr ""
+msgstr "Limpieza de huérfanos"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Orphan cleanup could not be started"
-msgstr ""
+msgstr "No se pudo iniciar la limpieza de huérfanos"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Orphan cleanup started"
-msgstr ""
+msgstr "Se inició la limpieza de huérfanos"
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "Orphan cleanup task"
-msgstr ""
+msgstr "Tarea de limpieza de huérfanos"
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "Orphan protection time:"
-msgstr ""
+msgstr "Tiempo de protección de huérfanos:"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "OS / Arch"
@@ -4827,23 +4827,23 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ostree child upload"
-msgstr ""
+msgstr "Subida secundaria de Ostree"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree full upload"
-msgstr ""
+msgstr "Subida completa de Ostree"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree modify content"
-msgstr ""
+msgstr "Modificar contenido de Ostree"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree sync"
-msgstr ""
+msgstr "Sincronización de Ostree"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Outcome unknown, check the task"
-msgstr ""
+msgstr "Resultado desconocido, revise la tarea"
 
 #: src/components/role-import-form.tsx
 #~ msgid "Overrides any galaxy_info.namespace metadata"
@@ -4862,25 +4862,25 @@ msgstr ""
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Package name"
-msgstr ""
+msgstr "Nombre del paquete"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Package substitution"
-msgstr ""
+msgstr "Sustitución de paquetes"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 msgid "Package type"
-msgstr ""
+msgstr "Tipo de paquete"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Package types"
-msgstr ""
+msgstr "Tipos de paquete"
 
 #: src/components/remote-form.tsx
 msgid "Package types to sync. Leave all unticked to sync every type."
-msgstr ""
+msgstr "Tipos de paquete que se sincronizan. Deje todos sin marcar para sincronizar todos los tipos."
 
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/tab-packages.tsx
@@ -4889,30 +4889,30 @@ msgstr ""
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Packages"
-msgstr ""
+msgstr "Paquetes"
 
 #: src/menu.tsx
 msgid "Packages and artifacts"
-msgstr ""
+msgstr "Paquetes y artefactos"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Packages could not be displayed."
-msgstr ""
+msgstr "No se pudieron mostrar los paquetes."
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
-msgstr ""
+msgstr "Los paquetes que faltan en esta distribución se obtienen del remoto. Déjelo vacío para servir solo lo que se subió."
 
 #: src/containers/python/package-list.tsx
 msgid "Packages will appear once a repository is synced or a package is uploaded."
-msgstr ""
+msgstr "Los paquetes aparecerán cuando se sincronice un repositorio o se suba un paquete."
 
 #: src/containers/rpm/package-list.tsx
 msgid "Packages will appear once created."
-msgstr ""
+msgstr "Los paquetes aparecerán una vez creados."
 
 #: src/components/headers/base-header.tsx
 #~ msgid "Page logo"
@@ -4920,7 +4920,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Pagination"
-msgstr ""
+msgstr "Paginación"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Parameter"
@@ -4964,7 +4964,7 @@ msgstr "Las contraseñas no coinciden"
 
 #: src/containers/pulp-status.tsx
 msgid "Path prefix"
-msgstr ""
+msgstr "Prefijo de ruta"
 
 #: src/containers/not-found/dispatch.tsx
 #~ msgid "Pathname <0>{pathname}</0> could refer to a collection or a role."
@@ -5046,7 +5046,7 @@ msgstr "No se pudieron mostrar los permisos para el grupo \"{0}\"."
 
 #: src/components/remote-form.tsx
 msgid "Platforms whose packages should not be synced."
-msgstr ""
+msgstr "Plataformas cuyos paquetes no deben sincronizarse."
 
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
@@ -5059,7 +5059,7 @@ msgstr "Agregue un propietario con el siguiente botón."
 
 #: src/components/access-tab.tsx
 msgid "Please add an owner by using the buttons below."
-msgstr ""
+msgstr "Añada un propietario con los botones de abajo."
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "Please contact the server administrator for elevated permissions."
@@ -5107,7 +5107,7 @@ msgstr "Plugin"
 
 #: src/components/plugin-not-installed.tsx
 msgid "Plugin not installed"
-msgstr ""
+msgstr "Complemento no instalado"
 
 #: src/components/helper-text/helper-text.tsx
 #~ msgid "popover example"
@@ -5116,7 +5116,7 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Pre-releases"
-msgstr ""
+msgstr "Preversiones"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -5142,15 +5142,15 @@ msgstr "Mensajes de progreso"
 
 #: src/components/remote-form.tsx
 msgid "Projects to skip, one specifier per line, for example \"django<4\". Applied after includes."
-msgstr ""
+msgstr "Proyectos que se omiten, un especificador por línea, por ejemplo \"django<4\". Se aplica después de las inclusiones."
 
 #: src/components/remote-form.tsx
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
-msgstr ""
+msgstr "Proyectos que se sincronizan, un especificador por línea, por ejemplo \"django>=4.2\". Déjelo vacío para sincronizar todos los proyectos que ofrece el remoto."
 
 #: src/components/delete-repository-modal.tsx
 msgid "Protected by a content guard: customer-facing URL"
-msgstr ""
+msgstr "Protegido por una protección de contenido: URL para clientes"
 
 #: src/actions/ansible-repository-delete.tsx
 #~ msgid "Protected repositories cannot be deleted."
@@ -5159,7 +5159,7 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Provenance"
-msgstr ""
+msgstr "Procedencia"
 
 #: src/components/cards/collection-card.tsx
 #: src/components/collection-list/collection-list-item.tsx
@@ -5211,11 +5211,11 @@ msgstr "Clave pública"
 
 #: src/components/repository-form.tsx
 msgid "Publish new versions automatically"
-msgstr ""
+msgstr "Publicar las versiones nuevas automáticamente"
 
 #: src/containers/deb-repository/tab-details.tsx
 msgid "Publish upstream release fields"
-msgstr ""
+msgstr "Publicar los campos de versión del origen"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
@@ -5239,11 +5239,11 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Pull-through remote"
-msgstr ""
+msgstr "Remoto de paso directo"
 
 #: src/shell/sidebar.tsx
 msgid "Pulp {version}"
-msgstr ""
+msgstr "Pulp {version}"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Ansible Version"
@@ -5307,7 +5307,7 @@ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "Pulp core version"
-msgstr ""
+msgstr "Versión del núcleo de Pulp"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Core Version"
@@ -5315,19 +5315,19 @@ msgstr ""
 
 #: src/components/coming-soon.tsx
 msgid "Pulp documentation"
-msgstr ""
+msgstr "Documentación de Pulp"
 
 #: src/utilities/translate-task.ts
 msgid "Pulp export"
-msgstr ""
+msgstr "Exportación de Pulp"
 
 #: src/utilities/translate-task.ts
 msgid "Pulp import"
-msgstr ""
+msgstr "Importación de Pulp"
 
 #: src/containers/about-project.tsx
 msgid "Pulp is an open source project that makes it easy for developers to fetch, upload, and distribute software packages on-prem or in the cloud."
-msgstr ""
+msgstr "Pulp es un proyecto de código abierto que facilita a los desarrolladores obtener, subir y distribuir paquetes de software en local o en la nube."
 
 #: src/containers/about-project.tsx
 #~ msgid "Pulp is an open source project that makes it easy for developers to fetch, upload, and distribute Software Packages on-prem or in the cloud."
@@ -5335,18 +5335,18 @@ msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 msgid "Pulp label"
-msgstr ""
+msgstr "Etiqueta de Pulp"
 
 #: src/containers/deb-repository/list.tsx
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 msgid "Pulp Label"
-msgstr ""
+msgstr "Etiqueta de Pulp"
 
 #: src/components/repository-form.tsx
 msgid "Pulp labels in the form of 'key:value'."
-msgstr ""
+msgstr "Etiquetas de Pulp con el formato \"clave:valor\"."
 
 #: src/components/ansible-repository-form.tsx
 #~ msgid "Pulp Labels in the form of 'key:value'."
@@ -5355,7 +5355,7 @@ msgstr ""
 #: src/components/pulp-about-modal.tsx
 #: src/containers/about-project.tsx
 msgid "Pulp logo"
-msgstr ""
+msgstr "Logotipo de Pulp"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Logo"
@@ -5379,7 +5379,7 @@ msgstr "Tipo de Pulp"
 
 #: src/shell/shell.tsx
 msgid "Pulp, {host}"
-msgstr ""
+msgstr "Pulp, {host}"
 
 #: src/constants.tsx
 #~ msgid "Pulpcore: Add and remove"
@@ -5435,19 +5435,19 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Purge all tasks"
-msgstr ""
+msgstr "Purgar todas las tareas"
 
 #: src/components/purge-task-modal.tsx
 msgid "Purge task"
-msgstr ""
+msgstr "Tarea de purga"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Purge tasks"
-msgstr ""
+msgstr "Purgar tareas"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Purge tasks could not be started"
-msgstr ""
+msgstr "No se pudo iniciar la purga de tareas"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Purge Tasks could not be started"
@@ -5455,7 +5455,7 @@ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Purge tasks started"
-msgstr ""
+msgstr "Se inició la purga de tareas"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Purge Tasks started"
@@ -5463,7 +5463,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push and change containers."
-msgstr ""
+msgstr "Subir y modificar contenedores."
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Push and change execution environments."
@@ -5495,7 +5495,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push, delete and change containers. Create, delete and change remote registries."
-msgstr ""
+msgstr "Subir, eliminar y modificar contenedores. Crear, eliminar y modificar registros remotos."
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Push, delete and change execution environments. Create, delete and change remote registries."
@@ -5507,19 +5507,19 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Python package group upload"
-msgstr ""
+msgstr "Subida de grupo de paquetes de Python"
 
 #: src/utilities/translate-task.ts
 msgid "Python package publish"
-msgstr ""
+msgstr "Publicación de paquetes de Python"
 
 #: src/utilities/translate-task.ts
 msgid "Python package sync"
-msgstr ""
+msgstr "Sincronización de paquetes de Python"
 
 #: src/utilities/translate-task.ts
 msgid "Python package upload"
-msgstr ""
+msgstr "Subida de paquetes de Python"
 
 #: src/components/ratings.tsx
 #~ msgid "Quality of docs"
@@ -5561,11 +5561,11 @@ msgstr "Límite de tarifa"
 
 #: src/utilities/translate-task.ts
 msgid "Recursive add content"
-msgstr ""
+msgstr "Añadir contenido de forma recursiva"
 
 #: src/utilities/translate-task.ts
 msgid "Recursive remove content"
-msgstr ""
+msgstr "Eliminar contenido de forma recursiva"
 
 #: src/components/repository-badge.tsx
 #~ msgid "Red Hat Certified"
@@ -5577,7 +5577,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Redis connection"
-msgstr ""
+msgstr "Conexión a Redis"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Registries list could not be displayed."
@@ -5589,7 +5589,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Registry sync"
-msgstr ""
+msgstr "Sincronización de registros"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Registry sync status"
@@ -5630,7 +5630,7 @@ msgstr ""
 
 #: src/components/lazy-screen.tsx
 msgid "Reload"
-msgstr ""
+msgstr "Recargar"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -5674,7 +5674,7 @@ msgstr "Nombre remoto"
 
 #: src/containers/coming-soon-screens.tsx
 msgid "Remote registries"
-msgstr ""
+msgstr "Registros remotos"
 
 #: src/menu.tsx
 #~ msgid "Remote Registries"
@@ -5792,11 +5792,11 @@ msgstr "¿Eliminar el rol {role}?"
 
 #: src/components/access-tab.tsx
 msgid "Remove user"
-msgstr ""
+msgstr "Quitar usuario"
 
 #: src/components/access-tab.tsx
 msgid "Remove user {username}?"
-msgstr ""
+msgstr "¿Quitar al usuario {username}?"
 
 #: src/containers/group-management/group-detail.tsx
 msgid "Remove user from group?"
@@ -5808,16 +5808,16 @@ msgstr "¿Eliminar al usuario del grupo?"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Removed"
-msgstr ""
+msgstr "Eliminado"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/actions/repository-delete.tsx
 msgid "Removed distributions: {0}"
-msgstr ""
+msgstr "Distribuciones eliminadas: {0}"
 
 #: src/actions/repository-delete.tsx
 msgid "Removed repository {name}"
-msgstr ""
+msgstr "Repositorio {name} eliminado"
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
@@ -5831,15 +5831,15 @@ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair"
-msgstr ""
+msgstr "Reparar"
 
 #: src/utilities/translate-task.ts
 msgid "Repair all artifacts"
-msgstr ""
+msgstr "Reparar todos los artefactos"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair artifact storage could not be started"
-msgstr ""
+msgstr "No se pudo iniciar la reparación del almacenamiento de artefactos"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Repair Artifact Storage could not be started"
@@ -5847,7 +5847,7 @@ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair artifact storage started"
-msgstr ""
+msgstr "Se inició la reparación del almacenamiento de artefactos"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Repair Artifact Storage started"
@@ -5855,11 +5855,11 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Repair repository version"
-msgstr ""
+msgstr "Reparar versión del repositorio"
 
 #: src/components/repair-task-modal.tsx
 msgid "Repair task"
-msgstr ""
+msgstr "Tarea de reparación"
 
 #: src/components/collection-header.tsx
 #~ msgid "Repo"
@@ -5900,7 +5900,7 @@ msgstr "Repositorios"
 
 #: src/shell/command-palette.tsx
 msgid "Repositories cannot be searched with your account."
-msgstr ""
+msgstr "Su cuenta no puede buscar en los repositorios."
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -5940,15 +5940,15 @@ msgstr "El repositorio \"{name}\" se creó. No se confirmó su distribución."
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
-msgstr ""
+msgstr "Se creó el repositorio \"{name}\". La distribución \"{name}\" aún se está creando y todavía no se sirve."
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
-msgstr ""
+msgstr "Se creó el repositorio \"{name}\". No se creó la distribución \"{name}\": {distributionError}"
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "Se creó el repositorio \"{name}\". Se desconoce el resultado de la creación de la distribución \"{name}\", porque no se pudo leer el estado de la tarea. Revise la tarea."
 
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
@@ -5998,7 +5998,7 @@ msgstr "Nombre del repositorio"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Repository URL"
-msgstr ""
+msgstr "URL del repositorio"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -6038,7 +6038,7 @@ msgstr "Las versiones del repositorio aparecerán cuando se modifique el reposit
 
 #: src/containers/python-repository/tab-packages.tsx
 msgid "Requires Python"
-msgstr ""
+msgstr "Requiere Python"
 
 #: src/components/user-form.tsx
 #~ msgid "Requires super user permissions to edit."
@@ -6050,11 +6050,11 @@ msgstr "Recursos de reserva"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Reset"
-msgstr ""
+msgstr "Restablecer"
 
 #: src/components/language-switcher.tsx
 msgid "Reset to browser defaults"
-msgstr ""
+msgstr "Restablecer a los valores predeterminados del navegador"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Resources"
@@ -6062,7 +6062,7 @@ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Results"
-msgstr ""
+msgstr "Resultados"
 
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
@@ -6070,7 +6070,7 @@ msgstr "Número de versiones retenidas"
 
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Retained package versions"
-msgstr ""
+msgstr "Versiones de paquete retenidas"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
@@ -6082,7 +6082,7 @@ msgstr "Recuento de versiones retenidas"
 
 #: src/components/remote-form.tsx
 msgid "Retries"
-msgstr ""
+msgstr "Reintentos"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
@@ -6092,7 +6092,7 @@ msgstr "Reintentar"
 
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
-msgstr ""
+msgstr "Reintentar la carga de notificaciones"
 
 #: src/menu.tsx
 msgid "Retry loading the plugin list"
@@ -6104,7 +6104,7 @@ msgstr "Reintentar la carga del contenido del repositorio"
 
 #: src/shell/command-palette.tsx
 msgid "Retry repository search"
-msgstr ""
+msgstr "Reintentar la búsqueda de repositorios"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Return Values"
@@ -6132,7 +6132,7 @@ msgstr "Volver a esta versión"
 
 #: src/actions/repository-version-revert.tsx
 msgid "Reverted repository \"{repositoryName}\" to version \"{number}\"."
-msgstr ""
+msgstr "Se revirtió el repositorio \"{repositoryName}\" a la versión \"{number}\"."
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
@@ -6258,7 +6258,7 @@ msgstr "No se pudo mostrar la lista de roles."
 
 #: src/utilities/translate-task.ts
 msgid "Roles sync"
-msgstr ""
+msgstr "Sincronización de roles"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Roles synchronize"
@@ -6271,27 +6271,27 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "RPM comps upload"
-msgstr ""
+msgstr "Subida de comps RPM"
 
 #: src/utilities/translate-task.ts
 msgid "RPM copy package"
-msgstr ""
+msgstr "Copiar paquete RPM"
 
 #: src/utilities/translate-task.ts
 msgid "RPM package publish"
-msgstr ""
+msgstr "Publicación de paquetes RPM"
 
 #: src/utilities/translate-task.ts
 msgid "RPM package sync"
-msgstr ""
+msgstr "Sincronización de paquetes RPM"
 
 #: src/utilities/translate-task.ts
 msgid "RPM package upload & sign"
-msgstr ""
+msgstr "Subida y firma de paquetes RPM"
 
 #: src/utilities/translate-task.ts
 msgid "RPM prune packages"
-msgstr ""
+msgstr "Depuración de paquetes RPM"
 
 #: src/menu.tsx
 #~ msgid "RPMs"
@@ -6299,7 +6299,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
-msgstr ""
+msgstr "Publicación de gems de Ruby"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Ruby Gems publish"
@@ -6307,7 +6307,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems sync"
-msgstr ""
+msgstr "Sincronización de gems de Ruby"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Ruby Gems sync"
@@ -6358,11 +6358,11 @@ msgstr "Se guardaron los cambios en el usuario \"{username}\"."
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
-msgstr ""
+msgstr "Desplazar hacia atrás"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll foward"
-msgstr ""
+msgstr "Desplazar hacia delante"
 
 #: src/components/import-console.tsx
 #~ msgid "Scroll to end"
@@ -6372,7 +6372,7 @@ msgstr ""
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: src/containers/namespace-list/namespace-list.tsx
 #~ msgid "Search all {0}"
@@ -6392,15 +6392,15 @@ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Search or go to"
-msgstr ""
+msgstr "Buscar o ir a"
 
 #: src/shell/command-palette.tsx
 msgid "Search or go to..."
-msgstr ""
+msgstr "Buscar o ir a..."
 
 #: src/shell/command-palette.tsx
 msgid "Search screens and repositories"
-msgstr ""
+msgstr "Buscar pantallas y repositorios"
 
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
@@ -6408,11 +6408,11 @@ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Searching repositories..."
-msgstr ""
+msgstr "Buscando repositorios..."
 
 #: src/components/remote-form.tsx
 msgid "Seconds. Leave empty to use the server default."
-msgstr ""
+msgstr "Segundos. Déjelo vacío para usar el valor predeterminado del servidor."
 
 #: src/utilities/task-alert.tsx
 msgid "See the task management <0>detail page </0>for the status of this task."
@@ -6449,7 +6449,7 @@ msgstr "Seleccionar un remoto"
 
 #: src/components/access-tab.tsx
 msgid "Select a user"
-msgstr ""
+msgstr "Seleccionar un usuario"
 
 #: src/components/repo-selector/multiple-repo-selector.tsx
 #~ msgid "Select all ({0} items)"
@@ -6477,7 +6477,7 @@ msgstr "Seleccionar grupos"
 
 #: src/components/language-switcher.tsx
 msgid "Select language"
-msgstr ""
+msgstr "Seleccionar idioma"
 
 #: src/components/import-list.tsx
 #~ msgid "Select namespace"
@@ -6528,7 +6528,7 @@ msgstr "Roles seleccionados"
 
 #: src/components/select-user.tsx
 msgid "Selected user"
-msgstr ""
+msgstr "Usuario seleccionado"
 
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
@@ -6593,12 +6593,12 @@ msgstr "Mostrar opciones avanzadas"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Show content"
-msgstr ""
+msgstr "Mostrar contenido"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/pulp-code-block.tsx
 msgid "Show less"
-msgstr ""
+msgstr "Mostrar menos"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Show Less"
@@ -6606,7 +6606,7 @@ msgstr ""
 
 #: src/components/pulp-code-block.tsx
 msgid "Show more"
-msgstr ""
+msgstr "Mostrar más"
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Show more collections"
@@ -6634,7 +6634,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Show password"
-msgstr ""
+msgstr "Mostrar la contraseña"
 
 #: src/components/download-signature-grid-item.tsx
 #~ msgid "Show the signature"
@@ -6702,7 +6702,7 @@ msgstr "El inicio de sesión no se completó"
 
 #: src/shell/shell.tsx
 msgid "Sign-out did not complete"
-msgstr ""
+msgstr "El cierre de sesión no se completó"
 
 #: src/components/download-signature-grid-item.tsx
 #~ msgid "Signature"
@@ -6743,7 +6743,7 @@ msgstr "Las claves de firma aparecerán una vez creadas."
 
 #: src/shell/account-menu.tsx
 msgid "Signed in as {username}"
-msgstr ""
+msgstr "Sesión iniciada como {username}"
 
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
@@ -6768,7 +6768,7 @@ msgstr "Sesión cerrada"
 
 #: src/menu.tsx
 msgid "Signing services"
-msgstr ""
+msgstr "Servicios de firma"
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6810,19 +6810,19 @@ msgstr "URL de inicio de sesión único."
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Skip them"
-msgstr ""
+msgstr "Omitirlos"
 
 #: src/shell/shell.tsx
 msgid "Skip to content"
-msgstr ""
+msgstr "Saltar al contenido"
 
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
-msgstr ""
+msgstr "Omitido"
 
 #: src/shell/command-palette.tsx
 msgid "Some repository lists could not be searched."
-msgstr ""
+msgstr "No se pudo buscar en algunas listas de repositorios."
 
 #: src/components/sort.tsx
 #~ msgid "Sort results"
@@ -6834,7 +6834,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be synchronized"
-msgstr ""
+msgstr "Se sincronizarán los paquetes de código fuente"
 
 #: src/components/remote-form.tsx
 msgid "SSO URL"
@@ -6888,7 +6888,7 @@ msgstr "Estado"
 
 #: src/components/purge-task-modal.tsx
 msgid "States:"
-msgstr ""
+msgstr "Estados:"
 
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
@@ -6902,7 +6902,7 @@ msgstr "Estado"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Still being removed"
-msgstr ""
+msgstr "Aún se está eliminando"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -6915,15 +6915,15 @@ msgstr "¿Detener la tarea?"
 
 #: src/containers/pulp-status.tsx
 msgid "Storage"
-msgstr ""
+msgstr "Almacenamiento"
 
 #: src/components/remote-form.tsx
 msgid "Streamed"
-msgstr ""
+msgstr "Transmitida"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Success"
-msgstr ""
+msgstr "Correcto"
 
 #: src/containers/execution-environment-detail/execution_environment_detail_images.tsx
 #~ msgid "Success: {digest} was deleted"
@@ -6964,7 +6964,7 @@ msgstr "Remoto creado con éxito {0}"
 
 #: src/utilities/create-repository.ts
 msgid "Successfully created repository {name}"
-msgstr ""
+msgstr "Repositorio {name} creado correctamente"
 
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Successfully created role namespace {name}"
@@ -7010,7 +7010,7 @@ msgstr ""
 
 #: src/containers/rpm-repository/tab-packages.tsx
 msgid "Summary"
-msgstr ""
+msgstr "Resumen"
 
 #: src/components/user-form.tsx
 #: src/containers/user-management/user-list.tsx
@@ -7062,27 +7062,27 @@ msgstr "Sincronizar"
 
 #: src/components/remote-form.tsx
 msgid "Sync installer"
-msgstr ""
+msgstr "Sincronizar el instalador"
 
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Sync installer files"
-msgstr ""
+msgstr "Sincronizar los archivos del instalador"
 
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Sync installer packages"
-msgstr ""
+msgstr "Sincronizar los paquetes del instalador"
 
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
-msgstr ""
+msgstr "Sincronizar la procedencia de los paquetes"
 
 #: src/components/sync-modal.tsx
 msgid "Sync policy"
-msgstr ""
+msgstr "Política de sincronización"
 
 #: src/components/sync-modal.tsx
 msgid "Sync repository \"{name}\""
-msgstr ""
+msgstr "Sincronizar el repositorio \"{name}\""
 
 #: src/containers/ansible-role/role-list.tsx
 #: src/containers/ansible-role/role-sync.tsx
@@ -7092,7 +7092,7 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Sync sources"
-msgstr ""
+msgstr "Sincronizar fuentes"
 
 #: src/components/role-sync-form.tsx
 #~ msgid "Sync started"
@@ -7129,15 +7129,15 @@ msgstr "La tarea de sincronización ya está en cola."
 
 #: src/containers/rpm-repository/tab-packages.tsx
 msgid "Sync this repository or add packages to it."
-msgstr ""
+msgstr "Sincronice este repositorio o añádale paquetes."
 
 #: src/containers/python-repository/tab-packages.tsx
 msgid "Sync this repository or upload packages to it."
-msgstr ""
+msgstr "Sincronice este repositorio o súbale paquetes."
 
 #: src/components/remote-form.tsx
 msgid "Sync udebs"
-msgstr ""
+msgstr "Sincronizar udebs"
 
 #: src/components/sync-modal.tsx
 #~ msgid "Sync will only add missing content"
@@ -7145,7 +7145,7 @@ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Synced"
-msgstr ""
+msgstr "Sincronizado"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Synchronize"
@@ -7174,7 +7174,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Tag image"
-msgstr ""
+msgstr "Etiquetar imagen"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "tags"
@@ -7191,7 +7191,7 @@ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "task"
-msgstr ""
+msgstr "tarea"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Task \"{name}\" could not be stopped."
@@ -7254,7 +7254,7 @@ msgstr "Nombre de la tarea"
 
 #: src/menu.tsx
 msgid "Tasks"
-msgstr ""
+msgstr "Tareas"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7293,7 +7293,7 @@ msgstr "Las tareas aparecerán una vez creadas."
 
 #: src/components/plugin-not-installed.tsx
 msgid "The {plugin} plugin is not installed on this Pulp server."
-msgstr ""
+msgstr "El complemento {plugin} no está instalado en este servidor Pulp."
 
 #: src/loaders/insights/loader.tsx
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
@@ -7301,7 +7301,7 @@ msgstr ""
 
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
-msgstr ""
+msgstr "La ruta base \"{basePath}\" ya la usa o se solapa con la distribución \"{otherName}\" ({otherPath})."
 
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
@@ -7323,11 +7323,11 @@ msgstr ""
 
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
-msgstr ""
+msgstr "El cambio en el repositorio \"{repositoryName}\" sigue en ejecución."
 
 #: src/components/repository-form.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
-msgstr ""
+msgstr "La URL para clientes se muestra en la página del repositorio cuando exista la distribución."
 
 #. placeholder {0}: collection.collection_version.name
 #: src/components/collection-header.tsx
@@ -7370,23 +7370,23 @@ msgstr "No se pudo copiar la configuración al portapapeles."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
-msgstr ""
+msgstr "La eliminación se detuvo con un error inesperado. Es posible que ya se hayan eliminado algunas distribuciones o el repositorio: revise las listas antes de volver a intentarlo."
 
 #: src/components/repository-form.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
-msgstr ""
+msgstr "La distribución no tendrá protección de contenido: cualquiera que pueda acceder a este servidor podrá descargar el contenido de este repositorio sin iniciar sesión."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
-msgstr ""
+msgstr "No se pudieron listar las distribuciones de este repositorio, por lo que no se puede eliminar nada."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
-msgstr ""
+msgstr "No se pudieron listar las distribuciones de este repositorio, por lo que no se eliminó nada."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The distributions were removed but the repository was kept."
-msgstr ""
+msgstr "Se eliminaron las distribuciones, pero se conservó el repositorio."
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "The documentation object for this plugin seems to contain invalid syntax that makes it impossible for Automation Hub to parse. You can still look at the unformatted documentation object bellow if you need to."
@@ -7412,7 +7412,7 @@ msgstr "Los siguientes roles se aplicarán al grupo: <0>{0}</0>"
 #. placeholder {0}: user.username
 #: src/components/preview-roles.tsx
 msgid "The following roles will be applied to user: <0>{0}</0>"
-msgstr ""
+msgstr "Se aplicarán los siguientes roles al usuario: <0>{0}</0>"
 
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
@@ -7432,15 +7432,15 @@ msgstr "Se desconoce el resultado de la eliminación del remoto {name}, porque n
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
-msgstr ""
+msgstr "Se desconoce el resultado de eliminar el repositorio. Revise la tarea:"
 
 #: src/actions/repository-content-task.ts
 msgid "The outcome of the change to repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "Se desconoce el resultado del cambio en el repositorio \"{repositoryName}\", porque no se pudo leer el estado de la tarea. Revise la tarea."
 
 #: src/actions/repository-version-revert.tsx
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "Se desconoce el resultado de la reversión del repositorio \"{repositoryName}\", porque no se pudo leer el estado de la tarea. Revise la tarea."
 
 #: src/actions/python-distribution-edit.tsx
 msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
@@ -7469,7 +7469,7 @@ msgstr "La eliminación del remoto {name} sigue en curso."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The removal of the repository has not been confirmed."
-msgstr ""
+msgstr "No se ha confirmado la eliminación del repositorio."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -7478,15 +7478,15 @@ msgstr "No se pudo leer el contenido del repositorio"
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
-msgstr ""
+msgstr "No se pudo eliminar el repositorio: {0}"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"
-msgstr ""
+msgstr "El repositorio aún se está eliminando:"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository was kept because not every distribution was removed."
-msgstr ""
+msgstr "Se conservó el repositorio porque no se eliminaron todas las distribuciones."
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository was not removed."
@@ -7494,15 +7494,15 @@ msgstr "El repositorio no se eliminó."
 
 #: src/utilities/request-error.ts
 msgid "The request failed."
-msgstr ""
+msgstr "La solicitud falló."
 
 #: src/components/repository-form.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
-msgstr ""
+msgstr "No se pudieron leer las rutas base reservadas de este servidor, por lo que no se puede crear aquí una distribución."
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
-msgstr ""
+msgstr "La reversión del repositorio \"{repositoryName}\" sigue en ejecución."
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "The role is versionless and will always install from the {github_branch} branch."
@@ -7538,7 +7538,7 @@ msgstr "Los roles seleccionados se añadirán a este repositorio específico de 
 
 #: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
-msgstr ""
+msgstr "No se pudo contactar con el servidor: {message}"
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
@@ -7554,7 +7554,7 @@ msgstr "La respuesta de estado no enumera ningún plugin."
 
 #: src/utilities/wait-for-task.ts
 msgid "The status of the task could not be read."
-msgstr ""
+msgstr "No se pudo leer el estado de la tarea."
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
@@ -7562,7 +7562,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "The update of distribution {name} is still running."
-msgstr ""
+msgstr "La actualización de la distribución {name} sigue en ejecución."
 
 #: src/utilities/validate-url-helper.ts
 msgid "The URL needs to be in 'http(s)://' format."
@@ -7582,19 +7582,19 @@ msgstr "El nombre de usuario que se utilizará para la autenticación al sincron
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
-msgstr ""
+msgstr "El valor se expresa en minutos. Normalmente el valor predeterminado es un día (1440). Si se establece en cero, se limpiarán todos los huérfanos."
 
 #: src/shell/theme-menu.tsx
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: src/components/access-tab.tsx
 msgid "There are currently no groups assigned."
-msgstr ""
+msgstr "Actualmente no hay grupos asignados."
 
 #: src/components/select-group.tsx
 msgid "There are currently no groups that can be assigned ownership."
-msgstr ""
+msgstr "Actualmente no hay grupos a los que se pueda asignar la propiedad."
 
 #: src/components/rbac/select-group.tsx
 #~ msgid "There are currently no groups that can be assigned to this namespace."
@@ -7619,15 +7619,15 @@ msgstr "Actualmente no hay roles que puedan asignarse a este grupo."
 
 #: src/components/access-tab.tsx
 msgid "There are currently no users assigned."
-msgstr ""
+msgstr "Actualmente no hay usuarios asignados."
 
 #: src/components/select-user.tsx
 msgid "There are currently no users that can be assigned ownership."
-msgstr ""
+msgstr "Actualmente no hay usuarios a los que se pueda asignar la propiedad."
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "There are no distributions associated with this repository."
-msgstr ""
+msgstr "No hay distribuciones asociadas a este repositorio."
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -7663,7 +7663,7 @@ msgstr "No hay registro de recursos"
 
 #: src/components/delete-repository-modal.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
-msgstr ""
+msgstr "Estas distribuciones sirven el repositorio. Se eliminan con él y sus URL dejan de funcionar:"
 
 #: src/components/delete-group-modal.tsx
 msgid "These users will lose access to the group content:"
@@ -7672,19 +7672,19 @@ msgstr "Estos usuarios perderán el acceso al contenido del grupo:"
 #: src/components/page-with-tabs.test.tsx
 #: src/components/page.test.tsx
 msgid "Thing could not be displayed."
-msgstr ""
+msgstr "No se pudo mostrar el elemento."
 
 #: src/components/list-page.test.tsx
 msgid "Things"
-msgstr ""
+msgstr "Elementos"
 
 #: src/components/list-page.test.tsx
 msgid "Things appear once they are created."
-msgstr ""
+msgstr "Los elementos aparecen cuando se crean."
 
 #: src/components/list-page.test.tsx
 msgid "Things could not be displayed."
-msgstr ""
+msgstr "No se pudieron mostrar los elementos."
 
 #: src/containers/namespace-list/namespace-list.tsx
 #~ msgid "This account is not set up to manage any namespaces"
@@ -7740,19 +7740,19 @@ msgstr "Este grupo puede incluir usuarios"
 
 #: src/app-routes.tsx
 msgid "This page is under construction and some features may be broken. You can contribute at <0>Pulp UI</0>."
-msgstr ""
+msgstr "Esta página está en construcción y algunas funciones pueden no funcionar. Puede contribuir en <0>Pulp UI</0>."
 
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
-msgstr ""
+msgstr "Este proyecto es un intento de reciclar el código de la interfaz de Ansible Galaxy. La primera versión contiene sobre todo código reaprovechado con pequeñas correcciones. En el futuro se añadirán más tipos de contenido. Agradecemos cualquier contribución."
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
-msgstr ""
+msgstr "No se pudo cargar esta pantalla"
 
 #: src/components/coming-soon.tsx
 msgid "This screen is not available in this UI yet."
-msgstr ""
+msgstr "Esta pantalla todavía no está disponible en esta interfaz."
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag already exists on another image. Do you want to move it to this image?"
@@ -7817,7 +7817,7 @@ msgstr "Token para autenticarse en la URL del servidor."
 
 #: src/containers/pulp-status.tsx
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #: src/components/remote-form.tsx
 msgid "Total number of simultaneous connections."
@@ -7825,11 +7825,11 @@ msgstr "Número total de conexiones simultáneas."
 
 #: src/components/remote-form.tsx
 msgid "Total time in seconds allowed for one download, including connecting and reading. Decimals such as 2.5 are accepted."
-msgstr ""
+msgstr "Tiempo total en segundos permitido para una descarga, incluidos la conexión y la lectura. Se aceptan decimales como 2.5."
 
 #: src/components/remote-form.tsx
 msgid "Total timeout"
-msgstr ""
+msgstr "Tiempo de espera total"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Traceback"
@@ -7845,15 +7845,15 @@ msgstr "Traceback"
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "Trigger an asynchronous orphan cleanup operation."
-msgstr ""
+msgstr "Inicia una operación asíncrona de limpieza de huérfanos."
 
 #: src/components/repair-task-modal.tsx
 msgid "Trigger an asynchronous task that checks for missing or corrupted artifacts, and attempts to redownload them."
-msgstr ""
+msgstr "Inicia una tarea asíncrona que busca artefactos ausentes o dañados e intenta volver a descargarlos."
 
 #: src/components/purge-task-modal.tsx
 msgid "Trigger an asynchronous task that deletes completed tasks that finished prior to a specified timestamp."
-msgstr ""
+msgstr "Inicia una tarea asíncrona que elimina las tareas completadas que terminaron antes de una marca de tiempo indicada."
 
 #: src/containers/role-management/role-list.tsx
 #~ msgid "true"
@@ -7871,11 +7871,11 @@ msgstr "Tipo"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Type the repository name to confirm"
-msgstr ""
+msgstr "Escriba el nombre del repositorio para confirmar"
 
 #: src/components/pulp-about-modal.tsx
 msgid "UI version"
-msgstr ""
+msgstr "Versión de la interfaz"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "UI Version"
@@ -7912,15 +7912,15 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Untag image"
-msgstr ""
+msgstr "Quitar etiqueta de la imagen"
 
 #: src/shell/command-palette.tsx
 msgid "Up and Down to move, Enter to open, Esc to close"
-msgstr ""
+msgstr "Arriba y Abajo para moverse, Intro para abrir, Esc para cerrar"
 
 #: src/utilities/translate-task.ts
 msgid "Update collection remote"
-msgstr ""
+msgstr "Actualizar el remoto de colecciones"
 
 #: src/constants.tsx
 #~ msgid "Update container information"
@@ -7944,7 +7944,7 @@ msgstr "Se ha iniciado la actualización del remoto {0}"
 
 #: src/utilities/update-repository.ts
 msgid "Update started for repository {name}"
-msgstr ""
+msgstr "Se inició la actualización del repositorio {name}"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "updated {0}"
@@ -7960,7 +7960,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Updated distribution {name}"
-msgstr ""
+msgstr "Distribución {name} actualizada"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -7971,7 +7971,7 @@ msgstr ""
 
 #: src/utilities/update-repository.ts
 msgid "Updated repository {name}"
-msgstr ""
+msgstr "Repositorio {name} actualizado"
 
 #: src/components/import-modal.tsx
 #: src/components/upload-signature-modal.tsx
@@ -7996,7 +7996,7 @@ msgstr "Subir y modificar colecciones."
 
 #: src/utilities/translate-task.ts
 msgid "Upload commit"
-msgstr ""
+msgstr "Subir commit"
 
 #: src/components/collection-dropdown.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -8015,7 +8015,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Uploads"
-msgstr ""
+msgstr "Subidas"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Upstream name"
@@ -8041,7 +8041,7 @@ msgstr "URL"
 
 #: src/components/repository-form.tsx
 msgid "URL (preview): {url}"
-msgstr ""
+msgstr "URL (vista previa): {url}"
 
 #: src/components/namespace-form.tsx
 #~ msgid "URL must not be empty."
@@ -8124,7 +8124,7 @@ msgstr "Utilizar plantilla"
 
 #: src/containers/pulp-status.tsx
 msgid "Used"
-msgstr ""
+msgstr "Usado"
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -8133,13 +8133,13 @@ msgstr ""
 #: src/components/access-tab.tsx
 #: src/components/select-user.tsx
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" could not be added to \"{name}\"."
-msgstr ""
+msgstr "No se pudo añadir al usuario \"{0}\" a \"{name}\"."
 
 #. placeholder {0}: outcome.username
 #. placeholder {1}: group.name
@@ -8156,7 +8156,7 @@ msgstr "No se pudo eliminar el usuario \"{0}\"."
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" could not be removed from \"{name}\"."
-msgstr ""
+msgstr "No se pudo quitar al usuario \"{0}\" de \"{name}\"."
 
 #. placeholder {0}: member.username
 #: src/containers/group-management/group-detail.tsx
@@ -8167,7 +8167,7 @@ msgstr "El usuario \"{0}\" no se pudo eliminar del grupo \"{name}\"."
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" has been successfully added to \"{name}\"."
-msgstr ""
+msgstr "El usuario \"{0}\" se añadió correctamente a \"{name}\"."
 
 #. placeholder {0}: outcome.username
 #. placeholder {1}: group.name
@@ -8184,7 +8184,7 @@ msgstr "El usuario \"{0}\" se eliminó correctamente."
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" has been successfully removed from \"{name}\"."
-msgstr ""
+msgstr "El usuario \"{0}\" se quitó correctamente de \"{name}\"."
 
 #. placeholder {0}: member.username
 #: src/containers/group-management/group-detail.tsx
@@ -8199,23 +8199,23 @@ msgstr "El usuario \"{0}\" se eliminó correctamente del grupo \"{name}\"."
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" roles could not be update in \"{name}\"."
-msgstr ""
+msgstr "No se pudieron actualizar los roles del usuario \"{0}\" en \"{name}\"."
 
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" roles successfully updated in \"{name}\"."
-msgstr ""
+msgstr "Los roles del usuario \"{0}\" se actualizaron correctamente en \"{name}\"."
 
 #. placeholder {0}: user.username
 #: src/components/access-tab.tsx
 msgid "User {0}"
-msgstr ""
+msgstr "Usuario {0}"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 msgid "User {user}"
-msgstr ""
+msgstr "Usuario {user}"
 
 #: src/containers/group-management/group-detail.tsx
 msgid "User <0>{username}</0> will be removed from group <1>{groupname}</1>."
@@ -8249,7 +8249,7 @@ msgstr "Detalles del usuario"
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
-msgstr ""
+msgstr "Grupos de usuarios"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "User Groups"
@@ -8299,7 +8299,7 @@ msgstr "Usuarios"
 
 #: src/menu.tsx
 msgid "Users and groups"
-msgstr ""
+msgstr "Usuarios y grupos"
 
 #: src/components/select-user.tsx
 #: src/containers/ansible-remote/tab-access.tsx
@@ -8332,7 +8332,7 @@ msgstr "Los usuarios aparecerán una vez creados"
 
 #: src/components/repair-task-modal.tsx
 msgid "Verify checksums"
-msgstr ""
+msgstr "Verificar sumas de comprobación"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
@@ -8372,7 +8372,7 @@ msgstr "Versiones"
 
 #: src/components/repository-form.tsx
 msgid "Versions kept per package"
-msgstr ""
+msgstr "Versiones conservadas por paquete"
 
 #: src/containers/pulp-status.tsx
 msgid "Versions, workers and storage are shown to signed-in users."
@@ -8384,7 +8384,7 @@ msgstr "View all tasks"
 
 #: src/utilities/translate-locked-role.ts
 msgid "View and cancel any task."
-msgstr ""
+msgstr "Ver y cancelar cualquier tarea."
 
 #: src/constants.tsx
 #~ msgid "View Ansible distribution"
@@ -8442,7 +8442,7 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "View the task"
-msgstr ""
+msgstr "Ver la tarea"
 
 #: src/containers/execution-environment/registry-list.tsx
 #: src/containers/execution-environment-detail/base.tsx
@@ -8516,31 +8516,31 @@ msgstr "Lo que ha introducido en esta página se conserva."
 
 #: src/components/repository-form.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
-msgstr ""
+msgstr "Si está activado, un paquete rechazado hace fallar toda la versión del repositorio y no se añade nada. Si está desactivado, los paquetes rechazados se omiten, el resto se añade y los omitidos se enumeran en el informe de progreso de la tarea."
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "When packages are rejected"
-msgstr ""
+msgstr "Cuando se rechazan paquetes"
 
 #: src/components/remote-form.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
-msgstr ""
+msgstr "Indica si también se sincronizan las atestaciones de procedencia publicadas para los paquetes."
 
 #: src/components/remote-form.tsx
 msgid "Whether to include pre-release versions in the sync."
-msgstr ""
+msgstr "Indica si se incluyen preversiones en la sincronización."
 
 #: src/components/remote-form.tsx
 msgid "Whitespace separated list of architectures to sync, for example \"amd64 arm64\". If none are supplied, all that are available will be synchronized."
-msgstr ""
+msgstr "Lista de arquitecturas que se sincronizan, separadas por espacios, por ejemplo \"amd64 arm64\". Si no se indica ninguna, se sincronizarán todas las disponibles."
 
 #: src/components/remote-form.tsx
 msgid "Whitespace separated list of components to sync, for example \"main contrib\". If none are supplied, all that are available will be synchronized."
-msgstr ""
+msgstr "Lista de componentes que se sincronizan, separados por espacios, por ejemplo \"main contrib\". Si no se indica ninguno, se sincronizarán todos los disponibles."
 
 #: src/components/remote-form.tsx
 msgid "Whitespace separated list of distributions (also known as suites) to sync, for example \"bookworm bookworm-updates\"."
-msgstr ""
+msgstr "Lista de distribuciones (también llamadas suites) que se sincronizan, separadas por espacios, por ejemplo \"bookworm bookworm-updates\"."
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Why:"
@@ -8556,7 +8556,7 @@ msgstr ""
 
 #: src/components/repair-task-modal.tsx
 msgid "Will verify that the checksum of all stored files matches what saved in the database. Otherwise only the existence of the files will be checked. Enabled by default."
-msgstr ""
+msgstr "Verifica que la suma de comprobación de todos los archivos almacenados coincida con la guardada en la base de datos. En caso contrario, solo se comprueba que los archivos existan. Habilitado de forma predeterminada."
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #: src/containers/legacy-namespaces/legacy-namespace.tsx
@@ -8566,7 +8566,7 @@ msgstr ""
 
 #: src/menu.tsx
 msgid "Workers and status"
-msgstr ""
+msgstr "Workers y estado"
 
 #: src/containers/pulp-status.tsx
 msgid "Workers, storage and content settings are shown to administrators."
@@ -8583,7 +8583,7 @@ msgstr "Requisitos de YAML"
 
 #: src/components/remote-form.tsx
 msgid "YAML requirements are required to sync from Galaxy"
-msgstr ""
+msgstr "Se necesitan requisitos YAML para sincronizar desde Galaxy"
 
 #: src/actions/ansible-repository-sync.tsx
 #~ msgid "YAML requirements are required to sync from Galaxy - you can <0>edit the {name} remote</0> to add requirements."
@@ -8591,7 +8591,7 @@ msgstr ""
 
 #: src/actions/ansible-repository-sync.tsx
 msgid "YAML requirements are required to sync from Galaxy. You can <0>edit the {name} remote</0> to add requirements."
-msgstr ""
+msgstr "Se necesitan requisitos YAML para sincronizar desde Galaxy. Puede <0>editar el remoto {name}</0> para añadir requisitos."
 
 #: src/components/confirm-modal.tsx
 #: src/components/orphan-cleanup-task-modal.tsx
@@ -8623,11 +8623,11 @@ msgstr "Está a punto de eliminar <0>{groupname}</0> de <1>{name}</1>.<2/>Esto t
 
 #: src/components/access-tab.tsx
 msgid "You are about to remove <0>{role}</0> from <1>{userOrGroupName}</1> for <2>{name}</2>.<3/>This will also remove all associated permissions."
-msgstr ""
+msgstr "Está a punto de quitar <0>{role}</0> de <1>{userOrGroupName}</1> para <2>{name}</2>.<3/>Esto también eliminará todos los permisos asociados."
 
 #: src/components/access-tab.tsx
 msgid "You are about to remove <0>{username}</0> from <1>{name}</1>.<2/>This will also remove all associated permissions."
-msgstr ""
+msgstr "Está a punto de quitar a <0>{username}</0> de <1>{name}</1>.<2/>Esto también eliminará todos los permisos asociados."
 
 #: src/components/signing/sign-all-certificates-modal.tsx
 #~ msgid "You are about to sign <0>{numberOfAffected}</0> version(s) under <1>{name}</1>."
@@ -8655,7 +8655,7 @@ msgstr ""
 
 #: src/shell/shell.tsx
 msgid "You are still signed in."
-msgstr ""
+msgstr "Todavía tiene la sesión iniciada."
 
 #: src/components/resources-form.tsx
 #~ msgid "You can can customize the Resources tab on your profile by entering custom markdown here."
@@ -8667,7 +8667,7 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 msgid "You can edit this repository to create a distribution."
-msgstr ""
+msgstr "Puede editar este repositorio para crear una distribución."
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "You currently have no container repositories. Add a container repository via the CLI to get started."
@@ -8728,7 +8728,7 @@ msgstr "Se ha cerrado su sesión de Pulp."
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
-msgstr ""
+msgstr "Se cambió su contraseña. Inicie sesión con la nueva contraseña."
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
@@ -8745,7 +8745,7 @@ msgstr "Su sesión ha finalizado. Se le llevará a la página de inicio de sesi�
 
 #: src/shell/notifications.tsx
 msgid "Your tasks appear here when they fail, complete or are canceled."
-msgstr ""
+msgstr "Sus tareas aparecen aquí cuando fallan, se completan o se cancelan."
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Your token will expire <0/>."
