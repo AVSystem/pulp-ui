@@ -180,6 +180,19 @@ export const UserForm = ({
         {errorMessages.non_field_errors}
       </FormFieldHelper>
     ) : null,
+    // what belongs to no field, such as a refused save: Pulp's reason is plain
+    // text that wraps instead of widening the form
+    errorMessages['__nofield'] ? (
+      <p
+        key='nofield'
+        className='pulp-break-anywhere'
+        style={{
+          color: 'var(--pf-t--global--text--color--status--danger--default)',
+        }}
+      >
+        {errorMessages['__nofield']}
+      </p>
+    ) : null,
     !isReadonly && formButtons(),
   ];
 
