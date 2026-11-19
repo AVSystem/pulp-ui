@@ -4,7 +4,10 @@ import { Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { Paths } from 'src/paths';
-import { servePermissions } from 'src/test-utils/permissions';
+import {
+  serveMyPermissions,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import {
   listOf,
   page,
@@ -56,6 +59,9 @@ beforeEach(() => {
   patchBodies = [];
   // A user whose own role lets them change distributions.
   servePermissions({ own: [['python.change_pythondistribution']] });
+  // The permissions the user holds on the repository itself: none beyond the
+  // role above.
+  serveMyPermissions({ [REPOSITORY_HREF]: [] });
   server.events.on('request:start', ({ request }) => {
     seen.push({ method: request.method, path: new URL(request.url).pathname });
   });

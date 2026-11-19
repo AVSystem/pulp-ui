@@ -1,8 +1,9 @@
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resetSessionEvents } from 'src/session/session-events';
+import { answeredRequests, reacted } from 'src/test-utils/answered';
 import {
   contentGuard,
   distribution,
@@ -49,8 +50,6 @@ const refused = (path: string) =>
   http.get(`*${path}`, () =>
     HttpResponse.json({ detail: 'no' }, { status: 401 }),
   );
-
-const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
 
 // an open modal hides the rest of the page from the accessibility tree
 const signInAgain = (user) =>
@@ -128,8 +127,9 @@ describe('SelectRoles', () => {
     await signedIn();
     server.use(refused(`${API}/roles/`));
 
+    const answers = answeredRequests(`${API}/roles/`);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(screen.getByText('beta role')).toBeInTheDocument();
     expect(within(rowOf('beta')).getByRole('checkbox')).toBeChecked();
@@ -140,9 +140,10 @@ describe('SelectRoles', () => {
   it('keeps the spinner, with no alert, when the first read is refused, and fills in after signing in', async () => {
     serveSignIn();
     server.use(refused(`${API}/roles/`));
+    const answers = answeredRequests(`${API}/roles/`);
     const { user } = renderWithProviders(<Harness />);
     await signedIn();
-    await pause();
+    await answers.untilAnswered();
     expect(screen.getByRole('progressbar')).toBeVisible();
     expect(screen.queryByRole('alert')).toBeNull();
     serveRoles('alpha');
@@ -160,8 +161,9 @@ describe('SelectRoles', () => {
     await screen.findByText('alpha role');
     await signedIn();
 
+    const answers = answeredRequests(`${API}/roles/`);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
     recorded.stop();
@@ -239,8 +241,9 @@ function pickerTests<T extends { name: string }>({
       await signedIn();
       server.use(refused(`${API}/${path}/`));
 
+      const answers = answeredRequests(`${API}/${path}/`);
       await signInAgain(user);
-      await pause();
+      await answers.untilAnswered();
 
       expect(screen.getByText('alpha')).toBeInTheDocument();
       expect(radioOf('beta')).toBeChecked();
@@ -251,9 +254,10 @@ function pickerTests<T extends { name: string }>({
     it('keeps the spinner, with no alert, when the first read is refused, and fills in after signing in', async () => {
       serveSignIn();
       server.use(refused(`${API}/${path}/`));
+      const answers = answeredRequests(`${API}/${path}/`);
       const { user } = renderWithProviders(<Harness />);
       await signedIn();
-      await pause();
+      await answers.untilAnswered();
       expect(screen.getByRole('progressbar')).toBeVisible();
       expect(screen.queryByRole('alert')).toBeNull();
       serve('alpha');
@@ -271,8 +275,9 @@ function pickerTests<T extends { name: string }>({
       await screen.findByText('alpha');
       await signedIn();
 
+      const answers = answeredRequests(`${API}/${path}/`);
       await signInAgain(user);
-      await pause();
+      await answers.untilAnswered();
 
       expect(recorded.writes).toEqual([`POST ${API}/login/`]);
       recorded.stop();
@@ -346,8 +351,9 @@ describe('RolePermissions', () => {
     await signedIn();
     server.use(refused(ROLES));
 
+    const answers = answeredRequests(ROLES);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(screen.getByText('first text')).toBeInTheDocument();
     expect(screen.queryByRole('progressbar')).toBeNull();
@@ -356,9 +362,10 @@ describe('RolePermissions', () => {
   it('keeps the spinner when the first read is refused and fills in after signing in', async () => {
     serveSignIn();
     server.use(refused(ROLES));
+    const answers = answeredRequests(ROLES);
     const { user } = renderIt();
     await signedIn();
-    await pause();
+    await answers.untilAnswered();
     expect(screen.getByRole('progressbar')).toBeVisible();
     serve('fresh text');
 
@@ -375,8 +382,9 @@ describe('RolePermissions', () => {
     await screen.findByText('first text');
     await signedIn();
 
+    const answers = answeredRequests(ROLES);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
     recorded.stop();
@@ -441,12 +449,14 @@ describe('UserForm', () => {
   it('shows no alert when the group read is refused with 401', async () => {
     serveSignIn();
     server.use(refused(GROUPS));
+    const firstRead = answeredRequests(GROUPS);
     const { user } = renderWithProviders(<Harness />);
     await signedIn();
-    await pause();
+    await firstRead.untilAnswered();
 
+    const secondRead = answeredRequests(GROUPS);
     await signInAgain(user);
-    await pause();
+    await secondRead.untilAnswered();
 
     expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.queryByText(/could not be displayed/)).toBeNull();
@@ -475,8 +485,9 @@ describe('UserForm', () => {
     await waitFor(() => expect(queries).toHaveLength(1));
     await signedIn();
 
+    const answers = answeredRequests(GROUPS);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
     recorded.stop();
@@ -549,8 +560,9 @@ describe('DeleteRepositoryModal', () => {
     await signedIn();
     server.use(refused(DISTRIBUTIONS));
 
+    const answers = answeredRequests(DISTRIBUTIONS);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(screen.getByText('alpha')).toBeInTheDocument();
     expect(screen.queryByText(/could not be listed/)).toBeNull();
@@ -563,9 +575,10 @@ describe('DeleteRepositoryModal', () => {
       refused(DISTRIBUTIONS),
       listOf(`${API}/publications/file/file/`, []).handler,
     );
+    const answers = answeredRequests(DISTRIBUTIONS);
     const { user } = renderIt();
     await signedIn();
-    await pause();
+    await answers.untilAnswered();
     expect(screen.getByRole('progressbar')).toBeVisible();
     expect(screen.queryByText(/could not be listed/)).toBeNull();
     serve('alpha');
@@ -593,9 +606,10 @@ describe('DeleteRepositoryModal', () => {
       listOf(`${API}/publications/file/file/`, []).handler,
       refused(GUARDS),
     );
+    const answers = answeredRequests(GUARDS);
     const { user } = renderIt();
     await signedIn();
-    await pause();
+    await answers.untilAnswered();
 
     expect(screen.queryByText('alpha')).toBeNull();
     expect(screen.getByRole('progressbar')).toBeVisible();
@@ -614,8 +628,9 @@ describe('DeleteRepositoryModal', () => {
     await screen.findByText('alpha');
     await signedIn();
 
+    const answers = answeredRequests(DISTRIBUTIONS);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
     recorded.stop();
@@ -695,7 +710,7 @@ describe('the edit dialog of a Python distribution', () => {
 
     await signInAgain(user);
     await waitFor(() => expect(queries.length).toBeGreaterThan(before));
-    await pause();
+    await reacted();
 
     expect(uploads()).not.toBeChecked();
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
@@ -711,8 +726,9 @@ describe('the edit dialog of a Python distribution', () => {
     await signedIn();
     server.use(refused(dist.pulp_href), refused(REMOTES));
 
+    const answers = answeredRequests(dist.pulp_href);
     await signInAgain(user);
-    await pause();
+    await answers.untilAnswered();
 
     expect(uploads()).toBeChecked();
     expect(screen.queryByText(/Failed to load/)).toBeNull();
@@ -721,9 +737,10 @@ describe('the edit dialog of a Python distribution', () => {
   it('keeps the spinner, with no error, when the first read is refused, and shows the form after signing in', async () => {
     serveSignIn();
     server.use(refused(dist.pulp_href), refused(REMOTES));
+    const answers = answeredRequests(REMOTES);
     const { user } = renderWithProviders(<Dialog />);
     await signedIn();
-    await pause();
+    await answers.untilAnswered();
     expect(screen.getByRole('progressbar')).toBeVisible();
     expect(screen.queryByText(/Failed to load/)).toBeNull();
     serveDistribution({ allow_uploads: true });
@@ -756,6 +773,7 @@ describe('the Copy CLI configuration action', () => {
 
   // renders the button the action draws and clicks it
   const run = async (addAlert) => {
+    const reads = answeredRequests(DISTRIBUTIONS);
     const { user } = renderWithProviders(
       <>
         {ansibleRepositoryCopyAction.button(
@@ -767,7 +785,7 @@ describe('the Copy CLI configuration action', () => {
     await user.click(
       screen.getByRole('button', { name: 'Copy CLI configuration' }),
     );
-    await pause();
+    await reads.untilAnswered();
   };
 
   it('adds no failure alert when the distribution read is refused with 401', async () => {
@@ -885,7 +903,8 @@ describe('a write dialog when the session ends during the write', () => {
   }) {
     await signedIn();
     await press();
-    await pause();
+    await waitFor(() => expect(recorded.writes).toEqual([`POST ${write}`]));
+    await reacted();
 
     expect(recorded.writes).toEqual([`POST ${write}`]);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -893,7 +912,10 @@ describe('a write dialog when the session ends during the write', () => {
     whileOpen();
 
     await signInAgain(user);
-    await pause();
+    await waitFor(() =>
+      expect(recorded.writes).toEqual([`POST ${write}`, `POST ${API}/login/`]),
+    );
+    await reacted();
 
     expect(recorded.writes).toEqual([`POST ${write}`, `POST ${API}/login/`]);
     expect(screen.getByRole('dialog')).toBeInTheDocument();

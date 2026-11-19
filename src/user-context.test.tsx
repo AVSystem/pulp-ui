@@ -1,13 +1,14 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useRef, useState } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   isSuspended,
   reportUnauthorized,
   resetSessionEvents,
 } from 'src/session/session-events';
 import { setPageUrl } from 'src/test-utils/page';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { blockStorage } from 'src/test-utils/storage';
@@ -168,6 +169,12 @@ async function renderSignedIn() {
   );
   return rendered;
 }
+
+// The account the tests sign in as is staff, so the permission read that
+// follows every sign in is answered.
+beforeEach(() => {
+  serveUserRecords({ id: 1, isStaff: true });
+});
 
 describe('user context', () => {
   afterEach(() => {

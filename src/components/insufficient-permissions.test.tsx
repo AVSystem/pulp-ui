@@ -5,13 +5,15 @@ import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
+import { serveUserRecords } from '../test-utils/permissions';
 import { renderWithProviders } from '../test-utils/render';
 import { server } from '../test-utils/server';
 import { config } from '../ui-config';
 import { UserContextProvider } from '../user-context';
 import { InsufficientPermissions } from './insufficient-permissions';
 
-const signedIn = () =>
+const signedIn = () => {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({
@@ -20,6 +22,7 @@ const signedIn = () =>
       }),
     ),
   );
+};
 
 afterEach(() => {
   window.history.replaceState(null, '');

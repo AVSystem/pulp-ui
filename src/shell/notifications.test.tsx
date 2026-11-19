@@ -20,6 +20,7 @@ import {
   resetSessionEvents,
   resume,
 } from 'src/session/session-events';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { type ITask, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -38,6 +39,7 @@ const NOW = new Date('2030-05-01T12:00:00.000Z');
 const SEEN = 'pulp-notifications-seen';
 
 function signIn() {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({

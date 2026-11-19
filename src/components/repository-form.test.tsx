@@ -3,6 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { type ReactElement, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetSessionEvents } from 'src/session/session-events';
+import { answeredRequests } from 'src/test-utils/answered';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { listOf, page, remote } from 'src/test-utils/pulp';
 import { renderWithProviders as renderPlain } from 'src/test-utils/render';
@@ -678,7 +679,6 @@ describe('repository form after the same user signs in again', () => {
 
   const REMOTES = `${API}/remotes/file/file/`;
   const STATUS = `${API}/status/`;
-  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
   const signInAgain = (user) =>
     user.click(screen.getByRole('button', { name: 'Sign in again' }));
   const refused = (path: string) =>
@@ -725,9 +725,10 @@ describe('repository form after the same user signs in again', () => {
     const { user } = renderForm();
     await signedIn();
     server.use(refused(REMOTES));
+    const refusals = answeredRequests(REMOTES);
 
     await signInAgain(user);
-    await pause();
+    await refusals.untilAnswered();
 
     expect(screen.queryByText(/Failed to load remotes/)).toBeNull();
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
@@ -736,9 +737,10 @@ describe('repository form after the same user signs in again', () => {
 
   it('shows no remotes message when the first read is refused with 401, and reads after signing in', async () => {
     server.use(refused(REMOTES));
+    const refusals = answeredRequests(REMOTES);
     const { user } = renderForm();
     await signedIn();
-    await pause();
+    await refusals.untilAnswered();
     expect(screen.queryByText(/Failed to load remotes/)).toBeNull();
     const served = listOf(REMOTES, [remote({ name: 'mirror-one' })]);
     server.use(served.handler);
@@ -750,12 +752,13 @@ describe('repository form after the same user signs in again', () => {
 
   it('reads the URL preview again after a refused read', async () => {
     server.use(refused(STATUS));
+    const refusals = answeredRequests(STATUS);
     const { user } = renderForm();
     await signedIn();
     await user.click(
       screen.getByRole('checkbox', { name: /Create a distribution/ }),
     );
-    await pause();
+    await refusals.untilAnswered();
     expect(screen.queryByText(/URL \(preview\)/)).toBeNull();
     expect(screen.queryByText(/The client URL is shown/)).toBeNull();
     server.use(

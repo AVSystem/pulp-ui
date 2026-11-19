@@ -3,6 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resetSessionEvents } from 'src/session/session-events';
+import { reacted } from 'src/test-utils/answered';
 import { listOf, page } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -63,8 +64,6 @@ const GROUPS = '/pulp/api/v3/groups/';
 afterEach(() => {
   resetSessionEvents();
 });
-
-const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
 
 interface IUser {
   username: string;
@@ -205,7 +204,9 @@ describe('the group search of the user form', () => {
     await user.click(
       screen.getByRole('button', { name: 'pick a group that is not listed' }),
     );
-    await pause();
+    // nothing is read or written by a selection, so the screen only needs to
+    // run the effects the click started
+    await reacted();
 
     for (const handed of handedOver) {
       expect(handed.groups).not.toContain(undefined);

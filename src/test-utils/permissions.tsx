@@ -29,31 +29,19 @@ const entries = (roles: string[][]) =>
     permissions,
   }));
 
-export function servePermissions({
+// Serves the user's own record and the global roles the permission provider
+// reads after a sign-in, without the session check and the sign-in call, for a
+// test that serves those itself.
+export function serveUserRecords({
   id = 7,
   username = 'zoe',
   isStaff = false,
   own = [],
   groups = [],
 }: IPermissionSetup = {}) {
-  const requests: string[] = [];
   const session = { username, pulp_href: `${API}/users/${id}/` };
 
-  server.events.on('request:start', ({ request }) => {
-    const url = new URL(request.url);
-    if (url.pathname.startsWith(`${API}/users/`)) {
-      requests.push(`${url.pathname}${url.search}`);
-    }
-    if (url.pathname.startsWith(`${API}/groups/`)) {
-      requests.push(`${url.pathname}${url.search}`);
-    }
-  });
-
   server.use(
-    http.get(`*${API}/login/`, () => HttpResponse.json(session)),
-    http.post(`*${API}/login/`, () =>
-      HttpResponse.json(session, { status: 201 }),
-    ),
     http.get(`*${API}/users/${id}/`, () =>
       HttpResponse.json({
         ...session,
@@ -76,7 +64,37 @@ export function servePermissions({
     ),
   );
 
-  return { requests, stop: () => server.events.removeAllListeners() };
+  return session;
+}
+
+export function servePermissions(setup: IPermissionSetup = {}) {
+  const requests: string[] = [];
+
+  const onStart = ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    if (
+      url.pathname.startsWith(`${API}/users/`) ||
+      url.pathname.startsWith(`${API}/groups/`)
+    ) {
+      requests.push(`${url.pathname}${url.search}`);
+    }
+  };
+  server.events.on('request:start', onStart);
+
+  const session = serveUserRecords(setup);
+  server.use(
+    http.get(`*${API}/login/`, () => HttpResponse.json(session)),
+    http.post(`*${API}/login/`, () =>
+      HttpResponse.json(session, { status: 201 }),
+    ),
+  );
+
+  // Removes only this helper's listener, so another helper active in the same
+  // test keeps recording.
+  return {
+    requests,
+    stop: () => server.events.removeListener('request:start', onStart),
+  };
 }
 
 // Renders its children once the permission read has answered for the first

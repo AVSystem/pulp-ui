@@ -15,6 +15,7 @@ import {
 import {
   serveMyPermissions,
   servePermissions,
+  serveUserRecords,
 } from '../test-utils/permissions';
 import { listOf, page } from '../test-utils/pulp';
 import { renderWithProviders } from '../test-utils/render';
@@ -502,6 +503,7 @@ const ThingListWithModal = ListPage<IThing>({
 });
 
 function renderAfterSignIn(List: typeof ThingList = ThingList) {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
       HttpResponse.json({
@@ -992,6 +994,7 @@ describe('a list page that hides the actions a user may not use', () => {
 
   it('renders no toolbar item for header actions the user may not use', async () => {
     servePermissions({ own: [['file.view_filerepository']] });
+    serveMyPermissions({ [href('alpha')]: [] });
     const hidden = renderHidden(['alpha']);
     await screen.findByText('alpha');
     await settled();

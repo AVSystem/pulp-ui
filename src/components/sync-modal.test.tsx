@@ -1,7 +1,8 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resetSessionEvents } from 'src/session/session-events';
+import { answeredRequests } from 'src/test-utils/answered';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -270,7 +271,6 @@ describe('sync dialog after the same user signs in again', () => {
     resetSessionEvents();
   });
 
-  const pause = (ms = 80) => act(() => new Promise((r) => setTimeout(r, ms)));
   // the open modal hides the rest of the page from the accessibility tree
   const signInAgain = (user) =>
     user.click(
@@ -323,9 +323,10 @@ describe('sync dialog after the same user signs in again', () => {
     await screen.findByText('A sync of this repository is already running.');
     await signedIn();
     server.use(refusedTasks());
+    const refusals = answeredRequests(TASKS);
 
     await signInAgain(user);
-    await pause();
+    await refusals.untilAnswered();
 
     expect(
       screen.getByText('A sync of this repository is already running.'),
@@ -335,9 +336,10 @@ describe('sync dialog after the same user signs in again', () => {
 
   it('keeps Sync enabled and shows no error line when the first check is refused with 401', async () => {
     server.use(refusedTasks());
+    const refusals = answeredRequests(TASKS);
     const { user } = renderDialog();
     await signedIn();
-    await pause();
+    await refusals.untilAnswered();
 
     expect(syncButton()).toBeEnabled();
     expect(screen.queryByText(/Could not check/)).toBeNull();
@@ -358,9 +360,10 @@ describe('sync dialog after the same user signs in again', () => {
     await signedIn();
     await user.click(mirrorSwitch());
     expect(mirrorSwitch()).not.toBeChecked();
+    const reads = answeredRequests(TASKS);
 
     await signInAgain(user);
-    await pause();
+    await reads.untilAnswered();
 
     expect(mirrorSwitch()).not.toBeChecked();
     expect(syncAction).not.toHaveBeenCalled();

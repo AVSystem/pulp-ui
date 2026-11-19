@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { settle } from 'src/test-utils/settle';
@@ -11,6 +12,7 @@ import { useUserContext } from './user-context';
 const LOGIN_URL = '*/pulp/api/v3/login/';
 
 function signIn() {
+  serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get(LOGIN_URL, () =>
       HttpResponse.json({
@@ -35,13 +37,18 @@ function countStatusRequests() {
   return counter;
 }
 
+// Every state the probe was rendered with, in order.
+const renderedStates: string[] = [];
+
+// A test sees only the states of its own renders.
+beforeEach(() => {
+  renderedStates.length = 0;
+});
+
 afterEach(() => {
   removeCounter();
   vi.useRealTimers();
 });
-
-// Every state the probe was rendered with, in order.
-const renderedStates: string[] = [];
 
 // Shows what the provider knows and lets a test change the session by hand.
 function PluginsProbe() {

@@ -1,7 +1,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes, useLocation } from 'react-router';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { useUserContext } from 'src/user-context';
@@ -58,6 +59,13 @@ function acceptLogin() {
 const password = 'p\u0105\u0142-secret';
 
 describe('login page', () => {
+  // Every sign in is followed by the permission read for the account that
+  // signed in; the accounts of these tests are staff.
+  beforeEach(() => {
+    serveUserRecords({ id: 1, username: 'zoe', isStaff: true });
+    serveUserRecords({ id: 2, username: 'amy', isStaff: true });
+  });
+
   it('signing in sends one POST login/ with a UTF-8 Basic header and stores nothing', async () => {
     const posts: {
       method: string;

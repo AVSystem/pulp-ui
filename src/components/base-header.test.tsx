@@ -6,6 +6,7 @@ import { type ReactNode, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Shell } from 'src/shell/shell';
 import { resetPageWidth, setPageUrl, setPageWidth } from 'src/test-utils/page';
+import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { BaseHeader } from './base-header';
@@ -103,6 +104,7 @@ describe('base header', () => {
   });
 
   it('shows one plain crumb with the sidebar label for a screen without a trail', async () => {
+    serveUserRecords({ id: 1, isStaff: true });
     server.use(
       http.get('*/pulp/api/v3/login/', () =>
         HttpResponse.json({
