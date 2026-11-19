@@ -8221,6 +8221,7 @@ msgstr "사용자 <0>{username}</0>이/가 그룹 <1>{groupname}</1>에서 삭�
 #~ msgid "User Access"
 #~ msgstr "사용자 액세스"
 
+#: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."
 msgstr "사용자를 표시할 수 없습니다."
@@ -8717,6 +8718,7 @@ msgid "Your password was changed. Sign in with the new password."
 msgstr ""
 
 #: src/app-routes.tsx
+#: src/components/permissions-failed.tsx
 msgid "Your permissions could not be read"
 msgstr "권한을 읽을 수 없습니다"
 

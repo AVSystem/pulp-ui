@@ -8221,6 +8221,7 @@ msgstr "用户 <0>{username}</0> 将从组<1>{groupname}</1> 中删除。"
 #~ msgid "User Access"
 #~ msgstr "用户访问"
 
+#: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."
 msgstr "用户无法显示。"
@@ -8717,6 +8718,7 @@ msgid "Your password was changed. Sign in with the new password."
 msgstr ""
 
 #: src/app-routes.tsx
+#: src/components/permissions-failed.tsx
 msgid "Your permissions could not be read"
 msgstr "无法读取您的权限"
 

@@ -1,42 +1,54 @@
 import { t } from '@lingui/core/macro';
 import { useState } from 'react';
 import { Navigate } from 'react-router';
-import { UserAPI, type UserType } from 'src/api';
-import { UserFormPage } from 'src/components';
-import { Paths, formatPath } from 'src/paths';
+import { useAppContext } from 'src/app-context';
+import { PermissionsFailed, UserFormPage } from 'src/components';
 import {
-  type ErrorMessagesType,
-  type RouteProps,
-  mapErrorMessages,
-  withRouter,
-} from 'src/utilities';
+  type UserFormValues,
+  emptyUserForm,
+  userCreateBody,
+} from 'src/entities/core/user/form';
+import { useCreateUser } from 'src/entities/core/user/queries';
+import { Paths, formatPath } from 'src/paths';
+import { type ErrorMessagesType } from 'src/utilities/map-error-messages';
+import { userSaveErrors } from './save-errors';
 
-function UserCreate(_props: RouteProps) {
+const UserCreate = () => {
+  const createUser = useCreateUser();
+  const { permissionsFailed } = useAppContext();
+
   const [errorMessages, setErrorMessages] = useState<ErrorMessagesType>({});
   const [redirect, setRedirect] = useState<string>();
-  const [user, setUser] = useState<UserType>({
-    username: '',
-    first_name: '',
-    last_name: '',
-    email: '',
-    password: '',
-    groups: [],
-  });
+  const [form, setForm] = useState<UserFormValues>(emptyUserForm);
+  // true once the form was changed: it then stays when the permissions cannot
+  // be read, so what was typed is never thrown away
+  const [touched, setTouched] = useState(false);
 
-  const saveUser = () =>
-    UserAPI.create(user)
+  const saveUser = () => {
+    if (createUser.isPending) {
+      return;
+    }
+
+    createUser
+      .mutateAsync(userCreateBody(form))
       .then(() => setRedirect(formatPath(Paths.core.user.list)))
-      .catch((err) => setErrorMessages(mapErrorMessages(err)));
+      .catch((error) => setErrorMessages(userSaveErrors(error)));
+  };
 
   if (redirect) {
     return <Navigate to={redirect} />;
   }
 
+  const title = t`Create new user`;
+
+  if (permissionsFailed && !touched) {
+    return <PermissionsFailed title={title} />;
+  }
+
   const breadcrumbs = [
     { url: formatPath(Paths.core.user.list), name: t`Users` },
-    { name: t`Create new user` },
+    { name: title },
   ];
-  const title = t`Create new user`;
 
   return (
     <UserFormPage
@@ -46,13 +58,14 @@ function UserCreate(_props: RouteProps) {
       onCancel={() => setRedirect(formatPath(Paths.core.user.list))}
       saveUser={saveUser}
       title={title}
-      updateUser={(user, errorMessages) => {
-        setErrorMessages(errorMessages);
-        setUser(user);
+      updateUser={(next, errors) => {
+        setTouched(true);
+        setErrorMessages(errors);
+        setForm(next);
       }}
-      user={user}
+      user={form}
     />
   );
-}
+};
 
-export default withRouter(UserCreate);
+export default UserCreate;

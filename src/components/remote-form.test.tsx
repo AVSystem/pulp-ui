@@ -244,8 +244,11 @@ function renderWithBareContext(plugin: Plugin) {
         alerts: [],
         hasPermission: () => true,
         isStaff: false,
+        permissionsError: undefined,
+        permissionsFailed: false,
         permissionsReady: true,
         queueAlert: () => undefined,
+        retryPermissions: () => undefined,
         setAlerts: () => undefined,
       }}
     >

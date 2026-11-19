@@ -1,3 +1,5 @@
+import type { PatchedUser } from '@pulp-ui/sdk/core/models/users/patched-user.zod';
+import type { User as NewUser } from '@pulp-ui/sdk/core/models/users/user.zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { UserClient } from './client';
@@ -120,4 +122,40 @@ export function useDeleteUser() {
     }) > 0;
 
   return { mutate: mutation.mutate, isRemoving };
+}
+
+// Creates a user. One request is sent per call and it is never repeated by
+// itself; once it has succeeded the lists are read again.
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (user: NewUser) => UserClient.create(user),
+    onSuccess: () => {
+      // the screen moves on at once; the lists catch up in the background
+      void queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+  });
+}
+
+export interface UpdateUserRequest {
+  // The address of the user to change.
+  href: string;
+  // The fields to change; the others stay as they are.
+  changes: PatchedUser;
+}
+
+// Changes a user. One request is sent per call and it is never repeated by
+// itself; once it has succeeded the user and the lists are read again.
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ href, changes }: UpdateUserRequest) =>
+      UserClient.update(href, changes),
+    onSuccess: () => {
+      // the screen moves on at once; the lists catch up in the background
+      void queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+  });
 }

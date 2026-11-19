@@ -8221,6 +8221,7 @@ msgstr "El usuario <0>{username}</0> se eliminará del grupo <1>{groupname}</1>.
 #~ msgid "User Access"
 #~ msgstr "Acceso de los usuarios"
 
+#: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 msgid "User could not be displayed."
 msgstr "No se pudo mostrar el usuario."
@@ -8717,6 +8718,7 @@ msgid "Your password was changed. Sign in with the new password."
 msgstr ""
 
 #: src/app-routes.tsx
+#: src/components/permissions-failed.tsx
 msgid "Your permissions could not be read"
 msgstr "No se pudieron leer sus permisos"
 

@@ -1,5 +1,4 @@
 import { type ReactNode } from 'react';
-import { type UserType } from 'src/api';
 import {
   BaseHeader,
   type BreadcrumbType,
@@ -7,7 +6,8 @@ import {
   Main,
   UserForm,
 } from 'src/components';
-import { type ErrorMessagesType } from 'src/utilities';
+import { type UserFormValues } from 'src/entities/core/user/form';
+import { type ErrorMessagesType } from 'src/utilities/map-error-messages';
 
 interface IProps {
   breadcrumbs: BreadcrumbType[];
@@ -19,8 +19,8 @@ interface IProps {
   onCancel?: () => void;
   saveUser?: () => void;
   title: string;
-  updateUser: (user: UserType, errorMessages: ErrorMessagesType) => void;
-  user: UserType;
+  updateUser: (user: UserFormValues, errorMessages: ErrorMessagesType) => void;
+  user: UserFormValues;
 }
 
 export const UserFormPage = ({
