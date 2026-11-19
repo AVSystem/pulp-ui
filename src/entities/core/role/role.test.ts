@@ -28,7 +28,7 @@ describe('role model', { tags: ['unit'] }, () => {
   });
 
   it('refuses a row without a name or an address of this host', () => {
-    const noName: Record<string, unknown> = roleRow();
+    const noName: Record<string, unknown> = { ...roleRow() };
     delete noName['name'];
 
     expect(() => parseResponse(roleSchema, noName)).toThrow(ResponseShapeError);
@@ -127,10 +127,9 @@ describe('role client', { tags: ['unit'] }, () => {
     server.use(
       http.post(ROLES, async ({ request }) => {
         bodies.push(await request.json());
-        return HttpResponse.json(
-          roleRow({ pulp_href: PATH, name: 'zz-new' }),
-          { status: 201 },
-        );
+        return HttpResponse.json(roleRow({ pulp_href: PATH, name: 'zz-new' }), {
+          status: 201,
+        });
       }),
     );
 
@@ -171,7 +170,11 @@ describe('role client', { tags: ['unit'] }, () => {
     expect(sent).toEqual([
       {
         path: PATH,
-        body: { name: 'zz-ops', description: 'd', permissions: ['core.view_task'] },
+        body: {
+          name: 'zz-ops',
+          description: 'd',
+          permissions: ['core.view_task'],
+        },
       },
     ]);
   });

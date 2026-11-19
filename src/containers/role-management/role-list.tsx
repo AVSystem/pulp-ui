@@ -9,10 +9,9 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Td } from '@patternfly/react-table';
-import { Component } from 'react';
-import { Link, Navigate } from 'react-router';
-import { RoleAPI, type RoleType } from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -34,381 +33,207 @@ import {
   Tooltip,
   closeAlert,
 } from 'src/components';
+import { ListErrorState } from 'src/components/list-error-state';
+import { roleUrlId } from 'src/entities/core/role/href';
+import { DEFAULT_PAGE_SIZE, type Role } from 'src/entities/core/role/model';
+import { useDeleteRole, useRoles } from 'src/entities/core/role/queries';
 import { Paths, formatPath } from 'src/paths';
-import {
-  ParamHelper,
-  type RouteProps,
-  filterIsSet,
-  parsePulpIDFromURL,
-  translateLockedRole,
-  withRouter,
-} from 'src/utilities';
+import { filterIsSet } from 'src/utilities/filter-is-set';
+import { ParamHelper } from 'src/utilities/param-helper';
 import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { translateLockedRole } from 'src/utilities/translate-locked-role';
 
-interface IState {
-  roles: RoleType[];
-  roleCount: number;
-  redirect?: string;
-  alerts: AlertType[];
-  loading: boolean;
-  // Pulp refused the read of the list, with its reason when it gave one.
-  unauthorized: boolean;
-  unauthorizedDetail: string | null;
-  inputText: string;
-  params: {
-    page?: number;
-    page_size?: number;
-  };
-  selectedRole: RoleType[];
-  expandedRoleNames: string[];
-  roleToEdit: RoleType;
-  showDeleteModal: boolean;
+const DEFAULT_SORT = 'name';
+
+const FILTERS = ['name__icontains', 'locked'];
+
+// The address holds the page, its size, the order and the filters; the screen
+// shows exactly what the address says, and a change goes through the address.
+function paramsOfAddress(search: string) {
+  const params = ParamHelper.parseParamString(search, ['page', 'page_size']);
+
+  if (!params['page_size']) {
+    params['page_size'] = DEFAULT_PAGE_SIZE;
+  }
+  if (!params['sort']) {
+    params['sort'] = DEFAULT_SORT;
+  }
+
+  return params;
 }
 
-export class RoleList extends Component<RouteProps, IState> {
-  static contextType = AppContext;
+// A parameter that came in more than once is read as its first value.
+function single(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first === undefined || first === null ? undefined : String(first);
+}
 
-  constructor(props) {
-    super(props);
+// The built-in filter of the address: only the two values the filter offers
+// mean something, anything else asks for both kinds of role.
+function lockedOfAddress(value: unknown): boolean | undefined {
+  const text = single(value);
+  return text === 'true' ? true : text === 'false' ? false : undefined;
+}
 
-    const params = ParamHelper.parseParamString(props.location.search, [
-      'page',
-      'page_size',
-    ]);
+const RoleList = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { hasPermission } = useAppContext();
 
-    if (!params['page_size']) {
-      params['page_size'] = 10;
+  const params = useMemo(
+    () => paramsOfAddress(location.search),
+    [location.search],
+  );
+
+  const query = useRoles({
+    page: params['page'],
+    page_size: params['page_size'],
+    sort: single(params['sort']),
+    name__icontains: single(params['name__icontains']),
+    locked: lockedOfAddress(params['locked']),
+  });
+  const deleteRole = useDeleteRole();
+
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
+
+  const addAlert = (alert: AlertType) =>
+    setAlerts((current) => [...current, alert]);
+
+  const roles = useMemo(() => query.data?.results ?? [], [query.data]);
+
+  const status = query.isError ? requestErrorStatus(query.error) : null;
+  const sessionEnded = query.isError && isSessionEnd(query.error);
+
+  // A failed read of rows already on screen keeps the rows and says so once.
+  const alertedFailure = useRef(0);
+  const rereadFailed = query.isRefetchError && !sessionEnded && status !== 403;
+  useEffect(() => {
+    if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
+      alertedFailure.current = query.errorUpdatedAt;
+      setAlerts((current) => [
+        ...current,
+        {
+          variant: 'danger',
+          title: t`Roles list could not be displayed.`,
+          description: requestErrorDescription(query.error),
+        },
+      ]);
     }
+  }, [rereadFailed, query.errorUpdatedAt, query.error]);
 
-    if (!params['sort']) {
-      params['sort'] = 'name';
-    }
+  const updateParams = (next) =>
+    navigate({ search: '?' + ParamHelper.getQueryString(next) });
 
-    this.state = {
-      redirect: null,
-      roles: [],
-      alerts: [],
-      loading: true,
-      unauthorized: false,
-      unauthorizedDetail: null,
-      inputText: '',
-      params,
-      roleCount: 0,
-      selectedRole: null,
-      expandedRoleNames: [],
-      roleToEdit: null,
-      showDeleteModal: false,
-    };
-  }
+  const alertList = (
+    <AlertList
+      alerts={alerts}
+      closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+    />
+  );
 
-  componentDidMount() {
-    this.queryRoles();
-  }
-
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read the list again, keeping the rows on
-    // screen until the answer arrives.
-    if (
-      prevProps.sessionEpoch !== this.props.sessionEpoch &&
-      !this.state.unauthorized
-    ) {
-      this.queryRoles(true);
-    }
-  }
-
-  render() {
-    const {
-      redirect,
-      params,
-      loading,
-      roleCount,
-      alerts,
-      showDeleteModal,
-      roleToEdit,
-      roles,
-      unauthorized,
-      unauthorizedDetail,
-    } = this.state;
-
-    const noData =
-      roleCount === 0 && !filterIsSet(params, ['name__icontains', 'locked']);
-
-    if (redirect) {
-      return <Navigate to={redirect} />;
-    }
-
-    const addRoles = (
-      <Link to={formatPath(Paths.core.role.create)}>
-        <Button variant={'primary'}>{t`Add roles`}</Button>
-      </Link>
-    );
-
-    const tableHeader = [
-      {
-        title: '',
-        type: 'none',
-        id: 'expander',
-      },
-      {
-        title: t`Role name`,
-        type: 'alpha',
-        id: 'name',
-      },
-      {
-        title: t`Description`,
-        type: 'none',
-        id: 'description',
-      },
-      {
-        title: t`Created`,
-        type: 'number',
-        id: 'pulp_created',
-      },
-      {
-        title: t`Editable`,
-        type: 'none',
-        id: 'locked',
-      },
-      {
-        title: '',
-        type: 'none',
-        id: 'kebab',
-      },
-    ];
-
+  // A refused read is not a failure to retry: the user is told they may not
+  // view the list, with Pulp's own reason.
+  if (status === 403) {
     return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-        {showDeleteModal && roleToEdit && (
-          <DeleteModal
-            cancelAction={() =>
-              this.setState({ showDeleteModal: false, roleToEdit: null })
-            }
-            deleteAction={() => this.deleteRole(roleToEdit)}
-            title={t`Delete role?`}
-            data-cy='DeleteModal'
-          >
-            <Trans>
-              <p>
-                Role <b>{roleToEdit.name}</b> will be permanently deleted.
-              </p>
-              <p>
-                This will also remove all associated permissions under this
-                role.
-              </p>
-            </Trans>
-          </DeleteModal>
-        )}
+        {alertList}
         <BaseHeader title={t`Roles`} />
-        {unauthorized ? (
-          <InsufficientPermissions detail={unauthorizedDetail} />
-        ) : noData && !loading ? (
-          <EmptyStateNoData
-            title={t`There are currently no roles`}
-            description={t`Please add a role by using the button below.`}
-            button={addRoles}
-          />
-        ) : (
-          <Main>
-            {loading ? (
-              <LoadingSpinner />
-            ) : (
-              <section className='pulp-section'>
-                <div className='pulp-toolbar'>
-                  <Toolbar>
-                    <ToolbarContent>
-                      <ToolbarGroup>
-                        <ToolbarItem>
-                          <CompoundFilter
-                            inputText={this.state.inputText}
-                            onChange={(text) =>
-                              this.setState({ inputText: text })
-                            }
-                            updateParams={(p) =>
-                              this.updateParams(p, () => this.queryRoles())
-                            }
-                            params={params}
-                            filterConfig={[
-                              {
-                                id: 'name__icontains',
-                                title: t`Role name`,
-                              },
-
-                              {
-                                id: 'locked',
-                                title: t`Editable`,
-                                inputType: 'select',
-                                options: [
-                                  {
-                                    id: 'true',
-                                    title: t`Built-in`,
-                                  },
-                                  {
-                                    id: 'false',
-                                    title: t`Editable`,
-                                  },
-                                ],
-                              },
-                            ]}
-                          />
-                        </ToolbarItem>
-                        {/* TODO fix with Pulp API  <ToolbarItem>{addRoles}</ToolbarItem> */}
-                      </ToolbarGroup>
-                    </ToolbarContent>
-                  </Toolbar>
-                  <PulpPagination
-                    params={params}
-                    updateParams={(p) =>
-                      this.updateParams(p, () => this.queryRoles())
-                    }
-                    count={roleCount}
-                    isTop
-                  />
-                </div>
-                <div>
-                  <AppliedFilters
-                    updateParams={(p) => {
-                      this.updateParams(p, () => this.queryRoles());
-                      this.setState({ inputText: '' });
-                    }}
-                    params={params}
-                    ignoredParams={['page_size', 'page', 'sort', 'ordering']}
-                    niceValues={{
-                      locked: { true: t`Built-in`, false: t`Editable` },
-                    }}
-                    niceNames={{
-                      locked: t`Editable`,
-                      name__icontains: t`Role name`,
-                    }}
-                  />
-                </div>
-                <>
-                  {' '}
-                  {roleCount ? (
-                    <RoleListTable
-                      params={this.state.params}
-                      updateParams={(p) => {
-                        this.updateParams(p, () => this.queryRoles());
-                      }}
-                      tableHeader={{ headers: tableHeader }}
-                    >
-                      {roles.map((role, i) => (
-                        <ExpandableRow
-                          key={role.name}
-                          expandableRowContent={
-                            <PermissionCategories
-                              permissions={role.permissions}
-                              showCustom
-                            />
-                          }
-                          data-cy={`RoleListTable-ExpandableRow-row-${role.name}`}
-                          colSpan={6}
-                          rowIndex={i}
-                        >
-                          <Td data-cy='name-field'>{role.name}</Td>
-                          <Td>
-                            {translateLockedRole(role.name, role.description)}
-                          </Td>
-                          <Td>
-                            <DateComponent date={role.pulp_created} />
-                          </Td>
-
-                          <Td>
-                            {role.locked ? (
-                              <Tooltip
-                                content={t`Built-in roles cannot be edited or deleted.`}
-                              >
-                                <span
-                                  style={{ whiteSpace: 'nowrap' }}
-                                >{t`Built-in`}</span>
-                              </Tooltip>
-                            ) : (
-                              t`Editable`
-                            )}
-                          </Td>
-                          <ListItemActions
-                            kebabItems={this.renderDropdownItems(role)}
-                          />
-                        </ExpandableRow>
-                      ))}
-                    </RoleListTable>
-                  ) : (
-                    <EmptyStateFilter />
-                  )}
-                  <PulpPagination
-                    params={params}
-                    updateParams={(p) =>
-                      this.updateParams(p, () => this.queryRoles())
-                    }
-                    count={roleCount}
-                  />
-                </>
-              </section>
-            )}
-          </Main>
-        )}
+        <InsufficientPermissions detail={requestErrorDetail(query.error)} />
       </>
     );
   }
 
-  private deleteRole({ pulp_href, name }) {
-    const roleID = parsePulpIDFromURL(pulp_href);
-    // true when the delete was refused only because the session ended
-    let sessionEnded = false;
-    RoleAPI.delete(roleID)
-      .then(() =>
-        this.addAlert(
-          t`Role "${name}" has been successfully deleted.`,
-          'success',
-        ),
-      )
-      .catch((e) => {
-        // The role was not deleted and nothing is repeated: the dialog stays
-        // open, and the epoch read follows once the user signed in again.
-        if (isSessionEnd(e)) {
-          sessionEnded = true;
-          return;
-        }
-        this.addAlert(
-          t`Role "${name}" could not be deleted.`,
-          'danger',
-          requestErrorDescription(e),
-        );
-      })
-      .then(() => {
-        if (sessionEnded) {
-          return;
-        }
-        this.queryRoles();
-        this.setState({ showDeleteModal: false, roleToEdit: null });
-      });
-  }
+  const failed =
+    query.isError && !sessionEnded && !query.data && !query.isFetching;
+  const loading = !query.data && !failed;
+  const noData =
+    !!query.data && roles.length === 0 && !filterIsSet(params, FILTERS);
 
-  private renderDropdownItems = (role) => {
-    const { pulp_href, locked } = role;
-    const roleID = parsePulpIDFromURL(pulp_href);
+  const confirmDelete = async (role: Role) => {
+    if (deleteRole.isPending) {
+      return;
+    }
+    try {
+      await deleteRole.mutateAsync({ href: role.pulp_href });
+    } catch (error) {
+      // The session ended: nothing was deleted and nothing is repeated; the
+      // dialog stays and the list is read again after signing in.
+      if (isSessionEnd(error)) {
+        return;
+      }
+      addAlert({
+        variant: 'danger',
+        title: t`Role "${role.name}" could not be deleted.`,
+        description: requestErrorDescription(error),
+      });
+      setRoleToDelete(null);
+      return;
+    }
+    addAlert({
+      variant: 'success',
+      title: t`Role "${role.name}" has been successfully deleted.`,
+    });
+    setRoleToDelete(null);
+  };
+
+  const addRoles = (
+    <Link to={formatPath(Paths.core.role.create)}>
+      <Button variant={'primary'}>{t`Add roles`}</Button>
+    </Link>
+  );
+
+  const tableHeader = [
+    {
+      title: '',
+      type: 'none',
+      id: 'expander',
+    },
+    {
+      title: t`Role name`,
+      type: 'alpha',
+      id: 'name',
+    },
+    {
+      title: t`Description`,
+      type: 'none',
+      id: 'description',
+    },
+    {
+      title: t`Created`,
+      type: 'number',
+      id: 'pulp_created',
+    },
+    {
+      title: t`Editable`,
+      type: 'none',
+      id: 'locked',
+    },
+    {
+      title: '',
+      type: 'none',
+      id: 'kebab',
+    },
+  ];
+
+  // Only staff hold these permissions, so the actions are in practice for
+  // staff; Pulp decides every request.
+  const renderDropdownItems = (role: Role) => {
+    const locked = !!role.locked;
+    const urlId = roleUrlId(role.pulp_href);
 
     const editItem = (
       <DropdownItem
         key='edit'
         isDisabled={locked}
         onClick={() =>
-          this.setState({
-            redirect: formatPath(Paths.core.role.edit, { role: roleID }),
-          })
+          navigate(formatPath(Paths.core.role.edit, { role: urlId }))
         }
       >
         {t`Edit`}
@@ -418,21 +243,15 @@ export class RoleList extends Component<RouteProps, IState> {
       <DropdownItem
         key='delete'
         isDisabled={locked}
-        onClick={() =>
-          this.setState({
-            showDeleteModal: true,
-            roleToEdit: role,
-          })
-        }
+        onClick={() => setRoleToDelete(role)}
       >
         {t`Delete`}
       </DropdownItem>
     );
-    // Only staff hold these permissions, so the actions are in practice for
-    // staff; Pulp decides every request.
-    const { hasPermission } = this.context as IAppContextType;
-    const dropdownItems = [
+
+    return [
       hasPermission('core.change_role') &&
+        urlId !== null &&
         (locked ? (
           <Tooltip key='edit' content={t`Built-in roles cannot be edited.`}>
             {editItem}
@@ -449,73 +268,176 @@ export class RoleList extends Component<RouteProps, IState> {
           deleteItem
         )),
     ];
-
-    return dropdownItems;
   };
 
-  // A quiet read keeps the rows on screen instead of showing the spinner.
-  private queryRoles = (quiet = false) => {
-    const { params } = this.state;
-    this.setState({ loading: quiet ? this.state.loading : true }, () => {
-      RoleAPI.list(params)
-        .then((result) => {
-          this.setState({
-            roles: result.data.results,
-            roleCount: result.data.count,
-            loading: false,
-          });
-        })
-        .catch((err) => {
-          // The session ended: the sign-in dialog explains it, and the list
-          // keeps its spinner or its rows until it reads again.
-          if (isSessionEnd(err)) {
-            return;
-          }
-          // A refused read is not a failure to retry: the user is told they
-          // may not view the list, with Pulp's own reason.
-          if (requestErrorStatus(err) === 403) {
-            this.setState({
-              roles: [],
-              roleCount: 0,
-              loading: false,
-              unauthorized: true,
-              unauthorizedDetail: requestErrorDetail(err),
-            });
-            return;
-          }
-          this.setState({
-            roleCount: 0,
-            loading: false,
-          });
-          this.addAlert(
-            t`Roles list could not be displayed.`,
-            'danger',
-            requestErrorDescription(err),
-          );
-        });
-    });
+  const renderTable = () => {
+    if (failed) {
+      return (
+        <ListErrorState
+          title={t`Roles list could not be displayed.`}
+          message={requestErrorDescription(query.error)}
+          onRetry={() => query.refetch()}
+        />
+      );
+    }
+
+    if (roles.length === 0) {
+      return <EmptyStateFilter />;
+    }
+
+    return (
+      <RoleListTable
+        params={params}
+        updateParams={updateParams}
+        tableHeader={{ headers: tableHeader }}
+      >
+        {roles.map((role, i) => (
+          <ExpandableRow
+            key={role.pulp_href}
+            expandableRowContent={
+              <PermissionCategories
+                permissions={role.permissions ?? []}
+                showCustom
+              />
+            }
+            data-cy={`RoleListTable-ExpandableRow-row-${role.name}`}
+            colSpan={6}
+            rowIndex={i}
+          >
+            <Td data-cy='name-field'>{role.name}</Td>
+            <Td>
+              {translateLockedRole(role.name, role.description ?? undefined)}
+            </Td>
+            <Td>
+              <DateComponent date={role.pulp_created ?? undefined} />
+            </Td>
+
+            <Td>
+              {role.locked ? (
+                <Tooltip
+                  content={t`Built-in roles cannot be edited or deleted.`}
+                >
+                  <span style={{ whiteSpace: 'nowrap' }}>{t`Built-in`}</span>
+                </Tooltip>
+              ) : (
+                t`Editable`
+              )}
+            </Td>
+            <ListItemActions kebabItems={renderDropdownItems(role)} />
+          </ExpandableRow>
+        ))}
+      </RoleListTable>
+    );
   };
 
-  private updateParams(params, callback = null) {
-    ParamHelper.updateParams({
-      params,
-      navigate: (to) => this.props.navigate(to),
-      setState: (state) => this.setState(state, callback),
-    });
-  }
+  return (
+    <>
+      {alertList}
+      {roleToDelete && (
+        <DeleteModal
+          cancelAction={() => setRoleToDelete(null)}
+          deleteAction={() => confirmDelete(roleToDelete)}
+          isDisabled={deleteRole.isPending}
+          spinner={deleteRole.isPending}
+          title={t`Delete role?`}
+          data-cy='DeleteModal'
+        >
+          <Trans>
+            <p>
+              Role <b>{roleToDelete.name}</b> will be permanently deleted.
+            </p>
+            <p>
+              This will also remove all associated permissions under this role.
+            </p>
+          </Trans>
+        </DeleteModal>
+      )}
+      <BaseHeader title={t`Roles`} />
+      {loading ? (
+        <Main>
+          <LoadingSpinner />
+        </Main>
+      ) : noData ? (
+        <EmptyStateNoData
+          title={t`There are currently no roles`}
+          description={t`Please add a role by using the button below.`}
+          button={addRoles}
+        />
+      ) : (
+        <Main>
+          <section className='pulp-section'>
+            <div className='pulp-toolbar'>
+              <Toolbar>
+                <ToolbarContent>
+                  <ToolbarGroup>
+                    <ToolbarItem>
+                      <CompoundFilter
+                        inputText={inputText}
+                        onChange={setInputText}
+                        updateParams={updateParams}
+                        params={params}
+                        filterConfig={[
+                          {
+                            id: 'name__icontains',
+                            title: t`Role name`,
+                          },
 
-  private addAlert(title, variant, description?) {
-    this.setState({
-      alerts: [
-        ...this.state.alerts,
-        {
-          description,
-          title,
-          variant,
-        },
-      ],
-    });
-  }
-}
+                          {
+                            id: 'locked',
+                            title: t`Editable`,
+                            inputType: 'select',
+                            options: [
+                              {
+                                id: 'true',
+                                title: t`Built-in`,
+                              },
+                              {
+                                id: 'false',
+                                title: t`Editable`,
+                              },
+                            ],
+                          },
+                        ]}
+                      />
+                    </ToolbarItem>
+                  </ToolbarGroup>
+                </ToolbarContent>
+              </Toolbar>
+              <PulpPagination
+                params={params}
+                updateParams={updateParams}
+                count={query.data?.count ?? 0}
+                isTop
+              />
+            </div>
+            <div>
+              <AppliedFilters
+                updateParams={(p) => {
+                  updateParams(p);
+                  setInputText('');
+                }}
+                params={params}
+                ignoredParams={['page_size', 'page', 'sort', 'ordering']}
+                niceValues={{
+                  locked: { true: t`Built-in`, false: t`Editable` },
+                }}
+                niceNames={{
+                  locked: t`Editable`,
+                  name__icontains: t`Role name`,
+                }}
+              />
+            </div>
+            {renderTable()}
+            <PulpPagination
+              params={params}
+              updateParams={updateParams}
+              count={query.data?.count ?? 0}
+            />
+          </section>
+        </Main>
+      )}
+    </>
+  );
+};
 
-export default withRouter(RoleList);
+export default RoleList;

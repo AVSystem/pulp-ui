@@ -32,16 +32,33 @@ type RolePage = z.infer<typeof rolePageSchema>;
 // must contain whatever its case, and the kind of object the roles are for
 // (the path of its endpoint below the API root, for example
 // `repositories/ansible/ansible`), which keeps only the roles whose
-// permissions fit that kind of object.
+// permissions fit that kind of object. `locked` keeps only the built-in roles
+// (true) or only the editable ones (false); unset keeps both.
 interface RoleListParams {
   page?: number;
   page_size?: number;
   sort?: string;
   name__icontains?: string;
   object_type?: string;
+  locked?: boolean;
+}
+
+// What a new role is sent as.
+interface NewRole {
+  name: string;
+  description?: string | null;
+  permissions: string[];
+}
+
+// What a change of a role is sent as: the fields that are given are replaced,
+// the others stay as they are.
+interface RoleChanges {
+  name?: string;
+  description?: string | null;
+  permissions?: string[];
 }
 
 const DEFAULT_PAGE_SIZE = 10;
 
 export { DEFAULT_PAGE_SIZE, rolePageSchema, roleSchema };
-export type { Role, RoleListParams, RolePage };
+export type { NewRole, Role, RoleChanges, RoleListParams, RolePage };

@@ -340,7 +340,9 @@ describe('deleting a role', () => {
     await user.click(dialog.getByRole('button', { name: 'Delete' }));
 
     expect(
-      await screen.findByText('Role "zz-custom" has been successfully deleted.'),
+      await screen.findByText(
+        'Role "zz-custom" has been successfully deleted.',
+      ),
     ).toBeVisible();
     expect(deleted).toEqual([`${ROLES}${idOf(custom)}/`]);
     await waitFor(() => expect(list.queries.length).toBe(readsBefore + 1));
