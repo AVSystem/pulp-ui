@@ -61,6 +61,13 @@ vi.mock('./typeahead', () => ({
 
 const GROUPS = '/pulp/api/v3/groups/';
 
+// a group as Pulp answers it
+const group = (name: string, id: number) => ({
+  pulp_href: `${GROUPS}${id}/`,
+  id,
+  name,
+});
+
 afterEach(() => {
   resetSessionEvents();
 });
@@ -124,7 +131,7 @@ describe('the groups a user form reads', () => {
         reads.push(pathname);
       }
     });
-    server.use(listOf(GROUPS, [{ name: 'ops', id: 1 }]).handler);
+    server.use(listOf(GROUPS, [group('ops', 1)]).handler);
     return reads;
   }
 
@@ -176,10 +183,10 @@ describe('the group search of the user form', () => {
         searched.push(text);
         if (text === 'a') {
           await firstAnswer;
-          return HttpResponse.json(page([{ name: 'from-a', id: 1 }]));
+          return HttpResponse.json(page([group('from-a', 1)]));
         }
         if (text === 'ab') {
-          return HttpResponse.json(page([{ name: 'from-ab', id: 2 }]));
+          return HttpResponse.json(page([group('from-ab', 2)]));
         }
         return HttpResponse.json(page([]));
       }),
@@ -211,7 +218,7 @@ describe('the group search of the user form', () => {
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('group search')).toBeNull();
     await signedIn();
-    server.use(listOf(GROUPS, [{ name: 'ops', id: 1 }]).handler);
+    server.use(listOf(GROUPS, [group('ops', 1)]).handler);
 
     await user.click(screen.getByRole('button', { name: 'Sign in again' }));
 
@@ -223,7 +230,7 @@ describe('the group search of the user form', () => {
   });
 
   it('hands the parent a new groups list and leaves the previous one unchanged', async () => {
-    server.use(listOf(GROUPS, [{ name: 'ops', id: 1 }]).handler);
+    server.use(listOf(GROUPS, [group('ops', 1)]).handler);
     const initial = newUser();
     const before = initial.groups;
     const { user, handedOver } = renderForm(initial);
@@ -238,7 +245,7 @@ describe('the group search of the user form', () => {
   });
 
   it('removes a selected group without changing the list the parent holds', async () => {
-    server.use(listOf(GROUPS, [{ name: 'ops', id: 1 }]).handler);
+    server.use(listOf(GROUPS, [group('ops', 1)]).handler);
     const initial = { ...newUser(), groups: [{ name: 'ops', id: 1 }] };
     const before = initial.groups;
     const { user, handedOver } = renderForm(initial);
@@ -251,7 +258,7 @@ describe('the group search of the user form', () => {
   });
 
   it('adds nothing for a selection that is not in the current list', async () => {
-    server.use(listOf(GROUPS, [{ name: 'ops', id: 1 }]).handler);
+    server.use(listOf(GROUPS, [group('ops', 1)]).handler);
     const { user, handedOver } = renderForm(newUser());
     await screen.findByRole('button', { name: 'ops' });
 

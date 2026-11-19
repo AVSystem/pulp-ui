@@ -6,19 +6,17 @@ import {
   Label,
   TextInput,
 } from '@patternfly/react-core';
-import { useEffect, useRef, useState } from 'react';
-import { GroupAPI, type UserType } from 'src/api';
+import { useState } from 'react';
 import {
   Alert,
-  type AlertType,
   DataForm,
   FormFieldHelper,
   HelpButton,
   Typeahead,
 } from 'src/components';
-import { useSessionEpoch } from 'src/user-context';
+import { useGroups } from 'src/entities/core/group/queries';
+import type { UserFormValues } from 'src/entities/core/user/form';
 import { type ErrorMessagesType } from 'src/utilities';
-import { useLatestRead } from 'src/utilities/latest-read';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -31,8 +29,8 @@ interface IProps {
   isReadonly?: boolean;
   onCancel?: () => void;
   saveUser?: () => void;
-  updateUser: (user: UserType, errorMesssages: object) => void;
-  user: UserType;
+  updateUser: (user: UserFormValues, errorMesssages: object) => void;
+  user: UserFormValues;
 }
 
 export const UserForm = ({
@@ -45,24 +43,22 @@ export const UserForm = ({
   updateUser,
   user,
 }: IProps) => {
-  const [formErrors, setFormErrors] = useState<{ groups: AlertType }>({
-    groups: null,
-  });
   const [passwordConfirm, setPasswordConfirm] = useState<string>('');
-  const [searchGroups, setSearchGroups] = useState<
-    { name: string; id: number }[]
-  >([]);
+  // the text the group search is for; every other text is another search
+  const [groupFilter, setGroupFilter] = useState<string>('');
 
-  // grows when the same user signs in again, so the group list reads again
-  const epoch = useSessionEpoch();
-  // the filter of the latest group search, so a re-read keeps the shown list
-  const groupFilter = useRef('');
-  // numbers the group searches, so only the answer to the latest one is used
-  const groupSearches = useLatestRead();
-
-  useEffect(() => {
-    loadGroups(groupFilter.current);
-  }, [epoch]);
+  // Only a form that draws the group search reads groups: the form of the own
+  // profile and a read-only form show the groups of the record and ask the
+  // server for no list.
+  const drawsGroupSearch = !isMe && !isReadonly;
+  const groups = useGroups(
+    { name__contains: groupFilter, page_size: 5 },
+    { enabled: drawsGroupSearch },
+  );
+  const searchGroups = groups.data?.results ?? [];
+  // The session ended: the sign-in dialog explains it and the groups read again
+  // after signing in.
+  const groupsFailed = groups.isError && !isSessionEnd(groups.error);
 
   const minLength = 9; // actually counts codepoints, close enough
 
@@ -132,14 +128,18 @@ export const UserForm = ({
 
   const editGroups = () => (
     <FormGroup fieldId='groups' key='editGroups' label={t`Groups`}>
-      {formErrors.groups ? (
-        <Alert title={formErrors.groups.title} variant='danger' isInline>
-          {formErrors.groups.description}
+      {groupsFailed ? (
+        <Alert
+          title={t`Groups list could not be displayed.`}
+          variant='danger'
+          isInline
+        >
+          {requestErrorDescription(groups.error)}
         </Alert>
       ) : (
         <Typeahead
           results={searchGroups}
-          loadResults={loadGroups}
+          loadResults={setGroupFilter}
           onSelect={onSelectGroup}
           placeholderText={t`Select groups`}
           selections={user.groups}
@@ -228,41 +228,10 @@ export const UserForm = ({
       if (!addedGroup) {
         return;
       }
-      groups = [...user.groups, addedGroup];
+      groups = [...user.groups, { id: addedGroup.id, name: addedGroup.name }];
     }
 
     updateUser({ ...user, groups }, errorMessages);
-  }
-
-  function loadGroups(name) {
-    groupFilter.current = name;
-    const search = groupSearches.start();
-    GroupAPI.list({ name__contains: name, page_size: 5 })
-      .then((result) => {
-        if (!groupSearches.isLatest(search)) {
-          return;
-        }
-        setSearchGroups(result.data.results);
-        // a read that succeeds ends an earlier failure of the field
-        setFormErrors((errors) =>
-          errors.groups ? { ...errors, groups: null } : errors,
-        );
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it and the groups
-        // read again after signing in.
-        if (isSessionEnd(e) || !groupSearches.isLatest(search)) {
-          return;
-        }
-        setFormErrors((errors) => ({
-          ...errors,
-          groups: {
-            variant: 'danger',
-            title: t`Groups list could not be displayed.`,
-            description: requestErrorDescription(e),
-          },
-        }));
-      });
   }
 
   // confirm is empty, or matches password
