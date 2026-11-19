@@ -4,9 +4,13 @@ body,
   height: 100%;
 }
 
+// The frame around the content of a screen. Its inline inset is the one the
+// page header uses (header.scss), so the content starts at the left edge of the
+// title's text on every screen built on the frame; change the two together.
 .pulp-section {
   background-color: var(--pf-t--global--background--color--primary--default);
-  padding: 16px;
+  padding-block: var(--pf-t--global--spacer--md);
+  padding-inline: var(--pf-t--global--spacer--lg);
 }
 
 // the server's own text can be one long unbroken word; it wraps instead of

@@ -9,7 +9,8 @@ import { type ComponentClass, type ReactElement, type ReactNode } from 'react';
 
 interface IProps {
   icon?: ComponentClass;
-  title: string;
+  // Left out when a header above the empty state already names the screen.
+  title?: string;
   description: ReactNode;
   button?: ReactElement;
   variant?: 'xs' | 'small' | 'large' | 'xl' | 'full';

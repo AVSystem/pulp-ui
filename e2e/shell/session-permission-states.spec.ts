@@ -19,8 +19,9 @@ import { title } from '../support/sign-in';
 //
 // Besides the captures, the spec measures what a screenshot alone would leave
 // to the eye: the width and position of the refused-action alert, the spacing
-// of the sign-in dialog and of the add collection dialog, and where the text of
-// the Status screen starts.
+// of the sign-in dialog, the height of the add collection dialog's body, how
+// many headings the insufficient permissions page adds, and whether the content
+// of a screen starts where the text of its title starts.
 //
 // The screenshots show a deployment's data and stay on the machine that ran
 // the spec: they go to PULP_UI_SHELL_OUT (shell-report/ unless set), which is
@@ -125,25 +126,49 @@ async function textLeft(locator: Locator): Promise<number> {
   });
 }
 
-// The text starts at least one medium space inside the main area, which is the
-// inset of the section frame that the other screens use, and the offset to the
-// title (which has a larger inset of its own) is recorded.
-async function expectInsideSectionFrame(
+// The most the left edge of the content may differ from the left edge of the
+// title's text, in pixels: a rounding of the layout, not a visible step.
+const ALIGNMENT_TOLERANCE = 1;
+
+// The text of a screen's content starts where the text of its title starts, so
+// the eye follows one edge down the page. The offset is recorded as well.
+async function expectAlignedWithTitle(
   page: Page,
   text: Locator,
+  heading = 'Status',
 ): Promise<void> {
-  const main = await boxOf(
-    page.locator('.pf-v6-c-page__main'),
-    'the main area',
-  );
-  const inset = (await textLeft(text)) - main.x;
-  const heading = page.locator('h1', { hasText: 'Status' }).first();
-  const titleInset = (await textLeft(heading)) - main.x;
+  const title = page.locator('h1', { hasText: heading }).first();
+  const offset = (await textLeft(text)) - (await textLeft(title));
   test.info().annotations.push({
-    type: 'status text edge',
-    description: `text ${Math.round(inset)}px, title ${Math.round(titleInset)}px from the main area`,
+    type: 'content edge',
+    description: `${heading}: content ${offset.toFixed(2)}px from the title text`,
   });
-  expect(Math.round(inset)).toBeGreaterThanOrEqual(MEDIUM_GAP);
+  expect(
+    Math.abs(offset),
+    `the content of ${heading} starts ${offset}px from its title`,
+  ).toBeLessThanOrEqual(ALIGNMENT_TOLERANCE);
+}
+
+// The first element inside the section frame of a screen starts where the text
+// of the screen's title starts. A box is measured, not its text: a toolbar or a
+// card grid has no text of its own to start with.
+async function expectFrameAlignedWithTitle(
+  page: Page,
+  heading: string,
+): Promise<void> {
+  const first = page.locator('.pulp-section > *').first();
+  await expect(first).toBeVisible();
+  const box = await boxOf(first, `the first element under ${heading}`);
+  const title = page.locator('h1', { hasText: heading }).first();
+  const offset = box.x - (await textLeft(title));
+  test.info().annotations.push({
+    type: 'frame edge',
+    description: `${heading}: first element ${offset.toFixed(2)}px from the title text`,
+  });
+  expect(
+    Math.abs(offset),
+    `the first element under ${heading} starts ${offset}px from its title`,
+  ).toBeLessThanOrEqual(ALIGNMENT_TOLERANCE);
 }
 
 // Waits for the finite transitions of the page (a dialog fading and moving in)
@@ -386,6 +411,11 @@ test.describe('insufficient permissions page', () => {
         page.locator('h1', { hasText: 'Insufficient permissions' }).first(),
       ).toBeVisible();
       await expect(page.getByRole('button', { name: 'Go back' })).toBeVisible();
+      // the page header names the screen once; the page under it does not
+      // repeat the title
+      await expect(
+        page.getByRole('heading', { name: 'Insufficient permissions' }),
+      ).toHaveCount(1);
       await capture(page, 's2-administration-screen-limited-account');
 
       // the roles list is an administration screen too
@@ -393,6 +423,9 @@ test.describe('insufficient permissions page', () => {
       await expect(
         page.locator('h1', { hasText: 'Insufficient permissions' }).first(),
       ).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'Insufficient permissions' }),
+      ).toHaveCount(1);
     });
 
     test('a list screen offers no header action, row action or actions column', async ({
@@ -972,9 +1005,10 @@ test.describe('before sign in', () => {
     await expect(note).toBeVisible();
     await page.waitForLoadState('networkidle');
 
-    // the note sits inside the section frame of the other screens, not flush
-    // against the sidebar, and a reduced answer has no raw JSON panel
-    await expectInsideSectionFrame(page, note);
+    // the note starts where the title text starts, as the content of every
+    // screen on the section frame does, and a reduced answer has no raw JSON
+    // panel
+    await expectAlignedWithTitle(page, note);
     await expect(page.getByRole('button', { name: 'JSON' })).toHaveCount(0);
     await capture(page, 's7-status-anonymous');
 
@@ -1004,9 +1038,30 @@ test.describe('Status screen of a signed-in account that is not an administrator
     await expect(page.getByText('Online workers')).toHaveCount(0);
     await expect(page.getByText('Versions').first()).toBeVisible();
 
-    await expectInsideSectionFrame(page, note);
+    await expectAlignedWithTitle(page, note);
     await capture(page, 's7-status-viewer');
   });
+});
+
+// ---- section frame ------------------------------------------------------------
+
+test.describe('section frame', () => {
+  // the Status screen and two list screens built on the frame
+  for (const [address, heading] of [
+    ['status', 'Status'],
+    ['roles', 'Roles'],
+    ['file/repositories', 'Repositories'],
+  ] as const) {
+    test(`the content of ${heading} starts where its title text starts @phone`, async ({
+      page,
+    }) => {
+      await page.goto(address);
+      await expect(title(page, heading)).toBeVisible();
+      await page.waitForLoadState('networkidle');
+
+      await expectFrameAlignedWithTitle(page, heading);
+    });
+  }
 });
 
 // ---- add collection dialog ----------------------------------------------------
@@ -1084,6 +1139,30 @@ test.describe('add collection dialog', () => {
     );
     await expect(dialog.getByRole('row')).toHaveCount(11);
     await capture(page, 's8-marked-rows');
+  });
+
+  test('a page of ten rows fits the dialog without scrolling its body at 1440 x 900', async ({
+    page,
+  }) => {
+    await serveCollections(page, [], 'answer');
+    const dialog = await openAddCollection(page);
+
+    await expect(dialog.getByRole('row')).toHaveCount(11);
+    await settle(page);
+    expect(page.viewportSize()).toEqual({ width: 1440, height: 900 });
+    const body = await dialog
+      .locator('.pf-v6-c-modal-box__body')
+      .evaluate((element) => ({
+        scrollHeight: element.scrollHeight,
+        clientHeight: element.clientHeight,
+      }));
+    test.info().annotations.push({
+      type: 'dialog body',
+      description: `scrollHeight ${body.scrollHeight}, clientHeight ${body.clientHeight}`,
+    });
+    expect(body.scrollHeight, 'the dialog body scrolls').toBe(
+      body.clientHeight,
+    );
   });
 
   test('a failed content read shows an alert clear of the toolbar', async ({

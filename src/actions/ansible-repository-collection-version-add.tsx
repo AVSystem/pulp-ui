@@ -275,6 +275,7 @@ const AddCollectionVersionModal = ({
               hasPermission: () => false,
             }}
             busy={contentRead === 'pending'}
+            compact
             defaultPageSize={10}
             errorTitle={t`Collection versions could not be displayed.`}
             filterConfig={[

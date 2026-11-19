@@ -44,6 +44,8 @@ interface IProps<T> {
   // marks the table as busy for assistive technology while the screen around
   // the list still reads data the rows depend on
   busy?: boolean;
+  // tighter rows, for a list that has to fit a page of rows in a dialog
+  compact?: boolean;
   defaultPageSize: number;
   defaultSort?: string;
   errorTitle: string;
@@ -65,6 +67,7 @@ interface IProps<T> {
 export function DetailList<T>({
   actionContext,
   busy,
+  compact,
   defaultPageSize,
   defaultSort,
   errorTitle,
@@ -231,7 +234,11 @@ export function DetailList<T>({
           ) : !items.length ? (
             <EmptyStateFilter />
           ) : (
-            <Table aria-busy={busy} aria-label={title}>
+            <Table
+              aria-busy={busy}
+              aria-label={title}
+              variant={compact ? 'compact' : undefined}
+            >
               <SortTable
                 options={{ headers: sortHeaders }}
                 params={params}
