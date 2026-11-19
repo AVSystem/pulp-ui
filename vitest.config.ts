@@ -8,9 +8,11 @@ import { defineConfig } from 'vitest/config';
 // repository scripts under scripts/, of the build configuration under config/
 // and of the crawler's report tooling under e2e/crawl/ with no setup at all.
 // The sdk workspace has no configuration of its own: its tests under
-// packages/sdk/src run in the app project, and only its build output and
-// installed packages are left out. There is deliberately no passWithNoTests: an
-// include pattern that matches no file must fail the run, never pass silently.
+// packages/sdk/src run in the app project, the tests of its generation scripts
+// under packages/sdk/scripts run in the node project, and only its build
+// output and installed packages are left out. There is deliberately no
+// passWithNoTests: an include pattern that matches no file must fail the run,
+// never pass silently.
 const exclude = [
   'node_modules/**',
   'dist/**',
@@ -80,6 +82,7 @@ export default defineConfig({
           environment: 'node',
           include: [
             'scripts/**/*.test.{ts,mjs}',
+            'packages/sdk/scripts/**/*.test.mjs',
             'config/**/*.test.ts',
             'e2e/**/*.test.mjs',
           ],

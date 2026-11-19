@@ -4,10 +4,13 @@
 // (minus its host-specific parts).
 //
 // What it does:
-//   - merges every schema source into one document (mergeSpecs),
+//   - merges every schema source into one document (mergeSpecs); a path or a
+//     component that two sources define differently stops generation,
 //   - assigns every path to exactly one application (classifyPath) and keeps
 //     only the paths of the application being generated, plus the component
-//     schemas those paths reach,
+//     schemas those paths reach. A path that no application claims and that
+//     is not on the exclusion list stops generation, so a new endpoint of a
+//     plugin release is never dropped silently,
 //   - drops format "uri" everywhere. Pulp marks every relative object
 //     reference (pulp_href, repository, remote, next, previous ...) with that
 //     format, and the Zod generator turns it into an absolute-URL check that
@@ -29,10 +32,36 @@ export const APPS = [
   'rpm',
 ];
 
+// Paths that are not generated, each with the reason. A path is listed here
+// only when it is not a JSON API or does not produce valid client code.
+export const EXCLUDED_PATHS = [
+  {
+    path: '/pulp/api/v3/docs/api.json',
+    reason: 'The schema document itself (JSON), not an API.',
+  },
+  {
+    path: '/pulp/api/v3/docs/api.yaml',
+    reason: 'The schema document itself (YAML), not an API.',
+  },
+  {
+    path: '/pulp_ansible/galaxy/{path}/api/v3/artifacts/collections/{path}/{filename}',
+    reason:
+      'Two path parameters are both named path, so no valid client function can take them.',
+  },
+];
+
 // Plugin applications; every other path belongs to pulpcore.
 const PLUGINS = APPS.filter((app) => app !== 'core');
 
 const API_ROOT = '/pulp/api/v3/';
+
+// First segment of a client-protocol path -> the application serving it.
+const CLIENT_PROTOCOLS = {
+  ansible: 'ansible',
+  npm: 'npm',
+  pulp_ansible: 'ansible',
+  pypi: 'python',
+};
 
 // URL families whose second segment names the plugin that owns the endpoint
 // (/pulp/api/v3/repositories/rpm/rpm/). Without a plugin name the endpoint
@@ -78,27 +107,72 @@ export function classifyPath(path) {
     }
     return 'core';
   }
-  return null;
+  // Client-protocol paths served outside the management API: the plugins'
+  // package indexes and registries.
+  const [family] = path.split('/').filter(Boolean);
+  return CLIENT_PROTOCOLS[family] ?? null;
 }
 
 const isObject = (value) => value !== null && typeof value === 'object';
 
 /**
+ * Stable text of a JSON value, used to compare two definitions.
+ * @param {unknown} value Parsed JSON value.
+ * @returns {string} Text that is equal for equal values whatever the key order.
+ */
+function canonical(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(canonical).join(',')}]`;
+  }
+  if (isObject(value)) {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * Adds the entries of one source to a merged section; an entry that exists
+ * with a different definition stops the merge.
+ * @param {Record<string, any>} target Merged entries by name.
+ * @param {Record<string, any>} entries Entries of the next source.
+ * @param {string} what Kind of entry, for the message.
+ * @returns {void}
+ */
+function mergeEntries(target, entries, what) {
+  for (const [name, definition] of Object.entries(entries)) {
+    if (name in target && canonical(target[name]) !== canonical(definition)) {
+      throw new Error(
+        `${what} ${name} is defined differently in two schema sources`,
+      );
+    }
+    target[name] = structuredClone(definition);
+  }
+}
+
+/**
  * Merges schema documents into one. The first source provides info and
  * security; paths and every component section are united.
  * @param {Record<string, any>[]} specs Parsed schemas.
- * @returns {Record<string, any>} The merged schema.
+ * @returns {Record<string, any>} The merged schema; throws when two sources
+ *   define the same path or component differently.
  */
 export function mergeSpecs(specs) {
   const [first, ...others] = specs;
   const merged = structuredClone(first);
+  merged.paths ??= {};
+  merged.components ??= {};
   for (const spec of others) {
-    Object.assign(merged.paths, structuredClone(spec.paths ?? {}));
+    mergeEntries(merged.paths, spec.paths ?? {}, 'Path');
     for (const [section, entries] of Object.entries(spec.components ?? {})) {
-      merged.components[section] = {
-        ...merged.components[section],
-        ...structuredClone(entries),
-      };
+      merged.components[section] ??= {};
+      mergeEntries(
+        merged.components[section],
+        entries,
+        `Component (${section})`,
+      );
     }
   }
   return merged;
@@ -237,9 +311,18 @@ export function prepareSpec(specs, app) {
   }
   const spec = mergeSpecs(Array.isArray(specs) ? specs : [specs]);
   delete spec.servers;
+  const excluded = new Set(EXCLUDED_PATHS.map(({ path }) => path));
+  const unclaimed = Object.keys(spec.paths).filter(
+    (path) => !excluded.has(path) && classifyPath(path) === null,
+  );
+  if (unclaimed.length > 0) {
+    throw new Error(
+      `No application claims these paths and they are not on the exclusion list:\n${unclaimed.join('\n')}`,
+    );
+  }
   const paths = {};
   for (const [path, item] of Object.entries(spec.paths)) {
-    if (classifyPath(path) === app) {
+    if (!excluded.has(path) && classifyPath(path) === app) {
       paths[path] = item;
     }
   }
