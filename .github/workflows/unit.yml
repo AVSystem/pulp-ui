@@ -39,3 +39,26 @@ jobs:
 
       - name: 'sdk type-check'
         run: npm run typecheck -w @pulp-ui/sdk
+
+      # Generation is offline and deterministic, so the committed generated
+      # code must equal a fresh generation from the committed schema. A hand
+      # edit of generated code, a schema change committed without its
+      # regeneration, or an added file that generation does not write shows up
+      # here: the status also lists untracked files and covers the schema and
+      # the versions file.
+      - name: 'Generated sdk matches the committed schema'
+        run: |
+          npm run generate -w @pulp-ui/sdk
+          changes=$(git status --porcelain packages/sdk)
+          if [ -n "$changes" ]; then
+            echo "The committed sdk differs from a fresh generation:"
+            echo "$changes"
+            exit 1
+          fi
+          # Generated files and the schema are plain 7-bit ASCII.
+          nonascii=$(grep -rlP '[^\x00-\x7F]' packages/sdk/src packages/sdk/schema || true)
+          if [ -n "$nonascii" ]; then
+            echo "Files with a byte above 0x7F:"
+            echo "$nonascii"
+            exit 1
+          fi
