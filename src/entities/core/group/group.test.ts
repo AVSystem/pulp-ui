@@ -331,22 +331,23 @@ describe('group member requests', { tags: ['unit'] }, () => {
   });
 
   it('reads every page of the members, one after the other, and keeps each member once', async () => {
-    const everyone = ['a', 'b', 'c', 'd', 'e'].map((username) => ({
-      username,
-    }));
+    // a member moved while the pages were read and shows on two of them
+    const pages: Record<string, string[]> = {
+      '0': ['a', 'b'],
+      '2': ['b', 'c'],
+      '4': ['d', 'e'],
+    };
     const offsets: (string | null)[] = [];
     server.use(
       http.get(MEMBERS, ({ request }) => {
         const query = new URL(request.url).searchParams;
-        offsets.push(query.get('offset'));
-        const offset = Number(query.get('offset'));
-        const next = offset + 2 < everyone.length;
+        const offset = query.get('offset') ?? '';
+        offsets.push(offset);
         return HttpResponse.json({
-          count: everyone.length,
-          next: next ? 'https://pulp.example/next' : null,
+          count: 5,
+          next: offset === '4' ? null : 'https://pulp.example/next',
           previous: null,
-          // a member moved while the pages were read and shows twice
-          results: everyone.slice(Math.max(0, offset - 1), offset + 2),
+          results: (pages[offset] ?? []).map((username) => ({ username })),
         });
       }),
     );
@@ -354,7 +355,7 @@ describe('group member requests', { tags: ['unit'] }, () => {
     const members = await GroupClient.allMembers(GROUP);
 
     expect(members.map((m) => m.username)).toEqual(['a', 'b', 'c', 'd', 'e']);
-    expect(offsets).toEqual(['0', '3', '6']);
+    expect(offsets).toEqual(['0', '2', '4']);
   });
 
   it('stops reading when a page comes back empty, so a short list never loops', async () => {

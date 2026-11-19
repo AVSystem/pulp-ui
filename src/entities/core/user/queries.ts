@@ -37,10 +37,16 @@ function otherPageOfSameList(a: UserListParams, b: UserListParams): boolean {
 // older answer never lands in the place of a newer one. While another page of
 // the same list loads, the rows of the page before stay; rows that were read
 // for other filters or another order are never shown in their place.
-export function useUsers(params: UserListParams) {
+export function useUsers(
+  params: UserListParams,
+  { staleTime }: { staleTime?: number } = {},
+) {
   return useSessionQuery({
     queryKey: userKeys.list(params),
     queryFn: ({ signal }) => UserClient.list(params, { signal }),
+    // a screen that needs the users as they are now asks for 0; without one
+    // the default of the application holds
+    ...(staleTime === undefined ? {} : { staleTime }),
     placeholderData: (previous, previousQuery) => {
       const before = previousQuery?.queryKey[4] as UserListParams | undefined;
       return before && otherPageOfSameList(before, params)

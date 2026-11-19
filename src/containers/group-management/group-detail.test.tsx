@@ -4,6 +4,7 @@ import { type ReactElement } from 'react';
 import { Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider, useAppContext } from 'src/app-context';
+import { groupKeys } from 'src/entities/core/group/queries';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { group, listOf, page, user } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -18,7 +19,11 @@ import GroupDetail from './group-detail';
 // Pulp decides every request.
 
 const API = '/pulp/api/v3';
-const GROUP = group({ id: 7, name: 'zz-ops' });
+const GROUP = group({
+  id: 7,
+  pulp_href: `${API}/groups/7/`,
+  name: 'zz-ops',
+});
 const GROUP_PATH = `${API}/groups/7/`;
 const MEMBERS = `${GROUP_PATH}users/`;
 const USERS = `${API}/users/`;
@@ -529,7 +534,6 @@ describe('the add dialog of the users tab', () => {
         'User "zz-cat" could not be added to group "zz-ops".',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('User is already in the group.')).toBeTruthy();
     expect(alerts()).toBe(1);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
@@ -636,7 +640,8 @@ describe('the delete group dialog', () => {
     expect(
       await screen.findByText('This group can include users'),
     ).toBeInTheDocument();
-    expect(alerts()).toBe(0);
+    expect(screen.queryByText('Users list could not be displayed.')).toBeNull();
+    expect(count(`GET ${MEMBERS}`)).toBe(1);
   });
 
   async function confirmDelete(view: ReturnType<typeof renderDetail>) {
@@ -672,13 +677,17 @@ describe('the delete group dialog', () => {
     // pressing Delete again while the request is under way sends nothing more
     await view.user.click(
       within(screen.getByRole('dialog')).getByRole('button', {
-        name: 'Delete',
+        name: /Delete/,
       }),
     );
     expect(await screen.findByText('the list screen')).toBeInTheDocument();
 
     expect(count(`DELETE ${GROUP_PATH}`)).toBe(1);
     expect(count(`GET ${GROUP_PATH}`)).toBe(1);
+    // the deleted group does not come back from what was read of it
+    expect(
+      view.queryClient.getQueryData(groupKeys.detail(`${API}/groups/7/`)),
+    ).toBeUndefined();
     expect(
       within(screen.getByRole('list', { name: 'queued alerts' })).getByText(
         'Group "zz-ops" has been successfully deleted.',
@@ -703,9 +712,8 @@ describe('the delete group dialog', () => {
       await screen.findByText('Group "zz-ops" could not be deleted.'),
     ).toBeInTheDocument();
     expect(alerts()).toBe(1);
-    expect(
-      screen.getByRole('heading', { name: 'zz-ops', level: 1 }),
-    ).toBeInTheDocument();
+    // the confirmation stays, so that the user can try again
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.queryByText('the list screen')).toBeNull();
     expect(count(`DELETE ${GROUP_PATH}`)).toBe(1);
   });

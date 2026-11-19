@@ -8129,8 +8129,8 @@ msgstr ""
 msgid "User \"{0}\" could not be added to \"{name}\"."
 msgstr ""
 
-#. placeholder {0}: selectedUsers[0].name
-#. placeholder {1}: this.state.group.name
+#. placeholder {0}: outcome.username
+#. placeholder {1}: group.name
 #: src/containers/group-management/group-detail.tsx
 msgid "User \"{0}\" could not be added to group \"{1}\"."
 msgstr "El usuario \"{0}\" no se pudo agregar al grupo \"{1}\"."
@@ -8146,7 +8146,7 @@ msgstr "No se pudo eliminar el usuario \"{0}\"."
 msgid "User \"{0}\" could not be removed from \"{name}\"."
 msgstr ""
 
-#. placeholder {0}: user.username
+#. placeholder {0}: member.username
 #: src/containers/group-management/group-detail.tsx
 msgid "User \"{0}\" could not be removed from group \"{name}\"."
 msgstr "El usuario \"{0}\" no se pudo eliminar del grupo \"{name}\"."
@@ -8157,8 +8157,8 @@ msgstr "El usuario \"{0}\" no se pudo eliminar del grupo \"{name}\"."
 msgid "User \"{0}\" has been successfully added to \"{name}\"."
 msgstr ""
 
-#. placeholder {0}: selectedUsers[0].name
-#. placeholder {1}: this.state.group.name
+#. placeholder {0}: outcome.username
+#. placeholder {1}: group.name
 #: src/containers/group-management/group-detail.tsx
 msgid "User \"{0}\" has been successfully added to group \"{1}\"."
 msgstr "El usuario \"{0}\" se agregó correctamente al grupo \"{1}\"."
@@ -8174,7 +8174,7 @@ msgstr "El usuario \"{0}\" se eliminó correctamente."
 msgid "User \"{0}\" has been successfully removed from \"{name}\"."
 msgstr ""
 
-#. placeholder {0}: user.username
+#. placeholder {0}: member.username
 #: src/containers/group-management/group-detail.tsx
 msgid "User \"{0}\" has been successfully removed from group \"{name}\"."
 msgstr "El usuario \"{0}\" se eliminó correctamente del grupo \"{name}\"."

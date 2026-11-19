@@ -16,11 +16,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  type GroupObjectPermissionType,
-  GroupRoleAPI,
-  type RoleType,
-} from 'src/api';
+import { GroupRoleAPI, type RoleType } from 'src/api';
 import {
   AppliedFilters,
   CompoundFilter,
@@ -64,7 +60,8 @@ interface GroupRoleType {
 interface IProps {
   addAlert: (title, variant, description?) => void;
   canEdit: boolean;
-  group: GroupObjectPermissionType;
+  // the group whose roles are shown: only its id and its name are read
+  group: { id: number; name: string };
   nonQueryParams?: string[];
   params: ParamType;
   updateParams: (params) => void;

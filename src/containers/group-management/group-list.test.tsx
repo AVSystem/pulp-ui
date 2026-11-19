@@ -493,6 +493,38 @@ describe('deleting a group from the list', () => {
     expect(calls.lists).toBe(2);
   });
 
+  it('does not read the members of the deleted group again, so no failed read is reported next to the success', async () => {
+    let gone = false;
+    const memberReads: number[] = [];
+    server.use(
+      http.get(`*${GROUPS}`, () =>
+        HttpResponse.json(groupPage(gone ? [dev] : [ops, dev])),
+      ),
+      http.get(MEMBERS, () => {
+        memberReads.push(1);
+        return gone
+          ? HttpResponse.json({ detail: 'Not found.' }, { status: 404 })
+          : HttpResponse.json(page([]));
+      }),
+      http.delete(`*${GROUPS}31/`, () => {
+        gone = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { user } = renderGroups();
+    const dialog = await openDeleteDialog(user);
+    await within(dialog).findByText(/No users will be affected/);
+
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    expect(
+      await screen.findByText('Group "zz-ops" has been successfully deleted.'),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByText('Users list could not be displayed.')).toBeNull();
+    expect(memberReads).toHaveLength(1);
+  });
+
   it('sends one DELETE for two presses of Delete while the first is under way', async () => {
     const { calls, release } = serveRemoval({ slow: true });
     const { user } = renderGroups();

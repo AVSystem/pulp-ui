@@ -1,3 +1,4 @@
+import { userUrlId } from 'src/entities/core/user/href';
 import { config } from 'src/ui-config';
 
 // A group is addressed in the browser by its numeric id and held inside the
@@ -24,4 +25,21 @@ export function groupUrlId(href: string | null | undefined): string | null {
   }
   const path = href.split(/[?#]/)[0];
   return GROUP_HREF.exec(path)?.[1] ?? null;
+}
+
+// The address of one member of a group, the endpoint that takes the user out of
+// the group. It is built from the address of the group and the address of the
+// user (the member's pulp_href), and is null unless the first names a group and
+// the second a user: a screen never writes the path itself, and an address of
+// anything else never reaches a request.
+export function groupMemberHref(
+  group: string | null | undefined,
+  user: string | null | undefined,
+): string | null {
+  const groupId = groupUrlId(group);
+  const userId = userUrlId(user);
+
+  return groupId === null || userId === null
+    ? null
+    : `${config.API_BASE_PATH}groups/${groupId}/users/${userId}/`;
 }

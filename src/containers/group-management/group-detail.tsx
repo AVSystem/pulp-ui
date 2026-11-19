@@ -13,15 +13,9 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { Component, type ReactNode } from 'react';
-import { Navigate } from 'react-router';
-import {
-  GroupAPI,
-  type GroupObjectPermissionType,
-  UserAPI,
-  type UserType,
-} from 'src/api';
-import { AppContext, type IAppContextType } from 'src/app-context';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -47,14 +41,20 @@ import {
   Typeahead,
   closeAlert,
 } from 'src/components';
-import { Paths, formatPath } from 'src/paths';
+import { groupHref } from 'src/entities/core/group/href';
+import type { Group, GroupMember } from 'src/entities/core/group/model';
 import {
-  ParamHelper,
-  type RouteProps,
-  filterIsSet,
-  withRouter,
-} from 'src/utilities';
-import { idFromHref } from 'src/utilities/global-permissions';
+  useAddGroupMembers,
+  useAllGroupMemberNames,
+  useDeleteGroup,
+  useGroup,
+  useGroupMemberList,
+  useGroupMembers,
+  useRemoveGroupMember,
+} from 'src/entities/core/group/queries';
+import { useUsers } from 'src/entities/core/user/queries';
+import { Paths, formatPath } from 'src/paths';
+import { ParamHelper, filterIsSet } from 'src/utilities';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -66,622 +66,326 @@ import GroupDetailRoleManagement from './group-detail-role-management/group-deta
 // Names the add-users dialog by its visible title.
 const ADD_USER_MODAL_TITLE_ID = 'add-user-modal-title';
 
-interface IState {
-  addModalVisible: boolean;
-  alerts: AlertType[];
-  allUsers: UserType[];
-  group: GroupObjectPermissionType;
-  inputText: string;
-  itemCount: number;
-  notFound: boolean;
-  options: { id: number; name: string }[];
-  originalPermissions: { id: number; name: string }[];
-  params: {
-    [key: string]: string | number;
-    id: string;
-    page?: number;
-    page_size?: number;
-    sort?: string;
-    tab: string;
+// The queries of the user list that belong to this screen and not to the
+// roles tab, which reads its own filters.
+const USER_QUERY_PARAMS = ['username', 'first_name', 'last_name', 'email'];
+
+// How many affected users the delete dialog lists by name.
+const MEMBERS_SHOWN = 10;
+
+const DEFAULT_PAGE_SIZE = 10;
+
+// The address holds the tab, the page, its size, the order and the filters; the
+// screen shows exactly what the address says, and a change goes through the
+// address.
+function paramsOfAddress(search: string) {
+  const params = ParamHelper.parseParamString(search, ['page', 'page_size']);
+  const tab = params['tab'] || 'access';
+
+  return {
+    ...params,
+    page_size: params['page_size'] || DEFAULT_PAGE_SIZE,
+    sort: params['sort'] || (tab === 'access' ? 'role' : 'username'),
+    tab,
   };
-  permissions: string[];
-  redirect?: string;
-  selected: { id: number; name: string }[];
-  showDeleteModal: boolean;
-  showUserRemoveModal: UserType | null;
-  unauthorized: boolean;
-  // the reason Pulp gave for refusing the read, when it gave one
-  unauthorizedDetail: string | null;
-  users: UserType[];
-  // why the last read of the members failed; remembered so that the read is
-  // not started again until the user asks for it
-  usersFailure: ReactNode | null;
-  // Pulp refused to list the members, with its reason when it gave one
-  usersUnauthorized: boolean;
-  usersUnauthorizedDetail: string | null;
 }
 
-class GroupDetail extends Component<RouteProps, IState> {
-  static contextType = AppContext;
+// A parameter that came in more than once is read as its first value.
+function single(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first === undefined || first === null ? undefined : String(first);
+}
 
-  userQueryStringParams = ['username', 'first_name', 'last_name', 'email'];
+// The address holds the id of one group. Another group is another screen: what
+// the one left behind showed, its alerts and its open dialogs go with it.
+const GroupDetail = () => {
+  const { group: urlId } = useParams();
 
-  // Identifies the latest user search of the add dialog, so a slower answer to
-  // an earlier text cannot replace the list of a later one.
-  latestUserSearch = 0;
+  return <GroupDetailScreen key={urlId} urlId={urlId} />;
+};
 
-  // Identifies the latest members read, so a slower answer to an earlier page
-  // or filter cannot replace the rows of a later one.
-  latestUsersRead = 0;
+const GroupDetailScreen = ({ urlId }: { urlId: string }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { hasPermission, queueAlert } = useAppContext();
 
-  // True while the latest members read is in flight, so lifecycle code never
-  // starts a second one beside it.
-  loadingUsers = false;
+  const params = useMemo(
+    () => paramsOfAddress(location.search),
+    [location.search],
+  );
 
-  constructor(props) {
-    super(props);
+  // The id of the address becomes an address of the API only here; an id that
+  // is not one names no group and asks for nothing.
+  const href = groupHref(urlId);
 
-    const id = this.props.routeParams.group;
+  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [addVisible, setAddVisible] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<GroupMember | null>(
+    null,
+  );
+  // True once the group has been deleted: nothing is read of it any more.
+  const [deleted, setDeleted] = useState(false);
 
-    const params = ParamHelper.parseParamString(props.location.search, [
-      'page',
-      'page_size',
-    ]);
+  const deleteGroup = useDeleteGroup();
+  const removeMember = useRemoveGroupMember();
 
-    this.state = {
-      addModalVisible: false,
-      alerts: [],
-      allUsers: null,
-      group: null,
-      inputText: '',
-      itemCount: 0,
-      notFound: false,
-      options: undefined,
-      originalPermissions: [],
-      params: {
-        id,
-        page: 0,
-        page_size: params['page_size'] || 10,
-        sort:
-          params['sort'] || (params['tab'] === 'access' ? 'role' : 'username'),
-        tab: params['tab'] || 'access',
-      },
-      permissions: [],
-      selected: [],
-      showDeleteModal: false,
-      showUserRemoveModal: null,
-      unauthorized: false,
-      unauthorizedDetail: null,
-      users: null,
-      usersFailure: null,
-      usersUnauthorized: false,
-      usersUnauthorizedDetail: null,
-    };
-  }
+  // A group that is being deleted, or is gone, is not read again: the answer
+  // could only be a failure, shown for a moment before the screen moves on.
+  const leaving = deleteGroup.isPending || deleted;
 
-  componentDidMount() {
-    this.queryGroup();
-  }
+  const groupQuery = useGroup(href, { enabled: !leaving });
+  const group = groupQuery.data;
 
-  componentDidUpdate(prevProps: RouteProps) {
-    // The same user signed in again: read again what is on screen, keeping
-    // the content and the open dialogs.
+  const onUsersTab = params.tab === 'users';
+  const membersQuery = useGroupMemberList(
+    href,
+    {
+      page: params['page'] as number | undefined,
+      page_size: params['page_size'] as number,
+      sort: single(params['sort']),
+      username: single(params['username']),
+    },
+    { enabled: !!group && onUsersTab && !leaving },
+  );
+
+  // The users a deletion would affect are the members of the group, read only
+  // for the dialog that is open and only by someone who may see users.
+  const mayViewUsers = hasPermission('auth.view_user');
+  const affected = useGroupMembers(href, {
+    limit: MEMBERS_SHOWN,
+    enabled: showDeleteModal && mayViewUsers && !leaving,
+  });
+
+  const addAlert = (alert: AlertType) =>
+    setAlerts((current) => [...current, alert]);
+
+  // The group on screen is never replaced by the failure of a later read: it
+  // stays, and the failure is reported next to it, once.
+  const groupStatus = groupQuery.isError
+    ? requestErrorStatus(groupQuery.error)
+    : null;
+  const groupSessionEnded =
+    groupQuery.isError && isSessionEnd(groupQuery.error);
+  const alertedGroup = useRef(0);
+  const groupRereadFailed = groupQuery.isRefetchError && !groupSessionEnded;
+  useEffect(() => {
     if (
-      prevProps.sessionEpoch !== this.props.sessionEpoch &&
-      !this.state.unauthorized
+      groupRereadFailed &&
+      alertedGroup.current !== groupQuery.errorUpdatedAt
     ) {
-      this.reloadAfterSignIn();
-    }
-
-    if (prevProps.location.search !== this.props.location.search) {
-      const id = this.props.routeParams.group;
-      const params = ParamHelper.parseParamString(this.props.location.search, [
-        'page',
-        'page_size',
-      ]);
-      this.setState({
-        params: {
-          ...params,
-          id,
-          page_size: params['page_size'] || 10,
-          sort:
-            params['sort'] ||
-            (params['tab'] === 'access' ? 'role' : 'username'),
-          tab: params['tab'] || 'access',
-        },
+      alertedGroup.current = groupQuery.errorUpdatedAt;
+      addAlert({
+        variant: 'danger',
+        title: t`Group could not be displayed.`,
+        description: requestErrorDescription(groupQuery.error),
       });
     }
+  }, [groupRereadFailed, groupQuery.errorUpdatedAt, groupQuery.error]);
 
-    this.startMembersRead();
-  }
-
-  // The members are read once the group is known and the Users tab is shown.
-  // A read that failed or was refused is remembered and not started again
-  // until the user retries, so a failure never turns into a request loop.
-  private startMembersRead() {
-    const { group, params, users, usersFailure, usersUnauthorized } =
-      this.state;
-
+  // A failed read of the members is reported once, whether it left the tab
+  // with nothing to show or only failed to refresh what is shown. A refusal
+  // with nothing to show is not an alert: the tab says so itself.
+  const membersStatus = membersQuery.isError
+    ? requestErrorStatus(membersQuery.error)
+    : null;
+  const membersSessionEnded =
+    membersQuery.isError && isSessionEnd(membersQuery.error);
+  const membersRefused = membersStatus === 403 && !membersQuery.data;
+  const membersFailed =
+    membersQuery.isError && !membersSessionEnded && !membersRefused;
+  const alertedMembers = useRef(0);
+  useEffect(() => {
     if (
-      group &&
-      params.tab === 'users' &&
-      users === null &&
-      !usersFailure &&
-      !usersUnauthorized &&
-      !this.loadingUsers
+      membersFailed &&
+      alertedMembers.current !== membersQuery.errorUpdatedAt
     ) {
-      this.queryUsers();
+      alertedMembers.current = membersQuery.errorUpdatedAt;
+      addAlert({
+        variant: 'danger',
+        title: t`Users list could not be displayed.`,
+        description: requestErrorDescription(membersQuery.error),
+      });
     }
+  }, [membersFailed, membersQuery.errorUpdatedAt, membersQuery.error]);
+
+  // A failed read of the affected users closes the delete dialog and says so
+  // once; a refusal keeps it, with the warning that the users cannot be shown.
+  // The end of a session keeps it too: the sign-in dialog explains it and the
+  // users are read again after signing in.
+  const affectedRefused =
+    affected.isError && requestErrorStatus(affected.error) === 403;
+  const affectedFailed =
+    affected.isError && !isSessionEnd(affected.error) && !affectedRefused;
+  const alertedAffected = useRef(0);
+  useEffect(() => {
+    if (affectedFailed && alertedAffected.current !== affected.errorUpdatedAt) {
+      alertedAffected.current = affected.errorUpdatedAt;
+      setShowDeleteModal(false);
+      addAlert({
+        variant: 'danger',
+        title: t`Users list could not be displayed.`,
+        description: requestErrorDescription(affected.error),
+      });
+    }
+  }, [affectedFailed, affected.errorUpdatedAt, affected.error]);
+
+  const updateParams = (next) =>
+    navigate({ search: '?' + ParamHelper.getQueryString(next) });
+
+  const alertList = (
+    <AlertList
+      alerts={alerts}
+      closeAlert={(i) => closeAlert(i, { alerts, setAlerts })}
+    />
+  );
+
+  if (href === null || (!group && groupStatus === 404)) {
+    return <NotFound />;
   }
 
-  render() {
-    if (this.state.redirect) {
-      return <Navigate to={this.state.redirect} />;
-    }
-
-    const {
-      addModalVisible,
-      alerts,
-      group,
-      notFound,
-      params,
-      showDeleteModal,
-      showUserRemoveModal,
-      unauthorized,
-      unauthorizedDetail,
-      users,
-      usersFailure,
-      usersUnauthorized,
-      usersUnauthorizedDetail,
-    } = this.state;
-    const { hasPermission } = this.context as IAppContextType;
-
-    if (!group && alerts && alerts.length) {
-      return (
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
-        />
-      );
-    }
-
-    if (unauthorized) {
-      return (
-        <>
-          <BaseHeader title={t`Insufficient permissions`} />
-          <InsufficientPermissions detail={unauthorizedDetail} />
-        </>
-      );
-    }
-
-    if (notFound) {
-      return <NotFound />;
-    }
-
-    if (!group) {
-      return <LoadingPage />;
-    }
-
-    const tabs = [
-      {
-        active: params.tab === 'access',
-        title: t`Access`,
-        link: formatPath(
-          Paths.core.group.detail,
-          { group: group.id },
-          { tab: 'access' },
-        ),
-      },
-      hasPermission('auth.view_user') && {
-        active: params.tab === 'users',
-        title: t`Users`,
-        link: formatPath(
-          Paths.core.group.detail,
-          { group: group.id },
-          { tab: 'users' },
-        ),
-      },
-    ];
-
+  // A refused read is not a failure to retry: the user is told they may not
+  // view the group, with Pulp's own reason.
+  if (!group && groupStatus === 403) {
     return (
       <>
-        <AlertList
-          alerts={alerts}
-          closeAlert={(i) =>
-            closeAlert(i, {
-              alerts,
-              setAlerts: (alerts) => this.setState({ alerts }),
-            })
-          }
+        {alertList}
+        <BaseHeader title={t`Insufficient permissions`} />
+        <InsufficientPermissions
+          detail={requestErrorDetail(groupQuery.error)}
         />
-        {addModalVisible ? this.renderAddModal() : null}
-        {showDeleteModal ? this.renderGroupDeleteModal() : null}
-        {showUserRemoveModal ? this.renderUserRemoveModal() : null}
-        <BaseHeader
-          title={group.name}
-          breadcrumbs={
-            <Breadcrumbs
-              links={[
-                { url: formatPath(Paths.core.group.list), name: t`Groups` },
-                { name: group.name },
-              ]}
-            />
-          }
-          pageControls={this.renderControls()}
-        >
-          <div className='pulp-tab-link-container'>
-            <div className='tabs'>
-              <LinkTabs tabs={tabs} />
-            </div>
-          </div>
-        </BaseHeader>
-        {params.tab == 'users' && usersUnauthorized ? (
-          <InsufficientPermissions detail={usersUnauthorizedDetail} />
-        ) : (
-          <Main data-cy='main-tabs'>
-            {params.tab == 'access' ? this.renderGroupDetail() : null}
-            {params.tab == 'users'
-              ? this.renderUsersTab(users, usersFailure)
-              : null}
-          </Main>
-        )}
       </>
     );
   }
 
-  private renderControls() {
-    const { hasPermission } = this.context as IAppContextType;
-
-    if (!hasPermission('core.delete_group')) {
-      return null;
-    }
-
+  if (
+    !group &&
+    groupQuery.isError &&
+    !groupSessionEnded &&
+    !groupQuery.isFetching
+  ) {
     return (
-      <ToolbarItem>
-        <Button onClick={() => this.openDeleteDialog()} variant='secondary'>
-          {t`Delete`}
-        </Button>
-      </ToolbarItem>
-    );
-  }
-
-  // The delete dialog lists the affected members, so opening it reads them
-  // when they are not known yet and the user may list them.
-  private openDeleteDialog() {
-    const { hasPermission } = this.context as IAppContextType;
-
-    this.setState({ showDeleteModal: true });
-    if (
-      hasPermission('auth.view_user') &&
-      !this.state.users &&
-      !this.state.usersUnauthorized &&
-      !this.loadingUsers
-    ) {
-      this.queryUsers();
-    }
-  }
-
-  // The candidates of the add dialog are read each time it opens; the dialog
-  // appears when they are known.
-  private openAddDialog() {
-    this.setState({ addModalVisible: true, options: undefined });
-    this.loadOptions();
-  }
-
-  private renderGroupDetail() {
-    const { params, group } = this.state;
-    const { hasPermission } = this.context as IAppContextType;
-    const canEdit = hasPermission('core.manage_roles_group');
-
-    return (
-      <GroupDetailRoleManagement
-        addAlert={(title, variant, description) =>
-          this.addAlert(title, variant, description)
-        }
-        canEdit={canEdit}
-        group={group}
-        nonQueryParams={this.userQueryStringParams}
-        params={params}
-        updateParams={(p) => this.updateParams(p)}
-      />
-    );
-  }
-
-  private renderAddModal() {
-    if (this.state.options === undefined) {
-      return null;
-    }
-
-    const close = () => this.setState({ addModalVisible: false, selected: [] });
-
-    return (
-      <Modal
-        variant='large'
-        onClose={close}
-        isOpen
-        aria-labelledby={ADD_USER_MODAL_TITLE_ID}
-      >
-        <ModalHeader
-          labelId={ADD_USER_MODAL_TITLE_ID}
-          title={t`Add selected users to group`}
-        />
-        <ModalBody>
-          <Typeahead
-            results={this.state.options}
-            loadResults={(name) => {
-              const current = ++this.latestUserSearch;
-              return UserAPI.list({
-                username__contains: name,
-                page_size: 1000,
-              })
-                .then((result) => {
-                  if (current !== this.latestUserSearch) {
-                    return;
-                  }
-                  let filteredUsers = [];
-                  result.data.results.forEach((user) => {
-                    filteredUsers.push({
-                      id: user.id,
-                      name: user.username,
-                    });
-                  });
-                  filteredUsers = filteredUsers.filter(
-                    (x) =>
-                      !this.state.selected.find((s) => s.name === x.name) &&
-                      !(this.state.users ?? []).find(
-                        (u) => u.username === x.name,
-                      ),
-                  );
-                  this.setState({
-                    options: filteredUsers,
-                  });
-                })
-                .catch((e) => {
-                  if (current !== this.latestUserSearch || isSessionEnd(e)) {
-                    return;
-                  }
-                  this.addAlert(
-                    t`Users list could not be displayed.`,
-                    'danger',
-                    requestErrorDescription(e),
-                  );
-                });
-            }}
-            onSelect={(event, selection) => {
-              const selectedUser = this.state.options.find(
-                (x) => x.name === selection,
-              );
-              if (selectedUser) {
-                const newOptions = this.state.options.filter(
-                  (x) => x.name !== selection,
-                );
-                this.setState({
-                  selected: [...this.state.selected, selectedUser],
-                  options: newOptions,
-                });
-              } else {
-                const deselectedUser = this.state.selected.find(
-                  (x) => x.name === selection,
-                );
-                const newSelected = this.state.selected.filter(
-                  (x) => x.name !== selection,
-                );
-                this.setState({
-                  selected: newSelected,
-                  options: [...this.state.options, deselectedUser],
-                });
-              }
-            }}
-            placeholderText={t`Select users`}
-            selections={this.state.selected}
-            menuAppendTo={'parent'}
-            multiple
-            onClear={() =>
-              this.setState({
-                selected: [],
-                options: [...this.state.options, ...this.state.selected],
-              })
-            }
-            style={{ overflowY: 'auto', maxHeight: '350px' }}
+      <>
+        {alertList}
+        <BaseHeader title={t`Groups`} />
+        <Main>
+          <ListErrorState
+            title={t`Group could not be displayed.`}
+            message={requestErrorDescription(groupQuery.error)}
+            onRetry={() => groupQuery.refetch()}
           />
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            key='add'
-            variant='primary'
-            isDisabled={this.state.selected.length === 0}
-            onClick={() =>
-              this.addUserToGroup(this.state.selected, this.state.group).then(
-                (added) => {
-                  // A session end leaves the dialog and its selection as they
-                  // are, so the user can add again after signing in.
-                  if (added) {
-                    close();
-                  }
-                },
-              )
-            }
-          >
-            {t`Add`}
-          </Button>
-          <Button key='cancel' variant='link' onClick={close}>
-            {t`Cancel`}
-          </Button>
-        </ModalFooter>
-      </Modal>
+        </Main>
+      </>
     );
   }
 
-  private renderGroupDeleteModal() {
-    const { group, users, itemCount } = this.state;
-    const { hasPermission, queueAlert } = this.context as IAppContextType;
+  if (!group) {
+    return (
+      <>
+        {alertList}
+        <LoadingPage />
+      </>
+    );
+  }
 
-    const deleteAction = () => {
-      GroupAPI.delete(group.id)
-        .then(() => {
-          this.setState({
-            showDeleteModal: false,
-          });
-          queueAlert({
-            title: t`Group "${group.name}" has been successfully deleted.`,
-            variant: 'success',
-          });
-          this.setState({ redirect: formatPath(Paths.core.group.list) });
-        })
-        .catch((e) => {
-          if (isSessionEnd(e)) {
-            return;
-          }
-          this.addAlert(
-            t`Group "${group.name}" could not be deleted.`,
-            'danger',
-            requestErrorDescription(e),
-          );
+  const confirmDelete = async () => {
+    if (deleteGroup.isPending) {
+      return;
+    }
+    try {
+      await deleteGroup.mutateAsync({ href: group.pulp_href });
+    } catch (error) {
+      // The session ended: nothing was deleted and nothing is repeated.
+      if (!isSessionEnd(error)) {
+        addAlert({
+          variant: 'danger',
+          title: t`Group "${group.name}" could not be deleted.`,
+          description: requestErrorDescription(error),
         });
-    };
-
-    const view_user =
-      hasPermission('auth.view_user') && !this.state.usersUnauthorized;
-
-    return (
-      <DeleteGroupModal
-        count={itemCount}
-        cancelAction={() => this.setState({ showDeleteModal: false })}
-        deleteAction={deleteAction}
-        name={group.name}
-        users={users}
-        canViewUsers={view_user}
-      />
-    );
-  }
-
-  private renderUserRemoveModal() {
-    const group = this.state.group;
-    const user = this.state.showUserRemoveModal as UserType;
-
-    const { username } = user;
-    const groupname = group.name;
-
-    return (
-      <DeleteModal
-        cancelAction={() => this.setState({ showUserRemoveModal: null })}
-        deleteAction={() => this.deleteUser(user)}
-        title={t`Remove user from group?`}
-      >
-        <Trans>
-          User <b>{username}</b> will be removed from group <b>{groupname}</b>.
-        </Trans>
-      </DeleteModal>
-    );
-  }
-
-  private addUserToGroup(selectedUsers, group) {
-    // Resolves with false when the session ended: nothing was added, and the
-    // caller keeps the dialog open.
-    let added = true;
-    return Promise.all(
-      selectedUsers.map(({ id }) => {
-        const user = this.state.allUsers.find((x) => x.id === id);
-        return GroupAPI.addUserToGroup(group.id, user.username);
-      }),
-    )
-      .then(() => {
-        this.addAlert(
-          t`User "${selectedUsers[0].name}" has been successfully added to group "${this.state.group.name}".`,
-          'success',
-        );
-      })
-      .catch((e) => {
-        if (isSessionEnd(e)) {
-          added = false;
-          return;
-        }
-        this.addAlert(
-          t`User "${selectedUsers[0].name}" could not be added to group "${this.state.group.name}".`,
-          'danger',
-          requestErrorDescription(e),
-        );
-      })
-      .then(() => {
-        if (added) {
-          this.queryUsers();
-        }
-        return added;
-      });
-  }
-
-  private loadOptions() {
-    UserAPI.list({ page_size: 1000 })
-      .then((result) => {
-        const options = result.data.results
-          .filter(
-            (user) =>
-              !(this.state.users ?? []).find(
-                (u) => u.username === user.username,
-              ) &&
-              // what the user already picked stays picked, not offered again
-              !this.state.selected.find((s) => s.id === user.id),
-          )
-          .map((option) => ({ id: option.id, name: option.username }));
-        this.setState({ options, allUsers: result.data.results });
-      })
-      .catch((e) => {
-        if (isSessionEnd(e)) {
-          return;
-        }
-        // The dialog opens only with its candidates, so a failed read closes
-        // it; the alert says why and Add tries again.
-        this.setState({ addModalVisible: false, options: undefined });
-        this.addAlert(
-          t`Users list could not be displayed.`,
-          'danger',
-          requestErrorDescription(e),
-        );
-      });
-  }
-
-  private addAlert(title, variant, description?) {
-    this.setState({
-      alerts: [
-        ...this.state.alerts,
-        {
-          description,
-          title,
-          variant,
-        },
-      ],
+      }
+      return;
+    }
+    setDeleted(true);
+    setShowDeleteModal(false);
+    queueAlert({
+      title: t`Group "${group.name}" has been successfully deleted.`,
+      variant: 'success',
     });
-  }
+    navigate(formatPath(Paths.core.group.list));
+  };
 
-  private renderUsersTab(users: UserType[] | null, failure: ReactNode | null) {
-    if (failure) {
+  const confirmRemove = async (member: GroupMember) => {
+    if (removeMember.isPending) {
+      return;
+    }
+    const { name } = group;
+    try {
+      await removeMember.mutateAsync({ href, member: member.pulp_href });
+    } catch (error) {
+      // The session ended: nothing was removed and nothing is repeated; the
+      // confirmation stays so that the user can remove after signing in.
+      if (!isSessionEnd(error)) {
+        addAlert({
+          variant: 'danger',
+          title: t`User "${member.username}" could not be removed from group "${name}".`,
+          description: requestErrorDescription(error),
+        });
+      }
+      return;
+    }
+    setMemberToRemove(null);
+    addAlert({
+      variant: 'success',
+      title: t`User "${member.username}" has been successfully removed from group "${name}".`,
+    });
+  };
+
+  const tabs = [
+    {
+      active: params.tab === 'access',
+      title: t`Access`,
+      link: formatPath(
+        Paths.core.group.detail,
+        { group: urlId },
+        { tab: 'access' },
+      ),
+    },
+    hasPermission('auth.view_user') && {
+      active: params.tab === 'users',
+      title: t`Users`,
+      link: formatPath(
+        Paths.core.group.detail,
+        { group: urlId },
+        { tab: 'users' },
+      ),
+    },
+  ];
+
+  const renderUsersTab = () => {
+    const members = membersQuery.data;
+    const failed =
+      membersQuery.isError &&
+      !membersSessionEnded &&
+      !members &&
+      !membersQuery.isFetching;
+
+    if (failed) {
       return (
         <ListErrorState
           title={t`Users list could not be displayed.`}
-          message={failure}
-          onRetry={() => this.retryUsers()}
+          message={requestErrorDescription(membersQuery.error)}
+          onRetry={() => membersQuery.refetch()}
         />
       );
     }
 
-    return users ? this.renderUsers(users) : <LoadingSpinner />;
-  }
+    if (!members) {
+      return <LoadingSpinner />;
+    }
 
-  private retryUsers() {
-    this.queryUsers();
-    this.setState({ usersFailure: null });
-  }
-
-  private renderUsers(users) {
-    const { itemCount, params } = this.state;
-    const { hasPermission } = this.context as IAppContextType;
-    const noData =
-      itemCount === 0 && !filterIsSet(this.state.params, ['username']);
+    const itemCount = members.count;
+    const noData = itemCount === 0 && !filterIsSet(params, ['username']);
 
     if (noData) {
       return (
@@ -690,7 +394,7 @@ class GroupDetail extends Component<RouteProps, IState> {
           description={t`Users will appear once added to this group`}
           button={
             hasPermission('core.change_group') && (
-              <Button variant='primary' onClick={() => this.openAddDialog()}>
+              <Button variant='primary' onClick={() => setAddVisible(true)}>
                 {t`Add`}
               </Button>
             )
@@ -707,11 +411,9 @@ class GroupDetail extends Component<RouteProps, IState> {
               <ToolbarGroup>
                 <ToolbarItem>
                   <CompoundFilter
-                    inputText={this.state.inputText}
-                    onChange={(text) => this.setState({ inputText: text })}
-                    updateParams={(p) =>
-                      this.updateParams(p, () => this.queryUsers())
-                    }
+                    inputText={inputText}
+                    onChange={setInputText}
+                    updateParams={updateParams}
                     params={params}
                     filterConfig={[
                       {
@@ -725,7 +427,7 @@ class GroupDetail extends Component<RouteProps, IState> {
               {hasPermission('core.change_group') && (
                 <ToolbarGroup>
                   <ToolbarItem>
-                    <Button onClick={() => this.openAddDialog()}>
+                    <Button onClick={() => setAddVisible(true)}>
                       {t`Add`}
                     </Button>
                   </ToolbarItem>
@@ -736,7 +438,7 @@ class GroupDetail extends Component<RouteProps, IState> {
 
           <PulpPagination
             params={params}
-            updateParams={(p) => this.updateParams(p, () => this.queryUsers())}
+            updateParams={updateParams}
             count={itemCount}
             isTop
           />
@@ -744,8 +446,8 @@ class GroupDetail extends Component<RouteProps, IState> {
         <div>
           <AppliedFilters
             updateParams={(p) => {
-              this.updateParams(p, () => this.queryUsers());
-              this.setState({ inputText: '' });
+              updateParams(p);
+              setInputText('');
             }}
             params={params}
             ignoredParams={[
@@ -758,21 +460,20 @@ class GroupDetail extends Component<RouteProps, IState> {
             ]}
           />
         </div>
-        {this.renderUsersTable(users)}
+        {renderUsersTable(members.results)}
         <div style={{ paddingTop: '24px', paddingBottom: '8px' }}>
           <PulpPagination
             params={params}
-            updateParams={(p) => this.updateParams(p, () => this.queryUsers())}
+            updateParams={updateParams}
             count={itemCount}
           />
         </div>{' '}
       </section>
     );
-  }
+  };
 
-  private renderUsersTable(users) {
-    const { params } = this.state;
-    if (users.length === 0) {
+  const renderUsersTable = (members: GroupMember[]) => {
+    if (members.length === 0) {
       return <EmptyStateFilter />;
     }
 
@@ -791,178 +492,291 @@ class GroupDetail extends Component<RouteProps, IState> {
         <SortTable
           options={sortTableOptions}
           params={params}
-          updateParams={(p) => this.updateParams(p, () => this.queryUsers())}
+          updateParams={updateParams}
         />
-        <Tbody>{users.map((user, i) => this.renderTableRow(user, i))}</Tbody>
+        <Tbody>{members.map((member) => renderTableRow(member))}</Tbody>
       </Table>
     );
-  }
+  };
 
-  private renderTableRow(user: UserType, index: number) {
-    const { hasPermission } = this.context as IAppContextType;
+  const renderTableRow = (member: GroupMember) => {
     const dropdownItems = [
       hasPermission('core.change_group') && (
-        <DropdownItem
-          key='delete'
-          onClick={() => this.setState({ showUserRemoveModal: user })}
-        >
+        <DropdownItem key='delete' onClick={() => setMemberToRemove(member)}>
           {t`Remove`}
         </DropdownItem>
       ),
     ];
     return (
-      <Tr data-cy={`GroupDetail-users-${user.username}`} key={index}>
-        <Td>{user.username}</Td>
+      <Tr
+        data-cy={`GroupDetail-users-${member.username}`}
+        key={member.username}
+      >
+        <Td>{member.username}</Td>
         <ListItemActions kebabItems={dropdownItems} />
       </Tr>
     );
-  }
+  };
 
-  // The members of the group with the filter, sort and page of the tab. The
-  // endpoint only lists users, so only the username can sort.
-  private queryUsers() {
-    const current = ++this.latestUsersRead;
-    const { group, params } = this.state;
-    this.loadingUsers = true;
+  const renderRemoveModal = (member: GroupMember) => {
+    const { username } = member;
+    const groupname = group.name;
 
-    GroupAPI.getUsers(group.id, {
-      ...ParamHelper.getReduced(params, ['id', 'tab', 'role__icontains']),
-      sort: ParamHelper.validSortParams(
-        String(params.sort ?? ''),
-        ['username'],
-        'username',
-      ),
-    })
-      .then((result) => {
-        if (current !== this.latestUsersRead) {
-          return;
+    return (
+      <DeleteModal
+        cancelAction={() => setMemberToRemove(null)}
+        deleteAction={() => confirmRemove(member)}
+        isDisabled={removeMember.isPending}
+        spinner={removeMember.isPending}
+        title={t`Remove user from group?`}
+      >
+        <Trans>
+          User <b>{username}</b> will be removed from group <b>{groupname}</b>.
+        </Trans>
+      </DeleteModal>
+    );
+  };
+
+  return (
+    <>
+      {alertList}
+      {addVisible ? (
+        <AddMembersModal
+          group={group}
+          addAlert={addAlert}
+          close={() => setAddVisible(false)}
+        />
+      ) : null}
+      {showDeleteModal ? (
+        <DeleteGroupModal
+          count={affected.data?.count}
+          cancelAction={() => setShowDeleteModal(false)}
+          deleteAction={confirmDelete}
+          isDeleting={deleteGroup.isPending}
+          name={group.name}
+          users={affected.data?.results}
+          canViewUsers={mayViewUsers && !affectedRefused}
+        />
+      ) : null}
+      {memberToRemove ? renderRemoveModal(memberToRemove) : null}
+      <BaseHeader
+        title={group.name}
+        breadcrumbs={
+          <Breadcrumbs
+            links={[
+              { url: formatPath(Paths.core.group.list), name: t`Groups` },
+              { name: group.name },
+            ]}
+          />
         }
-        this.loadingUsers = false;
-        this.setState({
-          users: result.data.results,
-          itemCount: result.data.count,
-          usersFailure: null,
-          usersUnauthorized: false,
-          usersUnauthorizedDetail: null,
-        });
-      })
-      .catch((e) => {
-        if (current !== this.latestUsersRead) {
-          return;
+        pageControls={
+          hasPermission('core.delete_group') ? (
+            <ToolbarItem>
+              <Button
+                onClick={() => setShowDeleteModal(true)}
+                variant='secondary'
+              >
+                {t`Delete`}
+              </Button>
+            </ToolbarItem>
+          ) : null
         }
-        this.loadingUsers = false;
-        // The session ended: the sign-in dialog explains it and the members
-        // are read again after signing in.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        if (requestErrorStatus(e) === 403) {
-          // A refusal is not retried: the tab tells the user they may not
-          // list the members, with Pulp's own reason.
-          this.setState({
-            usersUnauthorized: true,
-            usersUnauthorizedDetail: requestErrorDetail(e),
-          });
-          return;
-        }
-        this.setState({ usersFailure: requestErrorDescription(e) });
-        this.addAlert(
-          t`Users list could not be displayed.`,
-          'danger',
-          requestErrorDescription(e),
-        );
-      });
-  }
+      >
+        <div className='pulp-tab-link-container'>
+          <div className='tabs'>
+            <LinkTabs tabs={tabs} />
+          </div>
+        </div>
+      </BaseHeader>
+      {onUsersTab && membersRefused ? (
+        <InsufficientPermissions
+          detail={requestErrorDetail(membersQuery.error)}
+        />
+      ) : (
+        <Main data-cy='main-tabs'>
+          {params.tab == 'access' ? (
+            <GroupDetailRoleManagement
+              addAlert={(title, variant, description) =>
+                addAlert({ title, variant, description })
+              }
+              canEdit={hasPermission('core.manage_roles_group')}
+              group={group}
+              nonQueryParams={USER_QUERY_PARAMS}
+              params={params}
+              updateParams={updateParams}
+            />
+          ) : null}
+          {onUsersTab ? renderUsersTab() : null}
+        </Main>
+      )}
+    </>
+  );
+};
 
-  // Reads what the screen shows again without dropping it first: the group,
-  // the members when they were loaded and the add dialog's candidates.
-  private reloadAfterSignIn() {
-    this.queryGroup(true);
-    if (this.state.users) {
-      this.queryUsers();
-    }
-    if (this.state.addModalVisible) {
-      this.loadOptions();
-    }
-  }
-
-  // A quiet read keeps the loaded members and the page on screen.
-  private queryGroup(quiet = false) {
-    GroupAPI.get(this.state.params.id)
-      .then((result) => {
-        this.setState({ group: result.data });
-      })
-      .catch((e) => {
-        // The session ended: the sign-in dialog explains it, and the page
-        // keeps its spinner or its content until it reads again.
-        if (isSessionEnd(e)) {
-          return;
-        }
-        if (requestErrorStatus(e) === 404) {
-          this.setState({ notFound: true });
-        } else if (requestErrorStatus(e) === 403) {
-          // A refused read is not a failure to retry: the user is told they
-          // may not view the group, with Pulp's own reason.
-          this.setState({
-            unauthorized: true,
-            unauthorizedDetail: requestErrorDetail(e),
-          });
-        } else {
-          this.addAlert(
-            t`Group could not be displayed.`,
-            'danger',
-            requestErrorDescription(e),
-          );
-        }
-      });
-
-    if (!quiet) {
-      this.setState({
-        users: null,
-        usersFailure: null,
-        usersUnauthorized: false,
-        usersUnauthorizedDetail: null,
-      });
-    }
-  }
-
-  // Pulp authorises this request with the permission to change the group,
-  // the one that shows the Remove control.
-  private deleteUser(user: UserType) {
-    const { group } = this.state;
-    const { name } = group;
-
-    GroupAPI.removeUserFromGroup(group.id, idFromHref(user.pulp_href))
-      .then(() => {
-        this.setState({
-          showUserRemoveModal: null,
-        });
-        this.addAlert(
-          t`User "${user.username}" has been successfully removed from group "${name}".`,
-          'success',
-        );
-        this.queryUsers();
-      })
-      .catch((e) => {
-        if (isSessionEnd(e)) {
-          return;
-        }
-        this.addAlert(
-          t`User "${user.username}" could not be removed from group "${name}".`,
-          'danger',
-          requestErrorDescription(e),
-        );
-      });
-  }
-
-  private updateParams(params, callback = null) {
-    ParamHelper.updateParams({
-      params,
-      ignoreParams: ['group'],
-      navigate: (to) => this.props.navigate(to),
-      setState: (state) => this.setState(state, callback),
-    });
-  }
+interface IAddMembersProps {
+  addAlert: (alert: AlertType) => void;
+  close: () => void;
+  group: Group;
 }
 
-export default withRouter(GroupDetail);
+// The dialog that adds users to the group. It shows once it knows both who is
+// a member (every member, not the page the tab shows) and the users it can
+// offer, and it reads both afresh each time it opens. A user is offered while
+// they are not a member and not already picked.
+const AddMembersModal = ({ addAlert, close, group }: IAddMembersProps) => {
+  const names = useAllGroupMemberNames(group.pulp_href);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<{ id: string; name: string }[]>([]);
+  const users = useUsers(
+    { page_size: 1000, username__contains: search || undefined },
+    { staleTime: 0 },
+  );
+  const addMembers = useAddGroupMembers();
+
+  // The users of the last answer stay on offer while the answer to a newer
+  // search is on its way.
+  const [candidates, setCandidates] = useState<
+    { pulp_href: string; username: string }[] | null
+  >(null);
+  useEffect(() => {
+    if (users.data) {
+      setCandidates(users.data.results);
+    }
+  }, [users.data]);
+
+  // Without the members, or without any user, there is nothing to offer: the
+  // dialog closes with one alert that says why, and Add tries again. A failed
+  // search after the dialog has shown keeps it open.
+  const namesFailed = names.isError && !isSessionEnd(names.error);
+  const usersFailed = users.isError && !isSessionEnd(users.error);
+  const failure = namesFailed
+    ? names.error
+    : usersFailed && candidates === null
+      ? users.error
+      : null;
+  const reportedOpen = useRef(false);
+  useEffect(() => {
+    if (failure !== null && !reportedOpen.current) {
+      reportedOpen.current = true;
+      close();
+      addAlert({
+        variant: 'danger',
+        title: t`Users list could not be displayed.`,
+        description: requestErrorDescription(failure),
+      });
+    }
+  }, [failure]);
+  const alertedSearch = useRef(0);
+  useEffect(() => {
+    if (
+      usersFailed &&
+      candidates !== null &&
+      alertedSearch.current !== users.errorUpdatedAt
+    ) {
+      alertedSearch.current = users.errorUpdatedAt;
+      addAlert({
+        variant: 'danger',
+        title: t`Users list could not be displayed.`,
+        description: requestErrorDescription(users.error),
+      });
+    }
+  }, [usersFailed, candidates, users.errorUpdatedAt, users.error]);
+
+  if (!names.data || candidates === null) {
+    return null;
+  }
+
+  const members = new Set(names.data);
+  const options = candidates
+    .filter(
+      (user) =>
+        !members.has(user.username) &&
+        !selected.some((pick) => pick.name === user.username),
+    )
+    .map((user) => ({ id: user.pulp_href, name: user.username }));
+
+  const add = async () => {
+    if (addMembers.isPending || selected.length === 0) {
+      return;
+    }
+    const outcomes = await addMembers.mutateAsync({
+      href: group.pulp_href,
+      usernames: selected.map((pick) => pick.name),
+    });
+
+    // A user cut off by the end of the session stays picked, so the user can
+    // add again after signing in; everyone else is settled.
+    const cutOff = new Set<string>();
+    for (const outcome of outcomes) {
+      if (outcome.error === null) {
+        addAlert({
+          variant: 'success',
+          title: t`User "${outcome.username}" has been successfully added to group "${group.name}".`,
+        });
+      } else if (isSessionEnd(outcome.error)) {
+        cutOff.add(outcome.username);
+      } else {
+        addAlert({
+          variant: 'danger',
+          title: t`User "${outcome.username}" could not be added to group "${group.name}".`,
+          description: requestErrorDescription(outcome.error),
+        });
+      }
+    }
+
+    if (cutOff.size > 0) {
+      setSelected((current) => current.filter((pick) => cutOff.has(pick.name)));
+    } else {
+      close();
+    }
+  };
+
+  return (
+    <Modal
+      variant='large'
+      onClose={close}
+      isOpen
+      aria-labelledby={ADD_USER_MODAL_TITLE_ID}
+    >
+      <ModalHeader
+        labelId={ADD_USER_MODAL_TITLE_ID}
+        title={t`Add selected users to group`}
+      />
+      <ModalBody>
+        <Typeahead
+          results={options}
+          loadResults={setSearch}
+          onSelect={(_event, selection) => {
+            const picked = options.find((option) => option.name === selection);
+            setSelected((current) =>
+              picked
+                ? [...current, picked]
+                : current.filter((pick) => pick.name !== selection),
+            );
+          }}
+          placeholderText={t`Select users`}
+          selections={selected}
+          menuAppendTo={'parent'}
+          multiple
+          onClear={() => setSelected([])}
+          style={{ overflowY: 'auto', maxHeight: '350px' }}
+        />
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          key='add'
+          variant='primary'
+          isDisabled={selected.length === 0 || addMembers.isPending}
+          onClick={add}
+        >
+          {t`Add`}
+        </Button>
+        <Button key='cancel' variant='link' onClick={close}>
+          {t`Cancel`}
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+};
+
+export default GroupDetail;
