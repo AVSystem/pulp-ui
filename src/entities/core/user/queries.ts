@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { UserClient } from './client';
 import { type UserListParams } from './model';
@@ -8,6 +9,8 @@ export const userKeys = {
   all,
   list: (params: UserListParams) => [...all, 'list', params] as const,
   detail: (href: string) => [...all, 'detail', href] as const,
+  // The removals of users, for telling whether one is under way.
+  removals: [...all, 'removal'] as const,
 };
 
 // Whether two lists differ in the page only, so the rows of the one are a fair
@@ -51,4 +54,70 @@ export function useUser(href: string | null) {
     queryFn: ({ signal }) => UserClient.retrieve(href as string, { signal }),
     enabled: href !== null,
   });
+}
+
+// The server accepted the delete but the wait for the user to be gone failed:
+// the user may or may not still exist. The cause is the failure of the wait.
+export class UserRemovalUnconfirmedError extends Error {
+  readonly cause: unknown;
+
+  constructor(cause: unknown) {
+    super('');
+    this.name = 'UserRemovalUnconfirmedError';
+    this.cause = cause;
+  }
+}
+
+export interface DeleteUserRequest {
+  // The address of the user to delete.
+  href: string;
+  // Told how the removal ended: null when the user is gone, the error
+  // otherwise (a UserRemovalUnconfirmedError once the server had accepted the
+  // delete). It is called once per removal, also after the screen that asked
+  // has closed its dialog or gone, so the outcome is never lost. The screen
+  // decides what the outcome means for what it shows.
+  onDone?: (error: unknown) => void;
+}
+
+// Deletes a user and waits until the server no longer has it. One request is
+// sent per call and it is never repeated by itself. Once the removal has
+// settled, the user is forgotten and the lists are read again: whether the
+// user was deleted or not, the rows may have changed.
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationKey: userKeys.removals,
+    mutationFn: async ({ href }: DeleteUserRequest) => {
+      await UserClient.remove(href);
+      try {
+        await UserClient.confirmRemoved(href);
+      } catch (cause) {
+        throw new UserRemovalUnconfirmedError(cause);
+      }
+    },
+    // These run for every removal, whichever dialog started it and whether or
+    // not that dialog is still there; callbacks given to `mutate` would be
+    // dropped when another removal is started from the same dialog.
+    onSuccess: (_data, { onDone }) => onDone?.(null),
+    onError: (error, { onDone }) => onDone?.(error),
+    onSettled: (_data, error, { href }) => {
+      if (!error || error instanceof UserRemovalUnconfirmedError) {
+        queryClient.removeQueries({ queryKey: userKeys.detail(href) });
+      }
+      return queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+  });
+
+  // Whether a removal of this user is under way, whichever component started
+  // it. A dialog opened for another user is not affected by it.
+  const isRemoving = (href: string) =>
+    queryClient.isMutating({
+      mutationKey: userKeys.removals,
+      predicate: (candidate) =>
+        (candidate.state.variables as DeleteUserRequest | undefined)?.href ===
+        href,
+    }) > 0;
+
+  return { mutate: mutation.mutate, isRemoving };
 }

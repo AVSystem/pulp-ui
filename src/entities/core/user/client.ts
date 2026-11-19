@@ -9,6 +9,7 @@ import {
   usersRead,
 } from '@pulp-ui/sdk/core/users';
 import { parseResponse } from 'src/entities/response-shape';
+import { requestErrorStatus } from 'src/utilities/request-error';
 import {
   DEFAULT_PAGE_SIZE,
   type User,
@@ -84,4 +85,54 @@ async function remove(href: string, options?: RequestInit): Promise<void> {
   await usersDelete(href, options);
 }
 
-export const UserClient = { list, retrieve, create, update, remove };
+// How long the removal of a user is waited for after the server accepted the
+// delete: one read at once, then one every half second, at most twenty.
+export const REMOVAL_READ_INTERVAL_MS = 500;
+export const REMOVAL_MAX_READS = 20;
+
+// The user was still readable after the last read of the wait. It carries no
+// message of its own: the screen shows its generic text for a failed request.
+export class RemovalNotConfirmedError extends Error {
+  constructor() {
+    super('');
+    this.name = 'RemovalNotConfirmedError';
+  }
+}
+
+// Reads the user until the server says it is gone (404), so a screen that
+// reads the list next does not show the deleted user. Any other failure ends
+// the wait and is thrown as it came; a user that stays readable after the last
+// read is a RemovalNotConfirmedError. The wait belongs to no screen: nothing
+// here stops when a dialog closes.
+async function confirmRemoved(
+  href: string,
+  {
+    intervalMs = REMOVAL_READ_INTERVAL_MS,
+    maxReads = REMOVAL_MAX_READS,
+  }: { intervalMs?: number; maxReads?: number } = {},
+): Promise<void> {
+  for (let read = 0; read < maxReads; read += 1) {
+    if (read > 0) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+    try {
+      // only whether the user exists matters, not what it holds
+      await usersRead(href);
+    } catch (error) {
+      if (requestErrorStatus(error) === 404) {
+        return;
+      }
+      throw error;
+    }
+  }
+  throw new RemovalNotConfirmedError();
+}
+
+export const UserClient = {
+  list,
+  retrieve,
+  create,
+  update,
+  remove,
+  confirmRemoved,
+};

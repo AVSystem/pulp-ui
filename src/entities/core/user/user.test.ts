@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ResponseShapeError, parseResponse } from 'src/entities/response-shape';
 import { group, userPage, userRow } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
-import { UserClient } from './client';
+import { RemovalNotConfirmedError, UserClient } from './client';
 import { userHref, userUrlId } from './href';
 import { userPageSchema, userSchema } from './model';
 import { userKeys } from './queries';
@@ -174,5 +174,56 @@ describe('Integration: UserClient', { tags: ['integration'] }, () => {
     await UserClient.remove('/pulp/api/v3/users/7/');
 
     expect(deletes).toEqual(['/pulp/api/v3/users/7/']);
+  });
+
+  it('waits for the removal until the server answers 404', async () => {
+    let reads = 0;
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', () => {
+        reads += 1;
+        return reads < 3
+          ? HttpResponse.json({ username: 'zz-ann' })
+          : HttpResponse.json({ detail: 'Not found.' }, { status: 404 });
+      }),
+    );
+
+    await UserClient.confirmRemoved('/pulp/api/v3/users/7/', {
+      intervalMs: 1,
+    });
+
+    expect(reads).toBe(3);
+  });
+
+  it('gives up after the most reads it may make when the user stays', async () => {
+    let reads = 0;
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', () => {
+        reads += 1;
+        return HttpResponse.json({ username: 'zz-ann' });
+      }),
+    );
+
+    await expect(
+      UserClient.confirmRemoved('/pulp/api/v3/users/7/', {
+        intervalMs: 1,
+        maxReads: 4,
+      }),
+    ).rejects.toThrow(RemovalNotConfirmedError);
+    expect(reads).toBe(4);
+  });
+
+  it('ends the wait at a failure that is not a missing user', async () => {
+    let reads = 0;
+    server.use(
+      http.get('*/pulp/api/v3/users/7/', () => {
+        reads += 1;
+        return HttpResponse.json({ detail: 'broken' }, { status: 500 });
+      }),
+    );
+
+    await expect(
+      UserClient.confirmRemoved('/pulp/api/v3/users/7/', { intervalMs: 1 }),
+    ).rejects.toMatchObject({ response: { status: 500 } });
+    expect(reads).toBe(1);
   });
 });

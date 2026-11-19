@@ -15,6 +15,7 @@ import {
   UserFormPage,
   closeAlert,
 } from 'src/components';
+import { userHref } from 'src/entities/core/user/href';
 import { Paths, formatPath } from 'src/paths';
 import {
   type ErrorMessagesType,
@@ -129,6 +130,12 @@ class UserDetail extends Component<RouteProps, IState> {
       return <LoadingPage />;
     }
 
+    // what the delete dialog needs of the user: its address and its name
+    const href = userHref(String(userDetail.id));
+    const deleteTarget = href
+      ? { pulp_href: href, username: userDetail.username }
+      : undefined;
+
     const breadcrumbs = [
       { url: formatPath(Paths.core.user.list), name: t`Users` },
       { name: userDetail.username },
@@ -149,7 +156,7 @@ class UserDetail extends Component<RouteProps, IState> {
         <DeleteUserModal
           isOpen={showDeleteModal}
           closeModal={this.closeModal}
-          user={userDetail}
+          user={deleteTarget}
           addAlert={(text, variant, description = undefined) =>
             this.setState({
               alerts: alerts.concat([

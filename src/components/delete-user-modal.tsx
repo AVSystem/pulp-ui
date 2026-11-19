@@ -1,10 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { useEffect, useRef, useState } from 'react';
-import { UserAPI } from 'src/api';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { DeleteModal } from 'src/components';
+import {
+  UserRemovalUnconfirmedError,
+  useDeleteUser,
+} from 'src/entities/core/user/queries';
 import { useUserContext } from 'src/user-context';
-import { mapErrorMessages } from 'src/utilities';
+import { mapErrorMessages } from 'src/utilities/map-error-messages';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -16,7 +19,20 @@ interface IProps {
   addAlert: (message, variant, description?) => void;
   closeModal: (didDelete: boolean) => void;
   isOpen: boolean;
-  user?: { id?: number | null; username: string };
+  // The user to delete: its address and the name the dialog shows.
+  user?: { pulp_href: string; username: string };
+}
+
+// Why the server did not delete the user, as the alert shows it.
+function failureDescription(error): ReactNode {
+  const status = requestErrorStatus(error);
+  if (status === null) {
+    return requestErrorText(error);
+  }
+  if (status === 403) {
+    return requestErrorDescription(error);
+  }
+  return mapErrorMessages(error)['__nofield'];
 }
 
 export const DeleteUserModal = ({
@@ -25,26 +41,31 @@ export const DeleteUserModal = ({
   isOpen,
   user,
 }: IProps) => {
-  const [waiting, setWaiting] = useState(false);
   const { user: sessionUser } = useUserContext();
-  // Whether the dialog is still on screen, so the wait for the removal stops
-  // reading the user once it has been closed or taken away.
-  const shown = useRef(isOpen);
+  const removal = useDeleteUser();
+
+  // The address of the user the dialog shows right now. The outcome of a
+  // removal closes the dialog only while it still shows that user: a dialog
+  // that was closed, or opened again for another user, is left as it is.
+  const showing = useRef<string | null>(null);
+  const shownHref = isOpen && user ? user.pulp_href : null;
   useEffect(() => {
-    shown.current = isOpen;
+    showing.current = shownHref;
     return () => {
-      shown.current = false;
+      showing.current = null;
     };
-  }, [isOpen]);
+  }, [shownHref]);
 
   if (!user || !isOpen) {
     return null;
   }
 
+  const waiting = removal.isRemoving(user.pulp_href);
+
   return (
     <DeleteModal
       cancelAction={() => closeModal(false)}
-      deleteAction={() => deleteUser()}
+      deleteAction={() => deleteUser(user)}
       isDisabled={waiting || user.username === sessionUser?.username}
       spinner={waiting}
       title={t`Delete user?`}
@@ -59,66 +80,63 @@ export const DeleteUserModal = ({
     </DeleteModal>
   );
 
-  // Delete stays disabled with a spinner until the removal is confirmed, so one
-  // confirmation sends one request.
-  async function deleteUser() {
-    setWaiting(true);
-    try {
-      try {
-        await UserAPI.delete(user.id);
-      } catch (err) {
-        // The session ended: the user was not deleted and nothing is
-        // repeated; the dialog stays so the user can delete after signing in.
-        if (isSessionEnd(err)) {
-          return;
-        }
-        addAlert(
-          t`User "${user.username}" could not be deleted.`,
-          'danger',
-          requestErrorStatus(err) === null
-            ? requestErrorText(err)
-            : mapErrorMessages(err)['__nofield'],
-        );
-        closeModal(false);
-        return;
-      }
-
-      await waitForDeleteConfirm();
-    } finally {
-      setWaiting(false);
+  // Delete stays disabled with a spinner until the removal is confirmed, so
+  // one confirmation sends one request. How the removal ends is reported
+  // through the callbacks of the page, whether or not this dialog is still on
+  // screen by then.
+  function deleteUser(user: NonNullable<IProps['user']>) {
+    const { pulp_href: href } = user;
+    if (removal.isRemoving(href)) {
+      return;
     }
-  }
 
-  // Wait for the user to actually get removed from the database before
-  // closing, reading again every half second until the user is gone or the
-  // dialog is.
-  async function waitForDeleteConfirm() {
-    while (shown.current) {
-      try {
-        await UserAPI.get(user.id as unknown as string);
-      } catch (err) {
-        // The session ended while waiting for the removal to show: the delete
-        // itself went through, so the dialog closes and the list reads again
-        // after signing in.
-        if (isSessionEnd(err)) {
-          closeModal(true);
-        } else if (requestErrorStatus(err) === 404) {
+    const stillShown = () => showing.current === href;
+    const couldNotDelete = (description: ReactNode) =>
+      addAlert(
+        t`User "${user.username}" could not be deleted.`,
+        'danger',
+        description,
+      );
+
+    removal.mutate({
+      href,
+      onDone: (error) => {
+        if (!error) {
           addAlert(
             t`User "${user.username}" has been successfully deleted.`,
             'success',
           );
-          closeModal(true);
-        } else {
-          addAlert(
-            t`User "${user.username}" could not be deleted.`,
-            'danger',
-            requestErrorDescription(err),
-          );
+          if (stillShown()) {
+            closeModal(true);
+          }
+          return;
         }
-        return;
-      }
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
+        if (error instanceof UserRemovalUnconfirmedError) {
+          // The delete went through but the wait for the user to be gone
+          // failed. The session ended: the dialog closes and the list reads
+          // again after signing in. Otherwise the dialog stays, so the user
+          // sees the alert and decides.
+          if (isSessionEnd(error.cause)) {
+            if (stillShown()) {
+              closeModal(true);
+            }
+          } else {
+            couldNotDelete(requestErrorDescription(error.cause));
+          }
+          return;
+        }
+
+        // The session ended: the user was not deleted and nothing is
+        // repeated; the dialog stays so the user can delete after signing in.
+        if (isSessionEnd(error)) {
+          return;
+        }
+        couldNotDelete(failureDescription(error));
+        if (stillShown()) {
+          closeModal(false);
+        }
+      },
+    });
   }
 };

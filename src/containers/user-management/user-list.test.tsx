@@ -292,8 +292,9 @@ describe('deleting a user from the list', () => {
   });
 
   // Serves the list (without ann once she is gone), ann's removal and
-  // counts the requests.
-  function serveRemoval() {
+  // counts the requests. Ann is gone as soon as the delete arrives, or when the
+  // test says so, to keep the confirmation waiting.
+  function serveRemoval(removeOnDelete = false) {
     const calls = { lists: 0, deletes: [] as string[], reads: 0 };
     let gone = false;
     server.use(
@@ -303,6 +304,7 @@ describe('deleting a user from the list', () => {
       }),
       http.delete(`*${USERS}41/`, ({ request }) => {
         calls.deletes.push(new URL(request.url).pathname);
+        gone = gone || removeOnDelete;
         return new HttpResponse(null, { status: 204 });
       }),
       http.get(`*${USERS}41/`, () => {
@@ -334,8 +336,7 @@ describe('deleting a user from the list', () => {
   }
 
   it('sends one DELETE to the address of the user, reads the list again and reports the success', async () => {
-    const { calls, remove } = serveRemoval();
-    remove();
+    const { calls } = serveRemoval(true);
     const { user } = renderUsers();
     const dialog = await openDeleteDialog(user);
     expect(calls.lists).toBe(1);
