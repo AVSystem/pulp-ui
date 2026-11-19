@@ -1,13 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { renderWithProviders } from 'src/test-utils/render';
 import { taskAlert } from './task-alert';
 
 const ID = '0192e5a1-0000-7000-8000-000000000001';
 
 function show(task: unknown) {
   const alert = taskAlert(task, 'Started');
-  render(<MemoryRouter>{alert.description}</MemoryRouter>);
+  renderWithProviders(<>{alert.description}</>);
 }
 
 describe('the task alert', () => {

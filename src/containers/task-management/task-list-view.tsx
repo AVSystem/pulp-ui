@@ -45,6 +45,7 @@ import {
   usePurgeTasks,
   useRepair,
 } from 'src/entities/core/maintenance/queries';
+import { taskUrlId } from 'src/entities/core/task/href';
 import { DEFAULT_PAGE_SIZE, type Task } from 'src/entities/core/task/model';
 import { useCancelTask, useTasks } from 'src/entities/core/task/queries';
 import { Paths, formatPath } from 'src/paths';
@@ -52,7 +53,6 @@ import { useSessionEpoch } from 'src/user-context';
 import { filterIsSet } from 'src/utilities/filter-is-set';
 import { ObjectPermissions } from 'src/utilities/my-permissions';
 import { ParamHelper } from 'src/utilities/param-helper';
-import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -396,13 +396,16 @@ export const TaskListView = () => {
   const renderRow = (item: Task) => {
     const { name, state, pulp_created, started_at, finished_at, pulp_href } =
       item;
-    const taskId = parsePulpIDFromURL(pulp_href);
     const description = translateTask(name);
 
     return (
       <Tr key={pulp_href}>
         <Td>
-          <Link to={formatPath(Paths.core.task.detail, { task: taskId })}>
+          <Link
+            to={formatPath(Paths.core.task.detail, {
+              task: taskUrlId(pulp_href),
+            })}
+          >
             {name}
           </Link>
         </Td>

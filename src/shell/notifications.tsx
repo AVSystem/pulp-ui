@@ -26,11 +26,11 @@ import {
 } from 'react';
 import { Link } from 'react-router';
 import { EmptyStateCustom } from 'src/components/empty-state-custom';
+import { taskUrlId } from 'src/entities/core/task/href';
 import type { Task, TaskListParams } from 'src/entities/core/task/model';
 import { taskKeys, useTasks } from 'src/entities/core/task/queries';
 import { language } from 'src/l10n';
 import { Paths, formatPath } from 'src/paths';
-import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import { isSessionEnd, requestErrorStatus } from 'src/utilities/request-error';
 
 // Where the browser remembers when the panel was last opened.
@@ -354,12 +354,13 @@ const NotificationItem = ({
   unread: boolean;
   onNavigate: () => void;
 }) => {
-  const taskId = parsePulpIDFromURL(task.pulp_href);
   // The header's title is typed as text but is rendered as a node, so the name
   // can be the link to the task.
   const title = (
     <Link
-      to={formatPath(Paths.core.task.detail, { task: taskId })}
+      to={formatPath(Paths.core.task.detail, {
+        task: taskUrlId(task.pulp_href),
+      })}
       title={task.name}
       onClick={onNavigate}
     >

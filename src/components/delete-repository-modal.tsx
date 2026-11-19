@@ -10,6 +10,7 @@ import {
 } from '@patternfly/react-core';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
+import { taskUrlId } from 'src/entities/core/task/href';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
 import { ContentGuardAPI } from '../api/content-guard';
@@ -18,7 +19,6 @@ import {
   type DeleteRepositoryResult,
 } from '../utilities/delete-repository';
 import { listAll } from '../utilities/list-all';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import {
   type RepositoryDistribution,
   type RepositoryDistributionPlugin,
@@ -89,7 +89,7 @@ async function guardNamesOf(
 }
 
 const taskLink = (taskHref: string) =>
-  formatPath(Paths.core.task.detail, { task: parsePulpIDFromURL(taskHref) });
+  formatPath(Paths.core.task.detail, { task: taskUrlId(taskHref) });
 
 const DistributionList = ({
   distributions,

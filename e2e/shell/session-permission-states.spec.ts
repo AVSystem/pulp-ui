@@ -342,7 +342,7 @@ test.describe('insufficient permissions page', () => {
       (url) => url.pathname === `${API}tasks/${NO_SUCH_TASK}/`,
       REFUSED,
     );
-    await page.goto(`tasks/detail/${NO_SUCH_TASK}`);
+    await page.goto(`tasks/${NO_SUCH_TASK}`);
 
     await expect(page.locator('h1', { hasText: 'Task detail' })).toBeVisible();
     await expect(title(page, 'Insufficient permissions')).toBeVisible();

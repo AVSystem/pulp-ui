@@ -259,6 +259,7 @@ const TaskDetailScreen = ({ urlId }: { urlId: string }) => {
   }
 
   const progressReports = task.progress_reports ?? [];
+  const name = taskName;
 
   const stopTask = () => {
     if (cancelTask.isPending) {
@@ -299,7 +300,7 @@ const TaskDetailScreen = ({ urlId }: { urlId: string }) => {
           title={t`Stop task`}
           confirmButtonTitle={t`Yes, stop`}
         >
-          {t`${taskName} will stop running.`}
+          {t`${name} will stop running.`}
         </ConfirmModal>
       ) : null}
       <BaseHeader
@@ -395,21 +396,18 @@ const TaskDetailScreen = ({ urlId }: { urlId: string }) => {
                     <DescriptionListTerm>{t`Child tasks`}</DescriptionListTerm>
                     <DescriptionListDescription>
                       {childTasks.length
-                        ? childTasks.map((childTask) => {
-                            const childTaskId = taskUrlId(childTask.pulp_href);
-                            return (
-                              <Fragment key={childTaskId}>
-                                <Link
-                                  to={formatPath(Paths.core.task.detail, {
-                                    task: childTaskId,
-                                  })}
-                                >
-                                  {translateTask(childTask.name)}
-                                </Link>
-                                <br />
-                              </Fragment>
-                            );
-                          })
+                        ? childTasks.map((childTask) => (
+                            <Fragment key={childTask.pulp_href}>
+                              <Link
+                                to={formatPath(Paths.core.task.detail, {
+                                  task: taskUrlId(childTask.pulp_href),
+                                })}
+                              >
+                                {translateTask(childTask.name)}
+                              </Link>
+                              <br />
+                            </Fragment>
+                          ))
                         : relatedPending
                           ? null
                           : t`No child task`}
