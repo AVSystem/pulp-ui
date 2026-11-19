@@ -16,7 +16,6 @@ import {
   useState,
 } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { OrphanCleanupAPI, RepairAPI, TaskPurgeAPI } from 'src/api';
 import { useAppContext } from 'src/app-context';
 import {
   AlertList,
@@ -41,6 +40,11 @@ import {
   closeAlert,
 } from 'src/components';
 import { ListErrorState } from 'src/components/list-error-state';
+import {
+  useOrphanCleanup,
+  usePurgeTasks,
+  useRepair,
+} from 'src/entities/core/maintenance/queries';
 import { DEFAULT_PAGE_SIZE, type Task } from 'src/entities/core/task/model';
 import { useCancelTask, useTasks } from 'src/entities/core/task/queries';
 import { Paths, formatPath } from 'src/paths';
@@ -109,6 +113,9 @@ export const TaskListView = () => {
     state: single(params['state']),
   });
   const cancelTask = useCancelTask();
+  const orphanCleanup = useOrphanCleanup();
+  const repair = useRepair();
+  const purge = usePurgeTasks();
 
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [inputText, setInputText] = useState('');
@@ -225,18 +232,27 @@ export const TaskListView = () => {
     });
   };
 
-  const startMaintenance = (
-    start: () => Promise<unknown>,
+  // A maintenance task is started once per confirmation. The session ended:
+  // the sign-in dialog explains it, so no alert is added.
+  const startMaintenance = <TRequest,>(
+    mutation: {
+      mutate: (
+        request: TRequest,
+        callbacks: { onSuccess: () => void; onError: (e: unknown) => void },
+      ) => void;
+    },
+    request: TRequest,
     started: string,
     failed: string,
   ) => {
-    start()
-      .then(() => addAlert({ variant: 'success', title: started }))
-      .catch((e) => {
+    mutation.mutate(request, {
+      onSuccess: () => addAlert({ variant: 'success', title: started }),
+      onError: (e) => {
         if (!isSessionEnd(e)) {
           addAlert({ variant: 'danger', title: failed });
         }
-      });
+      },
+    });
   };
 
   const noData =
@@ -272,7 +288,8 @@ export const TaskListView = () => {
           cancelAction={() => setPurgeTaskModalVisible(false)}
           confirmAction={() => {
             startMaintenance(
-              () => TaskPurgeAPI.create(purgeTask),
+              purge,
+              purgeTask,
               t`Purge tasks started`,
               t`Purge tasks could not be started`,
             );
@@ -287,7 +304,8 @@ export const TaskListView = () => {
           cancelAction={() => setOrphanCleanupTaskModalVisible(false)}
           confirmAction={() => {
             startMaintenance(
-              () => OrphanCleanupAPI.create(orphanCleanupTask),
+              orphanCleanup,
+              orphanCleanupTask,
               t`Orphan cleanup started`,
               t`Orphan cleanup could not be started`,
             );
@@ -302,7 +320,8 @@ export const TaskListView = () => {
           cancelAction={() => setRepairTaskModalVisible(false)}
           confirmAction={() => {
             startMaintenance(
-              () => RepairAPI.create(repairTask),
+              repair,
+              repairTask,
               t`Repair artifact storage started`,
               t`Repair artifact storage could not be started`,
             );
