@@ -34,7 +34,7 @@ msgstr "（最新）"
 
 #: src/components/lazy-repositories.tsx
 msgid "(more)"
-msgstr ""
+msgstr "（更多）"
 
 #: src/components/collection-header.tsx
 #~ msgid "(signed)"
@@ -51,7 +51,7 @@ msgstr "（上传）"
 #. placeholder {0}: results.length
 #: src/shell/command-palette.tsx
 msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
-msgstr ""
+msgstr "{0, plural, =0 {无结果} one {# 个结果} other {# 个结果}}"
 
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -82,11 +82,11 @@ msgstr "{0, plural, one {Failed to add collection to repository \"{repositoryNam
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert details"
-msgstr ""
+msgstr "{alertType} 警报详情"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert:"
-msgstr ""
+msgstr "{alertType} 警报："
 
 #: src/components/collection-header.tsx
 #~ msgid "{collectionName}'s versions."
@@ -102,11 +102,11 @@ msgstr ""
 
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
-msgstr ""
+msgstr "{count, plural, one {过去 24 小时内有 # 个失败的任务} other {过去 24 小时内有 # 个失败的任务}}"
 
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# running task} other {# running tasks}}"
-msgstr ""
+msgstr "{count, plural, one {# 个正在运行的任务} other {# 个正在运行的任务}}"
 
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Dependency} other {Dependencies}}"
@@ -130,11 +130,11 @@ msgstr "{count} 更多"
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (browser default)"
-msgstr ""
+msgstr "{currentLanguage}（浏览器默认）"
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (current)"
-msgstr ""
+msgstr "{currentLanguage}（当前）"
 
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
@@ -171,15 +171,15 @@ msgstr "{name} 将停止运行。"
 
 #: src/components/pulp-about-modal.tsx
 msgid "{name}: generated in the interface, not installed on this server"
-msgstr ""
+msgstr "{name}：已在界面中生成，但未安装在此服务器上"
 
 #: src/components/pulp-about-modal.tsx
 msgid "{name}: not part of the generated interface"
-msgstr ""
+msgstr "{name}：不属于已生成的界面"
 
 #: src/components/pulp-about-modal.tsx
 msgid "{name}: the interface was generated for {generated}, this server runs {running}"
-msgstr ""
+msgstr "{name}：界面是为 {generated} 生成的，此服务器运行的是 {running}"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
@@ -211,7 +211,7 @@ msgstr "{title} 步骤"
 
 #: src/shell/notifications.tsx
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
-msgstr ""
+msgstr "{unread, plural, one {通知，# 条未读通知} other {通知，# 条未读通知}}"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
@@ -322,15 +322,15 @@ msgstr "404 - 页未找到"
 
 #: src/components/repository-form.tsx
 msgid "A base path cannot contain a \".\" or \"..\" segment."
-msgstr ""
+msgstr "基本路径不能包含 \".\" 或 \"..\" 段。"
 
 #: src/components/repository-form.tsx
 msgid "A base path cannot contain spaces, \"?\" or \"#\"."
-msgstr ""
+msgstr "基本路径不能包含空格、\"?\" 或 \"#\"。"
 
 #: src/components/repository-form.tsx
 msgid "A base path cannot start or end with a slash or contain two slashes in a row."
-msgstr ""
+msgstr "基本路径不能以斜杠开头或结尾，也不能包含连续两个斜杠。"
 
 #: src/components/repository-form.tsx
 #~ msgid "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
@@ -339,7 +339,7 @@ msgstr ""
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
-msgstr ""
+msgstr "已存在名为 \"{0}\" 的分发。"
 
 #: src/components/remote-form.tsx
 msgid "A PEM encoded client certificate used for authentication."
@@ -351,11 +351,11 @@ msgstr "用于验证的 PEM 编码私钥。"
 
 #: src/components/sync-modal.tsx
 msgid "A sync of this repository is already queued."
-msgstr ""
+msgstr "此仓库的同步已在排队。"
 
 #: src/components/sync-modal.tsx
 msgid "A sync of this repository is already running."
-msgstr ""
+msgstr "此仓库的同步已在运行。"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "A tag may contain lowercase and uppercase ASCII alphabetic characters, digits, underscores, periods, and dashes. A tag must not start with a period, underscore, or a dash."
@@ -367,11 +367,11 @@ msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "A ticked box publishes every new version, so any distribution serving this repository offers it."
-msgstr ""
+msgstr "勾选后会发布每个新版本，因此任何提供此仓库的分发都会提供该版本。"
 
 #: src/components/remote-form.tsx
 msgid "A whole number. Leave empty to use the server default."
-msgstr ""
+msgstr "整数。留空则使用服务器默认值。"
 
 #: src/shell/shell.tsx
 #~ msgid "About"
@@ -380,11 +380,11 @@ msgstr ""
 #: src/containers/about-project.tsx
 #: src/shell/help-menu.tsx
 msgid "About project"
-msgstr ""
+msgstr "关于项目"
 
 #: src/shell/help-menu.tsx
 msgid "About Pulp UI"
-msgstr ""
+msgstr "关于 Pulp UI"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
@@ -395,15 +395,15 @@ msgstr "访问"
 
 #: src/shell/account-menu.tsx
 msgid "Account"
-msgstr ""
+msgstr "账户"
 
 #: src/shell/account-menu.tsx
 msgid "Account menu for {username}"
-msgstr ""
+msgstr "{username} 的账户菜单"
 
 #: src/components/stateful-dropdown.tsx
 msgid "Actions"
-msgstr ""
+msgstr "操作"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Active user profile \"{0}\" could not be displayed."
@@ -446,7 +446,7 @@ msgstr "在此处添加角色描述"
 
 #: src/utilities/translate-task.ts
 msgid "Add and remove content"
-msgstr ""
+msgstr "添加和删除内容"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Add and remove repository"
@@ -520,7 +520,7 @@ msgstr "添加新软件仓库"
 
 #: src/utilities/translate-task.ts
 msgid "Add or remove content"
-msgstr ""
+msgstr "添加或删除内容"
 
 #: src/actions/ansible-remote-create.tsx
 #: src/actions/deb-remote-create.tsx
@@ -589,11 +589,11 @@ msgstr "添加项目"
 
 #: src/components/sync-modal.tsx
 msgid "Additive keeps everything already in the repository. Mirror content only removes what the remote no longer has. Mirror complete also reproduces the remote's metadata exactly, which kickstart trees need."
-msgstr ""
+msgstr "追加会保留仓库中已有的所有内容。仅镜像内容只会删除远程不再拥有的内容。完整镜像还会精确复制远程的元数据，kickstart 树需要这些元数据。"
 
 #: src/actions/rpm-repository-sync.tsx
 msgid "Additive: only add new content"
-msgstr ""
+msgstr "追加：仅添加新内容"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "aliases"
@@ -619,7 +619,7 @@ msgstr "此角色下的所有关联权限都将被删除。"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "All projects"
-msgstr ""
+msgstr "所有项目"
 
 #: src/components/import-modal.tsx
 #~ msgid "All repos"
@@ -631,7 +631,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Allow all actions on a task schedule."
-msgstr ""
+msgstr "允许对任务计划执行所有操作。"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Allow all actions on a task."
@@ -643,23 +643,23 @@ msgstr "允许对一个任务的所有操作。"
 
 #: src/components/repository-form.tsx
 msgid "Allow package substitution"
-msgstr ""
+msgstr "允许替换软件包"
 
 #: src/components/repository-form.tsx
 msgid "Allow replacing an existing package with one that has the same filename but a different checksum. When off, any new repository version that would cause such a substitution is rejected, whether from sync, upload or modify."
-msgstr ""
+msgstr "允许用文件名相同但校验和不同的软件包替换现有软件包。关闭时，任何会导致此类替换的新仓库版本都会被拒绝，无论来自同步、上传还是修改。"
 
 #: src/components/repository-form.tsx
 msgid "Allow same-filename packages with different contents"
-msgstr ""
+msgstr "允许文件名相同但内容不同的软件包"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Allow uploads to this distribution"
-msgstr ""
+msgstr "允许上传到此分发"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Allowed"
-msgstr ""
+msgstr "允许"
 
 #: src/actions/repository-version-revert.tsx
 msgid "Already the current version"
@@ -671,17 +671,17 @@ msgstr "已经是当前版本"
 
 #: src/components/remote-form.tsx
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
-msgstr ""
+msgstr "ASCII 封装的公钥。设置后，每次同步都会验证上游 Release 文件的签名，这使通过纯 HTTP 同步变得安全。"
 
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
 msgid "Another task is already queued for this repository: {0}"
-msgstr ""
+msgstr "此仓库已有另一个任务在排队：{0}"
 
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
 msgid "Another task is already running for this repository: {0}"
-msgstr ""
+msgstr "此仓库已有另一个任务在运行：{0}"
 
 #: src/components/hub-about-modal.tsx
 #~ msgid "Ansible Automation Platform"
@@ -693,7 +693,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ansible copy content"
-msgstr ""
+msgstr "Ansible 复制内容"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Ansible Lightspeed"
@@ -708,7 +708,7 @@ msgstr ""
 
 #: src/containers/coming-soon-screens.tsx
 msgid "Ansible repositories"
-msgstr ""
+msgstr "Ansible 仓库"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
@@ -809,12 +809,12 @@ msgstr "从远程批准、拒绝和同步集合。"
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Arch"
-msgstr ""
+msgstr "架构"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Architectures"
-msgstr ""
+msgstr "架构"
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
@@ -822,7 +822,7 @@ msgstr "您确定要删除远程 <0>{name}</0> <1/>？<2>注意：</2>这也会�
 
 #: src/components/delete-repository-modal.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
-msgstr ""
+msgstr "您确定要删除仓库 <0>{name}</0> 吗？"
 
 #: src/components/delete-repository-modal.tsx
 #~ msgid "Are you sure you want to delete the repository <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this repository."
@@ -862,7 +862,7 @@ msgstr "您确定要将此存储库恢复到以下版本吗？"
 
 #: src/components/purge-task-modal.tsx
 msgid "At least one state has to be selected."
-msgstr ""
+msgstr "至少必须选择一种状态。"
 
 #: src/components/user-form.tsx
 #~ msgid "Authentication provider"
@@ -876,7 +876,7 @@ msgstr ""
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Autopublish"
-msgstr ""
+msgstr "自动发布"
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Available matching collections"
@@ -922,7 +922,7 @@ msgstr "基本路径"
 
 #: src/components/repository-form.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
-msgstr ""
+msgstr "以 \"{reserved}\" 开头的基本路径在此服务器上已保留。请选择其他基本路径。"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -938,7 +938,7 @@ msgstr "基本版本"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
-msgstr ""
+msgstr "面包屑导航"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Browse"
@@ -958,7 +958,7 @@ msgstr "浏览......"
 
 #: src/utilities/translate-task.ts
 msgid "Build image from Containerfile"
-msgstr ""
+msgstr "从 Containerfile 构建镜像"
 
 #: src/containers/role-management/role-list.tsx
 msgid "Built-in"
@@ -1014,7 +1014,7 @@ msgstr "已取消"
 
 #: src/shell/notifications.tsx
 msgid "Canceled {when}"
-msgstr ""
+msgstr "已取消：{when}"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1096,7 +1096,7 @@ msgstr "更改并上传集合到命名空间。"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Change existing containers."
-msgstr ""
+msgstr "更改现有容器。"
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Change existing execution environments."
@@ -1228,13 +1228,13 @@ msgstr "客户端密钥"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Clients cannot download its content until a distribution serves it."
-msgstr ""
+msgstr "在有分发提供之前，客户端无法下载其内容。"
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/typeahead.tsx
 msgid "close"
-msgstr ""
+msgstr "关闭"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
@@ -1243,11 +1243,11 @@ msgstr "关闭"
 
 #: src/shell/shell.tsx
 msgid "Close navigation"
-msgstr ""
+msgstr "关闭导航"
 
 #: src/shell/notifications.tsx
 msgid "Close notifications"
-msgstr ""
+msgstr "关闭通知"
 
 #: src/components/remote-form.tsx
 msgid "Close YAML editor"
@@ -1255,7 +1255,7 @@ msgstr "关闭 YAML 编辑器"
 
 #: src/shell/command-palette.tsx
 msgid "Cmd K"
-msgstr ""
+msgstr "Cmd K"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Code"
@@ -1263,7 +1263,7 @@ msgstr "代码"
 
 #: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "折叠侧边栏"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
@@ -1459,7 +1459,7 @@ msgstr "已在仓库中的集合无法被标记，因此暂时无法选择任何
 
 #: src/utilities/translate-task.ts
 msgid "Collections sync"
-msgstr ""
+msgstr "集合同步"
 
 #: src/containers/approvals/approvals.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -1490,11 +1490,11 @@ msgstr "社区"
 
 #: src/actions/ansible-repository-sync.tsx
 msgid "Community content will never be synced if the remote is set to only sync signed content. You can <0>edit the {name} remote</0> to change it."
-msgstr ""
+msgstr "如果远程设置为仅同步已签名的内容，则永远不会同步社区内容。您可以<0>编辑远程 {name}</0>来更改此设置。"
 
 #: src/components/remote-form.tsx
 msgid "Community content will never be synced if this setting is enabled"
-msgstr ""
+msgstr "如果启用此设置，则永远不会同步社区内容"
 
 #: src/components/ratings.tsx
 #~ msgid "Community score"
@@ -1516,12 +1516,12 @@ msgstr "完成"
 
 #: src/shell/notifications.tsx
 msgid "Completed {when}"
-msgstr ""
+msgstr "已完成：{when}"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Components"
-msgstr ""
+msgstr "组件"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -1545,7 +1545,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Connected"
-msgstr ""
+msgstr "已连接"
 
 #: src/utilities/validate-url-helper.ts
 msgid "Consider using a secure URL (https://)."
@@ -1647,7 +1647,7 @@ msgstr "在软件仓库中没有发行版的内容对客户端无法进行同步
 
 #: src/components/sync-modal.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
-msgstr ""
+msgstr "远程仓库中不存在的内容将从本地仓库中删除"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1659,7 +1659,7 @@ msgstr "删除内容"
 
 #: src/containers/pulp-status.tsx
 msgid "Content settings"
-msgstr ""
+msgstr "内容设置"
 
 #: src/components/collection-header.tsx
 #~ msgid "Contents"
@@ -1708,7 +1708,7 @@ msgstr "复制到剪贴板"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Copyable input"
-msgstr ""
+msgstr "可复制输入"
 
 #: src/components/import-console.tsx
 #~ msgid "could not be determined yet"
@@ -1716,11 +1716,11 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
-msgstr ""
+msgstr "无法检查是否已有同步在运行。您仍可以启动一个；它将等待正在运行的同步完成。"
 
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
-msgstr ""
+msgstr "无法检查名称和基本路径是否可用：{reason}。未创建任何内容。"
 
 #: src/containers/collection-detail/collection-import-log.tsx
 #~ msgid "Could not load import log"
@@ -1765,11 +1765,11 @@ msgstr "创建"
 #. placeholder {0}: repository.name
 #: src/components/repository-form.tsx
 msgid "Create a distribution \"{0}\" for this repository"
-msgstr ""
+msgstr "为此仓库创建分发 \"{0}\""
 
 #: src/components/repository-form.tsx
 msgid "Create a distribution for this repository"
-msgstr ""
+msgstr "为此仓库创建分发"
 
 #: src/components/group-modal.tsx
 msgid "Create a group"
@@ -1793,7 +1793,7 @@ msgstr "使用至少 {minLength} 个字符创建密码，包括特殊字符，�
 
 #: src/components/repository-form.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
-msgstr ""
+msgstr "为每个新仓库版本创建发布，使指向此仓库的分发始终提供最新内容。"
 
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Create a role namespace"
@@ -1801,7 +1801,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Create and update containers under existing container namespaces."
-msgstr ""
+msgstr "在现有容器命名空间下创建和更新容器。"
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Create and update execution environments under existing container namespaces."
@@ -1864,7 +1864,7 @@ msgstr "创建日期"
 
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
-msgstr ""
+msgstr "已在基本路径 {basePath} 创建分发 \"{name}\"。"
 
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
@@ -1883,7 +1883,7 @@ msgstr "创建于"
 
 #: src/shell/command-palette.tsx
 msgid "Ctrl K"
-msgstr ""
+msgstr "Ctrl K"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Curate all synclist repositories"
@@ -1911,7 +1911,7 @@ msgstr "当前内容"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Current page"
-msgstr ""
+msgstr "当前页"
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Current provider namespace"
@@ -1919,7 +1919,7 @@ msgstr ""
 
 #: src/components/typeahead.tsx
 msgid "Current selections"
-msgstr ""
+msgstr "当前选择"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Current tags"
@@ -1927,7 +1927,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Current task"
-msgstr ""
+msgstr "当前任务"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Currently excluded tags"
@@ -1939,7 +1939,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Custom"
-msgstr ""
+msgstr "自定义"
 
 #: src/components/permission-categories.tsx
 msgid "Custom permissions"
@@ -1955,15 +1955,15 @@ msgstr "自定义权限"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Danger"
-msgstr ""
+msgstr "危险"
 
 #: src/shell/theme-menu.tsx
 msgid "Dark"
-msgstr ""
+msgstr "深色"
 
 #: src/containers/pulp-status.tsx
 msgid "Database connection"
-msgstr ""
+msgstr "数据库连接"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "Date"
@@ -1975,19 +1975,19 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Debian copy content"
-msgstr ""
+msgstr "Debian 复制内容"
 
 #: src/utilities/translate-task.ts
 msgid "Debian publish"
-msgstr ""
+msgstr "Debian 发布"
 
 #: src/utilities/translate-task.ts
 msgid "Debian sync"
-msgstr ""
+msgstr "Debian 同步"
 
 #: src/utilities/translate-task.ts
 msgid "Debian verbatim publish"
-msgstr ""
+msgstr "Debian 原样发布"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "default"
@@ -2114,7 +2114,7 @@ msgstr "删除远程？"
 
 #: src/utilities/translate-task.ts
 msgid "Delete repository version"
-msgstr ""
+msgstr "删除仓库版本"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Delete repository?"
@@ -2379,16 +2379,16 @@ msgstr "分发"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Distributions could not be displayed."
-msgstr ""
+msgstr "无法显示分发。"
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
-msgstr ""
+msgstr "无法加载分发：{error}"
 
 #. placeholder {0}: resource?.plugin
 #: src/utilities/repository-distro.ts
 msgid "Distributions of {0} repositories cannot be looked up"
-msgstr ""
+msgstr "无法查找 {0} 个仓库的分发"
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -2416,7 +2416,7 @@ msgstr "文档"
 
 #: src/containers/pulp-status.tsx
 msgid "Domain enabled"
-msgstr ""
+msgstr "已启用域"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Done"
@@ -2432,7 +2432,7 @@ msgstr "完成"
 
 #: src/components/pulp-download-button.tsx
 msgid "Download {filename}"
-msgstr ""
+msgstr "下载 {filename}"
 
 #: src/actions/ansible-remote-download-ca.tsx
 msgid "Download CA certificate"
@@ -2490,7 +2490,7 @@ msgstr "仅下载签名的集合"
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "Download policy"
-msgstr ""
+msgstr "下载策略"
 
 #: src/components/remote-form.tsx
 msgid "Download requirements file"
@@ -2568,7 +2568,7 @@ msgstr "编辑"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Edit distribution"
-msgstr ""
+msgstr "编辑分发"
 
 #: src/components/repository-form.tsx
 #~ msgid "Edit execution environment"
@@ -2641,7 +2641,7 @@ msgstr "启用"
 
 #: src/components/repository-form.tsx
 msgid "Enter a base path."
-msgstr ""
+msgstr "请输入基本路径。"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
@@ -2717,7 +2717,7 @@ msgstr "删除组错误。"
 
 #: src/entrypoint.tsx
 msgid "Error loading /pulp-ui-config.json"
-msgstr ""
+msgstr "加载 /pulp-ui-config.json 时出错"
 
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "Error loading active user."
@@ -2847,21 +2847,21 @@ msgstr "错误消息"
 
 #: src/components/access-tab.tsx
 msgid "Except for members of groups below."
-msgstr ""
+msgstr "以下组的成员除外。"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Excluded"
-msgstr ""
+msgstr "已排除"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Excluded platforms"
-msgstr ""
+msgstr "已排除的平台"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Excludes"
-msgstr ""
+msgstr "排除项"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Execution Environment"
@@ -2908,7 +2908,7 @@ msgstr ""
 
 #: src/shell/shell.tsx
 msgid "Expand sidebar"
-msgstr ""
+msgstr "展开侧边栏"
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Expiration"
@@ -2920,15 +2920,15 @@ msgstr ""
 
 #: src/components/repository-form.tsx
 msgid "Fail on rejected packages"
-msgstr ""
+msgstr "软件包被拒绝时失败"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Fail the whole version"
-msgstr ""
+msgstr "使整个版本失败"
 
 #: src/components/repository-form.tsx
 msgid "Fail the whole version if any package is rejected"
-msgstr ""
+msgstr "如果有任何软件包被拒绝，则使整个版本失败"
 
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
@@ -2938,7 +2938,7 @@ msgstr "失败"
 
 #: src/shell/notifications.tsx
 msgid "Failed {when}"
-msgstr ""
+msgstr "失败：{when}"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Failed to {operation} tag \"{tag}\"."
@@ -3069,7 +3069,7 @@ msgstr "加载状态失败"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
-msgstr ""
+msgstr "无法加载分发：{loadError}"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Failed to load Wisdom information."
@@ -3181,7 +3181,7 @@ msgstr "同步软件仓库 \"{name}\" 失败"
 
 #: src/entrypoint.tsx
 msgid "Fall back to defaults"
-msgstr ""
+msgstr "恢复为默认值"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Featured"
@@ -3197,19 +3197,19 @@ msgstr ""
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
-msgstr ""
+msgstr "文件"
 
 #: src/utilities/translate-task.ts
 msgid "File content publish"
-msgstr ""
+msgstr "文件内容发布"
 
 #: src/utilities/translate-task.ts
 msgid "File content sync"
-msgstr ""
+msgstr "文件内容同步"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "File upload"
-msgstr ""
+msgstr "文件上传"
 
 #. placeholder {0}: selectedFilter.id
 #. placeholder {0}: selectedFilter.id.toLowerCase()
@@ -3255,7 +3255,7 @@ msgstr "完成于"
 
 #: src/components/purge-task-modal.tsx
 msgid "Finished before:"
-msgstr ""
+msgstr "完成时间早于："
 
 #: src/components/user-form.tsx
 #: src/containers/user-management/user-list.tsx
@@ -3280,7 +3280,7 @@ msgstr "名"
 
 #: src/containers/pulp-status.tsx
 msgid "Free"
-msgstr ""
+msgstr "空闲"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
@@ -3296,23 +3296,23 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "General create"
-msgstr ""
+msgstr "常规创建"
 
 #: src/utilities/translate-task.ts
 msgid "General delete"
-msgstr ""
+msgstr "常规删除"
 
 #: src/utilities/translate-task.ts
 msgid "General multi delete"
-msgstr ""
+msgstr "常规批量删除"
 
 #: src/utilities/translate-task.ts
 msgid "General update"
-msgstr ""
+msgstr "常规更新"
 
 #: src/containers/about-project.tsx
 msgid "Get involved"
-msgstr ""
+msgstr "参与进来"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Get the trial"
@@ -3324,7 +3324,7 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "GitHub issues"
-msgstr ""
+msgstr "GitHub 问题"
 
 #: src/components/role-import-form.tsx
 #~ msgid "GitHub ref (a commit, branch or tag)"
@@ -3332,7 +3332,7 @@ msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "GitHub repository"
-msgstr ""
+msgstr "GitHub 仓库"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "GitHub Repository"
@@ -3345,7 +3345,7 @@ msgstr ""
 
 #: src/utilities/wait-for-task.ts
 msgid "Giving up waiting for task after {attempts} attempts."
-msgstr ""
+msgstr "在 {attempts} 次尝试后放弃等待任务。"
 
 #: src/utilities/wait-for-task.ts
 #~ msgid "Giving up waiting for task after 10 attempts."
@@ -3357,7 +3357,7 @@ msgstr "返回"
 
 #: src/shell/command-palette.tsx
 msgid "Go to"
-msgstr ""
+msgstr "转到"
 
 #: src/components/collection-info.tsx
 #~ msgid "Go to documentation"
@@ -3365,19 +3365,19 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to first page"
-msgstr ""
+msgstr "转到第一页"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to last page"
-msgstr ""
+msgstr "转到最后一页"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to next page"
-msgstr ""
+msgstr "转到下一页"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Go to previous page"
-msgstr ""
+msgstr "转到上一页"
 
 #: src/session/reauth-dialog.tsx
 msgid "Go to the login page"
@@ -3390,7 +3390,7 @@ msgstr "转到起始页"
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "GPG key"
-msgstr ""
+msgstr "GPG 密钥"
 
 #: src/components/access-tab.tsx
 #: src/components/select-group.tsx
@@ -3406,7 +3406,7 @@ msgstr "组 \"{0}\" 无法被添加到 \"{name}\"。"
 #. placeholder {0}: group.name
 #: src/containers/group-management/group-detail.tsx
 msgid "Group \"{0}\" could not be deleted."
-msgstr ""
+msgstr "无法删除组 \"{0}\"。"
 
 #: src/containers/group-management/group-detail.tsx
 #~ msgid "Group \"{0}\" could not be displayed."
@@ -3510,16 +3510,16 @@ msgstr "组在创建后会出现"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Guard: {guardName}"
-msgstr ""
+msgstr "内容保护：{guardName}"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
-msgstr ""
+msgstr "包含单词"
 
 #: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
 msgid "Help"
-msgstr ""
+msgstr "帮助"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Help other Ansible users by sharing the awesome roles and collections you create."
@@ -3539,7 +3539,7 @@ msgstr "隐藏高级选项"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Hide password"
-msgstr ""
+msgstr "隐藏密码"
 
 #: src/components/download-signature-grid-item.tsx
 #~ msgid "Hide the signature"
@@ -3547,15 +3547,15 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions."
-msgstr ""
+msgstr "每个软件包要同步的最新版本数量，如果同步预发布版本，则包括预发布版本。留空则保留所有版本。"
 
 #: src/components/remote-form.tsx
 msgid "How many times a failed download is tried again before the sync gives up."
-msgstr ""
+msgstr "同步放弃之前，失败的下载重试的次数。"
 
 #: src/components/repository-form.tsx
 msgid "How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions."
-msgstr ""
+msgstr "每个软件包保留的版本数量；较旧的版本在同步时会被丢弃。留空则保留所有版本。"
 
 #: src/components/delete-collection-modal.tsx
 #: src/components/delete-execution-environment-modal.tsx
@@ -3566,7 +3566,7 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
-msgstr ""
+msgstr "如果选中，远程仓库中不存在的所有内容都将从本地仓库中删除；否则，同步将添加缺失的内容。"
 
 #: src/components/remote-form.tsx
 msgid "If selected, TLS peer validation must be performed."
@@ -3582,7 +3582,7 @@ msgstr "如果选中，则必须执行 TLS 对等验证。"
 
 #: src/containers/about-project.tsx
 msgid "If you find a bug or have an idea for enhancement, please feel free to file a GitHub issue. Thank you for contributing to improvement of the project."
-msgstr ""
+msgstr "如果您发现错误或有改进想法，请随时提交 GitHub 问题。感谢您为改进项目所做的贡献。"
 
 #: src/components/remote-form.tsx
 msgid "If you populate this requirements file, this remote will only sync collections from this file, otherwise all collections will be synchronized."
@@ -3611,15 +3611,15 @@ msgstr "如果您填充这个要求文件，这个远程将只同步此文件的
 
 #: src/containers/rpm-remote/tab-details.tsx
 msgid "immediate"
-msgstr ""
+msgstr "立即"
 
 #: src/components/remote-form.tsx
 msgid "Immediate"
-msgstr ""
+msgstr "立即"
 
 #: src/components/remote-form.tsx
 msgid "Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it."
-msgstr ""
+msgstr "立即会在同步期间下载所有内容，当远程无法持续访问时必须使用。按需只同步元数据，并在客户端首次请求时下载每个项目。流式会将内容直接传递给客户端而不存储。"
 
 #: src/components/role-import-form.tsx
 #~ msgid "Import"
@@ -3635,7 +3635,7 @@ msgstr "导入并移至 staging"
 
 #: src/utilities/translate-task.ts
 msgid "Import collection"
-msgstr ""
+msgstr "导入集合"
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-import-log.tsx
@@ -3676,20 +3676,20 @@ msgstr "在仓库中"
 
 #: src/components/remote-form.tsx
 msgid "Include all dependencies when syncing a collection."
-msgstr ""
+msgstr "同步集合时包含所有依赖项。"
 
 #: src/components/remote-form.tsx
 msgid "Include pre-release versions"
-msgstr ""
+msgstr "包含预发布版本"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Included"
-msgstr ""
+msgstr "已包含"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Includes"
-msgstr ""
+msgstr "包含项"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Including all tags might transfer a lot of data."
@@ -3729,7 +3729,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Info"
-msgstr ""
+msgstr "信息"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "ini entries:"
@@ -3746,7 +3746,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-distributions.tsx
 msgid "Install with pip"
-msgstr ""
+msgstr "使用 pip 安装"
 
 #: src/components/collection-info.tsx
 #~ msgid "Installation"
@@ -3762,7 +3762,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer files will be synchronized"
-msgstr ""
+msgstr "将同步安装程序文件"
 
 #: src/components/remote-form.tsx
 #~ msgid "Installer packages will be skipped"
@@ -3770,7 +3770,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Installer packages will be synchronized"
-msgstr ""
+msgstr "将同步安装程序软件包"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "Instructions"
@@ -3823,15 +3823,15 @@ msgstr "问题跟踪器"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Items per page"
-msgstr ""
+msgstr "每页项目数"
 
 #: src/containers/about-project.tsx
 msgid "Join our communication channels and get to know the contributors and users of Pulp's strong ecosystem."
-msgstr ""
+msgstr "加入我们的交流渠道，结识 Pulp 强大生态系统中的贡献者和用户。"
 
 #: src/containers/pulp-status.tsx
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
@@ -3874,7 +3874,7 @@ msgstr "标签"
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
-msgstr ""
+msgstr "最后心跳"
 
 #: src/components/collection-filter.ts
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -3909,12 +3909,12 @@ msgstr "最后从注册表 {0} 更新"
 
 #: src/components/purge-task-modal.tsx
 msgid "Latest allowed date is today."
-msgstr ""
+msgstr "最晚允许的日期是今天。"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Latest versions kept per package"
-msgstr ""
+msgstr "每个软件包保留的最新版本数"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Layers"
@@ -3968,7 +3968,7 @@ msgstr ""
 
 #: src/shell/theme-menu.tsx
 msgid "Light"
-msgstr ""
+msgstr "浅色"
 
 #: src/components/remote-form.tsx
 msgid "Limits total download rate in requests per second."
@@ -4019,15 +4019,15 @@ msgstr "限制请求的每秒总下载率。"
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "Loading distribution..."
-msgstr ""
+msgstr "正在加载分发..."
 
 #: src/components/delete-repository-modal.tsx
 msgid "Loading distributions"
-msgstr ""
+msgstr "正在加载分发"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Loading..."
-msgstr ""
+msgstr "加载中..."
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #: src/containers/search/multi-search.tsx
@@ -4063,7 +4063,7 @@ msgstr "退出"
 
 #: src/menu.tsx
 msgid "Main"
-msgstr ""
+msgstr "主要内容"
 
 #: src/components/repository-form.tsx
 msgid "Make private"
@@ -4100,7 +4100,7 @@ msgstr "管理集合远程。"
 
 #: src/shell/theme-menu.tsx
 msgid "Match system"
-msgstr ""
+msgstr "跟随系统"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
@@ -4112,19 +4112,19 @@ msgstr "信息"
 
 #: src/components/sync-modal.tsx
 msgid "Mirror"
-msgstr ""
+msgstr "镜像"
 
 #: src/actions/rpm-repository-sync.tsx
 msgid "Mirror complete (exact copy incl. metadata)"
-msgstr ""
+msgstr "完整镜像（精确副本，含元数据）"
 
 #: src/actions/rpm-repository-sync.tsx
 msgid "Mirror content only"
-msgstr ""
+msgstr "仅镜像内容"
 
 #: src/actions/file-repository-sync.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
-msgstr ""
+msgstr "镜像不能与自动发布结合使用，因此此同步只会添加缺失的内容。"
 
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
@@ -4132,7 +4132,7 @@ msgstr ""
 
 #: src/components/help-button.tsx
 msgid "More information"
-msgstr ""
+msgstr "更多信息"
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4298,7 +4298,7 @@ msgstr "命名空间"
 
 #: src/containers/ansible-repository/list.tsx
 msgid "never synced"
-msgstr ""
+msgstr "从未同步"
 
 #: src/components/import-modal.tsx
 #~ msgid "New collection"
@@ -4341,7 +4341,7 @@ msgstr "无可分配角色。"
 
 #: src/components/select-user.tsx
 msgid "No assignable users."
-msgstr ""
+msgstr "没有可分配的用户。"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No child task"
@@ -4384,15 +4384,15 @@ msgstr "还没有集合版本"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "No distribution serves this repository"
-msgstr ""
+msgstr "没有分发提供此仓库"
 
 #: src/components/delete-repository-modal.tsx
 msgid "No distribution serves this repository. Only the repository is deleted."
-msgstr ""
+msgstr "没有分发提供此仓库。仅删除该仓库。"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 msgid "No distributions created"
-msgstr ""
+msgstr "未创建分发"
 
 #: src/containers/collection-detail/collection-distributions.tsx
 #~ msgid "No distributions yet"
@@ -4400,7 +4400,7 @@ msgstr ""
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
-msgstr ""
+msgstr "还没有已完成的任务"
 
 #: src/containers/group-management/group-list.tsx
 msgid "No groups yet"
@@ -4478,12 +4478,12 @@ msgstr "还没有组"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 msgid "No packages in the latest version"
-msgstr ""
+msgstr "最新版本中没有软件包"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "No packages yet"
-msgstr ""
+msgstr "还没有软件包"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No parent task"
@@ -4507,7 +4507,7 @@ msgstr "没有权限"
 
 #: src/containers/ansible-repository/list.tsx
 msgid "no remote"
-msgstr ""
+msgstr "无远程"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "No remote registries yet"
@@ -4560,7 +4560,7 @@ msgstr "没有结果与过滤条件匹配。尝试更改过滤器设置。"
 
 #: src/shell/command-palette.tsx
 msgid "No screens or repositories match"
-msgstr ""
+msgstr "没有匹配的界面或仓库"
 
 #: src/containers/signature-keys/list.tsx
 msgid "No signature keys yet"
@@ -4584,7 +4584,7 @@ msgstr "还没有任务"
 
 #: src/components/list-page.test.tsx
 msgid "No things yet"
-msgstr ""
+msgstr "还没有条目"
 
 #: src/components/delete-group-modal.tsx
 msgid "No users will be affected."
@@ -4641,11 +4641,11 @@ msgstr "无"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Not allowed"
-msgstr ""
+msgstr "不允许"
 
 #: src/containers/pulp-status.tsx
 msgid "Not enabled"
-msgstr ""
+msgstr "未启用"
 
 #: src/components/typeahead.tsx
 msgid "Not found"
@@ -4657,15 +4657,15 @@ msgstr "未找到"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed"
-msgstr ""
+msgstr "未删除"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed, not shown when this dialog opened"
-msgstr ""
+msgstr "未删除，此对话框打开时未显示"
 
 #: src/containers/pulp-status.tsx
 msgid "Not reported"
-msgstr ""
+msgstr "未报告"
 
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
@@ -4674,11 +4674,11 @@ msgstr ""
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
 msgid "Not served: no publication"
-msgstr ""
+msgstr "未提供：没有发布"
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
-msgstr ""
+msgstr "未同步"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -4694,23 +4694,23 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
-msgstr ""
+msgstr "分发 {name} 没有任何更改。"
 
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
-msgstr ""
+msgstr "仓库 {name} 没有任何更改。"
 
 #: src/shell/command-palette.tsx
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
-msgstr ""
+msgstr "没有与 \"{text}\" 匹配的内容。请检查拼写，或尝试输入仓库名称的一部分。"
 
 #: src/shell/notifications.tsx
 msgid "Notifications"
-msgstr ""
+msgstr "通知"
 
 #: src/shell/notifications.tsx
 msgid "Notifications could not be loaded."
-msgstr ""
+msgstr "无法加载通知。"
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -4726,31 +4726,31 @@ msgstr "的"
 
 #: src/components/remote-form.tsx
 msgid "On demand"
-msgstr ""
+msgstr "按需"
 
 #: src/components/remote-form.tsx
 msgid "On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it."
-msgstr ""
+msgstr "按需会在客户端请求时获取内容。立即会在同步时下载所有内容。流式会直接传递内容而不存储。"
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
-msgstr ""
+msgstr "在线 API 应用"
 
 #: src/containers/pulp-status.tsx
 msgid "Online content apps"
-msgstr ""
+msgstr "在线内容应用"
 
 #: src/containers/pulp-status.tsx
 msgid "Online workers"
-msgstr ""
+msgstr "在线 worker"
 
 #: src/components/sync-modal.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
-msgstr ""
+msgstr "仅在远程服务器报告有更改时才执行同步。"
 
 #: src/components/sync-modal.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
-msgstr ""
+msgstr "仅在远程服务器报告有更改时才执行同步。要强制执行同步，请取消选择此选项。"
 
 #: src/actions/ansible-repository-sync.tsx
 #~ msgid "Only perform the sync if no changes are reported by the remote server."
@@ -4766,11 +4766,11 @@ msgstr ""
 
 #: src/shell/shell.tsx
 msgid "Open navigation"
-msgstr ""
+msgstr "打开导航"
 
 #: src/menu.tsx
 msgid "Operations"
-msgstr ""
+msgstr "运维"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Opt in to Ansible Lightspeed"
@@ -4790,36 +4790,36 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "Optimize"
-msgstr ""
+msgstr "优化"
 
 #: src/components/typeahead.tsx
 msgid "Options"
-msgstr ""
+msgstr "选项"
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
-msgstr ""
+msgstr "来源"
 
 #: src/containers/task-management/task-list-view.tsx
 #: src/utilities/translate-task.ts
 msgid "Orphan cleanup"
-msgstr ""
+msgstr "孤立内容清理"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Orphan cleanup could not be started"
-msgstr ""
+msgstr "无法启动孤立内容清理"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Orphan cleanup started"
-msgstr ""
+msgstr "孤立内容清理已启动"
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "Orphan cleanup task"
-msgstr ""
+msgstr "孤立内容清理任务"
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "Orphan protection time:"
-msgstr ""
+msgstr "孤立内容保护时间："
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "OS / Arch"
@@ -4827,23 +4827,23 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ostree child upload"
-msgstr ""
+msgstr "Ostree 子项上传"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree full upload"
-msgstr ""
+msgstr "Ostree 完整上传"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree modify content"
-msgstr ""
+msgstr "Ostree 修改内容"
 
 #: src/utilities/translate-task.ts
 msgid "Ostree sync"
-msgstr ""
+msgstr "Ostree 同步"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Outcome unknown, check the task"
-msgstr ""
+msgstr "结果未知，请检查任务"
 
 #: src/components/role-import-form.tsx
 #~ msgid "Overrides any galaxy_info.namespace metadata"
@@ -4862,25 +4862,25 @@ msgstr ""
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Package name"
-msgstr ""
+msgstr "软件包名称"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Package substitution"
-msgstr ""
+msgstr "软件包替换"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 msgid "Package type"
-msgstr ""
+msgstr "软件包类型"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Package types"
-msgstr ""
+msgstr "软件包类型"
 
 #: src/components/remote-form.tsx
 msgid "Package types to sync. Leave all unticked to sync every type."
-msgstr ""
+msgstr "要同步的软件包类型。全部不勾选则同步所有类型。"
 
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/tab-packages.tsx
@@ -4889,30 +4889,30 @@ msgstr ""
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Packages"
-msgstr ""
+msgstr "软件包"
 
 #: src/menu.tsx
 msgid "Packages and artifacts"
-msgstr ""
+msgstr "软件包和构件"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
 msgid "Packages could not be displayed."
-msgstr ""
+msgstr "无法显示软件包。"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
-msgstr ""
+msgstr "此分发中缺少的软件包会从远程获取。留空则仅提供已上传的内容。"
 
 #: src/containers/python/package-list.tsx
 msgid "Packages will appear once a repository is synced or a package is uploaded."
-msgstr ""
+msgstr "同步仓库或上传软件包后，软件包将显示在此处。"
 
 #: src/containers/rpm/package-list.tsx
 msgid "Packages will appear once created."
-msgstr ""
+msgstr "软件包在创建后将显示。"
 
 #: src/components/headers/base-header.tsx
 #~ msgid "Page logo"
@@ -4920,7 +4920,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Pagination"
-msgstr ""
+msgstr "分页"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Parameter"
@@ -4964,7 +4964,7 @@ msgstr "密码不匹配"
 
 #: src/containers/pulp-status.tsx
 msgid "Path prefix"
-msgstr ""
+msgstr "路径前缀"
 
 #: src/containers/not-found/dispatch.tsx
 #~ msgid "Pathname <0>{pathname}</0> could refer to a collection or a role."
@@ -5046,7 +5046,7 @@ msgstr "无法显示组 \"{0}\" 的权限。"
 
 #: src/components/remote-form.tsx
 msgid "Platforms whose packages should not be synced."
-msgstr ""
+msgstr "不应同步其软件包的平台。"
 
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/role-management/role-list.tsx
@@ -5059,7 +5059,7 @@ msgstr "请使用以下按钮添加所有者。"
 
 #: src/components/access-tab.tsx
 msgid "Please add an owner by using the buttons below."
-msgstr ""
+msgstr "请使用下面的按钮添加所有者。"
 
 #: src/components/rbac/owners-tab.tsx
 #~ msgid "Please contact the server administrator for elevated permissions."
@@ -5107,7 +5107,7 @@ msgstr "插件"
 
 #: src/components/plugin-not-installed.tsx
 msgid "Plugin not installed"
-msgstr ""
+msgstr "插件未安装"
 
 #: src/components/helper-text/helper-text.tsx
 #~ msgid "popover example"
@@ -5116,7 +5116,7 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Pre-releases"
-msgstr ""
+msgstr "预发布版本"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -5142,15 +5142,15 @@ msgstr "进度消息"
 
 #: src/components/remote-form.tsx
 msgid "Projects to skip, one specifier per line, for example \"django<4\". Applied after includes."
-msgstr ""
+msgstr "要跳过的项目，每行一个规范，例如 \"django<4\"。在包含项之后应用。"
 
 #: src/components/remote-form.tsx
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
-msgstr ""
+msgstr "要同步的项目，每行一个规范，例如 \"django>=4.2\"。留空则同步远程提供的所有项目。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Protected by a content guard: customer-facing URL"
-msgstr ""
+msgstr "受内容保护：面向客户的 URL"
 
 #: src/actions/ansible-repository-delete.tsx
 #~ msgid "Protected repositories cannot be deleted."
@@ -5159,7 +5159,7 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
 msgid "Provenance"
-msgstr ""
+msgstr "来源证明"
 
 #: src/components/cards/collection-card.tsx
 #: src/components/collection-list/collection-list-item.tsx
@@ -5211,11 +5211,11 @@ msgstr "公钥"
 
 #: src/components/repository-form.tsx
 msgid "Publish new versions automatically"
-msgstr ""
+msgstr "自动发布新版本"
 
 #: src/containers/deb-repository/tab-details.tsx
 msgid "Publish upstream release fields"
-msgstr ""
+msgstr "发布上游 Release 字段"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
@@ -5239,11 +5239,11 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Pull-through remote"
-msgstr ""
+msgstr "Pull-through 远程"
 
 #: src/shell/sidebar.tsx
 msgid "Pulp {version}"
-msgstr ""
+msgstr "Pulp {version}"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Ansible Version"
@@ -5307,7 +5307,7 @@ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 msgid "Pulp core version"
-msgstr ""
+msgstr "Pulp 核心版本"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Core Version"
@@ -5315,19 +5315,19 @@ msgstr ""
 
 #: src/components/coming-soon.tsx
 msgid "Pulp documentation"
-msgstr ""
+msgstr "Pulp 文档"
 
 #: src/utilities/translate-task.ts
 msgid "Pulp export"
-msgstr ""
+msgstr "Pulp 导出"
 
 #: src/utilities/translate-task.ts
 msgid "Pulp import"
-msgstr ""
+msgstr "Pulp 导入"
 
 #: src/containers/about-project.tsx
 msgid "Pulp is an open source project that makes it easy for developers to fetch, upload, and distribute software packages on-prem or in the cloud."
-msgstr ""
+msgstr "Pulp 是一个开源项目，使开发人员可以轻松地在本地或云端获取、上传和分发软件包。"
 
 #: src/containers/about-project.tsx
 #~ msgid "Pulp is an open source project that makes it easy for developers to fetch, upload, and distribute Software Packages on-prem or in the cloud."
@@ -5335,18 +5335,18 @@ msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 msgid "Pulp label"
-msgstr ""
+msgstr "Pulp 标签"
 
 #: src/containers/deb-repository/list.tsx
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 msgid "Pulp Label"
-msgstr ""
+msgstr "Pulp 标签"
 
 #: src/components/repository-form.tsx
 msgid "Pulp labels in the form of 'key:value'."
-msgstr ""
+msgstr "Pulp 标签，格式为 'key:value'。"
 
 #: src/components/ansible-repository-form.tsx
 #~ msgid "Pulp Labels in the form of 'key:value'."
@@ -5355,7 +5355,7 @@ msgstr ""
 #: src/components/pulp-about-modal.tsx
 #: src/containers/about-project.tsx
 msgid "Pulp logo"
-msgstr ""
+msgstr "Pulp 徽标"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Pulp Logo"
@@ -5379,7 +5379,7 @@ msgstr "Pulp 类型"
 
 #: src/shell/shell.tsx
 msgid "Pulp, {host}"
-msgstr ""
+msgstr "Pulp, {host}"
 
 #: src/constants.tsx
 #~ msgid "Pulpcore: Add and remove"
@@ -5435,19 +5435,19 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Purge all tasks"
-msgstr ""
+msgstr "清除所有任务"
 
 #: src/components/purge-task-modal.tsx
 msgid "Purge task"
-msgstr ""
+msgstr "清除任务"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Purge tasks"
-msgstr ""
+msgstr "清除任务"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Purge tasks could not be started"
-msgstr ""
+msgstr "无法启动清除任务"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Purge Tasks could not be started"
@@ -5455,7 +5455,7 @@ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Purge tasks started"
-msgstr ""
+msgstr "清除任务已启动"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Purge Tasks started"
@@ -5463,7 +5463,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push and change containers."
-msgstr ""
+msgstr "推送并更改容器。"
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Push and change execution environments."
@@ -5495,7 +5495,7 @@ msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push, delete and change containers. Create, delete and change remote registries."
-msgstr ""
+msgstr "推送、删除和更改容器。创建、删除和更改远程注册表。"
 
 #: src/utilities/translate-locked-role.ts
 #~ msgid "Push, delete and change execution environments. Create, delete and change remote registries."
@@ -5507,19 +5507,19 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Python package group upload"
-msgstr ""
+msgstr "Python 软件包组上传"
 
 #: src/utilities/translate-task.ts
 msgid "Python package publish"
-msgstr ""
+msgstr "Python 软件包发布"
 
 #: src/utilities/translate-task.ts
 msgid "Python package sync"
-msgstr ""
+msgstr "Python 软件包同步"
 
 #: src/utilities/translate-task.ts
 msgid "Python package upload"
-msgstr ""
+msgstr "Python 软件包上传"
 
 #: src/components/ratings.tsx
 #~ msgid "Quality of docs"
@@ -5561,11 +5561,11 @@ msgstr "速率限制"
 
 #: src/utilities/translate-task.ts
 msgid "Recursive add content"
-msgstr ""
+msgstr "递归添加内容"
 
 #: src/utilities/translate-task.ts
 msgid "Recursive remove content"
-msgstr ""
+msgstr "递归删除内容"
 
 #: src/components/repository-badge.tsx
 #~ msgid "Red Hat Certified"
@@ -5577,7 +5577,7 @@ msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Redis connection"
-msgstr ""
+msgstr "Redis 连接"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Registries list could not be displayed."
@@ -5589,7 +5589,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Registry sync"
-msgstr ""
+msgstr "注册表同步"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Registry sync status"
@@ -5630,7 +5630,7 @@ msgstr ""
 
 #: src/components/lazy-screen.tsx
 msgid "Reload"
-msgstr ""
+msgstr "重新加载"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -5674,7 +5674,7 @@ msgstr "远程名称"
 
 #: src/containers/coming-soon-screens.tsx
 msgid "Remote registries"
-msgstr ""
+msgstr "远程注册表"
 
 #: src/menu.tsx
 #~ msgid "Remote Registries"
@@ -5792,11 +5792,11 @@ msgstr "删除角色 {role}？"
 
 #: src/components/access-tab.tsx
 msgid "Remove user"
-msgstr ""
+msgstr "删除用户"
 
 #: src/components/access-tab.tsx
 msgid "Remove user {username}?"
-msgstr ""
+msgstr "删除用户 {username}？"
 
 #: src/containers/group-management/group-detail.tsx
 msgid "Remove user from group?"
@@ -5808,16 +5808,16 @@ msgstr "从组中删除用户？"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Removed"
-msgstr ""
+msgstr "已删除"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/actions/repository-delete.tsx
 msgid "Removed distributions: {0}"
-msgstr ""
+msgstr "已删除的分发：{0}"
 
 #: src/actions/repository-delete.tsx
 msgid "Removed repository {name}"
-msgstr ""
+msgstr "已删除仓库 {name}"
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
@@ -5831,15 +5831,15 @@ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair"
-msgstr ""
+msgstr "修复"
 
 #: src/utilities/translate-task.ts
 msgid "Repair all artifacts"
-msgstr ""
+msgstr "修复所有构件"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair artifact storage could not be started"
-msgstr ""
+msgstr "无法启动构件存储修复"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Repair Artifact Storage could not be started"
@@ -5847,7 +5847,7 @@ msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair artifact storage started"
-msgstr ""
+msgstr "构件存储修复已启动"
 
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Repair Artifact Storage started"
@@ -5855,11 +5855,11 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Repair repository version"
-msgstr ""
+msgstr "修复仓库版本"
 
 #: src/components/repair-task-modal.tsx
 msgid "Repair task"
-msgstr ""
+msgstr "修复任务"
 
 #: src/components/collection-header.tsx
 #~ msgid "Repo"
@@ -5900,7 +5900,7 @@ msgstr "软件仓库"
 
 #: src/shell/command-palette.tsx
 msgid "Repositories cannot be searched with your account."
-msgstr ""
+msgstr "无法使用您的账户搜索仓库。"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -5940,15 +5940,15 @@ msgstr "仓库 \"{name}\" 已创建。其分发尚未确认。"
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
-msgstr ""
+msgstr "已创建仓库 \"{name}\"。分发 \"{name}\" 仍在创建中，尚未提供服务。"
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
-msgstr ""
+msgstr "已创建仓库 \"{name}\"。分发 \"{name}\" 未能创建：{distributionError}"
 
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "已创建仓库 \"{name}\"。由于无法读取任务状态，创建分发 \"{name}\" 的结果未知。请检查该任务。"
 
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
@@ -5998,7 +5998,7 @@ msgstr "仓库名称"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Repository URL"
-msgstr ""
+msgstr "仓库 URL"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -6038,7 +6038,7 @@ msgstr "修改仓库后会出现仓库版本。"
 
 #: src/containers/python-repository/tab-packages.tsx
 msgid "Requires Python"
-msgstr ""
+msgstr "需要 Python"
 
 #: src/components/user-form.tsx
 #~ msgid "Requires super user permissions to edit."
@@ -6050,11 +6050,11 @@ msgstr "保留资源"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Reset"
-msgstr ""
+msgstr "重置"
 
 #: src/components/language-switcher.tsx
 msgid "Reset to browser defaults"
-msgstr ""
+msgstr "重置为浏览器默认值"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Resources"
@@ -6062,7 +6062,7 @@ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Results"
-msgstr ""
+msgstr "结果"
 
 #: src/components/repository-form.tsx
 msgid "Retained number of versions"
@@ -6070,7 +6070,7 @@ msgstr "版本的保留数量"
 
 #: src/containers/rpm-repository/tab-details.tsx
 msgid "Retained package versions"
-msgstr ""
+msgstr "保留的软件包版本"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
@@ -6082,7 +6082,7 @@ msgstr "保留版本计数"
 
 #: src/components/remote-form.tsx
 msgid "Retries"
-msgstr ""
+msgstr "重试次数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
@@ -6092,7 +6092,7 @@ msgstr "重试"
 
 #: src/shell/notifications.tsx
 msgid "Retry loading notifications"
-msgstr ""
+msgstr "重试加载通知"
 
 #: src/menu.tsx
 msgid "Retry loading the plugin list"
@@ -6104,7 +6104,7 @@ msgstr "重试加载仓库内容"
 
 #: src/shell/command-palette.tsx
 msgid "Retry repository search"
-msgstr ""
+msgstr "重试仓库搜索"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Return Values"
@@ -6132,7 +6132,7 @@ msgstr "恢复到这个版本"
 
 #: src/actions/repository-version-revert.tsx
 msgid "Reverted repository \"{repositoryName}\" to version \"{number}\"."
-msgstr ""
+msgstr "已将仓库 \"{repositoryName}\" 还原到版本 \"{number}\"。"
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
@@ -6258,7 +6258,7 @@ msgstr "无法显示角色列表。"
 
 #: src/utilities/translate-task.ts
 msgid "Roles sync"
-msgstr ""
+msgstr "角色同步"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Roles synchronize"
@@ -6271,27 +6271,27 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "RPM comps upload"
-msgstr ""
+msgstr "RPM comps 上传"
 
 #: src/utilities/translate-task.ts
 msgid "RPM copy package"
-msgstr ""
+msgstr "RPM 软件包复制"
 
 #: src/utilities/translate-task.ts
 msgid "RPM package publish"
-msgstr ""
+msgstr "RPM 软件包发布"
 
 #: src/utilities/translate-task.ts
 msgid "RPM package sync"
-msgstr ""
+msgstr "RPM 软件包同步"
 
 #: src/utilities/translate-task.ts
 msgid "RPM package upload & sign"
-msgstr ""
+msgstr "RPM 软件包上传并签名"
 
 #: src/utilities/translate-task.ts
 msgid "RPM prune packages"
-msgstr ""
+msgstr "RPM 软件包清理"
 
 #: src/menu.tsx
 #~ msgid "RPMs"
@@ -6299,7 +6299,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems publish"
-msgstr ""
+msgstr "Ruby gems 发布"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Ruby Gems publish"
@@ -6307,7 +6307,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Ruby gems sync"
-msgstr ""
+msgstr "Ruby gems 同步"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Ruby Gems sync"
@@ -6358,11 +6358,11 @@ msgstr "保存对用户 \"{username}\" 的更改。"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
-msgstr ""
+msgstr "向后滚动"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll foward"
-msgstr ""
+msgstr "向前滚动"
 
 #: src/components/import-console.tsx
 #~ msgid "Scroll to end"
@@ -6372,7 +6372,7 @@ msgstr ""
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/containers/coming-soon-screens.tsx
 msgid "Search"
-msgstr ""
+msgstr "搜索"
 
 #: src/containers/namespace-list/namespace-list.tsx
 #~ msgid "Search all {0}"
@@ -6392,15 +6392,15 @@ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Search or go to"
-msgstr ""
+msgstr "搜索或转到"
 
 #: src/shell/command-palette.tsx
 msgid "Search or go to..."
-msgstr ""
+msgstr "搜索或转到..."
 
 #: src/shell/command-palette.tsx
 msgid "Search screens and repositories"
-msgstr ""
+msgstr "搜索界面和仓库"
 
 #: src/components/patternfly-wrappers/toolbar.tsx
 #~ msgid "search text input"
@@ -6408,11 +6408,11 @@ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Searching repositories..."
-msgstr ""
+msgstr "正在搜索仓库..."
 
 #: src/components/remote-form.tsx
 msgid "Seconds. Leave empty to use the server default."
-msgstr ""
+msgstr "秒。留空则使用服务器默认值。"
 
 #: src/utilities/task-alert.tsx
 msgid "See the task management <0>detail page </0>for the status of this task."
@@ -6449,7 +6449,7 @@ msgstr "选择一个远程"
 
 #: src/components/access-tab.tsx
 msgid "Select a user"
-msgstr ""
+msgstr "选择用户"
 
 #: src/components/repo-selector/multiple-repo-selector.tsx
 #~ msgid "Select all ({0} items)"
@@ -6477,7 +6477,7 @@ msgstr "选择组"
 
 #: src/components/language-switcher.tsx
 msgid "Select language"
-msgstr ""
+msgstr "选择语言"
 
 #: src/components/import-list.tsx
 #~ msgid "Select namespace"
@@ -6528,7 +6528,7 @@ msgstr "选择的角色"
 
 #: src/components/select-user.tsx
 msgid "Selected user"
-msgstr ""
+msgstr "所选用户"
 
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
@@ -6593,12 +6593,12 @@ msgstr "显示高级选项"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Show content"
-msgstr ""
+msgstr "显示内容"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/pulp-code-block.tsx
 msgid "Show less"
-msgstr ""
+msgstr "显示更少"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Show Less"
@@ -6606,7 +6606,7 @@ msgstr ""
 
 #: src/components/pulp-code-block.tsx
 msgid "Show more"
-msgstr ""
+msgstr "显示更多"
 
 #: src/containers/search/multi-search.tsx
 #~ msgid "Show more collections"
@@ -6634,7 +6634,7 @@ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Show password"
-msgstr ""
+msgstr "显示密码"
 
 #: src/components/download-signature-grid-item.tsx
 #~ msgid "Show the signature"
@@ -6702,7 +6702,7 @@ msgstr "登录未完成"
 
 #: src/shell/shell.tsx
 msgid "Sign-out did not complete"
-msgstr ""
+msgstr "退出登录未完成"
 
 #: src/components/download-signature-grid-item.tsx
 #~ msgid "Signature"
@@ -6743,7 +6743,7 @@ msgstr "签名密钥在创建后会显示。"
 
 #: src/shell/account-menu.tsx
 msgid "Signed in as {username}"
-msgstr ""
+msgstr "已以 {username} 身份登录"
 
 #: src/components/repositories/remote-form.tsx
 #~ msgid "Signed only"
@@ -6768,7 +6768,7 @@ msgstr "已退出"
 
 #: src/menu.tsx
 msgid "Signing services"
-msgstr ""
+msgstr "签名服务"
 
 #. placeholder {0}: namespace.name
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -6810,19 +6810,19 @@ msgstr "单点登录。"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "Skip them"
-msgstr ""
+msgstr "跳过它们"
 
 #: src/shell/shell.tsx
 msgid "Skip to content"
-msgstr ""
+msgstr "跳到内容"
 
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
-msgstr ""
+msgstr "已跳过"
 
 #: src/shell/command-palette.tsx
 msgid "Some repository lists could not be searched."
-msgstr ""
+msgstr "无法搜索部分仓库列表。"
 
 #: src/components/sort.tsx
 #~ msgid "Sort results"
@@ -6834,7 +6834,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Source packages will be synchronized"
-msgstr ""
+msgstr "将同步源软件包"
 
 #: src/components/remote-form.tsx
 msgid "SSO URL"
@@ -6888,7 +6888,7 @@ msgstr "状态"
 
 #: src/components/purge-task-modal.tsx
 msgid "States:"
-msgstr ""
+msgstr "状态："
 
 #: src/components/plugin-not-installed.tsx
 #: src/containers/pulp-status.tsx
@@ -6902,7 +6902,7 @@ msgstr "状态"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Still being removed"
-msgstr ""
+msgstr "仍在删除中"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -6915,15 +6915,15 @@ msgstr "停止任务？"
 
 #: src/containers/pulp-status.tsx
 msgid "Storage"
-msgstr ""
+msgstr "存储"
 
 #: src/components/remote-form.tsx
 msgid "Streamed"
-msgstr ""
+msgstr "流式"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Success"
-msgstr ""
+msgstr "成功"
 
 #: src/containers/execution-environment-detail/execution_environment_detail_images.tsx
 #~ msgid "Success: {digest} was deleted"
@@ -6964,7 +6964,7 @@ msgstr "成功创建远程 {0}"
 
 #: src/utilities/create-repository.ts
 msgid "Successfully created repository {name}"
-msgstr ""
+msgstr "已成功创建仓库 {name}"
 
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Successfully created role namespace {name}"
@@ -7010,7 +7010,7 @@ msgstr ""
 
 #: src/containers/rpm-repository/tab-packages.tsx
 msgid "Summary"
-msgstr ""
+msgstr "摘要"
 
 #: src/components/user-form.tsx
 #: src/containers/user-management/user-list.tsx
@@ -7062,27 +7062,27 @@ msgstr "同步"
 
 #: src/components/remote-form.tsx
 msgid "Sync installer"
-msgstr ""
+msgstr "同步安装程序"
 
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Sync installer files"
-msgstr ""
+msgstr "同步安装程序文件"
 
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Sync installer packages"
-msgstr ""
+msgstr "同步安装程序软件包"
 
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
-msgstr ""
+msgstr "同步软件包来源证明"
 
 #: src/components/sync-modal.tsx
 msgid "Sync policy"
-msgstr ""
+msgstr "同步策略"
 
 #: src/components/sync-modal.tsx
 msgid "Sync repository \"{name}\""
-msgstr ""
+msgstr "同步仓库 \"{name}\""
 
 #: src/containers/ansible-role/role-list.tsx
 #: src/containers/ansible-role/role-sync.tsx
@@ -7092,7 +7092,7 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Sync sources"
-msgstr ""
+msgstr "同步源"
 
 #: src/components/role-sync-form.tsx
 #~ msgid "Sync started"
@@ -7129,15 +7129,15 @@ msgstr "同步任务已经排队。"
 
 #: src/containers/rpm-repository/tab-packages.tsx
 msgid "Sync this repository or add packages to it."
-msgstr ""
+msgstr "同步此仓库或向其添加软件包。"
 
 #: src/containers/python-repository/tab-packages.tsx
 msgid "Sync this repository or upload packages to it."
-msgstr ""
+msgstr "同步此仓库或向其上传软件包。"
 
 #: src/components/remote-form.tsx
 msgid "Sync udebs"
-msgstr ""
+msgstr "同步 udeb"
 
 #: src/components/sync-modal.tsx
 #~ msgid "Sync will only add missing content"
@@ -7145,7 +7145,7 @@ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Synced"
-msgstr ""
+msgstr "已同步"
 
 #: src/utilities/translate-task.ts
 #~ msgid "Synchronize"
@@ -7174,7 +7174,7 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Tag image"
-msgstr ""
+msgstr "标记镜像"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "tags"
@@ -7191,7 +7191,7 @@ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "task"
-msgstr ""
+msgstr "任务"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Task \"{name}\" could not be stopped."
@@ -7254,7 +7254,7 @@ msgstr "任务名称"
 
 #: src/menu.tsx
 msgid "Tasks"
-msgstr ""
+msgstr "任务"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Tasks list could not be displayed."
@@ -7293,7 +7293,7 @@ msgstr "任务在创建后将显示。"
 
 #: src/components/plugin-not-installed.tsx
 msgid "The {plugin} plugin is not installed on this Pulp server."
-msgstr ""
+msgstr "此 Pulp 服务器上未安装 {plugin} 插件。"
 
 #: src/loaders/insights/loader.tsx
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
@@ -7301,7 +7301,7 @@ msgstr ""
 
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
-msgstr ""
+msgstr "基本路径 \"{basePath}\" 已被分发 \"{otherName}\"（{otherPath}）使用或与其重叠。"
 
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
@@ -7323,11 +7323,11 @@ msgstr ""
 
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
-msgstr ""
+msgstr "对仓库 \"{repositoryName}\" 的更改仍在运行。"
 
 #: src/components/repository-form.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
-msgstr ""
+msgstr "分发存在后，客户端 URL 会显示在仓库页面上。"
 
 #. placeholder {0}: collection.collection_version.name
 #: src/components/collection-header.tsx
@@ -7370,23 +7370,23 @@ msgstr "配置无法复制到剪贴板。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
-msgstr ""
+msgstr "删除因意外错误而停止。部分分发或仓库可能已被删除：请先检查列表，再重试。"
 
 #: src/components/repository-form.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
-msgstr ""
+msgstr "此分发将没有内容保护：任何可以访问此服务器的人都可以在不登录的情况下下载此仓库的内容。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
-msgstr ""
+msgstr "无法列出此仓库的分发，因此无法删除任何内容。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
-msgstr ""
+msgstr "无法列出此仓库的分发，因此未删除任何内容。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The distributions were removed but the repository was kept."
-msgstr ""
+msgstr "分发已删除，但仓库已保留。"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "The documentation object for this plugin seems to contain invalid syntax that makes it impossible for Automation Hub to parse. You can still look at the unformatted documentation object bellow if you need to."
@@ -7412,7 +7412,7 @@ msgstr "以下角色将应用到组：<0>{0}</0>"
 #. placeholder {0}: user.username
 #: src/components/preview-roles.tsx
 msgid "The following roles will be applied to user: <0>{0}</0>"
-msgstr ""
+msgstr "以下角色将应用于用户：<0>{0}</0>"
 
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
@@ -7432,15 +7432,15 @@ msgstr "由于无法读取任务状态，删除远程 {name} 的结果未知。�
 
 #: src/components/delete-repository-modal.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
-msgstr ""
+msgstr "删除仓库的结果未知。请检查任务："
 
 #: src/actions/repository-content-task.ts
 msgid "The outcome of the change to repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "由于无法读取任务状态，对仓库 \"{repositoryName}\" 的更改结果未知。请检查任务。"
 
 #: src/actions/repository-version-revert.tsx
 msgid "The outcome of the revert of repository \"{repositoryName}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "由于无法读取任务状态，还原仓库 \"{repositoryName}\" 的结果未知。请检查任务。"
 
 #: src/actions/python-distribution-edit.tsx
 msgid "The outcome of the update of distribution {name} is unknown, because the task status could not be read. Check the task."
@@ -7469,7 +7469,7 @@ msgstr "删除远程 {name} 仍在运行。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The removal of the repository has not been confirmed."
-msgstr ""
+msgstr "尚未确认仓库的删除。"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -7478,15 +7478,15 @@ msgstr "无法读取仓库内容"
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
-msgstr ""
+msgstr "无法删除仓库：{0}"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"
-msgstr ""
+msgstr "仓库仍在删除中："
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository was kept because not every distribution was removed."
-msgstr ""
+msgstr "由于并非每个分发都已删除，仓库已保留。"
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository was not removed."
@@ -7494,15 +7494,15 @@ msgstr "仓库未被删除。"
 
 #: src/utilities/request-error.ts
 msgid "The request failed."
-msgstr ""
+msgstr "请求失败。"
 
 #: src/components/repository-form.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
-msgstr ""
+msgstr "无法读取此服务器的保留基本路径，因此无法在此创建分发。"
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
-msgstr ""
+msgstr "仓库 \"{repositoryName}\" 的还原仍在运行。"
 
 #: src/containers/ansible-role/role-detail.tsx
 #~ msgid "The role is versionless and will always install from the {github_branch} branch."
@@ -7538,7 +7538,7 @@ msgstr "所选角色将添加到此特定的 Ansible 仓库中。"
 
 #: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
-msgstr ""
+msgstr "无法连接到服务器：{message}"
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
@@ -7554,7 +7554,7 @@ msgstr "状态响应中没有列出任何插件。"
 
 #: src/utilities/wait-for-task.ts
 msgid "The status of the task could not be read."
-msgstr ""
+msgstr "无法读取任务的状态。"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
@@ -7562,7 +7562,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "The update of distribution {name} is still running."
-msgstr ""
+msgstr "分发 {name} 的更新仍在运行。"
 
 #: src/utilities/validate-url-helper.ts
 msgid "The URL needs to be in 'http(s)://' format."
@@ -7582,19 +7582,19 @@ msgstr "同步时要用于身份验证的用户名。在使用令牌时不需要
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
-msgstr ""
+msgstr "该值以分钟为单位。默认值通常为一天 (1440)。如果设置为零，将清理所有孤立项。"
 
 #: src/shell/theme-menu.tsx
 msgid "Theme"
-msgstr ""
+msgstr "主题"
 
 #: src/components/access-tab.tsx
 msgid "There are currently no groups assigned."
-msgstr ""
+msgstr "目前没有分配组。"
 
 #: src/components/select-group.tsx
 msgid "There are currently no groups that can be assigned ownership."
-msgstr ""
+msgstr "目前没有可以分配所有权的组。"
 
 #: src/components/rbac/select-group.tsx
 #~ msgid "There are currently no groups that can be assigned to this namespace."
@@ -7619,15 +7619,15 @@ msgstr "目前没有可分配给此组的角色。"
 
 #: src/components/access-tab.tsx
 msgid "There are currently no users assigned."
-msgstr ""
+msgstr "目前没有分配用户。"
 
 #: src/components/select-user.tsx
 msgid "There are currently no users that can be assigned ownership."
-msgstr ""
+msgstr "目前没有可以分配所有权的用户。"
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "There are no distributions associated with this repository."
-msgstr ""
+msgstr "此仓库没有关联的分发。"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
@@ -7663,7 +7663,7 @@ msgstr "没有资源记录"
 
 #: src/components/delete-repository-modal.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
-msgstr ""
+msgstr "这些分发提供此仓库。它们会随仓库一起删除，其 URL 将停止工作："
 
 #: src/components/delete-group-modal.tsx
 msgid "These users will lose access to the group content:"
@@ -7672,19 +7672,19 @@ msgstr "这些用户将丢失对组群内容的访问权限："
 #: src/components/page-with-tabs.test.tsx
 #: src/components/page.test.tsx
 msgid "Thing could not be displayed."
-msgstr ""
+msgstr "无法显示条目。"
 
 #: src/components/list-page.test.tsx
 msgid "Things"
-msgstr ""
+msgstr "条目"
 
 #: src/components/list-page.test.tsx
 msgid "Things appear once they are created."
-msgstr ""
+msgstr "条目创建后将显示。"
 
 #: src/components/list-page.test.tsx
 msgid "Things could not be displayed."
-msgstr ""
+msgstr "无法显示条目。"
 
 #: src/containers/namespace-list/namespace-list.tsx
 #~ msgid "This account is not set up to manage any namespaces"
@@ -7740,19 +7740,19 @@ msgstr "这个组可以包括用户"
 
 #: src/app-routes.tsx
 msgid "This page is under construction and some features may be broken. You can contribute at <0>Pulp UI</0>."
-msgstr ""
+msgstr "此页面正在建设中，部分功能可能无法正常使用。您可以在 <0>Pulp UI</0> 参与贡献。"
 
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
-msgstr ""
+msgstr "本项目尝试对 Ansible Galaxy UI 代码库进行升级再造。第一个版本主要包含沿用的代码和少量修复。未来将添加更多类型的内容。我们诚挚欢迎任何贡献。"
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
-msgstr ""
+msgstr "无法加载此界面"
 
 #: src/components/coming-soon.tsx
 msgid "This screen is not available in this UI yet."
-msgstr ""
+msgstr "此界面在当前 UI 中尚不可用。"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag already exists on another image. Do you want to move it to this image?"
@@ -7817,7 +7817,7 @@ msgstr "用于向服务器 URL 进行身份验证的令牌。"
 
 #: src/containers/pulp-status.tsx
 msgid "Total"
-msgstr ""
+msgstr "总计"
 
 #: src/components/remote-form.tsx
 msgid "Total number of simultaneous connections."
@@ -7825,11 +7825,11 @@ msgstr "同时连接总数。"
 
 #: src/components/remote-form.tsx
 msgid "Total time in seconds allowed for one download, including connecting and reading. Decimals such as 2.5 are accepted."
-msgstr ""
+msgstr "一次下载允许的总时间（秒），包括连接和读取。可使用 2.5 之类的小数。"
 
 #: src/components/remote-form.tsx
 msgid "Total timeout"
-msgstr ""
+msgstr "总超时"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Traceback"
@@ -7845,15 +7845,15 @@ msgstr "追溯"
 
 #: src/components/orphan-cleanup-task-modal.tsx
 msgid "Trigger an asynchronous orphan cleanup operation."
-msgstr ""
+msgstr "触发异步孤立内容清理操作。"
 
 #: src/components/repair-task-modal.tsx
 msgid "Trigger an asynchronous task that checks for missing or corrupted artifacts, and attempts to redownload them."
-msgstr ""
+msgstr "触发异步任务，检查缺失或损坏的构件，并尝试重新下载。"
 
 #: src/components/purge-task-modal.tsx
 msgid "Trigger an asynchronous task that deletes completed tasks that finished prior to a specified timestamp."
-msgstr ""
+msgstr "触发异步任务，删除在指定时间戳之前完成的已完成任务。"
 
 #: src/containers/role-management/role-list.tsx
 #~ msgid "true"
@@ -7871,11 +7871,11 @@ msgstr "类型"
 
 #: src/components/delete-repository-modal.tsx
 msgid "Type the repository name to confirm"
-msgstr ""
+msgstr "输入仓库名称以确认"
 
 #: src/components/pulp-about-modal.tsx
 msgid "UI version"
-msgstr ""
+msgstr "UI 版本"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "UI Version"
@@ -7912,15 +7912,15 @@ msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Untag image"
-msgstr ""
+msgstr "取消标记镜像"
 
 #: src/shell/command-palette.tsx
 msgid "Up and Down to move, Enter to open, Esc to close"
-msgstr ""
+msgstr "使用上下键移动，按 Enter 打开，按 Esc 关闭"
 
 #: src/utilities/translate-task.ts
 msgid "Update collection remote"
-msgstr ""
+msgstr "更新集合远程"
 
 #: src/constants.tsx
 #~ msgid "Update container information"
@@ -7944,7 +7944,7 @@ msgstr "为远程 {0} 启动的更新"
 
 #: src/utilities/update-repository.ts
 msgid "Update started for repository {name}"
-msgstr ""
+msgstr "已开始更新仓库 {name}"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "updated {0}"
@@ -7960,7 +7960,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Updated distribution {name}"
-msgstr ""
+msgstr "已更新分发 {name}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -7971,7 +7971,7 @@ msgstr ""
 
 #: src/utilities/update-repository.ts
 msgid "Updated repository {name}"
-msgstr ""
+msgstr "已更新仓库 {name}"
 
 #: src/components/import-modal.tsx
 #: src/components/upload-signature-modal.tsx
@@ -7996,7 +7996,7 @@ msgstr "上传和修改集合。"
 
 #: src/utilities/translate-task.ts
 msgid "Upload commit"
-msgstr ""
+msgstr "上传提交"
 
 #: src/components/collection-dropdown.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -8015,7 +8015,7 @@ msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Uploads"
-msgstr ""
+msgstr "上传"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Upstream name"
@@ -8041,7 +8041,7 @@ msgstr "URL"
 
 #: src/components/repository-form.tsx
 msgid "URL (preview): {url}"
-msgstr ""
+msgstr "URL（预览）：{url}"
 
 #: src/components/namespace-form.tsx
 #~ msgid "URL must not be empty."
@@ -8124,7 +8124,7 @@ msgstr "使用模板"
 
 #: src/containers/pulp-status.tsx
 msgid "Used"
-msgstr ""
+msgstr "已使用"
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -8133,13 +8133,13 @@ msgstr ""
 #: src/components/access-tab.tsx
 #: src/components/select-user.tsx
 msgid "User"
-msgstr ""
+msgstr "用户"
 
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" could not be added to \"{name}\"."
-msgstr ""
+msgstr "无法将用户 \"{0}\" 添加到 \"{name}\"。"
 
 #. placeholder {0}: outcome.username
 #. placeholder {1}: group.name
@@ -8156,7 +8156,7 @@ msgstr "用户 \"{0}\" 无法被删除。"
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" could not be removed from \"{name}\"."
-msgstr ""
+msgstr "无法将用户 \"{0}\" 从 \"{name}\" 中移除。"
 
 #. placeholder {0}: member.username
 #: src/containers/group-management/group-detail.tsx
@@ -8167,7 +8167,7 @@ msgstr "用户 \"{0}\" 无法从组 \"{name}\" 中删除。"
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" has been successfully added to \"{name}\"."
-msgstr ""
+msgstr "已成功将用户 \"{0}\" 添加到 \"{name}\"。"
 
 #. placeholder {0}: outcome.username
 #. placeholder {1}: group.name
@@ -8184,7 +8184,7 @@ msgstr "用户 \"{0}\" 已成功删除。"
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" has been successfully removed from \"{name}\"."
-msgstr ""
+msgstr "已成功将用户 \"{0}\" 从 \"{name}\" 中移除。"
 
 #. placeholder {0}: member.username
 #: src/containers/group-management/group-detail.tsx
@@ -8199,23 +8199,23 @@ msgstr "用户 \"{0}\" 已成功从组 \"{name}\" 中删除。"
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" roles could not be update in \"{name}\"."
-msgstr ""
+msgstr "无法更新用户 \"{0}\" 在 \"{name}\" 中的角色。"
 
 #. placeholder {0}: user.username
 #: src/containers/ansible-remote/tab-access.tsx
 #: src/containers/ansible-repository/tab-access.tsx
 msgid "User \"{0}\" roles successfully updated in \"{name}\"."
-msgstr ""
+msgstr "已成功更新用户 \"{0}\" 在 \"{name}\" 中的角色。"
 
 #. placeholder {0}: user.username
 #: src/components/access-tab.tsx
 msgid "User {0}"
-msgstr ""
+msgstr "用户 {0}"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
 msgid "User {user}"
-msgstr ""
+msgstr "用户 {user}"
 
 #: src/containers/group-management/group-detail.tsx
 msgid "User <0>{username}</0> will be removed from group <1>{groupname}</1>."
@@ -8249,7 +8249,7 @@ msgstr "用户详情"
 
 #: src/components/pulp-about-modal.tsx
 msgid "User groups"
-msgstr ""
+msgstr "用户组"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "User Groups"
@@ -8299,7 +8299,7 @@ msgstr "用户"
 
 #: src/menu.tsx
 msgid "Users and groups"
-msgstr ""
+msgstr "用户和组"
 
 #: src/components/select-user.tsx
 #: src/containers/ansible-remote/tab-access.tsx
@@ -8332,7 +8332,7 @@ msgstr "用户创建后将会出现"
 
 #: src/components/repair-task-modal.tsx
 msgid "Verify checksums"
-msgstr ""
+msgstr "验证校验和"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
@@ -8372,7 +8372,7 @@ msgstr "版本"
 
 #: src/components/repository-form.tsx
 msgid "Versions kept per package"
-msgstr ""
+msgstr "每个软件包保留的版本数"
 
 #: src/containers/pulp-status.tsx
 msgid "Versions, workers and storage are shown to signed-in users."
@@ -8384,7 +8384,7 @@ msgstr "View all tasks"
 
 #: src/utilities/translate-locked-role.ts
 msgid "View and cancel any task."
-msgstr ""
+msgstr "查看并取消任何任务。"
 
 #: src/constants.tsx
 #~ msgid "View Ansible distribution"
@@ -8442,7 +8442,7 @@ msgstr ""
 
 #: src/components/sync-modal.tsx
 msgid "View the task"
-msgstr ""
+msgstr "查看任务"
 
 #: src/containers/execution-environment/registry-list.tsx
 #: src/containers/execution-environment-detail/base.tsx
@@ -8516,31 +8516,31 @@ msgstr "您在此页面上输入的内容会被保留。"
 
 #: src/components/repository-form.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
-msgstr ""
+msgstr "开启时，被拒绝的软件包会使整个仓库版本失败，且不会添加任何内容。关闭时，被拒绝的软件包将被跳过，其余软件包会被添加，被跳过的软件包会列在任务的进度报告中。"
 
 #: src/containers/python-repository/tab-details.tsx
 msgid "When packages are rejected"
-msgstr ""
+msgstr "软件包被拒绝时"
 
 #: src/components/remote-form.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
-msgstr ""
+msgstr "是否同时同步为软件包发布的来源证明。"
 
 #: src/components/remote-form.tsx
 msgid "Whether to include pre-release versions in the sync."
-msgstr ""
+msgstr "是否在同步中包含预发布版本。"
 
 #: src/components/remote-form.tsx
 msgid "Whitespace separated list of architectures to sync, for example \"amd64 arm64\". If none are supplied, all that are available will be synchronized."
-msgstr ""
+msgstr "以空格分隔的要同步的架构列表，例如 \"amd64 arm64\"。如果未提供，将同步所有可用的架构。"
 
 #: src/components/remote-form.tsx
 msgid "Whitespace separated list of components to sync, for example \"main contrib\". If none are supplied, all that are available will be synchronized."
-msgstr ""
+msgstr "以空格分隔的要同步的组件列表，例如 \"main contrib\"。如果未提供，将同步所有可用的组件。"
 
 #: src/components/remote-form.tsx
 msgid "Whitespace separated list of distributions (also known as suites) to sync, for example \"bookworm bookworm-updates\"."
-msgstr ""
+msgstr "以空格分隔的要同步的分发列表（也称为 suite），例如 \"bookworm bookworm-updates\"。"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Why:"
@@ -8556,7 +8556,7 @@ msgstr ""
 
 #: src/components/repair-task-modal.tsx
 msgid "Will verify that the checksum of all stored files matches what saved in the database. Otherwise only the existence of the files will be checked. Enabled by default."
-msgstr ""
+msgstr "将验证所有已存储文件的校验和是否与数据库中保存的一致。否则只检查文件是否存在。默认启用。"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #: src/containers/legacy-namespaces/legacy-namespace.tsx
@@ -8566,7 +8566,7 @@ msgstr ""
 
 #: src/menu.tsx
 msgid "Workers and status"
-msgstr ""
+msgstr "Worker 和状态"
 
 #: src/containers/pulp-status.tsx
 msgid "Workers, storage and content settings are shown to administrators."
@@ -8583,7 +8583,7 @@ msgstr "YAML 要求"
 
 #: src/components/remote-form.tsx
 msgid "YAML requirements are required to sync from Galaxy"
-msgstr ""
+msgstr "从 Galaxy 同步需要 YAML requirements"
 
 #: src/actions/ansible-repository-sync.tsx
 #~ msgid "YAML requirements are required to sync from Galaxy - you can <0>edit the {name} remote</0> to add requirements."
@@ -8591,7 +8591,7 @@ msgstr ""
 
 #: src/actions/ansible-repository-sync.tsx
 msgid "YAML requirements are required to sync from Galaxy. You can <0>edit the {name} remote</0> to add requirements."
-msgstr ""
+msgstr "从 Galaxy 同步需要 YAML requirements。您可以<0>编辑远程 {name}</0>来添加 requirements。"
 
 #: src/components/confirm-modal.tsx
 #: src/components/orphan-cleanup-task-modal.tsx
@@ -8623,11 +8623,11 @@ msgstr "您将从 <1>{name}</1> 删除 <0>{groupname}</0>。<2/>这也会删除�
 
 #: src/components/access-tab.tsx
 msgid "You are about to remove <0>{role}</0> from <1>{userOrGroupName}</1> for <2>{name}</2>.<3/>This will also remove all associated permissions."
-msgstr ""
+msgstr "您即将从 <1>{userOrGroupName}</1> 中为 <2>{name}</2> 移除 <0>{role}</0>。<3/>这也会移除所有相关权限。"
 
 #: src/components/access-tab.tsx
 msgid "You are about to remove <0>{username}</0> from <1>{name}</1>.<2/>This will also remove all associated permissions."
-msgstr ""
+msgstr "您即将从 <1>{name}</1> 中移除 <0>{username}</0>。<2/>这也会移除所有相关权限。"
 
 #: src/components/signing/sign-all-certificates-modal.tsx
 #~ msgid "You are about to sign <0>{numberOfAffected}</0> version(s) under <1>{name}</1>."
@@ -8655,7 +8655,7 @@ msgstr ""
 
 #: src/shell/shell.tsx
 msgid "You are still signed in."
-msgstr ""
+msgstr "您仍处于登录状态。"
 
 #: src/components/resources-form.tsx
 #~ msgid "You can can customize the Resources tab on your profile by entering custom markdown here."
@@ -8667,7 +8667,7 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 msgid "You can edit this repository to create a distribution."
-msgstr ""
+msgstr "您可以编辑此仓库以创建分发。"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "You currently have no container repositories. Add a container repository via the CLI to get started."
@@ -8728,7 +8728,7 @@ msgstr "您已退出 Pulp。"
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
-msgstr ""
+msgstr "您的密码已更改。请使用新密码登录。"
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
@@ -8745,7 +8745,7 @@ msgstr "您的会话已结束。您将被转到登录页面，之后返回此页
 
 #: src/shell/notifications.tsx
 msgid "Your tasks appear here when they fail, complete or are canceled."
-msgstr ""
+msgstr "您的任务在失败、完成或被取消时会显示在此处。"
 
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Your token will expire <0/>."
