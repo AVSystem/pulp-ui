@@ -13,7 +13,10 @@ const USER = { username: 'zoe', pulp_href: '/pulp/api/v3/users/1/' };
 
 // Answers the session check and the sign-in call with one known user. The
 // user is staff, so the permission provider lets every screen show its
-// actions and the tests are about the session, not about permissions.
+// actions and the tests are about the session, not about permissions. For the
+// same reason a screen rendered through it cannot reveal a control that is
+// shown to someone who may not use it: a test about what a user may see signs
+// in through servePermissions instead.
 export function serveSignIn() {
   server.use(
     http.get('*/pulp/api/v3/users/1/', () =>
@@ -61,13 +64,16 @@ export const signedIn = () =>
 // Records every request that is not a read, as "METHOD /path".
 export function recordWrites() {
   const writes: string[] = [];
-  server.events.on('request:start', ({ request }) => {
+  const onStart = ({ request }: { request: Request }) => {
     if (!['GET', 'HEAD'].includes(request.method)) {
       writes.push(`${request.method} ${new URL(request.url).pathname}`);
     }
-  });
+  };
+  server.events.on('request:start', onStart);
+  // Removes only this helper's listener, so another helper active in the same
+  // test keeps recording.
   return {
     writes,
-    stop: () => server.events.removeAllListeners(),
+    stop: () => server.events.removeListener('request:start', onStart),
   };
 }
