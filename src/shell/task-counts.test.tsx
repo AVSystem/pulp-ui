@@ -1,29 +1,24 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Link } from 'react-router';
-import {
-  type MockInstance,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PulpMenu } from 'src/menu';
 import {
   reportUnauthorized,
   resetSessionEvents,
-  resume,
 } from 'src/session/session-events';
+import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { serveUserRecords } from 'src/test-utils/permissions';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { SignInAgain, serveSignIn } from 'src/test-utils/sign-in-again';
+import { useUserContext } from 'src/user-context';
 import { COUNT_REFRESH_MS } from './task-counts';
 
 const TASKS = '*/pulp/api/v3/tasks/';
 
 function signIn() {
+  serveSignIn();
   serveUserRecords({ id: 1, isStaff: true });
   server.use(
     http.get('*/pulp/api/v3/login/', () =>
@@ -69,12 +64,29 @@ const tasksLink = () => screen.getByRole('link', { name: /^Tasks/ });
 const pill = (kind: 'running' | 'failed') =>
   tasksLink().querySelector(`.pulp-count--${kind}`);
 
+function OtherAccount() {
+  const { setUser } = useUserContext();
+
+  return (
+    <button
+      type='button'
+      onClick={() =>
+        setUser({ username: 'other', pulp_href: '/pulp/api/v3/users/2/' })
+      }
+    >
+      other account
+    </button>
+  );
+}
+
 async function renderMenu(route = '/repositories/file/repository/') {
   signIn();
   const view = renderWithProviders(
     <>
       <Link to='/tasks'>go to tasks</Link>
       <Link to='/status'>go to status</Link>
+      <OtherAccount />
+      <SignInAgain />
       <PulpMenu />
     </>,
     { route },
@@ -89,21 +101,10 @@ async function settle() {
   });
 }
 
-let intervals: MockInstance<typeof setInterval>;
+let intervals: IIntervals;
 
-// Runs the callback that was registered to fire every refresh period, as the
-// timer would after a minute.
-function refreshNow() {
-  const call = [...intervals.mock.calls]
-    .reverse()
-    .find(([, delay]) => delay === COUNT_REFRESH_MS);
-  if (!call) {
-    throw new Error('No refresh interval was registered');
-  }
-  act(() => {
-    (call[0] as () => void)();
-  });
-}
+// Runs the refresh interval of the counts, as the timer would after a minute.
+const refreshNow = () => intervals.run(COUNT_REFRESH_MS);
 
 describe('task count pills', () => {
   beforeEach(() => {
@@ -111,11 +112,11 @@ describe('task count pills', () => {
     // server need real timers. The refresh interval is run by hand.
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2030-05-01T12:00:00.000Z'));
-    intervals = vi.spyOn(globalThis, 'setInterval');
+    intervals = trackIntervals();
   });
 
   afterEach(() => {
-    intervals.mockRestore();
+    intervals.restore();
     vi.useRealTimers();
     resetSessionEvents();
     Reflect.deleteProperty(document, 'visibilityState');
@@ -306,32 +307,36 @@ describe('task count pills', () => {
 
   it('ignores an answer that arrives after a newer round', async () => {
     let calls = 0;
-    const slow = new Promise<void>((resolve) => setTimeout(resolve, 0));
-    let releaseFirst: () => void = () => undefined;
-    const firstGate = new Promise<void>((resolve) => {
-      releaseFirst = resolve;
+    let releaseSecond: () => void = () => undefined;
+    const secondGate = new Promise<void>((resolve) => {
+      releaseSecond = resolve;
     });
-    void slow;
     server.use(
       http.get(TASKS, async ({ request }) => {
         const state = new URL(request.url).searchParams.get('state');
-        if (state === 'running') {
-          calls += 1;
-          if (calls === 1) {
-            await firstGate;
-            return HttpResponse.json({ count: 7, results: [] });
-          }
-          return HttpResponse.json({ count: 2, results: [] });
+        if (state !== 'running') {
+          return HttpResponse.json({ count: 0, results: [] });
         }
-        return HttpResponse.json({ count: 0, results: [] });
+        calls += 1;
+        if (calls === 2) {
+          await secondGate;
+          return HttpResponse.json({ count: 7, results: [] });
+        }
+        return HttpResponse.json({ count: calls === 1 ? 3 : 2, results: [] });
       }),
     );
 
     const { user } = await renderMenu();
+    await waitFor(() => expect(pill('running')).toHaveTextContent('3'));
+
+    // The second round is held back; the route change starts a third round
+    // that overtakes it.
+    refreshNow();
+    await waitFor(() => expect(calls).toBe(2));
     await user.click(screen.getByRole('link', { name: 'go to tasks' }));
     await waitFor(() => expect(pill('running')).toHaveTextContent('2'));
 
-    releaseFirst();
+    releaseSecond();
     await settle();
 
     expect(pill('running')).toHaveTextContent('2');
@@ -339,7 +344,7 @@ describe('task count pills', () => {
 
   it('sends no request at its interval while the session has ended, and loads once after it resumes', async () => {
     const queries = answerCounts({ running: 1, failed: 0 });
-    await renderMenu();
+    const { user } = await renderMenu();
     await waitFor(() => expect(queries).toHaveLength(2));
 
     act(() => {
@@ -349,9 +354,7 @@ describe('task count pills', () => {
     await settle();
     expect(queries).toHaveLength(2);
 
-    act(() => {
-      resume();
-    });
+    await user.click(screen.getByRole('button', { name: 'Sign in again' }));
     await waitFor(() => expect(queries).toHaveLength(4));
     await settle();
     expect(queries).toHaveLength(4);
@@ -384,5 +387,54 @@ describe('task count pills', () => {
     await settle();
 
     expect(queries).toHaveLength(2);
+  });
+
+  it('shows no number of the previous account once another account signs in, and asks again', async () => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let round = 0;
+    server.use(
+      http.get(TASKS, async ({ request }) => {
+        const state = new URL(request.url).searchParams.get('state');
+        if (state === 'running') {
+          round += 1;
+          if (round > 1) {
+            await gate;
+          }
+          return HttpResponse.json({ count: round > 1 ? 5 : 3, results: [] });
+        }
+        return HttpResponse.json({ count: 0, results: [] });
+      }),
+    );
+
+    const { user } = await renderMenu();
+    await waitFor(() => expect(pill('running')).toHaveTextContent('3'));
+    serveUserRecords({ id: 2, username: 'other', isStaff: true });
+
+    await user.click(screen.getByRole('button', { name: 'other account' }));
+
+    await waitFor(() => expect(round).toBe(2));
+    expect(pill('running')).toBeNull();
+
+    release();
+    await waitFor(() => expect(pill('running')).toHaveTextContent('5'));
+  });
+
+  it('computes the window of the failures when it asks, not when it was first shown', async () => {
+    const queries = answerCounts({ running: 0, failed: 1 });
+    await renderMenu();
+    await waitFor(() => expect(queries).toHaveLength(2));
+
+    vi.setSystemTime(new Date('2030-05-01T15:30:00.000Z'));
+    refreshNow();
+    await waitFor(() => expect(queries).toHaveLength(4));
+
+    const failed = queries.filter((q) => q.get('state') === 'failed');
+    expect(failed.map((q) => q.get('finished_at__gte'))).toEqual([
+      '2030-04-30T12:00:00.000Z',
+      '2030-04-30T15:30:00.000Z',
+    ]);
   });
 });

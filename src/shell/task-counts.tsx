@@ -1,9 +1,10 @@
 import { plural } from '@lingui/core/macro';
-import { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { TaskAPI } from 'src/api/task';
+import { taskKeys, useTaskCount } from 'src/entities/core/task/queries';
 import { Paths, formatPath } from 'src/paths';
-import { isSuspended, subscribe } from 'src/session/session-events';
+import { isSessionEnd } from 'src/utilities/request-error';
 
 // How often the counts are asked for again while the page is in view.
 export const COUNT_REFRESH_MS = 60_000;
@@ -23,70 +24,60 @@ interface ITaskCounts {
   failed: Count;
 }
 
+const RUNNING = { state: 'running' };
+const FAILED = { state: 'failed', finishedWithinMs: FAILURE_WINDOW_MS };
+const REFRESH = { refetchInterval: COUNT_REFRESH_MS };
+
+// The number a count query shows. A failed read clears the number, except
+// when the failure is the end of the session: the sign-in dialog explains
+// that, the numbers stay as they are, and the read is made again after
+// signing in.
+function numberOf({
+  data,
+  error,
+  isError,
+}: {
+  data: number | undefined;
+  error: unknown;
+  isError: boolean;
+}): Count {
+  if (isError && !isSessionEnd(error)) {
+    return null;
+  }
+  return typeof data === 'number' ? data : null;
+}
+
 // How many tasks run now and how many failed in the last 24 hours, among the
-// tasks the signed-in user can see. The numbers come from two list requests of
-// one row each, so only the total is transferred. They are asked for when the
+// tasks the signed-in user can see. The numbers come from two reads of one
+// row each, so only the total is transferred. They are read when the
 // component appears, every minute while the page is in view, and when the
-// route enters or leaves the Tasks screen. Each count stands alone: a request
+// route enters or leaves the Tasks screen. Each count stands alone: a read
 // that fails clears only its own number. While the session has ended and the
 // sign-in dialog is open nothing is asked, the numbers stay as they are, and
-// one round runs as soon as the user has signed in again.
+// one round runs as soon as the user has signed in again. The numbers of one
+// account are never shown to another.
 export function useTaskCounts(): ITaskCounts {
-  const [counts, setCounts] = useState<ITaskCounts>({
-    running: null,
-    failed: null,
-  });
-  // Identifies the latest round of requests, so an answer to an earlier one,
-  // or one that arrives after the component is gone, is ignored.
-  const latest = useRef(0);
+  const queryClient = useQueryClient();
+  const running = useTaskCount(RUNNING, REFRESH);
+  const failed = useTaskCount(FAILED, REFRESH);
   const { pathname } = useLocation();
   const tasksPath = formatPath(Paths.core.task.list).replace(/\/$/, '');
   const onTasks =
     pathname === tasksPath || pathname.startsWith(`${tasksPath}/`);
+  const wasOnTasks = useRef(onTasks);
 
+  // Entering or leaving the Tasks screen changes what the numbers should say,
+  // so they are read again. Marking them out of date reads only those that are
+  // in use and switched on, so nothing is asked while the session has ended.
   useEffect(() => {
-    const load = () => {
-      if (isSuspended()) {
-        return;
-      }
+    if (wasOnTasks.current === onTasks) {
+      return;
+    }
+    wasOnTasks.current = onTasks;
+    void queryClient.invalidateQueries({ queryKey: taskKeys.counts });
+  }, [onTasks, queryClient]);
 
-      const current = ++latest.current;
-      const since = new Date(Date.now() - FAILURE_WINDOW_MS).toISOString();
-
-      const ask = (key: keyof ITaskCounts, params: Record<string, unknown>) =>
-        TaskAPI.list({ ...params, page_size: 1 })
-          .then(
-            ({ data }) => (typeof data?.count === 'number' ? data.count : null),
-            () => null,
-          )
-          .then((count) => {
-            if (current === latest.current) {
-              setCounts((previous) => ({ ...previous, [key]: count }));
-            }
-          });
-
-      ask('running', { state: 'running' });
-      ask('failed', { state: 'failed', finished_at__gte: since });
-    };
-
-    load();
-    // Notified on every change of the session; only the one that lifts the
-    // pause starts a round.
-    const unsubscribe = subscribe(load);
-    const timer = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        load();
-      }
-    }, COUNT_REFRESH_MS);
-
-    return () => {
-      clearInterval(timer);
-      unsubscribe();
-      latest.current++;
-    };
-  }, [onTasks]);
-
-  return counts;
+  return { running: numberOf(running), failed: numberOf(failed) };
 }
 
 const shown = (count: Count): count is number => count !== null && count > 0;
