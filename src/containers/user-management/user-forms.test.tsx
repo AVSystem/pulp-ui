@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -8,6 +8,8 @@ import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { listOf, user } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import UserCreate from './user-create';
+import UserDetail from './user-detail';
 import UserEdit from './user-edit';
 
 const API = '/pulp/api/v3';
@@ -43,22 +45,49 @@ function serveAnn() {
   return patches;
 }
 
-function renderEdit(route = '/users/edit/4') {
+// Renders the screens of the three routes inside the application context. The
+// permission read is answered before the screen is shown unless the test asks
+// to see the screen while it is read (or failing).
+function renderScreens(
+  route: string,
+  { waitForPermissions = true, failPermissionsOnce = false } = {},
+) {
   servePermissions({ isStaff: true });
+  if (failPermissionsOnce) {
+    // the first read of the permissions fails, the next one answers
+    server.use(
+      http.get(
+        `*${API}/users/7/`,
+        () =>
+          HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+        { once: true },
+      ),
+    );
+  }
   // the form searches groups for its group field
   server.use(listOf(`${API}/groups/`, []).handler);
+  const screens = (
+    <Routes>
+      <Route path='/users/create' element={<UserCreate />} />
+      <Route path='/users/detail/:user_id' element={<UserDetail />} />
+      <Route path='/users/edit/:user_id' element={<UserEdit />} />
+      <Route path='/users' element={<p>the user list page</p>} />
+    </Routes>
+  );
+
   return renderWithProviders(
     <AppContextProvider>
-      <PermissionsKnown>
-        <Routes>
-          <Route path='/users/edit/:user_id' element={<UserEdit />} />
-          <Route path='/users' element={<p>the user list page</p>} />
-        </Routes>
-      </PermissionsKnown>
+      {waitForPermissions ? (
+        <PermissionsKnown>{screens}</PermissionsKnown>
+      ) : (
+        screens
+      )}
     </AppContextProvider>,
     { route },
   );
 }
+
+const renderEdit = (route = '/users/edit/4') => renderScreens(route);
 
 const field = (label: RegExp) => screen.findByLabelText(label);
 
@@ -94,7 +123,10 @@ describe('the user edit page', () => {
     const { user: u } = renderEdit();
     await field(/First name/);
 
-    await u.type(screen.getByLabelText(/^Password$/), 'N3w!passw0rd');
+    await u.type(
+      screen.getByLabelText(/^Password(?! confirmation)/),
+      'N3w!passw0rd',
+    );
     await u.type(
       screen.getByLabelText(/Password confirmation/),
       'N3w!passw0rd',
@@ -209,4 +241,220 @@ describe('the user edit page', () => {
       expect(screen.getByLabelText(/First name/)).toHaveValue('Ann'),
     );
   });
+});
+
+describe('the user create page', () => {
+  const posts: Record<string, unknown>[] = [];
+
+  function serveCreate(answer?: () => Response) {
+    posts.length = 0;
+    server.use(
+      http.post(`*${API}/users/`, async ({ request }) => {
+        posts.push((await request.json()) as Record<string, unknown>);
+        return answer ? answer() : HttpResponse.json(ANN, { status: 201 });
+      }),
+    );
+  }
+
+  async function fill(u: ReturnType<typeof renderScreens>['user']) {
+    await u.type(await field(/^Username/), 'zz-new');
+    await u.type(screen.getByLabelText(/First name/), 'New');
+    await u.type(
+      screen.getByLabelText(/^Password(?! confirmation)/),
+      'N3w!passw0rd',
+    );
+    await u.type(
+      screen.getByLabelText(/Password confirmation/),
+      'N3w!passw0rd',
+    );
+  }
+
+  it('sends one POST with the fields of the form and returns to the list', async () => {
+    serveCreate();
+    const { user: u } = renderScreens('/users/create');
+    await fill(u);
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('the user list page')).toBeInTheDocument();
+    expect(posts).toEqual([
+      {
+        username: 'zz-new',
+        first_name: 'New',
+        last_name: '',
+        email: '',
+        password: 'N3w!passw0rd',
+      },
+    ]);
+  });
+
+  it('shows the three-part refusal of a refused create and keeps the input', async () => {
+    serveCreate(() =>
+      HttpResponse.json({ detail: 'Only staff may do this.' }, { status: 403 }),
+    );
+    const { user: u } = renderScreens('/users/create');
+    await fill(u);
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+
+    const refusal = await screen.findByText(
+      /You do not have permission to do this\. Only staff may do this\. Contact your organization administrator for more information\./,
+    );
+    expect(refusal).toHaveClass('pulp-break-anywhere');
+    expect(screen.getByLabelText(/^Username/)).toHaveValue('zz-new');
+    expect(posts).toHaveLength(1);
+  });
+
+  it('shows the message of a rejected field beside the field', async () => {
+    serveCreate(() =>
+      HttpResponse.json(
+        { username: 'A user with that username already exists.' },
+        { status: 400 },
+      ),
+    );
+    const { user: u } = renderScreens('/users/create');
+    await fill(u);
+
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(
+      await screen.findByText('A user with that username already exists.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('the user list page')).toBeNull();
+  });
+});
+
+describe('the user detail page', () => {
+  function serveDetail() {
+    let removed = false;
+    const deletes: string[] = [];
+    server.use(
+      http.get(`*${USER_PATH}`, () =>
+        removed
+          ? HttpResponse.json({ detail: 'Not found.' }, { status: 404 })
+          : HttpResponse.json(ANN),
+      ),
+      http.delete(`*${USER_PATH}`, ({ request }) => {
+        deletes.push(new URL(request.url).pathname);
+        removed = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    return { deletes };
+  }
+
+  it('reads the user by its address and offers Edit and Delete', async () => {
+    serveDetail();
+    renderScreens('/users/detail/4');
+
+    expect(await screen.findByText('zz-ann')).toBeInTheDocument();
+    expect(screen.getByText('Ann')).toBeInTheDocument();
+    expect(screen.getByText('ann@example.com')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute(
+      'href',
+      '/users/edit/4/',
+    );
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeVisible();
+  });
+
+  it('opens the delete dialog for the user and returns to the list once it is deleted', async () => {
+    const { deletes } = serveDetail();
+    const { user: u } = renderScreens('/users/detail/4');
+    await screen.findByText('zz-ann');
+
+    await u.click(screen.getByRole('button', { name: 'Delete' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('zz-ann')).toBeInTheDocument();
+    await u.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    expect(await screen.findByText('the user list page')).toBeInTheDocument();
+    expect(deletes).toEqual([USER_PATH]);
+  });
+
+  it('shows the not-found page for a user that does not exist', async () => {
+    server.use(
+      http.get(`*${USER_PATH}`, () =>
+        HttpResponse.json({ detail: 'Not found.' }, { status: 404 }),
+      ),
+    );
+    renderScreens('/users/detail/4');
+
+    expect(await screen.findByText(/not found/i)).toBeInTheDocument();
+  });
+
+  it('offers Retry when the read fails for another reason, and never the not-found page', async () => {
+    server.use(
+      http.get(`*${USER_PATH}`, () =>
+        HttpResponse.json({}, { status: 500, statusText: 'Server Error' }),
+      ),
+    );
+    const { user: u } = renderScreens('/users/detail/4');
+
+    expect(
+      await screen.findByText('User could not be displayed.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/not found/i)).toBeNull();
+    serveDetail();
+    await u.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByText('zz-ann')).toBeInTheDocument();
+  });
+
+  it('reads nothing for an id that is not a number', async () => {
+    renderScreens('/users/detail/abc');
+
+    expect(await screen.findByText(/not found/i)).toBeInTheDocument();
+  });
+});
+
+describe('the user screens while the permissions cannot be read', () => {
+  const failed = () => screen.findByText('Your permissions could not be read');
+
+  it.each([
+    {
+      screen: 'detail',
+      route: '/users/detail/4',
+      offered: () => screen.queryByRole('button', { name: 'Delete' }),
+      shown: async () => {
+        expect(await screen.findByText('zz-ann')).toBeInTheDocument();
+        expect(await screen.findByRole('link', { name: 'Edit' })).toBeVisible();
+      },
+    },
+    {
+      screen: 'edit page',
+      route: '/users/edit/4',
+      offered: () => screen.queryByLabelText(/First name/),
+      shown: async () => {
+        expect(await field(/First name/)).toHaveValue('Ann');
+      },
+    },
+    {
+      screen: 'create page',
+      route: '/users/create',
+      offered: () => screen.queryByLabelText(/^Username/),
+      shown: async () => {
+        expect(await field(/^Username/)).toHaveValue('');
+      },
+    },
+  ])(
+    'shows the failed state with Retry on the $screen, offers nothing, and shows the screen after Retry',
+    async ({ route, offered, shown }) => {
+      serveAnn();
+      const { user: u } = renderScreens(route, {
+        waitForPermissions: false,
+        failPermissionsOnce: true,
+      });
+
+      expect(await failed()).toBeInTheDocument();
+      expect(offered()).toBeNull();
+      expect(screen.queryByRole('progressbar')).toBeNull();
+
+      await u.click(screen.getByRole('button', { name: 'Retry' }));
+
+      await shown();
+      expect(
+        screen.queryByText('Your permissions could not be read'),
+      ).toBeNull();
+    },
+  );
 });
