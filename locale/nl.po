@@ -345,6 +345,10 @@ msgstr "Een basispad mag niet beginnen of eindigen met een schuine streep en mag
 msgid "A distribution named \"{0}\" already exists."
 msgstr "Er bestaat al een distributie met de naam \"{0}\"."
 
+#: src/framework/list/label-filter.tsx
+msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "A PEM encoded client certificate used for authentication."
 msgstr "Een PEM-gecodeerd cliëntcertificaat dat wordt gebruikt voor authenticatie."
@@ -372,6 +376,10 @@ msgstr "Een synchronisatie van deze repository wordt al uitgevoerd."
 #: src/components/repository-form.tsx
 msgid "A ticked box publishes every new version, so any distribution serving this repository offers it."
 msgstr "Als dit selectievakje is aangevinkt, wordt elke nieuwe versie gepubliceerd, zodat elke distributie die deze repository aanbiedt de versie beschikbaar stelt."
+
+#: src/framework/list/label-filter.tsx
+msgid "A value may not contain parentheses."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "A whole number. Leave empty to use the server default."
@@ -489,6 +497,10 @@ msgstr "Collectie toevoegen"
 #: src/constants.tsx
 #~ msgid "Add group"
 #~ msgstr "Add group"
+
+#: src/framework/list/label-filter.tsx
+msgid "Add label condition"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Add namespace"
@@ -775,6 +787,10 @@ msgstr "Ansible-repository's"
 #~ msgid "API token management"
 #~ msgstr "API token management"
 
+#: src/framework/list/label-filter.tsx
+msgid "Apply"
+msgstr ""
+
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Approval"
 #~ msgstr "Goedkeuring"
@@ -923,6 +939,7 @@ msgstr "Terug"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "Basispad"
 
@@ -1201,6 +1218,7 @@ msgstr "Onderliggende taken"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/typeahead.tsx
+#: src/framework/list/label-filter.tsx
 msgid "Clear"
 msgstr "Wissen"
 
@@ -2666,6 +2684,10 @@ msgstr "Ingeschakeld"
 msgid "Enter a base path."
 msgstr "Voer een basispad in."
 
+#: src/framework/list/label-filter.tsx
+msgid "Enter a label key."
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
 #~ msgstr ""
@@ -3240,6 +3262,10 @@ msgstr "Bestand uploaden"
 #: src/components/compound-filter.tsx
 msgid "Filter by {0}"
 msgstr "Filteren op {0}"
+
+#: src/framework/list/label-filter.tsx
+msgid "Filter by labels"
+msgstr ""
 
 #: src/components/collection-dependencies-list/collection-usedby-dependencies-list.tsx
 #~ msgid "Filter by name"
@@ -3861,9 +3887,9 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
-#: src/components/render-plugin-doc.tsx
-#~ msgid "Key"
-#~ msgstr ""
+#: src/framework/list/label-filter.tsx
+msgid "Key"
+msgstr ""
 
 #: src/containers/signature-keys/list.tsx
 msgid "Key fingerprint"
@@ -3882,6 +3908,18 @@ msgstr "Sleutel fingerprint"
 #~ msgid "Keywords"
 #~ msgstr "Trefwoorden"
 
+#: src/framework/list/label-filter.tsx
+msgid "Label expression"
+msgstr ""
+
+#: src/framework/list/label-filter.tsx
+msgid "Label key"
+msgstr ""
+
+#: src/framework/list/label-filter.tsx
+msgid "Label value"
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
@@ -3894,6 +3932,7 @@ msgstr "Sleutel fingerprint"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "Labels"
 
@@ -4135,6 +4174,10 @@ msgstr "Beheer collectie-remotes."
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Manifestlijsten worden momenteel niet ondersteund in dit scherm, gebruik het tabblad <0>Afbeeldingen</0> om details van manifestlijsten te zien."
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr ""
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "Systeeminstelling volgen"
@@ -4170,6 +4213,10 @@ msgstr "Spiegelen kan niet worden gecombineerd met automatisch publiceren, dus d
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "Meer informatie"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr ""
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4677,6 +4724,7 @@ msgstr "Nog geen gebruikers"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "Geen"
 
@@ -4736,6 +4784,10 @@ msgstr ""
 #: src/components/lazy-distributions.tsx
 msgid "Not served: no publication"
 msgstr "Niet aangeboden: geen publicatie"
+
+#: src/framework/list/label-filter.tsx
+msgid "Not set"
+msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
@@ -5704,6 +5756,7 @@ msgstr "Opnieuw laden"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "Remote"
 
@@ -5841,6 +5894,10 @@ msgstr "Groep verwijderen"
 #: src/components/access-tab.tsx
 msgid "Remove group {groupname}?"
 msgstr "Groep {groupname} verwijderen?"
+
+#: src/framework/list/label-filter.tsx
+msgid "Remove label condition"
+msgstr ""
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6598,6 +6655,10 @@ msgstr "Geselecteerde rollen"
 #: src/components/select-user.tsx
 msgid "Selected user"
 msgstr "Geselecteerde gebruiker"
+
+#: src/framework/list/label-filter.tsx
+msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
+msgstr ""
 
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
@@ -7483,6 +7544,10 @@ msgstr "De volgende rollen worden toegepast op de groep: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "De volgende rollen worden toegepast op gebruiker: <0>{0}</0>"
 
+#: src/framework/list/repository-list.tsx
+msgid "The label filter was not accepted."
+msgstr ""
+
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
 msgstr "De laatste actie is niet voltooid. Herhaal deze nadat u bent ingelogd."
@@ -7774,6 +7839,10 @@ msgstr "Items kunnen niet worden weergegeven."
 #: src/containers/collection-detail/collection-dependencies.tsx
 #~ msgid "This collections requires the following collections for use"
 #~ msgstr "Deze collectie vereist de volgende collecties voor gebruik"
+
+#: src/framework/list/label-filter.tsx
+msgid "This expression cannot be shown as fields."
+msgstr ""
 
 #: src/utilities/map-role-errors.ts
 msgid "This field can only contain letters and numbers"
@@ -8127,6 +8196,10 @@ msgstr "URL (voorbeeld): {url}"
 #~ msgid "Use in Controller"
 #~ msgstr "Gebruiken in controller"
 
+#: src/framework/list/label-filter.tsx
+msgid "Use key and value fields"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Use template"
 msgstr "Sjabloon gebruiken"
@@ -8395,6 +8468,10 @@ msgstr "Gebruikers verschijnen zodra ze zijn aangemaakt"
 #~ msgid "VALUE"
 #~ msgstr ""
 
+#: src/framework/list/label-filter.tsx
+msgid "Value (optional)"
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "var"
 #~ msgstr ""
@@ -8644,6 +8721,10 @@ msgstr "Workers, opslag en inhoudsinstellingen worden getoond aan beheerders."
 #: src/components/ratings.tsx
 #~ msgid "Works without change"
 #~ msgstr ""
+
+#: src/framework/list/label-filter.tsx
+msgid "Write an expression"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx

@@ -87,7 +87,11 @@ export interface FilterDef {
   label: MessageDescriptor;
   // The query parameter the filter sets.
   param: string;
-  kind: 'text' | 'select';
+  // `text` is a search box (several text filters share one box with a choice
+  // between them), `labels` the key and value filter of labels, `remote` the
+  // choice of one of the plugin's remotes or of none, `select` a choice among
+  // `options`.
+  kind: 'text' | 'select' | 'labels' | 'remote';
   options?: { value: string; label: MessageDescriptor }[];
 }
 

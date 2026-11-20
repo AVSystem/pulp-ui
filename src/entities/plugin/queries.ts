@@ -88,6 +88,27 @@ export function useEntityList<Row, Params extends { page?: number }>(
   });
 }
 
+// How long the index of a plugin's repositories is taken as current.
+const INDEX_STALE_MS = 30_000;
+
+// Every repository of the plugin with the fields the filters need (address,
+// name, remote and labels), read page after page and cached for the plugin.
+// The read starts only when `enabled` is true, so a list that needs it
+// sometimes pays for it only then. A second subscriber sends nothing.
+export function useRepositoryIndex<Row>(
+  entity: EntityName & {
+    index: (options?: Options) => Promise<Row[]>;
+  },
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  return useSessionQuery({
+    queryKey: entityKeys(entity).index,
+    queryFn: ({ signal }) => entity.index({ signal }),
+    staleTime: INDEX_STALE_MS,
+    enabled,
+  });
+}
+
 // The object with this name, or null when there is none: the lookup a URL name
 // turns into the object's address by. A null name is the name of nothing: no
 // request is sent.

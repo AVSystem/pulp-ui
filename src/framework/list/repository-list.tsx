@@ -9,14 +9,13 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
   Alert,
   AlertList,
   type AlertType,
-  AppliedFilters,
   BaseHeader,
   EmptyStateFilter,
   EmptyStateNoData,
@@ -40,14 +39,16 @@ import type {
   RepositoryBase,
   RepositoryListParams,
 } from 'src/entities/plugin/model';
-import { useEntityList } from 'src/entities/plugin/queries';
+import { useRepositoryIndex } from 'src/entities/plugin/queries';
 import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
+  requestErrorReason,
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
+import { labelKeysOf } from '../labels/label-select';
 import {
   type FrameworkPlugin,
   PLUGIN_MANIFESTS,
@@ -61,12 +62,14 @@ import {
   LastTaskCell,
   VersionCell,
 } from './derived-columns';
+import { FilterChips, ListFilters } from './filters';
 import {
   type ListParams,
   PAGE_SIZES,
   paramsOfAddress,
   searchOf,
 } from './list-params';
+import { type BasePathSelection, useRepositoryRows } from './repository-rows';
 import {
   REPOSITORY_ROW_ACTIONS,
   type RepositoryPermission,
@@ -85,6 +88,13 @@ interface Props {
 
 const NO_COLUMNS: ColumnDef<RepositoryBase>[] = [];
 const NO_FILTERS: FilterDef[] = [];
+
+// How many repositories a base path may select before the list says so: they
+// are read and paged here, so a very wide match is worth narrowing.
+const LARGE_MATCH = 500;
+
+// The page a refused filter leaves on screen when there is no earlier one.
+const NO_PAGE = { count: 0, next: null, previous: null, results: [] };
 
 // What every list reads of a repository whatever its columns are: the address
 // the derived columns match on, the PRN the last task is found by and the
@@ -209,8 +219,17 @@ const RepositoryListScreen = ({
       ),
     [columns],
   );
+  // The base path is not a field of a repository: it selects repositories
+  // through the distributions that serve them, so it is not part of the request.
+  const basePathText =
+    typeof params.base_path === 'string' ? params.base_path : undefined;
   const request = useMemo(() => {
-    const { page, page_size, sort, ...filterValues } = params;
+    const { page, page_size, sort } = params;
+    const filterValues = Object.fromEntries(
+      Object.entries(params).filter(
+        ([key]) => !['page', 'page_size', 'sort', 'base_path'].includes(key),
+      ),
+    );
     return {
       page,
       page_size,
@@ -220,10 +239,64 @@ const RepositoryListScreen = ({
     } as RepositoryListParams;
   }, [params, fields]);
 
-  const query = useEntityList(entity, request);
-  const rows = useMemo(() => query.data?.results ?? [], [query.data]);
-
   const distributions = useDistributionIndex(distribution, publication);
+  const basePath = useMemo<BasePathSelection>(
+    () => ({
+      text: basePathText,
+      matches:
+        basePathText === undefined
+          ? null
+          : distributions.repositoriesMatchingBasePath(basePathText),
+      status: distributions.status,
+      error: distributions.error,
+      retry: distributions.retry,
+    }),
+    [basePathText, distributions],
+  );
+  const query = useRepositoryRows(entity, request, basePath);
+
+  // The server refuses a label expression it cannot read with a 400. That is
+  // an answer about the expression and not a failure of the list: the rows of
+  // the last result stay and the reason is shown at the filter.
+  const refusedFilter =
+    query.isError &&
+    requestErrorStatus(query.error) === 400 &&
+    params.pulp_label_select !== undefined;
+  const lastShown = useRef<typeof query.data>(undefined);
+  if (query.data && !query.isPlaceholderData) {
+    lastShown.current = query.data;
+  }
+  const data =
+    query.data ??
+    (refusedFilter
+      ? (lastShown.current ?? (NO_PAGE as unknown as typeof query.data))
+      : undefined);
+  const rows = useMemo(() => data?.results ?? [], [data]);
+  const labelRefusal = refusedFilter
+    ? (requestErrorReason(query.error) ?? t`The label filter was not accepted.`)
+    : null;
+  // The label keys offered are those of the rows shown and, once the label
+  // filter has been opened, those of every repository of the plugin.
+  const [indexWanted, setIndexWanted] = useState(false);
+  const openLabelFilter = useCallback(() => setIndexWanted(true), []);
+  const repositoryIndex = useRepositoryIndex(entity, { enabled: indexWanted });
+  const labelKeys = useMemo(
+    () =>
+      labelKeysOf([
+        ...((data ?? lastShown.current)?.results ?? []),
+        ...(repositoryIndex.data ?? []),
+      ]),
+    [data, repositoryIndex.data],
+  );
+
+  // The first read fills the whole screen with its state. Once something has
+  // been shown, a read for another filter shows its state in place of the
+  // table only, so the filters stay where they are being used.
+  const everShown = useRef(false);
+  if (data) {
+    everShown.current = true;
+  }
+
   const tasks = useTaskIndex();
   const versions = useVersionSummaries(
     rows.map((row) => row.latest_version_href),
@@ -330,12 +403,11 @@ const RepositoryListScreen = ({
     );
   }
 
-  const failed =
-    query.isError && !sessionEnded && !query.data && !query.isFetching;
-  const loading = !query.data && !failed;
-  const noData = !!query.data && rows.length === 0 && !filterIsSet;
+  const failed = query.isError && !sessionEnded && !data && !query.isFetching;
+  const loading = !data && !failed;
+  const noData = !!data && rows.length === 0 && !filterIsSet;
 
-  if (loading) {
+  if (loading && !everShown.current) {
     return (
       <>
         {alertList}
@@ -346,7 +418,7 @@ const RepositoryListScreen = ({
       </>
     );
   }
-  if (failed) {
+  if (failed && !everShown.current) {
     return (
       <>
         {alertList}
@@ -435,6 +507,76 @@ const RepositoryListScreen = ({
     ...(anyRowAction ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
 
+  const count = data?.count ?? 0;
+  const hasRows = !!data && rows.length > 0;
+
+  // What the table's place shows: the rows, the way out of a filter that
+  // matches nothing, or the state of a read that is still on its way or failed.
+  let content;
+  if (loading) {
+    content = <LoadingSpinner />;
+  } else if (failed) {
+    content = (
+      <ListErrorState
+        title={t`Repositories could not be displayed.`}
+        message={requestErrorDescription(query.error)}
+        onRetry={() => query.refetch()}
+      />
+    );
+  } else if (rows.length === 0) {
+    content = (
+      <EmptyStateFilter
+        clearAllFilters={() =>
+          updateParams({
+            page: 1,
+            page_size: params.page_size,
+            sort: params.sort,
+          })
+        }
+      />
+    );
+  } else {
+    content = (
+      <Table
+        aria-label={t`Repositories`}
+        data-rows-loaded={!query.isPlaceholderData}
+        data-columns-loaded={settled}
+      >
+        <SortTable
+          options={{ headers }}
+          params={params}
+          updateParams={updateParams}
+        />
+        <RowActionsColumn.Provider value={anyRowAction}>
+          <Tbody>
+            {rows.map((row, position) => (
+              <RepositoryRow
+                key={row.pulp_href}
+                row={row}
+                columns={columns}
+                actions={actions}
+                actionIds={rowActionIds[position] as string}
+                actionContext={actionContext}
+                baseUrlState={baseUrlState}
+                baseUrls={distributions.baseUrlsByRepository?.get(
+                  row.pulp_href,
+                )}
+                contentState={contentState}
+                contentCount={
+                  row.latest_version_href
+                    ? versions.counts.get(row.latest_version_href)
+                    : undefined
+                }
+                taskState={taskState}
+                lastTask={lastTaskOf(tasks, row.prn)}
+              />
+            ))}
+          </Tbody>
+        </RowActionsColumn.Provider>
+      </Table>
+    );
+  }
+
   return (
     <>
       {alertList}
@@ -442,33 +584,50 @@ const RepositoryListScreen = ({
       <Main>
         <section className='pulp-section'>
           <div className='pulp-toolbar'>
-            {addButton ? (
-              <Toolbar>
-                <ToolbarContent>
+            <Toolbar>
+              <ToolbarContent>
+                <ListFilters
+                  filters={filters}
+                  params={params}
+                  updateParams={updateParams}
+                  labelKeys={labelKeys}
+                  labelRefusal={labelRefusal}
+                  onLabelFilterOpen={openLabelFilter}
+                  remotes={descriptor.remote?.entity}
+                />
+                {addButton ? (
                   <ToolbarGroup>
                     <ToolbarItem>{addButton}</ToolbarItem>
                   </ToolbarGroup>
-                </ToolbarContent>
-              </Toolbar>
-            ) : null}
+                ) : null}
+              </ToolbarContent>
+            </Toolbar>
             <PulpPagination
               params={params}
               updateParams={updateParams}
-              count={query.data?.count ?? 0}
+              count={count}
               perPageOptions={PAGE_SIZES}
               isTop
             />
           </div>
           <div>
-            <AppliedFilters
-              updateParams={updateParams}
+            <FilterChips
+              filters={filters}
               params={params}
-              ignoredParams={['page_size', 'page', 'sort']}
-              niceNames={Object.fromEntries(
-                filters.map(({ param, label }) => [param, i18n._(label)]),
-              )}
+              updateParams={updateParams}
+              remotes={descriptor.remote?.entity}
             />
           </div>
+          {query.baseMatches !== null && query.baseMatches > LARGE_MATCH ? (
+            <Alert
+              isInline
+              variant='info'
+              title={t`Many repositories match this base path`}
+              style={{ marginBottom: '16px' }}
+            >
+              {t`More than ${LARGE_MATCH} repositories match. Add another filter to narrow the list.`}
+            </Alert>
+          ) : null}
           {permissionsNotice}
           {failures.map(({ id, title, retry, description }) => (
             <Alert
@@ -484,61 +643,15 @@ const RepositoryListScreen = ({
               {description}
             </Alert>
           ))}
-          {rows.length === 0 ? (
-            <EmptyStateFilter
-              clearAllFilters={() =>
-                updateParams({
-                  page: 1,
-                  page_size: params.page_size,
-                  sort: params.sort,
-                })
-              }
+          {content}
+          {hasRows ? (
+            <PulpPagination
+              params={params}
+              updateParams={updateParams}
+              count={count}
+              perPageOptions={PAGE_SIZES}
             />
-          ) : (
-            <Table
-              aria-label={t`Repositories`}
-              data-rows-loaded={!query.isPlaceholderData}
-              data-columns-loaded={settled}
-            >
-              <SortTable
-                options={{ headers }}
-                params={params}
-                updateParams={updateParams}
-              />
-              <RowActionsColumn.Provider value={anyRowAction}>
-                <Tbody>
-                  {rows.map((row, position) => (
-                    <RepositoryRow
-                      key={row.pulp_href}
-                      row={row}
-                      columns={columns}
-                      actions={actions}
-                      actionIds={rowActionIds[position] as string}
-                      actionContext={actionContext}
-                      baseUrlState={baseUrlState}
-                      baseUrls={distributions.baseUrlsByRepository?.get(
-                        row.pulp_href,
-                      )}
-                      contentState={contentState}
-                      contentCount={
-                        row.latest_version_href
-                          ? versions.counts.get(row.latest_version_href)
-                          : undefined
-                      }
-                      taskState={taskState}
-                      lastTask={lastTaskOf(tasks, row.prn)}
-                    />
-                  ))}
-                </Tbody>
-              </RowActionsColumn.Provider>
-            </Table>
-          )}
-          <PulpPagination
-            params={params}
-            updateParams={updateParams}
-            count={query.data?.count ?? 0}
-            perPageOptions={PAGE_SIZES}
-          />
+          ) : null}
         </section>
       </Main>
     </>
