@@ -17,6 +17,8 @@ const WRAPPER_MESSAGE = 'Import from src/components instead.';
 const TABLE_MESSAGE = 'Import Table from src/components instead.';
 const SDK_MESSAGE = 'Import the sdk only from src/entities.';
 const ZOD_MESSAGE = 'Generated .zod modules are imported for types only';
+const FRAMEWORK_MESSAGE =
+  'The framework reads and writes through src/entities only.';
 
 let eslint: ESLint;
 
@@ -263,6 +265,120 @@ describe('the generated validation module rule', () => {
         'src/entities/core/status/client.ts',
       ),
     ).toEqual([]);
+  });
+});
+
+describe('the framework import rule', () => {
+  const FRAMEWORK_FILES = [
+    'src/framework/list/repository-list.tsx',
+    'src/framework/detail/repository-detail.tsx',
+    'src/descriptors/file/descriptor.tsx',
+  ];
+
+  const LEGACY_MODULES = [
+    'src/api',
+    'src/api/file-repository',
+    'src/utilities/create-repository',
+    'src/utilities/update-repository',
+    'src/utilities/delete-repository',
+    'src/utilities/repository-distributions',
+    'src/utilities/running-sync',
+    'src/utilities/wait-for-task',
+    'src/utilities/get-repo-url',
+    'src/utilities/repository-distro',
+    'src/utilities/my-permissions',
+    'src/components/list-page',
+    'src/components/page',
+    'src/components/page-with-tabs',
+    'src/components/repository-form',
+    'src/components/remote-form',
+    'src/components/sync-modal',
+    'src/components/lazy-distributions',
+    'src/components/lazy-repositories',
+    'src/components/delete-repository-modal',
+    'src/components/delete-remote-modal',
+    'src/components/pulp-labels',
+    '../../api/file-repository',
+    '../../utilities/create-repository',
+    '../../components/list-page',
+  ];
+
+  it.each(
+    FRAMEWORK_FILES.flatMap((path) =>
+      LEGACY_MODULES.map((module) => [path, module]),
+    ),
+  )('reports %s importing %s', async (path, module) => {
+    const found = await reports(
+      `import { x } from '${module}';\nexport const y = x;`,
+      path,
+    );
+
+    expect(
+      found.filter((m) => m.ruleId === 'no-restricted-imports'),
+    ).toHaveLength(1);
+    expect(found.some((m) => m.message.includes(FRAMEWORK_MESSAGE))).toBe(true);
+  });
+
+  it.each([
+    'ListPage',
+    'Page',
+    'PageWithTabs',
+    'RepositoryForm',
+    'RemoteForm',
+    'SyncModal',
+    'LazyDistributions',
+    'LazyRepositories',
+    'DeleteRepositoryModal',
+    'DeleteRemoteModal',
+    'PulpLabels',
+  ])('reports %s imported from the components barrel', async (name) => {
+    const found = await reports(
+      `import { ${name} } from 'src/components';\nexport const x = ${name};`,
+      'src/framework/list/repository-list.tsx',
+    );
+
+    expect(found).toHaveLength(1);
+    expect(found[0].ruleId).toBe('no-restricted-imports');
+    expect(found[0].severity).toBe(2);
+    expect(found[0].message).toContain(FRAMEWORK_MESSAGE);
+  });
+
+  it.each([
+    "import { Main, LinkTabs, Details } from 'src/components';",
+    "import { requestErrorStatus } from 'src/utilities/request-error';",
+    "import { basePathProblem } from 'src/utilities/base-path-rules';",
+    "import { changedFields } from 'src/utilities/changed-fields';",
+    "import { shellQuote } from 'src/utilities/shell-quote';",
+    "import { servedState } from 'src/utilities/distribution-serving';",
+    "import { useEntityByName } from 'src/entities/plugin/queries';",
+    "import { LabelChips } from 'src/framework/labels/label-chips';",
+  ])('accepts %s', async (source) => {
+    expect(
+      await reports(
+        `${source}\nexport const y = 1;`,
+        'src/framework/detail/repository-detail.tsx',
+      ),
+    ).toEqual([]);
+  });
+
+  it('leaves the legacy modules to the screens that still use them', async () => {
+    expect(
+      await reports(
+        "import { createRepository } from 'src/utilities/create-repository';\nimport { ListPage } from 'src/components';\nexport const y = [createRepository, ListPage];",
+        'src/containers/ansible-repository/list.tsx',
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps the other import rules for a framework file', async () => {
+    const found = await reports(
+      "import { Alert } from '@patternfly/react-core';\nimport { x } from '@pulp-ui/sdk/file/repositories-file';\nexport const y = [Alert, x];",
+      'src/framework/detail/repository-detail.tsx',
+    );
+    const messages = found.map((message) => message.message).join('\n');
+
+    expect(messages).toContain(WRAPPER_MESSAGE);
+    expect(messages).toContain(SDK_MESSAGE);
   });
 });
 
