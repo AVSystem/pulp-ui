@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import type { MessageDescriptor } from '@lingui/core';
 import { describe, expect, it } from 'vitest';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
@@ -86,6 +86,10 @@ function checkDescriptor(name: string, descriptor: PluginDescriptor) {
   }
 }
 
+// A message descriptor as the message macro builds it, without extracting a
+// message into the catalogs for a test.
+const message = (id: string): MessageDescriptor => ({ id });
+
 describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
   it.each(Object.keys(LOADERS))(
     'the %s descriptor holds what the screens need',
@@ -121,19 +125,19 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
         detailRows: [
           {
             id: 'name',
-            label: msg`Repository name`,
+            label: message('Repository name'),
             render: (row) => row.name,
           },
         ],
         tabs: [
           {
             id: 'packages',
-            label: msg`Artifacts`,
+            label: message('Artifacts'),
             render: () => null,
           },
         ],
       },
-      contentTypes: [{ id: 'artifact', label: msg`Artifacts` }],
+      contentTypes: [{ id: 'artifact', label: message('Artifacts') }],
     };
 
     expect(publicationLess.publication).toBeUndefined();
@@ -153,10 +157,12 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
     const twice = {
       repository: {
         entity,
-        detailRows: [{ id: 'name', label: msg`Name`, render: () => null }],
+        detailRows: [
+          { id: 'name', label: message('Name'), render: () => null },
+        ],
         tabs: [
-          { id: 'packages', label: msg`A`, render: () => null },
-          { id: 'packages', label: msg`B`, render: () => null },
+          { id: 'packages', label: message('A'), render: () => null },
+          { id: 'packages', label: message('B'), render: () => null },
         ],
       },
     } as PluginDescriptor;
