@@ -14,6 +14,7 @@ import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
+  requestErrorReason,
   requestErrorStatus,
   requestErrorText,
 } from './request-error';
@@ -211,6 +212,38 @@ describe('requestErrorDetail', () => {
   it('is null for a failure without a response', () => {
     expect(requestErrorDetail(new Error('boom'))).toBeNull();
     expect(requestErrorDetail(null)).toBeNull();
+  });
+});
+
+const rejected = (data?: unknown, status = 400) => ({
+  response: { status, statusText: 'Bad Request', data },
+});
+
+describe('requestErrorReason', () => {
+  it.each([
+    ['a text', "Invalid search term: ''.", "Invalid search term: ''."],
+    ['a list of texts', ['First.', 'Second.'], 'First.'],
+    ['a detail', { detail: 'Not valid.' }, 'Not valid.'],
+    ['a text by field', { pulp_label_select: ['Bad term.'] }, 'Bad term.'],
+  ])('is the text of %s', (_name, data, expected) => {
+    expect(requestErrorReason(rejected(data))).toBe(expected);
+  });
+
+  it.each([
+    ['no body', undefined],
+    ['an empty list', []],
+    ['an empty object', {}],
+    ['a blank text', '  '],
+    ['a number', 7],
+    ['a deeply nested body', { a: { b: { c: { d: 'too deep' } } } }],
+  ])('is null for %s', (_name, data) => {
+    expect(requestErrorReason(rejected(data))).toBeNull();
+  });
+
+  it('is null for a failure that is not a 400 and for one without a response', () => {
+    expect(requestErrorReason(rejected('Text.', 500))).toBeNull();
+    expect(requestErrorReason(new Error('boom'))).toBeNull();
+    expect(requestErrorReason(null)).toBeNull();
   });
 });
 

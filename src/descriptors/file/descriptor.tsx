@@ -37,6 +37,20 @@ const descriptor: PluginDescriptor<FileRepository> = {
         render: (repository) => <LabelChips labels={repository.pulp_labels} />,
       },
     ],
+    filters: [
+      {
+        id: 'name',
+        label: msg`Repository name`,
+        param: 'name__icontains',
+        kind: 'text',
+      },
+      {
+        id: 'labels',
+        label: msg`Labels`,
+        param: 'pulp_label_select',
+        kind: 'labels',
+      },
+    ],
     columns: [
       {
         id: 'name',

@@ -52,13 +52,17 @@ function serveLab(repositories: IRepository[]) {
   return lab;
 }
 
+// The routes are built once, as in the application: routes rebuilt on every
+// render would make a new screen of every address change.
+const ROUTES = guardRoutes(frameworkRoutes([FILE]));
+
 function Routed() {
   const { pathname, search } = useLocation();
 
   return (
     <>
       <p data-testid='location'>{`${pathname}${search}`}</p>
-      {useRoutes(guardRoutes(frameworkRoutes([FILE])))}
+      {useRoutes(ROUTES)}
     </>
   );
 }
@@ -119,9 +123,18 @@ const repositories = () => [
   pluginRepository('file', { name: 'plain', pulp_labels: {} }),
 ];
 
+// Repositories that match none of the filters of the tests, to fill pages.
+const fillers = (count: number) =>
+  Array.from({ length: count }, (_, n) =>
+    pluginRepository('file', {
+      name: `filler-${String(n).padStart(2, '0')}`,
+      pulp_labels: { filler: 'x' },
+    }),
+  );
+
 describe('Integration: the list filters', { tags: ['integration'] }, () => {
   it('sends the name filter with the page, size and order of the list and shows the matching rows', async () => {
-    const lab = serveLab(repositories());
+    const lab = serveLab([...repositories(), ...fillers(12)]);
     const { user } = renderList('/file/repositories?page=2&page_size=10');
     await tableOf();
 
@@ -172,7 +185,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
 
     const panel = await openLabelFilter(user);
     await user.type(
-      within(panel).getByRole('textbox', { name: 'Label key' }),
+      within(panel).getByRole('combobox', { name: 'Label key' }),
       'team',
     );
     await user.type(
@@ -182,7 +195,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
     await user.click(
       within(panel).getByRole('button', { name: 'Add label condition' }),
     );
-    const keys = within(panel).getAllByRole('textbox', { name: 'Label key' });
+    const keys = within(panel).getAllByRole('combobox', { name: 'Label key' });
     const values = within(panel).getAllByRole('textbox', {
       name: 'Label value',
     });
@@ -211,13 +224,13 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
 
     const panel = await openLabelFilter(user);
     await user.type(
-      within(panel).getByRole('textbox', { name: 'Label key' }),
+      within(panel).getByRole('combobox', { name: 'Label key' }),
       'old',
     );
     await user.click(
       within(panel).getByRole('button', { name: 'Add label condition' }),
     );
-    const keys = within(panel).getAllByRole('textbox', { name: 'Label key' });
+    const keys = within(panel).getAllByRole('combobox', { name: 'Label key' });
     const values = within(panel).getAllByRole('textbox', {
       name: 'Label value',
     });
@@ -295,7 +308,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
     const panel = await openLabelFilter(user);
     expect(
       within(panel)
-        .getAllByRole('textbox', { name: 'Label key' })
+        .getAllByRole('combobox', { name: 'Label key' })
         .map((input) => (input as HTMLInputElement).value),
     ).toEqual(['team', 'tier']);
     expect(
@@ -343,7 +356,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
 
     const panel = await openLabelFilter(user);
     await user.type(
-      within(panel).getByRole('textbox', { name: 'Label key' }),
+      within(panel).getByRole('combobox', { name: 'Label key' }),
       'a,b',
     );
 
@@ -363,7 +376,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
 
     const panel = await openLabelFilter(user);
     await user.type(
-      within(panel).getByRole('textbox', { name: 'Label key' }),
+      within(panel).getByRole('combobox', { name: 'Label key' }),
       'app.example-name',
     );
     await user.type(
@@ -381,7 +394,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
 
     const panel = await openLabelFilter(user);
     await user.type(
-      within(panel).getByRole('textbox', { name: 'Label key' }),
+      within(panel).getByRole('combobox', { name: 'Label key' }),
       'a',
     );
     await user.type(
@@ -466,7 +479,7 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
 
     const panel = await openLabelFilter(user);
     await user.type(
-      within(panel).getByRole('textbox', { name: 'Label key' }),
+      within(panel).getByRole('combobox', { name: 'Label key' }),
       'team',
     );
     await user.click(within(panel).getByRole('button', { name: 'Apply' }));

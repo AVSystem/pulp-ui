@@ -31,6 +31,40 @@ export function requestErrorDetail(error): string | null {
   return typeof detail === 'string' && detail.trim() ? detail : null;
 }
 
+// The reason Pulp gave for refusing the values of a request (status 400), as
+// plain text, or null when the answer has none. Pulp answers with a text, a
+// list of texts, an object with a `detail` or an object of texts or lists of
+// texts by field name; the first text found is the reason. Only text is ever
+// read, so a body of another shape yields null.
+export function requestErrorReason(error): string | null {
+  if (requestErrorStatus(error) !== 400) {
+    return null;
+  }
+
+  const first = (value: unknown, depth = 0): string | null => {
+    if (typeof value === 'string') {
+      return value.trim() ? value : null;
+    }
+    if (depth > 2 || typeof value !== 'object' || value === null) {
+      return null;
+    }
+    const items = Array.isArray(value)
+      ? value
+      : 'detail' in value
+        ? [(value as { detail: unknown }).detail]
+        : Object.values(value);
+    for (const item of items) {
+      const found = first(item, depth + 1);
+      if (found !== null) {
+        return found;
+      }
+    }
+    return null;
+  };
+
+  return first(error?.response?.data);
+}
+
 // True when the failure is the end of the session and nothing else: a 401
 // answer to a user who is signed in, a request that was held back while the
 // sign-in dialog is open, or a refusal that a who-is-signed-in request showed
