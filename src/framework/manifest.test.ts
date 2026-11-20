@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -28,11 +27,11 @@ const SOURCE = (name: string) =>
 // The module of every import and re-export statement, with whether the
 // statement is type-only.
 function importsOf(source: string): { module: string; typeOnly: boolean }[] {
-  return [
-    ...source.matchAll(
-      /^(?:import|export)\s+(type\s+)?(?:[^'"\n;]*?\sfrom\s+)?['"]([^'"]+)['"]/gm,
+  return Array.from(
+    source.matchAll(
+      /^(?:import|export)\s+(type\s+)?(?:[^'";]*?\sfrom\s+)?['"]([^'"]+)['"]/gm,
     ),
-  ].map((match) => ({
+  ).map((match) => ({
     module: match[2] as string,
     typeOnly: Boolean(match[1]),
   }));

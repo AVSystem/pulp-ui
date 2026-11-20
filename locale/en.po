@@ -607,6 +607,7 @@ msgstr "Additive: only add new content"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "All"
 
@@ -2284,6 +2285,7 @@ msgstr "Deleting yourself is not allowed."
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Description"
 msgstr "Description"
 
@@ -2320,6 +2322,7 @@ msgstr "Description"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Details"
 msgstr "Details"
 
@@ -3783,6 +3786,7 @@ msgstr "Installer packages will be synchronized"
 #: src/containers/role-management/role-edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Insufficient permissions"
 msgstr "Insufficient permissions"
 
@@ -3870,6 +3874,7 @@ msgstr "Key fingerprint"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Labels"
 msgstr "Labels"
 
@@ -4633,6 +4638,8 @@ msgstr "No users yet"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
+#: src/framework/labels/label-chips.tsx
 msgid "None"
 msgstr "None"
 
@@ -5898,6 +5905,7 @@ msgstr "Repair task"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5969,6 +5977,7 @@ msgstr "Repository \"{name}\" was created. The outcome of creating the distribut
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Repository could not be displayed."
 msgstr "Repository could not be displayed."
 
@@ -5990,6 +5999,7 @@ msgstr "Repository could not be displayed."
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Repository name"
 msgstr "Repository name"
 
@@ -6082,6 +6092,7 @@ msgstr "Retained package versions"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "Retained version count"
 

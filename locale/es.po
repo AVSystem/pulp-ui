@@ -606,6 +606,7 @@ msgstr "Aditivo: solo añadir contenido nuevo"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "Todos"
 
@@ -2283,6 +2284,7 @@ msgstr "No está permitido borrarse a sí mismo."
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Description"
 msgstr "Descripción"
 
@@ -2319,6 +2321,7 @@ msgstr "Descripción"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Details"
 msgstr "Detalles"
 
@@ -3782,6 +3785,7 @@ msgstr "Se sincronizarán los paquetes del instalador"
 #: src/containers/role-management/role-edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Insufficient permissions"
 msgstr "Permisos insuficientes"
 
@@ -3869,6 +3873,7 @@ msgstr "Huella digital de la clave"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Labels"
 msgstr "Etiquetas"
 
@@ -4632,6 +4637,8 @@ msgstr "No existe ningún usuario"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
+#: src/framework/labels/label-chips.tsx
 msgid "None"
 msgstr "Ninguno"
 
@@ -5897,6 +5904,7 @@ msgstr "Tarea de reparación"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5968,6 +5976,7 @@ msgstr "Se creó el repositorio \"{name}\". Se desconoce el resultado de la crea
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Repository could not be displayed."
 msgstr "No se ha podido visualizar el repositorio."
 
@@ -5989,6 +5998,7 @@ msgstr "No se ha podido visualizar el repositorio."
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Repository name"
 msgstr "Nombre del repositorio"
 
@@ -6081,6 +6091,7 @@ msgstr "Versiones de paquete retenidas"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "Recuento de versiones retenidas"
 
