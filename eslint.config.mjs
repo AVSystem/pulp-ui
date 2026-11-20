@@ -39,6 +39,54 @@ const SDK_PATTERN = {
   message: 'Import the sdk only from src/entities.',
 };
 
+// The framework and the descriptors read and write through src/entities hooks
+// only. The older data helpers fetch on their own, outside the query cache and
+// the session rules, and the older components fetch per row; both stay for the
+// screens that still use them. Pure rule modules and presentational
+// components are allowed.
+const FRAMEWORK_MESSAGE =
+  'The framework reads and writes through src/entities only. Use the hooks of an entity and a component that takes its data as props.';
+const LEGACY_UTILITIES = [
+  'create-repository',
+  'update-repository',
+  'delete-repository',
+  'repository-distributions',
+  'running-sync',
+  'wait-for-task',
+  'get-repo-url',
+  'repository-distro',
+  'my-permissions',
+];
+const LEGACY_COMPONENTS = [
+  ['list-page', 'ListPage'],
+  ['page', 'Page'],
+  ['page-with-tabs', 'PageWithTabs'],
+  ['repository-form', 'RepositoryForm'],
+  ['remote-form', 'RemoteForm'],
+  ['sync-modal', 'SyncModal'],
+  ['lazy-distributions', 'LazyDistributions'],
+  ['lazy-repositories', 'LazyRepositories'],
+  ['delete-repository-modal', 'DeleteRepositoryModal'],
+  ['delete-remote-modal', 'DeleteRemoteModal'],
+  ['pulp-labels', 'PulpLabels'],
+];
+const FRAMEWORK_PATTERN = {
+  group: [
+    'src/api',
+    'src/api/**',
+    '**/api',
+    '**/api/**',
+    ...LEGACY_UTILITIES.map((name) => `**/utilities/${name}`),
+    ...LEGACY_COMPONENTS.map(([file]) => `**/components/${file}`),
+  ],
+  message: FRAMEWORK_MESSAGE,
+};
+const FRAMEWORK_BARREL = {
+  name: 'src/components',
+  importNames: LEGACY_COMPONENTS.map(([, name]) => name),
+  message: FRAMEWORK_MESSAGE,
+};
+
 const DEPRECATED_PATTERN = {
   group: [
     '@patternfly/react-core/deprecated/**',
@@ -52,7 +100,7 @@ const DEPRECATED_PATTERN = {
 // sets the options of a rule replaces the options of every earlier block, so
 // each block that changes them restates the whole list: the sdk pattern is the
 // only part that differs between src/entities and the rest of src.
-function importRestrictions({ sdk }) {
+function importRestrictions({ sdk, framework = false }) {
   return [
     'error',
     {
@@ -89,8 +137,13 @@ function importRestrictions({ sdk }) {
           message:
             'Use the PatternFly 6 component; the deprecated entry point is not used.',
         },
+        ...(framework ? [FRAMEWORK_BARREL] : []),
       ],
-      patterns: sdk ? [DEPRECATED_PATTERN, SDK_PATTERN] : [DEPRECATED_PATTERN],
+      patterns: [
+        DEPRECATED_PATTERN,
+        ...(sdk ? [SDK_PATTERN] : []),
+        ...(framework ? [FRAMEWORK_PATTERN] : []),
+      ],
     },
   ];
 }
@@ -153,6 +206,18 @@ export default defineConfig([
   {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
     rules: { 'no-restricted-imports': importRestrictions({ sdk: true }) },
+  },
+  {
+    files: [
+      'src/framework/**/*.{js,jsx,ts,tsx}',
+      'src/descriptors/**/*.{js,jsx,ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': importRestrictions({
+        sdk: true,
+        framework: true,
+      }),
+    },
   },
   {
     files: ['src/entities/**/*.{js,jsx,ts,tsx}'],
