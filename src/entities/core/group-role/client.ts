@@ -4,6 +4,7 @@ import {
   groupsRolesList,
 } from '@pulp-ui/sdk/core/groups-roles';
 import type { GroupsRolesListParams } from '@pulp-ui/sdk/core/models/groups-roles/groups-roles-list-params.zod';
+import { positiveInt } from 'src/entities/page-params';
 import { parseResponse } from 'src/entities/response-shape';
 import { groupRoleHref } from './href';
 import {
@@ -18,8 +19,8 @@ import {
 // the roles that act on the whole model are asked for: a role bound to one
 // object is not what the roles tab of a group manages.
 function toRequestParams(params: GroupRoleListParams): GroupsRolesListParams {
-  const limit = Math.max(1, Math.trunc(params.page_size ?? DEFAULT_PAGE_SIZE));
-  const page = Math.max(1, Math.trunc(params.page ?? 1));
+  const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
+  const page = positiveInt(params.page, 1);
   const request: GroupsRolesListParams = {
     offset: (page - 1) * limit,
     limit,

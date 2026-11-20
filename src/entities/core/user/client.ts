@@ -8,6 +8,7 @@ import {
   usersPartialUpdate,
   usersRead,
 } from '@pulp-ui/sdk/core/users';
+import { positiveInt } from 'src/entities/page-params';
 import { parseResponse } from 'src/entities/response-shape';
 import { requestErrorStatus } from 'src/utilities/request-error';
 import {
@@ -29,8 +30,8 @@ const FILTERS = [
 // Turns the page, size and sort of the screen into what the server takes:
 // an offset, a limit and an ordering. A filter that is not set is not sent.
 function toRequestParams(params: UserListParams): UsersListParams {
-  const limit = Math.max(1, Math.trunc(params.page_size ?? DEFAULT_PAGE_SIZE));
-  const page = Math.max(1, Math.trunc(params.page ?? 1));
+  const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
+  const page = positiveInt(params.page, 1);
   const request: UsersListParams = { offset: (page - 1) * limit, limit };
 
   if (params.sort) {

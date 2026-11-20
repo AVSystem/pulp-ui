@@ -6,6 +6,7 @@ import {
   rolesPartialUpdate,
   rolesRead,
 } from '@pulp-ui/sdk/core/roles';
+import { positiveInt } from 'src/entities/page-params';
 import { parseResponse } from 'src/entities/response-shape';
 import { config } from 'src/ui-config';
 import {
@@ -24,8 +25,8 @@ import {
 // kind of object becomes the address of its endpoint, which the server matches
 // against the permissions of each role.
 function toRequestParams(params: RoleListParams): RolesListParams {
-  const limit = Math.max(1, Math.trunc(params.page_size ?? DEFAULT_PAGE_SIZE));
-  const page = Math.max(1, Math.trunc(params.page ?? 1));
+  const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
+  const page = positiveInt(params.page, 1);
   const request: RolesListParams = { offset: (page - 1) * limit, limit };
 
   if (params.sort) {

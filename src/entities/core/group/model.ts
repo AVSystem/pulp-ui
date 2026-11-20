@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { pulpHrefSchema } from 'src/entities/href';
+import { positiveInt } from 'src/entities/page-params';
 
 // The fields the screens read of a group, and nothing else. A field this
 // schema does not name is kept as it came, so a later server version cannot
@@ -89,8 +90,8 @@ function pageOfMembers(
     return down ? -order : order;
   });
 
-  const size = Math.max(1, Math.trunc(params.page_size ?? DEFAULT_PAGE_SIZE));
-  const first = (Math.max(1, Math.trunc(params.page ?? 1)) - 1) * size;
+  const size = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
+  const first = (positiveInt(params.page, 1) - 1) * size;
 
   return {
     count: matching.length,
