@@ -8,17 +8,19 @@ const USERNAME_MAX_LENGTH = 150;
 
 const loginDomainSchema = z.object({
   href: pulpHrefSchema,
-  prn: z.string(),
+  prn: z.string().nullish(),
   username: z.string(),
 });
 
-// The three fields of the answer the application reads, all required: a login
-// answer without one of them cannot identify the account. Any other field of
-// the answer is ignored. The generated schema of the sdk marks every field
-// optional, so it serves for types only.
+// The fields of the answer the application reads. The address and the username
+// are required: a login answer without one of them cannot identify the account.
+// The resource name (prn) is optional, because a server that does not send it
+// must still be able to sign a user in. Any other field of the answer is
+// ignored. The generated schema of the sdk marks every field optional, so it
+// serves for types only.
 const loginResponseSchema = z.object({
   pulp_href: pulpHrefSchema,
-  prn: z.string(),
+  prn: z.string().nullish(),
   username: z.string(),
 });
 

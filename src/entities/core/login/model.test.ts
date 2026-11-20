@@ -73,8 +73,23 @@ describe('Unit: login model', { tags: ['unit'] }, () => {
 
     it('rejects a response missing a required field', () => {
       expect(() =>
-        loginResponseCodec.decode({ ...validResponse, prn: undefined }),
+        loginResponseCodec.decode({ ...validResponse, username: undefined }),
       ).toThrow();
+    });
+
+    it('accepts a response without a prn, or with a null one', () => {
+      const withoutPrn = {
+        pulp_href: validResponse.pulp_href,
+        username: validResponse.username,
+      };
+
+      expect(loginResponseCodec.decode(withoutPrn)).toEqual({
+        href: validResponse.pulp_href,
+        username: validResponse.username,
+      });
+      expect(
+        loginResponseCodec.decode({ ...validResponse, prn: null }).prn,
+      ).toBeNull();
     });
 
     it('rejects an absolute pulp_href', () => {
