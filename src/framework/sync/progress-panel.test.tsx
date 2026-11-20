@@ -1,4 +1,5 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import fileDescriptor from 'src/descriptors/file/descriptor';
@@ -10,8 +11,16 @@ import {
 } from 'src/session/session-events';
 import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
+import {
+  listOf,
+  page,
+  projectedBy,
+  role,
+  roleAssignment,
+} from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
-import { type Lab, report, serveSyncLab } from 'src/test-utils/sync-lab';
+import { server } from 'src/test-utils/server';
+import { API, type Lab, report, serveSyncLab } from 'src/test-utils/sync-lab';
 import { SyncProgressPanel } from './progress-panel';
 
 let intervals: IIntervals;
@@ -251,6 +260,188 @@ describe(
       expect(lab.syncs).toEqual([]);
       expect(lab.cancels).toEqual([]);
       expect(within(document.body).queryByRole('dialog')).toBeNull();
+    });
+  },
+);
+
+describe(
+  'Integration: stopping the task from the progress panel',
+  { tags: ['integration'] },
+  () => {
+    const CHANGE = 'core.change_task';
+    const others: { stop: () => void }[] = [];
+
+    afterEach(() => {
+      for (const served of others.splice(0)) {
+        served.stop();
+      }
+    });
+
+    const serveAccount = (setup: Parameters<typeof servePermissions>[0]) => {
+      others.push(servePermissions({ id: 7, ...setup }));
+    };
+
+    const running = () =>
+      serveSyncLab({
+        tasks: [
+          {
+            state: 'running',
+            progress_reports: [report('Downloading artifacts', 1, 10)],
+          },
+        ],
+      });
+
+    const cancelButton = () =>
+      screen.findByRole('button', { name: 'Cancel sync' });
+
+    it('offers Cancel to a user who may change tasks, and sends nothing before the confirmation', async () => {
+      serveAccount({ isStaff: false, own: [[CHANGE]] });
+      const lab = running();
+      const { user } = renderPanel(lab);
+
+      await user.click(await cancelButton());
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByText(/will stop running/)).toBeVisible();
+      await pause();
+      expect(lab.cancels).toEqual([]);
+
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Keep running' }),
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(lab.cancels).toEqual([]);
+    });
+
+    it('sends exactly one request, with the state canceled, after the confirmation, and shows the canceled task', async () => {
+      const lab = running();
+      const { user } = renderPanel(lab);
+
+      await user.click(await cancelButton());
+      const confirm = within(await screen.findByRole('dialog')).getByRole(
+        'button',
+        { name: 'Yes, cancel' },
+      );
+      await user.dblClick(confirm);
+
+      await waitFor(() => expect(lab.cancels).toHaveLength(1));
+      expect(lab.cancels[0].body).toEqual({ state: 'canceled' });
+      expect(lab.cancels[0].path).toBe(lab.tasks[0].pulp_href);
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(await screen.findByText('Sync canceled')).toBeVisible();
+      expect(lab.cancels).toHaveLength(1);
+      expect(screen.queryByRole('button', { name: 'Cancel sync' })).toBeNull();
+    });
+
+    it('offers Cancel to a user who holds the change role on this task only', async () => {
+      serveAccount({ isStaff: false });
+      const lab = running();
+      server.use(
+        listOf(
+          `${API}/users/7/roles/`,
+          [roleAssignment('owner', lab.tasks[0].pulp_href)],
+          {
+            pageSize: 1000,
+            matching: (row, query) =>
+              query.get('content_object') !== 'null' ||
+              row.content_object === null,
+            projected: projectedBy,
+          },
+        ).handler,
+        http.get(`*${API}/roles/`, () =>
+          HttpResponse.json(
+            page([role({ name: 'owner', permissions: [CHANGE] })]),
+          ),
+        ),
+      );
+      renderPanel(lab);
+
+      expect(await cancelButton()).toBeVisible();
+    });
+
+    it('shows no Cancel to a user who cannot be confirmed to hold the change permission', async () => {
+      serveAccount({ isStaff: false });
+      const lab = running();
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
+      renderPanel(lab);
+
+      await screen.findByText('Sync running');
+      await pause();
+      expect(screen.queryByRole('button', { name: 'Cancel sync' })).toBeNull();
+    });
+
+    it('shows no Cancel for a task that has ended', async () => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      renderPanel(lab);
+      await cancelButton();
+
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(2000);
+
+      await screen.findByText('Sync completed');
+      expect(screen.queryByRole('button', { name: 'Cancel sync' })).toBeNull();
+    });
+
+    it('says the task has already finished, instead of an error, when the server answers 409, and reads the task again', async () => {
+      const lab = running();
+      lab.failCancel(409, { detail: 'The task is already in a final state.' });
+      const { user } = renderPanel(lab);
+      await user.click(await cancelButton());
+      const reads = lab.details();
+
+      await user.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: 'Yes, cancel',
+        }),
+      );
+
+      expect(
+        await screen.findByText('This task has already finished.'),
+      ).toBeVisible();
+      expect(screen.queryByText('Task could not be stopped.')).toBeNull();
+      await waitFor(() => expect(lab.details()).toBeGreaterThan(reads));
+    });
+
+    it('shows the refusal in three parts when the server refuses with 403', async () => {
+      const lab = running();
+      lab.failCancel(403, {
+        detail: 'You do not have permission to perform this action.',
+      });
+      const { user } = renderPanel(lab);
+      await user.click(await cancelButton());
+
+      await user.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: 'Yes, cancel',
+        }),
+      );
+
+      expect(
+        await screen.findByText('Task could not be stopped.'),
+      ).toBeVisible();
+      expect(
+        screen.getByText(/You do not have permission to perform this action/),
+      ).toBeVisible();
+      expect(screen.getByText('Sync running')).toBeVisible();
+    });
+
+    it('shows no failure for the end of the session and sends nothing again', async () => {
+      const lab = running();
+      lab.failCancel(401, { detail: 'no' });
+      setSignedIn(true);
+      const { user } = renderPanel(lab);
+      await user.click(await cancelButton());
+
+      await user.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: 'Yes, cancel',
+        }),
+      );
+      await waitFor(() => expect(lab.cancels).toHaveLength(1));
+      await pause();
+
+      expect(screen.queryByText('Task could not be stopped.')).toBeNull();
+      expect(lab.cancels).toHaveLength(1);
     });
   },
 );

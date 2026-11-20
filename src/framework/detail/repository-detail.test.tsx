@@ -25,7 +25,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { report, serveSyncLab } from 'src/test-utils/sync-lab';
+import { SYNC_TASK, report, serveSyncLab } from 'src/test-utils/sync-lab';
 import type { PluginDescriptor } from '../descriptor';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
 import { frameworkRoutes } from '../routes';
@@ -107,6 +107,20 @@ afterEach(() => {
     served.stop();
   }
 });
+
+// The detail screen with a descriptor of the test's own making.
+function DetailRoutes({ descriptor }: { descriptor: PluginDescriptor }) {
+  return (
+    <Routes>
+      <Route
+        path='/file/repositories/:name/*'
+        element={
+          <RepositoryDetail plugin='file' descriptor={descriptor} tab={null} />
+        }
+      />
+    </Routes>
+  );
+}
 
 function renderDetail(route: string) {
   return renderWithProviders(
@@ -698,6 +712,168 @@ describe(
       });
 
       expect(lab.syncs).toEqual([]);
+    });
+  },
+);
+
+describe(
+  'Integration: the last sync on the repository detail',
+  { tags: ['integration'] },
+  () => {
+    const REMOTE = `${API}/remotes/file/file/00000000-0000-4000-8000-000000000999/`;
+    let intervals: IIntervals;
+
+    beforeEach(() => {
+      intervals = trackIntervals();
+    });
+    afterEach(() => {
+      intervals.restore();
+    });
+
+    const lastSync = async () => (await detailRows()).get('Last sync');
+
+    it('shows when the last sync ended, how it ended and a link to its task', async () => {
+      const repository = tools({ remote: REMOTE });
+      serveLab({ repositories: [repository] });
+      const lab = serveSyncLab({
+        repository,
+        tasks: [
+          {
+            state: 'failed',
+            finished_at: '2026-03-01T10:00:00.000000Z',
+            pulp_created: '2026-03-01T09:59:00.000000Z',
+          },
+        ],
+      });
+
+      renderDetail('/file/repositories/tools/');
+
+      const row = (await lastSync()) as HTMLElement;
+      await waitFor(() =>
+        expect(within(row).getByText('Failed')).toBeVisible(),
+      );
+      expect(row.querySelector('time')).toHaveAttribute(
+        'datetime',
+        '2026-03-01T10:00:00.000000Z',
+      );
+      expect(
+        within(row).getByRole('link', { name: 'View the task' }),
+      ).toHaveAttribute(
+        'href',
+        expect.stringMatching(/^\/tasks\/[0-9a-f-]{36}\/?$/),
+      );
+      const asked = lab.lists.filter(
+        (query) => query.get('name') === SYNC_TASK,
+      );
+      expect(asked).toHaveLength(1);
+      expect(asked[0].get('reserved_resources')).toBe(repository.pulp_href);
+      expect(asked[0].get('page_size') ?? asked[0].get('limit')).toBe('1');
+    });
+
+    it('says Never synced for a repository no sync task names', async () => {
+      const repository = tools({ remote: REMOTE });
+      serveLab({ repositories: [repository] });
+      serveSyncLab({ repository });
+
+      renderDetail('/file/repositories/tools/');
+
+      const row = (await lastSync()) as HTMLElement;
+      await waitFor(() =>
+        expect(within(row).getByText('Never synced')).toBeVisible(),
+      );
+      expect(screen.getByRole('button', { name: 'Sync' })).toBeVisible();
+    });
+
+    it('shows the result of the sync that ends while the page is open', async () => {
+      const repository = tools({ remote: REMOTE });
+      serveLab({ repositories: [repository] });
+      const lab = serveSyncLab({ repository, tasks: [{ state: 'running' }] });
+
+      renderDetail('/file/repositories/tools/');
+      const row = (await lastSync()) as HTMLElement;
+      await waitFor(() =>
+        expect(within(row).getByText('Running')).toBeVisible(),
+      );
+
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(2000);
+
+      await waitFor(() =>
+        expect(within(row).getByText('Completed')).toBeVisible(),
+      );
+    });
+
+    it('says why sync is unavailable and offers no Sync anywhere on the page, for a repository with no remote', async () => {
+      const repository = tools({ remote: null });
+      serveLab({ repositories: [repository] });
+      serveSyncLab({ repository });
+
+      renderDetail('/file/repositories/tools/');
+
+      const row = (await lastSync()) as HTMLElement;
+      expect(
+        within(row).getByText(
+          'Sync is unavailable because this repository has no remote.',
+        ),
+      ).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Sync' })).toBeNull();
+      expect(screen.queryByRole('menuitem', { name: 'Sync' })).toBeNull();
+    });
+
+    it('says the last sync could not be read and reads again on Retry', async () => {
+      const repository = tools({ remote: REMOTE });
+      serveLab({ repositories: [repository] });
+      const lab = serveSyncLab({
+        repository,
+        tasks: [{ state: 'completed' }],
+      });
+      let fail = true;
+      server.use(
+        http.get(`*${API}/tasks/`, ({ request }) => {
+          const query = new URL(request.url).searchParams;
+          if (fail && query.get('name') === SYNC_TASK) {
+            return HttpResponse.json({ detail: 'broken' }, { status: 500 });
+          }
+          return undefined;
+        }),
+      );
+      const { user } = renderDetail('/file/repositories/tools/');
+
+      const row = (await lastSync()) as HTMLElement;
+      expect(
+        await within(row).findByText('The last sync could not be read.'),
+      ).toBeVisible();
+      fail = false;
+      await user.click(within(row).getByRole('button', { name: 'Retry' }));
+
+      await waitFor(() =>
+        expect(within(row).getByText('Completed')).toBeVisible(),
+      );
+      expect(lab.lists.length).toBeGreaterThan(0);
+    });
+
+    it('has no Last sync row for a plugin that declares no sync', async () => {
+      const repository = tools({ remote: REMOTE });
+      serveLab({ repositories: [repository] });
+      const { sync: _sync, ...repositoryKind } = fileDescriptor.repository;
+      const withoutSync: PluginDescriptor = {
+        ...fileDescriptor,
+        repository: repositoryKind,
+      };
+      server.use(http.get(`*${API}/tasks/`, () => HttpResponse.json(page([]))));
+
+      renderWithProviders(
+        <AppContextProvider>
+          <PermissionsKnown>
+            <DetailRoutes descriptor={withoutSync} />
+          </PermissionsKnown>
+        </AppContextProvider>,
+        { route: '/file/repositories/tools/' },
+      );
+
+      await detailRows();
+      expect(screen.queryByText('Last sync')).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Sync' })).toBeNull();
     });
   },
 );
