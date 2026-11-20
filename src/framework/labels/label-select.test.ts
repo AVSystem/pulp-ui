@@ -123,7 +123,7 @@ describe('Unit: the label rules', { tags: ['unit'] }, () => {
       'app.kubernetes.io-name',
       'my key',
       'a_b',
-      'Zażółć',
+      'Za\u017c\u00f3\u0142\u0107',
     ]) {
       expect(labelKeyProblem(key)).toBeNull();
       expect(LABEL_KEY_PATTERN.test(key)).toBe(true);
