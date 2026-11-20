@@ -4,18 +4,24 @@ import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
+import fileDescriptor from 'src/descriptors/file/descriptor';
+import type { RepositoryBase } from 'src/entities/plugin/model';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   type IDistribution,
   type IRepository,
   distributionListHandler,
+  listOf,
   pluginDistribution,
   pluginListHandler,
   pluginPublication,
   pluginRepository,
+  projectedBy,
   publicationListHandler,
   repositoryVersion,
+  role,
+  roleAssignment,
   taskListHandler,
   taskRow,
   versionSummaryHandler,
@@ -31,6 +37,8 @@ import {
   paramsOfAddress,
   searchOf,
 } from './list-params';
+import { RepositoryList } from './repository-list';
+import { type RowAction } from './row-actions';
 
 const API = '/pulp/api/v3';
 
@@ -185,6 +193,12 @@ function serveLab({
   return lab;
 }
 
+function Where() {
+  const { pathname, search } = useLocation();
+
+  return <p data-testid='location'>{`${pathname}${search}`}</p>;
+}
+
 function Routed() {
   const { pathname, search } = useLocation();
 
@@ -196,14 +210,25 @@ function Routed() {
   );
 }
 
-let permissions: { stop: () => void };
+// What the permission helpers of a test recorded, to be stopped afterwards. A
+// test that needs another account serves it with `serveAccount`; the last one
+// served answers.
+const permissionServers: { stop: () => void }[] = [];
+
+function serveAccount(setup: Parameters<typeof servePermissions>[0]) {
+  const served = servePermissions({ id: 7, ...setup });
+  permissionServers.push(served);
+  return served;
+}
 
 beforeEach(() => {
-  permissions = servePermissions({ id: 7, isStaff: true });
+  serveAccount({ isStaff: true });
 });
 
 afterEach(() => {
-  permissions.stop();
+  for (const served of permissionServers.splice(0)) {
+    served.stop();
+  }
   resetSessionEvents();
 });
 
@@ -716,3 +741,310 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
     expect(await screen.findByText(/No way\./)).toBeVisible();
   });
 });
+
+// The actions a user may take on the list, decided by the permissions the
+// screen is told about and nothing else: an action the user cannot be
+// confirmed to hold is absent, never disabled and never refused.
+describe(
+  'Integration: the actions of the repository list',
+  { tags: ['integration'] },
+  () => {
+    const ADD = 'file.add_filerepository';
+    const CHANGE = 'file.change_filerepository';
+    const SYNC = 'file.sync_filerepository';
+    const OWNER = 'file.filerepository_owner';
+
+    // The signed-in user holds these permissions on every repository.
+    const holding = (...permissions: string[]) =>
+      serveAccount({ isStaff: false, own: [permissions] });
+
+    // The roles the user holds on single repositories and what each role allows,
+    // as the server lists them. `held` may answer later than the rows.
+    function serveRolesOnObjects(
+      grants: IRepository[],
+      { held = Promise.resolve(), catalogueStatus = 200 } = {},
+    ) {
+      const assignments = grants.map((repository) =>
+        roleAssignment(OWNER, repository.pulp_href),
+      );
+      const own = listOf(`${API}/users/7/roles/`, assignments, {
+        pageSize: 1000,
+        matching: (row, query) =>
+          query.get('content_object') !== 'null' || row.content_object === null,
+        projected: projectedBy,
+      });
+      server.use(
+        own.handler,
+        http.get(`*${API}/roles/`, async () => {
+          await held;
+          return catalogueStatus === 200
+            ? HttpResponse.json(
+                page([role({ name: OWNER, permissions: [CHANGE] })]),
+              )
+            : HttpResponse.json({ detail: 'broken' }, { status: 500 });
+        }),
+      );
+      return { own };
+    }
+
+    const kebabOf = (row: HTMLElement) =>
+      within(row).queryByRole('button', { name: /actions|kebab/i });
+
+    it('shows Add repository only to a user who holds the add permission, and leads to the create address', async () => {
+      holding(ADD);
+      serveLab({ repositories: named(2) });
+
+      const { user } = renderList();
+      await tableOf();
+
+      await user.click(screen.getByRole('button', { name: 'Add repository' }));
+      expect(screen.getByTestId('location').textContent).toBe(
+        '/file/repository/new/',
+      );
+    });
+
+    it('shows no Add repository to a user who does not hold the add permission', async () => {
+      holding(CHANGE);
+      serveLab({ repositories: named(2) });
+
+      renderList();
+      await tableOf();
+
+      expect(
+        screen.queryByRole('button', { name: 'Add repository' }),
+      ).toBeNull();
+    });
+
+    it('offers Edit on every row to a user who holds the change permission, without reading the roles on single objects', async () => {
+      holding(CHANGE);
+      const repositories = named(3) as IRepository[];
+      serveLab({ repositories });
+      const requests = recordRequests();
+
+      const { user } = renderList();
+      await tableOf();
+      const row = rowOf((repositories[0] as IRepository).name);
+      await user.click(kebabOf(row) as HTMLElement);
+      await user.click(await screen.findByRole('menuitem', { name: 'Edit' }));
+
+      expect(screen.getByTestId('location').textContent).toBe(
+        `/file/repositories/${(repositories[0] as IRepository).name}/edit/`,
+      );
+      for (const repository of repositories.slice(1)) {
+        expect(kebabOf(rowOf(repository.name))).not.toBeNull();
+      }
+      requests.stop();
+      // no read of the catalogue of roles or of fields of single assignments
+      expect(
+        requests.all.filter((path) => /\/roles\/\?.*fields=/.test(path)),
+      ).toEqual([]);
+    });
+
+    it('offers Edit on the rows the user holds the change permission on, found in the roles on single objects', async () => {
+      holding();
+      const repositories = named(3) as IRepository[];
+      serveLab({ repositories });
+      serveRolesOnObjects([repositories[1] as IRepository]);
+
+      renderList();
+      await tableOf();
+
+      await waitFor(() =>
+        expect(
+          kebabOf(rowOf((repositories[1] as IRepository).name)),
+        ).not.toBeNull(),
+      );
+      expect(kebabOf(rowOf((repositories[0] as IRepository).name))).toBeNull();
+      expect(kebabOf(rowOf((repositories[2] as IRepository).name))).toBeNull();
+    });
+
+    it('shows no action and no spinner while the roles on single objects are not known yet', async () => {
+      holding();
+      const repositories = named(2) as IRepository[];
+      serveLab({ repositories });
+      let release: () => void = () => undefined;
+      serveRolesOnObjects([repositories[0] as IRepository], {
+        held: new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+      });
+
+      renderList();
+      await tableOf();
+      await screen.findByText('No recent task');
+
+      expect(kebabOf(rowOf((repositories[0] as IRepository).name))).toBeNull();
+      expect(screen.queryByRole('progressbar')).toBeNull();
+      expect(screen.queryByText('Insufficient permissions')).toBeNull();
+
+      await act(async () => release());
+      await waitFor(() =>
+        expect(
+          kebabOf(rowOf((repositories[0] as IRepository).name)),
+        ).not.toBeNull(),
+      );
+    });
+
+    it('offers a Retry, and no refusal and no spinner, when the permissions could not be read, and offers the actions once they can', async () => {
+      const repositories = named(2) as IRepository[];
+      serveLab({ repositories });
+      server.use(
+        http.get(`*${API}/users/7/`, () =>
+          HttpResponse.json({ detail: 'broken' }, { status: 500 }),
+        ),
+      );
+
+      const { user } = renderWithProviders(
+        <AppContextProvider>
+          <Routed />
+        </AppContextProvider>,
+        { route: '/file/repositories' },
+      );
+      await tableOf();
+
+      expect(
+        await screen.findByText('Your permissions could not be read'),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: 'Add repository' }),
+      ).toBeNull();
+      expect(screen.queryByRole('progressbar')).toBeNull();
+      expect(screen.queryByText('Insufficient permissions')).toBeNull();
+      expect(screen.queryByText(/do not have permission/)).toBeNull();
+
+      // the server answers again
+      serveAccount({ isStaff: true });
+      await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+      expect(
+        await screen.findByRole('button', { name: 'Add repository' }),
+      ).toBeVisible();
+      expect(
+        screen.queryByText('Your permissions could not be read'),
+      ).toBeNull();
+    });
+
+    it('offers a Retry, and shows no action on a guess, when the roles on single objects could not be read', async () => {
+      holding();
+      const repositories = named(2) as IRepository[];
+      serveLab({ repositories });
+      serveRolesOnObjects([repositories[0] as IRepository], {
+        catalogueStatus: 500,
+      });
+
+      renderList();
+      await tableOf();
+
+      expect(
+        await screen.findByText('Your permissions could not be read'),
+      ).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+      expect(kebabOf(rowOf((repositories[0] as IRepository).name))).toBeNull();
+      expect(screen.queryByText('Insufficient permissions')).toBeNull();
+    });
+
+    it('takes the actions of later screens with the permission names of their own', async () => {
+      holding(SYNC);
+      const repositories = named(2) as IRepository[];
+      serveLab({ repositories });
+      const sync: RowAction<RepositoryBase> = {
+        id: 'sync',
+        permission: 'sync',
+        item: (row) => <span>{`Sync ${row.name}`}</span>,
+      };
+      const never: RowAction<RepositoryBase> = {
+        id: 'never',
+        permission: 'sync',
+        appliesTo: () => false,
+        item: () => <span>Never</span>,
+      };
+
+      const { user } = renderWithProviders(
+        <AppContextProvider>
+          <PermissionsKnown>
+            <RepositoryList
+              plugin='file'
+              descriptor={fileDescriptor}
+              actions={[sync, never]}
+            />
+          </PermissionsKnown>
+        </AppContextProvider>,
+      );
+      await tableOf();
+
+      const row = rowOf((repositories[0] as IRepository).name);
+      await user.click(kebabOf(row) as HTMLElement);
+      expect(
+        await screen.findByText(
+          `Sync ${(repositories[0] as IRepository).name}`,
+        ),
+      ).toBeVisible();
+      // Edit is not offered here: the change permission is not held
+      expect(screen.queryByRole('menuitem', { name: 'Edit' })).toBeNull();
+      expect(screen.queryByText('Never')).toBeNull();
+    });
+
+    it('shows no repositories yet with the add button for a user who may add one', async () => {
+      holding(ADD);
+      serveLab({ repositories: [] });
+
+      renderList();
+
+      expect(await screen.findByText('No repositories yet')).toBeVisible();
+      expect(
+        screen.getByRole('button', { name: 'Add repository' }),
+      ).toBeVisible();
+    });
+
+    it('shows no repositories yet without an add button for a user who may not add one', async () => {
+      holding(CHANGE);
+      serveLab({ repositories: [] });
+
+      renderList();
+
+      expect(await screen.findByText('No repositories yet')).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: 'Add repository' }),
+      ).toBeNull();
+    });
+
+    it('shows the filtered empty state with Clear all filters when a filter matches nothing', async () => {
+      serveLab({ repositories: named(3) });
+      const filtered = {
+        ...fileDescriptor,
+        repository: {
+          ...fileDescriptor.repository,
+          filters: [
+            {
+              id: 'name',
+              label: { id: 'Repository name' },
+              param: 'name__icontains',
+              kind: 'text' as const,
+            },
+          ],
+        },
+      };
+
+      const { user } = renderWithProviders(
+        <AppContextProvider>
+          <PermissionsKnown>
+            <Routed />
+            <RepositoryList plugin='file' descriptor={filtered} />
+          </PermissionsKnown>
+        </AppContextProvider>,
+        { route: '/file/repositories?name__icontains=nothing-like-it' },
+      );
+
+      expect(await screen.findByText('No results found')).toBeVisible();
+      expect(screen.queryByText('No repositories yet')).toBeNull();
+      await user.click(
+        screen.getByRole('button', { name: 'Clear all filters' }),
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId('location').textContent).toBe(
+          '/file/repositories',
+        ),
+      );
+    });
+  },
+);
