@@ -201,7 +201,9 @@ test.describe('groups', () => {
       again.getByRole('option', { name: memberName }),
       'the member in the add dialog',
     ).toHaveCount(0);
-    await again.getByRole('button', { name: 'Cancel' }).click();
+    // the open list of options covers Cancel, so the dialog is left by its
+    // close control
+    await again.getByRole('button', { name: 'Close', exact: true }).click();
     await expect(page.getByRole('dialog')).toBeHidden();
 
     // add the role through the wizard
@@ -219,7 +221,7 @@ test.describe('groups', () => {
     );
     await expect(pick).toBeVisible();
     await pick.getByRole('checkbox').check();
-    await wizard.getByRole('button', { name: 'Next' }).click();
+    await wizard.getByRole('button', { name: 'Next', exact: true }).click();
     await wizard.getByRole('button', { name: 'Add', exact: true }).click();
     await expect(
       page.getByText(
@@ -255,7 +257,14 @@ test.describe('groups', () => {
     );
     expect(left.results, 'roles left on the group').toHaveLength(0);
 
-    // delete the group from its page
+    // delete the group from its page; the alerts of the steps before stay
+    // until closed and cover the header actions
+    const alertClose = page
+      .locator('[data-cy=AlertList]')
+      .getByRole('button', { name: /^Close/ });
+    while ((await alertClose.count()) > 0) {
+      await alertClose.first().click();
+    }
     await page.getByRole('button', { name: 'Delete', exact: true }).click();
     const deleteDialog = page.getByRole('dialog');
     await expect(deleteDialog).toContainText('Delete group?');
