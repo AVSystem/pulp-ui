@@ -10,10 +10,19 @@ import {
   type VersionListParams,
   labelResponseSchema,
   pageSchemaOf,
-  taskResponseSchema,
   versionPageSchema,
   versionSchema,
 } from './model';
+import {
+  EMPTY_PAGE,
+  type Options,
+  type UpdateResult,
+  asParams,
+  matchesNothing,
+  parseUpdate,
+  taskOf,
+  toRequestParams,
+} from './request';
 
 // One factory builds the repository entity of every plugin from the plugin's
 // own generated functions, so the plugins differ in the functions and the
@@ -23,8 +32,6 @@ import {
 // Every function takes the options of `fetch` last, so an abort signal
 // cancels the request, and every answer goes through a schema: an answer that
 // does not have the shape the screens read is a ResponseShapeError.
-
-type Options = RequestInit | undefined;
 
 // What a plugin's generated client offers for its repositories. The sync and
 // modify requests exist only for plugins that have them.
@@ -76,11 +83,6 @@ export interface RepositoryApi<
   modify?: (href: string, body: TModify, options?: Options) => Promise<unknown>;
 }
 
-// What an update answers with: the address of the task the server started, or
-// the repository when it finished the change at once.
-export type UpdateResult<Row> =
-  { kind: 'task'; task: string } | { kind: 'done'; repository: Row };
-
 export interface RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> {
   // The plugin (file, deb, rpm, python, ...) and the object, which key every
   // cached read: ['pulp', app, object, ...].
@@ -126,63 +128,6 @@ export interface RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> {
   modify?: (href: string, body: TModify, options?: Options) => Promise<string>;
 }
 
-const TEXT_FILTERS = [
-  'name',
-  'name__contains',
-  'name__icontains',
-  'pulp_label_select',
-  'remote',
-] as const;
-
-const LIST_FILTERS = ['name__in', 'pulp_href__in', 'fields'] as const;
-
-// The filters whose empty set means that nothing matches. A server reads an
-// empty set as no filter and would answer every repository.
-const MATCHING_FILTERS = ['name__in', 'pulp_href__in'] as const;
-
-// The parameters of the generated client are typed per plugin, down to the
-// enumeration of the columns it sorts by; the entity builds them from the
-// terms of a screen and the server rejects what it does not know.
-function asParams<T>(request: Record<string, unknown>): T {
-  return request as unknown as T;
-}
-
-// Turns the page, size, sort and filters of a screen into what the server
-// takes: an offset, a limit, an ordering and the filter keys. A filter that is
-// not set is not sent.
-function toRequestParams(
-  params: RepositoryListParams,
-): Record<string, unknown> {
-  const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
-  const page = positiveInt(params.page, 1);
-  const request: Record<string, unknown> = {
-    offset: (page - 1) * limit,
-    limit,
-  };
-
-  if (params.sort) {
-    request.ordering = [params.sort];
-  }
-  for (const key of TEXT_FILTERS) {
-    if (params[key]) {
-      request[key] = params[key];
-    }
-  }
-  for (const key of LIST_FILTERS) {
-    const values = params[key];
-    if (values && values.length > 0) {
-      request[key] = values;
-    }
-  }
-
-  return request;
-}
-
-// Whether the parameters ask for rows out of an empty set of values.
-function matchesNothing(params: RepositoryListParams): boolean {
-  return MATCHING_FILTERS.some((key) => params[key]?.length === 0);
-}
-
 function toVersionParams(params: VersionListParams): Record<string, unknown> {
   const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
   const page = positiveInt(params.page, 1);
@@ -200,6 +145,8 @@ function toVersionParams(params: VersionListParams): Record<string, unknown> {
 
   return request;
 }
+
+export type { UpdateResult };
 
 export function makeRepositoryEntity<
   Row extends RepositoryBase,
@@ -232,7 +179,7 @@ export function makeRepositoryEntity<
     options?: Options,
   ): Promise<Page<Row>> {
     if (matchesNothing(params)) {
-      return { count: 0, next: null, previous: null, results: [] };
+      return EMPTY_PAGE;
     }
     const data = await api.list(
       asParams<TListParams>(toRequestParams(params)),
@@ -257,25 +204,6 @@ export function makeRepositoryEntity<
     return found && found.name === name ? found : null;
   }
 
-  async function update(
-    href: string,
-    body: TUpdate,
-    options?: Options,
-  ): Promise<UpdateResult<Row>> {
-    const data = await api.partialUpdate(href, body, options);
-    if (typeof data === 'object' && data !== null && 'task' in data) {
-      return {
-        kind: 'task',
-        task: parseResponse(taskResponseSchema, data).task,
-      };
-    }
-    return { kind: 'done', repository: parseResponse(schema, data) };
-  }
-
-  async function taskOf(request: Promise<unknown>): Promise<string> {
-    return parseResponse(taskResponseSchema, await request).task;
-  }
-
   const entity: RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> = {
     app,
     object: 'repository',
@@ -287,8 +215,9 @@ export function makeRepositoryEntity<
       parseResponse(schema, await api.read(href, undefined, options)),
     create: async (body, options) =>
       parseResponse(schema, await api.create(body, options)),
-    update,
-    remove: (href, options) => taskOf(api.remove(href, options)),
+    update: async (href, body, options) =>
+      parseUpdate(schema, await api.partialUpdate(href, body, options)),
+    remove: async (href, options) => taskOf(await api.remove(href, options)),
     setLabel: async (href, label, options) =>
       parseResponse(
         labelResponseSchema,
@@ -317,11 +246,12 @@ export function makeRepositoryEntity<
 
   const { sync, modify } = api;
   if (sync) {
-    entity.sync = (href, body, options) => taskOf(sync(href, body, options));
+    entity.sync = async (href, body, options) =>
+      taskOf(await sync(href, body, options));
   }
   if (modify) {
-    entity.modify = (href, body, options) =>
-      taskOf(modify(href, body, options));
+    entity.modify = async (href, body, options) =>
+      taskOf(await modify(href, body, options));
   }
 
   return entity;

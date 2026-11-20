@@ -23,6 +23,22 @@ const repositorySchema = z.looseObject({
   pulp_created: z.string().nullish(),
 });
 
+// What the remote screens read of any plugin's remote, and nothing else; the
+// same rules as the repository schema hold (unnamed fields are kept, the
+// address and name are required, addresses are same-origin paths). The URL a
+// remote syncs from and its policy are what every plugin's remote has; the
+// credentials are never part of an answer.
+const remoteSchema = z.looseObject({
+  pulp_href: pulpHrefSchema,
+  name: z.string(),
+  prn: z.string().nullish(),
+  url: z.string().nullish(),
+  policy: z.string().nullish(),
+  pulp_labels: z.record(z.string(), z.string().nullable()).nullish(),
+  pulp_created: z.string().nullish(),
+  pulp_last_updated: z.string().nullish(),
+});
+
 // One version of a repository. The number identifies it inside its
 // repository; the summary counts the content added, removed and present, per
 // content type.
@@ -69,6 +85,7 @@ function pageSchemaOf<Row extends ZodType>(row: Row) {
 const versionPageSchema = pageSchemaOf(versionSchema);
 
 type RepositoryBase = z.infer<typeof repositorySchema>;
+type RemoteBase = z.infer<typeof remoteSchema>;
 type RepositoryVersion = z.infer<typeof versionSchema>;
 type RepositoryVersionPage = z.infer<typeof versionPageSchema>;
 
@@ -120,6 +137,7 @@ export {
   DEFAULT_PAGE_SIZE,
   labelResponseSchema,
   pageSchemaOf,
+  remoteSchema,
   repositorySchema,
   taskResponseSchema,
   versionPageSchema,
@@ -128,6 +146,7 @@ export {
 export type {
   EntityListParams,
   Page,
+  RemoteBase,
   RepositoryBase,
   RepositoryListParams,
   RepositoryVersion,

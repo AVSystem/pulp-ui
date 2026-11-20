@@ -291,7 +291,7 @@ describe('Unit: the file repository entity', { tags: ['unit'] }, () => {
 
       expect(result).toMatchObject({
         kind: 'done',
-        repository: { name: row.name },
+        object: { name: row.name },
       });
     });
 
