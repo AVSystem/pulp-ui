@@ -137,6 +137,10 @@ msgstr "{currentLanguage} (ブラウザーの既定)"
 msgid "{currentLanguage} (current)"
 msgstr "{currentLanguage} (現在)"
 
+#: src/components/progress-reports.tsx
+msgid "{done} done"
+msgstr ""
+
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
 #~ msgstr ""
@@ -144,6 +148,10 @@ msgstr "{currentLanguage} (現在)"
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} Downloads"
 #~ msgstr ""
+
+#: src/components/progress-reports.tsx
+msgid "{figure} of {total}"
+msgstr ""
 
 #: src/components/legacy-role-list/legacy-role-item.tsx
 #~ msgid "{github_user} logo"
@@ -167,6 +175,7 @@ msgid "{name} will be cancelled."
 msgstr "{name} はキャンセルされます。"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/sync/progress-panel.tsx
 msgid "{name} will stop running."
 msgstr "{name} は実行を停止します。"
 
@@ -374,10 +383,12 @@ msgid "A PEM encoded private key used for authentication."
 msgstr "認証に使用する PEM でエンコードされた秘密鍵。"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already queued."
 msgstr "このリポジトリーの同期はすでにキューに入れられています。"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already running."
 msgstr "このリポジトリーの同期はすでに実行中です。"
 
@@ -715,13 +726,17 @@ msgstr "すでに現行バージョン"
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "ASCII アーマー形式の公開鍵。設定すると、同期のたびに上流の Release ファイルの署名が検証されるため、プレーン HTTP 経由の同期でも安全になります。"
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already queued for this repository: {0}"
 msgstr "このリポジトリーには別のタスクがすでにキューに入れられています: {0}"
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already running for this repository: {0}"
 msgstr "このリポジトリーでは別のタスクがすでに実行中です: {0}"
 
@@ -1071,6 +1086,15 @@ msgstr "CA 証明書"
 msgid "Cancel"
 msgstr "取り消し"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel sync"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel task"
+msgstr ""
+
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 msgid "Canceled"
@@ -1079,6 +1103,10 @@ msgstr "取り消し済み"
 #: src/shell/notifications.tsx
 msgid "Canceled {when}"
 msgstr "取り消し: {when}"
+
+#: src/components/progress-reports.tsx
+msgid "Canceling"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1305,6 +1333,7 @@ msgstr "閉じる"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "閉じる"
 
@@ -1325,8 +1354,8 @@ msgid "Cmd K"
 msgstr "Cmd K"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Code"
-msgstr "コード"
+#~ msgid "Code"
+#~ msgstr "コード"
 
 #: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
@@ -1579,6 +1608,7 @@ msgstr "この設定を有効にすると、コミュニティーコンテンツ
 #~ msgid "Company name"
 #~ msgstr "会社名"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -1724,6 +1754,7 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "ディストリビューションのないリポジトリーのコンテンツは、クライアントに表示されないため、同期、ダウンロード、または検索できません。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "リモートリポジトリーに存在しないコンテンツは、ローカルリポジトリーから削除されます"
 
@@ -1794,6 +1825,7 @@ msgstr "コピー可能な入力"
 #~ msgstr "まだ判断できません"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "同期がすでに実行中かどうかを確認できませんでした。開始することはできますが、実行中の同期が完了するまで待機します。"
 
@@ -2526,7 +2558,6 @@ msgstr "ドキュメント"
 msgid "Domain enabled"
 msgstr "ドメイン有効"
 
-#: src/containers/task-management/task-detail.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "完了"
@@ -3060,6 +3091,7 @@ msgstr "バージョン全体を失敗にする"
 msgid "Fail the whole version if any package is rejected"
 msgstr "パッケージが 1 つでも拒否された場合はバージョン全体を失敗にする"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -3308,6 +3340,7 @@ msgstr "リポジトリー \"{repositoryName}\" をバージョン \"{number}\" 
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Failed to sync repository \"{name}\""
 msgstr "リポジトリー \"{name}\" の同期に失敗しました"
 
@@ -3714,6 +3747,7 @@ msgstr "各パッケージについて保持するバージョンの数。古い
 #~ msgstr "この操作は元に戻せないことを理解しています。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "選択すると、リモートリポジトリーに存在しないコンテンツがすべてローカルリポジトリーから削除されます。選択しない場合、同期は不足しているコンテンツを追加します。"
 
@@ -3992,6 +4026,10 @@ msgstr "JSON"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Keep running"
+msgstr ""
 
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
@@ -4307,10 +4345,11 @@ msgstr "システムに合わせる"
 #~ msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Message"
-msgstr "メッセージ"
+#~ msgid "Message"
+#~ msgstr "メッセージ"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "ミラー"
 
@@ -4323,6 +4362,7 @@ msgid "Mirror content only"
 msgstr "コンテンツのみミラー"
 
 #: src/actions/file-repository-sync.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "ミラーリングは自動パブリッシュと併用できないため、この同期では不足しているコンテンツの追加のみ行われます。"
 
@@ -4711,6 +4751,10 @@ msgstr "パーミッションなし"
 msgid "No permissions"
 msgstr "パーミッションなし"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "No progress reported yet."
+msgstr ""
+
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
 #~ msgstr "README なし"
@@ -5021,10 +5065,12 @@ msgid "Online workers"
 msgstr "オンラインのワーカー"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "リモートサーバーから変更が報告された場合にのみ同期を実行します。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "リモートサーバーから変更が報告された場合にのみ同期を実行します。同期を強制的に実行するには、このオプションの選択を解除してください。"
 
@@ -5065,6 +5111,7 @@ msgstr "操作"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "最適化"
 
@@ -5247,6 +5294,7 @@ msgstr "パスプレフィックス"
 #~ msgid "Pathname <0>{pathname}</0> could refer to a collection or a role."
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 msgid "Pending"
 msgstr "保留中"
@@ -6454,6 +6502,7 @@ msgstr "再試行回数"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
+#: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "再試行"
@@ -6689,6 +6738,7 @@ msgstr "Ruby gem の同期"
 #~ msgid "Ruby Gems sync"
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 msgid "Running"
@@ -7204,6 +7254,7 @@ msgstr "スキップする"
 msgid "Skip to content"
 msgstr "コンテンツへスキップ"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
 msgstr "スキップ済み"
@@ -7271,8 +7322,8 @@ msgid "Started at"
 msgstr "開始日時"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "State"
-msgstr "状態"
+#~ msgid "State"
+#~ msgstr "状態"
 
 #: src/components/purge-task-modal.tsx
 msgid "States:"
@@ -7430,8 +7481,23 @@ msgstr "概要"
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync"
 msgstr "同期"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync canceled"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync completed"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync failed"
+msgstr ""
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -7462,6 +7528,10 @@ msgstr "インストーラーファイルの同期"
 msgid "Sync installer packages"
 msgstr "インストーラーパッケージの同期"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync is being canceled"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
 msgstr "パッケージの来歴の同期"
@@ -7470,7 +7540,12 @@ msgstr "パッケージの来歴の同期"
 msgid "Sync policy"
 msgstr "同期ポリシー"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync queued"
+msgstr ""
+
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync repository \"{name}\""
 msgstr "リポジトリー \"{name}\" の同期"
 
@@ -7478,6 +7553,10 @@ msgstr "リポジトリー \"{name}\" の同期"
 #: src/containers/ansible-role/role-sync.tsx
 #~ msgid "Sync role"
 #~ msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync running"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -7603,6 +7682,10 @@ msgstr "タスク \"{taskName}\" が正常に停止しました。"
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
 msgstr "タスクを表示できませんでした。"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Task could not be stopped."
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7866,6 +7949,10 @@ msgstr "同期時に認証に使用するパスワード。トークンを使用
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "プラグイン一覧を読み込めませんでした"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "The progress of this task cannot be shown."
+msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -8197,6 +8284,14 @@ msgstr "この画面は、この UI ではまだ利用できません。"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag is already selected for this image. You cannot add it twice."
 #~ msgstr "このタグはすでにこのイメージに対して選択されています。タグは 2 回追加できません。"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task has already finished."
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task no longer exists."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
@@ -8904,6 +8999,8 @@ msgstr "すべてのタスクを表示して取り消します。"
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "View the task"
 msgstr "タスクを表示"
 
@@ -8940,6 +9037,10 @@ msgstr "待機中"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Waiting for {pendingTasks} task(s) to finish."
 #~ msgstr "{pendingTasks} タスクが完了するのを待機中。"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Waiting for a worker to take the task."
+msgstr ""
 
 #: src/components/import-console.tsx
 #~ msgid "waiting for approval"
@@ -9072,6 +9173,10 @@ msgstr "Galaxy から同期するには YAML 要件が必要です。<0>{name} �
 #: src/containers/ansible-repository/tab-details.tsx
 msgid "Yes"
 msgstr "はい"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Yes, cancel"
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx

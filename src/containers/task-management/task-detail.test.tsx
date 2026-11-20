@@ -69,8 +69,9 @@ describe('task detail', () => {
     await screen.findByText('Reserve resources');
 
     const lists = Array.from(container.querySelectorAll('dl'));
-    // task, groups, one per reserved resource (2), one per progress message (2)
-    expect(lists.length).toBeGreaterThanOrEqual(6);
+    // task, groups, one per reserved resource (2); the progress messages are
+    // not description lists
+    expect(lists.length).toBeGreaterThanOrEqual(4);
     for (const list of lists) {
       const children = Array.from(list.children).map((child) =>
         child.tagName.toLowerCase(),

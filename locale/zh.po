@@ -137,6 +137,10 @@ msgstr "{currentLanguage}（浏览器默认）"
 msgid "{currentLanguage} (current)"
 msgstr "{currentLanguage}（当前）"
 
+#: src/components/progress-reports.tsx
+msgid "{done} done"
+msgstr ""
+
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
 #~ msgstr ""
@@ -144,6 +148,10 @@ msgstr "{currentLanguage}（当前）"
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} Downloads"
 #~ msgstr ""
+
+#: src/components/progress-reports.tsx
+msgid "{figure} of {total}"
+msgstr ""
 
 #: src/components/legacy-role-list/legacy-role-item.tsx
 #~ msgid "{github_user} logo"
@@ -167,6 +175,7 @@ msgid "{name} will be cancelled."
 msgstr "{name} 将被取消。"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/sync/progress-panel.tsx
 msgid "{name} will stop running."
 msgstr "{name} 将停止运行。"
 
@@ -374,10 +383,12 @@ msgid "A PEM encoded private key used for authentication."
 msgstr "用于验证的 PEM 编码私钥。"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already queued."
 msgstr "此仓库的同步已在排队。"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already running."
 msgstr "此仓库的同步已在运行。"
 
@@ -715,13 +726,17 @@ msgstr "已经是当前版本"
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "ASCII 封装的公钥。设置后，每次同步都会验证上游 Release 文件的签名，这使通过纯 HTTP 同步变得安全。"
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already queued for this repository: {0}"
 msgstr "此仓库已有另一个任务在排队：{0}"
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already running for this repository: {0}"
 msgstr "此仓库已有另一个任务在运行：{0}"
 
@@ -1071,6 +1086,15 @@ msgstr "CA 证书"
 msgid "Cancel"
 msgstr "取消"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel sync"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel task"
+msgstr ""
+
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 msgid "Canceled"
@@ -1079,6 +1103,10 @@ msgstr "已取消"
 #: src/shell/notifications.tsx
 msgid "Canceled {when}"
 msgstr "已取消：{when}"
+
+#: src/components/progress-reports.tsx
+msgid "Canceling"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1305,6 +1333,7 @@ msgstr "关闭"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "关闭"
 
@@ -1325,8 +1354,8 @@ msgid "Cmd K"
 msgstr "Cmd K"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Code"
-msgstr "代码"
+#~ msgid "Code"
+#~ msgstr "代码"
 
 #: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
@@ -1579,6 +1608,7 @@ msgstr "如果启用此设置，则永远不会同步社区内容"
 #~ msgid "Company name"
 #~ msgstr "公司名称"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -1724,6 +1754,7 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "在软件仓库中没有发行版的内容对客户端无法进行同步、下载或搜索。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "远程仓库中不存在的内容将从本地仓库中删除"
 
@@ -1794,6 +1825,7 @@ msgstr "可复制输入"
 #~ msgstr "还无法决定"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "无法检查是否已有同步在运行。您仍可以启动一个；它将等待正在运行的同步完成。"
 
@@ -2526,7 +2558,6 @@ msgstr "文档"
 msgid "Domain enabled"
 msgstr "已启用域"
 
-#: src/containers/task-management/task-detail.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "完成"
@@ -3060,6 +3091,7 @@ msgstr "使整个版本失败"
 msgid "Fail the whole version if any package is rejected"
 msgstr "如果有任何软件包被拒绝，则使整个版本失败"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -3308,6 +3340,7 @@ msgstr "将软件仓库 \"{repositoryName}\" 恢复到版本 \"{number}\" 失败
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Failed to sync repository \"{name}\""
 msgstr "同步软件仓库 \"{name}\" 失败"
 
@@ -3714,6 +3747,7 @@ msgstr "每个软件包保留的版本数量；较旧的版本在同步时会被
 #~ msgstr "我理解这个行动是无法撤销的。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "如果选中，远程仓库中不存在的所有内容都将从本地仓库中删除；否则，同步将添加缺失的内容。"
 
@@ -3992,6 +4026,10 @@ msgstr "JSON"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Keep running"
+msgstr ""
 
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
@@ -4307,10 +4345,11 @@ msgstr "跟随系统"
 #~ msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Message"
-msgstr "信息"
+#~ msgid "Message"
+#~ msgstr "信息"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "镜像"
 
@@ -4323,6 +4362,7 @@ msgid "Mirror content only"
 msgstr "仅镜像内容"
 
 #: src/actions/file-repository-sync.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "镜像不能与自动发布结合使用，因此此同步只会添加缺失的内容。"
 
@@ -4711,6 +4751,10 @@ msgstr "没有权限"
 msgid "No permissions"
 msgstr "没有权限"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "No progress reported yet."
+msgstr ""
+
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
 #~ msgstr "没有 README"
@@ -5021,10 +5065,12 @@ msgid "Online workers"
 msgstr "在线 worker"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "仅在远程服务器报告有更改时才执行同步。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "仅在远程服务器报告有更改时才执行同步。要强制执行同步，请取消选择此选项。"
 
@@ -5065,6 +5111,7 @@ msgstr "运维"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "优化"
 
@@ -5247,6 +5294,7 @@ msgstr "路径前缀"
 #~ msgid "Pathname <0>{pathname}</0> could refer to a collection or a role."
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 msgid "Pending"
 msgstr "待处理"
@@ -6454,6 +6502,7 @@ msgstr "重试次数"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
+#: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "重试"
@@ -6689,6 +6738,7 @@ msgstr "Ruby gems 同步"
 #~ msgid "Ruby Gems sync"
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 msgid "Running"
@@ -7204,6 +7254,7 @@ msgstr "跳过它们"
 msgid "Skip to content"
 msgstr "跳到内容"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
 msgstr "已跳过"
@@ -7271,8 +7322,8 @@ msgid "Started at"
 msgstr "开始于"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "State"
-msgstr "状态"
+#~ msgid "State"
+#~ msgstr "状态"
 
 #: src/components/purge-task-modal.tsx
 msgid "States:"
@@ -7430,8 +7481,23 @@ msgstr "摘要"
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync"
 msgstr "同步"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync canceled"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync completed"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync failed"
+msgstr ""
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -7462,6 +7528,10 @@ msgstr "同步安装程序文件"
 msgid "Sync installer packages"
 msgstr "同步安装程序软件包"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync is being canceled"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
 msgstr "同步软件包来源证明"
@@ -7470,7 +7540,12 @@ msgstr "同步软件包来源证明"
 msgid "Sync policy"
 msgstr "同步策略"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync queued"
+msgstr ""
+
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync repository \"{name}\""
 msgstr "同步仓库 \"{name}\""
 
@@ -7478,6 +7553,10 @@ msgstr "同步仓库 \"{name}\""
 #: src/containers/ansible-role/role-sync.tsx
 #~ msgid "Sync role"
 #~ msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync running"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -7603,6 +7682,10 @@ msgstr "任务 \"{taskName}\" 成功停止。"
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
 msgstr "任务无法显示。"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Task could not be stopped."
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7866,6 +7949,10 @@ msgstr "同步时要用于身份验证的密码。在使用令牌时不需要此
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "无法加载插件列表"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "The progress of this task cannot be shown."
+msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -8197,6 +8284,14 @@ msgstr "此界面在当前 UI 中尚不可用。"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag is already selected for this image. You cannot add it twice."
 #~ msgstr "已为此镜像选择此标签。您不能添加两次。"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task has already finished."
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task no longer exists."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
@@ -8904,6 +8999,8 @@ msgstr "查看并取消任何任务。"
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "View the task"
 msgstr "查看任务"
 
@@ -8940,6 +9037,10 @@ msgstr "等待"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Waiting for {pendingTasks} task(s) to finish."
 #~ msgstr "正在等待 {pendingTasks} 个任务结束。"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Waiting for a worker to take the task."
+msgstr ""
 
 #: src/components/import-console.tsx
 #~ msgid "waiting for approval"
@@ -9072,6 +9173,10 @@ msgstr "从 Galaxy 同步需要 YAML requirements。您可以<0>编辑远程 {na
 #: src/containers/ansible-repository/tab-details.tsx
 msgid "Yes"
 msgstr "是"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Yes, cancel"
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx

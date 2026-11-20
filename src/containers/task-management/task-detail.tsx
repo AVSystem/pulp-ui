@@ -11,7 +11,6 @@ import {
   Title,
 } from '@patternfly/react-core';
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
-import { capitalize } from 'lodash';
 import {
   type ComponentProps,
   Fragment,
@@ -35,6 +34,7 @@ import {
   LoadingSpinner,
   Main,
   NotFound,
+  ProgressReports,
   StatusIndicator,
   closeAlert,
 } from 'src/components';
@@ -467,32 +467,11 @@ const TaskDetailScreen = ({ urlId }: { urlId: string }) => {
                   </Title>
                   <br />
                   {progressReports.length ? (
-                    [...progressReports].reverse().map((report, index) => (
-                      <Fragment key={index}>
-                        <hr />
-                        <DescriptionList isHorizontal>
-                          {Object.keys(report).map((key, index) => {
-                            return (
-                              !!report[key] && (
-                                <DescriptionListGroup key={key + index}>
-                                  <DescriptionListTerm>
-                                    {{
-                                      message: t`Message`,
-                                      code: t`Code`,
-                                      state: t`State`,
-                                      done: t`Done`,
-                                    }[key] || capitalize(key)}
-                                  </DescriptionListTerm>
-                                  <DescriptionListDescription>
-                                    {String(report[key])}
-                                  </DescriptionListDescription>
-                                </DescriptionListGroup>
-                              )
-                            );
-                          })}
-                        </DescriptionList>
-                      </Fragment>
-                    ))
+                    <ProgressReports
+                      reports={progressReports}
+                      newestFirst
+                      divided
+                    />
                   ) : (
                     <EmptyStateCustom
                       icon={CubesIcon}

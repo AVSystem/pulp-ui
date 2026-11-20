@@ -75,6 +75,36 @@ const descriptor: PluginDescriptor<FileRepository> = {
     // files, which is what the server does when it is told nothing.
     createDefaults: { autopublish: false, sha256sums: 'disabled' },
     tabs: [versionsTab<FileRepository>(), distributionsTab<FileRepository>()],
+    sync: {
+      taskName: 'pulp_file.app.tasks.synchronizing.synchronize',
+      options: [
+        {
+          name: 'mirror',
+          label: msg`Mirror`,
+          kind: 'boolean',
+          boxLabel: msg`Content not present in remote repository will be removed from the local repository`,
+          help: msg`If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content.`,
+          // A repository that publishes by itself is refused a mirror sync, so
+          // it starts off and cannot be turned on.
+          initial: (repository) => !repository.autopublish,
+          fixed: (repository) =>
+            repository.autopublish
+              ? {
+                  value: false,
+                  reason: t`Mirroring cannot be combined with autopublish, so this sync only adds missing content.`,
+                }
+              : null,
+        },
+        {
+          name: 'optimize',
+          label: msg`Optimize`,
+          kind: 'boolean',
+          boxLabel: msg`Only perform the sync if changes are reported by the remote server.`,
+          help: msg`Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option.`,
+          initial: () => true,
+        },
+      ],
+    },
     // The manifest sits next to the content, at the distribution's URL. The
     // command is pasted into a terminal, so the name and the URL are quoted as
     // shell words: a repository name is free text.

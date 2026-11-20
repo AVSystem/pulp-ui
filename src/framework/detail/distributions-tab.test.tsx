@@ -446,8 +446,14 @@ describe(
 
       const own = seen.filter(
         (path) =>
-          !/^\/pulp\/api\/v3\/(login|status|users|groups|roles)\//.test(path),
+          !/^\/pulp\/api\/v3\/(login|status|users|groups|roles|tasks)\//.test(
+            path,
+          ),
       );
+      // the one lookup of the task the repository holds, for the progress panel
+      expect(
+        seen.filter((path) => path.startsWith(`${API}/tasks/`)).length,
+      ).toBeLessThanOrEqual(1);
       // the repository, the distribution index and the repository's publications
       expect(lab.distributions.queries).toHaveLength(1);
       expect(lab.publications.queries.length).toBeLessThanOrEqual(1);

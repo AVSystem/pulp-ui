@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { taskKeys } from 'src/entities/core/task/queries';
 import { useSessionQuery } from 'src/query/use-session-query';
 import type { Page, RepositoryVersion, VersionListParams } from './model';
 import type { RemoteLookup, RemoteName } from './remote';
@@ -381,5 +382,41 @@ export function useModifyRepository<Body>(
     },
     retry: false,
     onSettled: invalidate,
+  });
+}
+
+export interface SyncRepositoryRequest<Body> {
+  // The address of the repository to sync.
+  href: string;
+  // What the sync is asked for: the remote and the options of the plugin.
+  body: Body;
+}
+
+// Starts a sync, which the server runs in a task of its own. The answer is the
+// address of that task. The call is never repeated by itself: a repeated sync
+// would queue a second one. Once it has settled, whatever it answered, the task
+// the repository now holds and the tasks every list shows are read again, so a
+// sync that has just started shows without waiting for the next scheduled read.
+export function useSyncRepository<Body>(
+  entity: EntityName & {
+    sync?: (href: string, body: Body, options?: Options) => Promise<string>;
+  },
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ href, body }: SyncRepositoryRequest<Body>) => {
+      if (!entity.sync) {
+        throw new Error('The plugin has no way to sync a repository');
+      }
+      return entity.sync(href, body);
+    },
+    retry: false,
+    onSettled: (_task, _error, { href }) => {
+      void queryClient.invalidateQueries({ queryKey: taskKeys.index });
+      void queryClient.invalidateQueries({
+        queryKey: taskKeys.activeOf(href),
+      });
+    },
   });
 }
