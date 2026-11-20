@@ -42,11 +42,23 @@ export function asParams<T>(request: Record<string, unknown>): T {
   return request as unknown as T;
 }
 
+// What every list of an entity is asked for apart from its own text filters.
+interface PagedParams {
+  page?: number;
+  page_size?: number;
+  sort?: string;
+  name__in?: string[];
+  pulp_href__in?: string[];
+  fields?: string[];
+}
+
 // Turns the page, size, sort and filters of a screen into what the server
 // takes: an offset, a limit, an ordering and the filter keys. A filter that is
-// not set is not sent.
-export function toRequestParams(
-  params: RepositoryListParams,
+// not set is not sent. `textFilters` names the single-value filters the list
+// has besides the ones every list has.
+export function toListRequest(
+  params: PagedParams,
+  textFilters: readonly string[],
 ): Record<string, unknown> {
   const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
   const page = positiveInt(params.page, 1);
@@ -54,13 +66,14 @@ export function toRequestParams(
     offset: (page - 1) * limit,
     limit,
   };
+  const given = params as Record<string, unknown>;
 
   if (params.sort) {
     request.ordering = [params.sort];
   }
-  for (const key of TEXT_FILTERS) {
-    if (params[key]) {
-      request[key] = params[key];
+  for (const key of textFilters) {
+    if (given[key]) {
+      request[key] = given[key];
     }
   }
   for (const key of LIST_FILTERS) {
@@ -73,8 +86,15 @@ export function toRequestParams(
   return request;
 }
 
+// The list request of a repository or a remote.
+export function toRequestParams(
+  params: RepositoryListParams,
+): Record<string, unknown> {
+  return toListRequest(params, TEXT_FILTERS);
+}
+
 // Whether the parameters ask for rows out of an empty set of values.
-export function matchesNothing(params: RepositoryListParams): boolean {
+export function matchesNothing(params: PagedParams): boolean {
   return MATCHING_FILTERS.some((key) => params[key]?.length === 0);
 }
 

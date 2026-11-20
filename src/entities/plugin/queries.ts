@@ -17,7 +17,8 @@ interface EntityName {
 
 // The cache keys of one plugin's object: ['pulp', <plugin>, <object>, ...].
 // `list` is one page of a list, `by-name` the lookup of a URL name and
-// `detail` one object by its address.
+// `detail` one object by its address and `index` the read of every object of
+// the plugin that screens share.
 export function entityKeys(entity: EntityName) {
   const all = ['pulp', entity.app, entity.object] as const;
 
@@ -26,6 +27,7 @@ export function entityKeys(entity: EntityName) {
     list: (params: object) => [...all, 'list', params] as const,
     byName: (name: string) => [...all, 'by-name', name] as const,
     detail: (href: string) => [...all, 'detail', href] as const,
+    index: [...all, 'index'] as const,
   };
 }
 

@@ -42,12 +42,16 @@ export function listOf<T>(
     pageSize = DEFAULT_PAGE_SIZE,
     matching,
     ordered,
+    projected,
   }: {
     pageSize?: number;
     matching?: (row: T, query: URLSearchParams) => boolean;
     // Puts the selected rows in the order the query asks for, before they are
     // cut into a page, the way a server ordering does.
     ordered?: (rows: T[], query: URLSearchParams) => T[];
+    // Cuts each row of the page to what the query asks for, the way the
+    // `fields` parameter of the server does.
+    projected?: (row: T, query: URLSearchParams) => unknown;
   } = {},
 ) {
   const queries: URLSearchParams[] = [];
@@ -71,10 +75,14 @@ export function listOf<T>(
       return target.toString();
     };
 
-    const body = page(rows.slice(offset, offset + limit), {
-      count: rows.length,
-      ...(offset + limit < rows.length ? { next: link(offset + limit) } : {}),
-    });
+    const slice = rows.slice(offset, offset + limit);
+    const body: IPage<unknown> = page(
+      projected ? slice.map((row) => projected(row, url.searchParams)) : slice,
+      {
+        count: rows.length,
+        ...(offset + limit < rows.length ? { next: link(offset + limit) } : {}),
+      },
+    );
     body.previous = offset > 0 ? link(Math.max(0, offset - limit)) : null;
 
     return HttpResponse.json(body);
@@ -249,21 +257,29 @@ const PLUGINS = {
     segment: 'file/file',
     repository: 'file.filerepository',
     remote: 'file.fileremote',
+    distribution: 'file/file',
+    publication: 'file/file',
   },
   deb: {
     segment: 'deb/apt',
     repository: 'deb.aptrepository',
     remote: 'deb.aptremote',
+    distribution: 'deb/apt',
+    publication: 'deb/apt',
   },
   rpm: {
     segment: 'rpm/rpm',
     repository: 'rpm.rpmrepository',
     remote: 'rpm.rpmremote',
+    distribution: 'rpm/rpm',
+    publication: 'rpm/rpm',
   },
   python: {
     segment: 'python/python',
     repository: 'python.pythonrepository',
     remote: 'python.pythonremote',
+    distribution: 'python/pypi',
+    publication: 'python/pypi',
   },
 } as const;
 
@@ -309,6 +325,133 @@ export function pluginRemote(
     pulp_labels: {},
     ...overrides,
   });
+}
+
+// A distribution of the given plugin as the server returns it: distribution()
+// with the address and the labels of that plugin.
+export function pluginDistribution(
+  plugin: TestPlugin,
+  overrides: Partial<IDistribution> = {},
+): IDistribution {
+  return distribution({
+    pulp_href: href(`distributions/${PLUGINS[plugin].distribution}`),
+    pulp_labels: {},
+    ...overrides,
+  });
+}
+
+// A publication of the given plugin as the server returns it.
+export function pluginPublication(
+  plugin: TestPlugin,
+  overrides: Partial<IPublication> = {},
+): IPublication {
+  return publication({
+    pulp_href: href(`publications/${PLUGINS[plugin].publication}`),
+    ...overrides,
+  });
+}
+
+// Cuts a row to the fields a query names with `fields`, repeated or comma
+// separated, the way the server does; without the parameter the row is whole.
+function projectedBy<T extends object>(row: T, query: URLSearchParams): object {
+  const names = query
+    .getAll('fields')
+    .flatMap((value) => value.split(','))
+    .filter(Boolean);
+  if (names.length === 0) {
+    return row;
+  }
+  return Object.fromEntries(
+    Object.entries(row).filter(([key]) => names.includes(key)),
+  );
+}
+
+// The set of values an `__in` filter carries, or null when the query has no
+// such filter.
+function inSetOf(query: URLSearchParams, key: string): string[] | null {
+  return query.has(key)
+    ? (query.get(key) ?? '').split(',').filter(Boolean)
+    : null;
+}
+
+// The distributions of a plugin as the server lists them: the filters
+// `repository` and `pulp_href__in`, the `fields` cut, and the paging of
+// listOf (a page holds at most pageSize rows, 1,000 as on the server).
+export function distributionListHandler<T extends { pulp_href: string }>(
+  plugin: TestPlugin,
+  rows: T[],
+  { pageSize = 1000 }: { pageSize?: number } = {},
+) {
+  const path = `/pulp/api/v3/distributions/${PLUGINS[plugin].distribution}/`;
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      const repository = query.get('repository');
+      return (
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (repository === null ||
+          (row as { repository?: unknown }).repository === repository)
+      );
+    },
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
+}
+
+// The publications of a plugin as the server lists them: `pulp_href__in` (an
+// empty set matches nothing) and the `fields` cut.
+export function publicationListHandler<T extends { pulp_href: string }>(
+  plugin: TestPlugin,
+  rows: T[],
+  { pageSize = 1000 }: { pageSize?: number } = {},
+) {
+  const path = `/pulp/api/v3/publications/${PLUGINS[plugin].publication}/`;
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      return hrefs === null || hrefs.includes(row.pulp_href);
+    },
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
+}
+
+// The repository versions list as one of two servers answers it. A patched
+// server selects exactly the versions named by `pulp_href__in` and cuts rows
+// to `fields`. An unpatched server cannot read a version address as a filter
+// value and answers 400 to any request that carries one. The query of every
+// request is recorded, in order.
+export function versionSummaryHandler<T extends { pulp_href: string }>({
+  patched,
+  versions,
+}: {
+  patched: boolean;
+  versions: T[];
+}) {
+  const queries: URLSearchParams[] = [];
+  const path = '/pulp/api/v3/repository_versions/';
+
+  const handler = http.get(`*${path}`, ({ request }) => {
+    const query = new URL(request.url).searchParams;
+    queries.push(new URLSearchParams(query));
+    const hrefs = inSetOf(query, 'pulp_href__in');
+    if (!patched && hrefs !== null) {
+      return HttpResponse.json(
+        { pulp_href__in: ['Enter a valid UUID.'] },
+        { status: 400 },
+      );
+    }
+    const rows = versions.filter(
+      (row) => hrefs === null || hrefs.includes(row.pulp_href),
+    );
+    return HttpResponse.json(page(rows.map((row) => projectedBy(row, query))));
+  });
+
+  return { handler, queries, path };
 }
 
 // Compares two values of a column the way a database orders them: numbers by
