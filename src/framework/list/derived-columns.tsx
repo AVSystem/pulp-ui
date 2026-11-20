@@ -101,13 +101,18 @@ export const LastTaskCell = ({
   task: Task | null;
 }) => {
   if (task) {
-    const id = taskUrlId(task.pulp_href);
     const indicator = <StatusIndicator status={task.state as TaskState} />;
+    // A task whose address is not a task address has no page to link to.
+    const linked = taskUrlId(task.pulp_href) !== null;
 
     return (
       <>
-        {id ? (
-          <Link to={formatPath(Paths.core.task.detail, { task: id })}>
+        {linked ? (
+          <Link
+            to={formatPath(Paths.core.task.detail, {
+              task: taskUrlId(task.pulp_href),
+            })}
+          >
             {indicator}
           </Link>
         ) : (
