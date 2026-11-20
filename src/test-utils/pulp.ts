@@ -603,6 +603,24 @@ export function pluginListHandler<
   return { ...list, path };
 }
 
+// The versions of one repository as its `versions/` list answers them: the
+// `number` filter selects the version with that number and `ordering` sorts
+// the rows. The query of every request is recorded, in order.
+export function versionListHandler<
+  T extends { pulp_href: string; number: number },
+>(repository: { pulp_href: string }, versions: T[]) {
+  const path = `${repository.pulp_href}versions/`;
+  const list = listOf(path, versions, {
+    matching: (row, query) => {
+      const number = query.get('number');
+      return number === null || String(row.number) === number;
+    },
+    ordered: orderedBy,
+  });
+
+  return { ...list, path };
+}
+
 export interface ITask {
   pulp_href: string;
   state: string;
