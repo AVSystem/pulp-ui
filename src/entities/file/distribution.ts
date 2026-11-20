@@ -1,4 +1,5 @@
 import {
+  distributionsFileFileCreate,
   distributionsFileFileDelete,
   distributionsFileFileList,
   distributionsFileFilePartialUpdate,
@@ -19,6 +20,7 @@ export const fileDistribution = makeDistributionEntity({
     list: distributionsFileFileList,
     listUrl: getDistributionsFileFileListUrl,
     read: distributionsFileFileRead,
+    create: distributionsFileFileCreate,
     partialUpdate: distributionsFileFilePartialUpdate,
     remove: distributionsFileFileDelete,
   },

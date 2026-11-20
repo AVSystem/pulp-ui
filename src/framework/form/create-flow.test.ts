@@ -721,7 +721,7 @@ describe('Unit: failureReason', { tags: ['unit'] }, () => {
       failureReason({
         response: { status: 502, statusText: 'Bad Gateway', data: undefined },
       }),
-    ).toBe('502 Bad Gateway');
+    ).toBe('Error 502 - Bad Gateway');
     expect(failureReason(new Error('boom'))).toBe('boom');
     expect(failureReason('plain')).toBe('plain');
   });

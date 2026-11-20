@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { AlertType } from 'src/components';
 import type {
   DistributionBase,
+  DistributionCreate,
   DistributionEntity,
 } from 'src/entities/plugin/distribution';
 import type { RemoteBase, RepositoryBase } from 'src/entities/plugin/model';
@@ -13,6 +14,7 @@ import type {
 import type { RemoteEntity } from 'src/entities/plugin/remote';
 import type {
   RepositoryChanges,
+  RepositoryCreate,
   RepositoryEntity,
   RevertBody,
 } from 'src/entities/plugin/repository';
@@ -31,12 +33,12 @@ import type { RepositoryTab } from './route-patterns';
 // stay in the language of the first load.
 
 // The entities are typed by what a screen reads from them; the types of what a
-// create sends belong to the plugin's own wiring. An edit sends the changed
+// sync sends belong to the plugin's own wiring. A create and an edit send the
 // fields of the descriptor's form and a content change a revert to a version,
-// so both bodies are typed.
+// so those bodies are typed.
 type AnyRepositoryEntity<Row> = RepositoryEntity<
   Row,
-  never,
+  RepositoryCreate,
   RepositoryChanges,
   never,
   RevertBody
@@ -44,6 +46,7 @@ type AnyRepositoryEntity<Row> = RepositoryEntity<
 type AnyRemoteEntity<Row> = RemoteEntity<Row, never, never>;
 type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
   Row,
+  DistributionCreate,
   never
 >;
 

@@ -203,6 +203,10 @@ export interface RevertBody {
 // typed by plugin; the server checks every field.
 export type RepositoryChanges = Record<string, unknown>;
 
+// What a create sends: the name and the fields the descriptor's form filled. As
+// with an edit, the server checks every field.
+export type RepositoryCreate = { name: string } & RepositoryChanges;
+
 export type { UpdateResult };
 
 export function makeRepositoryEntity<
