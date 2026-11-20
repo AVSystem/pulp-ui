@@ -6,6 +6,7 @@ import {
   changedNames,
   hasProblems,
   labelProblem,
+  toCreateBody,
   toForm,
   toRequest,
 } from './form-values';
@@ -108,5 +109,39 @@ describe('Unit: the values of a descriptor form', { tags: ['unit'] }, () => {
     ]);
     expect(hasProblems(fields, { labels: rows })).toBe(true);
     expect(hasProblems(fields, { labels: [rows[0], rows[5]] })).toBe(false);
+  });
+});
+
+describe('Unit: the body of a create', { tags: ['unit'] }, () => {
+  it('sends every field, null for a text and a number left blank, false for an unticked box and an object for the labels', () => {
+    expect(toCreateBody(fields, toForm(fields, {}))).toStrictEqual({
+      description: null,
+      retain: null,
+      publish: false,
+      mode: null,
+      labels: {},
+      remote: null,
+    });
+  });
+
+  it('keeps what was typed as it was typed', () => {
+    const values = {
+      ...toForm(fields, {}),
+      description: ' two words ',
+      retain: '0',
+      publish: true,
+      mode: 'root',
+      labels: [{ key: 'env', value: '' }],
+      remote: '/pulp/api/v3/remotes/file/file/1/',
+    };
+
+    expect(toCreateBody(fields, values)).toStrictEqual({
+      description: ' two words ',
+      retain: 0,
+      publish: true,
+      mode: 'root',
+      labels: { env: null },
+      remote: '/pulp/api/v3/remotes/file/file/1/',
+    });
   });
 });
