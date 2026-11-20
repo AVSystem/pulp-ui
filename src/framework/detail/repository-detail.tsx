@@ -3,6 +3,7 @@ import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -67,8 +68,16 @@ const RepositoryDetailScreen = ({
   number,
 }: Props & { name?: string; number?: string }) => {
   const { entity, tabs: pluginTabs = [] } = descriptor.repository;
-  const [alerts, setAlerts] = useState<AlertType[]>([]);
+  // The alerts another screen queued for this one (the result of an edit) are
+  // taken over once, so they show here and nowhere else.
+  const { alerts: queued, setAlerts: setQueued } = useAppContext();
+  const [alerts, setAlerts] = useState<AlertType[]>(queued);
   const navigate = useNavigate();
+  useEffect(() => {
+    if (queued.length > 0) {
+      setQueued([]);
+    }
+  }, []);
 
   const shown = tab === null ? null : pluginTabs.find(({ id }) => id === tab);
   const version = number === undefined ? null : Number(number);

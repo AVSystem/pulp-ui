@@ -77,10 +77,30 @@ function repositoryDetailScreen(
   });
 }
 
+// The edit form of a repository, drawn by the generic screen from the plugin's
+// descriptor.
+function repositoryEditScreen(plugin: FrameworkPlugin): ComponentType {
+  const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
+    (typeof DESCRIPTORS)[FrameworkPlugin]
+  >;
+
+  return lazyScreen(async () => {
+    const [{ default: descriptor }, { RepositoryEdit }] = await Promise.all([
+      loadDescriptor(),
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/form/repository-edit'
+      ),
+    ]);
+
+    return {
+      default: () => <RepositoryEdit plugin={plugin} descriptor={descriptor} />,
+    };
+  });
+}
+
 // The component of a pattern, or null while its screen does not exist yet:
-// such a pattern is not routed. The edit and create addresses are reserved so
-// that no other route answers them, and lead to Not Found until their screens
-// exist.
+// such a pattern is not routed. The create address is reserved so that no
+// other route answers it, and leads to Not Found until its screen exists.
 function componentOf(
   plugin: FrameworkPlugin,
   { screen, tab }: FrameworkPattern,
@@ -93,6 +113,7 @@ function componentOf(
     case 'repository-tab':
       return repositoryDetailScreen(plugin, tab as RepositoryTab);
     case 'repository-edit':
+      return repositoryEditScreen(plugin);
     case 'repository-create':
       return NotFound;
     default:

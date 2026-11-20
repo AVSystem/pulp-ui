@@ -1,3 +1,4 @@
+import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import { Link } from 'react-router';
 import { DateComponent } from 'src/components';
@@ -6,12 +7,20 @@ import type { FileRepository } from 'src/entities/file/model';
 import { filePublication } from 'src/entities/file/publication';
 import { fileRemote } from 'src/entities/file/remote';
 import { fileRepository } from 'src/entities/file/repository';
-import type { PluginDescriptor } from 'src/framework/descriptor';
+import type { FieldDef, PluginDescriptor } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
 import { LabelChips } from 'src/framework/labels/label-chips';
 import { repositoryPath } from 'src/framework/route-patterns';
 import { shellQuote } from 'src/utilities/shell-quote';
+
+// What a publication of a file repository does about SHA256SUMS files, which
+// list the checksum of every published file. The values are the server's.
+const SHA256SUMS_OPTIONS: NonNullable<FieldDef['options']> = [
+  { value: 'disabled', label: msg`Disabled` },
+  { value: 'root', label: msg`One file at the root` },
+  { value: 'directory', label: msg`One file in every directory` },
+];
 
 // The file plugin's repositories and remotes as the framework reads them. The
 // descriptor and what it imports are one chunk that loads when a file screen is
@@ -30,6 +39,36 @@ const descriptor: PluginDescriptor<FileRepository> = {
         label: msg`Autopublish`,
         render: (repository) =>
           repository.autopublish ? t`Enabled` : t`Disabled`,
+      },
+      {
+        id: 'sha256sums',
+        label: msg`SHA256SUMS files`,
+        render: ({ sha256sums }) => {
+          const option = SHA256SUMS_OPTIONS.find(
+            ({ value }) => value === sha256sums,
+          );
+
+          if (option) {
+            return i18n._(option.label);
+          }
+          return sha256sums ?? t`Not available`;
+        },
+      },
+    ],
+    fields: [
+      {
+        name: 'autopublish',
+        label: msg`Autopublish`,
+        kind: 'boolean',
+        boxLabel: msg`Publish new versions automatically`,
+        help: msg`Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content.`,
+      },
+      {
+        name: 'sha256sums',
+        label: msg`SHA256SUMS files`,
+        kind: 'select',
+        options: SHA256SUMS_OPTIONS,
+        help: msg`Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download.`,
       },
     ],
     tabs: [versionsTab<FileRepository>(), distributionsTab<FileRepository>()],

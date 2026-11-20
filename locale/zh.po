@@ -350,6 +350,14 @@ msgstr "已存在名为 \"{0}\" 的分发。"
 msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
 msgstr ""
 
+#: src/framework/form/labels-field.tsx
+msgid "A label key can contain only letters, digits, underscores, spaces, dots and hyphens."
+msgstr ""
+
+#: src/framework/form/labels-field.tsx
+msgid "A label value cannot contain parentheses."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "A PEM encoded client certificate used for authentication."
 msgstr "用于身份验证的 PEM 编码客户端证书。"
@@ -498,6 +506,10 @@ msgstr "添加集合"
 #: src/constants.tsx
 #~ msgid "Add group"
 #~ msgstr "Add group"
+
+#: src/framework/form/labels-field.tsx
+msgid "Add label"
+msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Add label condition"
@@ -1041,6 +1053,7 @@ msgstr "CA 证书"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Cancel"
 msgstr "取消"
 
@@ -1507,6 +1520,10 @@ msgstr "集合同步"
 #~ msgid "Collections will appear once uploaded"
 #~ msgstr "上传后会出现集合"
 
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Colour"
+msgstr ""
+
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Command"
 #~ msgstr "命令"
@@ -1840,6 +1857,7 @@ msgstr "使用至少 {minLength} 个字符创建密码，包括特殊字符，�
 #~ msgstr "Create a password using at least 9 characters, including special characters , ex <!@$%>. Avoid using common names or expressions."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
 msgstr "为每个新仓库版本创建发布，使指向此仓库的分发始终提供最新内容。"
 
@@ -2337,6 +2355,8 @@ msgstr "不允许删除自己。"
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/form/form-values.test.ts
+#: src/framework/form/repository-fields.ts
 msgid "Description"
 msgstr "描述"
 
@@ -2587,6 +2607,10 @@ msgstr "把文件拖放在这里或浏览以上传"
 msgid "Dropdown"
 msgstr "下拉菜单"
 
+#: src/framework/form/labels-field.tsx
+msgid "Each label key can be used once."
+msgstr ""
+
 #: src/components/ratings.tsx
 #~ msgid "Ease of use"
 #~ msgstr ""
@@ -2618,6 +2642,7 @@ msgstr "下拉菜单"
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "编辑"
@@ -2707,6 +2732,10 @@ msgstr "启用"
 #: src/components/repository-form.tsx
 msgid "Enter a base path."
 msgstr "请输入基本路径。"
+
+#: src/framework/form/labels-field.tsx
+msgid "Enter a key for this label."
+msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Enter a label key."
@@ -3098,6 +3127,11 @@ msgstr "加载发布失败：{error}"
 #~ msgid "Failed to load pulp_id of collection repository."
 #~ msgstr "Failed to load pulp_id of collection repository."
 
+#. placeholder {0}: requestErrorText(found.error)
+#: src/framework/form/remote-field.tsx
+msgid "Failed to load remotes: {0}"
+msgstr ""
+
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
@@ -3253,6 +3287,10 @@ msgstr "同步软件仓库 \"{name}\" 失败"
 msgid "Fall back to defaults"
 msgstr "恢复为默认值"
 
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Fast"
+msgstr ""
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Featured"
 #~ msgstr ""
@@ -3355,6 +3393,10 @@ msgstr "名"
 #: src/containers/pulp-status.tsx
 msgid "Free"
 msgstr "空闲"
+
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Free text."
+msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
@@ -3741,6 +3783,7 @@ msgstr "导入集合"
 #~ msgstr "导入"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/repository-fields.ts
 msgid "In order to retain all versions, leave this field blank."
 msgstr "要保留所有版本，请将此字段留空。"
 
@@ -3857,6 +3900,7 @@ msgstr "将同步安装程序软件包"
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
 msgstr "权限不足"
 
@@ -3912,6 +3956,7 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
+#: src/framework/form/labels-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -3937,10 +3982,12 @@ msgstr "密钥指纹"
 msgid "Label expression"
 msgstr ""
 
+#: src/framework/form/labels-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
+#: src/framework/form/labels-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -3958,9 +4005,15 @@ msgstr ""
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/form/form-values.test.ts
+#: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "标签"
+
+#: src/framework/form/repository-fields.ts
+msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4232,6 +4285,11 @@ msgstr "仅镜像内容"
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "镜像不能与自动发布结合使用，因此此同步只会添加缺失的内容。"
 
+#: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/form-values.test.ts
+msgid "Mode"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
@@ -4296,6 +4354,8 @@ msgstr "我的配置集"
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/repository-fields.ts
 msgid "Name"
 msgstr "名称"
 
@@ -4754,6 +4814,7 @@ msgstr "还没有用户"
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4768,8 +4829,10 @@ msgstr "无"
 msgid "Not allowed"
 msgstr "不允许"
 
+#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr ""
@@ -4819,6 +4882,7 @@ msgstr ""
 msgid "Not served: no publication"
 msgstr "未提供：没有发布"
 
+#: src/framework/form/fields.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Not set"
 msgstr ""
@@ -4835,9 +4899,9 @@ msgstr "未同步"
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your organization's sync repository use the URL found on <0>Repository Management</0>."
 #~ msgstr "Note: this URL contains all collections in Hub. To connect to your organization's sync repository use the URL found on <0>Repository Management</0>."
 
-#: src/components/render-plugin-doc.tsx
-#~ msgid "Notes"
-#~ msgstr ""
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Notes"
+msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
@@ -4846,6 +4910,10 @@ msgstr "分发 {name} 没有任何更改。"
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
 msgstr "仓库 {name} 没有任何更改。"
+
+#: src/framework/form/repository-edit.tsx
+msgid "Nothing changed in repository {repositoryName}."
+msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
@@ -4878,6 +4946,14 @@ msgstr "按需"
 #: src/components/remote-form.tsx
 msgid "On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it."
 msgstr "按需会在客户端请求时获取内容。立即会在同步时下载所有内容。流式会直接传递内容而不存储。"
+
+#: src/descriptors/file/descriptor.tsx
+msgid "One file at the root"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "One file in every directory"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
@@ -5356,7 +5432,12 @@ msgstr "代理用户名"
 msgid "Public key"
 msgstr "公钥"
 
+#: src/framework/form/form-values.test.ts
+msgid "Publish"
+msgstr ""
+
 #: src/components/repository-form.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Publish new versions automatically"
 msgstr "自动发布新版本"
 
@@ -5793,6 +5874,8 @@ msgstr "重新加载"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/form/form-values.test.ts
+#: src/framework/form/repository-fields.ts
 msgid "Remote"
 msgstr "远程"
 
@@ -5935,6 +6018,10 @@ msgstr "删除组"
 msgid "Remove group {groupname}?"
 msgstr "删除组 {groupname}？"
 
+#: src/framework/form/labels-field.tsx
+msgid "Remove label"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
 msgstr ""
@@ -6052,6 +6139,7 @@ msgstr "修复任务"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
@@ -6112,6 +6200,10 @@ msgstr "已创建仓库 \"{name}\"。分发 \"{name}\" 未能创建：{distribut
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr "已创建仓库 \"{name}\"。由于无法读取任务状态，创建分发 \"{name}\" 的结果未知。请检查该任务。"
 
+#: src/framework/form/repository-edit.tsx
+msgid "Repository \"{repositoryName}\" could not be updated"
+msgstr ""
+
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "未找到仓库 {repoName}。"
@@ -6127,6 +6219,7 @@ msgstr "已创建仓库 \"{name}\"。由于无法读取任务状态，创建分�
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Repository could not be displayed."
 msgstr "仓库无法被显示。"
 
@@ -6241,7 +6334,12 @@ msgstr "重置为浏览器默认值"
 msgid "Results"
 msgstr "结果"
 
+#: src/framework/form/form-values.test.ts
+msgid "Retain"
+msgstr ""
+
 #: src/components/repository-form.tsx
+#: src/framework/form/repository-fields.ts
 msgid "Retained number of versions"
 msgstr "版本的保留数量"
 
@@ -6266,6 +6364,7 @@ msgstr "重试次数"
 #: src/components/list-error-state.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"
@@ -6517,6 +6616,7 @@ msgstr "运行中"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Save"
 msgstr "保存"
 
@@ -6629,6 +6729,7 @@ msgstr "选择一个组"
 
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
+#: src/framework/form/remote-field.tsx
 msgid "Select a remote"
 msgstr "选择一个远程"
 
@@ -6740,12 +6841,17 @@ msgstr "服务器错误。请稍后返回。"
 #~ msgstr "服务器版本"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/repository-fields.ts
 msgid "Setting a remote allows a repository to sync from elsewhere."
 msgstr "设置远程可让仓库从其他位置进行同步。"
 
 #: src/containers/settings/user-profile.tsx
 msgid "Settings"
 msgstr "设置"
+
+#: src/descriptors/file/descriptor.tsx
+msgid "SHA256SUMS files"
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -7713,6 +7819,10 @@ msgstr "仓库 \"{repositoryName}\" 的还原仍在运行。"
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "该角色是无版本化的，将始终从 head/main/master 分支安装。"
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "所选角色将添加到此特定的 Ansible 远程中。"
@@ -8009,6 +8119,7 @@ msgstr "TLS 验证"
 #~ msgstr "To revoke a token or see all of your tokens, visit the <0>offline API token management</0> page."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.test.tsx
 msgid "Token"
 msgstr "令牌"
 
@@ -8155,6 +8266,10 @@ msgstr "为远程 {0} 启动的更新"
 msgid "Update started for repository {name}"
 msgstr "已开始更新仓库 {name}"
 
+#: src/framework/form/repository-edit.tsx
+msgid "Update started for repository {repositoryName}"
+msgstr ""
+
 #: src/components/headers/collection-header.tsx
 #~ msgid "updated {0}"
 #~ msgstr "更新的 {0}"
@@ -8181,6 +8296,10 @@ msgstr "已更新分发 {name}"
 #: src/utilities/update-repository.ts
 msgid "Updated repository {name}"
 msgstr "已更新仓库 {name}"
+
+#: src/framework/form/repository-edit.tsx
+msgid "Updated repository {repositoryName}"
+msgstr ""
 
 #: src/components/import-modal.tsx
 #: src/components/upload-signature-modal.tsx
@@ -8536,6 +8655,10 @@ msgstr "用户创建后将会出现"
 #~ msgid "Validated"
 #~ msgstr "验证的"
 
+#: src/framework/form/labels-field.tsx
+msgid "Value"
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "VALUE"
 #~ msgstr ""
@@ -8742,6 +8865,10 @@ msgstr "开启时，被拒绝的软件包会使整个仓库版本失败，且不
 #: src/containers/python-repository/tab-details.tsx
 msgid "When packages are rejected"
 msgstr "软件包被拒绝时"
+
+#: src/descriptors/file/descriptor.tsx
+msgid "Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
@@ -8957,6 +9084,7 @@ msgstr "您的密码已更改。请使用新密码登录。"
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "无法读取您的权限"

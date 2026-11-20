@@ -12,6 +12,7 @@ import type {
 } from 'src/entities/plugin/publication';
 import type { RemoteEntity } from 'src/entities/plugin/remote';
 import type {
+  RepositoryChanges,
   RepositoryEntity,
   RevertBody,
 } from 'src/entities/plugin/repository';
@@ -30,13 +31,13 @@ import type { RepositoryTab } from './route-patterns';
 // stay in the language of the first load.
 
 // The entities are typed by what a screen reads from them; the types of what a
-// create or update sends belong to the plugin's own wiring. A content change is
-// the one request a generic screen sends (a revert to a version), so its body is
-// typed.
+// create sends belong to the plugin's own wiring. An edit sends the changed
+// fields of the descriptor's form and a content change a revert to a version,
+// so both bodies are typed.
 type AnyRepositoryEntity<Row> = RepositoryEntity<
   Row,
   never,
-  never,
+  RepositoryChanges,
   never,
   RevertBody
 >;
@@ -46,8 +47,29 @@ type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
   never
 >;
 
+// The kind of a field is the kind of value it holds: `integer` is a whole
+// number that may be left blank, `labels` the pairs of a key and an optional
+// value, and `remote` the address of a remote or none.
 export type FieldKind =
-  'text' | 'textarea' | 'integer' | 'boolean' | 'select' | 'url' | 'secret';
+  | 'text'
+  | 'textarea'
+  | 'integer'
+  | 'boolean'
+  | 'select'
+  | 'url'
+  | 'secret'
+  | 'labels'
+  | 'remote';
+
+// What a plugin's own input of a field is given. `value` and `onChange` use the
+// representation of the field's kind in a form (see form-values).
+export interface FieldWidgetProps {
+  id: string;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  isDisabled: boolean;
+  error?: string;
+}
 
 // One input of a create or edit form.
 export interface FieldDef {
@@ -57,8 +79,14 @@ export interface FieldDef {
   kind: FieldKind;
   required?: boolean;
   help?: MessageDescriptor;
+  // The text beside the box of a `boolean` field, which says what ticking it
+  // does; the label above names the setting.
+  boxLabel?: MessageDescriptor;
   // The choices of a select.
   options?: { value: string; label: MessageDescriptor }[];
+  // A plugin's own input for a value its kind does not suit. It replaces the
+  // input the kind would draw and holds the value in the kind's form.
+  widget?: (props: FieldWidgetProps) => ReactNode;
 }
 
 // One labelled row of a Details tab. The tab draws the rows every repository
