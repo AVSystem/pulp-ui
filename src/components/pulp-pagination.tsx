@@ -20,7 +20,12 @@ interface IProps {
 
   /** Applies styling to make pagination compact */
   isCompact?: boolean;
+
+  /** The page sizes offered; 10, 20, 50 and 100 when omitted */
+  perPageOptions?: readonly number[];
 }
+
+const DEFAULT_PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
 export const PulpPagination = ({
   count,
@@ -28,6 +33,7 @@ export const PulpPagination = ({
   updateParams,
   isTop,
   isCompact,
+  perPageOptions: sizes = DEFAULT_PER_PAGE_OPTIONS,
 }: IProps) => {
   const onSetPage = (_, p) =>
     updateParams(ParamHelper.setParam(params, 'page', p));
@@ -36,7 +42,7 @@ export const PulpPagination = ({
     updateParams({ ...params, page: 1, page_size: p });
   };
 
-  const perPageOptions = [10, 20, 50, 100].map((option) => ({
+  const perPageOptions = sizes.map((option) => ({
     title: String(option),
     value: option,
   }));

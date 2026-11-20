@@ -1,0 +1,89 @@
+// What a list screen shows is what its address says. The address is user input,
+// so it is read into values the screen offers and nothing else: a page size
+// that is not one of the choices, a sort field the server is not asked to sort
+// by and a filter the screen does not have never reach a request.
+
+// The page sizes a list offers.
+export const PAGE_SIZES: readonly number[] = [10, 20, 50, 100, 200, 500];
+
+export const DEFAULT_PAGE_SIZE = 50;
+
+export const DEFAULT_SORT = 'name';
+
+// The page, its size, the order and the filters that are set. A filter is a
+// single text value under the name of the query parameter it sets.
+export type ListParams = {
+  page: number;
+  page_size: number;
+  sort: string;
+} & Record<string, string | number>;
+
+export interface ListAddressOptions {
+  // The fields the server can order the list by.
+  sortable: readonly string[];
+  // The query parameters of the filters the screen has.
+  filters: readonly string[];
+}
+
+const DIGITS = /^[1-9][0-9]*$/;
+
+// The list the address asks for, as the screen shows it.
+export function paramsOfAddress(
+  address: string,
+  { sortable, filters }: ListAddressOptions,
+): ListParams {
+  const search = new URLSearchParams(address);
+
+  // A parameter that came in more than once is read as its first value, which
+  // is what `get` answers.
+  const page = search.get('page');
+  const size = search.get('page_size');
+  const sort = search.get('sort');
+
+  const pageSize = size !== null && DIGITS.test(size) ? Number(size) : NaN;
+  const field = sort?.startsWith('-') ? sort.slice(1) : sort;
+
+  const params: ListParams = {
+    page:
+      page !== null && DIGITS.test(page) && Number.isSafeInteger(Number(page))
+        ? Number(page)
+        : 1,
+    page_size: PAGE_SIZES.includes(pageSize) ? pageSize : DEFAULT_PAGE_SIZE,
+    sort:
+      sort !== null && field !== null && sortable.includes(field)
+        ? sort
+        : DEFAULT_SORT,
+  };
+
+  for (const key of filters) {
+    const value = search.get(key);
+    if (value) {
+      params[key] = value;
+    }
+  }
+
+  return params;
+}
+
+// The query string of a list, leaving out what is the default so the plain
+// address of a list stays plain. An empty string when nothing differs.
+export function searchOf(params: ListParams): string {
+  const parts: string[] = [];
+
+  if (params.page !== 1) {
+    parts.push(`page=${params.page}`);
+  }
+  if (params.page_size !== DEFAULT_PAGE_SIZE) {
+    parts.push(`page_size=${params.page_size}`);
+  }
+  if (params.sort !== DEFAULT_SORT) {
+    parts.push(`sort=${encodeURIComponent(params.sort)}`);
+  }
+  for (const [key, value] of Object.entries(params)) {
+    if (!['page', 'page_size', 'sort'].includes(key) && value !== '') {
+      parts.push(`${key}=${encodeURIComponent(String(value))}`);
+    }
+  }
+
+  return parts.length > 0 ? `?${parts.join('&')}` : '';
+}

@@ -4,12 +4,11 @@ import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
-import fileDescriptor from 'src/descriptors/file/descriptor';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
+  type IDistribution,
   type IRepository,
-  distribution,
   distributionListHandler,
   pluginDistribution,
   pluginListHandler,
@@ -151,7 +150,7 @@ describe('Unit: the list address', { tags: ['unit'] }, () => {
 // the server answers it.
 interface Lab {
   repositories: IRepository[];
-  distributions?: ReturnType<typeof distribution>[];
+  distributions?: IDistribution[];
   publications?: ReturnType<typeof pluginPublication>[];
   versions?: ReturnType<typeof repositoryVersion>[];
   tasks?: ReturnType<typeof taskRow>[];
@@ -235,7 +234,7 @@ const withSummary = (repository: IRepository, count: number) =>
     },
   });
 
-const tableOf = () => screen.findByRole('table', { name: 'Repositories' });
+const tableOf = () => screen.findByRole('grid', { name: 'Repositories' });
 
 const bodyRows = (table: HTMLElement) =>
   Array.from(table.querySelectorAll('tbody tr')) as HTMLElement[];
@@ -307,7 +306,9 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
     expect(bodyRows(table)).toHaveLength(50);
 
     const link = screen.getByRole('link', { name: 'docs' });
-    expect(link.getAttribute('href')).toBe('/file/repositories/docs');
+    expect(link.getAttribute('href')).toMatch(
+      /^\/file\/repositories\/docs\/?$/,
+    );
     const row = rowOf('docs');
     expect(within(row).getByText('team: docs')).toBeVisible();
     expect(within(row).getByText('tier')).toBeVisible();
@@ -411,7 +412,7 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
     const { user } = renderList();
     await tableOf();
 
-    await user.click(screen.getAllByRole('button', { name: /per page/i })[0]);
+    await user.click(screen.getAllByRole('button', { name: /^1 - \d+ of/ })[0]);
     const choices = (await screen.findAllByRole('menuitem')).map((item) =>
       item.textContent?.replace(/\D+/g, ''),
     );
@@ -516,8 +517,10 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
 
     const row = rowOf((repository as IRepository).name);
     const link = await within(row).findByRole('link', { name: /Completed/ });
-    expect(link.getAttribute('href')).toBe(
-      `/tasks/${finished.pulp_href.split('/').filter(Boolean).pop()}`,
+    expect(link.getAttribute('href')).toMatch(
+      new RegExp(
+        `^/tasks/${finished.pulp_href.split('/').filter(Boolean).pop()}/?$`,
+      ),
     );
   });
 
@@ -671,6 +674,7 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
   }, 90_000);
 
   it('shows the first-read error with Retry, never an empty list', async () => {
+    serveLab({ repositories: [] });
     let answer = 500;
     server.use(
       http.get(`*${API}/repositories/file/file/`, () =>
@@ -700,6 +704,7 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
   });
 
   it('shows the insufficient permissions page with the reason when the list read is refused', async () => {
+    serveLab({ repositories: [] });
     server.use(
       http.get(`*${API}/repositories/file/file/`, () =>
         HttpResponse.json({ detail: 'No way.' }, { status: 403 }),

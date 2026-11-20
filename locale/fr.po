@@ -213,6 +213,10 @@ msgstr "{title} étapes"
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 msgstr "{unread, plural, one {Notifications, # notification non lue} other {Notifications, # notifications non lues}}"
 
+#: src/framework/list/derived-columns.tsx
+msgid "+{more} more"
+msgstr ""
+
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
 #~ msgstr "<0/> a été ajouté"
@@ -925,6 +929,14 @@ msgstr "Chemin de base"
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 msgstr "Les chemins de base commençant par \"{reserved}\" sont réservés sur ce serveur. Choisissez un autre chemin de base."
 
+#: src/framework/list/repository-list.tsx
+msgid "Base URL"
+msgstr ""
+
+#: src/framework/list/repository-list.tsx
+msgid "Base URLs could not be read."
+msgstr ""
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
@@ -1614,6 +1626,7 @@ msgstr "Contactez l'administrateur de votre organisation pour plus d'information
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Content"
 msgstr "Contenu"
@@ -1633,6 +1646,10 @@ msgstr "Contenu ajouté"
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
 #~ msgstr "Content count"
+
+#: src/framework/list/repository-list.tsx
+msgid "Content counts could not be read."
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Content from roles and collections can be referenced in Ansible playbooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
@@ -1853,6 +1870,7 @@ msgstr "Créé"
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Created date"
 msgstr "Date de création"
 
@@ -3899,6 +3917,14 @@ msgstr "Nom"
 #~ msgid "Last synced"
 #~ msgstr "Dernière synchronisation"
 
+#: src/framework/list/repository-list.tsx
+msgid "Last task"
+msgstr ""
+
+#: src/framework/list/repository-list.tsx
+msgid "Last tasks could not be read."
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Last updated"
 msgstr "Dernière mise à jour"
@@ -3915,6 +3941,10 @@ msgstr "Dernière mise à jour du registre {0}"
 #: src/components/purge-task-modal.tsx
 msgid "Latest allowed date is today."
 msgstr "La date la plus tardive autorisée est aujourd'hui."
+
+#: src/framework/list/repository-list.tsx
+msgid "Latest version"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
@@ -4510,6 +4540,10 @@ msgstr "Aucune permission"
 #~ msgid "No reason specified."
 #~ msgstr ""
 
+#: src/framework/list/derived-columns.tsx
+msgid "No recent task"
+msgstr ""
+
 #: src/containers/ansible-repository/list.tsx
 msgid "no remote"
 msgstr "aucune source distante"
@@ -4535,6 +4569,7 @@ msgstr "Pas encore de sources distantes"
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "No repositories yet"
 msgstr "Pas encore de référentiel local"
 
@@ -4639,6 +4674,7 @@ msgstr "Aucun utilisateur existant"
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/list/derived-columns.tsx
 msgid "None"
 msgstr "Aucun(e)"
 
@@ -4649,6 +4685,10 @@ msgstr "Aucun(e)"
 #: src/containers/python-repository/tab-details.tsx
 msgid "Not allowed"
 msgstr "Non autorisé"
+
+#: src/framework/list/derived-columns.tsx
+msgid "Not available"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Not connected"
@@ -4666,6 +4706,10 @@ msgstr "Introuvable"
 #~ msgid "Not found image"
 #~ msgstr "Image non trouvée"
 
+#: src/framework/list/derived-columns.tsx
+msgid "Not loaded"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed"
 msgstr "Non supprimé"
@@ -4681,6 +4725,10 @@ msgstr "Non signalé"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "Non requis pour l'utilisation par d'autres collections"
+
+#: src/framework/list/derived-columns.tsx
+msgid "Not served"
+msgstr ""
 
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
@@ -5905,6 +5953,7 @@ msgstr "Tâche de réparation"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5919,6 +5968,7 @@ msgstr "Votre compte ne permet pas de rechercher dans les référentiels."
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "Les référentiels de la collection n’ont pas pu être affichés."
 
@@ -5927,6 +5977,7 @@ msgstr "Les référentiels de la collection n’ont pas pu être affichés."
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Repositories will appear once created."
 msgstr "Les espaces de noms apparaîtront une fois créés."
 
@@ -6101,6 +6152,7 @@ msgstr "Nouvelles tentatives"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "Réessayer"
