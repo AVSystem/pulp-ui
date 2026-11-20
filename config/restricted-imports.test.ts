@@ -182,7 +182,7 @@ describe('the sdk import rule', () => {
 
   it.each([
     'src/entities/core/status/client.ts',
-    'src/entities/core/login/client.test.ts',
+    'src/entities/core/status/client.test.ts',
     'src/entities/sdk-setup.ts',
   ])('lets %s import the sdk', async (path) => {
     expect(
@@ -260,7 +260,7 @@ describe('the generated validation module rule', () => {
     expect(
       await reports(
         "import { loginRead } from '@pulp-ui/sdk/core/login';\nexport const x = loginRead;",
-        'src/entities/core/login/client.ts',
+        'src/entities/core/status/client.ts',
       ),
     ).toEqual([]);
   });
@@ -289,7 +289,7 @@ describe('the effective configuration of a source file', () => {
 
   it('holds the sdk restriction outside src/entities and not inside', async () => {
     const entities = (await eslint.calculateConfigForFile(
-      resolve(ROOT, 'src/entities/core/login/client.ts'),
+      resolve(ROOT, 'src/entities/core/status/client.ts'),
     )) as Linter.Config;
     const outside = JSON.stringify(rules['no-restricted-imports']);
     const inside = JSON.stringify(entities.rules?.['no-restricted-imports']);

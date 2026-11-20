@@ -4644,6 +4644,10 @@ msgid "Not allowed"
 msgstr "許可されていません"
 
 #: src/containers/pulp-status.tsx
+msgid "Not connected"
+msgstr "未接続"
+
+#: src/containers/pulp-status.tsx
 msgid "Not enabled"
 msgstr "有効ではありません"
 
@@ -8248,8 +8252,8 @@ msgstr "エラーの詳細"
 #~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
-msgid "User groups"
-msgstr "ユーザーグループ"
+#~ msgid "User groups"
+#~ msgstr "ユーザーグループ"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "User Groups"

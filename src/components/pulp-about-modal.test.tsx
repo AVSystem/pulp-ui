@@ -75,6 +75,20 @@ describe('about dialog', () => {
   });
 });
 
+describe('about dialog account', () => {
+  it('shows the username of the account as plain text, with no group list', async () => {
+    signIn();
+    reportVersions();
+
+    renderModal();
+
+    await screen.findByRole('link', { name: generatedVersions.core });
+    expect(screen.getByText('zoe')).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'zoe' })).toBeNull();
+    expect(screen.queryByText('User groups')).toBeNull();
+  });
+});
+
 describe('about dialog version note', () => {
   const generatedFor = generatedVersions.rpm;
   const different = 'zz-other';

@@ -26,16 +26,23 @@ const PARSE_ORIGIN = 'http://api.invalid';
 const collapseDoubleSlash = (url: string) =>
   url.startsWith('//') ? url.slice(1) : url;
 
-// True when the path, once the parser removed dot segments, is still below the
-// API base on this origin, so "/base/../elsewhere/" cannot step out of it.
-function staysUnder(path: string, base: string) {
+// The path and query of the URL once the parser removed dot segments, or null
+// when it is not still below the API base on this origin, so
+// "/base/../elsewhere/" cannot step out of it.
+function normalisedUnder(path: string, base: string): string | null {
   const parsed = new URL(path, PARSE_ORIGIN);
-  return parsed.origin === PARSE_ORIGIN && parsed.pathname.startsWith(base);
+
+  return parsed.origin === PARSE_ORIGIN && parsed.pathname.startsWith(base)
+    ? parsed.pathname + parsed.search
+    : null;
 }
 
-// The URL to request for a generated or server-issued path: the path on this
-// origin below the configured API base. Anything that would leave the API
-// throws, so no request ever carries the session to another place.
+// The URL to request for a generated or server-issued path: the normalised
+// path on this origin below the configured API base. It is the path the
+// parser resolved, not the text that was given, so every later rule (the
+// sign-in test, the failure handling) judges the URL that is requested.
+// Anything that would leave the API throws, so no request ever carries the
+// session to another place.
 export function resolveApiUrl(url: string): string {
   const base: string = config.API_BASE_PATH;
   const path = collapseDoubleSlash(url);
@@ -44,11 +51,15 @@ export function resolveApiUrl(url: string): string {
       ? base + path.slice(SCHEMA_API_ROOT.length)
       : path;
 
-  if (!resolved.startsWith(base) || !staysUnder(resolved, base)) {
+  const normalised = resolved.startsWith(base)
+    ? normalisedUnder(resolved, base)
+    : null;
+
+  if (normalised === null) {
     throw new Error('The request was refused because it leaves the API.');
   }
 
-  return resolved;
+  return normalised;
 }
 
 // Whether the URL is one of the sign-in calls: relative to the base as the

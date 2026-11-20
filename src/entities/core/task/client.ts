@@ -1,5 +1,6 @@
 import type { TasksListParams } from '@pulp-ui/sdk/core/models/tasks/tasks-list-params.zod';
 import { tasksCancel, tasksList, tasksRead } from '@pulp-ui/sdk/core/tasks';
+import { positiveInt } from 'src/entities/page-params';
 import { parseResponse } from 'src/entities/response-shape';
 import {
   DEFAULT_PAGE_SIZE,
@@ -14,8 +15,8 @@ import {
 // Turns the page, size and sort of the screen into what the server takes:
 // an offset, a limit and an ordering. A filter that is not set is not sent.
 function toRequestParams(params: TaskListParams): TasksListParams {
-  const limit = Math.max(1, Math.trunc(params.page_size ?? DEFAULT_PAGE_SIZE));
-  const page = Math.max(1, Math.trunc(params.page ?? 1));
+  const limit = positiveInt(params.page_size, DEFAULT_PAGE_SIZE);
+  const page = positiveInt(params.page, 1);
   const request: TasksListParams = { offset: (page - 1) * limit, limit };
 
   if (params.sort) {

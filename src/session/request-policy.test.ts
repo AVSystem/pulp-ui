@@ -62,6 +62,27 @@ describe('resolveApiUrl', () => {
     );
   });
 
+  it('returns the path the parser resolved, so what is judged is what is requested', () => {
+    expect(resolveApiUrl('/pulp/api/v3/login/../users/5/')).toBe(
+      '/pulp/api/v3/users/5/',
+    );
+    expect(resolveApiUrl('/pulp/api/v3/./tasks/./1/')).toBe(
+      '/pulp/api/v3/tasks/1/',
+    );
+    expect(resolveApiUrl('/pulp/api/v3/login/%2e%2e/users/5/?a=1')).toBe(
+      '/pulp/api/v3/users/5/?a=1',
+    );
+  });
+
+  it('does not take a path that only looks like a sign-in call for one', () => {
+    expect(isLoginUrl(resolveApiUrl('/pulp/api/v3/login/../users/5/'))).toBe(
+      false,
+    );
+    expect(isLoginUrl(resolveApiUrl('/pulp/api/v3/users/../login/'))).toBe(
+      true,
+    );
+  });
+
   it.each([
     'https://evil.example/x',
     '//evil.example/pulp/api/v3/tasks/1/',
@@ -165,6 +186,19 @@ describe('prepareRequest', () => {
     expect(() =>
       prepareRequest('/pulp/api/v3/login/', 'POST', new Headers()),
     ).not.toThrow();
+  });
+
+  it('holds back a path that only looks like a sign-in call while the session has ended', () => {
+    setSignedIn(true);
+    reportUnauthorized('tab-return');
+
+    expect(() =>
+      prepareRequest(
+        resolveApiUrl('/pulp/api/v3/login/../users/5/'),
+        'GET',
+        new Headers(),
+      ),
+    ).toThrow(SessionSuspendedError);
   });
 
   it('returns one request context object per call', () => {

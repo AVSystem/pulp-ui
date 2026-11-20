@@ -20,7 +20,9 @@ const setContentType = (headers: Headers, type: ALLOWED_CONTENT_TYPES): void =>
 function defineHeaders(options: RequestInit): Headers {
   const headers = new Headers(options.headers);
 
-  if (!headers.has('Content-Type')) {
+  // A multipart body carries its boundary in the Content-Type that fetch adds
+  // itself; any label set here would make the body unparsable.
+  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     if (options.method === 'PATCH') {
       setContentType(headers, ALLOWED_CONTENT_TYPES.MERGE_PATCH);
     } else if (options.body !== undefined) {
@@ -58,7 +60,9 @@ function getBody(res: Response): unknown {
   }
 
   if (contentType.includes(ALLOWED_CONTENT_TYPES.JSON)) {
-    return res.json();
+    // A failure may carry an empty or truncated body under a JSON label (a
+    // gateway answer); that must not hide the status.
+    return res.ok ? res.json() : res.json().catch(() => undefined);
   }
   return res.text();
 }
