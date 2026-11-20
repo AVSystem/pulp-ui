@@ -45,7 +45,9 @@ type TaskPage = z.infer<typeof taskPageSchema>;
 // states. `finishedWithinMs` keeps the tasks that finished in the last that
 // many milliseconds; the lower bound is worked out when the request is sent,
 // so a read that is repeated over hours keeps asking for the same window and
-// the query key does not change with the clock.
+// the query key does not change with the clock. `reserved_resources` keeps the
+// tasks that reserve one object (its address), exclusively or shared; `name` is
+// the exact task name; `fields` cuts every row to the named fields.
 interface TaskListParams {
   page?: number;
   page_size?: number;
@@ -54,6 +56,9 @@ interface TaskListParams {
   state?: string;
   state__in?: string;
   finishedWithinMs?: number;
+  reserved_resources?: string;
+  name?: string;
+  fields?: string[];
 }
 
 // What a count of tasks is asked for: the tasks in one state, optionally only

@@ -239,10 +239,10 @@ describe('Integration: useTaskIndex', { tags: ['integration'] }, () => {
   });
 
   it('reads every page of the waiting and running tasks', async () => {
-    const busy = Array.from({ length: 5 }, (_, day) =>
-      taskOf(day + 1, 'running', [REPOSITORY]),
+    const busy = Array.from({ length: 1005 }, (_, number) =>
+      taskOf(1, 'running', [`prn:file.filerepository:${number}`]),
     );
-    const { handler, queries } = taskListHandler(busy, { pageSize: 2 });
+    const { handler, queries } = taskListHandler(busy);
     server.use(handler);
 
     const { result } = renderHook(() => useTaskIndex(), {
@@ -252,10 +252,12 @@ describe('Integration: useTaskIndex', { tags: ['integration'] }, () => {
     await waitFor(() => expect(result.current.state).toBe('ready'));
     expect(queries.filter(ACTIVE).map((q) => q.get('offset'))).toEqual([
       '0',
-      '2',
-      '4',
+      '1000',
     ]);
-    expect(result.current.tasks).toHaveLength(5);
+    expect(result.current.tasks).toHaveLength(1005);
+    expect(
+      lastTaskOf(result.current, 'prn:file.filerepository:1004')?.pulp_href,
+    ).toBe(busy[1004].pulp_href);
   });
 
   it('is an error state, not an empty answer, when a read fails, and reads again on retry', async () => {

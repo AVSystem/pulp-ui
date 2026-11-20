@@ -558,7 +558,7 @@ export interface ITaskRow {
   child_tasks: string[];
   created_resources: string[];
   reserved_resources_record: string[];
-  progress_reports: object[];
+  progress_reports: Record<string, unknown>[];
   [field: string]: unknown;
 }
 

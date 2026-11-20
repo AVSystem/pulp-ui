@@ -33,6 +33,15 @@ function toRequestParams(params: TaskListParams): TasksListParams {
   if (params.state__in) {
     request.state__in = params.state__in.split(',').filter(Boolean);
   }
+  if (params.reserved_resources) {
+    request.reserved_resources = params.reserved_resources;
+  }
+  if (params.name) {
+    request.name = params.name;
+  }
+  if (params.fields?.length) {
+    request.fields = params.fields;
+  }
   if (params.finishedWithinMs !== undefined) {
     request.finished_at__gte = new Date(
       Date.now() - params.finishedWithinMs,
@@ -51,6 +60,27 @@ async function list(
 ): Promise<TaskPage> {
   const data = await tasksList(toRequestParams(params), options);
   return parseResponse(taskPageSchema, data);
+}
+
+// Lists every task that matches, page after page. A task that moved between
+// two pages while they were read is kept once.
+async function listEvery(
+  params: TaskListParams,
+  options?: RequestInit,
+): Promise<Task[]> {
+  const first = await list({ ...params, page: 1 }, options);
+  const rows = new Map(first.results.map((row) => [row.pulp_href, row]));
+
+  for (let page = 2; rows.size < first.count; page++) {
+    const next = await list({ ...params, page }, options);
+    if (next.results.length === 0) {
+      break;
+    }
+    for (const row of next.results) {
+      rows.set(row.pulp_href, row);
+    }
+  }
+  return Array.from(rows.values());
 }
 
 // How many tasks match the filter, taken from the total of a page of one row,
@@ -75,4 +105,4 @@ async function cancel(href: string, options?: RequestInit): Promise<Task> {
   return parseResponse(taskSchema, data);
 }
 
-export const TaskClient = { list, count, retrieve, cancel };
+export const TaskClient = { list, listEvery, count, retrieve, cancel };
