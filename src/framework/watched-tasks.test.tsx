@@ -1,5 +1,4 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
-import { HttpResponse, http } from 'msw';
 import {
   type RouteObject,
   useLocation,
@@ -134,7 +133,7 @@ describe(
       expect(screen.getByTestId('location')).toHaveTextContent('/tasks');
 
       await tick(lab, 2);
-      expect(screen.queryByText(/Sync of repo-1/)).toBeNull();
+      expect(screen.queryByRole('link', { name: 'View the task' })).toBeNull();
 
       lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
       intervals.run(WATCH_POLL_MS);
@@ -145,7 +144,7 @@ describe(
         .closest('.pf-v6-c-alert') as HTMLElement;
       const link = within(alert).getByRole('link', { name: 'View the task' });
       expect(link.getAttribute('href')).toMatch(
-        new RegExp(`/tasks/${taskUrlId(lab.tasks[0].pulp_href)}$`),
+        new RegExp(`/tasks/${taskUrlId(lab.tasks[0].pulp_href)}/?$`),
       );
       expect(screen.getAllByText(/finished/)).toHaveLength(1);
 
@@ -221,7 +220,7 @@ describe(
 
       // 64 ticks of five seconds are 320 seconds of a task that does not end
       await tick(lab, 64);
-      expect(screen.queryByText(/Sync of repo-1/)).toBeNull();
+      expect(screen.queryByRole('link', { name: 'View the task' })).toBeNull();
 
       lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
       intervals.run(WATCH_POLL_MS);
@@ -420,7 +419,7 @@ describe(
         within(alert)
           .getByRole('link', { name: 'View the task' })
           .getAttribute('href'),
-      ).toMatch(new RegExp(`/tasks/${taskUrlId(task.pulp_href)}$`));
+      ).toMatch(new RegExp(`/tasks/${taskUrlId(task.pulp_href)}/?$`));
     });
   },
 );

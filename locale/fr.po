@@ -157,6 +157,26 @@ msgstr ""
 #~ msgid "{github_user} logo"
 #~ msgstr ""
 
+#: src/framework/watched-tasks.tsx
+msgid "{label} can no longer be followed."
+msgstr ""
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} failed."
+msgstr ""
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} finished."
+msgstr ""
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} was canceled."
+msgstr ""
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} was skipped."
+msgstr ""
+
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
 msgstr "{n, plural, one {# byte} other {# bytes}}"
@@ -7546,6 +7566,10 @@ msgstr ""
 msgid "Sync is unavailable because this repository has no remote."
 msgstr ""
 
+#: src/framework/sync/sync-dialog.tsx
+msgid "Sync of {name}"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
 msgstr "Synchroniser la provenance des paquets"
@@ -9021,6 +9045,7 @@ msgstr "Afficher et annuler n'importe quelle tâche."
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/framework/sync/sync-dialog.tsx
+#: src/framework/watched-tasks.tsx
 msgid "View the task"
 msgstr "Afficher la tâche"
 

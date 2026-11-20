@@ -1,8 +1,13 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
+import { useEffect } from 'react';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dataRoutes } from 'src/app-routes';
+import {
+  WatchedTasksProvider,
+  useWatchTask,
+} from 'src/framework/watched-tasks';
 import { resetPageWidth, setPageUrl, setPageWidth } from 'src/test-utils/page';
 import { serveUserRecords } from 'src/test-utils/permissions';
 import { listOf } from 'src/test-utils/pulp';
@@ -136,6 +141,44 @@ describe('app shell', () => {
       await screen.findByText('Sign-out did not complete'),
     ).toBeInTheDocument();
     expect(document.querySelector('[data-cy=user-dropdown]')).not.toBeNull();
+  });
+
+  it('shows what the application root says about a task that ended, in the alert list, with a link to the task', async () => {
+    const href = '/pulp/api/v3/tasks/00000000-0000-4000-8000-000000000001/';
+    server.use(
+      http.get(`*${href}`, () =>
+        HttpResponse.json({
+          pulp_href: href,
+          name: 'pulp_file.app.tasks.synchronizing.synchronize',
+          state: 'completed',
+        }),
+      ),
+    );
+    const Start = () => {
+      const { watch } = useWatchTask();
+      useEffect(() => {
+        watch({ href, label: 'Sync of tools' });
+      }, [watch]);
+      return null;
+    };
+
+    const { user } = renderWithProviders(
+      <WatchedTasksProvider>
+        <Shell>
+          <Start />
+        </Shell>
+      </WatchedTasksProvider>,
+      { route: '/status' },
+    );
+
+    const alert = (await screen.findByText('Sync of tools finished.')).closest(
+      '[data-cy=AlertList]',
+    ) as HTMLElement;
+    expect(
+      within(alert).getByRole('link', { name: 'View the task' }),
+    ).toBeVisible();
+    await user.click(within(alert).getByRole('button', { name: /close/i }));
+    expect(screen.queryByText('Sync of tools finished.')).toBeNull();
   });
 });
 

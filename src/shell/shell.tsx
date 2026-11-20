@@ -27,6 +27,7 @@ import {
   PulpAboutModal,
   closeAlert,
 } from 'src/components';
+import { useWatchedAnnouncements } from 'src/framework/watched-tasks';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import { useUserContext } from 'src/user-context';
@@ -170,6 +171,10 @@ const ShellPage = ({
   children: ReactNode;
 }) => {
   const notificationsOpen = useNotificationsOpen();
+  // What the application root says about tasks that ended, shown in the same
+  // list as the alerts of the shell, after them.
+  const { alerts: announcements, dismiss: dismissAnnouncement } =
+    useWatchedAnnouncements();
 
   return (
     <Page
@@ -203,8 +208,12 @@ const ShellPage = ({
     >
       <SidebarDrawer />
       <AlertList
-        alerts={alerts}
-        closeAlert={(index) => closeAlert(index, { alerts, setAlerts })}
+        alerts={[...alerts, ...announcements]}
+        closeAlert={(index) =>
+          index < alerts.length
+            ? closeAlert(index, { alerts, setAlerts })
+            : dismissAnnouncement(index - alerts.length)
+        }
       />
       {children}
       {aboutModalVisible ? (

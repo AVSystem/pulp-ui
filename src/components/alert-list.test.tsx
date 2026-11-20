@@ -17,6 +17,31 @@ describe('the alert list', () => {
     ).toHaveAttribute('aria-live', 'polite');
   });
 
+  it('announces an alert marked live even when it is not a failure', () => {
+    renderWithProviders(
+      <AlertList
+        alerts={[{ variant: 'success', title: 'Finished', live: true }]}
+        closeAlert={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Finished').closest('[aria-live]')).toHaveAttribute(
+      'aria-live',
+      'polite',
+    );
+  });
+
+  it('leaves a plain success alert out of the live regions', () => {
+    renderWithProviders(
+      <AlertList
+        alerts={[{ variant: 'success', title: 'Saved' }]}
+        closeAlert={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Saved').closest('[aria-live]')).toBeNull();
+  });
+
   it('shows the description of an alert and closes it by its index', async () => {
     const closeAlert = vi.fn();
     const { user } = renderWithProviders(

@@ -25,6 +25,7 @@ import { isSessionEnd } from 'src/utilities/request-error';
 import { translateTask } from 'src/utilities/translate-task';
 import type { PluginDescriptor, SyncBody, SyncOptionDef } from '../descriptor';
 import { saveFailure } from '../form/save-errors';
+import { useWatchTask } from '../watched-tasks';
 
 interface Props {
   descriptor: PluginDescriptor;
@@ -73,6 +74,7 @@ export const SyncDialog = ({
     initialValues(options, repository),
   );
   const start = useSyncRepository(entity);
+  const { watch } = useWatchTask();
   // Pressing Sync twice before the screen has drawn the first press must still
   // send one request.
   const sent = useRef(false);
@@ -109,6 +111,16 @@ export const SyncDialog = ({
       const task = await start.mutateAsync({
         href: repository.pulp_href,
         body,
+      });
+      // The root follows the task to its end wherever the user is by then.
+      watch({
+        href: task,
+        label: t`Sync of ${name}`,
+        resource: {
+          app: entity.app,
+          object: entity.object,
+          href: repository.pulp_href,
+        },
       });
       onStarted?.(task);
       onClose();

@@ -19,6 +19,9 @@ export interface AlertType {
   variant: AlertProps['variant'];
   title: string | ReactNode;
   description?: string | ReactNode;
+  // Announces the alert to a screen reader although it is not a failure: for
+  // a result that arrives while the user is looking at something else.
+  live?: boolean;
 }
 
 export const AlertList = ({ alerts, closeAlert }: IProps) => (
@@ -29,7 +32,7 @@ export const AlertList = ({ alerts, closeAlert }: IProps) => (
         key={i}
         title={alert.title}
         variant={alert.variant}
-        isLiveRegion={alert.variant === 'danger'}
+        isLiveRegion={alert.variant === 'danger' || alert.live === true}
         actionClose={<AlertActionCloseButton onClose={() => closeAlert(i)} />}
       >
         {alert.description}
