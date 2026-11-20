@@ -10,6 +10,10 @@ import { taskKeys } from './queries';
 // finished.
 export const INDEX_POLL_MS = 10_000;
 
+// How often the active task of a repository is looked up again while a page
+// that shows it is open.
+export const ACTIVE_POLL_MS = 5_000;
+
 // How long a read of the index is taken as current.
 const INDEX_STALE_MS = 15_000;
 
@@ -190,4 +194,85 @@ export function useTaskIndex(): TaskIndex {
         : 'ready';
 
   return { state, ...built, retry };
+}
+
+// Whether the lookup of a repository's active task should be left alone: its
+// first read failed and the screen waits for the user to ask again, or it was
+// refused or the repository is gone. A later poll that fails for another
+// reason on a lookup that has an answer is tried again. A lookup has no final
+// state of its own: "no active task" is an answer that is asked again, so the
+// start of the next task is seen.
+function stopsLookup(state: { data: unknown; error: unknown }): boolean {
+  if (!state.error) {
+    return false;
+  }
+  const status = requestErrorStatus(state.error);
+  return state.data === undefined || status === 403 || status === 404;
+}
+
+// The waiting or running task that reserves one object, or null when there is
+// none, read again every few seconds while the page is open and in view. A
+// null address is the address of nothing: no request is sent. When the task
+// that was active is no longer the active one, it has ended: the last sync of
+// the object and the task index are read again, so what they show is never
+// older than the end of the task.
+export function useActiveTaskOf(href: string | null) {
+  const queryClient = useQueryClient();
+
+  return useSessionQuery({
+    queryKey: taskKeys.activeOf(href ?? ''),
+    queryFn: async ({ signal }): Promise<Task | null> => {
+      const target = href as string;
+      const before = queryClient.getQueryData<Task | null>(
+        taskKeys.activeOf(target),
+      );
+      const page = await TaskClient.list(
+        {
+          reserved_resources: target,
+          state__in: 'waiting,running',
+          sort: '-pulp_created',
+          page_size: 1,
+        },
+        { signal },
+      );
+      const now = page.results[0] ?? null;
+
+      if (before && before.pulp_href !== now?.pulp_href) {
+        void queryClient.invalidateQueries({
+          queryKey: taskKeys.lastOf(target),
+        });
+        void queryClient.invalidateQueries({ queryKey: taskKeys.index });
+      }
+      return now;
+    },
+    enabled: href !== null,
+    staleTime: 0,
+    refetchInterval: (query) =>
+      stopsLookup(query.state) ? false : ACTIVE_POLL_MS,
+    refetchIntervalInBackground: false,
+  });
+}
+
+// The newest task of one name that reserves one object (the last sync of a
+// repository, for the task name of its plugin's sync), or null when there is
+// none. Read once; it is read again when the active task of the object ends
+// (see useActiveTaskOf) or when its keys are invalidated. A null address or
+// name is the address of nothing: no request is sent.
+export function useLastSyncOf(href: string | null, taskName: string | null) {
+  return useSessionQuery({
+    queryKey: taskKeys.lastNamedOf(href ?? '', taskName ?? ''),
+    queryFn: async ({ signal }): Promise<Task | null> => {
+      const page = await TaskClient.list(
+        {
+          reserved_resources: href as string,
+          name: taskName as string,
+          sort: '-pulp_created',
+          page_size: 1,
+        },
+        { signal },
+      );
+      return page.results[0] ?? null;
+    },
+    enabled: href !== null && taskName !== null,
+  });
 }

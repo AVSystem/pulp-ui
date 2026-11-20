@@ -59,7 +59,10 @@ describe('Unit: the object-permission index', { tags: ['unit'] }, () => {
     ]);
     const can = objectPermissionIndex(
       grants,
-      new Map([...permissionsOf, ['file.filerepository_syncer', [SYNC]]]),
+      new Map([
+        ...Array.from(permissionsOf),
+        ['file.filerepository_syncer', [SYNC]],
+      ]),
     );
 
     expect(can(repositoryHref(1), VIEW)).toBe(true);
@@ -147,9 +150,9 @@ function serveAccount({
   return lists;
 }
 
-// Every request the index makes, as path and query. The global-role reads of
-// the permission provider (`content_object=null`) and the reads of the own
-// record belong to the sign-in, not to the index.
+// Every request the index makes, as path and query. The global-role
+// reads of the permission provider (`content_object=null`) belong to the
+// sign-in, not to the index; the reads of the own record are shared with it.
 function recordIndexReads() {
   const reads: string[] = [];
   const onStart = ({ request }: { request: Request }) => {
@@ -157,9 +160,11 @@ function recordIndexReads() {
     if (url.searchParams.get('content_object') === 'null') {
       return;
     }
+    // the sign-in, the plugin list and the own record are not index reads
     if (
-      url.pathname === `${API}/users/7/` ||
-      url.pathname.startsWith(`${API}/login/`)
+      [`${API}/login/`, `${API}/status/`, `${API}/users/7/`].includes(
+        url.pathname,
+      )
     ) {
       return;
     }
