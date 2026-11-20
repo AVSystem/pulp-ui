@@ -6565,6 +6565,10 @@ msgstr "Réessayer la recherche de référentiels"
 msgid "Revert"
 msgstr "Rétablir"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert of {repositoryName}"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
 #: src/framework/detail/revert-version.tsx
 msgid "Revert repository"

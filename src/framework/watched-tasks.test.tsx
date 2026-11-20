@@ -14,6 +14,7 @@ import fileDescriptor from 'src/descriptors/file/descriptor';
 import { taskUrlId } from 'src/entities/core/task/href';
 import { taskKeys } from 'src/entities/core/task/queries';
 import { entityKeys } from 'src/entities/plugin/queries';
+import { SessionQueryBridge } from 'src/query/session-bridge';
 import {
   reportUnauthorized,
   resetSessionEvents,
@@ -136,6 +137,8 @@ function renderHarness(tasks: WatchedTask[]) {
   serveSignIn();
   return renderWithProviders(
     <WatchedTasksProvider>
+      {/* the application mounts its bridge inside the watcher, as here */}
+      <SessionQueryBridge />
       <Harness tasks={tasks} />
     </WatchedTasksProvider>,
     { signedIn: true },

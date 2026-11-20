@@ -6565,6 +6565,10 @@ msgstr "重试仓库搜索"
 msgid "Revert"
 msgstr "恢复"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert of {repositoryName}"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
 #: src/framework/detail/revert-version.tsx
 msgid "Revert repository"

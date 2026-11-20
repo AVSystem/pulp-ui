@@ -6566,6 +6566,10 @@ msgstr "Retry repository search"
 msgid "Revert"
 msgstr "Revert"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert of {repositoryName}"
+msgstr "Revert of {repositoryName}"
+
 #: src/actions/repository-version-revert.tsx
 #: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
