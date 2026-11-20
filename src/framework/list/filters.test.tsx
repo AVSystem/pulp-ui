@@ -1,14 +1,20 @@
 import { screen, waitFor, within } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
+import { URL_BUDGET } from 'src/entities/batch';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
+  type IDistribution,
+  type IRemote,
   type IRepository,
   distributionListHandler,
+  pluginDistribution,
   pluginListHandler,
+  pluginRemote,
   pluginRepository,
   publicationListHandler,
   repositoryVersion,
@@ -27,12 +33,19 @@ const FILE: PluginManifest = {
   onFramework: true,
 };
 
-function serveLab(repositories: IRepository[]) {
+function serveLab(
+  repositories: IRepository[],
+  {
+    distributions = [],
+    remotes = [],
+  }: { distributions?: IDistribution[]; remotes?: IRemote[] } = {},
+) {
   const lab = {
     repositories: pluginListHandler('file', 'repository', repositories, {
       pageSize: 1000,
     }),
-    distributions: distributionListHandler('file', []),
+    remotes: pluginListHandler('file', 'remote', remotes, { pageSize: 1000 }),
+    distributions: distributionListHandler('file', distributions),
     publications: publicationListHandler('file', []),
     versions: versionSummaryHandler({
       patched: true,
@@ -44,6 +57,10 @@ function serveLab(repositories: IRepository[]) {
   };
   server.use(
     lab.repositories.handler,
+    lab.remotes.handler,
+    ...remotes.map((remote) =>
+      http.get(`*${remote.pulp_href}`, () => HttpResponse.json(remote)),
+    ),
     lab.distributions.handler,
     lab.publications.handler,
     lab.versions.handler,
@@ -507,3 +524,424 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
     );
   });
 });
+
+// The addresses of the requests a list sends to the API, apart from the
+// session's own reads.
+function recordRequests() {
+  const all: string[] = [];
+  const onStart = ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith('/pulp/api/v3/')) {
+      all.push(`${url.pathname}${url.search}`);
+    }
+  };
+  server.events.on('request:start', onStart);
+
+  return {
+    all,
+    own: () =>
+      all.filter(
+        (path) =>
+          !/^\/pulp\/api\/v3\/(login|status|users|groups|roles)\//.test(path),
+      ),
+    stop: () => server.events.removeListener('request:start', onStart),
+  };
+}
+
+// An address of one object: a repository, distribution, publication, task or
+// remote by its id, or one version of a repository.
+const SINGLE_OBJECT =
+  /\/(repositories|distributions|publications|remotes|tasks)\/[a-z_]+(\/[a-z_]+)?\/[0-9a-f-]{36}\/|\/versions\/\d+\/|my_permissions/;
+
+// Picks a filter in the search box's list of filters.
+async function chooseFilter(
+  user: ReturnType<typeof renderList>['user'],
+  title: string,
+) {
+  const compound = document.querySelector(
+    '[data-cy="compound_filter"]',
+  ) as HTMLElement;
+  await user.click(within(compound).getAllByRole('button')[0] as HTMLElement);
+  await user.click(await screen.findByRole('menuitem', { name: title }));
+  return compound;
+}
+
+// A repository per distribution, bound to it by the repository field.
+function servedBy(count: number, basePath: (n: number) => string) {
+  const repositories = Array.from({ length: count }, (_, n) =>
+    pluginRepository('file', {
+      name: `served-${String(n).padStart(4, '0')}`,
+      pulp_labels: { served: 'yes' },
+    }),
+  );
+  const distributions = repositories.map((repository, n) =>
+    pluginDistribution('file', {
+      base_path: basePath(n),
+      repository: repository.pulp_href,
+    }),
+  );
+  return { repositories, distributions };
+}
+
+describe(
+  'Integration: the remote and base path filters',
+  { tags: ['integration'] },
+  () => {
+    it('offers None and the remotes found by name and sends the one chosen', async () => {
+      const remotes = [
+        pluginRemote('file', { name: 'alpine-mirror' }),
+        pluginRemote('file', { name: 'debian-mirror' }),
+      ];
+      const [first, second, third] = [
+        pluginRepository('file', {
+          name: 'a-uses',
+          remote: remotes[0]?.pulp_href,
+        }),
+        pluginRepository('file', {
+          name: 'b-uses',
+          remote: remotes[1]?.pulp_href,
+        }),
+        pluginRepository('file', { name: 'c-alone', remote: null }),
+      ] as IRepository[];
+      const lab = serveLab([first, second, third] as IRepository[], {
+        remotes,
+      });
+      const { user } = renderList();
+      await tableOf();
+
+      const compound = await chooseFilter(user, 'Remote');
+      const input = within(compound).getByRole('combobox', {
+        name: /filter by remote/i,
+      });
+      await user.click(input);
+      expect(await screen.findByRole('option', { name: 'None' })).toBeVisible();
+      expect(
+        await screen.findByRole('option', { name: 'debian-mirror' }),
+      ).toBeVisible();
+
+      await user.type(input, 'alp');
+      await waitFor(() =>
+        expect(lab.remotes.queries.at(-1)?.get('name__icontains')).toBe('alp'),
+      );
+      await user.click(
+        await screen.findByRole('option', { name: 'alpine-mirror' }),
+      );
+
+      await waitFor(() =>
+        expect(lastQuery(lab).get('remote')).toBe(remotes[0]?.pulp_href),
+      );
+      await waitFor(() => expect(rowNames()).toEqual(['a-uses']));
+      expect(
+        screen.getByText('alpine-mirror', { selector: '.pf-v6-c-label__text' }),
+      ).toBeVisible();
+      expect(location()).toBe(
+        `/file/repositories?remote=${encodeURIComponent(remotes[0]?.pulp_href as string)}`,
+      );
+    });
+
+    it('sends remote=null for None and shows it as a chip', async () => {
+      const remotes = [pluginRemote('file', { name: 'alpine-mirror' })];
+      const lab = serveLab(
+        [
+          pluginRepository('file', {
+            name: 'a-uses',
+            remote: remotes[0]?.pulp_href,
+          }),
+          pluginRepository('file', { name: 'c-alone', remote: null }),
+        ],
+        { remotes },
+      );
+      const { user } = renderList();
+      await tableOf();
+
+      const compound = await chooseFilter(user, 'Remote');
+      await user.click(
+        within(compound).getByRole('combobox', { name: /filter by remote/i }),
+      );
+      await user.click(await screen.findByRole('option', { name: 'None' }));
+
+      await waitFor(() => expect(lastQuery(lab).get('remote')).toBe('null'));
+      await waitFor(() => expect(rowNames()).toEqual(['c-alone']));
+      expect(
+        screen.getByText('None', { selector: '.pf-v6-c-label__text' }),
+      ).toBeVisible();
+      expect(location()).toBe('/file/repositories?remote=null');
+    });
+
+    it('names the remote of an address in its chip and ignores a remote that is not a remote address', async () => {
+      const remotes = [pluginRemote('file', { name: 'alpine-mirror' })];
+      const lab = serveLab(
+        [
+          pluginRepository('file', {
+            name: 'a-uses',
+            remote: remotes[0]?.pulp_href,
+          }),
+        ],
+        { remotes },
+      );
+      renderList(
+        `/file/repositories?remote=${encodeURIComponent(remotes[0]?.pulp_href as string)}`,
+      );
+      await tableOf();
+      expect(
+        await screen.findByText('alpine-mirror', {
+          selector: '.pf-v6-c-label__text',
+        }),
+      ).toBeVisible();
+
+      expect(lab.repositories.queries.at(-1)?.get('remote')).toBe(
+        remotes[0]?.pulp_href,
+      );
+    });
+
+    it.each([
+      'https://elsewhere.example/pulp/api/v3/remotes/file/file/x/',
+      '//elsewhere.example/x',
+      '/pulp/api/v3/users/1/',
+      'not-an-address',
+    ])('does not send the remote %j of the address', async (remote) => {
+      const lab = serveLab([pluginRepository('file', { name: 'a' })]);
+      const log = recordRequests();
+      renderList(`/file/repositories?remote=${encodeURIComponent(remote)}`);
+      await tableOf();
+      log.stop();
+
+      expect(lab.repositories.queries.at(-1)?.has('remote')).toBe(false);
+      expect(log.all.some((path) => path.includes('/users/1/'))).toBe(false);
+      expect(log.all.some((path) => path.includes('elsewhere'))).toBe(false);
+    });
+
+    it('sends the repositories of the matching distributions as one request with the other filters and server paging', async () => {
+      const { repositories, distributions } = servedBy(
+        12,
+        (n) => `team-a/site-${n}`,
+      );
+      const others = servedBy(8, (n) => `team-b/site-${n}`);
+      const lab = serveLab([...repositories, ...others.repositories], {
+        distributions: [...distributions, ...others.distributions],
+      });
+      const log = recordRequests();
+      renderList(
+        '/file/repositories?base_path=TEAM-A&name__icontains=served&page_size=10&sort=-name',
+      );
+      const table = await tableOf();
+      log.stop();
+
+      const requests = lab.repositories.queries;
+      expect(requests).toHaveLength(1);
+      const query = requests[0] as URLSearchParams;
+      expect((query.get('pulp_href__in') ?? '').split(',').sort()).toEqual(
+        repositories.map(({ pulp_href }) => pulp_href).sort(),
+      );
+      expect(query.get('name__icontains')).toBe('served');
+      expect(query.get('limit')).toBe('10');
+      expect(query.get('offset')).toBe('0');
+      expect(query.get('ordering')).toBe('-name');
+      expect(query.has('base_path')).toBe(false);
+      expect(table.querySelectorAll('tbody tr')).toHaveLength(10);
+      // the distributions were read once, and nothing was read per row
+      expect(lab.distributions.queries).toHaveLength(1);
+      expect(log.own().some((path) => SINGLE_OBJECT.test(path))).toBe(false);
+    });
+
+    it('applies the base path from the search box and starts from the first page', async () => {
+      const { repositories, distributions } = servedBy(
+        30,
+        (n) => `team-a/site-${n}`,
+      );
+      const lab = serveLab(repositories, { distributions });
+      const { user } = renderList('/file/repositories?page=2&page_size=10');
+      await tableOf();
+
+      await chooseFilter(user, 'Base path');
+      await user.type(
+        screen.getByPlaceholderText(/filter by base path/i),
+        'site-1{Enter}',
+      );
+
+      await waitFor(() =>
+        expect(location()).toBe(
+          '/file/repositories?page_size=10&base_path=site-1',
+        ),
+      );
+      await waitFor(() =>
+        expect(lastQuery(lab).get('pulp_href__in')).toBeTruthy(),
+      );
+      const sent = (lastQuery(lab).get('pulp_href__in') ?? '').split(',');
+      // site-1 and site-10 to site-19
+      expect(sent).toHaveLength(11);
+      expect(lastQuery(lab).get('offset')).toBe('0');
+      expect(
+        screen.getByText('site-1', { selector: '.pf-v6-c-label__text' }),
+      ).toBeVisible();
+    });
+
+    it('reads every chunk of a large match once, merges and sorts them and pages in the browser', async () => {
+      const { repositories, distributions } = servedBy(
+        120,
+        (n) => `big/site-${n}`,
+      );
+      const lab = serveLab(
+        [...repositories, pluginRepository('file', { name: 'unserved' })],
+        { distributions },
+      );
+      const log = recordRequests();
+      const { user } = renderList(
+        '/file/repositories?base_path=big&page_size=50',
+      );
+      const table = await tableOf();
+      await waitFor(() =>
+        expect(table).toHaveAttribute('data-columns-loaded', 'true'),
+      );
+
+      const sent = lab.repositories.queries;
+      const chunks = sent.map((query) =>
+        (query.get('pulp_href__in') ?? '').split(','),
+      );
+      // every matching repository was asked for once, and no chunk is longer than a request may be
+      expect(chunks.flat().sort()).toEqual(
+        repositories.map(({ pulp_href }) => pulp_href).sort(),
+      );
+      expect(sent.length).toBeGreaterThan(1);
+      expect(sent.length).toBe(
+        Math.ceil(120 / Math.max(...chunks.map((c) => c.length))),
+      );
+      for (const path of log.all.filter((p) =>
+        p.includes('/repositories/file/file/'),
+      )) {
+        expect(path.length).toBeLessThanOrEqual(URL_BUDGET + 200);
+      }
+      // the requests are the chunks plus the one read of the distributions
+      expect(
+        log
+          .own()
+          .filter((path) =>
+            /\/(repositories|distributions)\/file\/file\/\?/.test(path),
+          ),
+      ).toHaveLength(sent.length + 1);
+      expect(
+        Array.from(table.querySelectorAll('tbody tr td:first-child a')).map(
+          (a) => a.textContent,
+        ),
+      ).toEqual(repositories.slice(0, 50).map(({ name }) => name));
+
+      // another page and another order are read from the chunks already held
+      const before = lab.repositories.queries.length;
+      await user.click(
+        screen.getAllByRole('button', { name: /next page/i })[0] as HTMLElement,
+      );
+      await waitFor(() =>
+        expect(
+          document.querySelector('tbody tr td:first-child a')?.textContent,
+        ).toBe(repositories[50]?.name),
+      );
+      expect(lab.repositories.queries).toHaveLength(before);
+      expect(
+        screen.queryByText('Many repositories match this base path'),
+      ).toBeNull();
+      log.stop();
+    }, 30_000);
+
+    it('sorts the merged rows by the order of the address', async () => {
+      const { repositories, distributions } = servedBy(
+        80,
+        (n) => `big/site-${n}`,
+      );
+      const lab = serveLab(repositories, { distributions });
+      renderList('/file/repositories?base_path=big&page_size=10&sort=-name');
+      const table = await tableOf();
+
+      expect(lab.repositories.queries.length).toBeGreaterThan(1);
+      expect(
+        Array.from(table.querySelectorAll('tbody tr td:first-child a')).map(
+          (a) => a.textContent,
+        ),
+      ).toEqual(
+        repositories
+          .map(({ name }) => name)
+          .reverse()
+          .slice(0, 10),
+      );
+    });
+
+    it('says so when more than 500 repositories match a base path', async () => {
+      const { repositories, distributions } = servedBy(
+        520,
+        (n) => `huge/site-${n}`,
+      );
+      serveLab(repositories, { distributions });
+      renderList('/file/repositories?base_path=huge&page_size=100');
+      await tableOf();
+
+      expect(
+        await screen.findByText('Many repositories match this base path'),
+      ).toBeVisible();
+      expect(document.querySelectorAll('tbody tr')).toHaveLength(100);
+    }, 60_000);
+
+    it('sends no repository request when no distribution matches the base path', async () => {
+      const { repositories, distributions } = servedBy(
+        5,
+        (n) => `team-a/site-${n}`,
+      );
+      const lab = serveLab(repositories, { distributions });
+      renderList('/file/repositories?base_path=nothing');
+
+      expect(await screen.findByText('No results found')).toBeVisible();
+      expect(lab.repositories.queries).toHaveLength(0);
+    });
+
+    it('shows a retryable error when the distributions cannot be read for a base path', async () => {
+      const { repositories } = servedBy(3, (n) => `team-a/site-${n}`);
+      const lab = serveLab(repositories);
+      server.use(
+        http.get('*/pulp/api/v3/distributions/file/file/', () =>
+          HttpResponse.json({ detail: 'down' }, { status: 500 }),
+        ),
+      );
+      renderList('/file/repositories?base_path=team');
+
+      expect(
+        await screen.findByText('Repositories could not be displayed.'),
+      ).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+      expect(lab.repositories.queries).toHaveLength(0);
+    });
+
+    it('suggests the keys of every repository when the label filter opens and reads them once', async () => {
+      const many = Array.from({ length: 30 }, (_, n) =>
+        pluginRepository('file', {
+          name: `repo-${String(n).padStart(2, '0')}`,
+          pulp_labels:
+            n === 29 ? { 'only.on-last-page': 'x' } : { common: 'x' },
+        }),
+      );
+      const lab = serveLab(many);
+      const { user } = renderList('/file/repositories?page_size=10');
+      await tableOf();
+      const before = lab.repositories.queries.length;
+      expect(before).toBe(1);
+
+      await openLabelFilter(user);
+
+      await waitFor(() => {
+        const options = Array.from(
+          document.querySelectorAll('datalist option'),
+        ).map((option) => option.getAttribute('value'));
+        expect(options).toEqual(['common', 'only.on-last-page']);
+      });
+      const index = lab.repositories.queries.slice(before);
+      expect(index).toHaveLength(1);
+      const fields = (index[0] as URLSearchParams)
+        .getAll('fields')
+        .flatMap((field) => field.split(','));
+      expect(fields.sort()).toEqual([
+        'name',
+        'pulp_href',
+        'pulp_labels',
+        'remote',
+      ]);
+      expect(index[0]?.get('limit')).toBe('1000');
+    });
+  },
+);
