@@ -240,7 +240,7 @@ const RepositoryDetailScreen = ({
           data-cy={`RepositoryDetail-${tab ?? 'details'}`}
         >
           {shown ? (
-            shown.render({ repository, version, descriptor })
+            shown.render({ repository, version, plugin, descriptor })
           ) : (
             <DetailsTab
               plugin={plugin}

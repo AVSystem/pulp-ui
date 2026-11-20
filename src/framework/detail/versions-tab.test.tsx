@@ -114,17 +114,17 @@ describe('Integration: the Versions tab', { tags: ['integration'] }, () => {
     expect(within(latest).getByText(/\(latest\)/)).toBeVisible();
     expect(
       within(latest).getByRole('link', { name: '2' }).getAttribute('href'),
-    ).toBe('/file/repositories/tools/versions/2');
+    ).toBe('/file/repositories/tools/versions/2/');
 
     const body = screen.getAllByRole('row').slice(1);
-    expect(body.map((row) => row.textContent?.match(/^\d+/)?.[0])).toEqual([
-      '2',
-      '1',
-      '0',
-    ]);
+    expect(
+      body.map((row) => within(row).getByRole('link').textContent),
+    ).toEqual(['2', '1', '0']);
     const older = await rowOf(/^1/);
     expect(within(older).queryByText(/\(latest\)/)).toBeNull();
-    expect(older.textContent).toMatch(/2024/);
+    expect(older.querySelector('time')?.getAttribute('datetime')).toBe(
+      '2024-01-02T10:00:00.000000Z',
+    );
   });
 
   it('asks for ten versions of the repository, newest first, with one request for the whole page', async () => {
@@ -207,7 +207,7 @@ describe('Integration: the Versions tab', { tags: ['integration'] }, () => {
     renderTab('/file/repositories/tools/versions');
 
     const tab = await screen.findByRole('link', { name: 'Versions' });
-    expect(tab.getAttribute('href')).toBe('/file/repositories/tools/versions');
+    expect(tab.getAttribute('href')).toBe('/file/repositories/tools/versions/');
     expect(tab.getAttribute('aria-current')).toBe('page');
   });
 });
@@ -257,15 +257,17 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
     expect(query.get('limit')).toBe('1');
     expect(lab.list.queries).toHaveLength(1);
 
-    const added = screen.getByRole('table', { name: 'Content added' });
+    const added = screen.getByRole('grid', { name: 'Content added' });
     expect(within(added).getByText('file.file')).toBeVisible();
     expect(within(added).getByText('2')).toBeVisible();
-    const removed = screen.getByRole('table', { name: 'Content removed' });
+    const removed = screen.getByRole('grid', { name: 'Content removed' });
     expect(within(removed).getByText('1')).toBeVisible();
-    const present = screen.getByRole('table', { name: 'Current content' });
+    const present = screen.getByRole('grid', { name: 'Current content' });
     expect(within(present).getByText('file.other')).toBeVisible();
     expect(within(present).getByText('3')).toBeVisible();
-    expect(screen.getByText(/2024/)).toBeVisible();
+    expect(document.querySelector('time')?.getAttribute('datetime')).toBe(
+      '2024-03-05T10:00:00.000000Z',
+    );
   });
 
   it('links to the base version by the number its address ends in, and says None for a version without one', async () => {
@@ -275,7 +277,7 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
 
     const base = await screen.findByRole('link', { name: '1' });
     expect(base.getAttribute('href')).toBe(
-      '/file/repositories/tools/versions/1',
+      '/file/repositories/tools/versions/1/',
     );
     first.unmount();
 
@@ -296,7 +298,7 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
     renderTab('/file/repositories/tools/versions/1');
 
     await screen.findByText('Content added');
-    expect(screen.queryByRole('table', { name: 'Content added' })).toBeNull();
+    expect(screen.queryByRole('grid', { name: 'Content added' })).toBeNull();
     expect(screen.getAllByText('None').length).toBeGreaterThanOrEqual(3);
   });
 
@@ -338,7 +340,7 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
 
   it('ignores the late answer for another number: the version on screen is the one the address names', async () => {
     const lab = serveVersions();
-    const release: { three: () => void } = { three: () => {} };
+    const release: { three: () => void } = { three: () => undefined };
     const gate = new Promise<void>((resolve) => {
       release.three = resolve;
     });
@@ -438,6 +440,7 @@ describe(
         own: [[MODIFY]],
       });
       serveLab({ count: 2 });
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
 
       const { user } = renderTab('/file/repositories/tools/versions');
 

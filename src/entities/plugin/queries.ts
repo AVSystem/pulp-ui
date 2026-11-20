@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
-import type { Page } from './model';
+import type { Page, RepositoryVersion, VersionListParams } from './model';
 import type { RemoteLookup, RemoteName } from './remote';
 import type { Options, UpdateResult } from './request';
 
@@ -19,7 +19,9 @@ interface EntityName {
 // The cache keys of one plugin's object: ['pulp', <plugin>, <object>, ...].
 // `list` is one page of a list, `by-name` the lookup of a URL name and
 // `detail` one object by its address and `index` the read of every object of
-// the plugin that screens share.
+// the plugin that screens share. `versions` is a page of the versions of one
+// repository, by the repository's address, and `version` one version of it by
+// its number.
 export function entityKeys(entity: EntityName) {
   const all = ['pulp', entity.app, entity.object] as const;
 
@@ -29,6 +31,10 @@ export function entityKeys(entity: EntityName) {
     byName: (name: string) => [...all, 'by-name', name] as const,
     detail: (href: string) => [...all, 'detail', href] as const,
     index: [...all, 'index'] as const,
+    versions: (repository: string, params: object) =>
+      [...all, 'versions', repository, params] as const,
+    version: (repository: string, number: number) =>
+      [...all, 'version', repository, number] as const,
   };
 }
 
@@ -159,6 +165,65 @@ export function useRemoteByHref(
     },
     staleTime: INDEX_STALE_MS,
     enabled: href !== null,
+  });
+}
+
+interface VersionedEntity extends EntityName {
+  versions: (
+    href: string,
+    params?: VersionListParams,
+    options?: Options,
+  ) => Promise<Page<RepositoryVersion>>;
+  versionByNumber: (
+    href: string,
+    number: number,
+    options?: Options,
+  ) => Promise<RepositoryVersion | null>;
+}
+
+// One page of the versions of a repository. Every set of parameters is a query
+// of its own; while another page of the same list of the same repository loads,
+// the rows of the page before stay, and rows of another repository, order or
+// page size never stand in for it.
+export function useRepositoryVersions(
+  entity: VersionedEntity,
+  repository: string,
+  params: VersionListParams,
+) {
+  const keys = entityKeys(entity);
+
+  return useSessionQuery({
+    queryKey: keys.versions(repository, params),
+    queryFn: ({ signal }) => entity.versions(repository, params, { signal }),
+    placeholderData: (previous, previousQuery) => {
+      const key = previousQuery?.queryKey;
+      const before = key?.[5] as VersionListParams | undefined;
+      const sameList =
+        key?.[1] === entity.app &&
+        key?.[2] === entity.object &&
+        key?.[3] === 'versions' &&
+        key?.[4] === repository;
+
+      return before && sameList && otherPageOfSameList(before, params)
+        ? previous
+        : undefined;
+    },
+  });
+}
+
+// The version of a repository with this number, or null when it has none. A
+// number is a query of its own, so the answer for another number is never the
+// one on screen. A version never changes once made, but it can be removed, so
+// the answer is read again like any other after the usual stale time.
+export function useRepositoryVersion(
+  entity: VersionedEntity,
+  repository: string,
+  number: number,
+) {
+  return useSessionQuery({
+    queryKey: entityKeys(entity).version(repository, number),
+    queryFn: ({ signal }) =>
+      entity.versionByNumber(repository, number, { signal }),
   });
 }
 

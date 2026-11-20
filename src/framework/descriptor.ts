@@ -11,6 +11,7 @@ import type {
 } from 'src/entities/plugin/publication';
 import type { RemoteEntity } from 'src/entities/plugin/remote';
 import type { RepositoryEntity } from 'src/entities/plugin/repository';
+import type { FrameworkPlugin } from './manifest';
 import type { RepositoryTab } from './route-patterns';
 
 // What a plugin declares about its repositories and remotes, in the plugin's
@@ -106,10 +107,12 @@ export interface TabDef<Row> {
   // The version number of a tab that opens one version (an address like
   // .../versions/3), null on the tab's own address. `descriptor` is the
   // descriptor of the plugin the tab belongs to, for a tab that reads what
-  // the plugin declares (its distribution entity, its snippet).
+  // the plugin declares (its distribution entity, its snippet), and `plugin`
+  // names it for the addresses the tab links to.
   render: (props: {
     repository: Row;
     version: number | null;
+    plugin: FrameworkPlugin;
     descriptor: PluginDescriptor;
   }) => ReactNode;
 }
