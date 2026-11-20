@@ -93,8 +93,17 @@ const TEXT_FILTERS = [
   'repository',
 ] as const;
 
+// What a distribution is created with: the name, the path it is served under
+// and the repository it serves. Nothing else is set at creation, so a new
+// distribution has no content guard.
+export interface DistributionCreate {
+  name: string;
+  base_path: string;
+  repository: string;
+}
+
 // What a plugin's generated client offers for its distributions.
-export interface DistributionApi<TListParams, TUpdate> {
+export interface DistributionApi<TListParams, TCreate, TUpdate> {
   list: (params?: TListParams, options?: Options) => Promise<unknown>;
   // The address a list with these parameters is requested from, as the client
   // builds it.
@@ -104,6 +113,7 @@ export interface DistributionApi<TListParams, TUpdate> {
     params?: undefined,
     options?: Options,
   ) => Promise<unknown>;
+  create: (body: TCreate, options?: Options) => Promise<unknown>;
   partialUpdate: (
     href: string,
     body: TUpdate,
@@ -112,7 +122,7 @@ export interface DistributionApi<TListParams, TUpdate> {
   remove: (href: string, options?: Options) => Promise<unknown>;
 }
 
-export interface DistributionEntity<Row, TUpdate> {
+export interface DistributionEntity<Row, TCreate, TUpdate> {
   readonly app: string;
   readonly object: 'distribution';
   list: (
@@ -122,6 +132,8 @@ export interface DistributionEntity<Row, TUpdate> {
   // The address a list of these parameters is requested from.
   urlOf: (params?: DistributionListParams) => string;
   retrieve: (href: string, options?: Options) => Promise<Row>;
+  // Creates a distribution; resolves with the address of the task that does it.
+  create: (body: TCreate, options?: Options) => Promise<string>;
   update: (
     href: string,
     body: TUpdate,
@@ -141,6 +153,7 @@ export interface DistributionEntity<Row, TUpdate> {
 export function makeDistributionEntity<
   Row extends DistributionBase,
   TListParams,
+  TCreate,
   TUpdate,
 >({
   app,
@@ -149,8 +162,8 @@ export function makeDistributionEntity<
 }: {
   app: string;
   schema: ZodType<Row>;
-  api: DistributionApi<TListParams, TUpdate>;
-}): DistributionEntity<Row, TUpdate> {
+  api: DistributionApi<TListParams, TCreate, TUpdate>;
+}): DistributionEntity<Row, TCreate, TUpdate> {
   const pageSchema = pageSchemaOf(schema);
 
   const requestOf = (params: DistributionListParams) =>
@@ -169,6 +182,7 @@ export function makeDistributionEntity<
     urlOf: (params = {}) => api.listUrl(requestOf(params)),
     retrieve: async (href, options) =>
       parseResponse(schema, await api.read(href, undefined, options)),
+    create: async (body, options) => taskOf(await api.create(body, options)),
     update: async (href, body, options) =>
       parseUpdate(schema, await api.partialUpdate(href, body, options)),
     remove: async (href, options) => taskOf(await api.remove(href, options)),

@@ -23,6 +23,9 @@ interface Props {
   // above the actions, and the alert's title.
   failure?: ReactNode;
   failureTitle: string;
+  // What follows the fields and precedes the failure: a part of the form that
+  // is not a field of the descriptor.
+  extra?: ReactNode;
   onChange: (name: string, value: unknown) => void;
   // Pressing Enter in a text input sends the form; the screen decides what
   // sending does and guards against sending twice.
@@ -43,6 +46,7 @@ export const DescriptorForm = ({
   remotes,
   failure,
   failureTitle,
+  extra,
   onChange,
   onSubmit,
   children,
@@ -86,6 +90,7 @@ export const DescriptorForm = ({
         </FormGroup>
       );
     })}
+    {extra}
     {failure ? (
       <Alert
         variant='danger'

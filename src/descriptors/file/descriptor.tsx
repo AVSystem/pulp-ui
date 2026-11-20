@@ -71,6 +71,9 @@ const descriptor: PluginDescriptor<FileRepository> = {
         help: msg`Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download.`,
       },
     ],
+    // A new repository does not publish by itself and writes no SHA256SUMS
+    // files, which is what the server does when it is told nothing.
+    createDefaults: { autopublish: false, sha256sums: 'disabled' },
     tabs: [versionsTab<FileRepository>(), distributionsTab<FileRepository>()],
     // The manifest sits next to the content, at the distribution's URL. The
     // command is pasted into a terminal, so the name and the URL are quoted as

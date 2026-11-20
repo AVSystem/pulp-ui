@@ -327,14 +327,17 @@ msgid "404 - Page not found"
 msgstr "404 - Page not found"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot contain a \".\" or \"..\" segment."
 msgstr "A base path cannot contain a \".\" or \"..\" segment."
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot contain spaces, \"?\" or \"#\"."
 msgstr "A base path cannot contain spaces, \"?\" or \"#\"."
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot start or end with a slash or contain two slashes in a row."
 msgstr "A base path cannot start or end with a slash or contain two slashes in a row."
 
@@ -346,6 +349,10 @@ msgstr "A base path cannot start or end with a slash or contain two slashes in a
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
 msgstr "A distribution named \"{0}\" already exists."
+
+#: src/framework/form/create-flow.ts
+msgid "A distribution named \"{name}\" already exists."
+msgstr "A distribution named \"{name}\" already exists."
 
 #: src/framework/list/label-filter.tsx
 msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
@@ -455,6 +462,7 @@ msgstr "Actions"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "Add"
 
@@ -533,6 +541,7 @@ msgstr "Add new remote"
 #: src/containers/file-repository/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/repository-create.tsx
 msgid "Add new repository"
 msgstr "Add new repository"
 
@@ -957,10 +966,12 @@ msgstr "Back"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Base path"
 msgstr "Base path"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 msgstr "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 
@@ -1054,6 +1065,7 @@ msgstr "CA certificate"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -1706,6 +1718,7 @@ msgstr "Content counts could not be read."
 #~ msgstr "Content from roles and collections can be referenced in Ansible PlayBooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 msgstr "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 
@@ -1783,6 +1796,7 @@ msgstr "Copyable input"
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
 msgstr "Could not check whether the name and base path are free: {reason}. Nothing was created."
@@ -1833,7 +1847,12 @@ msgstr "Create"
 msgid "Create a distribution \"{0}\" for this repository"
 msgstr "Create a distribution \"{0}\" for this repository"
 
+#: src/framework/form/distribution-option.tsx
+msgid "Create a distribution \"{name}\" for this repository"
+msgstr "Create a distribution \"{name}\" for this repository"
+
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Create a distribution for this repository"
 msgstr "Create a distribution for this repository"
 
@@ -1933,6 +1952,7 @@ msgstr "Created date"
 #~ msgid "Created distribution \"{0}\" at base path {basePath}."
 #~ msgstr "Created distribution \"{0}\" at base path {basePath}."
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
 msgstr "Created distribution \"{name}\" at base path {basePath}."
@@ -2448,6 +2468,7 @@ msgstr "Disabled"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Distributions"
 msgstr "Distributions"
 
@@ -2731,6 +2752,7 @@ msgid "Enabled"
 msgstr "Enabled"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Enter a base path."
 msgstr "Enter a base path."
 
@@ -6140,6 +6162,7 @@ msgstr "Repair task"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
@@ -6185,10 +6208,12 @@ msgstr "Repositories will appear once created."
 #~ msgid "Repository \"{0}\" was created. The distribution \"{1}\" was not created: {distributionError}"
 #~ msgstr "Repository \"{0}\" was created. The distribution \"{1}\" was not created: {distributionError}"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
 msgstr "Repository \"{name}\" was created. Its distribution was not confirmed."
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
 msgstr "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
@@ -6197,6 +6222,11 @@ msgstr "Repository \"{name}\" was created. The distribution \"{name}\" is still 
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
 msgstr "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
 
+#: src/framework/form/create-flow.ts
+msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {reason}"
+msgstr "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {reason}"
+
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
@@ -6208,6 +6238,10 @@ msgstr "Repository \"{repositoryName}\" could not be updated"
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "Repository {repoName} not found."
+
+#: src/framework/form/repository-create.tsx
+msgid "Repository could not be created"
+msgstr "Repository could not be created"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
@@ -6617,6 +6651,7 @@ msgstr "Running"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Save"
 msgstr "Save"
@@ -7262,6 +7297,7 @@ msgstr "Successfully created remote {0}"
 #~ msgid "Successfully created repository {0}"
 #~ msgstr "Successfully created repository {0}"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Successfully created repository {name}"
 msgstr "Successfully created repository {name}"
@@ -7517,6 +7553,7 @@ msgstr "Task could not be displayed."
 msgid "Task detail"
 msgstr "Task detail"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "Task failed without error message."
@@ -7599,6 +7636,7 @@ msgstr "The {plugin} plugin is not installed on this Pulp server."
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 #~ msgstr "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
 msgstr "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
@@ -7626,6 +7664,7 @@ msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "The change to repository \"{repositoryName}\" is still running."
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
 msgstr "The client URL is shown on the repository page once the distribution exists."
 
@@ -7673,6 +7712,7 @@ msgid "The delete stopped with an unexpected error. Some distributions or the re
 msgstr "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 
@@ -7805,6 +7845,7 @@ msgid "The request failed."
 msgstr "The request failed."
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
 msgstr "The reserved base paths of this server could not be read, so a distribution cannot be created here."
 
@@ -7856,6 +7897,7 @@ msgstr "The server could not be reached: {message}"
 msgid "The session could not be checked"
 msgstr "The session could not be checked"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
@@ -8370,6 +8412,7 @@ msgid "URL"
 msgstr "URL"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "URL (preview): {url}"
 msgstr "URL (preview): {url}"
 

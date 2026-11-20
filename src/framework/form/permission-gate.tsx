@@ -108,3 +108,52 @@ export const FormPermissionGate = ({
 
   return <LoadingPage />;
 };
+
+interface CreateProps {
+  plugin: FrameworkPlugin;
+  // The permission the form needs, by its key in the plugin's manifest.
+  permission: keyof IPluginPermissions['repository'];
+  title: string;
+  children: ReactNode;
+}
+
+// The gate of a form that makes a new object. There is no object yet, so no
+// role on a single object can grant the permission: only the permissions held on
+// every object count. The states are those of FormPermissionGate: the loading
+// page until the permissions are known, a failed read says so and offers to
+// read again, a session that ended says nothing, and only a user known to lack
+// the permission sees the insufficient permissions page. Presentation only;
+// Pulp decides every save.
+export const CreatePermissionGate = ({
+  plugin,
+  permission,
+  title,
+  children,
+}: CreateProps) => {
+  const {
+    hasPermission,
+    permissionsReady,
+    permissionsFailed,
+    permissionsError,
+  } = useAppContext();
+  const manifest = PLUGIN_MANIFESTS.find(
+    (candidate) => candidate.plugin === plugin,
+  ) as PluginManifest;
+
+  if (permissionsFailed && !isSessionEnd(permissionsError)) {
+    return <PermissionsFailed title={title} />;
+  }
+  if (!permissionsReady) {
+    return <LoadingPage />;
+  }
+  if (hasPermission(manifest.permissions.repository[permission])) {
+    return <>{children}</>;
+  }
+
+  return (
+    <>
+      <BaseHeader title={title} />
+      <InsufficientPermissions />
+    </>
+  );
+};
