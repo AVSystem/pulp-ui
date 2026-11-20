@@ -941,6 +941,7 @@ msgstr "Terug"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Base path"
 msgstr "Basispad"
 
@@ -1232,6 +1233,7 @@ msgstr "Alle filters wissen"
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
 msgstr "CLI-configuratie"
 
@@ -1260,6 +1262,7 @@ msgstr "Klantsleutel"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "Clients kunnen de inhoud pas downloaden zodra een distributie deze aanbiedt."
 
@@ -1877,6 +1880,7 @@ msgstr "Namespaces van de collectie aanmaken, verwijderen en wijzigen. Collectie
 #: src/containers/role-management/role-list.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Created"
 msgstr "Gemaakt"
 
@@ -2412,6 +2416,7 @@ msgstr "Uitgeschakeld"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Distributions"
 msgstr "Distributies"
 
@@ -2420,6 +2425,7 @@ msgstr "Distributies"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Distributions could not be displayed."
 msgstr "Distributies kunnen niet worden weergegeven."
 
@@ -4278,6 +4284,7 @@ msgstr "Mijn profiel"
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Name"
 msgstr "Naam"
 
@@ -4476,6 +4483,7 @@ msgstr "Nog geen collectieversies"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
 msgstr "Geen distributie biedt deze repository aan"
 
@@ -4731,6 +4739,7 @@ msgstr "Nog geen gebruikers"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
@@ -8194,6 +8203,7 @@ msgstr "Uploads"
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "URL"
 msgstr "URL"
 

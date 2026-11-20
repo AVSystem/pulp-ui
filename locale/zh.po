@@ -941,6 +941,7 @@ msgstr "返回"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Base path"
 msgstr "基本路径"
 
@@ -1232,6 +1233,7 @@ msgstr "清除所有过滤器"
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
 msgstr "CLI 配置"
 
@@ -1260,6 +1262,7 @@ msgstr "客户端密钥"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "在有分发提供之前，客户端无法下载其内容。"
 
@@ -1877,6 +1880,7 @@ msgstr "创建、删除和更改集合命名空间。上传和删除集合。从
 #: src/containers/role-management/role-list.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Created"
 msgstr "创建"
 
@@ -2412,6 +2416,7 @@ msgstr "禁用"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Distributions"
 msgstr "分发"
 
@@ -2420,6 +2425,7 @@ msgstr "分发"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Distributions could not be displayed."
 msgstr "无法显示分发。"
 
@@ -4278,6 +4284,7 @@ msgstr "我的配置集"
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Name"
 msgstr "名称"
 
@@ -4476,6 +4483,7 @@ msgstr "还没有集合版本"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
 msgstr "没有分发提供此仓库"
 
@@ -4731,6 +4739,7 @@ msgstr "还没有用户"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
@@ -8194,6 +8203,7 @@ msgstr "上传"
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "URL"
 msgstr "URL"
 

@@ -942,6 +942,7 @@ msgstr "Back"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Base path"
 msgstr "Base path"
 
@@ -1233,6 +1234,7 @@ msgstr "Clear all filters"
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
 msgstr "CLI configuration"
 
@@ -1261,6 +1263,7 @@ msgstr "Client key"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "Clients cannot download its content until a distribution serves it."
 
@@ -1878,6 +1881,7 @@ msgstr "Create, delete and change collection namespaces. Upload and delete colle
 #: src/containers/role-management/role-list.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Created"
 msgstr "Created"
 
@@ -2413,6 +2417,7 @@ msgstr "Disabled"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Distributions"
 msgstr "Distributions"
 
@@ -2421,6 +2426,7 @@ msgstr "Distributions"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Distributions could not be displayed."
 msgstr "Distributions could not be displayed."
 
@@ -4279,6 +4285,7 @@ msgstr "My profile"
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "Name"
 msgstr "Name"
 
@@ -4477,6 +4484,7 @@ msgstr "No collection versions yet"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
 msgstr "No distribution serves this repository"
 
@@ -4732,6 +4740,7 @@ msgstr "No users yet"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
@@ -8195,6 +8204,7 @@ msgstr "Uploads"
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/framework/detail/distributions-tab.tsx
 msgid "URL"
 msgstr "URL"
 

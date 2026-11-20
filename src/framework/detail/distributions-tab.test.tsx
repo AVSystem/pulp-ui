@@ -339,7 +339,9 @@ describe(
 
       // switch the filter to the base path
       await user.click(screen.getByRole('button', { name: /name/i }));
-      await user.click(await screen.findByText('Base path'));
+      await user.click(
+        await screen.findByRole('menuitem', { name: 'Base path' }),
+      );
       await user.type(screen.getByRole('textbox'), 'two/{Enter}');
       await waitFor(() => expect(screen.queryByText('alpha-dist')).toBeNull());
       expect(screen.getByText('beta-dist')).toBeVisible();
@@ -351,17 +353,17 @@ describe(
       expect(lab.distributions.queries).toHaveLength(before);
     });
 
-    it('orders the rows by name and lets the user order them by another column', async () => {
+    it('orders the rows by name and lets the user order them by another column, in both directions', async () => {
       serveLab({
         distributions: (repository) => [
           pluginDistribution('file', {
             name: 'b-dist',
-            base_path: 'a-path',
+            base_path: 'b-path',
             repository,
           }),
           pluginDistribution('file', {
             name: 'a-dist',
-            base_path: 'b-path',
+            base_path: 'a-path',
             repository,
           }),
         ],
@@ -376,13 +378,17 @@ describe(
         Array.from(document.querySelectorAll('tbody tr')).map(
           (row) => row.querySelector('td')?.textContent,
         );
+      const sortByBasePath = () =>
+        user.click(
+          document.querySelector('[data-cy="sort_base_path"]') as Element,
+        );
       expect(names()).toEqual(['a-dist', 'b-dist']);
 
-      await user.click(
-        document.querySelector('[data-cy="sort_base_path"]') as Element,
-      );
-
+      await sortByBasePath();
       await waitFor(() => expect(names()).toEqual(['b-dist', 'a-dist']));
+
+      await sortByBasePath();
+      await waitFor(() => expect(names()).toEqual(['a-dist', 'b-dist']));
     });
 
     it('pages ten rows at a time', async () => {
@@ -427,12 +433,13 @@ describe(
         ],
       });
       const seen: string[] = [];
-      server.events.on('request:start', ({ request }) => {
+      const record = ({ request }: { request: Request }) => {
         const url = new URL(request.url);
         if (url.pathname.startsWith(API)) {
           seen.push(url.pathname);
         }
-      });
+      };
+      server.events.on('request:start', record);
 
       renderTab();
       await rowOf('dist-00');
@@ -446,7 +453,7 @@ describe(
       expect(lab.publications.queries.length).toBeLessThanOrEqual(1);
       expect(own.length).toBeLessThanOrEqual(3);
       expect(own.filter((path) => /\/[0-9a-f-]{36}\/$/.test(path))).toEqual([]);
-      server.events.removeAllListeners('request:start');
+      server.events.removeListener('request:start', record);
     });
   },
 );
