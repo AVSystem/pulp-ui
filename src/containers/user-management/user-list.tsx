@@ -275,7 +275,7 @@ const UserList = () => {
         <Td>
           <LabelGroup>
             {(user.groups ?? []).map((g) => (
-              <Label key={g.id}>{g.name}</Label>
+              <Label key={g.pulp_href ?? g.name}>{g.name}</Label>
             ))}
           </LabelGroup>
         </Td>

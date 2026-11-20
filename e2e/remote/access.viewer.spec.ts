@@ -47,9 +47,16 @@ const REMOTE_BODY: Record<string, Record<string, unknown>> = {
   'ansible/collection': { url: 'https://pulp.example/zz-e2e/' },
 };
 
-// The insufficient permissions page is on screen once the permissions of the
-// account have been read, with nothing that saves and no request that writes.
-async function expectRefusedForm(page: Page, path: string): Promise<void> {
+// What a form address of an existing object shows the limited account. An
+// object the account may read has a form it may not save: the insufficient
+// permissions page. An object it cannot see is absent for it: the not found
+// page, never a form of a new object. Either way nothing saves and no request
+// writes.
+async function expectRefusedForm(
+  page: Page,
+  path: string,
+  outcome: 'refused' | 'absent' = 'refused',
+): Promise<void> {
   const writes: string[] = [];
   page.on('request', (request) => {
     const { pathname } = new URL(request.url());
@@ -62,10 +69,15 @@ async function expectRefusedForm(page: Page, path: string): Promise<void> {
   });
 
   await page.goto(path);
-  await expect(title(page, 'Insufficient permissions')).toBeVisible();
-  await expect(
-    page.getByText('You do not have permission to view this page.'),
-  ).toBeVisible();
+  if (outcome === 'refused') {
+    await expect(title(page, 'Insufficient permissions')).toBeVisible();
+    await expect(
+      page.getByText('You do not have permission to view this page.'),
+    ).toBeVisible();
+  } else {
+    await expect(title(page, 'Page not found')).toBeVisible();
+    await expect(title(page, 'Insufficient permissions')).toHaveCount(0);
+  }
   await page.waitForLoadState('networkidle');
   await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
   await expect(page.getByText('The stack trace is:')).toHaveCount(0);
@@ -240,16 +252,23 @@ test.describe('the forms of repositories and remotes opened by address', () => {
     ] as const) {
       const base = `${plugin}/${kind}`;
 
-      test(`the ${plugin} ${kind} edit page of an existing object shows the insufficient permissions page`, async ({
+      test(`the ${plugin} ${kind} edit page of an existing object is refused: the permissions page for one the account can read, not found for one it cannot see`, async ({
         page,
       }) => {
         const absent = await missingPlugin(entry);
         test.skip(absent !== null, absent ?? '');
         const name = await objectName(kind, endpoint);
 
+        // what the account itself can list decides which of the two it is
+        const visible = await apiGet<{ count: number }>(
+          page.request,
+          `/pulp/api/v3/${kind}/${endpoint}/`,
+          { name, limit: '1', fields: 'name' },
+        );
         await expectRefusedForm(
           page,
           `${base}/edit/${encodeURIComponent(name)}`,
+          visible.count > 0 ? 'refused' : 'absent',
         );
       });
 

@@ -360,6 +360,22 @@ export function groupPage(
   return page(rows, options);
 }
 
+// A group as a user's own answer lists it: by name and address, with no
+// numeric id.
+export interface IUserGroup {
+  pulp_href: string;
+  prn: string;
+  name: string;
+}
+
+export function userGroup(id: number, name = `group-${id}`): IUserGroup {
+  return {
+    pulp_href: `/pulp/api/v3/groups/${id}/`,
+    prn: `prn:auth.group:${id}`,
+    name,
+  };
+}
+
 export interface IUser {
   pulp_href: string;
   id: number;
@@ -370,7 +386,7 @@ export interface IUser {
   is_staff: boolean;
   is_active: boolean;
   date_joined: string;
-  groups: IGroup[];
+  groups: (IGroup | IUserGroup)[];
   [field: string]: unknown;
 }
 

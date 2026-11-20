@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import { pulpHrefSchema } from 'src/entities/href';
 
-// A group a user belongs to, as the user screens show it. A field this schema
-// does not name is kept as it came.
+// A group a user belongs to, as the user screens show it. Pulp's user answer
+// lists each group by name and address only; a numeric id is not part of it,
+// so none is required. A field this schema does not name is kept as it came.
 const userGroupSchema = z.looseObject({
-  id: z.number(),
+  id: z.number().nullish(),
   name: z.string(),
   pulp_href: z.string().nullish(),
+  prn: z.string().nullish(),
 });
 
 // The fields the user screens read, and nothing else. A field this schema does

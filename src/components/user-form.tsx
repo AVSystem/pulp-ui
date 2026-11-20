@@ -142,7 +142,10 @@ export const UserForm = ({
           loadResults={setGroupFilter}
           onSelect={onSelectGroup}
           placeholderText={t`Select groups`}
-          selections={user.groups}
+          selections={user.groups.map(({ id, name }) => ({
+            id: id ?? name,
+            name,
+          }))}
           multiple
           onClear={clearGroups}
           isDisabled={isReadonly}

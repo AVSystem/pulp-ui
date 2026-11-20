@@ -1,5 +1,6 @@
 import type { PatchedUser } from '@pulp-ui/sdk/core/models/users/patched-user.zod';
 import type { User as NewUser } from '@pulp-ui/sdk/core/models/users/user.zod';
+import { groupUrlId } from 'src/entities/core/group/href';
 import type { User } from './model';
 
 // What the user form holds, one value per field, never a missing one: a text
@@ -12,10 +13,17 @@ export interface UserFormValues {
   last_name?: string;
   email?: string;
   password?: string;
-  groups: { id: number; name: string }[];
+  groups: { id?: number; name: string }[];
 }
 
 const TEXT_FIELDS = ['username', 'first_name', 'last_name', 'email'] as const;
+
+// The numeric id of a group from its address, for the answers that list a
+// group by name and address only.
+function numericGroupId(href: string | null | undefined): number | undefined {
+  const id = groupUrlId(href);
+  return id === null ? undefined : Number(id);
+}
 
 // A user as the form shows it: the fields the server left out or sent as null
 // are empty texts, and the password is empty.
@@ -28,7 +36,10 @@ export function userToForm(user: User): UserFormValues {
     last_name: user.last_name ?? '',
     email: user.email ?? '',
     password: '',
-    groups: (user.groups ?? []).map(({ id, name }) => ({ id, name })),
+    groups: (user.groups ?? []).map(({ id, name, pulp_href }) => ({
+      id: id ?? numericGroupId(pulp_href),
+      name,
+    })),
   };
 }
 

@@ -1,7 +1,7 @@
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { ResponseShapeError, parseResponse } from 'src/entities/response-shape';
-import { group, userPage, userRow } from 'src/test-utils/pulp';
+import { userGroup, userPage, userRow } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import { RemovalNotConfirmedError, UserClient } from './client';
 import { userHref, userUrlId } from './href';
@@ -12,7 +12,7 @@ const USERS = '*/pulp/api/v3/users/';
 
 describe('user model', { tags: ['unit'] }, () => {
   it('parses a page with relative hrefs and keeps fields it does not name', () => {
-    const row = userRow({ username: 'zz-ann', groups: [group()] });
+    const row = userRow({ username: 'zz-ann', groups: [userGroup(3)] });
     const body = { ...userPage([row]), extra: 'kept' };
 
     const parsed = parseResponse(userPageSchema, body);
@@ -21,6 +21,18 @@ describe('user model', { tags: ['unit'] }, () => {
     expect(parsed.results[0].pulp_href).toBe(row.pulp_href);
     expect(parsed.results[0].username).toBe('zz-ann');
     expect(parsed.results[0].groups).toHaveLength(1);
+  });
+
+  it('accepts a group listed by name and address only, as the server lists it', () => {
+    const row = userRow({
+      username: 'zz-ann',
+      groups: [userGroup(3, 'zz-group'), userGroup(9, 'zz-other')],
+    });
+
+    const parsed = parseResponse(userSchema, row);
+
+    expect(parsed.groups?.map((g) => g.name)).toEqual(['zz-group', 'zz-other']);
+    expect(parsed.groups?.[0]).not.toHaveProperty('id');
   });
 
   it('keeps a field a later server version adds', () => {
