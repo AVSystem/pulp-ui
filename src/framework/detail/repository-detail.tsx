@@ -1,9 +1,8 @@
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
-import { Button } from '@patternfly/react-core';
+import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -24,6 +23,7 @@ import {
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
 import type { PluginDescriptor } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
 import {
@@ -32,6 +32,7 @@ import {
   repositoryListPath,
   repositoryPath,
 } from '../route-patterns';
+import { useQueuedAlerts } from '../use-queued-alerts';
 import { DetailsTab } from './details-tab';
 import { useRepositoryPermission } from './use-repository-permission';
 
@@ -69,15 +70,10 @@ const RepositoryDetailScreen = ({
 }: Props & { name?: string; number?: string }) => {
   const { entity, tabs: pluginTabs = [] } = descriptor.repository;
   // The alerts another screen queued for this one (the result of an edit) are
-  // taken over once, so they show here and nowhere else.
-  const { alerts: queued, setAlerts: setQueued } = useAppContext();
-  const [alerts, setAlerts] = useState<AlertType[]>(queued);
+  // taken over once, so they show here and nowhere else, also when they are
+  // queued while this screen is already shown.
+  const { alerts, setAlerts, handOver } = useQueuedAlerts();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (queued.length > 0) {
-      setQueued([]);
-    }
-  }, []);
 
   const shown = tab === null ? null : pluginTabs.find(({ id }) => id === tab);
   const version = number === undefined ? null : Number(number);
@@ -93,6 +89,9 @@ const RepositoryDetailScreen = ({
   // Whether the user may edit the repository: the change permission is held on
   // every repository or on this one.
   const mayEdit = useRepositoryPermission(plugin, repository, 'change');
+  // Whether it may delete it, with the distributions that serve it.
+  const mayDelete = useRepositoryPermission(plugin, repository, 'delete');
+  const [deleting, setDeleting] = useState(false);
 
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
@@ -213,15 +212,32 @@ const RepositoryDetailScreen = ({
           />
         }
         pageControls={
-          mayEdit ? (
-            <Button
-              variant='secondary'
-              onClick={() =>
-                navigate(repositoryEditPath(plugin, repository.name))
-              }
-            >
-              {t`Edit`}
-            </Button>
+          mayEdit || mayDelete ? (
+            <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+              {mayEdit ? (
+                <FlexItem>
+                  <Button
+                    variant='secondary'
+                    onClick={() =>
+                      navigate(repositoryEditPath(plugin, repository.name))
+                    }
+                  >
+                    {t`Edit`}
+                  </Button>
+                </FlexItem>
+              ) : null}
+              {mayDelete ? (
+                <FlexItem>
+                  <Button
+                    variant='secondary'
+                    isDanger
+                    onClick={() => setDeleting(true)}
+                  >
+                    {t`Delete`}
+                  </Button>
+                </FlexItem>
+              ) : null}
+            </Flex>
           ) : undefined
         }
       >
@@ -231,6 +247,19 @@ const RepositoryDetailScreen = ({
           </div>
         </div>
       </BaseHeader>
+      {deleting ? (
+        <DeleteRepositoryDialog
+          descriptor={descriptor}
+          repository={repository}
+          onClose={() => setDeleting(false)}
+          onDeleted={(alert) => {
+            // The repository is gone: the list is where the user goes, and it
+            // shows the result.
+            handOver(alert);
+            navigate(repositoryListPath(plugin));
+          }}
+        />
+      ) : null}
       <Main>
         <section
           className='pulp-section'

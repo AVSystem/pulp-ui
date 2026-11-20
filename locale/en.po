@@ -867,6 +867,7 @@ msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2>
 msgstr "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
 msgstr "Are you sure you want to delete the repository <0>{name}</0>?"
 
@@ -2105,6 +2106,8 @@ msgstr "Debian verbatim publish"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Delete"
 msgstr "Delete"
 
@@ -2209,6 +2212,7 @@ msgid "Delete repository version"
 msgstr "Delete repository version"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Delete repository?"
 msgstr "Delete repository?"
 
@@ -3648,6 +3652,7 @@ msgstr "Groups will appear once created"
 #~ msgstr "Groups with access"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Guard: {guardName}"
 msgstr "Guard: {guardName}"
 
@@ -3955,6 +3960,10 @@ msgstr "Issue tracker"
 #~ msgid "It does not make sense to include and exclude tags at the same time."
 #~ msgstr "It does not make sense to include and exclude tags at the same time."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "It is not known whether the repository was removed."
+msgstr "It is not known whether the repository was removed."
+
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
 #~ msgstr "It's safe to close this window. These tasks will finish in the"
@@ -4200,6 +4209,7 @@ msgid "Loading distribution..."
 msgstr "Loading distribution..."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "Loading distributions"
 
@@ -4582,6 +4592,7 @@ msgid "No distribution serves this repository"
 msgstr "No distribution serves this repository"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "No distribution serves this repository. Only the repository is deleted."
 msgstr "No distribution serves this repository. Only the repository is deleted."
 
@@ -4860,6 +4871,10 @@ msgstr "Not allowed"
 msgid "Not available"
 msgstr "Not available"
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not confirmed"
+msgstr "Not confirmed"
+
 #: src/containers/pulp-status.tsx
 msgid "Not connected"
 msgstr "Not connected"
@@ -4881,10 +4896,12 @@ msgid "Not loaded"
 msgstr "Not loaded"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed"
 msgstr "Not removed"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed, not shown when this dialog opened"
 msgstr "Not removed, not shown when this dialog opened"
 
@@ -4895,6 +4912,10 @@ msgstr "Not reported"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "Not required for use by other collections"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not sent"
+msgstr "Not sent"
 
 #: src/framework/list/derived-columns.tsx
 msgid "Not served"
@@ -5088,6 +5109,7 @@ msgid "Ostree sync"
 msgstr "Ostree sync"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Outcome unknown, check the task"
 msgstr "Outcome unknown, check the task"
 
@@ -5395,6 +5417,7 @@ msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Le
 msgstr "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Protected by a content guard: customer-facing URL"
 msgstr "Protected by a content guard: customer-facing URL"
 
@@ -6075,15 +6098,18 @@ msgstr "Remove user from group?"
 #~ msgstr "Remove version {version} from repository"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed"
 msgstr "Removed"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed distributions: {0}"
 msgstr "Removed distributions: {0}"
 
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed repository {name}"
 msgstr "Removed repository {name}"
 
@@ -6235,6 +6261,15 @@ msgstr "Repository \"{name}\" was created. The outcome of creating the distribut
 msgid "Repository \"{repositoryName}\" could not be updated"
 msgstr "Repository \"{repositoryName}\" could not be updated"
 
+#. placeholder {0}: keptTitle(result)
+#: src/framework/delete/delete-outcome.tsx
+#~ msgid "Repository {name}: {0}"
+#~ msgstr "Repository {name}: {0}"
+
+#: src/framework/delete/delete-repository-dialog.tsx
+#~ msgid "Repository {name}: the delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+#~ msgstr "Repository {name}: the delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "Repository {repoName} not found."
@@ -6329,6 +6364,10 @@ msgstr "Repository versions could not be displayed."
 msgid "Repository versions will appear once the repository is modified."
 msgstr "Repository versions will appear once the repository is modified."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "Repository: {name}"
+msgstr "Repository: {name}"
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "required"
 #~ msgstr "required"
@@ -6397,6 +6436,7 @@ msgstr "Retries"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
@@ -7236,6 +7276,7 @@ msgstr "Status"
 #~ msgstr "Status:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Still being removed"
 msgstr "Still being removed"
 
@@ -7526,6 +7567,7 @@ msgstr "Tag image"
 #~ msgstr "Tags could not be displayed."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "task"
 msgstr "task"
 
@@ -7553,7 +7595,7 @@ msgstr "Task could not be displayed."
 msgid "Task detail"
 msgstr "Task detail"
 
-#: src/framework/form/create-flow.ts
+#: src/framework/task-end.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "Task failed without error message."
@@ -7708,6 +7750,7 @@ msgid "The configuration could not be copied to the clipboard."
 msgstr "The configuration could not be copied to the clipboard."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 
@@ -7717,14 +7760,17 @@ msgid "The distribution will have no content guard: anyone who can reach this se
 msgstr "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
 msgstr "The distributions of this repository could not be listed, so nothing can be deleted."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "The distributions of this repository could not be listed, so nothing was deleted."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The distributions were removed but the repository was kept."
 msgstr "The distributions were removed but the repository was kept."
 
@@ -7775,6 +7821,7 @@ msgid "The outcome of removing remote {name} is unknown, because the task status
 msgstr "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "The outcome of removing the repository is unknown. Check the task:"
 
@@ -7812,6 +7859,7 @@ msgid "The removal of remote {name} is still running."
 msgstr "The removal of remote {name} is still running."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The removal of the repository has not been confirmed."
 msgstr "The removal of the repository has not been confirmed."
 
@@ -7821,6 +7869,7 @@ msgstr "The repository content could not be read"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "The repository could not be removed: {0}"
 
@@ -7829,14 +7878,17 @@ msgid "The repository gets a new latest version with the content of that version
 msgstr "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository is still being removed:"
 msgstr "The repository is still being removed:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
 msgstr "The repository was kept because not every distribution was removed."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was not removed."
 msgstr "The repository was not removed."
 
@@ -7896,6 +7948,10 @@ msgstr "The server could not be reached: {message}"
 #: src/app-routes.tsx
 msgid "The session could not be checked"
 msgstr "The session could not be checked"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "The session ended before the delete was finished."
+msgstr "The session ended before the delete was finished."
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -8016,6 +8072,7 @@ msgid "There's no resource record"
 msgstr "There's no resource record"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 

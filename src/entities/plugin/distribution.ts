@@ -31,7 +31,7 @@ import {
 // server once per row.
 //
 // What the screens read of a distribution: where it is served from, what it
-// is bound to and its labels. An unnamed field is kept as it came and every
+// is bound to, the content guard that protects it and its labels. An unnamed field is kept as it came and every
 // address is a same-origin path. The base URL is the one the server reports;
 // it is never rebuilt from the base path.
 const distributionSchema = z.looseObject({
@@ -42,6 +42,7 @@ const distributionSchema = z.looseObject({
   repository: pulpHrefSchema.nullish(),
   publication: pulpHrefSchema.nullish(),
   repository_version: pulpHrefSchema.nullish(),
+  content_guard: pulpHrefSchema.nullish(),
   pulp_labels: z.record(z.string(), z.string().nullable()).nullish(),
   pulp_created: z.string().nullish(),
 });
@@ -58,6 +59,7 @@ export const DISTRIBUTION_INDEX_FIELDS = [
   'repository',
   'publication',
   'repository_version',
+  'content_guard',
   'pulp_labels',
   'pulp_created',
 ] as const;

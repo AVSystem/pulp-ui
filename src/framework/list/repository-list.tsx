@@ -15,7 +15,6 @@ import { useAppContext } from 'src/app-context';
 import {
   Alert,
   AlertList,
-  type AlertType,
   BaseHeader,
   EmptyStateFilter,
   EmptyStateNoData,
@@ -47,6 +46,7 @@ import {
   requestErrorReason,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
 import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
 import {
@@ -55,6 +55,7 @@ import {
   type PluginManifest,
 } from '../manifest';
 import { newRepositoryPath } from '../route-patterns';
+import { useQueuedAlerts } from '../use-queued-alerts';
 import {
   BaseUrlCell,
   type ColumnState,
@@ -172,8 +173,6 @@ const RepositoryListScreen = ({
   const location = useLocation();
   const navigate = useNavigate();
   const {
-    alerts: queuedAlerts,
-    setAlerts: setQueuedAlerts,
     hasPermission,
     permissionsError,
     permissionsFailed,
@@ -319,9 +318,15 @@ const RepositoryListScreen = ({
   const permits = (permission: RepositoryPermission, row: RepositoryBase) =>
     hasPermission(names[permission]) ||
     (needsObjectRoles && objectRoles.can(row.pulp_href, names[permission]));
+  // The repository whose delete dialog is open.
+  const [deleting, setDeleting] = useState<RepositoryBase | null>(null);
+  const requestDelete = useCallback(
+    (row: RepositoryBase) => setDeleting(row),
+    [],
+  );
   const actionContext = useMemo<RowActionContext>(
-    () => ({ plugin, navigate }),
-    [plugin, navigate],
+    () => ({ plugin, navigate, requestDelete }),
+    [plugin, navigate, requestDelete],
   );
 
   // A failed read of what the user may do says so once, with the one button
@@ -354,11 +359,7 @@ const RepositoryListScreen = ({
   ) : undefined;
 
   // What other screens queued for this one is shown once, then forgotten.
-  const [alerts, setAlerts] = useState<AlertType[]>(() => queuedAlerts ?? []);
-  useEffect(() => {
-    setQueuedAlerts([]);
-    // only at the first showing of the screen
-  }, []);
+  const { alerts, setAlerts } = useQueuedAlerts();
 
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
@@ -581,6 +582,20 @@ const RepositoryListScreen = ({
     <>
       {alertList}
       {header}
+      {deleting ? (
+        <DeleteRepositoryDialog
+          key={deleting.pulp_href}
+          descriptor={descriptor}
+          repository={deleting}
+          onClose={() => setDeleting(null)}
+          onDeleted={(alert) => {
+            // The rows are read again by the delete itself; the screen says
+            // what was removed.
+            setAlerts((current) => [...current, alert]);
+            setDeleting(null);
+          }}
+        />
+      ) : null}
       <Main>
         <section className='pulp-section'>
           <div className='pulp-toolbar'>
