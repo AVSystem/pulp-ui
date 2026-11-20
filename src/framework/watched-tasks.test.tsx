@@ -1,4 +1,5 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import {
   type RouteObject,
   useLocation,
@@ -9,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
 import { AlertList } from 'src/components';
+import fileDescriptor from 'src/descriptors/file/descriptor';
 import { taskUrlId } from 'src/entities/core/task/href';
 import { taskKeys } from 'src/entities/core/task/queries';
 import { entityKeys } from 'src/entities/plugin/queries';
@@ -26,6 +28,7 @@ import {
   pluginRepository,
   projectedBy,
   publicationListHandler,
+  repositoryVersion,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -35,9 +38,12 @@ import {
   signedIn,
 } from 'src/test-utils/sign-in-again';
 import { API, type Lab, serveSyncLab } from 'src/test-utils/sync-lab';
+import { useUserContext } from 'src/user-context';
+import { RevertVersionDialog } from './detail/revert-version';
 import { PLUGIN_MANIFESTS, type PluginManifest } from './manifest';
 import { frameworkRoutes } from './routes';
 import {
+  WATCHED_TASKS_STORAGE_KEY,
   WATCH_POLL_MS,
   type WatchedTask,
   WatchedTasksProvider,
@@ -45,6 +51,7 @@ import {
   useWatchedAnnouncements,
 } from './watched-tasks';
 
+const OWNER = '/pulp/api/v3/users/1/';
 const REPOSITORY = `${API}/repositories/file/file/00000000-0000-4000-8000-000000000011/`;
 
 let intervals: IIntervals;
@@ -78,10 +85,14 @@ function Harness({ tasks }: { tasks: WatchedTask[] }) {
   const { watch } = useWatchTask();
   const { alerts, dismiss } = useWatchedAnnouncements();
   const navigate = useNavigate();
+  const { setUser, endSession } = useUserContext();
 
   return (
     <>
       <p data-testid='location'>{useLocation().pathname}</p>
+      <button type='button' onClick={() => endSession()}>
+        End session
+      </button>
       <SignInAgain />
       {tasks.map((task) => (
         <button key={task.href} type='button' onClick={() => watch(task)}>
@@ -91,8 +102,33 @@ function Harness({ tasks }: { tasks: WatchedTask[] }) {
       <button type='button' onClick={() => navigate('/tasks')}>
         Go to tasks
       </button>
+      <button
+        type='button'
+        onClick={() =>
+          setUser({ username: 'other', pulp_href: '/pulp/api/v3/users/2/' })
+        }
+      >
+        Other account
+      </button>
       <AlertList alerts={alerts} closeAlert={dismiss} />
     </>
+  );
+}
+
+function serveOtherAccount() {
+  server.use(
+    http.get('*/pulp/api/v3/users/2/roles/', () =>
+      HttpResponse.json({ count: 0, next: null, previous: null, results: [] }),
+    ),
+    http.get('*/pulp/api/v3/users/2/', () =>
+      HttpResponse.json({
+        username: 'other',
+        pulp_href: '/pulp/api/v3/users/2/',
+        id: 2,
+        is_staff: false,
+        groups: [],
+      }),
+    ),
   );
 }
 
@@ -117,6 +153,8 @@ async function tick(lab: Lab, times = 1) {
     await waitFor(() => expect(lab.details()).toBeGreaterThan(before));
   }
 }
+
+const stored = () => window.sessionStorage.getItem(WATCHED_TASKS_STORAGE_KEY);
 
 describe(
   'Integration: the tasks watched at the application root',
@@ -250,6 +288,7 @@ describe(
         expect(screen.getAllByText(/can no longer be followed/)).toHaveLength(
           1,
         );
+        expect(stored()).toBeNull();
       },
     );
 
@@ -325,6 +364,134 @@ describe(
 
       expect(lab.syncs).toEqual([]);
       expect(lab.cancels).toEqual([]);
+    });
+  },
+);
+
+describe(
+  'Integration: the watched tasks of one account',
+  { tags: ['integration'] },
+  () => {
+    it('forgets the tasks, in memory and in storage, when another account signs in, and announces nothing to it', async () => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      serveOtherAccount();
+      const { user } = renderHarness([watching(lab)]);
+      await signedIn();
+      await user.click(watchButton());
+      await waitFor(() => expect(lab.details()).toBe(1));
+      expect(stored()).not.toBeNull();
+
+      await user.click(screen.getByRole('button', { name: 'Other account' }));
+      await waitFor(() => expect(stored()).toBeNull());
+      const reads = lab.details();
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(WATCH_POLL_MS);
+      await pause();
+
+      expect(lab.details()).toBe(reads);
+      expect(screen.queryByRole('link', { name: 'View the task' })).toBeNull();
+    });
+
+    it('forgets the tasks when the user signs out', async () => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      const { user } = renderHarness([watching(lab)]);
+      await signedIn();
+      await user.click(watchButton());
+      await waitFor(() => expect(lab.details()).toBe(1));
+
+      await user.click(screen.getByRole('button', { name: 'End session' }));
+      await waitFor(() => expect(stored()).toBeNull());
+      const reads = lab.details();
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(WATCH_POLL_MS);
+      await pause();
+
+      expect(lab.details()).toBe(reads);
+      expect(screen.queryByRole('link', { name: 'View the task' })).toBeNull();
+    });
+
+    it('keeps the list of the same signed-in user over a reload of the tab and goes on watching', async () => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      const first = renderHarness([watching(lab)]);
+      await signedIn();
+      await first.user.click(watchButton());
+      await waitFor(() => expect(lab.details()).toBe(1));
+      expect(JSON.parse(stored() as string)).toEqual({
+        owner: OWNER,
+        tasks: [watching(lab)],
+      });
+      first.unmount();
+      resetSessionEvents();
+      const reads = lab.details();
+
+      renderHarness([]);
+      await signedIn();
+      await waitFor(() => expect(lab.details()).toBeGreaterThan(reads));
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(WATCH_POLL_MS);
+
+      expect(await screen.findByText('Sync of repo-1 finished.')).toBeVisible();
+      expect(stored()).toBeNull();
+    });
+
+    it('ignores and removes a list stored for another user', async () => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      window.sessionStorage.setItem(
+        WATCHED_TASKS_STORAGE_KEY,
+        JSON.stringify({
+          owner: '/pulp/api/v3/users/2/',
+          tasks: [watching(lab)],
+        }),
+      );
+
+      renderHarness([]);
+      await signedIn();
+      await waitFor(() => expect(stored()).toBeNull());
+      intervals.run(WATCH_POLL_MS);
+      await pause();
+
+      expect(lab.details()).toBe(0);
+    });
+
+    it.each([
+      ['text that is not JSON', 'not json'],
+      ['a value of another shape', JSON.stringify(['a'])],
+      ['an owner that is not a text', JSON.stringify({ owner: 5, tasks: [] })],
+      ['tasks that are not a list', JSON.stringify({ owner: OWNER, tasks: 3 })],
+    ])('ignores and removes %s', async (_name, value) => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      window.sessionStorage.setItem(WATCHED_TASKS_STORAGE_KEY, value);
+
+      renderHarness([]);
+      await signedIn();
+      await waitFor(() => expect(stored()).toBeNull());
+      await pause();
+
+      expect(lab.details()).toBe(0);
+    });
+
+    it('keeps only the stored tasks whose address is that of a task of this server', async () => {
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      const good = watching(lab);
+      window.sessionStorage.setItem(
+        WATCHED_TASKS_STORAGE_KEY,
+        JSON.stringify({
+          owner: OWNER,
+          tasks: [
+            good,
+            { href: `${API}/repositories/file/file/x/`, label: 'Not a task' },
+            { href: 'https://elsewhere.example.com/tasks/x/', label: 'Away' },
+            { href: '//elsewhere.example.com/tasks/x/', label: 'Away' },
+            { href: good.href, label: 5 },
+            'text',
+          ],
+        }),
+      );
+
+      renderHarness([]);
+      await signedIn();
+      await waitFor(() => expect(lab.details()).toBeGreaterThan(0));
+      expect(JSON.parse(stored() as string).tasks).toEqual([good]);
     });
   },
 );
@@ -423,3 +590,54 @@ describe(
     });
   },
 );
+
+describe(
+  'Integration: a revert started on the framework',
+  { tags: ['integration'] },
+  () => {
+    it('is watched the same way and announced as a revert', async () => {
+      serveSignIn();
+      const lab = serveSyncLab({ tasks: [{ state: 'running' }] });
+      const base = pluginRepository('file', { name: 'repo-1' });
+      const version = repositoryVersion(base, 1);
+      server.use(
+        http.post(`*${base.pulp_href}modify/`, () =>
+          HttpResponse.json({ task: lab.tasks[0].pulp_href }, { status: 202 }),
+        ),
+      );
+      const onClose = vi.fn();
+      const { user } = renderWithProviders(
+        <WatchedTasksProvider>
+          <AppContextProvider>
+            <PermissionsKnown>
+              <AlertsOnly />
+              <RevertVersionDialog
+                repository={base}
+                version={version}
+                entity={fileDescriptor.repository.entity}
+                addAlert={() => undefined}
+                onClose={onClose}
+              />
+            </PermissionsKnown>
+          </AppContextProvider>
+        </WatchedTasksProvider>,
+        { signedIn: true },
+      );
+
+      await user.click(await screen.findByRole('button', { name: /^Revert/ }));
+      await waitFor(() => expect(onClose).toHaveBeenCalled());
+      await waitFor(() => expect(lab.details()).toBeGreaterThan(0));
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(WATCH_POLL_MS);
+
+      expect(
+        await screen.findByText('Revert of repo-1 finished.'),
+      ).toBeVisible();
+    });
+  },
+);
+
+function AlertsOnly() {
+  const { alerts, dismiss } = useWatchedAnnouncements();
+  return <AlertList alerts={alerts} closeAlert={dismiss} />;
+}
