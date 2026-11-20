@@ -250,10 +250,14 @@ async function useReturnWithoutSession(page: Page): Promise<void> {
   });
 }
 
-// Opens the sidebar where it is a drawer.
+// Opens the sidebar where it is a drawer. The toggle is found by its id, not
+// by its label, which is translated.
 async function openSidebar(page: Page): Promise<void> {
-  const open = page.getByRole('button', { name: 'Open navigation' });
-  if (await open.isVisible()) {
+  const open = page.locator('#pulp-sidebar-toggle');
+  if (
+    (await open.isVisible()) &&
+    (await open.getAttribute('aria-expanded')) === 'false'
+  ) {
     await open.click();
     await expect(page.locator('#page-sidebar')).toHaveCSS('opacity', '1');
   }
@@ -469,7 +473,10 @@ test.describe('insufficient permissions page', () => {
       );
       await page.goto('status');
 
-      await expect(page.getByText('Failed to load status')).toBeVisible();
+      // a refused status read is the insufficient permissions page, with the
+      // reason Pulp gave, for a visitor as for a signed-in account
+      await expect(title(page, 'Insufficient permissions')).toBeVisible();
+      await expect(page.getByText(REFUSED)).toBeVisible();
       await capture(page, 's2-signed-out-status-refused');
     });
   });
