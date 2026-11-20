@@ -183,6 +183,10 @@ export interface RepositoryKind<Row> {
   // The rows of the Details tab, in order.
   detailRows: DetailRow<Row>[];
   fields?: FieldDef[];
+  // What the create form holds for a field before the user touches it, by the
+  // field's name and in the form's representation of the value (see
+  // form-values). A field with no entry starts blank, as its kind says.
+  createDefaults?: Record<string, unknown>;
   columns?: ColumnDef<Row>[];
   filters?: FilterDef[];
   tabs?: TabDef<Row>[];

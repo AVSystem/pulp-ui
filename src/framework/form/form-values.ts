@@ -106,6 +106,38 @@ export function toRequest(
   );
 }
 
+// The kinds whose empty text is no value: a create sends null for them, so the
+// server is not told that a description is the empty string.
+const TEXT_KINDS: readonly FieldDef['kind'][] = [
+  'text',
+  'textarea',
+  'url',
+  'secret',
+  'select',
+];
+
+// The body of a create: the request value of every field, with null for a text
+// that was left empty. A blank number is null too (keep everything), and the
+// labels are an object. Nothing here changes what the user typed.
+export function toCreateBody(
+  fields: readonly FieldDef[],
+  values: FormValues,
+): Record<string, unknown> {
+  const body = toRequest(
+    fields,
+    values,
+    fields.map(({ name }) => name),
+  );
+
+  for (const { name, kind } of fields) {
+    if (TEXT_KINDS.includes(kind) && body[name] === '') {
+      body[name] = null;
+    }
+  }
+
+  return body;
+}
+
 // Why the label of this row cannot be sent, or null when it can.
 export function labelProblem(
   rows: readonly LabelRow[],

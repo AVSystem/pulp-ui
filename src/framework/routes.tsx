@@ -1,6 +1,5 @@
 import type { ComponentType, ElementType } from 'react';
 import { lazyScreen } from 'src/components/lazy-screen';
-import { NotFound } from 'src/components/not-found';
 import type { PluginDescriptor } from './descriptor';
 import type { FrameworkPlugin, PluginManifest } from './manifest';
 import {
@@ -98,9 +97,31 @@ function repositoryEditScreen(plugin: FrameworkPlugin): ComponentType {
   });
 }
 
+// The create form of a repository, drawn by the generic screen from the
+// plugin's descriptor.
+function repositoryCreateScreen(plugin: FrameworkPlugin): ComponentType {
+  const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
+    (typeof DESCRIPTORS)[FrameworkPlugin]
+  >;
+
+  return lazyScreen(async () => {
+    const [{ default: descriptor }, { RepositoryCreate }] = await Promise.all([
+      loadDescriptor(),
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/form/repository-create'
+      ),
+    ]);
+
+    return {
+      default: () => (
+        <RepositoryCreate plugin={plugin} descriptor={descriptor} />
+      ),
+    };
+  });
+}
+
 // The component of a pattern, or null while its screen does not exist yet:
-// such a pattern is not routed. The create address is reserved so that no
-// other route answers it, and leads to Not Found until its screen exists.
+// such a pattern is not routed.
 function componentOf(
   plugin: FrameworkPlugin,
   { screen, tab }: FrameworkPattern,
@@ -115,7 +136,7 @@ function componentOf(
     case 'repository-edit':
       return repositoryEditScreen(plugin);
     case 'repository-create':
-      return NotFound;
+      return repositoryCreateScreen(plugin);
     default:
       return null;
   }

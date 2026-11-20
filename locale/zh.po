@@ -326,14 +326,17 @@ msgid "404 - Page not found"
 msgstr "404 - 页未找到"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot contain a \".\" or \"..\" segment."
 msgstr "基本路径不能包含 \".\" 或 \"..\" 段。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot contain spaces, \"?\" or \"#\"."
 msgstr "基本路径不能包含空格、\"?\" 或 \"#\"。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot start or end with a slash or contain two slashes in a row."
 msgstr "基本路径不能以斜杠开头或结尾，也不能包含连续两个斜杠。"
 
@@ -345,6 +348,10 @@ msgstr "基本路径不能以斜杠开头或结尾，也不能包含连续两个
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
 msgstr "已存在名为 \"{0}\" 的分发。"
+
+#: src/framework/form/create-flow.ts
+msgid "A distribution named \"{name}\" already exists."
+msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
@@ -454,6 +461,7 @@ msgstr "操作"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "添加"
 
@@ -532,6 +540,7 @@ msgstr "添加新远程"
 #: src/containers/file-repository/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/repository-create.tsx
 msgid "Add new repository"
 msgstr "添加新软件仓库"
 
@@ -956,10 +965,12 @@ msgstr "返回"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Base path"
 msgstr "基本路径"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 msgstr "以 \"{reserved}\" 开头的基本路径在此服务器上已保留。请选择其他基本路径。"
 
@@ -1053,6 +1064,7 @@ msgstr "CA 证书"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Cancel"
 msgstr "取消"
@@ -1705,6 +1717,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 msgstr "在软件仓库中没有发行版的内容对客户端无法进行同步、下载或搜索。"
 
@@ -1782,6 +1795,7 @@ msgstr "可复制输入"
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "无法检查是否已有同步在运行。您仍可以启动一个；它将等待正在运行的同步完成。"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
 msgstr "无法检查名称和基本路径是否可用：{reason}。未创建任何内容。"
@@ -1832,7 +1846,12 @@ msgstr "创建"
 msgid "Create a distribution \"{0}\" for this repository"
 msgstr "为此仓库创建分发 \"{0}\""
 
+#: src/framework/form/distribution-option.tsx
+msgid "Create a distribution \"{name}\" for this repository"
+msgstr ""
+
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Create a distribution for this repository"
 msgstr "为此仓库创建分发"
 
@@ -1932,6 +1951,7 @@ msgstr "创建日期"
 #~ msgid "Created distribution \"{0}\" at base path {basePath}."
 #~ msgstr ""
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
 msgstr "已在基本路径 {basePath} 创建分发 \"{name}\"。"
@@ -2447,6 +2467,7 @@ msgstr "禁用"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Distributions"
 msgstr "分发"
 
@@ -2730,6 +2751,7 @@ msgid "Enabled"
 msgstr "启用"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Enter a base path."
 msgstr "请输入基本路径。"
 
@@ -6139,6 +6161,7 @@ msgstr "修复任务"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
@@ -6184,10 +6207,12 @@ msgstr "仓库在创建后会出现。"
 #~ msgid "Repository \"{0}\" was created. The distribution \"{1}\" was not created: {distributionError}"
 #~ msgstr ""
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
 msgstr "仓库 \"{name}\" 已创建。其分发尚未确认。"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
 msgstr "已创建仓库 \"{name}\"。分发 \"{name}\" 仍在创建中，尚未提供服务。"
@@ -6196,6 +6221,11 @@ msgstr "已创建仓库 \"{name}\"。分发 \"{name}\" 仍在创建中，尚未�
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
 msgstr "已创建仓库 \"{name}\"。分发 \"{name}\" 未能创建：{distributionError}"
 
+#: src/framework/form/create-flow.ts
+msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {reason}"
+msgstr ""
+
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr "已创建仓库 \"{name}\"。由于无法读取任务状态，创建分发 \"{name}\" 的结果未知。请检查该任务。"
@@ -6207,6 +6237,10 @@ msgstr ""
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "未找到仓库 {repoName}。"
+
+#: src/framework/form/repository-create.tsx
+msgid "Repository could not be created"
+msgstr ""
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
@@ -6616,6 +6650,7 @@ msgstr "运行中"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Save"
 msgstr "保存"
@@ -7261,6 +7296,7 @@ msgstr "成功创建远程 {0}"
 #~ msgid "Successfully created repository {0}"
 #~ msgstr "成功创建仓库 {0}"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Successfully created repository {name}"
 msgstr "已成功创建仓库 {name}"
@@ -7516,6 +7552,7 @@ msgstr "任务无法显示。"
 msgid "Task detail"
 msgstr "任务详情"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "任务失败，没有错误消息。"
@@ -7598,6 +7635,7 @@ msgstr "此 Pulp 服务器上未安装 {plugin} 插件。"
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 #~ msgstr "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
 msgstr "基本路径 \"{basePath}\" 已被分发 \"{otherName}\"（{otherPath}）使用或与其重叠。"
@@ -7625,6 +7663,7 @@ msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "对仓库 \"{repositoryName}\" 的更改仍在运行。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
 msgstr "分发存在后，客户端 URL 会显示在仓库页面上。"
 
@@ -7672,6 +7711,7 @@ msgid "The delete stopped with an unexpected error. Some distributions or the re
 msgstr "删除因意外错误而停止。部分分发或仓库可能已被删除：请先检查列表，再重试。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "此分发将没有内容保护：任何可以访问此服务器的人都可以在不登录的情况下下载此仓库的内容。"
 
@@ -7804,6 +7844,7 @@ msgid "The request failed."
 msgstr "请求失败。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
 msgstr "无法读取此服务器的保留基本路径，因此无法在此创建分发。"
 
@@ -7855,6 +7896,7 @@ msgstr "无法连接到服务器：{message}"
 msgid "The session could not be checked"
 msgstr "无法检查会话"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr "在创建分发之前会话已结束。登录后，请检查分发，如果缺少则创建它。"
@@ -8369,6 +8411,7 @@ msgid "URL"
 msgstr "URL"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "URL (preview): {url}"
 msgstr "URL（预览）：{url}"
 

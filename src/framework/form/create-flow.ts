@@ -28,13 +28,6 @@ export interface DistributionRequest {
   basePath: string;
 }
 
-// The fields a refused check can name, and the message that belongs to no
-// field.
-export interface BlockedFields {
-  name?: string;
-  base_path?: string;
-}
-
 // What became of the distribution that was asked for.
 export type DistributionOutcome =
   // none was asked for
@@ -55,9 +48,9 @@ export type DistributionOutcome =
 
 export type CreateOutcome =
   // Nothing was written: the name or the base path is taken, or the check could
-  // not run. `fields` is what belongs under a field, `general` what belongs to
-  // none.
-  | { kind: 'blocked'; fields: BlockedFields; general: string | null }
+  // not run. `fields` holds the message of each field the check names (`name`,
+  // `base_path`), `general` the one that belongs to none.
+  | { kind: 'blocked'; fields: Record<string, string>; general: string | null }
   | {
       kind: 'created';
       repositoryHref: string;
@@ -71,7 +64,9 @@ interface Params {
       options?: Options,
     ) => Promise<RepositoryBase>;
   };
-  distributions: {
+  // The plugin's distributions; absent for a plugin that has none, which can
+  // not be asked for one.
+  distributions?: {
     create: (body: DistributionCreate, options?: Options) => Promise<string>;
   };
   // The body of the repository's create; its name is the distribution's name.
@@ -204,7 +199,7 @@ async function conflictsOf(
     };
   }
 
-  const fields: BlockedFields = {};
+  const fields: Record<string, string> = {};
   if (byName) {
     fields.name = t`A distribution named "${name}" already exists.`;
   }
@@ -227,6 +222,9 @@ export async function createRepositoryWithDistribution({
   signal,
   pollMs = POLL_MS,
 }: Params): Promise<CreateOutcome> {
+  if (distribution && !distributions) {
+    throw new Error('The plugin has no distributions to create');
+  }
   if (distribution) {
     const blocked = await conflictsOf(body.name, distribution.basePath);
     if (blocked) {
@@ -247,7 +245,9 @@ export async function createRepositoryWithDistribution({
   }
 
   try {
-    const task = await distributions.create({
+    const task = await (
+      distributions as NonNullable<typeof distributions>
+    ).create({
       name: body.name,
       base_path: distribution.basePath,
       repository: repositoryHref,

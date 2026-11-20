@@ -326,14 +326,17 @@ msgid "404 - Page not found"
 msgstr "404 - ページが見つかりません"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot contain a \".\" or \"..\" segment."
 msgstr "ベースパスに \".\" または \"..\" のセグメントを含めることはできません。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot contain spaces, \"?\" or \"#\"."
 msgstr "ベースパスにスペース、\"?\"、\"#\" を含めることはできません。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "A base path cannot start or end with a slash or contain two slashes in a row."
 msgstr "ベースパスの先頭または末尾にスラッシュを置いたり、スラッシュを 2 つ続けたりすることはできません。"
 
@@ -345,6 +348,10 @@ msgstr "ベースパスの先頭または末尾にスラッシュを置いたり
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
 msgstr "\"{0}\" という名前のディストリビューションはすでに存在します。"
+
+#: src/framework/form/create-flow.ts
+msgid "A distribution named \"{name}\" already exists."
+msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
@@ -454,6 +461,7 @@ msgstr "アクション"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "追加"
 
@@ -532,6 +540,7 @@ msgstr "新しいリモートの追加"
 #: src/containers/file-repository/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/repository-create.tsx
 msgid "Add new repository"
 msgstr "新しいリポジトリーの追加"
 
@@ -956,10 +965,12 @@ msgstr "戻る"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Base path"
 msgstr "ベースパス"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 msgstr "\"{reserved}\" で始まるベースパスはこのサーバーで予約されています。別のベースパスを選択してください。"
 
@@ -1053,6 +1064,7 @@ msgstr "CA 証明書"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Cancel"
 msgstr "取り消し"
@@ -1705,6 +1717,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 msgstr "ディストリビューションのないリポジトリーのコンテンツは、クライアントに表示されないため、同期、ダウンロード、または検索できません。"
 
@@ -1782,6 +1795,7 @@ msgstr "コピー可能な入力"
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "同期がすでに実行中かどうかを確認できませんでした。開始することはできますが、実行中の同期が完了するまで待機します。"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
 msgstr "名前とベースパスが使用可能かどうかを確認できませんでした: {reason}。何も作成されませんでした。"
@@ -1832,7 +1846,12 @@ msgstr "作成"
 msgid "Create a distribution \"{0}\" for this repository"
 msgstr "このリポジトリー用にディストリビューション \"{0}\" を作成"
 
+#: src/framework/form/distribution-option.tsx
+msgid "Create a distribution \"{name}\" for this repository"
+msgstr ""
+
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Create a distribution for this repository"
 msgstr "このリポジトリー用にディストリビューションを作成"
 
@@ -1932,6 +1951,7 @@ msgstr "作成日"
 #~ msgid "Created distribution \"{0}\" at base path {basePath}."
 #~ msgstr ""
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
 msgstr "ベースパス {basePath} にディストリビューション \"{name}\" を作成しました。"
@@ -2447,6 +2467,7 @@ msgstr "無効化"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Distributions"
 msgstr "ディストリビューション"
 
@@ -2730,6 +2751,7 @@ msgid "Enabled"
 msgstr "有効化"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "Enter a base path."
 msgstr "ベースパスを入力してください。"
 
@@ -6139,6 +6161,7 @@ msgstr "修復タスク"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
@@ -6184,10 +6207,12 @@ msgstr "リポジトリーが作成されると表示されます。"
 #~ msgid "Repository \"{0}\" was created. The distribution \"{1}\" was not created: {distributionError}"
 #~ msgstr ""
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. Its distribution was not confirmed."
 msgstr "リポジトリー \"{name}\" を作成しました。ディストリビューションは確認されていません。"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" is still being created and is not served yet."
 msgstr "リポジトリー \"{name}\" を作成しました。ディストリビューション \"{name}\" はまだ作成中で、配信されていません。"
@@ -6196,6 +6221,11 @@ msgstr "リポジトリー \"{name}\" を作成しました。ディストリビ
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {distributionError}"
 msgstr "リポジトリー \"{name}\" を作成しました。ディストリビューション \"{name}\" は作成されませんでした: {distributionError}"
 
+#: src/framework/form/create-flow.ts
+msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {reason}"
+msgstr ""
+
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr "リポジトリー \"{name}\" を作成しました。タスクのステータスを読み取れなかったため、ディストリビューション \"{name}\" の作成結果は不明です。タスクを確認してください。"
@@ -6207,6 +6237,10 @@ msgstr ""
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "リポジトリー {repoName} が見つかりません。"
+
+#: src/framework/form/repository-create.tsx
+msgid "Repository could not be created"
+msgstr ""
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
@@ -6616,6 +6650,7 @@ msgstr "実行中"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Save"
 msgstr "保存"
@@ -7261,6 +7296,7 @@ msgstr "リモートが正常に作成されました {0}"
 #~ msgid "Successfully created repository {0}"
 #~ msgstr "リポジトリーが正常に作成されました {0}"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Successfully created repository {name}"
 msgstr "リポジトリー {name} を作成しました"
@@ -7516,6 +7552,7 @@ msgstr "タスクを表示できませんでした。"
 msgid "Task detail"
 msgstr "タスクの詳細"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "エラーメッセージなしでタスクに失敗しました。"
@@ -7598,6 +7635,7 @@ msgstr "{plugin} プラグインはこの Pulp サーバーにインストール
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 #~ msgstr "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
 msgstr "ベースパス \"{basePath}\" は、ディストリビューション \"{otherName}\" ({otherPath}) がすでに使用しているか、重複しています。"
@@ -7625,6 +7663,7 @@ msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "リポジトリー \"{repositoryName}\" の変更はまだ実行中です。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The client URL is shown on the repository page once the distribution exists."
 msgstr "クライアント URL は、ディストリビューションが作成されるとリポジトリーのページに表示されます。"
 
@@ -7672,6 +7711,7 @@ msgid "The delete stopped with an unexpected error. Some distributions or the re
 msgstr "予期しないエラーで削除が停止しました。一部のディストリビューションまたはリポジトリーはすでに削除されている可能性があります。再試行する前に一覧を確認してください。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "このディストリビューションにはコンテンツガードがありません。このサーバーにアクセスできる人は誰でも、ログインせずにこのリポジトリーのコンテンツをダウンロードできます。"
 
@@ -7804,6 +7844,7 @@ msgid "The request failed."
 msgstr "リクエストに失敗しました。"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
 msgstr "このサーバーの予約済みベースパスを読み取れなかったため、ここではディストリビューションを作成できません。"
 
@@ -7855,6 +7896,7 @@ msgstr "サーバーに接続できませんでした: {message}"
 msgid "The session could not be checked"
 msgstr "セッションを確認できませんでした"
 
+#: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr "ディストリビューションを作成する前にセッションが終了しました。ログイン後、ディストリビューションを確認し、ない場合は作成してください。"
@@ -8369,6 +8411,7 @@ msgid "URL"
 msgstr "URL"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/distribution-option.tsx
 msgid "URL (preview): {url}"
 msgstr "URL (プレビュー): {url}"
 
