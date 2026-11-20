@@ -80,12 +80,12 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
 });
 
 describe('Unit: the route patterns module', { tags: ['unit'] }, () => {
-  it('imports only types and the path formatter', () => {
+  it('imports only types and the path filler', () => {
     const runtime = importsOf(SOURCE('route-patterns.ts'))
       .filter(({ typeOnly }) => !typeOnly)
       .map(({ module }) => module);
 
-    expect(runtime).toEqual(['../paths']);
+    expect(runtime).toEqual(['../utilities/fill-path']);
   });
 });
 

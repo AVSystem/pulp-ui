@@ -52,6 +52,26 @@ const NAMED_LISTS: Record<string, string> = {
   '/python/remotes': 'remotes/python/python/',
 };
 
+// The list a route's plugin and kind of object name their objects in, or null
+// for a route that is not a repository or remote screen.
+export function namedListOf(pattern: string): string | null {
+  return NAMED_LISTS[pattern.split('/').slice(0, 3).join('/')] ?? null;
+}
+
+// The number a repository version address ends in ("0" is a version), or null
+// when the address is not a version address. It reads the same addresses the
+// application's own reader of a version number does.
+export function versionNumberIn(
+  href: string | null | undefined,
+): string | null {
+  if (typeof href !== 'string') {
+    return null;
+  }
+  return (
+    /\/versions\/(\d+)\/?$/.exec(href.split(/[?#]/)[0] as string)?.[1] ?? null
+  );
+}
+
 function isCollectionRoute(route: CrawlRoute): boolean {
   return route.pattern.startsWith('/ansible/collections/');
 }
@@ -88,8 +108,16 @@ const RESOLVERS: Record<string, Resolver> = {
     return user?.['id'] === undefined ? null : String(user['id']);
   },
   name: async ({ route, first }) => {
-    const list = NAMED_LISTS[route.pattern.split('/').slice(0, 3).join('/')];
+    const list = namedListOf(route.pattern);
     return list ? text((await first(list))?.['name']) : null;
+  },
+  // The latest version of the repository the name resolves to: the first
+  // repository of the plugin's list, as for the name.
+  number: async ({ route, first }) => {
+    const list = namedListOf(route.pattern);
+    return list
+      ? versionNumberIn(text((await first(list))?.['latest_version_href']))
+      : null;
   },
   namespace: (context) => collection(context, 'namespace'),
   collection: (context) => collection(context, 'name'),

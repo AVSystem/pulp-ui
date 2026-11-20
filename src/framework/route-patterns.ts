@@ -1,13 +1,14 @@
-import { formatPath } from '../paths';
+import { fillPath } from '../utilities/fill-path';
 import type { FrameworkPlugin } from './manifest';
 
 // Every address of a plugin's repository and remote screens, as plain data and
 // pure functions. The router, the menu, the crawler and the end-to-end specs
 // all read the addresses from here, so an address is spelled in one place. The
-// only runtime import is the path formatter: it encodes a name into one path
-// segment, so a name from the address bar or from the server can never add or
-// change a segment. The relative import is deliberate: the Playwright runner
-// imports this module and does not know the `src/` alias.
+// only runtime import is the path filler that `formatPath` is built on: it
+// encodes a name into one path segment, so a name from the address bar or from
+// the server can never add or change a segment. The relative import is
+// deliberate: the Playwright runner imports this module and does not know the
+// `src/` alias, and src/paths.ts would pull the rest of the application in.
 
 // What a route leads to. A screen kind without a screen of its own yet is not
 // registered as a route (see frameworkRoutes); the pattern still stands, so
@@ -99,39 +100,38 @@ export function legacyPatternsOf(plugin: FrameworkPlugin): LegacyPattern[] {
 // version number is spelled as a string because 0 is a version too, and the
 // formatter treats a falsy value as missing.
 export const repositoryListPath = (plugin: FrameworkPlugin) =>
-  formatPath(`/${plugin}/repositories`);
+  fillPath(`/${plugin}/repositories`);
 
 export const repositoryPath = (
   plugin: FrameworkPlugin,
   name: string,
   tab?: RepositoryTab,
-) =>
-  formatPath(`/${plugin}/repositories/:name${tab ? `/${tab}` : ''}`, { name });
+) => fillPath(`/${plugin}/repositories/:name${tab ? `/${tab}` : ''}`, { name });
 
 export const versionPath = (
   plugin: FrameworkPlugin,
   name: string,
   number: number,
 ) =>
-  formatPath(`/${plugin}/repositories/:name/versions/:number`, {
+  fillPath(`/${plugin}/repositories/:name/versions/:number`, {
     name,
     number: String(number),
   });
 
 export const repositoryEditPath = (plugin: FrameworkPlugin, name: string) =>
-  formatPath(`/${plugin}/repositories/:name/edit`, { name });
+  fillPath(`/${plugin}/repositories/:name/edit`, { name });
 
 export const newRepositoryPath = (plugin: FrameworkPlugin) =>
-  formatPath(`/${plugin}/repository/new`);
+  fillPath(`/${plugin}/repository/new`);
 
 export const remoteListPath = (plugin: FrameworkPlugin) =>
-  formatPath(`/${plugin}/remotes`);
+  fillPath(`/${plugin}/remotes`);
 
 export const remotePath = (plugin: FrameworkPlugin, name: string) =>
-  formatPath(`/${plugin}/remotes/:name`, { name });
+  fillPath(`/${plugin}/remotes/:name`, { name });
 
 export const remoteEditPath = (plugin: FrameworkPlugin, name: string) =>
-  formatPath(`/${plugin}/remotes/:name/edit`, { name });
+  fillPath(`/${plugin}/remotes/:name/edit`, { name });
 
 export const newRemotePath = (plugin: FrameworkPlugin) =>
-  formatPath(`/${plugin}/remote/new`);
+  fillPath(`/${plugin}/remote/new`);
