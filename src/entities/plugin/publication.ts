@@ -35,8 +35,14 @@ export interface PublicationListParams {
   page_size?: number;
   sort?: string;
   pulp_href__in?: string[];
+  // the address of a repository: only the publications made from it
+  repository?: string;
   fields?: string[];
 }
+
+// How many publications one request of a repository's publications reads: the
+// most the server answers on one page.
+const OF_REPOSITORY_PAGE_SIZE = 1000;
 
 // What a plugin's generated client offers for its publications.
 export interface PublicationApi<TListParams> {
@@ -61,6 +67,11 @@ export interface PublicationEntity<Row> {
   // The publications at these addresses, read with one request. The group
   // should come from `chunks`; an empty group sends nothing.
   ofHrefs: (hrefs: readonly string[], options?: Options) => Promise<Row[]>;
+  // Every publication made from a repository, read page after page. It ends
+  // when the server names no next page or a page comes back empty. The server's
+  // filter is not trusted: a publication that names another repository is left
+  // out.
+  ofRepository: (repository: string, options?: Options) => Promise<Row[]>;
 }
 
 export function makePublicationEntity<
@@ -78,7 +89,7 @@ export function makePublicationEntity<
   const pageSchema = pageSchemaOf(schema);
 
   const requestOf = (params: PublicationListParams) =>
-    asParams<TListParams>(toListRequest(params, []));
+    asParams<TListParams>(toListRequest(params, ['repository']));
   // The request that reads the publications at some addresses on one page.
   const ofHrefsRequest = (hrefs: readonly string[]) =>
     requestOf({
@@ -110,6 +121,32 @@ export function makePublicationEntity<
       const data = await api.list(ofHrefsRequest(hrefs), options);
       return (parseResponse(pageSchema, data) as Page<Row>).results;
     },
+    ofRepository: async (repository, options) => {
+      const byHref = new Map<string, Row>();
+      let received = 0;
+
+      for (;;) {
+        const data = await api.list(
+          asParams<TListParams>({
+            offset: received,
+            limit: OF_REPOSITORY_PAGE_SIZE,
+            repository,
+            fields: [...PUBLICATION_INDEX_FIELDS],
+          }),
+          options,
+        );
+        const next = parseResponse(pageSchema, data) as Page<Row>;
+        for (const row of next.results) {
+          if (repositoryOfPublication(row) === repository) {
+            byHref.set(row.pulp_href, row);
+          }
+        }
+        received += next.results.length;
+        if (!next.next || next.results.length === 0) {
+          return Array.from(byHref.values());
+        }
+      }
+    },
   };
 }
 
@@ -135,6 +172,9 @@ export function publicationKeys(entity: { app: string; object: string }) {
     // One group of addresses, read with one request; a publication never
     // changes the repository it came from.
     chunk: (hrefs: readonly string[]) => [...all, 'chunk', hrefs] as const,
+    // Every publication made from one repository.
+    ofRepository: (repository: string) =>
+      [...all, 'of-repository', repository] as const,
   };
 }
 

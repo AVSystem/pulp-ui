@@ -7,8 +7,10 @@ import { filePublication } from 'src/entities/file/publication';
 import { fileRemote } from 'src/entities/file/remote';
 import { fileRepository } from 'src/entities/file/repository';
 import type { PluginDescriptor } from 'src/framework/descriptor';
+import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { LabelChips } from 'src/framework/labels/label-chips';
 import { repositoryPath } from 'src/framework/route-patterns';
+import { shellQuote } from 'src/utilities/shell-quote';
 
 // The file plugin's repositories and remotes as the framework reads them. The
 // descriptor and what it imports are one chunk that loads when a file screen is
@@ -18,26 +20,26 @@ const descriptor: PluginDescriptor<FileRepository> = {
     entity: fileRepository,
     detailRows: [
       {
-        id: 'name',
-        label: msg`Repository name`,
-        render: (repository) => repository.name,
-      },
-      {
-        id: 'description',
-        label: msg`Description`,
-        render: (repository) => repository.description || t`None`,
-      },
-      {
         id: 'retain-repo-versions',
         label: msg`Retained version count`,
         render: (repository) => repository.retain_repo_versions ?? t`All`,
       },
       {
-        id: 'labels',
-        label: msg`Labels`,
-        render: (repository) => <LabelChips labels={repository.pulp_labels} />,
+        id: 'autopublish',
+        label: msg`Autopublish`,
+        render: (repository) =>
+          repository.autopublish ? t`Enabled` : t`Disabled`,
       },
     ],
+    tabs: [distributionsTab<FileRepository>()],
+    // The manifest sits next to the content, at the distribution's URL. The
+    // command is pasted into a terminal, so the name and the URL are quoted as
+    // shell words: a repository name is free text.
+    snippet: {
+      label: msg`CLI configuration`,
+      build: ({ name, url }) =>
+        `pulp file remote create --name ${shellQuote(name)} --url ${shellQuote(`${url}PULP_MANIFEST`)}`,
+    },
     filters: [
       {
         id: 'name',

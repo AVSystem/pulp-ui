@@ -411,8 +411,8 @@ export function distributionListHandler<T extends { pulp_href: string }>(
   return { ...list, path };
 }
 
-// The publications of a plugin as the server lists them: `pulp_href__in` (an
-// empty set matches nothing) and the `fields` cut.
+// The publications of a plugin as the server lists them: `pulp_href__in`, the
+// `repository` filter and the `fields` cut.
 export function publicationListHandler<T extends { pulp_href: string }>(
   plugin: TestPlugin,
   rows: T[],
@@ -423,7 +423,12 @@ export function publicationListHandler<T extends { pulp_href: string }>(
     pageSize,
     matching: (row, query) => {
       const hrefs = inSetOf(query, 'pulp_href__in');
-      return hrefs === null || hrefs.includes(row.pulp_href);
+      const repository = query.get('repository');
+      return (
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (repository === null ||
+          (row as { repository?: unknown }).repository === repository)
+      );
     },
     projected: projectedBy,
   });
