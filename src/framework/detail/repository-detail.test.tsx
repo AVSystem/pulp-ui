@@ -1,11 +1,12 @@
 import type { MessageDescriptor } from '@lingui/core';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { Route, Routes, useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
 import fileDescriptor from 'src/descriptors/file/descriptor';
+import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   distributionListHandler,
@@ -24,6 +25,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { report, serveSyncLab } from 'src/test-utils/sync-lab';
 import type { PluginDescriptor } from '../descriptor';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
 import { frameworkRoutes } from '../routes';
@@ -586,6 +588,116 @@ describe(
 
       await detailRows();
       expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+    });
+  },
+);
+
+describe(
+  'Integration: syncing from the repository detail',
+  { tags: ['integration'] },
+  () => {
+    const SYNC = 'file.sync_filerepository';
+    const REMOTE = `${API}/remotes/file/file/00000000-0000-4000-8000-000000000999/`;
+    let intervals: IIntervals;
+
+    beforeEach(() => {
+      intervals = trackIntervals();
+    });
+    afterEach(() => {
+      intervals.restore();
+    });
+
+    const withRemote = () => tools({ remote: REMOTE });
+
+    it('starts a sync from the dialog, closes it at once and shows the progress of the task to the end', async () => {
+      const repository = withRemote();
+      serveLab({ repositories: [repository] });
+      const lab = serveSyncLab({ repository });
+      const { user } = renderDetail('/file/repositories/tools/');
+
+      await user.click(await screen.findByRole('button', { name: 'Sync' }));
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByText('Sync repository "tools"')).toBeVisible();
+      await user.click(within(dialog).getByRole('button', { name: 'Sync' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(lab.syncs).toHaveLength(1);
+      expect(lab.syncs[0].body).toEqual({
+        remote: REMOTE,
+        mirror: true,
+        optimize: true,
+      });
+      expect(await screen.findByText('Sync queued')).toBeVisible();
+
+      lab.change(lab.tasks[0].pulp_href, {
+        state: 'running',
+        progress_reports: [report('Downloading artifacts', 120, 300)],
+      });
+      intervals.run(2000);
+      expect(await screen.findByText('120/300')).toBeVisible();
+      expect(screen.getByText('Sync running')).toBeVisible();
+
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(2000);
+      expect(await screen.findByText('Sync completed')).toBeVisible();
+    });
+
+    it('shows the progress of a sync that was started elsewhere on every tab', async () => {
+      const repository = withRemote();
+      serveLab({ repositories: [repository] });
+      serveSyncLab({
+        repository,
+        tasks: [
+          {
+            state: 'running',
+            progress_reports: [report('Downloading artifacts', 5, 50)],
+          },
+        ],
+      });
+
+      renderDetail('/file/repositories/tools/');
+
+      expect(await screen.findByText('5/50')).toBeVisible();
+    });
+
+    it('offers Sync to a user who holds the sync permission', async () => {
+      const repository = withRemote();
+      serveAccount({ isStaff: false, own: [[SYNC]] });
+      serveLab({ repositories: [repository] });
+      serveSyncLab({ repository });
+      server.use(listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler);
+
+      renderDetail('/file/repositories/tools/');
+
+      expect(await screen.findByRole('button', { name: 'Sync' })).toBeVisible();
+    });
+
+    it('shows no Sync to a user who cannot be confirmed to hold the sync permission', async () => {
+      const repository = withRemote();
+      serveAccount({ isStaff: false });
+      serveLab({ repositories: [repository] });
+      serveSyncLab({ repository });
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
+
+      renderDetail('/file/repositories/tools/');
+
+      await detailRows();
+      expect(screen.queryByRole('button', { name: 'Sync' })).toBeNull();
+    });
+
+    it('sends nothing to sync until Sync is pressed in the dialog', async () => {
+      const repository = withRemote();
+      serveLab({ repositories: [repository] });
+      const lab = serveSyncLab({ repository });
+      const { user } = renderDetail('/file/repositories/tools/');
+
+      await user.click(await screen.findByRole('button', { name: 'Sync' }));
+      await screen.findByRole('dialog');
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      });
+
+      expect(lab.syncs).toEqual([]);
     });
   },
 );
