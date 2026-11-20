@@ -56,7 +56,12 @@ test('a finished task is listed, found by its status, opened at its own address 
   const chooseStatus = async (status: 'Failed' | 'Completed') => {
     await filter.getByRole('button', { name: 'Task name' }).click();
     await page.getByRole('menuitem', { name: 'Status', exact: true }).click();
-    await filter.getByRole('button', { name: 'Status', exact: true }).click();
+    // the filter now holds two toggles named Status: the one that names the
+    // filter, then the one that picks the value
+    await filter
+      .getByRole('button', { name: 'Status', exact: true })
+      .last()
+      .click();
     await page.getByRole('option', { name: status, exact: true }).click();
   };
   await chooseStatus('Failed');

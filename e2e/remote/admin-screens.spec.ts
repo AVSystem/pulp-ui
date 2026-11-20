@@ -279,7 +279,10 @@ test.describe('roles', () => {
   test('a role is created from the form, edited from the list and deleted', async ({
     page,
   }) => {
-    const name = objects.name('role');
+    // the role form accepts letters, digits, spaces, underscores and dots
+    // only, so the run's prefix is spelled with underscores here; the role is
+    // registered for clean-up as soon as it exists
+    const name = objects.name('role').replace(/-/g, '_');
 
     await page.goto('roles/create');
     await expect(title(page, 'Create a new role')).toBeVisible();
