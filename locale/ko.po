@@ -939,6 +939,7 @@ msgstr "뒤로"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "기본 경로"
 
@@ -4173,6 +4174,10 @@ msgstr "컬렉션을 원격으로 관리합니다."
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "현재 이 화면에서 매니페스트 목록이 지원되지 않습니다. <0>Images</0> 탭을 사용하여 매니페스트 목록 세부 정보를 확인하십시오."
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr ""
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "시스템에 맞춤"
@@ -4208,6 +4213,10 @@ msgstr "미러링은 자동 게시와 함께 사용할 수 없으므로 이 동�
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "추가 정보"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr ""
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4715,6 +4724,7 @@ msgstr "아직 사용자가 없음"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "없음"
 
@@ -5746,6 +5756,7 @@ msgstr "다시 불러오기"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "원격"
 

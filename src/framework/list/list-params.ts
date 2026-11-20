@@ -1,3 +1,5 @@
+import { apiPathOfHref } from 'src/entities/href';
+
 // What a list screen shows is what its address says. The address is user input,
 // so it is read into values the screen offers and nothing else: a page size
 // that is not one of the choices, a sort field the server is not asked to sort
@@ -26,6 +28,20 @@ export interface ListAddressOptions {
 }
 
 const DIGITS = /^[1-9][0-9]*$/;
+
+// Whether the address may set a filter to this text. The remote filter takes
+// the address of a remote, which later decides where a read goes, or `null`
+// for repositories that have none: anything else is ignored. Every other text
+// is only ever sent as the value of a filter, which the server checks.
+function acceptsFilter(param: string, value: string): boolean {
+  if (param !== 'remote') {
+    return true;
+  }
+  return (
+    value === 'null' ||
+    (apiPathOfHref(value) !== null && /\/remotes\/[^/]+\//.test(value))
+  );
+}
 
 // The list the address asks for, as the screen shows it.
 export function paramsOfAddress(
@@ -57,7 +73,7 @@ export function paramsOfAddress(
 
   for (const key of filters) {
     const value = search.get(key);
-    if (value) {
+    if (value && acceptsFilter(key, value)) {
       params[key] = value;
     }
   }

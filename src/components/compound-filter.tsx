@@ -47,11 +47,17 @@ export const CompoundFilter = ({
   updateParams,
 }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState(filterConfig[0]);
+  const [chosenFilter, setSelectedFilter] = useState(filterConfig[0]);
 
   if (filterConfig.length === 0) {
     return null;
   }
+
+  // The filter in use as the config describes it now. Its options may arrive
+  // after the filter was chosen, so the config is read again and not the object
+  // that was clicked.
+  const selectedFilter =
+    filterConfig.find(({ id }) => id === chosenFilter.id) ?? chosenFilter;
 
   const visibleFilters = filterConfig.filter(({ hidden }) => !hidden);
 

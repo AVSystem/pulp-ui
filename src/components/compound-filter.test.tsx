@@ -204,4 +204,43 @@ describe('CompoundFilter', () => {
 
     expect(updateParams).toHaveBeenCalledWith({ remote: 'r2', page: 1 });
   });
+
+  it('applies the id of a typeahead option that arrived after the filter was chosen', async () => {
+    const updateParams = vi.fn();
+    const noneOnly: FilterOption = {
+      ...remoteFilter,
+      options: [{ id: 'null', title: 'None' }],
+    };
+    const loaded: FilterOption = {
+      ...remoteFilter,
+      options: [
+        { id: 'null', title: 'None' },
+        { id: 'r2', title: 'npmjs' },
+      ],
+    };
+    const { user, rerender } = renderWithProviders(
+      <Harness
+        filterConfig={[nameFilter, noneOnly]}
+        updateParams={updateParams}
+      />,
+    );
+    await user.click(
+      within(
+        document.querySelector('[data-cy="compound_filter"]') as HTMLElement,
+      ).getAllByRole('button')[0] as HTMLElement,
+    );
+    await user.click(await screen.findByRole('menuitem', { name: 'Remote' }));
+
+    // the options are read after the filter was chosen
+    rerender(
+      <Harness
+        filterConfig={[nameFilter, loaded]}
+        updateParams={updateParams}
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    await user.click(await screen.findByRole('option', { name: 'npmjs' }));
+
+    expect(updateParams).toHaveBeenCalledWith({ remote: 'r2', page: 1 });
+  });
 });

@@ -37,3 +37,35 @@ export function chunkByUrl<T>(
 
   return chunks;
 }
+
+// Runs the jobs with at most `limit` in flight at once and resolves with their
+// results in the order of the items. A job that rejects stops the others from
+// starting another item and rejects the whole run with its error, so a failed
+// batch does not go on sending requests nobody waits for.
+export async function runBounded<T, R>(
+  items: readonly T[],
+  limit: number,
+  job: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  let failed = false;
+
+  const worker = async () => {
+    while (!failed && next < items.length) {
+      const index = next;
+      next += 1;
+      try {
+        results[index] = await job(items[index] as T);
+      } catch (error) {
+        failed = true;
+        throw error;
+      }
+    }
+  };
+
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, worker),
+  );
+  return results;
+}

@@ -22,6 +22,7 @@ import {
   useEntity,
   useEntityByName,
   useEntityList,
+  useRepositoryIndex,
   useSetLabel,
   useUnsetLabel,
   useUpdateEntity,
@@ -601,5 +602,131 @@ describe('Unit: the entity mutations', { tags: ['unit'] }, () => {
       'PATCH',
       'DELETE',
     ]);
+  });
+});
+
+describe('Unit: the repository index and chunks', { tags: ['unit'] }, () => {
+  const named = (count: number) =>
+    Array.from({ length: count }, (_, n) =>
+      pluginRepository('file', {
+        name: `repo-${String(n).padStart(4, '0')}`,
+        pulp_labels: { team: `t${n}` },
+      }),
+    );
+
+  it('reads every page of the index with the four fields and each repository once', async () => {
+    const rows = named(25);
+    const list = listOf(REPOSITORIES, rows, { pageSize: 10 });
+    server.use(list.handler);
+
+    const index = await fileRepository.index();
+
+    expect(index.map(({ name }) => name)).toEqual(rows.map(({ name }) => name));
+    expect(list.queries.map((query) => query.get('offset'))).toEqual([
+      '0',
+      '10',
+      '20',
+    ]);
+    for (const query of list.queries) {
+      expect(
+        query
+          .getAll('fields')
+          .flatMap((field) => field.split(','))
+          .sort(),
+      ).toEqual(['name', 'pulp_href', 'pulp_labels', 'remote']);
+      expect(query.get('limit')).toBe('1000');
+    }
+  });
+
+  it('ends the index when a page comes back empty although a next page is named', async () => {
+    let calls = 0;
+    server.use(
+      http.get(`*${REPOSITORIES}`, () => {
+        calls += 1;
+        return HttpResponse.json({
+          count: 5,
+          next: 'http://pulp.example/next',
+          previous: null,
+          results: [],
+        });
+      }),
+    );
+
+    expect(await fileRepository.index()).toEqual([]);
+    expect(calls).toBe(1);
+  });
+
+  it('splits addresses into chunks that fit a request together with the other filters', () => {
+    const hrefs = named(200).map(({ pulp_href }) => pulp_href);
+
+    const chunks = fileRepository.chunks(hrefs, {
+      name__icontains: 'repo',
+      pulp_label_select: 'team',
+    });
+
+    expect(chunks.flat()).toEqual(hrefs);
+    expect(chunks.length).toBeGreaterThan(1);
+    for (const chunk of chunks) {
+      expect(
+        fileRepository.urlOf({
+          name__icontains: 'repo',
+          pulp_label_select: 'team',
+          pulp_href__in: chunk,
+        }).length,
+      ).toBeLessThanOrEqual(3500);
+    }
+    expect(fileRepository.chunks([])).toEqual([]);
+  });
+
+  it('reads each chunk once with the other filters and no order, and merges the rows', async () => {
+    const rows = named(40);
+    const list = pluginListHandler('file', 'repository', rows, {
+      pageSize: 1000,
+    });
+    server.use(list.handler);
+    const chunks = fileRepository.chunks(
+      rows.map(({ pulp_href }) => pulp_href),
+      { name__icontains: 'repo' },
+    );
+
+    const read = await fileRepository.readChunks(
+      chunks,
+      { name__icontains: 'repo', page: 3, page_size: 5, sort: '-name' },
+      undefined,
+    );
+
+    expect(read.map(({ name }) => name).sort()).toEqual(
+      rows.map(({ name }) => name).sort(),
+    );
+    expect(list.queries).toHaveLength(chunks.length);
+    for (const query of list.queries) {
+      expect(query.get('name__icontains')).toBe('repo');
+      expect(query.has('ordering')).toBe(false);
+      expect(query.get('offset')).toBe('0');
+    }
+  });
+
+  it('reads the index only when enabled, once for two subscribers', async () => {
+    const rows = named(3);
+    const list = listOf(REPOSITORIES, rows);
+    server.use(list.handler);
+    const client = createTestQueryClient();
+
+    const { rerender } = renderHook(
+      ({ enabled }) => useRepositoryIndex(fileRepository, { enabled }),
+      { wrapper: wrapperFor(client), initialProps: { enabled: false } },
+    );
+    expect(list.queries).toHaveLength(0);
+
+    rerender({ enabled: true });
+    const second = renderHook(() => useRepositoryIndex(fileRepository), {
+      wrapper: wrapperFor(client),
+    });
+
+    await waitFor(() => expect(second.result.current.data).toHaveLength(3));
+    expect(list.queries).toHaveLength(1);
+    expect(client.getQueryData(entityKeys(fileRepository).index)).toHaveLength(
+      3,
+    );
   });
 });

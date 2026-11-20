@@ -939,6 +939,7 @@ msgstr "Volver"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "Ruta base"
 
@@ -4173,6 +4174,10 @@ msgstr "Gestionar remotos de colecciones."
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Las listas de manifiestos actualmente no son compatibles con esta pantalla. Utilice la pestaña de <0>Imágenes</0> para ver los detalles de la lista de manifiestos."
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr ""
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "Igual que el sistema"
@@ -4208,6 +4213,10 @@ msgstr "El modo espejo no se puede combinar con la publicación automática, as�
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "Más información"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr ""
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4715,6 +4724,7 @@ msgstr "No existe ningún usuario"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "Ninguno"
 
@@ -5746,6 +5756,7 @@ msgstr "Recargar"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "Remoto"
 

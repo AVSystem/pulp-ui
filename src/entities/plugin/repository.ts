@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod';
+import { chunkByUrl, runBounded } from 'src/entities/batch';
 import { positiveInt } from 'src/entities/page-params';
 import { parseResponse } from 'src/entities/response-shape';
 import {
@@ -29,6 +30,22 @@ import {
 // schema they pass and nowhere else. The factory is typed by its parameters
 // and imports no generated module: only the wiring of a plugin does.
 //
+// The fields the index of every repository asks for: what a filter needs to
+// suggest label keys and to match remotes, and nothing else.
+export const REPOSITORY_INDEX_FIELDS = [
+  'pulp_href',
+  'name',
+  'remote',
+  'pulp_labels',
+] as const;
+
+// How many repositories one request of the index reads: the most the server
+// answers on one page.
+const INDEX_PAGE_SIZE = 1000;
+
+// How many chunk reads of one request set are in flight at once.
+const CHUNK_READS_AT_ONCE = 4;
+
 // Every function takes the options of `fetch` last, so an abort signal
 // cancels the request, and every answer goes through a schema: an answer that
 // does not have the shape the screens read is a ResponseShapeError.
@@ -116,6 +133,26 @@ export interface RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> {
     key: string,
     options?: Options,
   ) => Promise<{ key: string; value?: string | null }>;
+  // Every repository of the plugin with the fields of REPOSITORY_INDEX_FIELDS,
+  // read page after page. It ends when the server names no next page or a page
+  // comes back empty, so a list that shrank while it was read never loops. A
+  // row that shows on two pages because the list changed in between is kept
+  // once.
+  index: (options?: Options) => Promise<Row[]>;
+  // The addresses split into groups that each fit one request together with
+  // the other filters of `params`; no request line is longer than the budget.
+  chunks: (
+    hrefs: readonly string[],
+    params?: RepositoryListParams,
+  ) => string[][];
+  // The repositories of the chunks, one request per chunk (at most four at
+  // once) with the other filters of `params`, each repository once. The page,
+  // page size and order of `params` are not used: the caller pages the result.
+  readChunks: (
+    chunks: readonly (readonly string[])[],
+    params?: RepositoryListParams,
+    options?: Options,
+  ) => Promise<Row[]>;
   // The versions of the repository at this address.
   versions: (
     href: string,
@@ -228,6 +265,60 @@ export function makeRepositoryEntity<
         labelResponseSchema,
         await api.unsetLabel(href, { key }, options),
       ),
+    index: async (options) => {
+      const byHref = new Map<string, Row>();
+      let received = 0;
+
+      for (;;) {
+        const data = await api.list(
+          asParams<TListParams>({
+            offset: received,
+            limit: INDEX_PAGE_SIZE,
+            fields: [...REPOSITORY_INDEX_FIELDS],
+          }),
+          options,
+        );
+        const next = parseResponse(pageSchema, data) as Page<Row>;
+        for (const row of next.results) {
+          byHref.set(row.pulp_href, row);
+        }
+        received += next.results.length;
+        if (!next.next || next.results.length === 0) {
+          return Array.from(byHref.values());
+        }
+      }
+    },
+    chunks: (hrefs, params = {}) =>
+      chunkByUrl(
+        (values) =>
+          api.listUrl(
+            asParams<TListParams>(
+              toRequestParams({ ...params, pulp_href__in: values }),
+            ),
+          ),
+        hrefs,
+      ),
+    readChunks: async (chunks, params = {}, options) => {
+      const pages = await runBounded(chunks, CHUNK_READS_AT_ONCE, (chunk) =>
+        list(
+          {
+            ...params,
+            page: 1,
+            page_size: chunk.length,
+            sort: undefined,
+            pulp_href__in: [...chunk],
+          },
+          options,
+        ),
+      );
+      const byHref = new Map<string, Row>();
+      for (const page of pages) {
+        for (const row of page.results) {
+          byHref.set(row.pulp_href, row);
+        }
+      }
+      return Array.from(byHref.values());
+    },
     versions: async (href, params = {}, options) =>
       parseResponse(
         versionPageSchema,

@@ -4,6 +4,7 @@ import { DateComponent } from 'src/components';
 import { fileDistribution } from 'src/entities/file/distribution';
 import type { FileRepository } from 'src/entities/file/model';
 import { filePublication } from 'src/entities/file/publication';
+import { fileRemote } from 'src/entities/file/remote';
 import { fileRepository } from 'src/entities/file/repository';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { LabelChips } from 'src/framework/labels/label-chips';
@@ -45,6 +46,18 @@ const descriptor: PluginDescriptor<FileRepository> = {
         kind: 'text',
       },
       {
+        id: 'base-path',
+        label: msg`Base path`,
+        param: 'base_path',
+        kind: 'text',
+      },
+      {
+        id: 'remote',
+        label: msg`Remote`,
+        param: 'remote',
+        kind: 'remote',
+      },
+      {
         id: 'labels',
         label: msg`Labels`,
         param: 'pulp_label_select',
@@ -81,6 +94,7 @@ const descriptor: PluginDescriptor<FileRepository> = {
       },
     ],
   },
+  remote: { entity: fileRemote },
   distribution: { entity: fileDistribution },
   publication: { entity: filePublication, servesFromPublication: true },
 };

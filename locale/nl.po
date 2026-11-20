@@ -939,6 +939,7 @@ msgstr "Terug"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "Basispad"
 
@@ -4173,6 +4174,10 @@ msgstr "Beheer collectie-remotes."
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Manifestlijsten worden momenteel niet ondersteund in dit scherm, gebruik het tabblad <0>Afbeeldingen</0> om details van manifestlijsten te zien."
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr ""
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "Systeeminstelling volgen"
@@ -4208,6 +4213,10 @@ msgstr "Spiegelen kan niet worden gecombineerd met automatisch publiceren, dus d
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "Meer informatie"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr ""
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4715,6 +4724,7 @@ msgstr "Nog geen gebruikers"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "Geen"
 
@@ -5746,6 +5756,7 @@ msgstr "Opnieuw laden"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "Remote"
 

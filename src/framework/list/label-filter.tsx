@@ -41,6 +41,9 @@ interface Props {
   // The text the server gave when it refused the current expression, or null.
   // The panel opens on it and shows it at the input.
   refusal: string | null;
+  // Called whenever the panel opens, so the screen can read what it suggests
+  // from only then.
+  onOpen?: () => void;
 }
 
 // A condition being edited. The text fields hold what is typed, which may not
@@ -109,6 +112,7 @@ export const LabelFilter = ({
   onApply,
   suggestions,
   refusal,
+  onOpen,
 }: Props) => {
   const listId = useId();
   const counter = useRef(0);
@@ -132,7 +136,8 @@ export const LabelFilter = ({
     );
     setText(expression ?? '');
     setOpen(true);
-  }, [expression, nextId]);
+    onOpen?.();
+  }, [expression, nextId, onOpen]);
 
   // A refused expression brings the panel up, with the text that was refused.
   // `open` changes with the address, so a refusal that has the same text as the

@@ -369,7 +369,6 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
     const lab = serveLab(repositories());
     const { user } = renderList();
     await tableOf();
-    const before = lab.repositories.queries.length;
 
     const panel = await openLabelFilter(user);
     await user.type(
@@ -383,7 +382,11 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
       ),
     ).toBeVisible();
     expect(within(panel).getByRole('button', { name: 'Apply' })).toBeDisabled();
-    expect(lab.repositories.queries).toHaveLength(before);
+    expect(
+      lab.repositories.queries.filter((query) =>
+        query.has('pulp_label_select'),
+      ),
+    ).toHaveLength(0);
   });
 
   it('accepts a key with a dot and a hyphen and a value with a comma', async () => {
@@ -441,7 +444,8 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
     );
     await user.click(within(panel).getByRole('button', { name: 'Apply' }));
 
-    expect(await screen.findByText("Invalid search term: ''.")).toBeVisible();
+    const reason = await screen.findByText("Invalid search term: ''.");
+    await waitFor(() => expect(reason).toBeVisible());
     // the input holds what was typed and the previous rows are still there
     expect(
       (
@@ -461,7 +465,8 @@ describe('Integration: the list filters', { tags: ['integration'] }, () => {
     serveLab(repositories());
     renderList('/file/repositories?pulp_label_select=%3Dx');
 
-    expect(await screen.findByText("Invalid search term: '=x'.")).toBeVisible();
+    const reason = await screen.findByText("Invalid search term: '=x'.");
+    await waitFor(() => expect(reason).toBeVisible());
     expect(
       screen.queryByText('Repositories could not be displayed.'),
     ).toBeNull();

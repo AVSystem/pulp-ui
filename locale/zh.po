@@ -939,6 +939,7 @@ msgstr "返回"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "基本路径"
 
@@ -4173,6 +4174,10 @@ msgstr "管理集合远程。"
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "此屏幕目前不支持清单列表，请使用 <0>Images</0> 标签页来查看清单列表详细信息。"
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr ""
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "跟随系统"
@@ -4208,6 +4213,10 @@ msgstr "镜像不能与自动发布结合使用，因此此同步只会添加缺
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "更多信息"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr ""
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4715,6 +4724,7 @@ msgstr "还没有用户"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "无"
 
@@ -5746,6 +5756,7 @@ msgstr "重新加载"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "远程"
 

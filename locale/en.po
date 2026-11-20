@@ -940,6 +940,7 @@ msgstr "Back"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "Base path"
 
@@ -4174,6 +4175,10 @@ msgstr "Manage collection remotes."
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr "Many repositories match this base path"
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "Match system"
@@ -4209,6 +4214,10 @@ msgstr "Mirroring cannot be combined with autopublish, so this sync only adds mi
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "More information"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4716,6 +4725,7 @@ msgstr "No users yet"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "None"
 
@@ -5747,6 +5757,7 @@ msgstr "Reload"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "Remote"
 

@@ -1,6 +1,6 @@
 import { getRepositoryVersionsListUrl } from '@pulp-ui/sdk/core/repository-versions';
 import { describe, expect, it } from 'vitest';
-import { URL_BUDGET, chunkByUrl } from './batch';
+import { URL_BUDGET, chunkByUrl, runBounded } from './batch';
 
 const UUID_TAIL = '-0000-4000-8000-';
 
@@ -92,5 +92,61 @@ describe('Unit: chunkByUrl', { tags: ['unit'] }, () => {
     const urlOf = (values: string[]) => `/x/?v=${values.join(',')}`;
 
     expect(chunkByUrl(urlOf, ['a', 'a', 'b'], 9)).toEqual([['a', 'a'], ['b']]);
+  });
+});
+
+describe('Unit: runBounded', { tags: ['unit'] }, () => {
+  it('resolves with the results in the order of the items', async () => {
+    const results = await runBounded([3, 1, 2], 2, async (item) => {
+      await new Promise((resolve) => setTimeout(resolve, item));
+      return item * 10;
+    });
+
+    expect(results).toEqual([30, 10, 20]);
+  });
+
+  it('never has more jobs in flight than the limit', async () => {
+    let inFlight = 0;
+    let most = 0;
+
+    await runBounded(
+      Array.from({ length: 20 }, (_, n) => n),
+      4,
+      async () => {
+        inFlight += 1;
+        most = Math.max(most, inFlight);
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        inFlight -= 1;
+      },
+    );
+
+    expect(most).toBe(4);
+  });
+
+  it('runs every item once and resolves with nothing for no items', async () => {
+    const seen: number[] = [];
+    await runBounded([1, 2, 3, 4, 5], 2, async (item) => {
+      seen.push(item);
+    });
+
+    expect(seen.sort()).toEqual([1, 2, 3, 4, 5]);
+    expect(await runBounded([], 4, async () => 1)).toEqual([]);
+  });
+
+  it('rejects with the first error and starts no further item', async () => {
+    const started: number[] = [];
+
+    await expect(
+      runBounded([1, 2, 3, 4, 5, 6, 7, 8], 2, async (item) => {
+        started.push(item);
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        if (item === 2) {
+          throw new Error('boom');
+        }
+      }),
+    ).rejects.toThrow('boom');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(started.length).toBeLessThan(8);
   });
 });

@@ -939,6 +939,7 @@ msgstr "戻る"
 #: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Base path"
 msgstr "ベースパス"
 
@@ -4173,6 +4174,10 @@ msgstr "コレクションリモートを管理します。"
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "マニフェストリストはこの画面ではサポートされていません。<0>Images</0> タブを使用してマニフェスト一覧の詳細を確認してください。"
 
+#: src/framework/list/repository-list.tsx
+msgid "Many repositories match this base path"
+msgstr ""
+
 #: src/shell/theme-menu.tsx
 msgid "Match system"
 msgstr "システムに合わせる"
@@ -4208,6 +4213,10 @@ msgstr "ミラーリングは自動パブリッシュと併用できないため
 #: src/components/help-button.tsx
 msgid "More information"
 msgstr "詳細情報"
+
+#: src/framework/list/repository-list.tsx
+msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
+msgstr ""
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4715,6 +4724,7 @@ msgstr "まだユーザーはありません"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/filters.tsx
 msgid "None"
 msgstr "なし"
 
@@ -5746,6 +5756,7 @@ msgstr "再読み込み"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Remote"
 msgstr "リモート"
 

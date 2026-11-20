@@ -9,7 +9,7 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
@@ -39,7 +39,7 @@ import type {
   RepositoryBase,
   RepositoryListParams,
 } from 'src/entities/plugin/model';
-import { useEntityList } from 'src/entities/plugin/queries';
+import { useRepositoryIndex } from 'src/entities/plugin/queries';
 import {
   isSessionEnd,
   requestErrorDescription,
@@ -69,6 +69,7 @@ import {
   paramsOfAddress,
   searchOf,
 } from './list-params';
+import { type BasePathSelection, useRepositoryRows } from './repository-rows';
 import {
   REPOSITORY_ROW_ACTIONS,
   type RepositoryPermission,
@@ -87,6 +88,10 @@ interface Props {
 
 const NO_COLUMNS: ColumnDef<RepositoryBase>[] = [];
 const NO_FILTERS: FilterDef[] = [];
+
+// How many repositories a base path may select before the list says so: they
+// are read and paged here, so a very wide match is worth narrowing.
+const LARGE_MATCH = 500;
 
 // The page a refused filter leaves on screen when there is no earlier one.
 const NO_PAGE = { count: 0, next: null, previous: null, results: [] };
@@ -214,8 +219,17 @@ const RepositoryListScreen = ({
       ),
     [columns],
   );
+  // The base path is not a field of a repository: it selects repositories
+  // through the distributions that serve them, so it is not part of the request.
+  const basePathText =
+    typeof params.base_path === 'string' ? params.base_path : undefined;
   const request = useMemo(() => {
-    const { page, page_size, sort, ...filterValues } = params;
+    const { page, page_size, sort } = params;
+    const filterValues = Object.fromEntries(
+      Object.entries(params).filter(
+        ([key]) => !['page', 'page_size', 'sort', 'base_path'].includes(key),
+      ),
+    );
     return {
       page,
       page_size,
@@ -225,7 +239,21 @@ const RepositoryListScreen = ({
     } as RepositoryListParams;
   }, [params, fields]);
 
-  const query = useEntityList(entity, request);
+  const distributions = useDistributionIndex(distribution, publication);
+  const basePath = useMemo<BasePathSelection>(
+    () => ({
+      text: basePathText,
+      matches:
+        basePathText === undefined
+          ? null
+          : distributions.repositoriesMatchingBasePath(basePathText),
+      status: distributions.status,
+      error: distributions.error,
+      retry: distributions.retry,
+    }),
+    [basePathText, distributions],
+  );
+  const query = useRepositoryRows(entity, request, basePath);
 
   // The server refuses a label expression it cannot read with a 400. That is
   // an answer about the expression and not a failure of the list: the rows of
@@ -247,9 +275,18 @@ const RepositoryListScreen = ({
   const labelRefusal = refusedFilter
     ? (requestErrorReason(query.error) ?? t`The label filter was not accepted.`)
     : null;
+  // The label keys offered are those of the rows shown and, once the label
+  // filter has been opened, those of every repository of the plugin.
+  const [indexWanted, setIndexWanted] = useState(false);
+  const openLabelFilter = useCallback(() => setIndexWanted(true), []);
+  const repositoryIndex = useRepositoryIndex(entity, { enabled: indexWanted });
   const labelKeys = useMemo(
-    () => labelKeysOf((data ?? lastShown.current)?.results ?? []),
-    [data],
+    () =>
+      labelKeysOf([
+        ...((data ?? lastShown.current)?.results ?? []),
+        ...(repositoryIndex.data ?? []),
+      ]),
+    [data, repositoryIndex.data],
   );
 
   // The first read fills the whole screen with its state. Once something has
@@ -260,7 +297,6 @@ const RepositoryListScreen = ({
     everShown.current = true;
   }
 
-  const distributions = useDistributionIndex(distribution, publication);
   const tasks = useTaskIndex();
   const versions = useVersionSummaries(
     rows.map((row) => row.latest_version_href),
@@ -556,6 +592,8 @@ const RepositoryListScreen = ({
                   updateParams={updateParams}
                   labelKeys={labelKeys}
                   labelRefusal={labelRefusal}
+                  onLabelFilterOpen={openLabelFilter}
+                  remotes={descriptor.remote?.entity}
                 />
                 {addButton ? (
                   <ToolbarGroup>
@@ -577,8 +615,19 @@ const RepositoryListScreen = ({
               filters={filters}
               params={params}
               updateParams={updateParams}
+              remotes={descriptor.remote?.entity}
             />
           </div>
+          {query.baseMatches !== null && query.baseMatches > LARGE_MATCH ? (
+            <Alert
+              isInline
+              variant='info'
+              title={t`Many repositories match this base path`}
+              style={{ marginBottom: '16px' }}
+            >
+              {t`More than ${LARGE_MATCH} repositories match. Add another filter to narrow the list.`}
+            </Alert>
+          ) : null}
           {permissionsNotice}
           {failures.map(({ id, title, retry, description }) => (
             <Alert
