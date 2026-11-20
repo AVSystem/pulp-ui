@@ -1,0 +1,248 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSessionQuery } from 'src/query/use-session-query';
+import type { Page } from './model';
+import type { Options, UpdateResult } from './request';
+
+// The read hooks and mutations every plugin's repository and remote screens
+// share. Each takes the entity (see makeRepositoryEntity and makeRemoteEntity)
+// and keys what it reads by the entity's plugin and object, so two plugins
+// never share a cache entry and one invalidation reads one object's lists
+// again.
+
+// What the hooks need of an entity to name its cache entries.
+interface EntityName {
+  readonly app: string;
+  readonly object: string;
+}
+
+// The cache keys of one plugin's object: ['pulp', <plugin>, <object>, ...].
+// `list` is one page of a list, `by-name` the lookup of a URL name and
+// `detail` one object by its address.
+export function entityKeys(entity: EntityName) {
+  const all = ['pulp', entity.app, entity.object] as const;
+
+  return {
+    all,
+    list: (params: object) => [...all, 'list', params] as const,
+    byName: (name: string) => [...all, 'by-name', name] as const,
+    detail: (href: string) => [...all, 'detail', href] as const,
+  };
+}
+
+// The parameters of a list apart from its page, in a form two lists can be
+// compared by.
+function withoutPage(params: object): string {
+  return JSON.stringify(
+    Object.entries(params)
+      .filter(([key, value]) => key !== 'page' && value !== undefined)
+      .sort(([a], [b]) => (a < b ? -1 : 1)),
+  );
+}
+
+// Whether two lists differ in the page only, so the rows of the one are a fair
+// stand-in for the other while it loads. The same page of the same list is not
+// a stand-in but the same read: when the cache was emptied for another account
+// the previous rows belong to the account that left and are never shown.
+function otherPageOfSameList(
+  a: { page?: number },
+  b: { page?: number },
+): boolean {
+  return a.page !== b.page && withoutPage(a) === withoutPage(b);
+}
+
+interface ListableEntity<
+  Row,
+  Params extends { page?: number },
+> extends EntityName {
+  list: (params?: Params, options?: Options) => Promise<Page<Row>>;
+}
+
+// One page of a list. Every set of parameters is a query of its own, so an
+// older answer never lands in the place of a newer one. While another page of
+// the same list loads, the rows of the page before stay; rows that were read
+// for other filters, another order or another page size are never shown in
+// their place. False for `enabled` keeps the read off, for a screen that has
+// nobody to read for.
+export function useEntityList<Row, Params extends { page?: number }>(
+  entity: ListableEntity<Row, Params>,
+  params: Params,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  const keys = entityKeys(entity);
+
+  return useSessionQuery({
+    queryKey: keys.list(params),
+    queryFn: ({ signal }) => entity.list(params, { signal }),
+    enabled,
+    placeholderData: (previous, previousQuery) => {
+      const key = previousQuery?.queryKey;
+      const before = key?.[4] as Params | undefined;
+      const sameEntity = key?.[1] === entity.app && key?.[2] === entity.object;
+
+      return before && sameEntity && otherPageOfSameList(before, params)
+        ? previous
+        : undefined;
+    },
+  });
+}
+
+// The object with this name, or null when there is none: the lookup a URL name
+// turns into the object's address by. A null name is the name of nothing: no
+// request is sent.
+export function useEntityByName<Row>(
+  entity: EntityName & {
+    byName: (name: string, options?: Options) => Promise<Row | null>;
+  },
+  name: string | null,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  return useSessionQuery({
+    queryKey: entityKeys(entity).byName(name ?? ''),
+    queryFn: ({ signal }) => entity.byName(name as string, { signal }),
+    enabled: enabled && name !== null,
+  });
+}
+
+// One object by its address. A null address is the address of nothing: no
+// request is sent.
+export function useEntity<Row>(
+  entity: EntityName & {
+    retrieve: (href: string, options?: Options) => Promise<Row>;
+  },
+  href: string | null,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  return useSessionQuery({
+    queryKey: entityKeys(entity).detail(href ?? ''),
+    queryFn: ({ signal }) => entity.retrieve(href as string, { signal }),
+    enabled: enabled && href !== null,
+  });
+}
+
+// Every write below sends one request per call and is never repeated by
+// itself: a repeated create or delete could do its work twice. Once the call
+// has settled, whatever it answered, everything read of the object is read
+// again, because the server may have changed something either way.
+function useInvalidateOnSettle(entity: EntityName) {
+  const queryClient = useQueryClient();
+
+  return () =>
+    queryClient.invalidateQueries({ queryKey: entityKeys(entity).all });
+}
+
+// Creates an object.
+export function useCreateEntity<Body, Row>(
+  entity: EntityName & {
+    create: (body: Body, options?: Options) => Promise<Row>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: (body: Body) => entity.create(body),
+    retry: false,
+    onSettled: invalidate,
+  });
+}
+
+export interface UpdateEntityRequest<Body> {
+  // The address of the object to change.
+  href: string;
+  // The fields to change; a field that is not given is left as it is.
+  body: Body;
+}
+
+// Changes some fields of an object. The answer says whether the server
+// started a task or made the change at once.
+export function useUpdateEntity<Body, Row>(
+  entity: EntityName & {
+    update: (
+      href: string,
+      body: Body,
+      options?: Options,
+    ) => Promise<UpdateResult<Row>>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href, body }: UpdateEntityRequest<Body>) =>
+      entity.update(href, body),
+    retry: false,
+    onSettled: invalidate,
+  });
+}
+
+export interface DeleteEntityRequest {
+  // The address of the object to delete.
+  href: string;
+}
+
+// Deletes an object. The answer is the address of the task that deletes it.
+export function useDeleteEntity(
+  entity: EntityName & {
+    remove: (href: string, options?: Options) => Promise<string>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href }: DeleteEntityRequest) => entity.remove(href),
+    retry: false,
+    onSettled: invalidate,
+  });
+}
+
+export interface SetLabelRequest {
+  // The address of the object that carries the label.
+  href: string;
+  key: string;
+  // The value to set; null sets a label with no value.
+  value: string | null;
+}
+
+// Sets one label of an object, with one request.
+export function useSetLabel(
+  entity: EntityName & {
+    setLabel: (
+      href: string,
+      label: { key: string; value: string | null },
+      options?: Options,
+    ) => Promise<unknown>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href, key, value }: SetLabelRequest) =>
+      entity.setLabel(href, { key, value }),
+    retry: false,
+    onSettled: invalidate,
+  });
+}
+
+export interface UnsetLabelRequest {
+  // The address of the object that carries the label.
+  href: string;
+  key: string;
+}
+
+// Removes one label of an object, with one request.
+export function useUnsetLabel(
+  entity: EntityName & {
+    unsetLabel: (
+      href: string,
+      key: string,
+      options?: Options,
+    ) => Promise<unknown>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href, key }: UnsetLabelRequest) =>
+      entity.unsetLabel(href, key),
+    retry: false,
+    onSettled: invalidate,
+  });
+}

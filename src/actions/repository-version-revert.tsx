@@ -7,11 +7,9 @@ import {
   ModalHeader,
 } from '@patternfly/react-core';
 import { useId, useState } from 'react';
+import { pluginOfHref } from 'src/entities/href';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
-import {
-  ACTION_PERMISSIONS,
-  pluginOfHref,
-} from '../utilities/action-permissions';
+import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
 import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { isSessionEnd } from '../utilities/request-error';

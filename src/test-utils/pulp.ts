@@ -33,7 +33,7 @@ const DEFAULT_PAGE_SIZE = 100;
 // page, as the server does; pageSize caps the rows of one page whatever the
 // request asks for. matching keeps only the rows a filter query selects, the
 // way a server filter does; without it every row is answered whatever the
-// query says. The query of every request it answers is recorded in queries, in
+// query says. ordered sorts them the way a server ordering does. The query of every request it answers is recorded in queries, in
 // order, for assertions.
 export function listOf<T>(
   path: string,
@@ -41,9 +41,13 @@ export function listOf<T>(
   {
     pageSize = DEFAULT_PAGE_SIZE,
     matching,
+    ordered,
   }: {
     pageSize?: number;
     matching?: (row: T, query: URLSearchParams) => boolean;
+    // Puts the selected rows in the order the query asks for, before they are
+    // cut into a page, the way a server ordering does.
+    ordered?: (rows: T[], query: URLSearchParams) => T[];
   } = {},
 ) {
   const queries: URLSearchParams[] = [];
@@ -51,9 +55,10 @@ export function listOf<T>(
   const handler = http.get(`*${path}`, ({ request }) => {
     const url = new URL(request.url);
     queries.push(new URLSearchParams(url.searchParams));
-    const rows = matching
+    const selected = matching
       ? allRows.filter((row) => matching(row, url.searchParams))
       : allRows;
+    const rows = ordered ? ordered(selected, url.searchParams) : selected;
 
     const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
     const requested = Number(url.searchParams.get('limit')) || pageSize;
@@ -235,6 +240,142 @@ export function remote(overrides: Partial<IRemote> = {}): IRemote {
     ].map((field) => ({ name: field, is_set: false })),
     ...overrides,
   };
+}
+
+// The plugins the repository and remote builders know: the path segment of
+// their addresses and the model names their PRNs carry.
+const PLUGINS = {
+  file: {
+    segment: 'file/file',
+    repository: 'file.filerepository',
+    remote: 'file.fileremote',
+  },
+  deb: {
+    segment: 'deb/apt',
+    repository: 'deb.aptrepository',
+    remote: 'deb.aptremote',
+  },
+  rpm: {
+    segment: 'rpm/rpm',
+    repository: 'rpm.rpmrepository',
+    remote: 'rpm.rpmremote',
+  },
+  python: {
+    segment: 'python/python',
+    repository: 'python.pythonrepository',
+    remote: 'python.pythonremote',
+  },
+} as const;
+
+export type TestPlugin = keyof typeof PLUGINS;
+
+// The id an address ends in, which a PRN carries too.
+const idOf = (address: string) => address.split('/').filter(Boolean).pop();
+
+// A repository of the given plugin as the server returns it: the address of
+// that plugin, its PRN, its versions and the remote and labels a screen reads.
+export function pluginRepository(
+  plugin: TestPlugin,
+  overrides: Partial<IRepository> = {},
+): IRepository {
+  const { segment, repository: model } = PLUGINS[plugin];
+  const id = href(`repositories/${segment}`);
+  return {
+    pulp_href: id,
+    prn: `prn:${model}:${idOf(id)}`,
+    name: `repository-${sequence}`,
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    versions_href: `${id}versions/`,
+    latest_version_href: `${id}versions/0/`,
+    description: null,
+    retain_repo_versions: null,
+    pulp_labels: {},
+    remote: null,
+    ...overrides,
+  };
+}
+
+// A remote of the given plugin as the server returns it: remote() with the
+// address and the PRN of that plugin and an empty set of labels.
+export function pluginRemote(
+  plugin: TestPlugin,
+  overrides: Partial<IRemote> = {},
+): IRemote {
+  const { segment, remote: model } = PLUGINS[plugin];
+  const id = href(`remotes/${segment}`);
+  return remote({
+    pulp_href: id,
+    prn: `prn:${model}:${idOf(id)}`,
+    pulp_labels: {},
+    ...overrides,
+  });
+}
+
+// Compares two values of a column the way a database orders them: numbers by
+// value, text by its characters.
+const compareValues = (a: unknown, b: unknown) =>
+  a === b ? 0 : (a as string) < (b as string) ? -1 : 1;
+
+// Puts rows in the order of an `ordering` query: a comma separated list of
+// columns, a leading minus sorting down. The first column decides, the next
+// ones break a tie.
+function orderedBy<T>(rows: T[], query: URLSearchParams): T[] {
+  const columns = (query.get('ordering') ?? '').split(',').filter(Boolean);
+  if (columns.length === 0) {
+    return rows;
+  }
+  return [...rows].sort((a, b) => {
+    for (const column of columns) {
+      const down = column.startsWith('-');
+      const key = down ? column.slice(1) : column;
+      const order = compareValues(
+        (a as Record<string, unknown>)[key],
+        (b as Record<string, unknown>)[key],
+      );
+      if (order !== 0) {
+        return down ? -order : order;
+      }
+    }
+    return 0;
+  });
+}
+
+// The list of a plugin's repositories or remotes as a server answers it: the
+// filters name (exact), name__icontains, name__in and pulp_href__in (an empty
+// set matches nothing), the ordering of a column, and the paging of listOf.
+// It serves the plugin's own list path, which is returned with the handler
+// and the recorded queries.
+export function pluginListHandler<
+  T extends { name: string; pulp_href: string },
+>(
+  plugin: TestPlugin,
+  kind: 'repository' | 'remote',
+  rows: T[],
+  { pageSize }: { pageSize?: number } = {},
+) {
+  const path = `/pulp/api/v3/${kind === 'repository' ? 'repositories' : 'remotes'}/${PLUGINS[plugin].segment}/`;
+  const inSet = (query: URLSearchParams, key: string) =>
+    query.has(key) ? (query.get(key) ?? '').split(',').filter(Boolean) : null;
+
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const name = query.get('name');
+      const part = query.get('name__icontains');
+      const names = inSet(query, 'name__in');
+      const hrefs = inSet(query, 'pulp_href__in');
+      return (
+        (name === null || row.name === name) &&
+        (part === null ||
+          row.name.toLowerCase().includes(part.toLowerCase())) &&
+        (names === null || names.includes(row.name)) &&
+        (hrefs === null || hrefs.includes(row.pulp_href))
+      );
+    },
+    ordered: orderedBy,
+  });
+
+  return { ...list, path };
 }
 
 export interface ITask {

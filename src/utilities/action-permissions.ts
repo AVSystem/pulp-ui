@@ -124,17 +124,3 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
       },
     },
   };
-
-// The plugin a repository, repository version or remote address belongs to:
-// the segment after "repositories/" or "remotes/". Anything else answers
-// nothing.
-export function pluginOfHref(
-  href: string | null | undefined,
-): PermissionPlugin | undefined {
-  const segment = /\/(?:repositories|remotes)\/([^/]+)\//.exec(href ?? '')?.[1];
-
-  return segment &&
-    Object.prototype.hasOwnProperty.call(ACTION_PERMISSIONS, segment)
-    ? (segment as PermissionPlugin)
-    : undefined;
-}

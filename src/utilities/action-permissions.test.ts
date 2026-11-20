@@ -1,36 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { ACTION_PERMISSIONS, pluginOfHref } from './action-permissions';
-
-const API = '/pulp/api/v3';
-const ID = '00000000-0000-4000-8000-0000000000a1';
-
-describe('pluginOfHref', () => {
-  it.each([
-    [`${API}/repositories/file/file/${ID}/`, 'file'],
-    [`${API}/repositories/deb/apt/${ID}/versions/2/`, 'deb'],
-    [`${API}/repositories/rpm/rpm/${ID}/`, 'rpm'],
-    [`${API}/repositories/python/python/${ID}/versions/1/`, 'python'],
-    [`${API}/repositories/ansible/ansible/${ID}/`, 'ansible'],
-    [`${API}/remotes/file/file/${ID}/`, 'file'],
-    [`${API}/remotes/ansible/collection/${ID}/`, 'ansible'],
-    [`/prefix/api/v3/remotes/deb/apt/${ID}/`, 'deb'],
-  ])('reads the plugin of %s', (href, plugin) => {
-    expect(pluginOfHref(href)).toBe(plugin);
-  });
-
-  it.each([
-    undefined,
-    null,
-    '',
-    `${API}/repositories/unknown/thing/${ID}/`,
-    `${API}/tasks/${ID}/`,
-    `${API}/groups/1/`,
-  ])('answers nothing for %s', (href) => {
-    expect(pluginOfHref(href)).toBeUndefined();
-  });
-});
+import { HREF_PLUGINS } from 'src/entities/href';
+import { ACTION_PERMISSIONS } from './action-permissions';
 
 describe('ACTION_PERMISSIONS', () => {
+  it('has an entry for exactly the plugins an address can name', () => {
+    expect(Object.keys(ACTION_PERMISSIONS).sort()).toEqual(
+      [...HREF_PLUGINS].sort(),
+    );
+  });
+
   it('names the permissions of each plugin with its own app label', () => {
     for (const [plugin, entry] of Object.entries(ACTION_PERMISSIONS)) {
       const names = [
