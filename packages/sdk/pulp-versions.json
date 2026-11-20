@@ -1,21 +1,20 @@
 {
   "apps": {
-    "ansible": "0.30.1",
-    "certguard": "3.120.0",
-    "core": "3.120.0",
+    "ansible": "0.30.4",
+    "certguard": "3.124.0",
+    "core": "3.124.0",
     "deb": "3.11.1",
-    "file": "3.120.0",
-    "maven": "0.36.0.dev",
+    "file": "3.124.0",
+    "maven": "0.37.2",
     "npm": "0.11.0.dev",
-    "python": "3.36.2",
-    "rpm": "3.39.0"
+    "python": "3.38.1",
+    "rpm": "3.39.5"
   },
   "sources": {
     "pulp-ui": "c06588dabf66db0c8378c2e1a50af06bf53566af",
-    "pulp_maven": "430713683ad11ed61b126eaf8ee8de7392a2e9a5",
+    "pulp_maven": "828da8e2137e4da1d3502c9ad89793966e1f71e8",
     "pulp_npm": "527947969be7dd308192277fdeea2c12d876b698",
-    "pulp_python": "e5f8f16f9e28dc1d64d5f1a363042ef3e8d139d9",
-    "pulp_rpm": "c3be72a4904780135d56d4e08eb5c60de7055b75",
-    "pulpcore": "cfd4360aa1e1db6895087cc38567410a3f1a52ca"
+    "pulp_python": "90bbe840efdb3e72381e06acf53cd7137ebc141c",
+    "pulpcore": "e1ca9393e0f752eb7cdb0f11987ff4e46fbb43c4"
   }
 }

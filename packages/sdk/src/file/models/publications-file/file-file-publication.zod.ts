@@ -6,6 +6,7 @@
  * OpenAPI spec version: v3
  */
 import * as zod from 'zod';
+import { Sha256sumsEnum } from '../sha256sums-enum.zod.ts';
 
 export const fileFilePublicationManifestDefault = `PULP_MANIFEST`;
 
@@ -15,7 +16,8 @@ export const FileFilePublication = zod.object({
   "checkpoint": zod.boolean().optional(),
   "manifest": zod.string().min(1).nullish().default(fileFilePublicationManifestDefault).describe('Filename to use for manifest file containing metadata for all the files.'),
   "repository": zod.string().optional().describe('A URI of the repository to be published.'),
-  "repository_version": zod.string().optional()
+  "repository_version": zod.string().optional(),
+  "sha256sums": Sha256sumsEnum.optional().describe('Whether to generate SHA256SUMS files, and where to place them. Defaults to the setting on the repository being published.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory.')
 }).describe('Serializer for File Publications.');
 
 export type FileFilePublication = zod.input<typeof FileFilePublication>;

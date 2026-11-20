@@ -18,6 +18,7 @@ export const collectionSummaryResponseVersionMax = 128;
 
 
 export const CollectionSummaryResponse = zod.object({
+  "content_counts": zod.record(zod.string(), zod.int()).optional(),
   "contents": zod.array(zod.unknown()).optional().describe('A JSON field with data about the contents. (Deliberately left empty in summary view.)'),
   "dependencies": zod.looseObject({
 

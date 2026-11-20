@@ -106,6 +106,7 @@
         "properties": {
           "addon_id": {
             "description": "Addon id.",
+            "pattern": "^(?!\\.{1,2}$)[A-Za-z0-9._-]+$",
             "type": "string"
           },
           "name": {
@@ -800,6 +801,14 @@
       "CollectionSummaryResponse": {
         "description": "Collection Version serializer without docs blob.",
         "properties": {
+          "content_counts": {
+            "additionalProperties": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "readOnly": true,
+            "type": "object"
+          },
           "contents": {
             "description": "A JSON field with data about the contents. (Deliberately left empty in summary view.)",
             "items": {},
@@ -2566,7 +2575,7 @@
             "type": "string"
           },
           "jq_filter": {
-            "description": "A JQ syntax compatible filter. If jq_filter is not set, then the value willonly be Base64 decoded and checked as an explicit string match.",
+            "description": "A simple dotted path (e.g. .a.b.c) used to extract the value from the Base64 decoded JSON header. If jq_filter is not set, the header value is only Base64 decoded and checked as an explicit string match.",
             "minLength": 1,
             "nullable": true,
             "type": "string"
@@ -2601,7 +2610,7 @@
             "type": "string"
           },
           "jq_filter": {
-            "description": "A JQ syntax compatible filter. If jq_filter is not set, then the value willonly be Base64 decoded and checked as an explicit string match.",
+            "description": "A simple dotted path (e.g. .a.b.c) used to extract the value from the Base64 decoded JSON header. If jq_filter is not set, the header value is only Base64 decoded and checked as an explicit string match.",
             "nullable": true,
             "type": "string"
           },
@@ -4293,13 +4302,17 @@
           "releases": {
             "description": "List of all the releases of the package"
           },
-          "urls": {}
+          "urls": {},
+          "vulnerabilities": {
+            "description": "Known vulnerabilities for the selected package version."
+          }
         },
         "required": [
           "info",
           "last_serial",
           "releases",
-          "urls"
+          "urls",
+          "vulnerabilities"
         ],
         "type": "object"
       },
@@ -8585,7 +8598,7 @@
             "type": "string"
           },
           "jq_filter": {
-            "description": "A JQ syntax compatible filter. If jq_filter is not set, then the value willonly be Base64 decoded and checked as an explicit string match.",
+            "description": "A simple dotted path (e.g. .a.b.c) used to extract the value from the Base64 decoded JSON header. If jq_filter is not set, the header value is only Base64 decoded and checked as an explicit string match.",
             "minLength": 1,
             "nullable": true,
             "type": "string"
@@ -8907,6 +8920,15 @@
             "description": "Filter distributions on the upstream Pulp using complex filtering. E.g. pulp_label_select=\"foo\" OR pulp_label_select=\"key=val\"",
             "nullable": true,
             "type": "string"
+          },
+          "remote_policy": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RemotePolicyEnum"
+              }
+            ],
+            "description": "Download policy for remotes created during replication. One of 'immediate', 'on_demand', or 'streamed'. Distinct from 'policy', which controls how replicate manages local objects. Defaults to the Remote default ('immediate') when unset.\n\n* `immediate` - When syncing, download all metadata and content now.\n* `on_demand` - When syncing, download metadata, but do not download content now. Instead, download content as clients request it, and save it in Pulp to be served for future client requests.\n* `streamed` - When syncing, download metadata, but do not download content now. Instead,download content as clients request it, but never save it in Pulp. This causes future requests for that same content to have to be downloaded again.",
+            "nullable": true
           },
           "sock_connect_timeout": {
             "description": "aiohttp.ClientTimeout.sock_connect (q.v.) for download-connections. The default is null, which will cause the default from the aiohttp library to be used.",
@@ -10438,6 +10460,15 @@
             "minimum": 1,
             "nullable": true,
             "type": "integer"
+          },
+          "sha256sums": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sha256sumsEnum"
+              }
+            ],
+            "default": "disabled",
+            "description": "Whether to generate SHA256SUMS files, and where to place them. 'root' writes a single file at the root of the repository, 'directory' writes one in every directory. Each file lists every file below it, with paths relative to itself.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory."
           }
         },
         "type": "object"
@@ -11167,6 +11198,11 @@
             "nullable": true,
             "type": "string",
             "writeOnly": true
+          },
+          "vulnerabilities": {
+            "default": false,
+            "description": "Whether to scan the new repository version for vulnerabilities after a sync.",
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -12249,7 +12285,7 @@
       "Purge": {
         "properties": {
           "finished_before": {
-            "default": "2026-10-20",
+            "default": "2026-10-21",
             "description": "Purge tasks completed earlier than this timestamp. Format '%Y-%m-%d[T%H:%M:%S]'",
             "format": "date-time",
             "type": "string"
@@ -12811,6 +12847,15 @@
         },
         "type": "object"
       },
+      "RemotePolicyEnum": {
+        "description": "* `immediate` - When syncing, download all metadata and content now.\n* `on_demand` - When syncing, download metadata, but do not download content now. Instead, download content as clients request it, and save it in Pulp to be served for future client requests.\n* `streamed` - When syncing, download metadata, but do not download content now. Instead,download content as clients request it, but never save it in Pulp. This causes future requests for that same content to have to be downloaded again.",
+        "enum": [
+          "immediate",
+          "on_demand",
+          "streamed"
+        ],
+        "type": "string"
+      },
       "Repair": {
         "properties": {
           "verify_checksums": {
@@ -13215,6 +13260,15 @@
           "value"
         ],
         "type": "object"
+      },
+      "Sha256sumsEnum": {
+        "description": "* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory.",
+        "enum": [
+          "disabled",
+          "root",
+          "directory"
+        ],
+        "type": "string"
       },
       "SigningServiceResponse": {
         "description": "A serializer for the model declaring a signing service.",
@@ -14127,6 +14181,15 @@
             "nullable": true,
             "type": "string"
           },
+          "remote_policy": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RemotePolicyEnum"
+              }
+            ],
+            "description": "Download policy for remotes created during replication. One of 'immediate', 'on_demand', or 'streamed'. Distinct from 'policy', which controls how replicate manages local objects. Defaults to the Remote default ('immediate') when unset.\n\n* `immediate` - When syncing, download all metadata and content now.\n* `on_demand` - When syncing, download metadata, but do not download content now. Instead, download content as clients request it, and save it in Pulp to be served for future client requests.\n* `streamed` - When syncing, download metadata, but do not download content now. Instead,download content as clients request it, but never save it in Pulp. This causes future requests for that same content to have to be downloaded again.",
+            "nullable": true
+          },
           "sock_connect_timeout": {
             "description": "aiohttp.ClientTimeout.sock_connect (q.v.) for download-connections. The default is null, which will cause the default from the aiohttp library to be used.",
             "format": "double",
@@ -14287,6 +14350,15 @@
             "description": "Filter distributions on the upstream Pulp using complex filtering. E.g. pulp_label_select=\"foo\" OR pulp_label_select=\"key=val\"",
             "nullable": true,
             "type": "string"
+          },
+          "remote_policy": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RemotePolicyEnum"
+              }
+            ],
+            "description": "Download policy for remotes created during replication. One of 'immediate', 'on_demand', or 'streamed'. Distinct from 'policy', which controls how replicate manages local objects. Defaults to the Remote default ('immediate') when unset.\n\n* `immediate` - When syncing, download all metadata and content now.\n* `on_demand` - When syncing, download metadata, but do not download content now. Instead, download content as clients request it, and save it in Pulp to be served for future client requests.\n* `streamed` - When syncing, download metadata, but do not download content now. Instead,download content as clients request it, but never save it in Pulp. This causes future requests for that same content to have to be downloaded again.",
+            "nullable": true
           },
           "sock_connect_timeout": {
             "description": "aiohttp.ClientTimeout.sock_connect (q.v.) for download-connections. The default is null, which will cause the default from the aiohttp library to be used.",
@@ -14630,6 +14702,7 @@
           },
           "variant_id": {
             "description": "Variant id.",
+            "pattern": "^(?!\\.{1,2}$)[A-Za-z0-9._-]+$",
             "type": "string"
           }
         },
@@ -20606,6 +20679,14 @@
           "repository_version": {
             "format": "uri",
             "type": "string"
+          },
+          "sha256sums": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sha256sumsEnum"
+              }
+            ],
+            "description": "Whether to generate SHA256SUMS files, and where to place them. Defaults to the setting on the repository being published.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory."
           }
         },
         "type": "object"
@@ -20661,6 +20742,14 @@
           "repository_version": {
             "format": "uri",
             "type": "string"
+          },
+          "sha256sums": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sha256sumsEnum"
+              }
+            ],
+            "description": "Whether to generate SHA256SUMS files, and where to place them. Defaults to the setting on the repository being published.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory."
           }
         },
         "type": "object"
@@ -21013,6 +21102,15 @@
             "minimum": 1,
             "nullable": true,
             "type": "integer"
+          },
+          "sha256sums": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sha256sumsEnum"
+              }
+            ],
+            "default": "disabled",
+            "description": "Whether to generate SHA256SUMS files, and where to place them. 'root' writes a single file at the root of the repository, 'directory' writes one in every directory. Each file lists every file below it, with paths relative to itself.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory."
           }
         },
         "required": [
@@ -21100,6 +21198,15 @@
             "minimum": 1,
             "nullable": true,
             "type": "integer"
+          },
+          "sha256sums": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sha256sumsEnum"
+              }
+            ],
+            "default": "disabled",
+            "description": "Whether to generate SHA256SUMS files, and where to place them. 'root' writes a single file at the root of the repository, 'directory' writes one in every directory. Each file lists every file below it, with paths relative to itself.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory."
           },
           "versions_href": {
             "format": "uri",
@@ -23828,6 +23935,11 @@
             "nullable": true,
             "type": "string",
             "writeOnly": true
+          },
+          "vulnerabilities": {
+            "default": false,
+            "description": "Whether to scan the new repository version for vulnerabilities after a sync.",
+            "type": "boolean"
           }
         },
         "required": [
@@ -24020,6 +24132,11 @@
           "url": {
             "description": "The URL of an external content source.",
             "type": "string"
+          },
+          "vulnerabilities": {
+            "default": false,
+            "description": "Whether to scan the new repository version for vulnerabilities after a sync.",
+            "type": "boolean"
           }
         },
         "required": [
@@ -27231,18 +27348,18 @@
       "url": "https://pulpproject.org/assets/pulp_logo_icon.svg"
     },
     "x-pulp-app-versions": {
-      "ansible": "0.30.1",
-      "certguard": "3.120.0",
-      "core": "3.120.0",
+      "ansible": "0.30.4",
+      "certguard": "3.124.0",
+      "core": "3.124.0",
       "deb": "3.11.1",
-      "file": "3.120.0",
-      "maven": "0.36.0.dev",
+      "file": "3.124.0",
+      "maven": "0.37.2",
       "npm": "0.11.0.dev",
-      "python": "3.36.2",
-      "rpm": "3.39.0"
+      "python": "3.38.1",
+      "rpm": "3.39.5"
     },
     "x-pulp-domain-enabled": false,
-    "x-pulp-image-sources": "pulpcore@cfd4360aa1e1db6895087cc38567410a3f1a52ca pulp_maven@430713683ad11ed61b126eaf8ee8de7392a2e9a5 pulp_npm@527947969be7dd308192277fdeea2c12d876b698 pulp_rpm@c3be72a4904780135d56d4e08eb5c60de7055b75 pulp_python@e5f8f16f9e28dc1d64d5f1a363042ef3e8d139d9 pulp-ui@c06588dabf66db0c8378c2e1a50af06bf53566af"
+    "x-pulp-image-sources": "pulpcore@e1ca9393e0f752eb7cdb0f11987ff4e46fbb43c4 pulp_maven@828da8e2137e4da1d3502c9ad89793966e1f71e8 pulp_npm@527947969be7dd308192277fdeea2c12d876b698 pulp_python@90bbe840efdb3e72381e06acf53cd7137ebc141c pulp-ui@c06588dabf66db0c8378c2e1a50af06bf53566af"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -29271,7 +29388,7 @@
             }
           },
           {
-            "description": "Pulp type\n\n* `core.publishedmetadata` - core.publishedmetadata\n* `core.openpgp_publickey` - core.openpgp_publickey\n* `core.openpgp_publicsubkey` - core.openpgp_publicsubkey\n* `core.openpgp_userid` - core.openpgp_userid\n* `core.openpgp_userattribute` - core.openpgp_userattribute\n* `core.openpgp_signature` - core.openpgp_signature\n* `ansible.role` - ansible.role\n* `ansible.collection_version` - ansible.collection_version\n* `ansible.collection_mark` - ansible.collection_mark\n* `ansible.collection_signature` - ansible.collection_signature\n* `ansible.namespace` - ansible.namespace\n* `ansible.collection_deprecation` - ansible.collection_deprecation\n* `deb.package` - deb.package\n* `deb.installer_package` - deb.installer_package\n* `deb.generic` - deb.generic\n* `deb.source_package` - deb.source_package\n* `deb.release` - deb.release\n* `deb.release_architecture` - deb.release_architecture\n* `deb.release_component` - deb.release_component\n* `deb.package_release_component` - deb.package_release_component\n* `deb.source_package_release_component` - deb.source_package_release_component\n* `deb.release_file` - deb.release_file\n* `deb.package_index` - deb.package_index\n* `deb.installer_file_index` - deb.installer_file_index\n* `deb.source_index` - deb.source_index\n* `python.python` - python.python\n* `python.provenance` - python.provenance\n* `python.python_yank` - python.python_yank\n* `rpm.advisory` - rpm.advisory\n* `rpm.packagegroup` - rpm.packagegroup\n* `rpm.packagecategory` - rpm.packagecategory\n* `rpm.packageenvironment` - rpm.packageenvironment\n* `rpm.packagelangpacks` - rpm.packagelangpacks\n* `rpm.repo_metadata_file` - rpm.repo_metadata_file\n* `rpm.distribution_tree` - rpm.distribution_tree\n* `rpm.package` - rpm.package\n* `rpm.modulemd` - rpm.modulemd\n* `rpm.modulemd_defaults` - rpm.modulemd_defaults\n* `rpm.modulemd_obsolete` - rpm.modulemd_obsolete\n* `file.file` - file.file\n* `maven.artifact` - maven.artifact\n* `maven.metadata` - maven.metadata\n* `maven.package` - maven.package\n* `maven.index-page` - maven.index-page\n* `npm.package` - npm.package",
+            "description": "Pulp type\n\n* `core.publishedmetadata` - core.publishedmetadata\n* `core.openpgp_publickey` - core.openpgp_publickey\n* `core.openpgp_publicsubkey` - core.openpgp_publicsubkey\n* `core.openpgp_userid` - core.openpgp_userid\n* `core.openpgp_userattribute` - core.openpgp_userattribute\n* `core.openpgp_signature` - core.openpgp_signature\n* `ansible.role` - ansible.role\n* `ansible.collection_version` - ansible.collection_version\n* `ansible.collection_mark` - ansible.collection_mark\n* `ansible.collection_signature` - ansible.collection_signature\n* `ansible.namespace` - ansible.namespace\n* `ansible.collection_deprecation` - ansible.collection_deprecation\n* `deb.package` - deb.package\n* `deb.installer_package` - deb.installer_package\n* `deb.generic` - deb.generic\n* `deb.source_package` - deb.source_package\n* `deb.release` - deb.release\n* `deb.release_architecture` - deb.release_architecture\n* `deb.release_component` - deb.release_component\n* `deb.package_release_component` - deb.package_release_component\n* `deb.source_package_release_component` - deb.source_package_release_component\n* `deb.release_file` - deb.release_file\n* `deb.package_index` - deb.package_index\n* `deb.installer_file_index` - deb.installer_file_index\n* `deb.source_index` - deb.source_index\n* `maven.artifact` - maven.artifact\n* `maven.metadata` - maven.metadata\n* `maven.package` - maven.package\n* `maven.index-page` - maven.index-page\n* `python.python` - python.python\n* `python.provenance` - python.provenance\n* `python.python_yank` - python.python_yank\n* `rpm.advisory` - rpm.advisory\n* `rpm.packagegroup` - rpm.packagegroup\n* `rpm.packagecategory` - rpm.packagecategory\n* `rpm.packageenvironment` - rpm.packageenvironment\n* `rpm.packagelangpacks` - rpm.packagelangpacks\n* `rpm.repo_metadata_file` - rpm.repo_metadata_file\n* `rpm.distribution_tree` - rpm.distribution_tree\n* `rpm.package` - rpm.package\n* `rpm.modulemd` - rpm.modulemd\n* `rpm.modulemd_defaults` - rpm.modulemd_defaults\n* `rpm.modulemd_obsolete` - rpm.modulemd_obsolete\n* `file.file` - file.file\n* `npm.package` - npm.package",
             "in": "query",
             "name": "pulp_type",
             "schema": {
@@ -29326,7 +29443,7 @@
             }
           },
           {
-            "description": "Multiple values may be separated by commas.\n\n* `core.publishedmetadata` - core.publishedmetadata\n* `core.openpgp_publickey` - core.openpgp_publickey\n* `core.openpgp_publicsubkey` - core.openpgp_publicsubkey\n* `core.openpgp_userid` - core.openpgp_userid\n* `core.openpgp_userattribute` - core.openpgp_userattribute\n* `core.openpgp_signature` - core.openpgp_signature\n* `ansible.role` - ansible.role\n* `ansible.collection_version` - ansible.collection_version\n* `ansible.collection_mark` - ansible.collection_mark\n* `ansible.collection_signature` - ansible.collection_signature\n* `ansible.namespace` - ansible.namespace\n* `ansible.collection_deprecation` - ansible.collection_deprecation\n* `deb.package` - deb.package\n* `deb.installer_package` - deb.installer_package\n* `deb.generic` - deb.generic\n* `deb.source_package` - deb.source_package\n* `deb.release` - deb.release\n* `deb.release_architecture` - deb.release_architecture\n* `deb.release_component` - deb.release_component\n* `deb.package_release_component` - deb.package_release_component\n* `deb.source_package_release_component` - deb.source_package_release_component\n* `deb.release_file` - deb.release_file\n* `deb.package_index` - deb.package_index\n* `deb.installer_file_index` - deb.installer_file_index\n* `deb.source_index` - deb.source_index\n* `python.python` - python.python\n* `python.provenance` - python.provenance\n* `python.python_yank` - python.python_yank\n* `rpm.advisory` - rpm.advisory\n* `rpm.packagegroup` - rpm.packagegroup\n* `rpm.packagecategory` - rpm.packagecategory\n* `rpm.packageenvironment` - rpm.packageenvironment\n* `rpm.packagelangpacks` - rpm.packagelangpacks\n* `rpm.repo_metadata_file` - rpm.repo_metadata_file\n* `rpm.distribution_tree` - rpm.distribution_tree\n* `rpm.package` - rpm.package\n* `rpm.modulemd` - rpm.modulemd\n* `rpm.modulemd_defaults` - rpm.modulemd_defaults\n* `rpm.modulemd_obsolete` - rpm.modulemd_obsolete\n* `file.file` - file.file\n* `maven.artifact` - maven.artifact\n* `maven.metadata` - maven.metadata\n* `maven.package` - maven.package\n* `maven.index-page` - maven.index-page\n* `npm.package` - npm.package",
+            "description": "Multiple values may be separated by commas.\n\n* `core.publishedmetadata` - core.publishedmetadata\n* `core.openpgp_publickey` - core.openpgp_publickey\n* `core.openpgp_publicsubkey` - core.openpgp_publicsubkey\n* `core.openpgp_userid` - core.openpgp_userid\n* `core.openpgp_userattribute` - core.openpgp_userattribute\n* `core.openpgp_signature` - core.openpgp_signature\n* `ansible.role` - ansible.role\n* `ansible.collection_version` - ansible.collection_version\n* `ansible.collection_mark` - ansible.collection_mark\n* `ansible.collection_signature` - ansible.collection_signature\n* `ansible.namespace` - ansible.namespace\n* `ansible.collection_deprecation` - ansible.collection_deprecation\n* `deb.package` - deb.package\n* `deb.installer_package` - deb.installer_package\n* `deb.generic` - deb.generic\n* `deb.source_package` - deb.source_package\n* `deb.release` - deb.release\n* `deb.release_architecture` - deb.release_architecture\n* `deb.release_component` - deb.release_component\n* `deb.package_release_component` - deb.package_release_component\n* `deb.source_package_release_component` - deb.source_package_release_component\n* `deb.release_file` - deb.release_file\n* `deb.package_index` - deb.package_index\n* `deb.installer_file_index` - deb.installer_file_index\n* `deb.source_index` - deb.source_index\n* `maven.artifact` - maven.artifact\n* `maven.metadata` - maven.metadata\n* `maven.package` - maven.package\n* `maven.index-page` - maven.index-page\n* `python.python` - python.python\n* `python.provenance` - python.provenance\n* `python.python_yank` - python.python_yank\n* `rpm.advisory` - rpm.advisory\n* `rpm.packagegroup` - rpm.packagegroup\n* `rpm.packagecategory` - rpm.packagecategory\n* `rpm.packageenvironment` - rpm.packageenvironment\n* `rpm.packagelangpacks` - rpm.packagelangpacks\n* `rpm.repo_metadata_file` - rpm.repo_metadata_file\n* `rpm.distribution_tree` - rpm.distribution_tree\n* `rpm.package` - rpm.package\n* `rpm.modulemd` - rpm.modulemd\n* `rpm.modulemd_defaults` - rpm.modulemd_defaults\n* `rpm.modulemd_obsolete` - rpm.modulemd_obsolete\n* `file.file` - file.file\n* `npm.package` - npm.package",
             "explode": false,
             "in": "query",
             "name": "pulp_type__in",
@@ -47005,7 +47122,7 @@
             }
           },
           {
-            "description": "Pulp type\n\n* `core.artifact` - core.artifact\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.apt-distribution` - deb.apt-distribution\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `maven.maven` - maven.maven\n* `npm.npm` - npm.npm",
+            "description": "Pulp type\n\n* `core.artifact` - core.artifact\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.apt-distribution` - deb.apt-distribution\n* `maven.maven` - maven.maven\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `npm.npm` - npm.npm",
             "in": "query",
             "name": "pulp_type",
             "schema": {
@@ -47024,7 +47141,7 @@
             }
           },
           {
-            "description": "Multiple values may be separated by commas.\n\n* `core.artifact` - core.artifact\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.apt-distribution` - deb.apt-distribution\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `maven.maven` - maven.maven\n* `npm.npm` - npm.npm",
+            "description": "Multiple values may be separated by commas.\n\n* `core.artifact` - core.artifact\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.apt-distribution` - deb.apt-distribution\n* `maven.maven` - maven.maven\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `npm.npm` - npm.npm",
             "explode": false,
             "in": "query",
             "name": "pulp_type__in",
@@ -55048,7 +55165,7 @@
             "style": "form"
           },
           {
-            "description": "Pulp type\n\n* `ansible.role` - ansible.role\n* `ansible.collection` - ansible.collection\n* `ansible.git` - ansible.git\n* `deb.apt-remote` - deb.apt-remote\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `rpm.uln` - rpm.uln\n* `file.file` - file.file\n* `file.git` - file.git\n* `maven.maven` - maven.maven\n* `npm.npm` - npm.npm",
+            "description": "Pulp type\n\n* `ansible.role` - ansible.role\n* `ansible.collection` - ansible.collection\n* `ansible.git` - ansible.git\n* `deb.apt-remote` - deb.apt-remote\n* `maven.maven` - maven.maven\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `rpm.uln` - rpm.uln\n* `file.file` - file.file\n* `file.git` - file.git\n* `npm.npm` - npm.npm",
             "in": "query",
             "name": "pulp_type",
             "schema": {
@@ -55069,7 +55186,7 @@
             }
           },
           {
-            "description": "Multiple values may be separated by commas.\n\n* `ansible.role` - ansible.role\n* `ansible.collection` - ansible.collection\n* `ansible.git` - ansible.git\n* `deb.apt-remote` - deb.apt-remote\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `rpm.uln` - rpm.uln\n* `file.file` - file.file\n* `file.git` - file.git\n* `maven.maven` - maven.maven\n* `npm.npm` - npm.npm",
+            "description": "Multiple values may be separated by commas.\n\n* `ansible.role` - ansible.role\n* `ansible.collection` - ansible.collection\n* `ansible.git` - ansible.git\n* `deb.apt-remote` - deb.apt-remote\n* `maven.maven` - maven.maven\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `rpm.uln` - rpm.uln\n* `file.file` - file.file\n* `file.git` - file.git\n* `npm.npm` - npm.npm",
             "explode": false,
             "in": "query",
             "name": "pulp_type__in",
@@ -60049,7 +60166,7 @@
             }
           },
           {
-            "description": "Pulp type\n\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.deb` - deb.deb\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `maven.maven` - maven.maven\n* `npm.npm` - npm.npm",
+            "description": "Pulp type\n\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.deb` - deb.deb\n* `maven.maven` - maven.maven\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `npm.npm` - npm.npm",
             "in": "query",
             "name": "pulp_type",
             "schema": {
@@ -60067,7 +60184,7 @@
             }
           },
           {
-            "description": "Multiple values may be separated by commas.\n\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.deb` - deb.deb\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `maven.maven` - maven.maven\n* `npm.npm` - npm.npm",
+            "description": "Multiple values may be separated by commas.\n\n* `core.openpgp` - core.openpgp\n* `ansible.ansible` - ansible.ansible\n* `deb.deb` - deb.deb\n* `maven.maven` - maven.maven\n* `python.python` - python.python\n* `rpm.rpm` - rpm.rpm\n* `file.file` - file.file\n* `npm.npm` - npm.npm",
             "explode": false,
             "in": "query",
             "name": "pulp_type__in",
@@ -66728,7 +66845,7 @@
             }
           },
           {
-            "description": "Ordering\n\n* `pulp_id` - Pulp id\n* `-pulp_id` - Pulp id (descending)\n* `pulp_created` - Pulp created\n* `-pulp_created` - Pulp created (descending)\n* `pulp_last_updated` - Pulp last updated\n* `-pulp_last_updated` - Pulp last updated (descending)\n* `name` - Name\n* `-name` - Name (descending)\n* `base_url` - Base url\n* `-base_url` - Base url (descending)\n* `api_root` - Api root\n* `-api_root` - Api root (descending)\n* `domain` - Domain\n* `-domain` - Domain (descending)\n* `ca_cert` - Ca cert\n* `-ca_cert` - Ca cert (descending)\n* `client_cert` - Client cert\n* `-client_cert` - Client cert (descending)\n* `client_key` - Client key\n* `-client_key` - Client key (descending)\n* `tls_validation` - Tls validation\n* `-tls_validation` - Tls validation (descending)\n* `username` - Username\n* `-username` - Username (descending)\n* `password` - Password\n* `-password` - Password (descending)\n* `download_concurrency` - Download concurrency\n* `-download_concurrency` - Download concurrency (descending)\n* `max_retries` - Max retries\n* `-max_retries` - Max retries (descending)\n* `total_timeout` - Total timeout\n* `-total_timeout` - Total timeout (descending)\n* `connect_timeout` - Connect timeout\n* `-connect_timeout` - Connect timeout (descending)\n* `sock_connect_timeout` - Sock connect timeout\n* `-sock_connect_timeout` - Sock connect timeout (descending)\n* `sock_read_timeout` - Sock read timeout\n* `-sock_read_timeout` - Sock read timeout (descending)\n* `q_select` - Q select\n* `-q_select` - Q select (descending)\n* `policy` - Policy\n* `-policy` - Policy (descending)\n* `last_replication` - Last replication\n* `-last_replication` - Last replication (descending)\n* `pk` - Pk\n* `-pk` - Pk (descending)",
+            "description": "Ordering\n\n* `pulp_id` - Pulp id\n* `-pulp_id` - Pulp id (descending)\n* `pulp_created` - Pulp created\n* `-pulp_created` - Pulp created (descending)\n* `pulp_last_updated` - Pulp last updated\n* `-pulp_last_updated` - Pulp last updated (descending)\n* `name` - Name\n* `-name` - Name (descending)\n* `base_url` - Base url\n* `-base_url` - Base url (descending)\n* `api_root` - Api root\n* `-api_root` - Api root (descending)\n* `domain` - Domain\n* `-domain` - Domain (descending)\n* `ca_cert` - Ca cert\n* `-ca_cert` - Ca cert (descending)\n* `client_cert` - Client cert\n* `-client_cert` - Client cert (descending)\n* `client_key` - Client key\n* `-client_key` - Client key (descending)\n* `tls_validation` - Tls validation\n* `-tls_validation` - Tls validation (descending)\n* `username` - Username\n* `-username` - Username (descending)\n* `password` - Password\n* `-password` - Password (descending)\n* `download_concurrency` - Download concurrency\n* `-download_concurrency` - Download concurrency (descending)\n* `max_retries` - Max retries\n* `-max_retries` - Max retries (descending)\n* `total_timeout` - Total timeout\n* `-total_timeout` - Total timeout (descending)\n* `connect_timeout` - Connect timeout\n* `-connect_timeout` - Connect timeout (descending)\n* `sock_connect_timeout` - Sock connect timeout\n* `-sock_connect_timeout` - Sock connect timeout (descending)\n* `sock_read_timeout` - Sock read timeout\n* `-sock_read_timeout` - Sock read timeout (descending)\n* `remote_policy` - Remote policy\n* `-remote_policy` - Remote policy (descending)\n* `q_select` - Q select\n* `-q_select` - Q select (descending)\n* `policy` - Policy\n* `-policy` - Policy (descending)\n* `last_replication` - Last replication\n* `-last_replication` - Last replication (descending)\n* `pk` - Pk\n* `-pk` - Pk (descending)",
             "explode": false,
             "in": "query",
             "name": "ordering",
@@ -66753,6 +66870,7 @@
                   "-pulp_id",
                   "-pulp_last_updated",
                   "-q_select",
+                  "-remote_policy",
                   "-sock_connect_timeout",
                   "-sock_read_timeout",
                   "-tls_validation",
@@ -66776,6 +66894,7 @@
                   "pulp_id",
                   "pulp_last_updated",
                   "q_select",
+                  "remote_policy",
                   "sock_connect_timeout",
                   "sock_read_timeout",
                   "tls_validation",

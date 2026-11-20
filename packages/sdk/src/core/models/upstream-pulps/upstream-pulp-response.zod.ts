@@ -7,6 +7,7 @@
  */
 import * as zod from 'zod';
 import { Policy357Enum } from './policy357-enum.zod.ts';
+import { RemotePolicyEnum } from './remote-policy-enum.zod.ts';
 
 export const upstreamPulpResponseConnectTimeoutMin = 0;
 
@@ -40,6 +41,7 @@ export const UpstreamPulpResponse = zod.object({
   "pulp_href": zod.string().optional(),
   "pulp_last_updated": zod.iso.datetime({"offset":true}).optional().describe('Timestamp of the most recent update of the remote.'),
   "q_select": zod.string().nullish().describe('Filter distributions on the upstream Pulp using complex filtering. E.g. pulp_label_select="foo" OR pulp_label_select="key=val"'),
+  "remote_policy": zod.union([RemotePolicyEnum,zod.null()]).optional().describe('Download policy for remotes created during replication. One of \'immediate\', \'on_demand\', or \'streamed\'. Distinct from \'policy\', which controls how replicate manages local objects. Defaults to the Remote default (\'immediate\') when unset.\n\n* `immediate` - When syncing, download all metadata and content now.\n* `on_demand` - When syncing, download metadata, but do not download content now. Instead, download content as clients request it, and save it in Pulp to be served for future client requests.\n* `streamed` - When syncing, download metadata, but do not download content now. Instead,download content as clients request it, but never save it in Pulp. This causes future requests for that same content to have to be downloaded again.'),
   "sock_connect_timeout": zod.number().min(upstreamPulpResponseSockConnectTimeoutMin).nullish().describe('aiohttp.ClientTimeout.sock_connect (q.v.) for download-connections. The default is null, which will cause the default from the aiohttp library to be used.'),
   "sock_read_timeout": zod.number().min(upstreamPulpResponseSockReadTimeoutMin).nullish().describe('aiohttp.ClientTimeout.sock_read (q.v.) for download-connections. The default is null, which will cause the default from the aiohttp library to be used.'),
   "tls_validation": zod.boolean().optional().describe('If True, TLS peer validation must be performed.'),

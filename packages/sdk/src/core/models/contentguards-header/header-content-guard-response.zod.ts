@@ -11,7 +11,7 @@ export const HeaderContentGuardResponse = zod.object({
   "description": zod.string().nullish().describe('An optional description.'),
   "header_name": zod.string().describe('The header name the guard will check on.'),
   "header_value": zod.string().describe('The value that will authorize the request.'),
-  "jq_filter": zod.string().nullish().describe('A JQ syntax compatible filter. If jq_filter is not set, then the value willonly be Base64 decoded and checked as an explicit string match.'),
+  "jq_filter": zod.string().nullish().describe('A simple dotted path (e.g. .a.b.c) used to extract the value from the Base64 decoded JSON header. If jq_filter is not set, the header value is only Base64 decoded and checked as an explicit string match.'),
   "name": zod.string().describe('The unique name.'),
   "prn": zod.string().optional().describe('The Pulp Resource Name (PRN).'),
   "pulp_created": zod.iso.datetime({"offset":true}).optional().describe('Timestamp of creation.'),
