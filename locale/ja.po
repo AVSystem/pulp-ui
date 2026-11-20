@@ -516,6 +516,7 @@ msgstr "コレクションの追加"
 #~ msgstr "Add group"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Add label"
 msgstr ""
 
@@ -2526,6 +2527,7 @@ msgid "Domain enabled"
 msgstr "ドメイン有効"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "完了"
 
@@ -2695,6 +2697,10 @@ msgstr "ディストリビューションの編集"
 #: src/components/remote-form.tsx
 msgid "Edit in YAML editor"
 msgstr "YAML エディターでの編集"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Edit labels"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3988,6 +3994,7 @@ msgstr "JSON"
 #~ msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -4014,11 +4021,13 @@ msgid "Label expression"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -4849,6 +4858,7 @@ msgstr "まだユーザーはありません"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
 msgid "None"
@@ -6065,6 +6075,10 @@ msgstr "グループ {groupname} を削除しますか?"
 
 #: src/framework/form/labels-field.tsx
 msgid "Remove label"
+msgstr ""
+
+#: src/framework/labels/label-editor.tsx
+msgid "Remove label {name}"
 msgstr ""
 
 #: src/framework/list/label-filter.tsx
@@ -7799,6 +7813,10 @@ msgstr "グループには、以下のロールが適用されます: <0>{0}</0>
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "次のロールがユーザー <0>{0}</0> に適用されます"
 
+#: src/framework/labels/label-editor.tsx
+msgid "The label could not be changed."
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "The label filter was not accepted."
 msgstr ""
@@ -8756,6 +8774,7 @@ msgstr "ユーザーは作成後に表示されます"
 #~ msgstr "検証済み"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Value"
 msgstr ""
 

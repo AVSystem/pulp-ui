@@ -517,6 +517,7 @@ msgstr "Add collection"
 #~ msgstr "Add group"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Add label"
 msgstr "Add label"
 
@@ -2527,6 +2528,7 @@ msgid "Domain enabled"
 msgstr "Domain enabled"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "Done"
 
@@ -2696,6 +2698,10 @@ msgstr "Edit distribution"
 #: src/components/remote-form.tsx
 msgid "Edit in YAML editor"
 msgstr "Edit in YAML editor"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Edit labels"
+msgstr "Edit labels"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3989,6 +3995,7 @@ msgstr "JSON"
 #~ msgstr "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr "Key"
@@ -4015,11 +4022,13 @@ msgid "Label expression"
 msgstr "Label expression"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr "Label key"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr "Label value"
@@ -4850,6 +4859,7 @@ msgstr "No users yet"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
 msgid "None"
@@ -6067,6 +6077,10 @@ msgstr "Remove group {groupname}?"
 #: src/framework/form/labels-field.tsx
 msgid "Remove label"
 msgstr "Remove label"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Remove label {name}"
+msgstr "Remove label {name}"
 
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
@@ -7800,6 +7814,10 @@ msgstr "The following roles will be applied to group: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "The following roles will be applied to user: <0>{0}</0>"
 
+#: src/framework/labels/label-editor.tsx
+msgid "The label could not be changed."
+msgstr "The label could not be changed."
+
 #: src/framework/list/repository-list.tsx
 msgid "The label filter was not accepted."
 msgstr "The label filter was not accepted."
@@ -8757,6 +8775,7 @@ msgstr "Users will appear once created"
 #~ msgstr "Validated"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Value"
 msgstr "Value"
 

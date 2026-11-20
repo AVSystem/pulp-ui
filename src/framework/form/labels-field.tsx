@@ -17,7 +17,7 @@ interface Props {
   isDisabled: boolean;
 }
 
-const problemText = (problem: LabelProblem): string => {
+export const problemText = (problem: LabelProblem): string => {
   switch (problem) {
     case 'empty':
       return t`Enter a key for this label.`;

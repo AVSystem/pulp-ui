@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
 import { fileRepository } from 'src/entities/file/repository';
-import { resetSessionEvents, setSignedIn } from 'src/session/session-events';
+import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   distributionListHandler,
@@ -77,7 +77,10 @@ function serveLabels(
         if (refusal) {
           return refusal;
         }
-        held.pulp_labels = { ...held.pulp_labels, [body.key]: body.value };
+        held.pulp_labels = {
+          ...(held.pulp_labels as Record<string, string | null>),
+          [body.key]: body.value,
+        };
         return HttpResponse.json(body);
       },
     ),
@@ -105,9 +108,10 @@ function serveLabels(
   );
 }
 
-function renderEditor(canEdit = true) {
+function renderEditor(canEdit = true, signedIn = false) {
   return renderWithProviders(
     <LabelEditor object={held} entity={fileRepository} canEdit={canEdit} />,
+    { signedIn },
   );
 }
 
@@ -362,10 +366,8 @@ describe('Integration: the label editor', { tags: ['integration'] }, () => {
   });
 
   it('says nothing and keeps the values when the session ends', async () => {
-    setSignedIn(true);
-    let ended = true;
     serveLabels(() => HttpResponse.json({ detail: 'No.' }, { status: 401 }));
-    const { user } = renderEditor();
+    const { user } = renderEditor(true, true);
     await openEditor(user);
     await user.type(keyInput(), 'later');
 
@@ -374,7 +376,6 @@ describe('Integration: the label editor', { tags: ['integration'] }, () => {
 
     expect(screen.queryByText('No.')).toBeNull();
     expect(keyInput()).toHaveValue('later');
-    ended = false;
   });
 
   it('closes the editor with Done and shows the chips again', async () => {

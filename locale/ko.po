@@ -516,6 +516,7 @@ msgstr "컬렉션 추가"
 #~ msgstr "Add group"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Add label"
 msgstr ""
 
@@ -2526,6 +2527,7 @@ msgid "Domain enabled"
 msgstr "도메인 사용"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "완료"
 
@@ -2695,6 +2697,10 @@ msgstr "배포 편집"
 #: src/components/remote-form.tsx
 msgid "Edit in YAML editor"
 msgstr "YAML 편집기에서 편집"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Edit labels"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3988,6 +3994,7 @@ msgstr "JSON"
 #~ msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -4014,11 +4021,13 @@ msgid "Label expression"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -4849,6 +4858,7 @@ msgstr "아직 사용자가 없음"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
 msgid "None"
@@ -6065,6 +6075,10 @@ msgstr "그룹 {groupname}을/를 삭제하시겠습니까?"
 
 #: src/framework/form/labels-field.tsx
 msgid "Remove label"
+msgstr ""
+
+#: src/framework/labels/label-editor.tsx
+msgid "Remove label {name}"
 msgstr ""
 
 #: src/framework/list/label-filter.tsx
@@ -7799,6 +7813,10 @@ msgstr "다음 역할이 다음 그룹에 적용됩니다: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "다음 역할이 사용자 <0>{0}</0>에게 적용됩니다"
 
+#: src/framework/labels/label-editor.tsx
+msgid "The label could not be changed."
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "The label filter was not accepted."
 msgstr ""
@@ -8756,6 +8774,7 @@ msgstr "사용자가 생성되면 나타납니다"
 #~ msgstr "검증됨"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Value"
 msgstr ""
 
