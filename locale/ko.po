@@ -137,6 +137,10 @@ msgstr "{currentLanguage} (브라우저 기본값)"
 msgid "{currentLanguage} (current)"
 msgstr "{currentLanguage} (현재)"
 
+#: src/components/progress-reports.tsx
+msgid "{done} done"
+msgstr ""
+
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
 #~ msgstr ""
@@ -144,6 +148,10 @@ msgstr "{currentLanguage} (현재)"
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} Downloads"
 #~ msgstr ""
+
+#: src/components/progress-reports.tsx
+msgid "{figure} of {total}"
+msgstr ""
 
 #: src/components/legacy-role-list/legacy-role-item.tsx
 #~ msgid "{github_user} logo"
@@ -167,6 +175,7 @@ msgid "{name} will be cancelled."
 msgstr "{name}이/가 취소됩니다."
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/sync/progress-panel.tsx
 msgid "{name} will stop running."
 msgstr "{name}이/가 실행을 중지합니다."
 
@@ -374,10 +383,12 @@ msgid "A PEM encoded private key used for authentication."
 msgstr "인증에 사용되는 PEM 인코딩 개인 키입니다."
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already queued."
 msgstr "이 리포지토리의 동기화가 이미 대기열에 있습니다."
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already running."
 msgstr "이 리포지토리의 동기화가 이미 실행 중입니다."
 
@@ -715,13 +726,17 @@ msgstr "이미 현재 버전"
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "ASCII 아머 형식의 공개 키입니다. 설정하면 동기화할 때마다 업스트림 Release 파일의 서명을 검증하며, 이로써 일반 HTTP를 통한 동기화도 안전해집니다."
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already queued for this repository: {0}"
 msgstr "이 리포지토리에 대한 다른 작업이 이미 대기열에 있습니다: {0}"
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already running for this repository: {0}"
 msgstr "이 리포지토리에 대한 다른 작업이 이미 실행 중입니다: {0}"
 
@@ -1071,6 +1086,15 @@ msgstr "CA 인증서"
 msgid "Cancel"
 msgstr "취소"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel sync"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel task"
+msgstr ""
+
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 msgid "Canceled"
@@ -1079,6 +1103,10 @@ msgstr "취소됨"
 #: src/shell/notifications.tsx
 msgid "Canceled {when}"
 msgstr "취소됨: {when}"
+
+#: src/components/progress-reports.tsx
+msgid "Canceling"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1305,6 +1333,7 @@ msgstr "닫기"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "닫기"
 
@@ -1325,8 +1354,8 @@ msgid "Cmd K"
 msgstr "Cmd K"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Code"
-msgstr "코드"
+#~ msgid "Code"
+#~ msgstr "코드"
 
 #: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
@@ -1579,6 +1608,7 @@ msgstr "이 설정을 사용하면 커뮤니티 콘텐츠는 동기화되지 않
 #~ msgid "Company name"
 #~ msgstr "회사 이름"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -1724,6 +1754,7 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "배포판이 없는 리포지토리의 콘텐츠는 동기화, 다운로드 또는 검색을 위해 클라이언트에 표시되지 않습니다."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "원격 리포지토리에 없는 콘텐츠는 로컬 리포지토리에서 제거됩니다"
 
@@ -1794,6 +1825,7 @@ msgstr "복사 가능한 입력"
 #~ msgstr "아직 결정할 수 없음"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "동기화가 이미 실행 중인지 확인할 수 없습니다. 동기화를 시작할 수는 있으며, 실행 중인 동기화가 끝날 때까지 대기합니다."
 
@@ -2526,7 +2558,6 @@ msgstr "문서"
 msgid "Domain enabled"
 msgstr "도메인 사용"
 
-#: src/containers/task-management/task-detail.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "완료"
@@ -3060,6 +3091,7 @@ msgstr "전체 버전 실패 처리"
 msgid "Fail the whole version if any package is rejected"
 msgstr "패키지가 하나라도 거부되면 전체 버전을 실패 처리"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -3308,6 +3340,7 @@ msgstr "리포지토리 \"{repositoryName}\"를 버전 \"{number}으로 되돌�
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Failed to sync repository \"{name}\""
 msgstr "리포지토리 \"{name}\"를 동기화하지 못했습니다"
 
@@ -3714,6 +3747,7 @@ msgstr "각 패키지에서 유지할 버전 수입니다. 이보다 오래된 �
 #~ msgstr "이 작업을 취소할 수 없다는 것을 알고 있습니다."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "선택하면 원격 리포지토리에 없는 모든 콘텐츠가 로컬 리포지토리에서 제거됩니다. 선택하지 않으면 동기화는 누락된 콘텐츠를 추가합니다."
 
@@ -3993,6 +4027,10 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Keep running"
+msgstr ""
+
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
@@ -4072,6 +4110,10 @@ msgstr "마지막 하트비트"
 #: src/containers/user-management/user-list.tsx
 msgid "Last name"
 msgstr "성"
+
+#: src/framework/detail/details-tab.tsx
+msgid "Last sync"
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #~ msgid "Last synced"
@@ -4307,10 +4349,11 @@ msgstr "시스템에 맞춤"
 #~ msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Message"
-msgstr "메시지"
+#~ msgid "Message"
+#~ msgstr "메시지"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "미러"
 
@@ -4323,6 +4366,7 @@ msgid "Mirror content only"
 msgstr "콘텐츠만 미러링"
 
 #: src/actions/file-repository-sync.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "미러링은 자동 게시와 함께 사용할 수 없으므로 이 동기화는 누락된 콘텐츠만 추가합니다."
 
@@ -4511,6 +4555,10 @@ msgstr "네임스페이스"
 #: src/containers/ansible-repository/list.tsx
 msgid "never synced"
 msgstr "동기화된 적 없음"
+
+#: src/framework/sync/last-sync.tsx
+msgid "Never synced"
+msgstr ""
 
 #: src/components/import-modal.tsx
 #~ msgid "New collection"
@@ -4710,6 +4758,10 @@ msgstr "권한 없음"
 #: src/components/permission-categories.tsx
 msgid "No permissions"
 msgstr "권한 없음"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "No progress reported yet."
+msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
@@ -5021,10 +5073,12 @@ msgid "Online workers"
 msgstr "온라인 워커"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "원격 서버에서 변경 사항이 보고된 경우에만 동기화를 수행합니다."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "원격 서버에서 변경 사항이 보고된 경우에만 동기화를 수행합니다. 동기화를 강제로 실행하려면 이 옵션을 선택 해제하세요."
 
@@ -5065,6 +5119,7 @@ msgstr "운영"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "최적화"
 
@@ -5247,6 +5302,7 @@ msgstr "경로 접두사"
 #~ msgid "Pathname <0>{pathname}</0> could refer to a collection or a role."
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 msgid "Pending"
 msgstr "보류 중"
@@ -6454,6 +6510,8 @@ msgstr "재시도 횟수"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
+#: src/framework/sync/last-sync.tsx
+#: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "다시 시도"
@@ -6689,6 +6747,7 @@ msgstr "Ruby gem 동기화"
 #~ msgid "Ruby Gems sync"
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 msgid "Running"
@@ -7204,6 +7263,7 @@ msgstr "건너뛰기"
 msgid "Skip to content"
 msgstr "콘텐츠로 건너뛰기"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
 msgstr "건너뜀"
@@ -7271,8 +7331,8 @@ msgid "Started at"
 msgstr "시작 시간"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "State"
-msgstr "상태"
+#~ msgid "State"
+#~ msgstr "상태"
 
 #: src/components/purge-task-modal.tsx
 msgid "States:"
@@ -7430,8 +7490,24 @@ msgstr "요약"
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync"
 msgstr "동기화"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync canceled"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync completed"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync failed"
+msgstr ""
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -7462,6 +7538,14 @@ msgstr "설치 프로그램 파일 동기화"
 msgid "Sync installer packages"
 msgstr "설치 프로그램 패키지 동기화"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync is being canceled"
+msgstr ""
+
+#: src/framework/sync/last-sync.tsx
+msgid "Sync is unavailable because this repository has no remote."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
 msgstr "패키지 출처 증명 동기화"
@@ -7470,7 +7554,12 @@ msgstr "패키지 출처 증명 동기화"
 msgid "Sync policy"
 msgstr "동기화 정책"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync queued"
+msgstr ""
+
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync repository \"{name}\""
 msgstr "리포지토리 \"{name}\" 동기화"
 
@@ -7478,6 +7567,10 @@ msgstr "리포지토리 \"{name}\" 동기화"
 #: src/containers/ansible-role/role-sync.tsx
 #~ msgid "Sync role"
 #~ msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync running"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -7506,6 +7599,7 @@ msgstr "소스 동기화"
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Sync started for repository \"{name}\"."
 msgstr "리포지토리 \"{name}\"의 동기화가 시작되었습니다."
 
@@ -7603,6 +7697,10 @@ msgstr "작업 \"{taskName}\"이/가 성공적으로 중지되었습니다."
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
 msgstr "작업을 표시할 수 없습니다."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Task could not be stopped."
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7825,6 +7923,10 @@ msgstr ""
 msgid "The last action was not completed. Repeat it after you log in."
 msgstr "마지막 작업이 완료되지 않았습니다. 로그인한 후 다시 실행하십시오."
 
+#: src/framework/sync/last-sync.tsx
+msgid "The last sync could not be read."
+msgstr ""
+
 #: src/components/external-sign-in-incomplete.tsx
 msgid "The login page returned without a signed-in session."
 msgstr "로그인 페이지가 로그인된 세션 없이 돌아왔습니다."
@@ -7866,6 +7968,10 @@ msgstr "동기화 시 인증에 사용할 암호입니다. 토큰을 사용할 �
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "플러그인 목록을 불러올 수 없습니다"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "The progress of this task cannot be shown."
+msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -8197,6 +8303,14 @@ msgstr "이 화면은 이 UI에서 아직 사용할 수 없습니다."
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag is already selected for this image. You cannot add it twice."
 #~ msgstr "이 태그는 이 이미지에 대해 이미 선택되어 있습니다. 두 번 추가할 수 없습니다."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task has already finished."
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task no longer exists."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
@@ -8904,6 +9018,9 @@ msgstr "모든 작업을 보고 취소합니다."
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/last-sync.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "View the task"
 msgstr "작업 보기"
 
@@ -8940,6 +9057,10 @@ msgstr "대기 중"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Waiting for {pendingTasks} task(s) to finish."
 #~ msgstr "{pendingTasks} 작업이 완료될 때까지 기다립니다."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Waiting for a worker to take the task."
+msgstr ""
 
 #: src/components/import-console.tsx
 #~ msgid "waiting for approval"
@@ -9072,6 +9193,10 @@ msgstr "Galaxy에서 동기화하려면 YAML 요구 사항이 필요합니다. <
 #: src/containers/ansible-repository/tab-details.tsx
 msgid "Yes"
 msgstr "제공됨"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Yes, cancel"
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx

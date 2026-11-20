@@ -32,6 +32,8 @@ import {
   repositoryListPath,
   repositoryPath,
 } from '../route-patterns';
+import { SyncProgressPanel } from '../sync/progress-panel';
+import { SyncDialog } from '../sync/sync-dialog';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DetailsTab } from './details-tab';
 import { useRepositoryPermission } from './use-repository-permission';
@@ -92,6 +94,12 @@ const RepositoryDetailScreen = ({
   // Whether it may delete it, with the distributions that serve it.
   const mayDelete = useRepositoryPermission(plugin, repository, 'delete');
   const [deleting, setDeleting] = useState(false);
+  // Whether it may sync it: the plugin has a sync, the repository has a remote
+  // to sync from, and the user holds the sync permission.
+  const maySync = useRepositoryPermission(plugin, repository, 'sync');
+  const canSync =
+    descriptor.repository.sync !== undefined && maySync && !!repository?.remote;
+  const [syncing, setSyncing] = useState(false);
 
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
@@ -212,8 +220,15 @@ const RepositoryDetailScreen = ({
           />
         }
         pageControls={
-          mayEdit || mayDelete ? (
+          canSync || mayEdit || mayDelete ? (
             <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+              {canSync ? (
+                <FlexItem>
+                  <Button variant='primary' onClick={() => setSyncing(true)}>
+                    {t`Sync`}
+                  </Button>
+                </FlexItem>
+              ) : null}
               {mayEdit ? (
                 <FlexItem>
                   <Button
@@ -247,6 +262,13 @@ const RepositoryDetailScreen = ({
           </div>
         </div>
       </BaseHeader>
+      {syncing ? (
+        <SyncDialog
+          descriptor={descriptor}
+          repository={repository}
+          onClose={() => setSyncing(false)}
+        />
+      ) : null}
       {deleting ? (
         <DeleteRepositoryDialog
           descriptor={descriptor}
@@ -261,6 +283,7 @@ const RepositoryDetailScreen = ({
         />
       ) : null}
       <Main>
+        <SyncProgressPanel repository={repository} descriptor={descriptor} />
         <section
           className='pulp-section'
           data-cy={`RepositoryDetail-${tab ?? 'details'}`}

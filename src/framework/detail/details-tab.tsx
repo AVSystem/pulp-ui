@@ -8,6 +8,7 @@ import type { RepositoryBase } from 'src/entities/plugin/model';
 import type { PluginDescriptor } from '../descriptor';
 import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
+import { LastSync } from '../sync/last-sync';
 import { RemoteReference } from './remote-reference';
 import { useRepositoryPermission } from './use-repository-permission';
 
@@ -93,8 +94,8 @@ const ServedAt = ({
 };
 
 // The Details tab of a repository: the rows every repository has, with the
-// rows the plugin adds after the description. The labels can be edited by a user
-// who may change the repository.
+// rows the plugin adds after the description, and for a plugin that syncs, the
+// last sync. The labels can be edited by a user who may change the repository.
 export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
   const mayChange = useRepositoryPermission(plugin, repository, 'change');
 
@@ -135,6 +136,16 @@ export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
             />
           ),
         },
+        ...(descriptor.repository.sync
+          ? [
+              {
+                label: t`Last sync`,
+                value: (
+                  <LastSync repository={repository} descriptor={descriptor} />
+                ),
+              },
+            ]
+          : []),
       ]}
     />
   );

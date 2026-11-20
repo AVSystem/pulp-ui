@@ -66,6 +66,7 @@ export { Tooltip } from './patternfly-wrappers/tooltip';
 export { PermissionCategories } from './permission-categories';
 export { PermissionChipSelector } from './permission-chip-selector';
 export { PreviewRoles } from './preview-roles';
+export { ProgressReports, TaskStateLabel } from './progress-reports';
 export { PulpAboutModal } from './pulp-about-modal';
 export { PulpCodeBlock } from './pulp-code-block';
 export { PulpCopyButton } from './pulp-copy-button';

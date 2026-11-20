@@ -137,6 +137,10 @@ msgstr "{currentLanguage} (predeterminado del navegador)"
 msgid "{currentLanguage} (current)"
 msgstr "{currentLanguage} (actual)"
 
+#: src/components/progress-reports.tsx
+msgid "{done} done"
+msgstr ""
+
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
 #~ msgstr ""
@@ -144,6 +148,10 @@ msgstr "{currentLanguage} (actual)"
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} Downloads"
 #~ msgstr ""
+
+#: src/components/progress-reports.tsx
+msgid "{figure} of {total}"
+msgstr ""
 
 #: src/components/legacy-role-list/legacy-role-item.tsx
 #~ msgid "{github_user} logo"
@@ -167,6 +175,7 @@ msgid "{name} will be cancelled."
 msgstr "{name} se cancelará."
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/sync/progress-panel.tsx
 msgid "{name} will stop running."
 msgstr "{name} dejará de funcionar."
 
@@ -374,10 +383,12 @@ msgid "A PEM encoded private key used for authentication."
 msgstr "Una clave privada codificada en PEM utilizada para la autenticación."
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already queued."
 msgstr "Ya hay una sincronización de este repositorio en cola."
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already running."
 msgstr "Ya se está ejecutando una sincronización de este repositorio."
 
@@ -715,13 +726,17 @@ msgstr "Ya está la versión actual"
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "Una clave pública con armadura ASCII. Si se define, la firma del archivo Release de origen se verifica en cada sincronización, lo que hace segura la sincronización por HTTP sin cifrar."
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already queued for this repository: {0}"
 msgstr "Ya hay otra tarea en cola para este repositorio: {0}"
 
+#. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Another task is already running for this repository: {0}"
 msgstr "Ya se está ejecutando otra tarea para este repositorio: {0}"
 
@@ -1071,6 +1086,15 @@ msgstr "Certificado de CA"
 msgid "Cancel"
 msgstr "Cancelar"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel sync"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Cancel task"
+msgstr ""
+
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 msgid "Canceled"
@@ -1079,6 +1103,10 @@ msgstr "Cancelado"
 #: src/shell/notifications.tsx
 msgid "Canceled {when}"
 msgstr "Cancelada {when}"
+
+#: src/components/progress-reports.tsx
+msgid "Canceling"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1305,6 +1333,7 @@ msgstr "cerrar"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "Cerrar"
 
@@ -1325,8 +1354,8 @@ msgid "Cmd K"
 msgstr "Cmd K"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Code"
-msgstr "Código"
+#~ msgid "Code"
+#~ msgstr "Código"
 
 #: src/shell/sidebar.tsx
 msgid "Collapse sidebar"
@@ -1579,6 +1608,7 @@ msgstr "El contenido de la comunidad nunca se sincronizará si esta opción est�
 #~ msgid "Company name"
 #~ msgstr "Nombre de la empresa"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -1724,6 +1754,7 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "El contenido en repositorios sin una distribución no será visible para los clientes para sincronización, descarga o búsqueda."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "El contenido que no esté en el repositorio remoto se eliminará del repositorio local"
 
@@ -1794,6 +1825,7 @@ msgstr "Campo de texto copiable"
 #~ msgstr "aún no se ha podido determinar"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "No se pudo comprobar si ya hay una sincronización en ejecución. Aun así puede iniciar una; esperará a que termine la que está en ejecución."
 
@@ -2526,7 +2558,6 @@ msgstr "Documentación"
 msgid "Domain enabled"
 msgstr "Dominio habilitado"
 
-#: src/containers/task-management/task-detail.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "Finalizado"
@@ -3060,6 +3091,7 @@ msgstr "Hacer fallar la versión completa"
 msgid "Fail the whole version if any package is rejected"
 msgstr "Hacer fallar la versión completa si se rechaza algún paquete"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -3308,6 +3340,7 @@ msgstr "Fallo al revertir el repositorio \"{repositoryName}\" a la versión \"{n
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Failed to sync repository \"{name}\""
 msgstr "Error al sincronizar el repositorio \"{name}\""
 
@@ -3714,6 +3747,7 @@ msgstr "Cuántas versiones de cada paquete se conservan; las más antiguas se de
 #~ msgstr "Entiendo que esta acción no se puede deshacer."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "Si se selecciona, todo el contenido que no esté en el repositorio remoto se eliminará del repositorio local; de lo contrario, la sincronización añadirá el contenido que falte."
 
@@ -3993,6 +4027,10 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Keep running"
+msgstr ""
+
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
@@ -4072,6 +4110,10 @@ msgstr "Último latido"
 #: src/containers/user-management/user-list.tsx
 msgid "Last name"
 msgstr "Apellido"
+
+#: src/framework/detail/details-tab.tsx
+msgid "Last sync"
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #~ msgid "Last synced"
@@ -4307,10 +4349,11 @@ msgstr "Igual que el sistema"
 #~ msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
-msgid "Message"
-msgstr "Mensaje"
+#~ msgid "Message"
+#~ msgstr "Mensaje"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "Espejo"
 
@@ -4323,6 +4366,7 @@ msgid "Mirror content only"
 msgstr "Espejo de contenido"
 
 #: src/actions/file-repository-sync.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "El modo espejo no se puede combinar con la publicación automática, así que esta sincronización solo añade el contenido que falta."
 
@@ -4511,6 +4555,10 @@ msgstr "Espacios de nombres"
 #: src/containers/ansible-repository/list.tsx
 msgid "never synced"
 msgstr "nunca sincronizado"
+
+#: src/framework/sync/last-sync.tsx
+msgid "Never synced"
+msgstr ""
 
 #: src/components/import-modal.tsx
 #~ msgid "New collection"
@@ -4710,6 +4758,10 @@ msgstr "Sin permiso"
 #: src/components/permission-categories.tsx
 msgid "No permissions"
 msgstr "Sin permisos"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "No progress reported yet."
+msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
@@ -5021,10 +5073,12 @@ msgid "Online workers"
 msgstr "Workers en línea"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "Realizar la sincronización solo si el servidor remoto informa de cambios."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "Realizar la sincronización solo si el servidor remoto informa de cambios. Para forzar una sincronización, desmarque esta opción."
 
@@ -5065,6 +5119,7 @@ msgstr "Operaciones"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "Optimizar"
 
@@ -5247,6 +5302,7 @@ msgstr "Prefijo de ruta"
 #~ msgid "Pathname <0>{pathname}</0> could refer to a collection or a role."
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 msgid "Pending"
 msgstr "Pendiente"
@@ -6454,6 +6510,8 @@ msgstr "Reintentos"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
+#: src/framework/sync/last-sync.tsx
+#: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "Reintentar"
@@ -6689,6 +6747,7 @@ msgstr "Sincronización de gems de Ruby"
 #~ msgid "Ruby Gems sync"
 #~ msgstr ""
 
+#: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 msgid "Running"
@@ -7204,6 +7263,7 @@ msgstr "Omitirlos"
 msgid "Skip to content"
 msgstr "Saltar al contenido"
 
+#: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 msgid "Skipped"
 msgstr "Omitido"
@@ -7271,8 +7331,8 @@ msgid "Started at"
 msgstr "Iniciado a las"
 
 #: src/containers/task-management/task-detail.tsx
-msgid "State"
-msgstr "Estado"
+#~ msgid "State"
+#~ msgstr "Estado"
 
 #: src/components/purge-task-modal.tsx
 msgid "States:"
@@ -7430,8 +7490,24 @@ msgstr "Resumen"
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync"
 msgstr "Sincronizar"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync canceled"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync completed"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync failed"
+msgstr ""
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -7462,6 +7538,14 @@ msgstr "Sincronizar los archivos del instalador"
 msgid "Sync installer packages"
 msgstr "Sincronizar los paquetes del instalador"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync is being canceled"
+msgstr ""
+
+#: src/framework/sync/last-sync.tsx
+msgid "Sync is unavailable because this repository has no remote."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
 msgstr "Sincronizar la procedencia de los paquetes"
@@ -7470,7 +7554,12 @@ msgstr "Sincronizar la procedencia de los paquetes"
 msgid "Sync policy"
 msgstr "Política de sincronización"
 
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync queued"
+msgstr ""
+
 #: src/components/sync-modal.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "Sync repository \"{name}\""
 msgstr "Sincronizar el repositorio \"{name}\""
 
@@ -7478,6 +7567,10 @@ msgstr "Sincronizar el repositorio \"{name}\""
 #: src/containers/ansible-role/role-sync.tsx
 #~ msgid "Sync role"
 #~ msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Sync running"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -7506,6 +7599,7 @@ msgstr "Sincronizar fuentes"
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Sync started for repository \"{name}\"."
 msgstr "Sincronización iniciada para el repositorio \"{name}\"."
 
@@ -7603,6 +7697,10 @@ msgstr "La tarea \"{taskName}\" se detuvo correctamente."
 #: src/containers/task-management/task-detail.tsx
 msgid "Task could not be displayed."
 msgstr "No se pudo mostrar la tarea."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Task could not be stopped."
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7825,6 +7923,10 @@ msgstr ""
 msgid "The last action was not completed. Repeat it after you log in."
 msgstr "La última acción no se completó. Repítala después de iniciar sesión."
 
+#: src/framework/sync/last-sync.tsx
+msgid "The last sync could not be read."
+msgstr ""
+
 #: src/components/external-sign-in-incomplete.tsx
 msgid "The login page returned without a signed-in session."
 msgstr "La página de inicio de sesión volvió sin una sesión iniciada."
@@ -7866,6 +7968,10 @@ msgstr "Contraseña que se utilizará para la autenticación al sincronizar. Est
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "No se pudo cargar la lista de plugins"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "The progress of this task cannot be shown."
+msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
@@ -8197,6 +8303,14 @@ msgstr "Esta pantalla todavía no está disponible en esta interfaz."
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag is already selected for this image. You cannot add it twice."
 #~ msgstr "Esta etiqueta ya está seleccionada para esta imagen. No puede añadirla dos veces."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task has already finished."
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "This task no longer exists."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
@@ -8904,6 +9018,9 @@ msgstr "Ver y cancelar cualquier tarea."
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/last-sync.tsx
+#: src/framework/sync/progress-panel.tsx
+#: src/framework/sync/sync-dialog.tsx
 msgid "View the task"
 msgstr "Ver la tarea"
 
@@ -8940,6 +9057,10 @@ msgstr "Esperando"
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "Waiting for {pendingTasks} task(s) to finish."
 #~ msgstr "Esperando que finalicen {pendingTasks} tareas."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Waiting for a worker to take the task."
+msgstr ""
 
 #: src/components/import-console.tsx
 #~ msgid "waiting for approval"
@@ -9072,6 +9193,10 @@ msgstr "Se necesitan requisitos YAML para sincronizar desde Galaxy. Puede <0>edi
 #: src/containers/ansible-repository/tab-details.tsx
 msgid "Yes"
 msgstr "SÍ"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Yes, cancel"
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx

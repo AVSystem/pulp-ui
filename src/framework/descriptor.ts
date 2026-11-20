@@ -32,15 +32,15 @@ import type { RepositoryTab } from './route-patterns';
 // drawn and never where they are declared: a module-level translation would
 // stay in the language of the first load.
 
-// The entities are typed by what a screen reads from them; the types of what a
-// sync sends belong to the plugin's own wiring. A create and an edit send the
-// fields of the descriptor's form and a content change a revert to a version,
-// so those bodies are typed.
+// The entities are typed by what a screen reads from them. A create and an edit
+// send the fields of the descriptor's form, a sync the remote and the options
+// of the descriptor and a content change a revert to a version, so those bodies
+// are typed.
 type AnyRepositoryEntity<Row> = RepositoryEntity<
   Row,
   RepositoryCreate,
   RepositoryChanges,
-  never,
+  SyncBody,
   RevertBody
 >;
 type AnyRemoteEntity<Row> = RemoteEntity<Row, never, never>;
@@ -49,6 +49,10 @@ type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
   DistributionCreate,
   never
 >;
+
+// What a sync sends: the remote to sync from and the options the plugin's
+// descriptor declares, under the names the plugin's own request uses.
+export type SyncBody = { remote?: string } & Record<string, unknown>;
 
 // The kind of a field is the kind of value it holds: `integer` is a whole
 // number that may be left blank, `labels` the pairs of a key and an optional
@@ -157,12 +161,35 @@ export interface TabDef<Row> {
   }) => ReactNode;
 }
 
+// One option of the sync dialog, besides the remote the sync reads from. The
+// value is sent under `name` in the body of the sync request.
+export interface SyncOptionDef<Row> {
+  name: string;
+  label: MessageDescriptor;
+  // `boolean` is a switch, `select` a choice among `options`.
+  kind: 'boolean' | 'select';
+  help?: MessageDescriptor;
+  // The text beside the switch of a `boolean` option, which says what turning
+  // it on does; the label above names the option.
+  boxLabel?: MessageDescriptor;
+  options?: { value: string; label: MessageDescriptor }[];
+  // What the option holds before the user touches it, which may depend on the
+  // repository. Called while the dialog renders.
+  initial: (repository: Row) => unknown;
+  // A reason the server would refuse the option for this repository: the
+  // option is then held at the given value, cannot be changed, and the dialog
+  // says why. Null when the option is free. Called while the dialog renders,
+  // so the reason may be translated with the message macro.
+  fixed?: (repository: Row) => { value: unknown; reason: string } | null;
+}
+
 // How a repository is synced. A plugin without a sync endpoint declares none.
-export interface SyncDef {
-  // The name of the task that does the work, to find a running one.
+export interface SyncDef<Row> {
+  // The name of the task that does the work, to tell a running sync from any
+  // other task that holds the repository.
   taskName: string;
-  // Options the sync dialog offers beyond the remote.
-  options?: FieldDef[];
+  // The options the sync dialog offers beyond the remote, in order.
+  options?: SyncOptionDef<Row>[];
 }
 
 // The command a distribution's address is turned into for the plugin's own
@@ -190,7 +217,7 @@ export interface RepositoryKind<Row> {
   columns?: ColumnDef<Row>[];
   filters?: FilterDef[];
   tabs?: TabDef<Row>[];
-  sync?: SyncDef;
+  sync?: SyncDef<Row>;
   snippet?: SnippetDef;
 }
 
