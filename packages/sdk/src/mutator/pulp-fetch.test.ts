@@ -134,6 +134,38 @@ describe('Integration: pulpFetch', { tags: ['integration'] }, () => {
     expect(contentType).toStrictEqual('application/merge-patch+json');
   });
 
+  it('leaves the Content-Type to fetch for a FormData body so the multipart boundary is kept', async () => {
+    let contentType: string | null = null;
+    server.use(
+      http.post('*/pulp/api/v3/uploads/1/', async ({ request }) => {
+        contentType = request.headers.get('content-type');
+        return HttpResponse.json({});
+      }),
+    );
+
+    const body = new FormData();
+    body.append('file', new Blob(['abc']), 'a.bin');
+    await pulpFetch('/pulp/api/v3/uploads/1/', { method: 'POST', body });
+
+    expect(contentType).toMatch(/^multipart\/form-data; boundary=.+/);
+  });
+
+  it('does not label a PATCH with a FormData body as merge-patch', async () => {
+    let contentType: string | null = null;
+    server.use(
+      http.patch('*/pulp/api/v3/uploads/1/', async ({ request }) => {
+        contentType = request.headers.get('content-type');
+        return HttpResponse.json({});
+      }),
+    );
+
+    const body = new FormData();
+    body.append('name', 'x');
+    await pulpFetch('/pulp/api/v3/uploads/1/', { method: 'PATCH', body });
+
+    expect(contentType).toMatch(/^multipart\/form-data; boundary=.+/);
+  });
+
   it('resolves with undefined on a 204 No Content response', async () => {
     server.use(
       http.delete('*/pulp/api/v3/rpm/rpm/1234567890', () => {
