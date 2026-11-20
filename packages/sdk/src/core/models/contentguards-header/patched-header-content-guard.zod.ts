@@ -18,7 +18,7 @@ export const PatchedHeaderContentGuard = zod.object({
   "description": zod.string().min(1).nullish().describe('An optional description.'),
   "header_name": zod.string().min(1).optional().describe('The header name the guard will check on.'),
   "header_value": zod.string().min(1).optional().describe('The value that will authorize the request.'),
-  "jq_filter": zod.string().min(1).nullish().describe('A JQ syntax compatible filter. If jq_filter is not set, then the value willonly be Base64 decoded and checked as an explicit string match.'),
+  "jq_filter": zod.string().min(1).nullish().describe('A simple dotted path (e.g. .a.b.c) used to extract the value from the Base64 decoded JSON header. If jq_filter is not set, the header value is only Base64 decoded and checked as an explicit string match.'),
   "name": zod.string().min(1).optional().describe('The unique name.')
 }).describe('A serializer for HeaderContentGuard.');
 

@@ -7,6 +7,9 @@
  */
 import * as zod from 'zod';
 
+export const variantResponseVariantIdRegExp = new RegExp('^(?!\\.{1,2}$)[A-Za-z0-9._-]+$');
+
+
 export const VariantResponse = zod.object({
   "debug_packages": zod.string().nullable().describe('Relative path to directory with debug RPMs.'),
   "debug_repository": zod.string().nullable().describe('Relative path to YUM repository with debug RPMs.'),
@@ -17,7 +20,7 @@ export const VariantResponse = zod.object({
   "source_repository": zod.string().nullable().describe('Relative path to YUM repository with source RPMs.'),
   "type": zod.string().describe('Variant type.'),
   "uid": zod.string().describe('Variant uid.'),
-  "variant_id": zod.string().describe('Variant id.')
+  "variant_id": zod.string().regex(variantResponseVariantIdRegExp).describe('Variant id.')
 }).describe('Variant serializer.');
 
 export type VariantResponse = zod.input<typeof VariantResponse>;

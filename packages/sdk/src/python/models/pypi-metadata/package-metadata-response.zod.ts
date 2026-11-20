@@ -11,7 +11,8 @@ export const PackageMetadataResponse = zod.object({
   "info": zod.unknown().describe('Core metadata of the package'),
   "last_serial": zod.int().describe('Cache value from last PyPI sync'),
   "releases": zod.unknown().describe('List of all the releases of the package'),
-  "urls": zod.unknown()
+  "urls": zod.unknown(),
+  "vulnerabilities": zod.unknown().describe('Known vulnerabilities for the selected package version.')
 }).describe('A Serializer for a package\'s metadata.');
 
 export type PackageMetadataResponse = zod.input<typeof PackageMetadataResponse>;

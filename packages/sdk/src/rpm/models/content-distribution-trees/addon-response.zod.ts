@@ -7,8 +7,11 @@
  */
 import * as zod from 'zod';
 
+export const addonResponseAddonIdRegExp = new RegExp('^(?!\\.{1,2}$)[A-Za-z0-9._-]+$');
+
+
 export const AddonResponse = zod.object({
-  "addon_id": zod.string().describe('Addon id.'),
+  "addon_id": zod.string().regex(addonResponseAddonIdRegExp).describe('Addon id.'),
   "name": zod.string().describe('Addon name.'),
   "packages": zod.string().describe('Relative path to directory with binary RPMs.'),
   "type": zod.string().describe('Addon type.'),

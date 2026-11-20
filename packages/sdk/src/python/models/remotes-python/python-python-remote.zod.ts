@@ -32,7 +32,7 @@ export const pythonPythonRemoteTotalTimeoutMin = 0;
 
 
 
-
+export const pythonPythonRemoteVulnerabilitiesDefault = false;
 
 export const PythonPythonRemote = zod.object({
   "ca_cert": zod.string().min(1).nullish().describe('A PEM encoded CA certificate used to validate the server certificate presented by the remote server.'),
@@ -64,7 +64,8 @@ export const PythonPythonRemote = zod.object({
   "tls_validation": zod.boolean().optional().describe('If True, TLS peer validation must be performed.'),
   "total_timeout": zod.number().min(pythonPythonRemoteTotalTimeoutMin).nullish().describe('aiohttp.ClientTimeout.total (q.v.) for download-connections. The default is null, which will cause the default from the aiohttp library to be used.'),
   "url": zod.string().min(1).describe('The URL of an external content source.'),
-  "username": zod.string().min(1).nullish().describe('The username to be used for authentication when syncing.')
+  "username": zod.string().min(1).nullish().describe('The username to be used for authentication when syncing.'),
+  "vulnerabilities": zod.boolean().default(pythonPythonRemoteVulnerabilitiesDefault).describe('Whether to scan the new repository version for vulnerabilities after a sync.')
 }).describe('A Serializer for PythonRemote.');
 
 export type PythonPythonRemote = zod.input<typeof PythonPythonRemote>;

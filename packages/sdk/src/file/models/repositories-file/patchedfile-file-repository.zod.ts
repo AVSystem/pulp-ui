@@ -6,6 +6,7 @@
  * OpenAPI spec version: v3
  */
 import * as zod from 'zod';
+import { Sha256sumsEnum } from '../sha256sums-enum.zod.ts';
 
 export const patchedfileFileRepositoryAutopublishDefault = false;
 export const patchedfileFileRepositoryManifestDefault = `PULP_MANIFEST`;
@@ -13,7 +14,7 @@ export const patchedfileFileRepositoryManifestDefault = `PULP_MANIFEST`;
 
 
 
-
+export const patchedfileFileRepositorySha256sumsDefault = `disabled`;
 
 export const PatchedfileFileRepository = zod.object({
   "autopublish": zod.boolean().default(patchedfileFileRepositoryAutopublishDefault).describe('Whether to automatically create publications for new repository versions, and update any distributions pointing to this repository.'),
@@ -23,7 +24,8 @@ export const PatchedfileFileRepository = zod.object({
   "pulp_labels": zod.record(zod.string(), zod.string().nullable()).optional(),
   "remote": zod.string().nullish().describe('An optional remote to use by default when syncing.'),
   "retain_checkpoints": zod.int().min(1).nullish().describe('Retain X checkpoint publications for the repository. Default is null which retains all checkpoints.'),
-  "retain_repo_versions": zod.int().min(1).nullish().describe('Retain X versions of the repository. Default is null which retains all versions.')
+  "retain_repo_versions": zod.int().min(1).nullish().describe('Retain X versions of the repository. Default is null which retains all versions.'),
+  "sha256sums": Sha256sumsEnum.default(patchedfileFileRepositorySha256sumsDefault).describe('Whether to generate SHA256SUMS files, and where to place them. \'root\' writes a single file at the root of the repository, \'directory\' writes one in every directory. Each file lists every file below it, with paths relative to itself.\n\n* `disabled` - Do not generate SHA256SUMS files.\n* `root` - Generate a single SHA256SUMS at the root of the repository, listing every file by its path relative to the root.\n* `directory` - Generate a SHA256SUMS in every directory of the repository, each listing every file below it by its path relative to that directory.')
 }).describe('Serializer for File Repositories.');
 
 export type PatchedfileFileRepository = zod.input<typeof PatchedfileFileRepository>;
