@@ -350,6 +350,14 @@ msgstr "Une distribution nommée \"{0}\" existe déjà."
 msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
 msgstr ""
 
+#: src/framework/form/labels-field.tsx
+msgid "A label key can contain only letters, digits, underscores, spaces, dots and hyphens."
+msgstr ""
+
+#: src/framework/form/labels-field.tsx
+msgid "A label value cannot contain parentheses."
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "A PEM encoded client certificate used for authentication."
 msgstr "Un certificat client codé PEM utilisé pour l'authentification."
@@ -498,6 +506,10 @@ msgstr "Ajouter collection"
 #: src/constants.tsx
 #~ msgid "Add group"
 #~ msgstr "Add group"
+
+#: src/framework/form/labels-field.tsx
+msgid "Add label"
+msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Add label condition"
@@ -1041,6 +1053,7 @@ msgstr "Certificat CA"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1507,6 +1520,10 @@ msgstr "Synchronisation des collections"
 #~ msgid "Collections will appear once uploaded"
 #~ msgstr "Les collections apparaîtront une fois téléchargées"
 
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Colour"
+msgstr ""
+
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Command"
 #~ msgstr "Commande"
@@ -1840,6 +1857,7 @@ msgstr "Créez un mot de passe comportant au moins {minLength} caractères, y co
 #~ msgstr "Create a password using at least 9 characters, including special characters , ex <!@$%>. Avoid using common names or expressions."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
 msgstr "Crée une publication pour chaque nouvelle version du référentiel, afin que les distributions qui pointent vers ce référentiel servent toujours le contenu le plus récent."
 
@@ -2337,6 +2355,8 @@ msgstr "Il n'est pas permis de s'effacer."
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/form/form-values.test.ts
+#: src/framework/form/repository-fields.ts
 msgid "Description"
 msgstr "Description"
 
@@ -2587,6 +2607,10 @@ msgstr "Faites glisser un fichier ici ou naviguez pour le télécharger"
 msgid "Dropdown"
 msgstr "Menu déroulant"
 
+#: src/framework/form/labels-field.tsx
+msgid "Each label key can be used once."
+msgstr ""
+
 #: src/components/ratings.tsx
 #~ msgid "Ease of use"
 #~ msgstr ""
@@ -2618,6 +2642,7 @@ msgstr "Menu déroulant"
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Modifier"
@@ -2707,6 +2732,10 @@ msgstr "Activé"
 #: src/components/repository-form.tsx
 msgid "Enter a base path."
 msgstr "Saisissez un chemin de base."
+
+#: src/framework/form/labels-field.tsx
+msgid "Enter a key for this label."
+msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Enter a label key."
@@ -3098,6 +3127,11 @@ msgstr "Échec du chargement des distributions : {error}"
 #~ msgid "Failed to load pulp_id of collection repository."
 #~ msgstr "Failed to load pulp_id of collection repository."
 
+#. placeholder {0}: requestErrorText(found.error)
+#: src/framework/form/remote-field.tsx
+msgid "Failed to load remotes: {0}"
+msgstr ""
+
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
@@ -3253,6 +3287,10 @@ msgstr "Échec de la synchronisation du référentiel \"{name}\""
 msgid "Fall back to defaults"
 msgstr "Revenir aux valeurs par défaut"
 
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Fast"
+msgstr ""
+
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Featured"
 #~ msgstr ""
@@ -3355,6 +3393,10 @@ msgstr "Prénom"
 #: src/containers/pulp-status.tsx
 msgid "Free"
 msgstr "Libre"
+
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Free text."
+msgstr ""
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
@@ -3741,6 +3783,7 @@ msgstr "Importer la collection"
 #~ msgstr "Importations"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/repository-fields.ts
 msgid "In order to retain all versions, leave this field blank."
 msgstr "Afin de conserver toutes les versions, laissez ce champ vide."
 
@@ -3857,6 +3900,7 @@ msgstr "Les paquets d'installation seront synchronisés"
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
 msgstr "Permissions insuffisantes"
 
@@ -3912,6 +3956,7 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
+#: src/framework/form/labels-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -3937,10 +3982,12 @@ msgstr "Empreinte digitale de la clé"
 msgid "Label expression"
 msgstr ""
 
+#: src/framework/form/labels-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
+#: src/framework/form/labels-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -3958,9 +4005,15 @@ msgstr ""
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/form/form-values.test.ts
+#: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "Libellés"
+
+#: src/framework/form/repository-fields.ts
+msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4232,6 +4285,11 @@ msgstr "Miroir du contenu"
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "Le mode miroir ne peut pas être combiné avec la publication automatique ; cette synchronisation ajoute donc seulement le contenu manquant."
 
+#: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/form-values.test.ts
+msgid "Mode"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
@@ -4296,6 +4354,8 @@ msgstr "Mon profil"
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/repository-fields.ts
 msgid "Name"
 msgstr "Nom"
 
@@ -4754,6 +4814,7 @@ msgstr "Aucun utilisateur existant"
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4768,8 +4829,10 @@ msgstr "Aucun(e)"
 msgid "Not allowed"
 msgstr "Non autorisé"
 
+#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr ""
@@ -4819,6 +4882,7 @@ msgstr ""
 msgid "Not served: no publication"
 msgstr "Non servie : aucune publication"
 
+#: src/framework/form/fields.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Not set"
 msgstr ""
@@ -4835,9 +4899,9 @@ msgstr "Non synchronisé"
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your organization's sync repository use the URL found on <0>Repository Management</0>."
 #~ msgstr "Note: this URL contains all collections in Hub. To connect to your organization's sync repository use the URL found on <0>Repository Management</0>."
 
-#: src/components/render-plugin-doc.tsx
-#~ msgid "Notes"
-#~ msgstr ""
+#: src/framework/form/descriptor-form.test.tsx
+msgid "Notes"
+msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
@@ -4846,6 +4910,10 @@ msgstr "Rien n'a changé dans la distribution {name}."
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
 msgstr "Rien n'a changé dans le référentiel {name}."
+
+#: src/framework/form/repository-edit.tsx
+msgid "Nothing changed in repository {repositoryName}."
+msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
@@ -4878,6 +4946,14 @@ msgstr "À la demande"
 #: src/components/remote-form.tsx
 msgid "On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it."
 msgstr "À la demande récupère le contenu lorsqu'un client le demande. Immédiat télécharge tout lors de la synchronisation. En flux continu transmet le contenu sans le stocker."
+
+#: src/descriptors/file/descriptor.tsx
+msgid "One file at the root"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "One file in every directory"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
@@ -5356,7 +5432,12 @@ msgstr "Nom d'utilisateur du proxy"
 msgid "Public key"
 msgstr "Clé publique"
 
+#: src/framework/form/form-values.test.ts
+msgid "Publish"
+msgstr ""
+
 #: src/components/repository-form.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Publish new versions automatically"
 msgstr "Publier automatiquement les nouvelles versions"
 
@@ -5793,6 +5874,8 @@ msgstr "Recharger"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/form/form-values.test.ts
+#: src/framework/form/repository-fields.ts
 msgid "Remote"
 msgstr "Source distante"
 
@@ -5935,6 +6018,10 @@ msgstr "Supprimer le groupe"
 msgid "Remove group {groupname}?"
 msgstr "Supprimer le groupe {groupname}?"
 
+#: src/framework/form/labels-field.tsx
+msgid "Remove label"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
 msgstr ""
@@ -6052,6 +6139,7 @@ msgstr "Tâche de réparation"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
@@ -6112,6 +6200,10 @@ msgstr "Le référentiel \"{name}\" a été créé. La distribution \"{name}\" n
 msgid "Repository \"{name}\" was created. The outcome of creating the distribution \"{name}\" is unknown, because the task status could not be read. Check the task."
 msgstr "Le référentiel \"{name}\" a été créé. Le résultat de la création de la distribution \"{name}\" est inconnu, car l'état de la tâche n'a pas pu être lu. Vérifiez la tâche."
 
+#: src/framework/form/repository-edit.tsx
+msgid "Repository \"{repositoryName}\" could not be updated"
+msgstr ""
+
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "Référentiel {repoName} non trouvé."
@@ -6127,6 +6219,7 @@ msgstr "Le référentiel \"{name}\" a été créé. Le résultat de la création
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Repository could not be displayed."
 msgstr "Le référentiel n’a pas pu être affiché."
 
@@ -6241,7 +6334,12 @@ msgstr "Rétablir les valeurs par défaut du navigateur"
 msgid "Results"
 msgstr "Résultats"
 
+#: src/framework/form/form-values.test.ts
+msgid "Retain"
+msgstr ""
+
 #: src/components/repository-form.tsx
+#: src/framework/form/repository-fields.ts
 msgid "Retained number of versions"
 msgstr "Nombre de versions conservées"
 
@@ -6266,6 +6364,7 @@ msgstr "Nouvelles tentatives"
 #: src/components/list-error-state.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"
@@ -6517,6 +6616,7 @@ msgstr "En cours d'exécution"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/repository-edit.tsx
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -6629,6 +6729,7 @@ msgstr "Sélectionner un groupe"
 
 #: src/actions/python-distribution-edit.tsx
 #: src/components/repository-form.tsx
+#: src/framework/form/remote-field.tsx
 msgid "Select a remote"
 msgstr "Sélectionner une source distante"
 
@@ -6740,12 +6841,17 @@ msgstr "Erreur de serveur. Veuillez essayer plus tard."
 #~ msgstr "Version du serveur"
 
 #: src/components/repository-form.tsx
+#: src/framework/form/repository-fields.ts
 msgid "Setting a remote allows a repository to sync from elsewhere."
 msgstr "La définition d'une source distante permet à un référentiel de se synchroniser à partir d'un autre endroit."
 
 #: src/containers/settings/user-profile.tsx
 msgid "Settings"
 msgstr "Paramètres"
+
+#: src/descriptors/file/descriptor.tsx
+msgid "SHA256SUMS files"
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -8009,6 +8115,7 @@ msgstr "Validation TLS"
 #~ msgstr "To revoke a token or see all of your tokens, visit the <0>offline API token management</0> page."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.test.tsx
 msgid "Token"
 msgstr "Jeton"
 
@@ -8155,6 +8262,10 @@ msgstr "Démarrage de la mise à jour de la source distante {0}"
 msgid "Update started for repository {name}"
 msgstr "Mise à jour lancée pour le référentiel {name}"
 
+#: src/framework/form/repository-edit.tsx
+msgid "Update started for repository {repositoryName}"
+msgstr ""
+
 #: src/components/headers/collection-header.tsx
 #~ msgid "updated {0}"
 #~ msgstr "mis à jour {0}"
@@ -8181,6 +8292,10 @@ msgstr "Distribution {name} mise à jour"
 #: src/utilities/update-repository.ts
 msgid "Updated repository {name}"
 msgstr "Référentiel {name} mis à jour"
+
+#: src/framework/form/repository-edit.tsx
+msgid "Updated repository {repositoryName}"
+msgstr ""
 
 #: src/components/import-modal.tsx
 #: src/components/upload-signature-modal.tsx
@@ -8536,6 +8651,10 @@ msgstr "Les utilisateurs apparaîtront une fois créés"
 #~ msgid "Validated"
 #~ msgstr "Validé"
 
+#: src/framework/form/labels-field.tsx
+msgid "Value"
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "VALUE"
 #~ msgstr ""
@@ -8742,6 +8861,10 @@ msgstr "Si l'option est activée, un paquet rejeté fait échouer toute la versi
 #: src/containers/python-repository/tab-details.tsx
 msgid "When packages are rejected"
 msgstr "Lorsque des paquets sont rejetés"
+
+#: src/descriptors/file/descriptor.tsx
+msgid "Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Whether to also sync the provenance attestations published for packages."

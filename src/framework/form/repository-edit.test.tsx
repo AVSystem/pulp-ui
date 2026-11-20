@@ -569,7 +569,9 @@ describe(
       await user.type(description(), '!');
       await user.dblClick(save());
 
-      await waitFor(() => expect(save()).toBeDisabled());
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /^Save/ })).toBeDisabled(),
+      );
       expect(patches()).toHaveLength(1);
       release();
       await waitFor(() =>
@@ -802,7 +804,7 @@ describe(
       serveLab({ repositories: [existing()] });
       let failing = true;
       server.use(
-        http.get(`*${API}/users/7/`, ({ request }) =>
+        http.get(`*${API}/users/7/`, () =>
           failing
             ? HttpResponse.json({ detail: 'broken' }, { status: 500 })
             : HttpResponse.json({

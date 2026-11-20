@@ -198,6 +198,11 @@ export interface RevertBody {
   base_version: string;
 }
 
+// What an edit sends: the fields that changed, by their names in the request
+// body. A generic screen builds it from the descriptor's fields, so it is not
+// typed by plugin; the server checks every field.
+export type RepositoryChanges = Record<string, unknown>;
+
 export type { UpdateResult };
 
 export function makeRepositoryEntity<

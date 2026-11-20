@@ -1,7 +1,7 @@
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
 import { ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AppliedFilters, CompoundFilter } from 'src/components';
 import type { FilterOption } from 'src/components/compound-filter';
 import type { RemoteBase } from 'src/entities/plugin/model';
@@ -9,6 +9,7 @@ import { useEntity, useEntityList } from 'src/entities/plugin/queries';
 import type { RemoteEntity } from 'src/entities/plugin/remote';
 import type { FilterDef } from '../descriptor';
 import { joinTerms, splitTerms } from '../labels/label-select';
+import { useSettled } from '../use-settled';
 import { LabelFilter } from './label-filter';
 import type { ListParams } from './list-params';
 
@@ -38,17 +39,6 @@ const NO_REMOTES = {
   retrieve: () =>
     Promise.reject(new Error('The plugin has no remotes to retrieve')),
 } as unknown as FilterRemotes;
-
-// The value after it has stopped changing for a moment, so a search is sent
-// for the text typed and not for every key.
-function useSettled<T>(value: T, ms: number): T {
-  const [settled, setSettled] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), ms);
-    return () => clearTimeout(timer);
-  }, [value, ms]);
-  return settled;
-}
 
 interface FiltersProps {
   // The filters the plugin's descriptor declares.

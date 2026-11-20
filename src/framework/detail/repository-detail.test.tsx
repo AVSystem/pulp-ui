@@ -141,6 +141,7 @@ describe(
         description: 'Mirror of the manuals',
         retain_repo_versions: 3,
         autopublish: true,
+        sha256sums: 'root',
         pulp_labels: { team: 'docs', tier: null },
       });
       serveLab({ repositories: [repository] });
@@ -153,6 +154,7 @@ describe(
         'Description',
         'Retained version count',
         'Autopublish',
+        'SHA256SUMS files',
         'Repository URL',
         'Labels',
         'Remote',
@@ -163,6 +165,9 @@ describe(
       );
       expect(rows.get('Retained version count')).toHaveTextContent('3');
       expect(rows.get('Autopublish')).toHaveTextContent('Enabled');
+      expect(rows.get('SHA256SUMS files')).toHaveTextContent(
+        'One file at the root',
+      );
       expect(within(rows.get('Labels') as HTMLElement).getByText('team: docs'));
       expect(within(rows.get('Labels') as HTMLElement).getByText('tier'));
     });
@@ -184,6 +189,20 @@ describe(
       await waitFor(() =>
         expect(rows.get('Repository URL')).toHaveTextContent('None'),
       );
+    });
+
+    it.each([
+      ['disabled', 'Disabled'],
+      ['root', 'One file at the root'],
+      ['directory', 'One file in every directory'],
+      [undefined, 'Not available'],
+    ])('shows the SHA256SUMS row for %s as %s', async (sha256sums, shown) => {
+      serveLab({ repositories: [tools({ sha256sums })] });
+
+      renderDetail('/file/repositories/tools/');
+
+      const rows = await detailRows();
+      expect(rows.get('SHA256SUMS files')).toHaveTextContent(shown);
     });
 
     it('shows the autopublish row once, also when the server leaves the flag out', async () => {
