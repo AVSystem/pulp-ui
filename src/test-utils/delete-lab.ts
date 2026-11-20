@@ -1,4 +1,5 @@
 import { HttpResponse, http } from 'msw';
+import { taskHref } from 'src/entities/core/task/href';
 import {
   type IDistribution,
   type IPublication,
@@ -78,7 +79,7 @@ export function serveDeleteLab({
       maxInFlight = Math.max(maxInFlight, inFlight);
       distributionTasks.add(String(params.id));
       return HttpResponse.json(
-        { task: `${API}/tasks/${params.id}/` },
+        { task: taskHref(String(params.id)) },
         { status: 202 },
       );
     }),
@@ -93,7 +94,7 @@ export function serveDeleteLab({
         );
       }
       return HttpResponse.json(
-        { task: `${API}/tasks/${params.id}/` },
+        { task: taskHref(String(params.id)) },
         { status: 202 },
       );
     }),
@@ -110,7 +111,7 @@ export function serveDeleteLab({
         events.push(`distribution-completed:${id}`);
       }
       return HttpResponse.json({
-        ...task({ pulp_href: `${API}/tasks/${id}/`, state }),
+        ...task({ pulp_href: taskHref(id), state }),
         name: 'delete',
       });
     }),
