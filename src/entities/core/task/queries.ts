@@ -27,6 +27,16 @@ export const taskKeys = {
   // Every count of tasks, for the one invalidation that reads them all again.
   counts: [...all, 'count'] as const,
   count: (filter: TaskCountFilter) => [...all, 'count', filter] as const,
+  // The two reads every list of repositories shares to show the last task of
+  // each row: all waiting and running tasks, and the newest tasks.
+  index: [...all, 'index'] as const,
+  // The waiting or running task that reserves one object.
+  activeOf: (href: string) => [...all, 'active-of', href] as const,
+  // The newest task of one name that reserves one object, and every such read
+  // of one object.
+  lastOf: (href: string) => [...all, 'last-of', href] as const,
+  lastNamedOf: (href: string, name: string) =>
+    [...all, 'last-of', href, name] as const,
 };
 
 // How a read of tasks behaves beyond its parameters.
@@ -49,7 +59,10 @@ function otherPageOfSameList(a: TaskListParams, b: TaskListParams): boolean {
     a.name__contains === b.name__contains &&
     a.state === b.state &&
     a.state__in === b.state__in &&
-    a.finishedWithinMs === b.finishedWithinMs
+    a.finishedWithinMs === b.finishedWithinMs &&
+    a.reserved_resources === b.reserved_resources &&
+    a.name === b.name &&
+    String(a.fields) === String(b.fields)
   );
 }
 

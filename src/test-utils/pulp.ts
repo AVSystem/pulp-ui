@@ -353,7 +353,10 @@ export function pluginPublication(
 
 // Cuts a row to the fields a query names with `fields`, repeated or comma
 // separated, the way the server does; without the parameter the row is whole.
-function projectedBy<T extends object>(row: T, query: URLSearchParams): object {
+export function projectedBy<T extends object>(
+  row: T,
+  query: URLSearchParams,
+): object {
   const names = query
     .getAll('fields')
     .flatMap((value) => value.split(','))
@@ -368,7 +371,7 @@ function projectedBy<T extends object>(row: T, query: URLSearchParams): object {
 
 // The set of values an `__in` filter carries, or null when the query has no
 // such filter.
-function inSetOf(query: URLSearchParams, key: string): string[] | null {
+export function inSetOf(query: URLSearchParams, key: string): string[] | null {
   return query.has(key)
     ? (query.get(key) ?? '').split(',').filter(Boolean)
     : null;
@@ -555,7 +558,7 @@ export interface ITaskRow {
   child_tasks: string[];
   created_resources: string[];
   reserved_resources_record: string[];
-  progress_reports: object[];
+  progress_reports: Record<string, unknown>[];
   [field: string]: unknown;
 }
 
@@ -589,6 +592,54 @@ export function taskPage(
   options: { count?: number; next?: string } = {},
 ): IPage<ITaskRow> {
   return page(rows, options);
+}
+
+// The tasks list as the server answers it. The filters are `state`,
+// `state__in`, `name`, `reserved_resources` and `reserved_resources__in`, the
+// `ordering` of a column, the `fields` cut and the paging of listOf (a page
+// holds at most pageSize rows, 1,000 as on the server). A reserved resource is
+// held by a task when its record names it, exclusively or with the `shared:`
+// prefix. As in the server, `reserved_resources__in` is NOT a set of
+// alternatives: a task must hold every value, so a set of two repositories
+// matches only a task that reserves both. `prns` maps the address of an object
+// to its PRN, because the server turns an address into a PRN before it
+// compares; a value that is not a key is compared as it is.
+export function taskListHandler(
+  rows: ITaskRow[],
+  {
+    pageSize = 1000,
+    prns = {},
+  }: { pageSize?: number; prns?: Record<string, string> } = {},
+) {
+  const path = '/pulp/api/v3/tasks/';
+  const holds = (row: ITaskRow, value: string) => {
+    const item = prns[value] ?? value;
+    return row.reserved_resources_record.some(
+      (entry) => entry === item || entry === `shared:${item}`,
+    );
+  };
+
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const state = query.get('state');
+      const states = inSetOf(query, 'state__in');
+      const name = query.get('name');
+      const one = query.get('reserved_resources');
+      const every = inSetOf(query, 'reserved_resources__in');
+      return (
+        (state === null || row.state === state) &&
+        (states === null || states.includes(row.state)) &&
+        (name === null || row.name === name) &&
+        (one === null || holds(row, one)) &&
+        (every === null || every.every((value) => holds(row, value)))
+      );
+    },
+    ordered: orderedBy,
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
 }
 
 export interface IContentGuard {
@@ -726,6 +777,33 @@ export function role(overrides: Partial<IRole> = {}): IRole {
     locked: false,
     permissions: [],
     pulp_created: '2000-01-01T00:00:00.000000Z',
+    ...overrides,
+  };
+}
+
+export interface IRoleAssignment {
+  role: string;
+  content_object: string | null;
+  [field: string]: unknown;
+}
+
+// A role held by a user or a group, as the roles of a user or a group list it:
+// the role's name and the object it is held on (null for every object of its
+// kind). Further fields of the server's answer can be added through
+// `overrides`; a read that asks for `fields` cuts them again.
+export function roleAssignment(
+  roleName: string,
+  contentObject: string | null,
+  overrides: Record<string, unknown> = {},
+): IRoleAssignment {
+  return {
+    pulp_href: href('users/1/roles'),
+    role: roleName,
+    content_object: contentObject,
+    content_object_prn: null,
+    permissions: [],
+    pulp_created: '2000-01-01T00:00:00.000000Z',
+    description: '',
     ...overrides,
   };
 }
