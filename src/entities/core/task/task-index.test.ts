@@ -7,10 +7,14 @@ import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { type ITaskRow, taskListHandler, taskRow } from 'src/test-utils/pulp';
 import { createTestQueryClient } from 'src/test-utils/query';
 import { server } from 'src/test-utils/server';
+import { taskKeys } from './queries';
 import {
+  ACTIVE_POLL_MS,
   INDEX_POLL_MS,
   buildTaskIndex,
   lastTaskOf,
+  useActiveTaskOf,
+  useLastSyncOf,
   useTaskIndex,
 } from './task-index';
 
@@ -354,3 +358,291 @@ describe('Integration: useTaskIndex', { tags: ['integration'] }, () => {
     expect(queries).toHaveLength(2);
   });
 });
+
+const REPOSITORY_HREF = '/pulp/api/v3/repositories/file/file/11111111/';
+const SYNC = 'pulp_file.app.tasks.synchronizing.synchronize';
+const PUBLISH = 'pulp_file.app.tasks.publishing.publish';
+
+// The tasks of one repository, whose address the server turns into its PRN.
+const PRNS = { [REPOSITORY_HREF]: REPOSITORY };
+
+describe(
+  'Integration: the tasks of one repository',
+  { tags: ['integration'] },
+  () => {
+    let intervals: IIntervals;
+
+    beforeEach(() => {
+      intervals = trackIntervals();
+    });
+
+    afterEach(() => {
+      intervals.restore();
+    });
+
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 50));
+
+    describe('useActiveTaskOf', () => {
+      const running = taskOf(3, 'running', [REPOSITORY], { name: SYNC });
+      const waiting = taskOf(4, 'waiting', [REPOSITORY], { name: PUBLISH });
+      const finished = taskOf(5, 'completed', [REPOSITORY], { name: SYNC });
+
+      it('asks for the newest waiting or running task that reserves the repository, one row', async () => {
+        const { handler, queries } = taskListHandler(
+          [running, waiting, finished],
+          { prns: PRNS },
+        );
+        server.use(handler);
+
+        const { result } = renderHook(() => useActiveTaskOf(REPOSITORY_HREF), {
+          wrapper: wrapperFor(createTestQueryClient()),
+        });
+
+        await waitFor(() =>
+          expect(result.current.data?.pulp_href).toBe(waiting.pulp_href),
+        );
+        expect(queries).toHaveLength(1);
+        expect(Object.fromEntries(queries[0])).toEqual({
+          reserved_resources: REPOSITORY_HREF,
+          state__in: 'waiting,running',
+          ordering: '-pulp_created',
+          limit: '1',
+          offset: '0',
+        });
+      });
+
+      it('answers null, not nothing, when no task is active', async () => {
+        const { handler } = taskListHandler([finished], { prns: PRNS });
+        server.use(handler);
+
+        const { result } = renderHook(() => useActiveTaskOf(REPOSITORY_HREF), {
+          wrapper: wrapperFor(createTestQueryClient()),
+        });
+
+        await waitFor(() => expect(result.current.data).toBeNull());
+      });
+
+      it('sends nothing for a repository that is not known', async () => {
+        const { handler, queries } = taskListHandler([running]);
+        server.use(handler);
+
+        renderHook(() => useActiveTaskOf(null), {
+          wrapper: wrapperFor(createTestQueryClient()),
+        });
+        await settle();
+
+        expect(queries).toEqual([]);
+      });
+
+      it('asks again every 5 seconds while the page is open and shows the task end', async () => {
+        const rows = [running];
+        const { handler, queries } = taskListHandler(rows, { prns: PRNS });
+        server.use(handler);
+
+        const { result } = renderHook(() => useActiveTaskOf(REPOSITORY_HREF), {
+          wrapper: wrapperFor(createTestQueryClient()),
+        });
+        await waitFor(() =>
+          expect(result.current.data?.pulp_href).toBe(running.pulp_href),
+        );
+
+        intervals.run(ACTIVE_POLL_MS);
+        await waitFor(() => expect(queries).toHaveLength(2));
+
+        rows[0] = { ...running, state: 'completed' };
+        intervals.run(ACTIVE_POLL_MS);
+        await waitFor(() => expect(result.current.data).toBeNull());
+
+        // nothing is active, but the page stays open: the next start is seen
+        rows[0] = { ...running, state: 'waiting' };
+        intervals.run(ACTIVE_POLL_MS);
+        await waitFor(() =>
+          expect(result.current.data?.pulp_href).toBe(running.pulp_href),
+        );
+      });
+
+      it.each([403, 404])(
+        'stops asking when the server answers %i',
+        async (status) => {
+          let answers = 0;
+          const { handler } = taskListHandler([running], { prns: PRNS });
+          server.use(
+            http.get(`*${TASKS}`, () => {
+              answers++;
+              return answers > 1
+                ? HttpResponse.json({ detail: 'no' }, { status })
+                : undefined;
+            }),
+            handler,
+          );
+
+          const { result } = renderHook(
+            () => useActiveTaskOf(REPOSITORY_HREF),
+            { wrapper: wrapperFor(createTestQueryClient()) },
+          );
+          await waitFor(() => expect(result.current.data).toBeTruthy());
+
+          intervals.run(ACTIVE_POLL_MS);
+          await waitFor(() => expect(answers).toBe(2));
+          intervals.run(ACTIVE_POLL_MS);
+          await settle();
+
+          expect(answers).toBe(2);
+        },
+      );
+
+      it('does not poll after a first read that failed', async () => {
+        let answers = 0;
+        server.use(
+          http.get(`*${TASKS}`, () => {
+            answers++;
+            return HttpResponse.json({ detail: 'boom' }, { status: 500 });
+          }),
+        );
+
+        const { result } = renderHook(() => useActiveTaskOf(REPOSITORY_HREF), {
+          wrapper: wrapperFor(createTestQueryClient()),
+        });
+        await waitFor(() => expect(result.current.isError).toBe(true));
+
+        intervals.run(ACTIVE_POLL_MS);
+        await settle();
+
+        expect(answers).toBe(1);
+      });
+
+      it('does not poll while the browser tab is hidden', async () => {
+        const { handler, queries } = taskListHandler([running], {
+          prns: PRNS,
+        });
+        server.use(handler);
+
+        const { result } = renderHook(() => useActiveTaskOf(REPOSITORY_HREF), {
+          wrapper: wrapperFor(createTestQueryClient()),
+        });
+        await waitFor(() => expect(result.current.data).toBeTruthy());
+
+        Object.defineProperty(document, 'visibilityState', {
+          configurable: true,
+          get: () => 'hidden',
+        });
+        try {
+          intervals.run(ACTIVE_POLL_MS);
+          await settle();
+        } finally {
+          Reflect.deleteProperty(document, 'visibilityState');
+        }
+
+        expect(queries).toHaveLength(1);
+      });
+    });
+
+    describe('useLastSyncOf', () => {
+      const oldSync = taskOf(2, 'failed', [REPOSITORY], { name: SYNC });
+      const newSync = taskOf(4, 'completed', [REPOSITORY], { name: SYNC });
+      const publish = taskOf(6, 'completed', [REPOSITORY], { name: PUBLISH });
+
+      it('asks for the newest task of the sync name that reserves the repository, once', async () => {
+        const { handler, queries } = taskListHandler(
+          [oldSync, newSync, publish],
+          { prns: PRNS },
+        );
+        server.use(handler);
+
+        const { result } = renderHook(
+          () => useLastSyncOf(REPOSITORY_HREF, SYNC),
+          { wrapper: wrapperFor(createTestQueryClient()) },
+        );
+
+        await waitFor(() =>
+          expect(result.current.data?.pulp_href).toBe(newSync.pulp_href),
+        );
+        intervals.run(ACTIVE_POLL_MS);
+        intervals.run(INDEX_POLL_MS);
+        await settle();
+
+        expect(queries).toHaveLength(1);
+        expect(Object.fromEntries(queries[0])).toEqual({
+          reserved_resources: REPOSITORY_HREF,
+          name: SYNC,
+          ordering: '-pulp_created',
+          limit: '1',
+          offset: '0',
+        });
+      });
+
+      it('answers null when the repository was never synced', async () => {
+        const { handler } = taskListHandler([publish], { prns: PRNS });
+        server.use(handler);
+
+        const { result } = renderHook(
+          () => useLastSyncOf(REPOSITORY_HREF, SYNC),
+          { wrapper: wrapperFor(createTestQueryClient()) },
+        );
+
+        await waitFor(() => expect(result.current.data).toBeNull());
+      });
+
+      it('sends nothing for a repository or a task name that is not known', async () => {
+        const { handler, queries } = taskListHandler([newSync]);
+        server.use(handler);
+        const wrapper = wrapperFor(createTestQueryClient());
+
+        renderHook(() => useLastSyncOf(null, SYNC), { wrapper });
+        renderHook(() => useLastSyncOf(REPOSITORY_HREF, null), { wrapper });
+        await settle();
+
+        expect(queries).toEqual([]);
+      });
+
+      it('reads again once the sync that was watched has ended', async () => {
+        const rows = [oldSync, { ...newSync, state: 'running' }];
+        const { handler, queries } = taskListHandler(rows, { prns: PRNS });
+        server.use(handler);
+
+        const { result } = renderHook(
+          () => ({
+            active: useActiveTaskOf(REPOSITORY_HREF),
+            last: useLastSyncOf(REPOSITORY_HREF, SYNC),
+          }),
+          { wrapper: wrapperFor(createTestQueryClient()) },
+        );
+        await waitFor(() => {
+          expect(result.current.active.data?.state).toBe('running');
+          expect(result.current.last.data?.state).toBe('running');
+        });
+        const before = queries.length;
+
+        rows[1] = { ...newSync, state: 'completed' };
+        intervals.run(ACTIVE_POLL_MS);
+
+        await waitFor(() => {
+          expect(result.current.active.data).toBeNull();
+          expect(result.current.last.data?.state).toBe('completed');
+        });
+        // one read of the active task and one of the last sync
+        expect(queries.length).toBe(before + 2);
+      });
+
+      it('marks the task index old when a watched sync ends, so a list shows the end', async () => {
+        const rows = [{ ...newSync, state: 'running' }];
+        const { handler } = taskListHandler(rows, { prns: PRNS });
+        server.use(handler);
+        const client = createTestQueryClient();
+        client.setQueryData(taskKeys.index, { active: [], recent: [] });
+
+        const { result } = renderHook(() => useActiveTaskOf(REPOSITORY_HREF), {
+          wrapper: wrapperFor(client),
+        });
+        await waitFor(() => expect(result.current.data).toBeTruthy());
+        expect(client.getQueryState(taskKeys.index)?.isInvalidated).toBe(false);
+
+        rows[0] = { ...newSync, state: 'completed' };
+        intervals.run(ACTIVE_POLL_MS);
+        await waitFor(() => expect(result.current.data).toBeNull());
+
+        expect(client.getQueryState(taskKeys.index)?.isInvalidated).toBe(true);
+      });
+    });
+  },
+);
