@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode, createElement } from 'react';
@@ -248,7 +248,9 @@ describe('Unit: baseUrlsByRepository', { tags: ['unit'] }, () => {
       new Map([[publication.pulp_href, a.pulp_href]]),
     );
 
-    expect([...map.keys()].sort()).toEqual([a.pulp_href, b.pulp_href].sort());
+    expect(Array.from(map.keys()).sort()).toEqual(
+      [a.pulp_href, b.pulp_href].sort(),
+    );
     expect(map.get(a.pulp_href)?.length).toBe(3);
     expect(map.get(a.pulp_href)).toEqual(
       expect.arrayContaining([
@@ -460,11 +462,13 @@ describe('Unit: useDistributionIndex', { tags: ['unit'] }, () => {
       ),
     ).toEqual([]);
     expect(
-      [...(result.current.repositoriesMatchingBasePath('team') ?? [])].sort(),
+      Array.from(
+        result.current.repositoriesMatchingBasePath('team') ?? [],
+      ).sort(),
     ).toEqual([f.a.pulp_href, f.b.pulp_href].sort());
-    expect([
-      ...(result.current.repositoriesMatchingBasePath('stable') ?? []),
-    ]).toEqual([f.a.pulp_href]);
+    expect(
+      Array.from(result.current.repositoriesMatchingBasePath('stable') ?? []),
+    ).toEqual([f.a.pulp_href]);
   });
 
   it('is an error state and no map when the index read fails', async () => {
