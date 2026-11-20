@@ -214,6 +214,10 @@ msgstr "{title} steps"
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 msgstr "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 
+#: src/framework/list/derived-columns.tsx
+msgid "+{more} more"
+msgstr "+{more} more"
+
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
 #~ msgstr "<0/> was added"
@@ -540,6 +544,7 @@ msgstr "Add remote"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "Add repository"
 
@@ -925,6 +930,14 @@ msgstr "Base path"
 #: src/components/repository-form.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 msgstr "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
+
+#: src/framework/list/repository-list.tsx
+msgid "Base URL"
+msgstr "Base URL"
+
+#: src/framework/list/repository-list.tsx
+msgid "Base URLs could not be read."
+msgstr "Base URLs could not be read."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1615,6 +1628,7 @@ msgstr "Contact your organization administrator for more information."
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Content"
 msgstr "Content"
@@ -1634,6 +1648,10 @@ msgstr "Content added"
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
 #~ msgstr "Content count"
+
+#: src/framework/list/repository-list.tsx
+msgid "Content counts could not be read."
+msgstr "Content counts could not be read."
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Content from roles and collections can be referenced in Ansible playbooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
@@ -1854,6 +1872,7 @@ msgstr "Created"
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Created date"
 msgstr "Created date"
 
@@ -2559,6 +2578,7 @@ msgstr "Dropdown"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Edit"
 
@@ -3900,6 +3920,14 @@ msgstr "Last name"
 #~ msgid "Last synced"
 #~ msgstr "Last synced"
 
+#: src/framework/list/repository-list.tsx
+msgid "Last task"
+msgstr "Last task"
+
+#: src/framework/list/repository-list.tsx
+msgid "Last tasks could not be read."
+msgstr "Last tasks could not be read."
+
 #: src/containers/pulp-status.tsx
 msgid "Last updated"
 msgstr "Last updated"
@@ -3916,6 +3944,10 @@ msgstr "Last updated from registry {0}"
 #: src/components/purge-task-modal.tsx
 msgid "Latest allowed date is today."
 msgstr "Latest allowed date is today."
+
+#: src/framework/list/repository-list.tsx
+msgid "Latest version"
+msgstr "Latest version"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
@@ -4511,6 +4543,10 @@ msgstr "No permissions"
 #~ msgid "No reason specified."
 #~ msgstr "No reason specified."
 
+#: src/framework/list/derived-columns.tsx
+msgid "No recent task"
+msgstr "No recent task"
+
 #: src/containers/ansible-repository/list.tsx
 msgid "no remote"
 msgstr "no remote"
@@ -4536,6 +4572,7 @@ msgstr "No remotes yet"
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "No repositories yet"
 msgstr "No repositories yet"
 
@@ -4640,6 +4677,7 @@ msgstr "No users yet"
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/list/derived-columns.tsx
 msgid "None"
 msgstr "None"
 
@@ -4650,6 +4688,10 @@ msgstr "None"
 #: src/containers/python-repository/tab-details.tsx
 msgid "Not allowed"
 msgstr "Not allowed"
+
+#: src/framework/list/derived-columns.tsx
+msgid "Not available"
+msgstr "Not available"
 
 #: src/containers/pulp-status.tsx
 msgid "Not connected"
@@ -4667,6 +4709,10 @@ msgstr "Not found"
 #~ msgid "Not found image"
 #~ msgstr "Not found image"
 
+#: src/framework/list/derived-columns.tsx
+msgid "Not loaded"
+msgstr "Not loaded"
+
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed"
 msgstr "Not removed"
@@ -4682,6 +4728,10 @@ msgstr "Not reported"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "Not required for use by other collections"
+
+#: src/framework/list/derived-columns.tsx
+msgid "Not served"
+msgstr "Not served"
 
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
@@ -5906,6 +5956,7 @@ msgstr "Repair task"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5920,6 +5971,7 @@ msgstr "Repositories cannot be searched with your account."
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "Repositories could not be displayed."
 
@@ -5928,6 +5980,7 @@ msgstr "Repositories could not be displayed."
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Repositories will appear once created."
 msgstr "Repositories will appear once created."
 
@@ -6102,6 +6155,7 @@ msgstr "Retries"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "Retry"
@@ -8748,6 +8802,7 @@ msgstr "Your password was changed. Sign in with the new password."
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "Your permissions could not be read"
 

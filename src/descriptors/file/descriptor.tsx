@@ -1,8 +1,13 @@
 import { msg, t } from '@lingui/core/macro';
+import { Link } from 'react-router';
+import { DateComponent } from 'src/components';
+import { fileDistribution } from 'src/entities/file/distribution';
 import type { FileRepository } from 'src/entities/file/model';
+import { filePublication } from 'src/entities/file/publication';
 import { fileRepository } from 'src/entities/file/repository';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { LabelChips } from 'src/framework/labels/label-chips';
+import { repositoryPath } from 'src/framework/route-patterns';
 
 // The file plugin's repositories and remotes as the framework reads them. The
 // descriptor and what it imports are one chunk that loads when a file screen is
@@ -32,7 +37,38 @@ const descriptor: PluginDescriptor<FileRepository> = {
         render: (repository) => <LabelChips labels={repository.pulp_labels} />,
       },
     ],
+    columns: [
+      {
+        id: 'name',
+        label: msg`Repository name`,
+        sortField: 'name',
+        fields: ['name'],
+        render: (repository) => (
+          <Link to={repositoryPath('file', repository.name)}>
+            {repository.name}
+          </Link>
+        ),
+      },
+      {
+        id: 'labels',
+        label: msg`Labels`,
+        fields: ['pulp_labels'],
+        render: (repository) => <LabelChips labels={repository.pulp_labels} />,
+      },
+      {
+        id: 'created',
+        label: msg`Created date`,
+        sortField: 'pulp_created',
+        sortKind: 'numeric',
+        fields: ['pulp_created'],
+        render: (repository) => (
+          <DateComponent date={repository.pulp_created ?? ''} />
+        ),
+      },
+    ],
   },
+  distribution: { entity: fileDistribution },
+  publication: { entity: filePublication, servesFromPublication: true },
 };
 
 export default descriptor;

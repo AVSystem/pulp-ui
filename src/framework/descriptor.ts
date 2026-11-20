@@ -5,6 +5,10 @@ import type {
   DistributionEntity,
 } from 'src/entities/plugin/distribution';
 import type { RemoteBase, RepositoryBase } from 'src/entities/plugin/model';
+import type {
+  PublicationBase,
+  PublicationEntity,
+} from 'src/entities/plugin/publication';
 import type { RemoteEntity } from 'src/entities/plugin/remote';
 import type { RepositoryEntity } from 'src/entities/plugin/repository';
 import type { RepositoryTab } from './route-patterns';
@@ -68,6 +72,13 @@ export interface ColumnDef<Row> {
   // The field the server orders by. A column the server cannot order by (a
   // value derived from other reads) declares none and never sorts.
   sortField?: string;
+  // How the sort control reads: text sorts from A to Z, numbers and dates from
+  // low to high. Text when omitted.
+  sortKind?: 'alpha' | 'numeric';
+  // The fields of the row the column reads. The list asks the server for these
+  // and the few every list needs, and for nothing else, so a column that reads
+  // a field names it here.
+  fields?: string[];
 }
 
 // One filter of a list.
@@ -140,6 +151,9 @@ export interface DistributionKind<Row extends DistributionBase> {
 // A plugin that serves a repository through a publication. Absent for a plugin
 // that has no publication endpoint.
 export interface PublicationKind {
+  // Reads the publications that publication-bound distributions point at, to
+  // find the repository each one serves.
+  entity: PublicationEntity<PublicationBase>;
   // Whether a distribution serves the publication of its repository and not
   // the repository's latest version directly.
   servesFromPublication: boolean;

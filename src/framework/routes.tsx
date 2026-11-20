@@ -29,6 +29,27 @@ const DESCRIPTORS: Partial<
     import(/* webpackChunkName: "file" */ 'src/descriptors/file/descriptor'),
 };
 
+// The list of a plugin's repositories, drawn by the generic screen from the
+// plugin's descriptor.
+function repositoryListScreen(plugin: FrameworkPlugin): ComponentType {
+  const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
+    (typeof DESCRIPTORS)[FrameworkPlugin]
+  >;
+
+  return lazyScreen(async () => {
+    const [{ default: descriptor }, { RepositoryList }] = await Promise.all([
+      loadDescriptor(),
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/list/repository-list'
+      ),
+    ]);
+
+    return {
+      default: () => <RepositoryList plugin={plugin} descriptor={descriptor} />,
+    };
+  });
+}
+
 // The detail of a repository on one of its tabs, drawn by the generic screen
 // from the plugin's descriptor. The generic code is a chunk shared by every
 // plugin.
@@ -65,6 +86,8 @@ function componentOf(
   { screen, tab }: FrameworkPattern,
 ): ComponentType | null {
   switch (screen) {
+    case 'repository-list':
+      return repositoryListScreen(plugin);
     case 'repository-detail':
       return repositoryDetailScreen(plugin, null);
     case 'repository-tab':

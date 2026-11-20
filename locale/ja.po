@@ -213,6 +213,10 @@ msgstr "{title} ステップ"
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 msgstr "{unread, plural, one {通知、未読 # 件} other {通知、未読 # 件}}"
 
+#: src/framework/list/derived-columns.tsx
+msgid "+{more} more"
+msgstr ""
+
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
 #~ msgstr "<0/> が追加されました"
@@ -539,6 +543,7 @@ msgstr "リモートの追加"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "リポジトリーの追加"
 
@@ -924,6 +929,14 @@ msgstr "ベースパス"
 #: src/components/repository-form.tsx
 msgid "Base paths starting with \"{reserved}\" are reserved on this server. Choose another base path."
 msgstr "\"{reserved}\" で始まるベースパスはこのサーバーで予約されています。別のベースパスを選択してください。"
+
+#: src/framework/list/repository-list.tsx
+msgid "Base URL"
+msgstr ""
+
+#: src/framework/list/repository-list.tsx
+msgid "Base URLs could not be read."
+msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -1614,6 +1627,7 @@ msgstr "詳細は、組織の管理者にお問い合わせください。"
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Content"
 msgstr "コンテンツ"
@@ -1633,6 +1647,10 @@ msgstr "追加されたコンテンツ"
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
 #~ msgstr "Content count"
+
+#: src/framework/list/repository-list.tsx
+msgid "Content counts could not be read."
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Content from roles and collections can be referenced in Ansible playbooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
@@ -1853,6 +1871,7 @@ msgstr "作成済み"
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Created date"
 msgstr "作成日"
 
@@ -2558,6 +2577,7 @@ msgstr "ドロップダウン"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "編集"
 
@@ -3899,6 +3919,14 @@ msgstr "姓"
 #~ msgid "Last synced"
 #~ msgstr "最終同期"
 
+#: src/framework/list/repository-list.tsx
+msgid "Last task"
+msgstr ""
+
+#: src/framework/list/repository-list.tsx
+msgid "Last tasks could not be read."
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Last updated"
 msgstr "最終更新日時"
@@ -3915,6 +3943,10 @@ msgstr "レジストリー {0} からの最終更新"
 #: src/components/purge-task-modal.tsx
 msgid "Latest allowed date is today."
 msgstr "指定できる最新の日付は今日です。"
+
+#: src/framework/list/repository-list.tsx
+msgid "Latest version"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
@@ -4510,6 +4542,10 @@ msgstr "パーミッションなし"
 #~ msgid "No reason specified."
 #~ msgstr ""
 
+#: src/framework/list/derived-columns.tsx
+msgid "No recent task"
+msgstr ""
+
 #: src/containers/ansible-repository/list.tsx
 msgid "no remote"
 msgstr "リモートなし"
@@ -4535,6 +4571,7 @@ msgstr "リモートはまだありません"
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "No repositories yet"
 msgstr "リポジトリーはまだありません"
 
@@ -4639,6 +4676,7 @@ msgstr "まだユーザーはありません"
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/list/derived-columns.tsx
 msgid "None"
 msgstr "なし"
 
@@ -4649,6 +4687,10 @@ msgstr "なし"
 #: src/containers/python-repository/tab-details.tsx
 msgid "Not allowed"
 msgstr "許可されていません"
+
+#: src/framework/list/derived-columns.tsx
+msgid "Not available"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Not connected"
@@ -4666,6 +4708,10 @@ msgstr "見つかりません"
 #~ msgid "Not found image"
 #~ msgstr "イメージが見つかりません"
 
+#: src/framework/list/derived-columns.tsx
+msgid "Not loaded"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "Not removed"
 msgstr "削除されていません"
@@ -4681,6 +4727,10 @@ msgstr "報告されていません"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "他のコレクションでの使用には必要ありません"
+
+#: src/framework/list/derived-columns.tsx
+msgid "Not served"
+msgstr ""
 
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
@@ -5905,6 +5955,7 @@ msgstr "修復タスク"
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5919,6 +5970,7 @@ msgstr "お使いのアカウントではリポジトリーを検索できませ
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "リポジトリーを表示できませんでした。"
 
@@ -5927,6 +5979,7 @@ msgstr "リポジトリーを表示できませんでした。"
 #: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Repositories will appear once created."
 msgstr "リポジトリーが作成されると表示されます。"
 
@@ -6101,6 +6154,7 @@ msgstr "再試行回数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"
 msgstr "再試行"
@@ -8747,6 +8801,7 @@ msgstr "パスワードが変更されました。新しいパスワードでロ
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "パーミッションを読み取れませんでした"
 

@@ -62,10 +62,11 @@ const serveRepositories = (...rows: ReturnType<typeof repository>[]) => {
 };
 
 describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
-  it('builds the detail, tab, edit and create routes of a plugin, each behind the plugin gate', () => {
+  it('builds the list, detail, tab, edit and create routes of a plugin, each behind the plugin gate', () => {
     const routes = frameworkRoutes([FILE]);
 
     expect(routes.map(({ path }) => path)).toEqual([
+      '/file/repositories',
       '/file/repositories/:name',
       '/file/repositories/:name/versions',
       '/file/repositories/:name/versions/:number',
