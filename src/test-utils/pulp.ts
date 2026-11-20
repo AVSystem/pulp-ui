@@ -43,6 +43,7 @@ export function listOf<T>(
     matching,
     ordered,
     projected,
+    refusing,
   }: {
     pageSize?: number;
     matching?: (row: T, query: URLSearchParams) => boolean;
@@ -52,6 +53,9 @@ export function listOf<T>(
     // Cuts each row of the page to what the query asks for, the way the
     // `fields` parameter of the server does.
     projected?: (row: T, query: URLSearchParams) => unknown;
+    // The body of a 400 answer for a query the server refuses, or undefined
+    // when the query is acceptable.
+    refusing?: (query: URLSearchParams) => unknown;
   } = {},
 ) {
   const queries: URLSearchParams[] = [];
@@ -59,6 +63,10 @@ export function listOf<T>(
   const handler = http.get(`*${path}`, ({ request }) => {
     const url = new URL(request.url);
     queries.push(new URLSearchParams(url.searchParams));
+    const refusal = refusing?.(url.searchParams);
+    if (refusal !== undefined) {
+      return HttpResponse.json(refusal, { status: 400 });
+    }
     const selected = matching
       ? allRows.filter((row) => matching(row, url.searchParams))
       : allRows;
@@ -486,9 +494,61 @@ function orderedBy<T>(rows: T[], query: URLSearchParams): T[] {
   });
 }
 
+type Labels = Record<string, string | null> | null | undefined;
+
+// What a server does with a `pulp_label_select` value: it either refuses a term
+// with the text the server gives, or selects the rows whose labels satisfy
+// every term. Terms are split at commas that are not escaped; `key=value` needs
+// that pair, `key!=value` needs the key with another value, `key~part` needs a
+// value that contains the part, `key` needs the key and `!key` its absence.
+export function labelSelectOf(
+  select: string,
+): { refusal: string } | { matches: (labels: Labels) => boolean } {
+  const checks: ((labels: Labels) => boolean)[] = [];
+
+  for (const term of select.split(/(?<!\\),/)) {
+    const found = /^(!?[\w .-]+)(=|!=|~)?(.*)?/.exec(term);
+    if (!found) {
+      return { refusal: `Invalid search term: '${term}'.` };
+    }
+    const [, key = '', operator, raw = ''] = found;
+    const value = raw.replace(/\\,/g, ',');
+    if (key.startsWith('!') && operator) {
+      return { refusal: `Cannot use an operator with '${key}'.` };
+    }
+    const has = (labels: Labels, name: string) =>
+      Object.prototype.hasOwnProperty.call(labels ?? {}, name);
+    const valueOf = (labels: Labels, name: string) =>
+      (labels ?? {})[name] ?? null;
+
+    if (operator === '=') {
+      checks.push(
+        (labels) => has(labels, key) && valueOf(labels, key) === value,
+      );
+    } else if (operator === '!=') {
+      checks.push(
+        (labels) => has(labels, key) && valueOf(labels, key) !== value,
+      );
+    } else if (operator === '~') {
+      checks.push((labels) =>
+        (valueOf(labels, key) ?? '')
+          .toLowerCase()
+          .includes(value.toLowerCase()),
+      );
+    } else if (key.startsWith('!')) {
+      checks.push((labels) => !has(labels, key.slice(1)));
+    } else {
+      checks.push((labels) => has(labels, key));
+    }
+  }
+
+  return { matches: (labels) => checks.every((check) => check(labels)) };
+}
+
 // The list of a plugin's repositories or remotes as a server answers it: the
 // filters name (exact), name__icontains, name__in and pulp_href__in (an empty
-// set matches nothing), the ordering of a column, and the paging of listOf.
+// set matches nothing), pulp_label_select (an invalid term is a 400 with the
+// server's text), remote (`null` for no remote), the ordering of a column, and the paging of listOf.
 // It serves the plugin's own list path, which is returned with the handler
 // and the recorded queries.
 export function pluginListHandler<
@@ -510,13 +570,27 @@ export function pluginListHandler<
       const part = query.get('name__icontains');
       const names = inSet(query, 'name__in');
       const hrefs = inSet(query, 'pulp_href__in');
+      const select = query.get('pulp_label_select');
+      const selected = select === null ? null : labelSelectOf(select);
+      const remote = query.get('remote');
+      const rowRemote = (row as { remote?: string | null }).remote ?? null;
       return (
         (name === null || row.name === name) &&
         (part === null ||
           row.name.toLowerCase().includes(part.toLowerCase())) &&
         (names === null || names.includes(row.name)) &&
-        (hrefs === null || hrefs.includes(row.pulp_href))
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (selected === null ||
+          ('matches' in selected &&
+            selected.matches((row as { pulp_labels?: Labels }).pulp_labels))) &&
+        (remote === null ||
+          (remote === 'null' ? rowRemote === null : rowRemote === remote))
       );
+    },
+    refusing: (query) => {
+      const select = query.get('pulp_label_select');
+      const selected = select === null ? null : labelSelectOf(select);
+      return selected && 'refusal' in selected ? [selected.refusal] : undefined;
     },
     ordered: orderedBy,
   });
