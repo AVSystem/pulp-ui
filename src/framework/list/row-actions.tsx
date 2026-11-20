@@ -19,6 +19,9 @@ export type RepositoryPermission = keyof IPluginPermissions['repository'];
 export interface RowActionContext {
   plugin: FrameworkPlugin;
   navigate: (to: string) => void;
+  // Opens the dialog that deletes the row's repository with the distributions
+  // that serve it.
+  requestDelete: (row: RepositoryBase) => void;
 }
 
 export interface RowAction<Row> {
@@ -45,6 +48,15 @@ export const REPOSITORY_ROW_ACTIONS: RowAction<RepositoryBase>[] = [
         onClick={() => navigate(repositoryEditPath(plugin, row.name))}
       >
         {t`Edit`}
+      </DropdownItem>
+    ),
+  },
+  {
+    id: 'delete',
+    permission: 'delete',
+    item: (row, { requestDelete }) => (
+      <DropdownItem key='delete' onClick={() => requestDelete(row)}>
+        {t`Delete`}
       </DropdownItem>
     ),
   },

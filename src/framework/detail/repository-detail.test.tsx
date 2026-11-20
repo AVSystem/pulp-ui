@@ -537,6 +537,9 @@ describe(
     it('offers Edit to a user who holds the change permission and leads to the edit address', async () => {
       serveAccount({ isStaff: false, own: [[CHANGE]] });
       serveLab({ repositories: [tools()] });
+      // the delete permission is not held on every repository, so the roles
+      // on single objects are read to see whether it is held on this one
+      server.use(listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler);
 
       const { user } = renderDetail('/file/repositories/tools/');
 

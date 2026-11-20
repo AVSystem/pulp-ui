@@ -516,6 +516,7 @@ msgstr "컬렉션 추가"
 #~ msgstr "Add group"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Add label"
 msgstr ""
 
@@ -866,6 +867,7 @@ msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2>
 msgstr "원격 <0>{name}</0> 을 삭제하시겠습니까?<1/><2>참고:</2> 이 원격에서 연결된 모든 리소스도 삭제합니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
 msgstr "리포지토리 <0>{name}</0>을/를 삭제하시겠습니까?"
 
@@ -2104,6 +2106,8 @@ msgstr "Debian 원본 그대로 게시"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Delete"
 msgstr "삭제"
 
@@ -2208,6 +2212,7 @@ msgid "Delete repository version"
 msgstr "리포지토리 버전 삭제"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Delete repository?"
 msgstr "리포지토리를 삭제하시겠습니가?"
 
@@ -2522,6 +2527,7 @@ msgid "Domain enabled"
 msgstr "도메인 사용"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "완료"
 
@@ -2691,6 +2697,10 @@ msgstr "배포 편집"
 #: src/components/remote-form.tsx
 msgid "Edit in YAML editor"
 msgstr "YAML 편집기에서 편집"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Edit labels"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3647,6 +3657,7 @@ msgstr "그룹이 생성되면 나타납니다"
 #~ msgstr "Groups with access"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Guard: {guardName}"
 msgstr "콘텐츠 가드: {guardName}"
 
@@ -3954,6 +3965,10 @@ msgstr "문제 추적기"
 #~ msgid "It does not make sense to include and exclude tags at the same time."
 #~ msgstr "It does not make sense to include and exclude tags at the same time."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "It is not known whether the repository was removed."
+msgstr ""
+
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
 #~ msgstr "It's safe to close this window. These tasks will finish in the"
@@ -3979,6 +3994,7 @@ msgstr "JSON"
 #~ msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -4005,11 +4021,13 @@ msgid "Label expression"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -4199,6 +4217,7 @@ msgid "Loading distribution..."
 msgstr "배포를 불러오는 중..."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "배포를 불러오는 중"
 
@@ -4581,6 +4600,7 @@ msgid "No distribution serves this repository"
 msgstr "이 리포지토리를 제공하는 배포가 없습니다"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "No distribution serves this repository. Only the repository is deleted."
 msgstr "이 리포지토리를 제공하는 배포가 없습니다. 리포지토리만 삭제됩니다."
 
@@ -4838,6 +4858,7 @@ msgstr "아직 사용자가 없음"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
 msgid "None"
@@ -4857,6 +4878,10 @@ msgstr "허용되지 않음"
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
+msgstr ""
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not confirmed"
 msgstr ""
 
 #: src/containers/pulp-status.tsx
@@ -4880,10 +4905,12 @@ msgid "Not loaded"
 msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed"
 msgstr "제거되지 않음"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed, not shown when this dialog opened"
 msgstr "제거되지 않음, 이 대화 상자를 열 때는 표시되지 않았음"
 
@@ -4894,6 +4921,10 @@ msgstr "보고되지 않음"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "다른 컬렉션에 사용할 필요가 없음"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not sent"
+msgstr ""
 
 #: src/framework/list/derived-columns.tsx
 msgid "Not served"
@@ -5087,6 +5118,7 @@ msgid "Ostree sync"
 msgstr "Ostree 동기화"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Outcome unknown, check the task"
 msgstr "결과를 알 수 없습니다. 작업을 확인하세요"
 
@@ -5394,6 +5426,7 @@ msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Le
 msgstr "동기화할 프로젝트입니다. 줄마다 지정자를 하나씩 입력하며, 예: \"django>=4.2\". 비워 두면 원격이 제공하는 모든 프로젝트를 동기화합니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Protected by a content guard: customer-facing URL"
 msgstr "콘텐츠 가드로 보호됨: 고객용 URL"
 
@@ -6044,6 +6077,10 @@ msgstr "그룹 {groupname}을/를 삭제하시겠습니까?"
 msgid "Remove label"
 msgstr ""
 
+#: src/framework/labels/label-editor.tsx
+msgid "Remove label {name}"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
 msgstr ""
@@ -6074,15 +6111,18 @@ msgstr "그룹에서 사용자를 제거하시겠습니까?"
 #~ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed"
 msgstr "제거됨"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed distributions: {0}"
 msgstr "제거된 배포: {0}"
 
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed repository {name}"
 msgstr "리포지토리 {name}을/를 제거했습니다"
 
@@ -6234,6 +6274,15 @@ msgstr "리포지토리 \"{name}\"을/를 만들었습니다. 작업 상태를 �
 msgid "Repository \"{repositoryName}\" could not be updated"
 msgstr ""
 
+#. placeholder {0}: keptTitle(result)
+#: src/framework/delete/delete-outcome.tsx
+#~ msgid "Repository {name}: {0}"
+#~ msgstr ""
+
+#: src/framework/delete/delete-repository-dialog.tsx
+#~ msgid "Repository {name}: the delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+#~ msgstr ""
+
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "리포지토리 {repoName} 을/를 찾을 수 없음."
@@ -6328,6 +6377,10 @@ msgstr "리포지토리 버전을 표시할 수 없습니다."
 msgid "Repository versions will appear once the repository is modified."
 msgstr "리포지토리가 수정되면 리포지토리 버전이 표시됩니다."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "Repository: {name}"
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "required"
 #~ msgstr ""
@@ -6396,6 +6449,7 @@ msgstr "재시도 횟수"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
@@ -7235,6 +7289,7 @@ msgstr "상태"
 #~ msgstr "상태:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Still being removed"
 msgstr "아직 제거 중"
 
@@ -7525,6 +7580,7 @@ msgstr "이미지 태그 지정"
 #~ msgstr "태그를 표시할 수 없습니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "task"
 msgstr "작업"
 
@@ -7552,7 +7608,7 @@ msgstr "작업을 표시할 수 없습니다."
 msgid "Task detail"
 msgstr "작업 세부 정보"
 
-#: src/framework/form/create-flow.ts
+#: src/framework/task-end.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "오류 메시지 없이 작업이 실패했습니다."
@@ -7707,6 +7763,7 @@ msgid "The configuration could not be copied to the clipboard."
 msgstr "구성을 클립보드에 복사할 수 없습니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "예기치 않은 오류로 삭제가 중단되었습니다. 일부 배포 또는 리포지토리가 이미 제거되었을 수 있으니 다시 시도하기 전에 목록을 확인하세요."
 
@@ -7716,14 +7773,17 @@ msgid "The distribution will have no content guard: anyone who can reach this se
 msgstr "이 배포에는 콘텐츠 가드가 없습니다. 이 서버에 접근할 수 있는 사람은 누구나 로그인하지 않고도 이 리포지토리의 콘텐츠를 다운로드할 수 있습니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
 msgstr "이 리포지토리의 배포 목록을 가져올 수 없어 아무것도 삭제할 수 없습니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "이 리포지토리의 배포 목록을 가져올 수 없어 아무것도 삭제되지 않았습니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The distributions were removed but the repository was kept."
 msgstr "배포는 제거되었지만 리포지토리는 유지되었습니다."
 
@@ -7753,6 +7813,10 @@ msgstr "다음 역할이 다음 그룹에 적용됩니다: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "다음 역할이 사용자 <0>{0}</0>에게 적용됩니다"
 
+#: src/framework/labels/label-editor.tsx
+msgid "The label could not be changed."
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "The label filter was not accepted."
 msgstr ""
@@ -7774,6 +7838,7 @@ msgid "The outcome of removing remote {name} is unknown, because the task status
 msgstr "작업 상태를 읽을 수 없어 원격 {name} 제거 결과를 알 수 없습니다. 작업을 확인하십시오."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "리포지토리 제거 결과를 알 수 없습니다. 작업을 확인하세요:"
 
@@ -7811,6 +7876,7 @@ msgid "The removal of remote {name} is still running."
 msgstr "원격 {name} 제거가 아직 진행 중입니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The removal of the repository has not been confirmed."
 msgstr "리포지토리 제거가 확인되지 않았습니다."
 
@@ -7820,6 +7886,7 @@ msgstr "리포지토리 콘텐츠를 읽을 수 없습니다"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "리포지토리를 제거할 수 없습니다: {0}"
 
@@ -7828,14 +7895,17 @@ msgid "The repository gets a new latest version with the content of that version
 msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository is still being removed:"
 msgstr "리포지토리를 아직 제거하는 중입니다:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
 msgstr "일부 배포가 제거되지 않아 리포지토리는 유지되었습니다."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was not removed."
 msgstr "리포지토리가 제거되지 않았습니다."
 
@@ -7895,6 +7965,10 @@ msgstr "서버에 연결할 수 없습니다: {message}"
 #: src/app-routes.tsx
 msgid "The session could not be checked"
 msgstr "세션을 확인할 수 없습니다"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "The session ended before the delete was finished."
+msgstr ""
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -8015,6 +8089,7 @@ msgid "There's no resource record"
 msgstr "리소스 레코드가 없습니다"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "이 배포들은 리포지토리를 제공합니다. 리포지토리와 함께 삭제되며 해당 URL은 더 이상 작동하지 않습니다:"
 
@@ -8699,6 +8774,7 @@ msgstr "사용자가 생성되면 나타납니다"
 #~ msgstr "검증됨"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Value"
 msgstr ""
 

@@ -82,6 +82,7 @@ describe('Unit: the file distribution entity', { tags: ['unit'] }, () => {
       'repository',
       'publication',
       'repository_version',
+      'content_guard',
       'pulp_labels',
       'pulp_created',
     ]);

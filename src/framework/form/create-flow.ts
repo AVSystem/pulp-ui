@@ -1,8 +1,6 @@
 import { t } from '@lingui/core/macro';
 import type { AlertType } from 'src/components';
 import { DistributionClient } from 'src/entities/core/distribution/client';
-import { TaskClient } from 'src/entities/core/task/client';
-import { isFinalState } from 'src/entities/core/task/model';
 import type { DistributionCreate } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import type { RepositoryCreate } from 'src/entities/plugin/repository';
@@ -15,6 +13,7 @@ import {
   requestErrorText,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
+import { TASK_POLL_MS, readTaskToEnd } from '../task-end';
 
 // Creates a repository and, only when asked, a distribution named after it, on
 // the entities of the plugin. The name and the base path are checked against
@@ -80,9 +79,6 @@ interface Params {
   pollMs?: number;
 }
 
-// How often a task that has not finished is read again.
-const POLL_MS = 2000;
-
 // One readable sentence for a failed request or task: the refusal in its
 // three parts, the server's field and general messages joined, or the status
 // line.
@@ -112,64 +108,25 @@ export function failureReason(error: unknown): string {
   return requestErrorText(error);
 }
 
-const pause = (ms: number, signal?: AbortSignal) =>
-  new Promise<void>((resolve) => {
-    if (signal?.aborted) {
-      resolve();
-      return;
-    }
-    const done = () => {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', done);
-      resolve();
-    };
-    const timer = setTimeout(done, ms);
-    signal?.addEventListener('abort', done);
-  });
-
-// Reads the task until it has finished. It stops only on a final state, a
-// refusal, a task that is not there, a first read that failed, the end of the
-// session or the signal: there is no limit on how long a task may take. A
-// later read that fails for another reason is tried again.
+// What became of the distribution's task, in the terms of the outcome.
 async function outcomeOfTask(
   task: string,
   signal: AbortSignal | undefined,
   pollMs: number,
 ): Promise<DistributionOutcome> {
-  let read = false;
+  const end = await readTaskToEnd(task, { signal, pollMs });
 
-  for (;;) {
-    if (signal?.aborted) {
+  switch (end.state) {
+    case 'completed':
+      return { state: 'created' };
+    case 'failed':
+      return { state: 'failed', reason: end.reason };
+    case 'pending':
       return { state: 'pending', task };
-    }
-    try {
-      const found = await TaskClient.retrieve(task, { signal });
-      read = true;
-      if (isFinalState(found.state)) {
-        const description = found.error?.['description'];
-        return found.state === 'completed'
-          ? { state: 'created' }
-          : {
-              state: 'failed',
-              reason:
-                typeof description === 'string' && description
-                  ? description
-                  : t`Task failed without error message.`,
-            };
-      }
-    } catch (error) {
-      if (isSessionEnd(error)) {
-        return { state: 'unconfirmed' };
-      }
-      if (signal?.aborted) {
-        return { state: 'pending', task };
-      }
-      const status = requestErrorStatus(error);
-      if (!read || status === 403 || status === 404) {
-        return { state: 'unknown', task };
-      }
-    }
-    await pause(pollMs, signal);
+    case 'unknown':
+      return { state: 'unknown', task };
+    default:
+      return { state: 'unconfirmed' };
   }
 }
 
@@ -220,7 +177,7 @@ export async function createRepositoryWithDistribution({
   body,
   distribution = null,
   signal,
-  pollMs = POLL_MS,
+  pollMs = TASK_POLL_MS,
 }: Params): Promise<CreateOutcome> {
   if (distribution && !distributions) {
     throw new Error('The plugin has no distributions to create');

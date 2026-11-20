@@ -6,9 +6,10 @@ import { DistributionURL } from 'src/components/distribution-url';
 import { useRepositoryDistributions } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import type { PluginDescriptor } from '../descriptor';
-import { LabelChips } from '../labels/label-chips';
+import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
 import { RemoteReference } from './remote-reference';
+import { useRepositoryPermission } from './use-repository-permission';
 
 interface Props {
   plugin: FrameworkPlugin;
@@ -92,36 +93,49 @@ const ServedAt = ({
 };
 
 // The Details tab of a repository: the rows every repository has, with the
-// rows the plugin adds after the description.
-export const DetailsTab = ({ plugin, descriptor, repository }: Props) => (
-  <Details
-    fields={[
-      { label: t`Repository name`, value: repository.name },
-      { label: t`Description`, value: repository.description || t`None` },
-      ...(descriptor.repository.detailRows ?? []).map(({ label, render }) => ({
-        label: i18n._(label),
-        value: render(repository),
-      })),
-      {
-        label: t`Repository URL`,
-        value: (
-          <RepositoryUrls descriptor={descriptor} repository={repository} />
+// rows the plugin adds after the description. The labels can be edited by a user
+// who may change the repository.
+export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
+  const mayChange = useRepositoryPermission(plugin, repository, 'change');
+
+  return (
+    <Details
+      fields={[
+        { label: t`Repository name`, value: repository.name },
+        { label: t`Description`, value: repository.description || t`None` },
+        ...(descriptor.repository.detailRows ?? []).map(
+          ({ label, render }) => ({
+            label: i18n._(label),
+            value: render(repository),
+          }),
         ),
-      },
-      {
-        label: t`Labels`,
-        value: <LabelChips labels={repository.pulp_labels} />,
-      },
-      {
-        label: t`Remote`,
-        value: (
-          <RemoteReference
-            plugin={plugin}
-            href={repository.remote}
-            remote={descriptor.remote?.entity}
-          />
-        ),
-      },
-    ]}
-  />
-);
+        {
+          label: t`Repository URL`,
+          value: (
+            <RepositoryUrls descriptor={descriptor} repository={repository} />
+          ),
+        },
+        {
+          label: t`Labels`,
+          value: (
+            <LabelEditor
+              object={repository}
+              entity={descriptor.repository.entity}
+              canEdit={mayChange}
+            />
+          ),
+        },
+        {
+          label: t`Remote`,
+          value: (
+            <RemoteReference
+              plugin={plugin}
+              href={repository.remote}
+              remote={descriptor.remote?.entity}
+            />
+          ),
+        },
+      ]}
+    />
+  );
+};

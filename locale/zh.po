@@ -516,6 +516,7 @@ msgstr "添加集合"
 #~ msgstr "Add group"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Add label"
 msgstr ""
 
@@ -866,6 +867,7 @@ msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2>
 msgstr "您确定要删除远程 <0>{name}</0> <1/>？<2>注意：</2>这也会删除这个远程下的所有相关资源。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
 msgstr "您确定要删除仓库 <0>{name}</0> 吗？"
 
@@ -2104,6 +2106,8 @@ msgstr "Debian 原样发布"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Delete"
 msgstr "删除"
 
@@ -2208,6 +2212,7 @@ msgid "Delete repository version"
 msgstr "删除仓库版本"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Delete repository?"
 msgstr "删除仓库？"
 
@@ -2522,6 +2527,7 @@ msgid "Domain enabled"
 msgstr "已启用域"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "完成"
 
@@ -2691,6 +2697,10 @@ msgstr "编辑分发"
 #: src/components/remote-form.tsx
 msgid "Edit in YAML editor"
 msgstr "在 YAML 编辑器中编辑"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Edit labels"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3647,6 +3657,7 @@ msgstr "组在创建后会出现"
 #~ msgstr "Groups with access"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Guard: {guardName}"
 msgstr "内容保护：{guardName}"
 
@@ -3954,6 +3965,10 @@ msgstr "问题跟踪器"
 #~ msgid "It does not make sense to include and exclude tags at the same time."
 #~ msgstr "It does not make sense to include and exclude tags at the same time."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "It is not known whether the repository was removed."
+msgstr ""
+
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
 #~ msgstr "It's safe to close this window. These tasks will finish in the"
@@ -3979,6 +3994,7 @@ msgstr "JSON"
 #~ msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -4005,11 +4021,13 @@ msgid "Label expression"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -4199,6 +4217,7 @@ msgid "Loading distribution..."
 msgstr "正在加载分发..."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "正在加载分发"
 
@@ -4581,6 +4600,7 @@ msgid "No distribution serves this repository"
 msgstr "没有分发提供此仓库"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "No distribution serves this repository. Only the repository is deleted."
 msgstr "没有分发提供此仓库。仅删除该仓库。"
 
@@ -4838,6 +4858,7 @@ msgstr "还没有用户"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
 msgid "None"
@@ -4857,6 +4878,10 @@ msgstr "不允许"
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
+msgstr ""
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not confirmed"
 msgstr ""
 
 #: src/containers/pulp-status.tsx
@@ -4880,10 +4905,12 @@ msgid "Not loaded"
 msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed"
 msgstr "未删除"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed, not shown when this dialog opened"
 msgstr "未删除，此对话框打开时未显示"
 
@@ -4894,6 +4921,10 @@ msgstr "未报告"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "其他集合不需要使用"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not sent"
+msgstr ""
 
 #: src/framework/list/derived-columns.tsx
 msgid "Not served"
@@ -5087,6 +5118,7 @@ msgid "Ostree sync"
 msgstr "Ostree 同步"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Outcome unknown, check the task"
 msgstr "结果未知，请检查任务"
 
@@ -5394,6 +5426,7 @@ msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Le
 msgstr "要同步的项目，每行一个规范，例如 \"django>=4.2\"。留空则同步远程提供的所有项目。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Protected by a content guard: customer-facing URL"
 msgstr "受内容保护：面向客户的 URL"
 
@@ -6044,6 +6077,10 @@ msgstr "删除组 {groupname}？"
 msgid "Remove label"
 msgstr ""
 
+#: src/framework/labels/label-editor.tsx
+msgid "Remove label {name}"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
 msgstr ""
@@ -6074,15 +6111,18 @@ msgstr "从组中删除用户？"
 #~ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed"
 msgstr "已删除"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed distributions: {0}"
 msgstr "已删除的分发：{0}"
 
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed repository {name}"
 msgstr "已删除仓库 {name}"
 
@@ -6234,6 +6274,15 @@ msgstr "已创建仓库 \"{name}\"。由于无法读取任务状态，创建分�
 msgid "Repository \"{repositoryName}\" could not be updated"
 msgstr ""
 
+#. placeholder {0}: keptTitle(result)
+#: src/framework/delete/delete-outcome.tsx
+#~ msgid "Repository {name}: {0}"
+#~ msgstr ""
+
+#: src/framework/delete/delete-repository-dialog.tsx
+#~ msgid "Repository {name}: the delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+#~ msgstr ""
+
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "未找到仓库 {repoName}。"
@@ -6328,6 +6377,10 @@ msgstr "无法显示仓库版本。"
 msgid "Repository versions will appear once the repository is modified."
 msgstr "修改仓库后会出现仓库版本。"
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "Repository: {name}"
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "required"
 #~ msgstr ""
@@ -6396,6 +6449,7 @@ msgstr "重试次数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
@@ -7235,6 +7289,7 @@ msgstr "状态"
 #~ msgstr "状态："
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Still being removed"
 msgstr "仍在删除中"
 
@@ -7525,6 +7580,7 @@ msgstr "标记镜像"
 #~ msgstr "无法显示标签。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "task"
 msgstr "任务"
 
@@ -7552,7 +7608,7 @@ msgstr "任务无法显示。"
 msgid "Task detail"
 msgstr "任务详情"
 
-#: src/framework/form/create-flow.ts
+#: src/framework/task-end.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "任务失败，没有错误消息。"
@@ -7707,6 +7763,7 @@ msgid "The configuration could not be copied to the clipboard."
 msgstr "配置无法复制到剪贴板。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "删除因意外错误而停止。部分分发或仓库可能已被删除：请先检查列表，再重试。"
 
@@ -7716,14 +7773,17 @@ msgid "The distribution will have no content guard: anyone who can reach this se
 msgstr "此分发将没有内容保护：任何可以访问此服务器的人都可以在不登录的情况下下载此仓库的内容。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
 msgstr "无法列出此仓库的分发，因此无法删除任何内容。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "无法列出此仓库的分发，因此未删除任何内容。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The distributions were removed but the repository was kept."
 msgstr "分发已删除，但仓库已保留。"
 
@@ -7753,6 +7813,10 @@ msgstr "以下角色将应用到组：<0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "以下角色将应用于用户：<0>{0}</0>"
 
+#: src/framework/labels/label-editor.tsx
+msgid "The label could not be changed."
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "The label filter was not accepted."
 msgstr ""
@@ -7774,6 +7838,7 @@ msgid "The outcome of removing remote {name} is unknown, because the task status
 msgstr "由于无法读取任务状态，删除远程 {name} 的结果未知。请检查该任务。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "删除仓库的结果未知。请检查任务："
 
@@ -7811,6 +7876,7 @@ msgid "The removal of remote {name} is still running."
 msgstr "删除远程 {name} 仍在运行。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The removal of the repository has not been confirmed."
 msgstr "尚未确认仓库的删除。"
 
@@ -7820,6 +7886,7 @@ msgstr "无法读取仓库内容"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "无法删除仓库：{0}"
 
@@ -7828,14 +7895,17 @@ msgid "The repository gets a new latest version with the content of that version
 msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository is still being removed:"
 msgstr "仓库仍在删除中："
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
 msgstr "由于并非每个分发都已删除，仓库已保留。"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was not removed."
 msgstr "仓库未被删除。"
 
@@ -7895,6 +7965,10 @@ msgstr "无法连接到服务器：{message}"
 #: src/app-routes.tsx
 msgid "The session could not be checked"
 msgstr "无法检查会话"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "The session ended before the delete was finished."
+msgstr ""
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -8015,6 +8089,7 @@ msgid "There's no resource record"
 msgstr "没有资源记录"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "这些分发提供此仓库。它们会随仓库一起删除，其 URL 将停止工作："
 
@@ -8699,6 +8774,7 @@ msgstr "用户创建后将会出现"
 #~ msgstr "验证的"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Value"
 msgstr ""
 

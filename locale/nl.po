@@ -516,6 +516,7 @@ msgstr "Collectie toevoegen"
 #~ msgstr "Add group"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Add label"
 msgstr ""
 
@@ -866,6 +867,7 @@ msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2>
 msgstr "Weet u zeker dat u de remote <0>{name}</0> wilt verwijderen?<1/><2>Opmerking:</2> hiermee worden ook alle gekoppelde bronnen onder deze remote verwijderd."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Are you sure you want to delete the repository <0>{name}</0>?"
 msgstr "Weet u zeker dat u de repository <0>{name}</0> wilt verwijderen?"
 
@@ -2104,6 +2106,8 @@ msgstr "Debian verbatim publiceren"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -2208,6 +2212,7 @@ msgid "Delete repository version"
 msgstr "Repositoryversie verwijderen"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Delete repository?"
 msgstr "Repository verwijderen?"
 
@@ -2522,6 +2527,7 @@ msgid "Domain enabled"
 msgstr "Domein ingeschakeld"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "Gereed"
 
@@ -2691,6 +2697,10 @@ msgstr "Distributie bewerken"
 #: src/components/remote-form.tsx
 msgid "Edit in YAML editor"
 msgstr "Bewerken in YAML-editor"
+
+#: src/framework/labels/label-editor.tsx
+msgid "Edit labels"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3647,6 +3657,7 @@ msgstr "Groepen zullen verschijnen zodra ze zijn aangemaakt"
 #~ msgstr "Groups with access"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Guard: {guardName}"
 msgstr "Contentguard: {guardName}"
 
@@ -3954,6 +3965,10 @@ msgstr "Probleem tracker"
 #~ msgid "It does not make sense to include and exclude tags at the same time."
 #~ msgstr "It does not make sense to include and exclude tags at the same time."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "It is not known whether the repository was removed."
+msgstr ""
+
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
 #~ msgstr "It's safe to close this window. These tasks will finish in the"
@@ -3979,6 +3994,7 @@ msgstr "JSON"
 #~ msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
 msgstr ""
@@ -4005,11 +4021,13 @@ msgid "Label expression"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
 msgstr ""
@@ -4199,6 +4217,7 @@ msgid "Loading distribution..."
 msgstr "Distributie laden..."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "Distributies laden"
 
@@ -4581,6 +4600,7 @@ msgid "No distribution serves this repository"
 msgstr "Geen distributie biedt deze repository aan"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "No distribution serves this repository. Only the repository is deleted."
 msgstr "Geen distributie biedt deze repository aan. Alleen de repository wordt verwijderd."
 
@@ -4838,6 +4858,7 @@ msgstr "Nog geen gebruikers"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
+#: src/framework/labels/label-editor.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
 msgid "None"
@@ -4857,6 +4878,10 @@ msgstr "Niet toegestaan"
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
+msgstr ""
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not confirmed"
 msgstr ""
 
 #: src/containers/pulp-status.tsx
@@ -4880,10 +4905,12 @@ msgid "Not loaded"
 msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed"
 msgstr "Niet verwijderd"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Not removed, not shown when this dialog opened"
 msgstr "Niet verwijderd, niet getoond toen dit venster werd geopend"
 
@@ -4894,6 +4921,10 @@ msgstr "Niet gerapporteerd"
 #: src/components/collection-usedby-dependencies-list.tsx
 #~ msgid "Not required for use by other collections"
 #~ msgstr "Niet vereist voor gebruik door andere collecties"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "Not sent"
+msgstr ""
 
 #: src/framework/list/derived-columns.tsx
 msgid "Not served"
@@ -5087,6 +5118,7 @@ msgid "Ostree sync"
 msgstr "Ostree synchroniseren"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Outcome unknown, check the task"
 msgstr "Resultaat onbekend, controleer de taak"
 
@@ -5394,6 +5426,7 @@ msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Le
 msgstr "Te synchroniseren projecten, één specificatie per regel, bijvoorbeeld \"django>=4.2\". Laat leeg om elk project te synchroniseren dat de remote aanbiedt."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "Protected by a content guard: customer-facing URL"
 msgstr "Beveiligd met een contentguard: URL voor klanten"
 
@@ -6044,6 +6077,10 @@ msgstr "Groep {groupname} verwijderen?"
 msgid "Remove label"
 msgstr ""
 
+#: src/framework/labels/label-editor.tsx
+msgid "Remove label {name}"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
 msgstr ""
@@ -6074,15 +6111,18 @@ msgstr "Gebruiker uit groep verwijderen?"
 #~ msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed"
 msgstr "Verwijderd"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed distributions: {0}"
 msgstr "Verwijderde distributies: {0}"
 
 #: src/actions/repository-delete.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Removed repository {name}"
 msgstr "Repository {name} verwijderd"
 
@@ -6234,6 +6274,15 @@ msgstr "Repository \"{name}\" is aangemaakt. Het resultaat van het aanmaken van 
 msgid "Repository \"{repositoryName}\" could not be updated"
 msgstr ""
 
+#. placeholder {0}: keptTitle(result)
+#: src/framework/delete/delete-outcome.tsx
+#~ msgid "Repository {name}: {0}"
+#~ msgstr ""
+
+#: src/framework/delete/delete-repository-dialog.tsx
+#~ msgid "Repository {name}: the delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+#~ msgstr ""
+
 #: src/utilities/repository-remove-collection.ts
 #~ msgid "Repository {repoName} not found."
 #~ msgstr "Repository {repoName} niet gevonden."
@@ -6328,6 +6377,10 @@ msgstr "Repository-versies kunnen niet worden weergegeven."
 msgid "Repository versions will appear once the repository is modified."
 msgstr "Repository-versies verschijnen zodra de repository is gewijzigd."
 
+#: src/framework/delete/delete-outcome.tsx
+msgid "Repository: {name}"
+msgstr ""
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "required"
 #~ msgstr ""
@@ -6396,6 +6449,7 @@ msgstr "Nieuwe pogingen"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
@@ -7235,6 +7289,7 @@ msgstr "Status"
 #~ msgstr "Status:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "Still being removed"
 msgstr "Wordt nog verwijderd"
 
@@ -7525,6 +7580,7 @@ msgstr "Image taggen"
 #~ msgstr "Tags konden niet worden weergegeven."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "task"
 msgstr "taak"
 
@@ -7552,7 +7608,7 @@ msgstr "Taak kan niet worden weergegeven."
 msgid "Task detail"
 msgstr "Taakdetail"
 
-#: src/framework/form/create-flow.ts
+#: src/framework/task-end.ts
 #: src/utilities/wait-for-task.ts
 msgid "Task failed without error message."
 msgstr "Taak mislukt zonder foutbericht."
@@ -7707,6 +7763,7 @@ msgid "The configuration could not be copied to the clipboard."
 msgstr "De configuratie kan niet naar het klembord worden gekopieerd."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "Het verwijderen is gestopt door een onverwachte fout. Mogelijk zijn sommige distributies of de repository al verwijderd: controleer de lijsten voordat u het opnieuw probeert."
 
@@ -7716,14 +7773,17 @@ msgid "The distribution will have no content guard: anyone who can reach this se
 msgstr "De distributie krijgt geen contentguard: iedereen die deze server kan bereiken, kan de inhoud van deze repository downloaden zonder in te loggen."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
 msgstr "De distributies van deze repository konden niet worden opgehaald, dus er kan niets worden verwijderd."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "De distributies van deze repository konden niet worden opgehaald, dus er is niets verwijderd."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The distributions were removed but the repository was kept."
 msgstr "De distributies zijn verwijderd, maar de repository is behouden."
 
@@ -7753,6 +7813,10 @@ msgstr "De volgende rollen worden toegepast op de groep: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "De volgende rollen worden toegepast op gebruiker: <0>{0}</0>"
 
+#: src/framework/labels/label-editor.tsx
+msgid "The label could not be changed."
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "The label filter was not accepted."
 msgstr ""
@@ -7774,6 +7838,7 @@ msgid "The outcome of removing remote {name} is unknown, because the task status
 msgstr "Het resultaat van het verwijderen van remote {name} is onbekend, omdat de taakstatus niet kon worden gelezen. Controleer de taak."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The outcome of removing the repository is unknown. Check the task:"
 msgstr "Het resultaat van het verwijderen van de repository is onbekend. Controleer de taak:"
 
@@ -7811,6 +7876,7 @@ msgid "The removal of remote {name} is still running."
 msgstr "Het verwijderen van remote {name} is nog bezig."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The removal of the repository has not been confirmed."
 msgstr "Het verwijderen van de repository is niet bevestigd."
 
@@ -7820,6 +7886,7 @@ msgstr "De inhoud van de repository kan niet worden gelezen"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "De repository kon niet worden verwijderd: {0}"
 
@@ -7828,14 +7895,17 @@ msgid "The repository gets a new latest version with the content of that version
 msgstr ""
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository is still being removed:"
 msgstr "De repository wordt nog verwijderd:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
 msgstr "De repository is behouden omdat niet elke distributie is verwijderd."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-outcome.tsx
 msgid "The repository was not removed."
 msgstr "De repository is niet verwijderd."
 
@@ -7895,6 +7965,10 @@ msgstr "De server kon niet worden bereikt: {message}"
 #: src/app-routes.tsx
 msgid "The session could not be checked"
 msgstr "De sessie kan niet worden gecontroleerd"
+
+#: src/framework/delete/delete-outcome.tsx
+msgid "The session ended before the delete was finished."
+msgstr ""
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -8015,6 +8089,7 @@ msgid "There's no resource record"
 msgstr "Er is geen bronvermelding"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/delete/delete-repository-dialog.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "Deze distributies bieden de repository aan. Ze worden er samen mee verwijderd en hun URL's werken niet meer:"
 
@@ -8699,6 +8774,7 @@ msgstr "Gebruikers verschijnen zodra ze zijn aangemaakt"
 #~ msgstr "Gevalideerd"
 
 #: src/framework/form/labels-field.tsx
+#: src/framework/labels/label-editor.tsx
 msgid "Value"
 msgstr ""
 

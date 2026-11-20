@@ -752,6 +752,7 @@ describe(
   () => {
     const ADD = 'file.add_filerepository';
     const CHANGE = 'file.change_filerepository';
+    const DELETE = 'file.delete_filerepository';
     const SYNC = 'file.sync_filerepository';
     const OWNER = 'file.filerepository_owner';
 
@@ -818,6 +819,7 @@ describe(
     it('shows no Add repository to a user who does not hold the add permission', async () => {
       holding(CHANGE);
       serveLab({ repositories: named(2) });
+      serveRolesOnObjects([]);
 
       renderList();
       await tableOf();
@@ -827,8 +829,8 @@ describe(
       ).toBeNull();
     });
 
-    it('offers Edit on every row to a user who holds the change permission, without reading the roles on single objects', async () => {
-      holding(CHANGE);
+    it('offers Edit on every row to a user who holds the change and delete permissions, without reading the roles on single objects', async () => {
+      holding(CHANGE, DELETE);
       const repositories = named(3) as IRepository[];
       serveLab({ repositories });
       const requests = recordRequests();
