@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { type ReactNode, createElement } from 'react';
@@ -13,7 +13,7 @@ import {
   pluginRemote,
   pluginRepository,
 } from 'src/test-utils/pulp';
-import { QueryWrapper, createTestQueryClient } from 'src/test-utils/query';
+import { createTestQueryClient } from 'src/test-utils/query';
 import { server } from 'src/test-utils/server';
 import {
   entityKeys,
@@ -32,8 +32,9 @@ const REMOTES = '/pulp/api/v3/remotes/file/file/';
 const TASK = '/pulp/api/v3/tasks/00000000-0000-4000-8000-00000000f002/';
 
 function wrapperFor(client: QueryClient) {
-  return ({ children }: { children: ReactNode }) =>
-    createElement(QueryWrapper, { client, children });
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return createElement(QueryClientProvider, { client }, children);
+  };
 }
 
 // A client with the retry defaults of the application's mutations turned up,
