@@ -143,7 +143,7 @@ describe(
     });
 
     it('sends one request however often Confirm is pressed while the request is pending', async () => {
-      let release: () => void = () => {};
+      let release: () => void = () => undefined;
       const gate = new Promise<void>((resolve) => {
         release = resolve;
       });

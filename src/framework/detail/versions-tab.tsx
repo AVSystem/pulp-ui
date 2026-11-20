@@ -1,16 +1,24 @@
 import { msg, t } from '@lingui/core/macro';
+import { DropdownItem } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
+  type AlertType,
   DateComponent,
   EmptyStateNoData,
   ListErrorState,
+  ListItemActions,
   LoadingSpinner,
   PulpPagination,
   SortTable,
   Table,
 } from 'src/components';
-import type { RepositoryBase } from 'src/entities/plugin/model';
+import { RowActionsColumn } from 'src/components/list-item-actions';
+import type {
+  RepositoryBase,
+  RepositoryVersion,
+} from 'src/entities/plugin/model';
 import { useRepositoryVersions } from 'src/entities/plugin/queries';
 import {
   isSessionEnd,
@@ -20,6 +28,8 @@ import type { PluginDescriptor, TabDef } from '../descriptor';
 import { PAGE_SIZES } from '../list/list-params';
 import type { FrameworkPlugin } from '../manifest';
 import { versionPath } from '../route-patterns';
+import { RevertVersionDialog } from './revert-version';
+import { useRepositoryPermission } from './use-repository-permission';
 import { VersionDetail } from './version-detail';
 
 // What the address of the list says: the page, its size and the order. The
@@ -72,21 +82,25 @@ interface Props {
   repository: RepositoryBase;
   // The number the address names, null on the list.
   version: number | null;
+  addAlert: (alert: AlertType) => void;
 }
 
 // A repository's versions: the list, newest first, and one version when the
-// address names one.
+// address names one. Reverting the repository to a version is offered on a row
+// to a user who may change the repository's content.
 export const VersionsTab = ({
   plugin,
   descriptor,
   repository,
   version,
+  addAlert,
 }: Props) =>
   version === null ? (
     <VersionList
       plugin={plugin}
       descriptor={descriptor}
       repository={repository}
+      addAlert={addAlert}
     />
   ) : (
     <VersionDetail
@@ -101,12 +115,16 @@ const VersionList = ({
   plugin,
   descriptor,
   repository,
+  addAlert,
 }: Omit<Props, 'version'>) => {
   const { entity } = descriptor.repository;
   const { search } = useLocation();
   const navigate = useNavigate();
   const params = paramsOfSearch(search);
   const query = useRepositoryVersions(entity, repository.pulp_href, params);
+  const [revertTo, setRevertTo] = useState<RepositoryVersion | null>(null);
+  const mayRevert =
+    useRepositoryPermission(plugin, repository, 'modify') && !!entity.modify;
 
   const updateParams = (next: VersionParams) =>
     navigate({ search: searchOfParams(next) });
@@ -137,6 +155,7 @@ const VersionList = ({
   const headers = [
     { id: 'number', title: t`Version number`, type: 'numeric' },
     { id: 'pulp_created', title: t`Created date`, type: 'numeric' },
+    ...(mayRevert ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
 
   return (
@@ -156,25 +175,51 @@ const VersionList = ({
           params={params}
           updateParams={updateParams}
         />
-        <Tbody>
-          {data.results.map((row) => {
-            const isLatest = row.pulp_href === repository.latest_version_href;
+        <RowActionsColumn.Provider value={mayRevert}>
+          <Tbody>
+            {data.results.map((row) => {
+              const isLatest = row.pulp_href === repository.latest_version_href;
 
-            return (
-              <Tr key={row.pulp_href}>
-                <Td>
-                  <Link to={versionPath(plugin, repository.name, row.number)}>
-                    {row.number}
-                  </Link>
-                  {isLatest ? ` ${t`(latest)`}` : null}
-                </Td>
-                <Td>
-                  <DateComponent date={row.pulp_created ?? ''} />
-                </Td>
-              </Tr>
-            );
-          })}
-        </Tbody>
+              return (
+                <Tr key={row.pulp_href}>
+                  <Td>
+                    <Link to={versionPath(plugin, repository.name, row.number)}>
+                      {row.number}
+                    </Link>
+                    {isLatest ? ` ${t`(latest)`}` : null}
+                  </Td>
+                  <Td>
+                    <DateComponent date={row.pulp_created ?? ''} />
+                  </Td>
+                  <ListItemActions
+                    kebabItems={
+                      mayRevert
+                        ? [
+                            isLatest ? (
+                              <DropdownItem
+                                key='revert'
+                                isAriaDisabled
+                                description={t`Already the current version`}
+                              >
+                                {t`Revert to this version`}
+                              </DropdownItem>
+                            ) : (
+                              <DropdownItem
+                                key='revert'
+                                onClick={() => setRevertTo(row)}
+                              >
+                                {t`Revert to this version`}
+                              </DropdownItem>
+                            ),
+                          ]
+                        : []
+                    }
+                  />
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </RowActionsColumn.Provider>
       </Table>
       <PulpPagination
         params={params}
@@ -182,6 +227,15 @@ const VersionList = ({
         count={data.count}
         perPageOptions={PAGE_SIZES}
       />
+      {revertTo ? (
+        <RevertVersionDialog
+          repository={repository}
+          version={revertTo}
+          entity={entity}
+          addAlert={addAlert}
+          onClose={() => setRevertTo(null)}
+        />
+      ) : null}
     </>
   );
 };
@@ -190,12 +244,13 @@ const VersionList = ({
 export const versionsTab = <Row extends RepositoryBase>(): TabDef<Row> => ({
   id: 'versions',
   label: msg`Versions`,
-  render: ({ repository, version, plugin, descriptor }) => (
+  render: ({ repository, version, plugin, descriptor, addAlert }) => (
     <VersionsTab
       plugin={plugin}
       descriptor={descriptor}
       repository={repository}
       version={version}
+      addAlert={addAlert}
     />
   ),
 });

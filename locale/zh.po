@@ -681,6 +681,7 @@ msgid "Allowed"
 msgstr "允许"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Already the current version"
 msgstr "已经是当前版本"
 
@@ -1039,6 +1040,7 @@ msgstr "CA 证书"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Cancel"
 msgstr "取消"
 
@@ -3191,6 +3193,7 @@ msgstr "删除远程 {name} 失败"
 #~ msgstr "获取用户数据失败。"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "将软件仓库 \"{repositoryName}\" 恢复到版本 \"{number}\" 失败"
 
@@ -6293,18 +6296,26 @@ msgstr "重试仓库搜索"
 #~ msgstr ""
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert"
 msgstr "恢复"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
 msgstr "恢复软件仓库"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert repository \"{repositoryName}\" to version {number}?"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert started for repository \"{repositoryName}\"."
 msgstr "为仓库 \"{repositoryName}\" 恢复已启动。"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Revert to this version"
 msgstr "恢复到这个版本"
 
@@ -7665,6 +7676,10 @@ msgstr "无法读取仓库内容"
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "无法删除仓库：{0}"
+
+#: src/framework/detail/revert-version.tsx
+msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"

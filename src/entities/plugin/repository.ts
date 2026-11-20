@@ -193,6 +193,11 @@ function toVersionParams(params: VersionListParams): Record<string, unknown> {
   return request;
 }
 
+// What a revert sends: the version whose content the new latest version takes.
+export interface RevertBody {
+  base_version: string;
+}
+
 export type { UpdateResult };
 
 export function makeRepositoryEntity<
@@ -202,7 +207,7 @@ export function makeRepositoryEntity<
   TUpdate,
   TVersionParams,
   TSync = never,
-  TModify = never,
+  TModify = RevertBody,
 >({
   app,
   schema,

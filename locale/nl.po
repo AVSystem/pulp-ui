@@ -681,6 +681,7 @@ msgid "Allowed"
 msgstr "Toegestaan"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Already the current version"
 msgstr "Al de huidige versie"
 
@@ -1039,6 +1040,7 @@ msgstr "CA-certificaat"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -3191,6 +3193,7 @@ msgstr "Kan remote {name} niet verwijderen"
 #~ msgstr "Kan gebruikersgegevens niet ophalen."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "Kan repository \"{repositoryName}\" niet omzetten naar versie \"{number}\""
 
@@ -6293,18 +6296,26 @@ msgstr "Zoeken in repository's opnieuw proberen"
 #~ msgstr ""
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert"
 msgstr "Terugzetten"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
 msgstr "Repository terugzetten"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert repository \"{repositoryName}\" to version {number}?"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert started for repository \"{repositoryName}\"."
 msgstr "Terugzetten gestart voor repository \"{repositoryName}\"."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Revert to this version"
 msgstr "Terugzetten naar deze versie"
 
@@ -7665,6 +7676,10 @@ msgstr "De inhoud van de repository kan niet worden gelezen"
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "De repository kon niet worden verwijderd: {0}"
+
+#: src/framework/detail/revert-version.tsx
+msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"

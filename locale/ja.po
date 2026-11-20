@@ -681,6 +681,7 @@ msgid "Allowed"
 msgstr "許可"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Already the current version"
 msgstr "すでに現行バージョン"
 
@@ -1039,6 +1040,7 @@ msgstr "CA 証明書"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -3191,6 +3193,7 @@ msgstr "リモート {name} の削除に失敗しました"
 #~ msgstr "ユーザーデータの取得に失敗しました。"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "リポジトリー \"{repositoryName}\" をバージョン \"{number}\" へ戻せませんでした"
 
@@ -6293,18 +6296,26 @@ msgstr "リポジトリー検索を再試行"
 #~ msgstr ""
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert"
 msgstr "戻す"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
 msgstr "リポジトリーを元に戻す"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert repository \"{repositoryName}\" to version {number}?"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert started for repository \"{repositoryName}\"."
 msgstr "リポジトリー \"{repositoryName}\" の復元を開始しました。"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Revert to this version"
 msgstr "このバージョンに戻す"
 
@@ -7665,6 +7676,10 @@ msgstr "リポジトリーのコンテンツを読み取れませんでした"
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "リポジトリーを削除できませんでした: {0}"
+
+#: src/framework/detail/revert-version.tsx
+msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"

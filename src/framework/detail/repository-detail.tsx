@@ -1,9 +1,8 @@
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
@@ -17,7 +16,6 @@ import {
   NotFound,
   closeAlert,
 } from 'src/components';
-import { useObjectPermissions } from 'src/entities/core/role-assignment/queries';
 import { useEntityByName } from 'src/entities/plugin/queries';
 import {
   isSessionEnd,
@@ -26,11 +24,7 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import type { PluginDescriptor } from '../descriptor';
-import {
-  type FrameworkPlugin,
-  PLUGIN_MANIFESTS,
-  type PluginManifest,
-} from '../manifest';
+import type { FrameworkPlugin } from '../manifest';
 import {
   type RepositoryTab,
   repositoryEditPath,
@@ -38,6 +32,7 @@ import {
   repositoryPath,
 } from '../route-patterns';
 import { DetailsTab } from './details-tab';
+import { useRepositoryPermission } from './use-repository-permission';
 
 interface Props {
   plugin: FrameworkPlugin;
@@ -74,7 +69,6 @@ const RepositoryDetailScreen = ({
   const { entity, tabs: pluginTabs = [] } = descriptor.repository;
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const navigate = useNavigate();
-  const { hasPermission, permissionsReady } = useAppContext();
 
   const shown = tab === null ? null : pluginTabs.find(({ id }) => id === tab);
   const version = number === undefined ? null : Number(number);
@@ -87,26 +81,9 @@ const RepositoryDetailScreen = ({
   const query = useEntityByName(entity, name ?? null, { enabled: known });
   const repository = query.data;
 
-  // Whether the user may edit the repository: the permission is held on every
-  // repository, or, for a plugin whose roles can be granted on a single
-  // repository, held on this one. The roles on single objects are read only for
-  // a user who lacks the permission everywhere, once the repository is shown;
-  // anything not known yet is no, and Pulp refuses a write it does not allow.
-  const manifest = PLUGIN_MANIFESTS.find(
-    (candidate) => candidate.plugin === plugin,
-  ) as PluginManifest;
-  const changeName = manifest.permissions.repository.change;
-  const changeEverywhere = hasPermission(changeName);
-  const needsObjectRoles =
-    manifest.permissions.objectRoles &&
-    permissionsReady &&
-    !changeEverywhere &&
-    !!repository;
-  const objectRoles = useObjectPermissions({ enabled: needsObjectRoles });
-  const mayEdit =
-    !!repository &&
-    (changeEverywhere ||
-      (needsObjectRoles && objectRoles.can(repository.pulp_href, changeName)));
+  // Whether the user may edit the repository: the change permission is held on
+  // every repository or on this one.
+  const mayEdit = useRepositoryPermission(plugin, repository, 'change');
 
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
@@ -128,6 +105,17 @@ const RepositoryDetailScreen = ({
       ]);
     }
   }, [rereadFailed, query.errorUpdatedAt, query.error]);
+
+  // The same refusal of the same action stays one alert while it is open.
+  const addAlert = useCallback(
+    (alert: AlertType) =>
+      setAlerts((current) =>
+        alert.id !== undefined && current.some(({ id }) => id === alert.id)
+          ? current
+          : [...current, alert],
+      ),
+    [],
+  );
 
   const alertList = (
     <AlertList
@@ -240,7 +228,13 @@ const RepositoryDetailScreen = ({
           data-cy={`RepositoryDetail-${tab ?? 'details'}`}
         >
           {shown ? (
-            shown.render({ repository, version, plugin, descriptor })
+            shown.render({
+              repository,
+              version,
+              plugin,
+              descriptor,
+              addAlert,
+            })
           ) : (
             <DetailsTab
               plugin={plugin}

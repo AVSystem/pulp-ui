@@ -1,5 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
 import type { ReactNode } from 'react';
+import type { AlertType } from 'src/components';
 import type {
   DistributionBase,
   DistributionEntity,
@@ -10,7 +11,10 @@ import type {
   PublicationEntity,
 } from 'src/entities/plugin/publication';
 import type { RemoteEntity } from 'src/entities/plugin/remote';
-import type { RepositoryEntity } from 'src/entities/plugin/repository';
+import type {
+  RepositoryEntity,
+  RevertBody,
+} from 'src/entities/plugin/repository';
 import type { FrameworkPlugin } from './manifest';
 import type { RepositoryTab } from './route-patterns';
 
@@ -26,13 +30,15 @@ import type { RepositoryTab } from './route-patterns';
 // stay in the language of the first load.
 
 // The entities are typed by what a screen reads from them; the types of what a
-// create or update sends belong to the plugin's own wiring.
+// create or update sends belong to the plugin's own wiring. A content change is
+// the one request a generic screen sends (a revert to a version), so its body is
+// typed.
 type AnyRepositoryEntity<Row> = RepositoryEntity<
   Row,
   never,
   never,
   never,
-  never
+  RevertBody
 >;
 type AnyRemoteEntity<Row> = RemoteEntity<Row, never, never>;
 type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
@@ -108,12 +114,15 @@ export interface TabDef<Row> {
   // .../versions/3), null on the tab's own address. `descriptor` is the
   // descriptor of the plugin the tab belongs to, for a tab that reads what
   // the plugin declares (its distribution entity, its snippet), and `plugin`
-  // names it for the addresses the tab links to.
+  // names it for the addresses the tab links to. `addAlert` puts an alert on
+  // the screen above the tab, where it stays while the user moves between the
+  // repository's tabs.
   render: (props: {
     repository: Row;
     version: number | null;
     plugin: FrameworkPlugin;
     descriptor: PluginDescriptor;
+    addAlert: (alert: AlertType) => void;
   }) => ReactNode;
 }
 

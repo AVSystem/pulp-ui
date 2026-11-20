@@ -354,3 +354,32 @@ export function useUnsetLabel(
     onSettled: invalidate,
   });
 }
+
+export interface ModifyRepositoryRequest<Body> {
+  // The address of the repository whose content changes.
+  href: string;
+  // What changes: a version to take the content of, or units to add and remove.
+  body: Body;
+}
+
+// Changes the content of a repository, which the server does in a task of its
+// own. The answer is the address of that task. The versions read before are
+// read again once the call has settled, whatever it answered.
+export function useModifyRepository<Body>(
+  entity: EntityName & {
+    modify?: (href: string, body: Body, options?: Options) => Promise<string>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href, body }: ModifyRepositoryRequest<Body>) => {
+      if (!entity.modify) {
+        throw new Error('The plugin has no way to change repository content');
+      }
+      return entity.modify(href, body);
+    },
+    retry: false,
+    onSettled: invalidate,
+  });
+}

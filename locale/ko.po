@@ -681,6 +681,7 @@ msgid "Allowed"
 msgstr "허용됨"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Already the current version"
 msgstr "이미 현재 버전"
 
@@ -1039,6 +1040,7 @@ msgstr "CA 인증서"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Cancel"
 msgstr "취소"
 
@@ -3191,6 +3193,7 @@ msgstr "원격 {name}을 제거하지 못했습니다"
 #~ msgstr "사용자 데이터를 검색하지 못했습니다."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "리포지토리 \"{repositoryName}\"를 버전 \"{number}으로 되돌리지 못했습니다"
 
@@ -6293,18 +6296,26 @@ msgstr "리포지토리 검색 다시 시도"
 #~ msgstr ""
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert"
 msgstr "되돌리기"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
 msgstr "리포지토리 되돌리기"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert repository \"{repositoryName}\" to version {number}?"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert started for repository \"{repositoryName}\"."
 msgstr "리포지토리 \"{repositoryName}\"을/를 복원하기 시작했습니다."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Revert to this version"
 msgstr "이 버전으로 되돌리기"
 
@@ -7665,6 +7676,10 @@ msgstr "리포지토리 콘텐츠를 읽을 수 없습니다"
 #: src/components/delete-repository-modal.tsx
 msgid "The repository could not be removed: {0}"
 msgstr "리포지토리를 제거할 수 없습니다: {0}"
+
+#: src/framework/detail/revert-version.tsx
+msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"
