@@ -2,9 +2,15 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
-import { servePermissions } from 'src/test-utils/permissions';
-import { listOf, repository } from 'src/test-utils/pulp';
+import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
+import {
+  distributionListHandler,
+  listOf,
+  publicationListHandler,
+  repository,
+} from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { PLUGIN_MANIFESTS, type PluginManifest } from './manifest';
@@ -34,10 +40,12 @@ function Routed({ manifests = [FILE] }: { manifests?: PluginManifest[] }) {
   const { pathname } = useLocation();
 
   return (
-    <>
-      <p data-testid='location'>{pathname}</p>
-      {useRoutes(guardRoutes(frameworkRoutes(manifests)))}
-    </>
+    <AppContextProvider>
+      <PermissionsKnown>
+        <p data-testid='location'>{pathname}</p>
+        {useRoutes(guardRoutes(frameworkRoutes(manifests)))}
+      </PermissionsKnown>
+    </AppContextProvider>
   );
 }
 
@@ -57,7 +65,11 @@ const serveRepositories = (...rows: ReturnType<typeof repository>[]) => {
     matching: (row, query) =>
       !query.get('name') || row.name === query.get('name'),
   });
-  server.use(served.handler);
+  server.use(
+    served.handler,
+    distributionListHandler('file', []).handler,
+    publicationListHandler('file', []).handler,
+  );
   return served;
 };
 
@@ -186,6 +198,8 @@ describe(
     it('shows the error state with Retry when the read fails, and reads again on Retry', async () => {
       let answers = 0;
       server.use(
+        distributionListHandler('file', []).handler,
+        publicationListHandler('file', []).handler,
         http.get(`*${REPOSITORIES}`, ({ request }) => {
           answers += 1;
           if (answers === 1) {

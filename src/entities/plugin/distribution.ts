@@ -5,6 +5,7 @@ import { pulpHrefSchema, repositoryOfVersion } from 'src/entities/href';
 import { parseResponse } from 'src/entities/response-shape';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useSessionEnded } from 'src/session/session-events';
+import { servedState } from 'src/utilities/distribution-serving';
 import { type Page, pageSchemaOf } from './model';
 import {
   type PublicationBase,
@@ -430,6 +431,110 @@ export function useDistributionIndex<Row extends DistributionBase>(
     baseUrlsByRepository: byRepository,
     distributionsOfRepository: ofRepository,
     repositoriesMatchingBasePath: matchingBasePath,
+    retry,
+  };
+}
+
+// A distribution that serves a repository, and whether the content app answers
+// with content for it.
+export interface ServingDistribution<Row> {
+  row: Row;
+  served: boolean;
+}
+
+export interface RepositoryDistributions<Row> {
+  status: DistributionIndexStatus;
+  error: unknown;
+  // The distributions that serve the repository, in the order of the index;
+  // undefined until they are all known.
+  distributions: ServingDistribution<Row>[] | undefined;
+  // Reads again what failed.
+  retry: () => void;
+}
+
+// How long the publications of one repository are taken as current.
+const REPOSITORY_PUBLICATIONS_STALE_MS = 30_000;
+
+// The distributions that serve one repository (bound to it, to one of its
+// publications or to one of its versions), each with whether it serves content.
+// They are cut from the index of the plugin's distributions that every screen
+// shares, so this adds no read of its own for them. Whether a distribution
+// serves content needs the repository's publications: they are read once, and
+// only when the plugin serves from publications and some distribution of the
+// repository is not bound to a publication itself.
+export function useRepositoryDistributions<Row extends DistributionBase>(
+  distribution: {
+    readonly app: string;
+    readonly object: 'distribution';
+    index: (options?: Options) => Promise<Row[]>;
+  },
+  publication:
+    | {
+        entity: PublicationEntity<PublicationBase>;
+        servesFromPublication: boolean;
+      }
+    | undefined,
+  repository: string,
+): RepositoryDistributions<Row> {
+  const index = useDistributionIndex(distribution, publication?.entity);
+  const serving = publication?.servesFromPublication ?? false;
+  const { distributionsOfRepository: ofRepository } = index;
+  const own = useMemo(
+    () => ofRepository(repository),
+    [ofRepository, repository],
+  );
+  const needsPublications =
+    serving && own !== null && own.some((row) => !row.publication);
+
+  const publications = useSessionQuery({
+    queryKey: publicationKeys(
+      publication?.entity ?? { app: distribution.app, object: 'publication' },
+    ).ofRepository(repository),
+    queryFn: ({ signal }) =>
+      (publication as NonNullable<typeof publication>).entity.ofRepository(
+        repository,
+        { signal },
+      ),
+    staleTime: REPOSITORY_PUBLICATIONS_STALE_MS,
+    enabled: needsPublications,
+  });
+
+  const status: DistributionIndexStatus =
+    index.status === 'error' || publications.status === 'error'
+      ? 'error'
+      : index.status === 'pending' ||
+          (needsPublications && publications.status === 'pending')
+        ? 'pending'
+        : 'success';
+
+  const distributions = useMemo(() => {
+    if (status !== 'success' || own === null) {
+      return undefined;
+    }
+    const known = (publications.data ?? []).map((row) => ({
+      pulp_href: row.pulp_href,
+      repository_version: row.repository_version,
+    }));
+    return own.map((row) => ({
+      row,
+      served: servedState(row, serving, known) === 'served',
+    }));
+  }, [status, own, publications.data, serving]);
+
+  const { refetch: refetchPublications, status: publicationsStatus } =
+    publications;
+  const retryIndex = index.retry;
+  const retry = useCallback(() => {
+    retryIndex();
+    if (publicationsStatus === 'error') {
+      void refetchPublications();
+    }
+  }, [retryIndex, publicationsStatus, refetchPublications]);
+
+  return {
+    status,
+    error: index.error ?? publications.error,
+    distributions,
     retry,
   };
 }

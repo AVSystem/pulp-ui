@@ -897,6 +897,7 @@ msgstr "상태를 하나 이상 선택해야 합니다."
 #: src/components/repository-form.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "자동 게시"
 
@@ -2321,7 +2322,7 @@ msgstr "자신을 삭제하는 것은 허용되지 않습니다."
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Description"
 msgstr "설명"
 
@@ -2381,6 +2382,7 @@ msgstr "세부 정보"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Disabled"
 msgstr "비활성화됨"
 
@@ -2420,6 +2422,10 @@ msgstr "배포"
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Distributions could not be displayed."
 msgstr "배포를 표시할 수 없습니다."
+
+#: src/framework/detail/details-tab.tsx
+msgid "Distributions could not be loaded"
+msgstr ""
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
@@ -2595,6 +2601,7 @@ msgstr "드롭다운"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "편집"
@@ -2677,6 +2684,7 @@ msgstr "이메일"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Enabled"
 msgstr "활성화됨"
 
@@ -3932,6 +3940,7 @@ msgstr ""
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "레이블"
@@ -4721,7 +4730,8 @@ msgstr "아직 사용자가 없음"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4736,6 +4746,7 @@ msgstr "없음"
 msgid "Not allowed"
 msgstr "허용되지 않음"
 
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr ""
@@ -5757,6 +5768,7 @@ msgstr "다시 불러오기"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Remote"
 msgstr "원격"
 
@@ -5772,6 +5784,10 @@ msgstr "원격"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Remote could not be displayed."
 msgstr "원격을 표시할 수 없습니다."
+
+#: src/framework/detail/remote-reference.tsx
+msgid "Remote could not be loaded"
+msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -6109,6 +6125,7 @@ msgstr "리포지토리를 표시할 수 없습니다."
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository name"
 msgstr "리포지터리 이름"
 
@@ -6121,6 +6138,7 @@ msgstr "리포지터리 이름"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "리포지토리 URL"
 
@@ -6211,6 +6229,8 @@ msgstr "재시도 횟수"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"

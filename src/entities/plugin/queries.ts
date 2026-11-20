@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
 import type { Page } from './model';
+import type { RemoteLookup, RemoteName } from './remote';
 import type { Options, UpdateResult } from './request';
 
 // The read hooks and mutations every plugin's repository and remote screens
@@ -139,6 +140,25 @@ export function useEntity<Row>(
     queryKey: entityKeys(entity).detail(href ?? ''),
     queryFn: ({ signal }) => entity.retrieve(href as string, { signal }),
     enabled: enabled && href !== null,
+  });
+}
+
+// The remote at an address, named, whatever the type of the remote: the read a
+// repository's Remote row is drawn from. It is one request for the address, and
+// null for an address the list does not hold (a remote the user may not see, or
+// one that was deleted). A null address reads nothing.
+export function useRemoteByHref(
+  lookup: Pick<RemoteLookup, 'app' | 'object' | 'byHrefs'>,
+  href: string | null,
+) {
+  return useSessionQuery({
+    queryKey: ['pulp', lookup.app, lookup.object, 'by-href', href ?? ''],
+    queryFn: async ({ signal }): Promise<RemoteName | null> => {
+      const found = await lookup.byHrefs([href as string], { signal });
+      return found.find((row) => row.pulp_href === href) ?? null;
+    },
+    staleTime: INDEX_STALE_MS,
+    enabled: href !== null,
   });
 }
 

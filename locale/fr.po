@@ -897,6 +897,7 @@ msgstr "Au moins un état doit être sélectionné."
 #: src/components/repository-form.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "Publication automatique"
 
@@ -2321,7 +2322,7 @@ msgstr "Il n'est pas permis de s'effacer."
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Description"
 msgstr "Description"
 
@@ -2381,6 +2382,7 @@ msgstr "Détails"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Disabled"
 msgstr "Désactivés"
 
@@ -2420,6 +2422,10 @@ msgstr "Distributions"
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Distributions could not be displayed."
 msgstr "Les distributions n'ont pas pu être affichées."
+
+#: src/framework/detail/details-tab.tsx
+msgid "Distributions could not be loaded"
+msgstr ""
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
@@ -2595,6 +2601,7 @@ msgstr "Menu déroulant"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Modifier"
@@ -2677,6 +2684,7 @@ msgstr "Email"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Enabled"
 msgstr "Activé"
 
@@ -3932,6 +3940,7 @@ msgstr ""
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "Libellés"
@@ -4721,7 +4730,8 @@ msgstr "Aucun utilisateur existant"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4736,6 +4746,7 @@ msgstr "Aucun(e)"
 msgid "Not allowed"
 msgstr "Non autorisé"
 
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr ""
@@ -5757,6 +5768,7 @@ msgstr "Recharger"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Remote"
 msgstr "Source distante"
 
@@ -5772,6 +5784,10 @@ msgstr "Source distante"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Remote could not be displayed."
 msgstr "La source distante n’a pas pu être affichée."
+
+#: src/framework/detail/remote-reference.tsx
+msgid "Remote could not be loaded"
+msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -6109,6 +6125,7 @@ msgstr "Le référentiel n’a pas pu être affiché."
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository name"
 msgstr "Nom du référentiel"
 
@@ -6121,6 +6138,7 @@ msgstr "Nom du référentiel"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "URL du référentiel"
 
@@ -6211,6 +6229,8 @@ msgstr "Nouvelles tentatives"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"

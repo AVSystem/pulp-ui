@@ -1,13 +1,14 @@
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
+import { Button } from '@patternfly/react-core';
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
+import { useAppContext } from 'src/app-context';
 import {
   AlertList,
   type AlertType,
   BaseHeader,
   Breadcrumbs,
-  Details,
   InsufficientPermissions,
   LinkTabs,
   ListErrorState,
@@ -16,6 +17,7 @@ import {
   NotFound,
   closeAlert,
 } from 'src/components';
+import { useObjectPermissions } from 'src/entities/core/role-assignment/queries';
 import { useEntityByName } from 'src/entities/plugin/queries';
 import {
   isSessionEnd,
@@ -24,12 +26,18 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import type { PluginDescriptor } from '../descriptor';
-import type { FrameworkPlugin } from '../manifest';
+import {
+  type FrameworkPlugin,
+  PLUGIN_MANIFESTS,
+  type PluginManifest,
+} from '../manifest';
 import {
   type RepositoryTab,
+  repositoryEditPath,
   repositoryListPath,
   repositoryPath,
 } from '../route-patterns';
+import { DetailsTab } from './details-tab';
 
 interface Props {
   plugin: FrameworkPlugin;
@@ -63,8 +71,10 @@ const RepositoryDetailScreen = ({
   name,
   number,
 }: Props & { name?: string; number?: string }) => {
-  const { entity, detailRows, tabs: pluginTabs = [] } = descriptor.repository;
+  const { entity, tabs: pluginTabs = [] } = descriptor.repository;
   const [alerts, setAlerts] = useState<AlertType[]>([]);
+  const navigate = useNavigate();
+  const { hasPermission, permissionsReady } = useAppContext();
 
   const shown = tab === null ? null : pluginTabs.find(({ id }) => id === tab);
   const version = number === undefined ? null : Number(number);
@@ -76,6 +86,27 @@ const RepositoryDetailScreen = ({
 
   const query = useEntityByName(entity, name ?? null, { enabled: known });
   const repository = query.data;
+
+  // Whether the user may edit the repository: the permission is held on every
+  // repository, or, for a plugin whose roles can be granted on a single
+  // repository, held on this one. The roles on single objects are read only for
+  // a user who lacks the permission everywhere, once the repository is shown;
+  // anything not known yet is no, and Pulp refuses a write it does not allow.
+  const manifest = PLUGIN_MANIFESTS.find(
+    (candidate) => candidate.plugin === plugin,
+  ) as PluginManifest;
+  const changeName = manifest.permissions.repository.change;
+  const changeEverywhere = hasPermission(changeName);
+  const needsObjectRoles =
+    manifest.permissions.objectRoles &&
+    permissionsReady &&
+    !changeEverywhere &&
+    !!repository;
+  const objectRoles = useObjectPermissions({ enabled: needsObjectRoles });
+  const mayEdit =
+    !!repository &&
+    (changeEverywhere ||
+      (needsObjectRoles && objectRoles.can(repository.pulp_href, changeName)));
 
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
@@ -184,6 +215,18 @@ const RepositoryDetailScreen = ({
             ]}
           />
         }
+        pageControls={
+          mayEdit ? (
+            <Button
+              variant='secondary'
+              onClick={() =>
+                navigate(repositoryEditPath(plugin, repository.name))
+              }
+            >
+              {t`Edit`}
+            </Button>
+          ) : undefined
+        }
       >
         <div className='pulp-tab-link-container'>
           <div className='tabs'>
@@ -197,13 +240,12 @@ const RepositoryDetailScreen = ({
           data-cy={`RepositoryDetail-${tab ?? 'details'}`}
         >
           {shown ? (
-            shown.render({ repository, version })
+            shown.render({ repository, version, descriptor })
           ) : (
-            <Details
-              fields={detailRows.map(({ label, render }) => ({
-                label: i18n._(label),
-                value: render(repository),
-              }))}
+            <DetailsTab
+              plugin={plugin}
+              descriptor={descriptor}
+              repository={repository}
             />
           )}
         </section>

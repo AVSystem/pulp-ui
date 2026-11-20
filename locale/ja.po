@@ -897,6 +897,7 @@ msgstr "少なくとも 1 つの状態を選択する必要があります。"
 #: src/components/repository-form.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "自動パブリッシュ"
 
@@ -2321,7 +2322,7 @@ msgstr "自分自身は削除できません。"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Description"
 msgstr "説明"
 
@@ -2381,6 +2382,7 @@ msgstr "詳細"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Disabled"
 msgstr "無効化"
 
@@ -2420,6 +2422,10 @@ msgstr "ディストリビューション"
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Distributions could not be displayed."
 msgstr "ディストリビューションを表示できませんでした。"
+
+#: src/framework/detail/details-tab.tsx
+msgid "Distributions could not be loaded"
+msgstr ""
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
@@ -2595,6 +2601,7 @@ msgstr "ドロップダウン"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "編集"
@@ -2677,6 +2684,7 @@ msgstr "メール"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Enabled"
 msgstr "有効化"
 
@@ -3932,6 +3940,7 @@ msgstr ""
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "ラベル"
@@ -4721,7 +4730,8 @@ msgstr "まだユーザーはありません"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4736,6 +4746,7 @@ msgstr "なし"
 msgid "Not allowed"
 msgstr "許可されていません"
 
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr ""
@@ -5757,6 +5768,7 @@ msgstr "再読み込み"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Remote"
 msgstr "リモート"
 
@@ -5772,6 +5784,10 @@ msgstr "リモート"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Remote could not be displayed."
 msgstr "リモートを表示できませんでした。"
+
+#: src/framework/detail/remote-reference.tsx
+msgid "Remote could not be loaded"
+msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -6109,6 +6125,7 @@ msgstr "リポジトリーを表示できませんでした。"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository name"
 msgstr "リポジトリー名"
 
@@ -6121,6 +6138,7 @@ msgstr "リポジトリー名"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "リポジトリー URL"
 
@@ -6211,6 +6229,8 @@ msgstr "再試行回数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"

@@ -898,6 +898,7 @@ msgstr "At least one state has to be selected."
 #: src/components/repository-form.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "Autopublish"
 
@@ -2322,7 +2323,7 @@ msgstr "Deleting yourself is not allowed."
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Description"
 msgstr "Description"
 
@@ -2382,6 +2383,7 @@ msgstr "Details"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Disabled"
 msgstr "Disabled"
 
@@ -2421,6 +2423,10 @@ msgstr "Distributions"
 #: src/containers/rpm-repository/tab-distributions.tsx
 msgid "Distributions could not be displayed."
 msgstr "Distributions could not be displayed."
+
+#: src/framework/detail/details-tab.tsx
+msgid "Distributions could not be loaded"
+msgstr "Distributions could not be loaded"
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
@@ -2596,6 +2602,7 @@ msgstr "Dropdown"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Edit"
@@ -2678,6 +2685,7 @@ msgstr "Email"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Enabled"
 msgstr "Enabled"
 
@@ -3933,6 +3941,7 @@ msgstr "Label value"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Labels"
 msgstr "Labels"
@@ -4722,7 +4731,8 @@ msgstr "No users yet"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4737,6 +4747,7 @@ msgstr "None"
 msgid "Not allowed"
 msgstr "Not allowed"
 
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr "Not available"
@@ -5758,6 +5769,7 @@ msgstr "Reload"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Remote"
 msgstr "Remote"
 
@@ -5773,6 +5785,10 @@ msgstr "Remote"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Remote could not be displayed."
 msgstr "Remote could not be displayed."
+
+#: src/framework/detail/remote-reference.tsx
+msgid "Remote could not be loaded"
+msgstr "Remote could not be loaded"
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -6110,6 +6126,7 @@ msgstr "Repository could not be displayed."
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository name"
 msgstr "Repository name"
 
@@ -6122,6 +6139,7 @@ msgstr "Repository name"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "Repository URL"
 
@@ -6212,6 +6230,8 @@ msgstr "Retries"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-reference.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Retry"

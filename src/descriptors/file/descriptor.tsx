@@ -18,24 +18,15 @@ const descriptor: PluginDescriptor<FileRepository> = {
     entity: fileRepository,
     detailRows: [
       {
-        id: 'name',
-        label: msg`Repository name`,
-        render: (repository) => repository.name,
-      },
-      {
-        id: 'description',
-        label: msg`Description`,
-        render: (repository) => repository.description || t`None`,
-      },
-      {
         id: 'retain-repo-versions',
         label: msg`Retained version count`,
         render: (repository) => repository.retain_repo_versions ?? t`All`,
       },
       {
-        id: 'labels',
-        label: msg`Labels`,
-        render: (repository) => <LabelChips labels={repository.pulp_labels} />,
+        id: 'autopublish',
+        label: msg`Autopublish`,
+        render: (repository) =>
+          repository.autopublish ? t`Enabled` : t`Disabled`,
       },
     ],
     filters: [

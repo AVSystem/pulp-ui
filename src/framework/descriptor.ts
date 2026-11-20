@@ -54,7 +54,9 @@ export interface FieldDef {
   options?: { value: string; label: MessageDescriptor }[];
 }
 
-// One labelled row of a Details tab.
+// One labelled row of a Details tab. The tab draws the rows every repository
+// has (name, description, where it is served, labels, remote); a plugin
+// declares only the rows it adds, and they are drawn after the description.
 export interface DetailRow<Row> {
   // Unique among the rows of one screen.
   id: string;
@@ -102,8 +104,14 @@ export interface TabDef<Row> {
   id: RepositoryTab;
   label: MessageDescriptor;
   // The version number of a tab that opens one version (an address like
-  // .../versions/3), null on the tab's own address.
-  render: (props: { repository: Row; version: number | null }) => ReactNode;
+  // .../versions/3), null on the tab's own address. `descriptor` is the
+  // descriptor of the plugin the tab belongs to, for a tab that reads what
+  // the plugin declares (its distribution entity, its snippet).
+  render: (props: {
+    repository: Row;
+    version: number | null;
+    descriptor: PluginDescriptor;
+  }) => ReactNode;
 }
 
 // How a repository is synced. A plugin without a sync endpoint declares none.
