@@ -8,6 +8,7 @@ import { fileRemote } from 'src/entities/file/remote';
 import { fileRepository } from 'src/entities/file/repository';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
+import { versionsTab } from 'src/framework/detail/versions-tab';
 import { LabelChips } from 'src/framework/labels/label-chips';
 import { repositoryPath } from 'src/framework/route-patterns';
 import { shellQuote } from 'src/utilities/shell-quote';
@@ -31,7 +32,7 @@ const descriptor: PluginDescriptor<FileRepository> = {
           repository.autopublish ? t`Enabled` : t`Disabled`,
       },
     ],
-    tabs: [distributionsTab<FileRepository>()],
+    tabs: [versionsTab<FileRepository>(), distributionsTab<FileRepository>()],
     // The manifest sits next to the content, at the distribution's URL. The
     // command is pasted into a terminal, so the name and the URL are quoted as
     // shell words: a repository name is free text.

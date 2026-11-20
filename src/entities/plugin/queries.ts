@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSessionQuery } from 'src/query/use-session-query';
-import type { Page } from './model';
+import type { Page, RepositoryVersion, VersionListParams } from './model';
 import type { RemoteLookup, RemoteName } from './remote';
 import type { Options, UpdateResult } from './request';
 
@@ -19,7 +19,9 @@ interface EntityName {
 // The cache keys of one plugin's object: ['pulp', <plugin>, <object>, ...].
 // `list` is one page of a list, `by-name` the lookup of a URL name and
 // `detail` one object by its address and `index` the read of every object of
-// the plugin that screens share.
+// the plugin that screens share. `versions` is a page of the versions of one
+// repository, by the repository's address, and `version` one version of it by
+// its number.
 export function entityKeys(entity: EntityName) {
   const all = ['pulp', entity.app, entity.object] as const;
 
@@ -29,6 +31,10 @@ export function entityKeys(entity: EntityName) {
     byName: (name: string) => [...all, 'by-name', name] as const,
     detail: (href: string) => [...all, 'detail', href] as const,
     index: [...all, 'index'] as const,
+    versions: (repository: string, params: object) =>
+      [...all, 'versions', repository, params] as const,
+    version: (repository: string, number: number) =>
+      [...all, 'version', repository, number] as const,
   };
 }
 
@@ -162,6 +168,65 @@ export function useRemoteByHref(
   });
 }
 
+interface VersionedEntity extends EntityName {
+  versions: (
+    href: string,
+    params?: VersionListParams,
+    options?: Options,
+  ) => Promise<Page<RepositoryVersion>>;
+  versionByNumber: (
+    href: string,
+    number: number,
+    options?: Options,
+  ) => Promise<RepositoryVersion | null>;
+}
+
+// One page of the versions of a repository. Every set of parameters is a query
+// of its own; while another page of the same list of the same repository loads,
+// the rows of the page before stay, and rows of another repository, order or
+// page size never stand in for it.
+export function useRepositoryVersions(
+  entity: VersionedEntity,
+  repository: string,
+  params: VersionListParams,
+) {
+  const keys = entityKeys(entity);
+
+  return useSessionQuery({
+    queryKey: keys.versions(repository, params),
+    queryFn: ({ signal }) => entity.versions(repository, params, { signal }),
+    placeholderData: (previous, previousQuery) => {
+      const key = previousQuery?.queryKey;
+      const before = key?.[5] as VersionListParams | undefined;
+      const sameList =
+        key?.[1] === entity.app &&
+        key?.[2] === entity.object &&
+        key?.[3] === 'versions' &&
+        key?.[4] === repository;
+
+      return before && sameList && otherPageOfSameList(before, params)
+        ? previous
+        : undefined;
+    },
+  });
+}
+
+// The version of a repository with this number, or null when it has none. A
+// number is a query of its own, so the answer for another number is never the
+// one on screen. A version never changes once made, but it can be removed, so
+// the answer is read again like any other after the usual stale time.
+export function useRepositoryVersion(
+  entity: VersionedEntity,
+  repository: string,
+  number: number,
+) {
+  return useSessionQuery({
+    queryKey: entityKeys(entity).version(repository, number),
+    queryFn: ({ signal }) =>
+      entity.versionByNumber(repository, number, { signal }),
+  });
+}
+
 // Every write below sends one request per call and is never repeated by
 // itself: a repeated create or delete could do its work twice. Once the call
 // has settled, whatever it answered, everything read of the object is read
@@ -285,6 +350,35 @@ export function useUnsetLabel(
   return useMutation({
     mutationFn: ({ href, key }: UnsetLabelRequest) =>
       entity.unsetLabel(href, key),
+    retry: false,
+    onSettled: invalidate,
+  });
+}
+
+export interface ModifyRepositoryRequest<Body> {
+  // The address of the repository whose content changes.
+  href: string;
+  // What changes: a version to take the content of, or units to add and remove.
+  body: Body;
+}
+
+// Changes the content of a repository, which the server does in a task of its
+// own. The answer is the address of that task. The versions read before are
+// read again once the call has settled, whatever it answered.
+export function useModifyRepository<Body>(
+  entity: EntityName & {
+    modify?: (href: string, body: Body, options?: Options) => Promise<string>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href, body }: ModifyRepositoryRequest<Body>) => {
+      if (!entity.modify) {
+        throw new Error('The plugin has no way to change repository content');
+      }
+      return entity.modify(href, body);
+    },
     retry: false,
     onSettled: invalidate,
   });

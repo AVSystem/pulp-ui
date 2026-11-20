@@ -30,6 +30,7 @@ msgstr ""
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "(latest)"
 msgstr "(latest)"
 
@@ -681,6 +682,7 @@ msgid "Allowed"
 msgstr "Allowed"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Already the current version"
 msgstr "Already the current version"
 
@@ -963,6 +965,7 @@ msgstr "Base URLs could not be read."
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Base version"
 msgstr "Base version"
 
@@ -1038,6 +1041,7 @@ msgstr "CA certificate"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -1660,6 +1664,7 @@ msgstr "Content"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Content added"
 msgstr "Content added"
 
@@ -1696,6 +1701,7 @@ msgstr "Content not present in remote repository will be removed from the local 
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Content removed"
 msgstr "Content removed"
 
@@ -1782,6 +1788,7 @@ msgstr "Could not check whether the name and base path are free: {reason}. Nothi
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Count"
 msgstr "Count"
 
@@ -1896,6 +1903,8 @@ msgstr "Created"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/version-detail.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Created date"
 msgstr "Created date"
 
@@ -1950,6 +1959,7 @@ msgstr "Ctrl K"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Current content"
 msgstr "Current content"
 
@@ -3184,6 +3194,7 @@ msgstr "Failed to remove remote {name}"
 #~ msgstr "Failed to retrieve user data."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 
@@ -4645,6 +4656,7 @@ msgstr "No repositories yet"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "No repository versions yet"
 msgstr "No repository versions yet"
 
@@ -4742,6 +4754,7 @@ msgstr "No users yet"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/detail/version-detail.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4757,6 +4770,7 @@ msgid "Not allowed"
 msgstr "Not allowed"
 
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/detail/version-detail.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr "Not available"
@@ -5504,6 +5518,7 @@ msgstr "Pulp refused this request."
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Pulp type"
 msgstr "Pulp type"
 
@@ -6152,11 +6167,20 @@ msgstr "Repository name"
 msgid "Repository URL"
 msgstr "Repository URL"
 
+#: src/framework/detail/version-detail.tsx
+msgid "Repository version could not be displayed."
+msgstr "Repository version could not be displayed."
+
+#: src/framework/detail/version-detail.tsx
+msgid "Repository version not found"
+msgstr "Repository version not found"
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Repository versions"
 msgstr "Repository versions"
 
@@ -6165,6 +6189,7 @@ msgstr "Repository versions"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Repository versions could not be displayed."
 msgstr "Repository versions could not be displayed."
 
@@ -6173,6 +6198,7 @@ msgstr "Repository versions could not be displayed."
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Repository versions will appear once the repository is modified."
 msgstr "Repository versions will appear once the repository is modified."
 
@@ -6271,18 +6297,26 @@ msgstr "Retry repository search"
 #~ msgstr "Returned"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert"
 msgstr "Revert"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
 msgstr "Revert repository"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert repository \"{repositoryName}\" to version {number}?"
+msgstr "Revert repository \"{repositoryName}\" to version {number}?"
+
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert started for repository \"{repositoryName}\"."
 msgstr "Revert started for repository \"{repositoryName}\"."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Revert to this version"
 msgstr "Revert to this version"
 
@@ -7644,6 +7678,10 @@ msgstr "The repository content could not be read"
 msgid "The repository could not be removed: {0}"
 msgstr "The repository could not be removed: {0}"
 
+#: src/framework/detail/revert-version.tsx
+msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+msgstr "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"
 msgstr "The repository is still being removed:"
@@ -7913,6 +7951,10 @@ msgstr "This page is under construction and some features may be broken. You can
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
 msgstr "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
+
+#: src/framework/detail/version-detail.tsx
+msgid "This repository has no version {number}."
+msgstr "This repository has no version {number}."
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
@@ -8531,6 +8573,8 @@ msgstr "Version {repositoryVersion}"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Version number"
 msgstr "Version number"
 
@@ -8544,6 +8588,7 @@ msgstr "Version number"
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Versions"
 msgstr "Versions"
 

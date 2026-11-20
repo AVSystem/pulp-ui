@@ -160,6 +160,16 @@ export interface RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> {
     options?: Options,
   ) => Promise<Page<RepositoryVersion>>;
   version: (href: string, options?: Options) => Promise<RepositoryVersion>;
+  // The version of the repository at this address that has this number, or null
+  // when it has none. The number reaches the server only as the value of the
+  // number filter, so no address is ever built from it; a number that cannot be
+  // a version number (negative, fractional, past the safe integers) names
+  // nothing and sends no request.
+  versionByNumber: (
+    href: string,
+    number: number,
+    options?: Options,
+  ) => Promise<RepositoryVersion | null>;
   // Starts a sync or a content change; resolves with the address of the task.
   sync?: (href: string, body: TSync, options?: Options) => Promise<string>;
   modify?: (href: string, body: TModify, options?: Options) => Promise<string>;
@@ -183,6 +193,11 @@ function toVersionParams(params: VersionListParams): Record<string, unknown> {
   return request;
 }
 
+// What a revert sends: the version whose content the new latest version takes.
+export interface RevertBody {
+  base_version: string;
+}
+
 export type { UpdateResult };
 
 export function makeRepositoryEntity<
@@ -192,7 +207,7 @@ export function makeRepositoryEntity<
   TUpdate,
   TVersionParams,
   TSync = never,
-  TModify = never,
+  TModify = RevertBody,
 >({
   app,
   schema,
@@ -239,6 +254,21 @@ export function makeRepositoryEntity<
     // The name is unique, so a row of another name means the filter was not
     // applied; it is not this repository.
     return found && found.name === name ? found : null;
+  }
+
+  async function versions(
+    href: string,
+    params: VersionListParams = {},
+    options?: Options,
+  ): Promise<Page<RepositoryVersion>> {
+    return parseResponse(
+      versionPageSchema,
+      await api.versionsList(
+        href,
+        asParams<TVersionParams>(toVersionParams(params)),
+        options,
+      ),
+    ) as Page<RepositoryVersion>;
   }
 
   const entity: RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> = {
@@ -319,20 +349,22 @@ export function makeRepositoryEntity<
       }
       return Array.from(byHref.values());
     },
-    versions: async (href, params = {}, options) =>
-      parseResponse(
-        versionPageSchema,
-        await api.versionsList(
-          href,
-          asParams<TVersionParams>(toVersionParams(params)),
-          options,
-        ),
-      ) as Page<RepositoryVersion>,
+    versions,
     version: async (href, options) =>
       parseResponse(
         versionSchema,
         await api.versionRead(href, undefined, options),
       ),
+    versionByNumber: async (href, number, options) => {
+      if (!Number.isSafeInteger(number) || number < 0) {
+        return null;
+      }
+      const found = (await versions(href, { number, page_size: 1 }, options))
+        .results[0];
+      // A row of another number means the filter was not applied; it is not
+      // the version asked for.
+      return found && found.number === number ? found : null;
+    },
   };
 
   const { sync, modify } = api;

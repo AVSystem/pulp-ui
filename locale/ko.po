@@ -29,6 +29,7 @@ msgstr ""
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "(latest)"
 msgstr "(최신)"
 
@@ -680,6 +681,7 @@ msgid "Allowed"
 msgstr "허용됨"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Already the current version"
 msgstr "이미 현재 버전"
 
@@ -962,6 +964,7 @@ msgstr ""
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Base version"
 msgstr "서명 버전"
 
@@ -1037,6 +1040,7 @@ msgstr "CA 인증서"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Cancel"
 msgstr "취소"
 
@@ -1659,6 +1663,7 @@ msgstr "콘텐츠"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Content added"
 msgstr "콘텐츠 추가됨"
 
@@ -1695,6 +1700,7 @@ msgstr "원격 리포지토리에 없는 콘텐츠는 로컬 리포지토리에�
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Content removed"
 msgstr "삭제된 콘텐츠"
 
@@ -1781,6 +1787,7 @@ msgstr "이름과 기본 경로를 사용할 수 있는지 확인할 수 없습�
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Count"
 msgstr "수량"
 
@@ -1895,6 +1902,8 @@ msgstr "생성됨"
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/version-detail.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Created date"
 msgstr "생성된 날짜"
 
@@ -1949,6 +1958,7 @@ msgstr "Ctrl K"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Current content"
 msgstr "현재 콘텐츠"
 
@@ -3183,6 +3193,7 @@ msgstr "원격 {name}을 제거하지 못했습니다"
 #~ msgstr "사용자 데이터를 검색하지 못했습니다."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Failed to revert repository \"{repositoryName}\" to version \"{number}\""
 msgstr "리포지토리 \"{repositoryName}\"를 버전 \"{number}으로 되돌리지 못했습니다"
 
@@ -4644,6 +4655,7 @@ msgstr "아직 리포지토리가 없음"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "No repository versions yet"
 msgstr "아직 리포지토리 버전이 없음"
 
@@ -4741,6 +4753,7 @@ msgstr "아직 사용자가 없음"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/detail/version-detail.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/filters.tsx
@@ -4756,6 +4769,7 @@ msgid "Not allowed"
 msgstr "허용되지 않음"
 
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/detail/version-detail.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
 msgstr ""
@@ -5503,6 +5517,7 @@ msgstr "Pulp에서 이 요청을 거부했습니다."
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
 msgid "Pulp type"
 msgstr "Pulp 유형"
 
@@ -6151,11 +6166,20 @@ msgstr "리포지터리 이름"
 msgid "Repository URL"
 msgstr "리포지토리 URL"
 
+#: src/framework/detail/version-detail.tsx
+msgid "Repository version could not be displayed."
+msgstr ""
+
+#: src/framework/detail/version-detail.tsx
+msgid "Repository version not found"
+msgstr ""
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Repository versions"
 msgstr "리포지터리 버전"
 
@@ -6164,6 +6188,7 @@ msgstr "리포지터리 버전"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Repository versions could not be displayed."
 msgstr "리포지토리 버전을 표시할 수 없습니다."
 
@@ -6172,6 +6197,7 @@ msgstr "리포지토리 버전을 표시할 수 없습니다."
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Repository versions will appear once the repository is modified."
 msgstr "리포지토리가 수정되면 리포지토리 버전이 표시됩니다."
 
@@ -6270,18 +6296,26 @@ msgstr "리포지토리 검색 다시 시도"
 #~ msgstr ""
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert"
 msgstr "되돌리기"
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
 msgstr "리포지토리 되돌리기"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert repository \"{repositoryName}\" to version {number}?"
+msgstr ""
+
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/revert-version.tsx
 msgid "Revert started for repository \"{repositoryName}\"."
 msgstr "리포지토리 \"{repositoryName}\"을/를 복원하기 시작했습니다."
 
 #: src/actions/repository-version-revert.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Revert to this version"
 msgstr "이 버전으로 되돌리기"
 
@@ -7643,6 +7677,10 @@ msgstr "리포지토리 콘텐츠를 읽을 수 없습니다"
 msgid "The repository could not be removed: {0}"
 msgstr "리포지토리를 제거할 수 없습니다: {0}"
 
+#: src/framework/detail/revert-version.tsx
+msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 msgid "The repository is still being removed:"
 msgstr "리포지토리를 아직 제거하는 중입니다:"
@@ -7912,6 +7950,10 @@ msgstr "이 페이지는 구축 중이며 일부 기능이 올바르게 작동�
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
 msgstr "이 프로젝트는 Ansible Galaxy UI 코드베이스를 업사이클하려는 시도입니다. 첫 번째 버전은 약간의 수정을 거친 기존 코드가 대부분입니다. 앞으로 더 많은 유형의 콘텐츠가 추가될 예정입니다. 여러분의 기여를 환영합니다."
+
+#: src/framework/detail/version-detail.tsx
+msgid "This repository has no version {number}."
+msgstr ""
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
@@ -8530,6 +8572,8 @@ msgstr "버전 {repositoryVersion}"
 #: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/framework/detail/version-detail.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Version number"
 msgstr "버전 번호"
 
@@ -8543,6 +8587,7 @@ msgstr "버전 번호"
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/versions-tab.tsx
 msgid "Versions"
 msgstr "버전"
 
