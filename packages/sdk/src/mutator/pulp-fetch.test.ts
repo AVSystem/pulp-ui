@@ -447,4 +447,98 @@ describe('Unit: PulpRequestError', { tags: ['unit'] }, () => {
     expect(error.response.status).toBe(401);
     expect(error.response.data).toBeUndefined();
   });
+
+  it.each([401, 403, 502])(
+    'is still built for a %i answer labelled JSON with an empty body',
+    async (status) => {
+      server.use(
+        http.get(
+          '*/pulp/api/v3/status/',
+          () =>
+            new HttpResponse('', {
+              status,
+              headers: { 'Content-Type': 'application/json' },
+            }),
+        ),
+      );
+
+      const error = await pulpFetch<never>('/pulp/api/v3/status/', {
+        method: 'GET',
+      }).catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(PulpRequestError);
+      expect((error as PulpRequestError).response.status).toBe(status);
+      expect((error as PulpRequestError).response.data).toBeUndefined();
+    },
+  );
+
+  it('is still built for a failed answer labelled JSON with a truncated body', async () => {
+    server.use(
+      http.get(
+        '*/pulp/api/v3/status/',
+        () =>
+          new HttpResponse('{"detail": "oops', {
+            status: 502,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      ),
+    );
+
+    const error = await pulpFetch<never>('/pulp/api/v3/status/', {
+      method: 'GET',
+    }).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(PulpRequestError);
+    expect((error as PulpRequestError).status).toBe(502);
+  });
+
+  it('keeps the HTML body of a gateway failure', async () => {
+    server.use(
+      http.get(
+        '*/pulp/api/v3/status/',
+        () =>
+          new HttpResponse('<html>Bad Gateway</html>', {
+            status: 502,
+            headers: { 'Content-Type': 'text/html' },
+          }),
+      ),
+    );
+
+    await expect(
+      pulpFetch('/pulp/api/v3/status/', { method: 'GET' }),
+    ).rejects.toMatchObject({ status: 502, data: '<html>Bad Gateway</html>' });
+  });
+
+  it('runs the failure hook for a failed answer labelled JSON with an empty body', async () => {
+    const onFailure = vi.fn();
+    configurePulpFetch({
+      resolveUrl: (url) => url,
+      beforeRequest: () => undefined,
+      onFailure,
+    });
+    server.use(
+      http.get(
+        '*/pulp/api/v3/status/',
+        () =>
+          new HttpResponse('', {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      ),
+    );
+
+    try {
+      await expect(
+        pulpFetch('/pulp/api/v3/status/', { method: 'GET' }),
+      ).rejects.toBeInstanceOf(PulpRequestError);
+    } finally {
+      configurePulpFetch(null);
+    }
+
+    expect(onFailure).toHaveBeenCalledTimes(1);
+    expect(onFailure).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 401 }),
+      undefined,
+    );
+  });
 });

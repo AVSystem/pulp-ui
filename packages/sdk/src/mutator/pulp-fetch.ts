@@ -60,7 +60,9 @@ function getBody(res: Response): unknown {
   }
 
   if (contentType.includes(ALLOWED_CONTENT_TYPES.JSON)) {
-    return res.json();
+    // A failure may carry an empty or truncated body under a JSON label (a
+    // gateway answer); that must not hide the status.
+    return res.ok ? res.json() : res.json().catch(() => undefined);
   }
   return res.text();
 }
