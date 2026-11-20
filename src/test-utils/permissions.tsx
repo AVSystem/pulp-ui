@@ -47,10 +47,11 @@ export function serveUserRecords({
         ...session,
         id,
         is_staff: isStaff,
+        // the server lists a group of a user by name and address only
         groups: groups.map((group) => ({
-          id: group.id,
           name: `group-${group.id}`,
           pulp_href: `${API}/groups/${group.id}/`,
+          prn: `prn:auth.group:${group.id}`,
         })),
       }),
     ),

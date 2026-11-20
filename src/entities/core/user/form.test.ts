@@ -24,6 +24,24 @@ describe('the user form values', () => {
     });
   });
 
+  it('take the id of a group listed by name and address only from its address', () => {
+    const listed = userToForm({
+      pulp_href: '/pulp/api/v3/users/5/',
+      username: 'zz-bob',
+      groups: [
+        { name: 'zz-group', pulp_href: '/pulp/api/v3/groups/12/' },
+        { name: 'zz-odd', pulp_href: '/pulp/api/v3/other/12/' },
+        { name: 'zz-bare' },
+      ],
+    });
+
+    expect(listed.groups).toEqual([
+      { id: 12, name: 'zz-group' },
+      { id: undefined, name: 'zz-odd' },
+      { id: undefined, name: 'zz-bare' },
+    ]);
+  });
+
   it('send only the changed text fields, an emptied one as an empty text', () => {
     expect(userChanges(ann, { ...ann })).toEqual({});
     expect(userChanges(ann, { ...ann, first_name: 'Anna', email: '' })).toEqual(

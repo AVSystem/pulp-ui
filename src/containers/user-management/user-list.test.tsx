@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
-import { group, listOf, userPage, userRow } from 'src/test-utils/pulp';
+import { listOf, userGroup, userPage, userRow } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import {
@@ -52,7 +52,7 @@ describe('the user list', () => {
       first_name: 'Ann',
       last_name: 'Lee',
       email: 'ann@example.com',
-      groups: [group({ id: 31, name: 'zz-group' })],
+      groups: [userGroup(31, 'zz-group')],
     });
     server.use(listOf(USERS, [row]).handler);
     renderUsers();
