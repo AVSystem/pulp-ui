@@ -158,6 +158,26 @@ msgstr "{figure} of {total}"
 #~ msgid "{github_user} logo"
 #~ msgstr "{github_user} logo"
 
+#: src/framework/watched-tasks.tsx
+msgid "{label} can no longer be followed."
+msgstr "{label} can no longer be followed."
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} failed."
+msgstr "{label} failed."
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} finished."
+msgstr "{label} finished."
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} was canceled."
+msgstr "{label} was canceled."
+
+#: src/framework/watched-tasks.tsx
+msgid "{label} was skipped."
+msgstr "{label} was skipped."
+
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
 msgstr "{n, plural, one {# byte} other {# bytes}}"
@@ -6546,6 +6566,10 @@ msgstr "Retry repository search"
 msgid "Revert"
 msgstr "Revert"
 
+#: src/framework/detail/revert-version.tsx
+msgid "Revert of {repositoryName}"
+msgstr "Revert of {repositoryName}"
+
 #: src/actions/repository-version-revert.tsx
 #: src/framework/detail/revert-version.tsx
 msgid "Revert repository"
@@ -7546,6 +7570,10 @@ msgstr "Sync is being canceled"
 #: src/framework/sync/last-sync.tsx
 msgid "Sync is unavailable because this repository has no remote."
 msgstr "Sync is unavailable because this repository has no remote."
+
+#: src/framework/sync/sync-dialog.tsx
+msgid "Sync of {name}"
+msgstr "Sync of {name}"
 
 #: src/components/remote-form.tsx
 msgid "Sync package provenance"
@@ -9022,6 +9050,7 @@ msgstr "View and cancel any task."
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/framework/sync/sync-dialog.tsx
+#: src/framework/watched-tasks.tsx
 msgid "View the task"
 msgstr "View the task"
 

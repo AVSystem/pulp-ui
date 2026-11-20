@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
+import { useForgetWatchedTasks } from 'src/framework/watched-tasks';
 import { useUserContext } from 'src/user-context';
 
 // Keeps the query cache in step with the session. It renders nothing and sits
@@ -7,6 +8,7 @@ import { useUserContext } from 'src/user-context';
 export function SessionQueryBridge() {
   const queryClient = useQueryClient();
   const { generation, epoch } = useUserContext();
+  const forgetWatchedTasks = useForgetWatchedTasks();
   // The values the cache was last brought in step with, so mounting the bridge
   // (or running its effects twice in development) does nothing.
   const seen = useRef({ generation, epoch });
@@ -15,7 +17,10 @@ export function SessionQueryBridge() {
   // the user's own hand) or was replaced by another account. What was read for
   // that account must not be shown to the next one, so the running reads are
   // cancelled and the cache is emptied. Cancelling first keeps the answer of a
-  // read that is still on its way from landing in the emptied cache.
+  // read that is still on its way from landing in the emptied cache. The tasks
+  // started in this tab and the announcements about them belong to that
+  // account as well, so they go too: nothing of one account is read or shown
+  // for the next.
   useEffect(() => {
     if (seen.current.generation === generation) {
       return;
@@ -23,7 +28,8 @@ export function SessionQueryBridge() {
     seen.current.generation = generation;
     void queryClient.cancelQueries();
     queryClient.clear();
-  }, [queryClient, generation]);
+    forgetWatchedTasks();
+  }, [queryClient, generation, forgetWatchedTasks]);
 
   // The same user signed in again after the session ended. The screens on
   // the page stay, so the reads they show are made again. A read that is still

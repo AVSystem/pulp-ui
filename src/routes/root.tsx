@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router';
 import { AppContextProvider } from 'src/app-context';
 import { LoadingSpinner, UIVersion } from 'src/components';
+import { WatchedTasksProvider } from 'src/framework/watched-tasks';
 import { PermissionsProvider } from 'src/permissions';
 import { PluginsProvider } from 'src/plugins';
 import { createQueryClient } from 'src/query/client';
@@ -24,23 +25,28 @@ export default function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <UserContextProvider>
-        <SessionQueryBridge />
-        <PermissionsProvider>
-          <AppContextProvider>
-            <PluginsProvider>
-              {bare ? (
-                <Outlet />
-              ) : (
-                <Shell>
-                  {isNavigating && <LoadingSpinner />}
+        {/* Follows the tasks started in this tab for as long as the page is
+            open, so it sits above every screen and next to the bridge that
+            empties its list when the account changes. */}
+        <WatchedTasksProvider>
+          <SessionQueryBridge />
+          <PermissionsProvider>
+            <AppContextProvider>
+              <PluginsProvider>
+                {bare ? (
                   <Outlet />
-                </Shell>
-              )}
-              <ReauthDialog />
-              <UIVersion />
-            </PluginsProvider>
-          </AppContextProvider>
-        </PermissionsProvider>
+                ) : (
+                  <Shell>
+                    {isNavigating && <LoadingSpinner />}
+                    <Outlet />
+                  </Shell>
+                )}
+                <ReauthDialog />
+                <UIVersion />
+              </PluginsProvider>
+            </AppContextProvider>
+          </PermissionsProvider>
+        </WatchedTasksProvider>
       </UserContextProvider>
     </QueryClientProvider>
   );

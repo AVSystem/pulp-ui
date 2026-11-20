@@ -14,6 +14,7 @@ import type { RevertBody } from 'src/entities/plugin/repository';
 import { handleDialogWriteError } from 'src/utilities/fail-alerts';
 import { taskAlert } from 'src/utilities/task-alert';
 import type { PluginDescriptor } from '../descriptor';
+import { useWatchTask } from '../watched-tasks';
 
 interface Props {
   // The repository that is reverted and the version whose content it takes.
@@ -42,6 +43,7 @@ export const RevertVersionDialog = ({
   onClose,
 }: Props) => {
   const modify = useModifyRepository<RevertBody>(entity);
+  const { watch } = useWatchTask();
   const labelId = useId();
   const sending = useRef(false);
   const repositoryName = repository.name;
@@ -56,6 +58,16 @@ export const RevertVersionDialog = ({
       const task = await modify.mutateAsync({
         href: repository.pulp_href,
         body: { base_version: version.pulp_href },
+      });
+      // The root follows the task to its end wherever the user is by then.
+      watch({
+        href: task,
+        label: t`Revert of ${repositoryName}`,
+        resource: {
+          app: entity.app,
+          object: entity.object,
+          href: repository.pulp_href,
+        },
       });
       addAlert(
         taskAlert(task, t`Revert started for repository "${repositoryName}".`),
