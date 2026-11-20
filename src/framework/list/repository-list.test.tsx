@@ -829,8 +829,8 @@ describe(
       ).toBeNull();
     });
 
-    it('offers Edit on every row to a user who holds the change and delete permissions, without reading the roles on single objects', async () => {
-      holding(CHANGE, DELETE);
+    it('offers Edit on every row to a user who holds the change, delete and sync permissions, without reading the roles on single objects', async () => {
+      holding(CHANGE, DELETE, SYNC);
       const repositories = named(3) as IRepository[];
       serveLab({ repositories });
       const requests = recordRequests();

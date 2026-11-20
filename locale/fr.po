@@ -4111,6 +4111,10 @@ msgstr "Dernier signal de vie"
 msgid "Last name"
 msgstr "Nom"
 
+#: src/framework/detail/details-tab.tsx
+msgid "Last sync"
+msgstr ""
+
 #: src/containers/ansible-repository/list.tsx
 #~ msgid "Last synced"
 #~ msgstr "Dernière synchronisation"
@@ -4551,6 +4555,10 @@ msgstr "Espaces de noms"
 #: src/containers/ansible-repository/list.tsx
 msgid "never synced"
 msgstr "jamais synchronisé"
+
+#: src/framework/sync/last-sync.tsx
+msgid "Never synced"
+msgstr ""
 
 #: src/components/import-modal.tsx
 #~ msgid "New collection"
@@ -6502,6 +6510,7 @@ msgstr "Nouvelles tentatives"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/repository-list.tsx
+#: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
 msgid "Retry"
@@ -7482,6 +7491,7 @@ msgstr "Résumé"
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/list/row-actions.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Sync"
@@ -7530,6 +7540,10 @@ msgstr "Synchroniser les paquets d'installation"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync is being canceled"
+msgstr ""
+
+#: src/framework/sync/last-sync.tsx
+msgid "Sync is unavailable because this repository has no remote."
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -7585,6 +7599,7 @@ msgstr "Synchroniser les sources"
 #: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Sync started for repository \"{name}\"."
 msgstr "La synchronisation a commencé pour le référentiel \"{name}\"."
 
@@ -7907,6 +7922,10 @@ msgstr ""
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
 msgstr "La dernière action n'a pas été terminée. Répétez-la après vous être connecté."
+
+#: src/framework/sync/last-sync.tsx
+msgid "The last sync could not be read."
+msgstr ""
 
 #: src/components/external-sign-in-incomplete.tsx
 msgid "The login page returned without a signed-in session."
@@ -8999,6 +9018,7 @@ msgstr "Afficher et annuler n'importe quelle tâche."
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "View the task"

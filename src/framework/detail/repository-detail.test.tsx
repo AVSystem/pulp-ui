@@ -174,6 +174,7 @@ describe(
         'Repository URL',
         'Labels',
         'Remote',
+        'Last sync',
       ]);
       expect(rows.get('Repository name')).toHaveTextContent('tools');
       expect(rows.get('Description')).toHaveTextContent(
@@ -855,7 +856,7 @@ describe(
     it('has no Last sync row for a plugin that declares no sync', async () => {
       const repository = tools({ remote: REMOTE });
       serveLab({ repositories: [repository] });
-      const { sync: _sync, ...repositoryKind } = fileDescriptor.repository;
+      const repositoryKind = { ...fileDescriptor.repository, sync: undefined };
       const withoutSync: PluginDescriptor = {
         ...fileDescriptor,
         repository: repositoryKind,

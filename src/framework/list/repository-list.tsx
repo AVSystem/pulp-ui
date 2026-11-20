@@ -46,6 +46,7 @@ import {
   requestErrorReason,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { taskAlert } from 'src/utilities/task-alert';
 import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
 import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
@@ -55,6 +56,7 @@ import {
   type PluginManifest,
 } from '../manifest';
 import { newRepositoryPath } from '../route-patterns';
+import { SyncDialog } from '../sync/sync-dialog';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import {
   BaseUrlCell,
@@ -324,9 +326,12 @@ const RepositoryListScreen = ({
     (row: RepositoryBase) => setDeleting(row),
     [],
   );
+  // The repository whose sync dialog is open.
+  const [syncing, setSyncing] = useState<RepositoryBase | null>(null);
+  const requestSync = useCallback((row: RepositoryBase) => setSyncing(row), []);
   const actionContext = useMemo<RowActionContext>(
-    () => ({ plugin, navigate, requestDelete }),
-    [plugin, navigate, requestDelete],
+    () => ({ plugin, navigate, requestDelete, requestSync }),
+    [plugin, navigate, requestDelete, requestSync],
   );
 
   // A failed read of what the user may do says so once, with the one button
@@ -488,7 +493,7 @@ const RepositoryListScreen = ({
   // The actions each row offers, by id, so a row is rebuilt only when its own
   // actions change. A list in which no row offers one has no actions column.
   const rowActionIds = rows.map((row) =>
-    actionsFor(actions, row, permits)
+    actionsFor(actions, row, permits, descriptor)
       .map(({ id }) => id)
       .join(','),
   );
@@ -582,6 +587,25 @@ const RepositoryListScreen = ({
     <>
       {alertList}
       {header}
+      {syncing ? (
+        <SyncDialog
+          key={syncing.pulp_href}
+          descriptor={descriptor}
+          repository={syncing}
+          onClose={() => setSyncing(null)}
+          onStarted={(task) => {
+            const { name } = syncing;
+            setAlerts((current) => [
+              ...current,
+              taskAlert(
+                task,
+                t`Sync started for repository "${name}".`,
+                'success',
+              ),
+            ]);
+          }}
+        />
+      ) : null}
       {deleting ? (
         <DeleteRepositoryDialog
           key={deleting.pulp_href}
