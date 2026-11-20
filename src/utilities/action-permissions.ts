@@ -1,11 +1,9 @@
-import type { HrefPlugin } from 'src/entities/href';
-
 // The permission each repository and remote action needs, per plugin. The
 // names are the permissions the plugins' own viewsets check, so an action is
 // shown exactly when the server would let its request through (the server
 // still decides every request: hiding an action is presentation only).
 
-export type PermissionPlugin = HrefPlugin;
+export type PermissionPlugin = 'file' | 'deb' | 'rpm' | 'python' | 'ansible';
 
 export interface IPluginPermissions {
   // true when a role granted on a single repository or remote counts, as the

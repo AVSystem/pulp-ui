@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
+import { HREF_PLUGINS } from 'src/entities/href';
 import { ACTION_PERMISSIONS } from './action-permissions';
 
 describe('ACTION_PERMISSIONS', () => {
+  it('has an entry for exactly the plugins an address can name', () => {
+    expect(Object.keys(ACTION_PERMISSIONS).sort()).toEqual(
+      [...HREF_PLUGINS].sort(),
+    );
+  });
+
   it('names the permissions of each plugin with its own app label', () => {
     for (const [plugin, entry] of Object.entries(ACTION_PERMISSIONS)) {
       const names = [
