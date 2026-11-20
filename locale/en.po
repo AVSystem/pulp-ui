@@ -4645,6 +4645,10 @@ msgid "Not allowed"
 msgstr "Not allowed"
 
 #: src/containers/pulp-status.tsx
+msgid "Not connected"
+msgstr "Not connected"
+
+#: src/containers/pulp-status.tsx
 msgid "Not enabled"
 msgstr "Not enabled"
 
@@ -8249,8 +8253,8 @@ msgstr "User details"
 #~ msgstr "User dropdown"
 
 #: src/components/pulp-about-modal.tsx
-msgid "User groups"
-msgstr "User groups"
+#~ msgid "User groups"
+#~ msgstr "User groups"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "User Groups"

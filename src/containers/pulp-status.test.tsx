@@ -1,6 +1,6 @@
 import { act, screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { resetSessionEvents } from 'src/session/session-events';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -143,6 +143,47 @@ describe('status page for a visitor who is not signed in', () => {
       'JSON',
     ]);
     expect(screen.queryByText(NOTE)).not.toBeInTheDocument();
+  });
+});
+
+describe('status page with processes that are not told apart by name', () => {
+  it('lists every worker and app without a key warning, and says Not connected', async () => {
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const beat = '2026-01-01T00:00:00Z';
+    server.use(
+      http.get('*/pulp/api/v3/status/', () =>
+        HttpResponse.json({
+          ...status,
+          database_connection: { connected: false },
+          redis_connection: { connected: false },
+          online_workers: [
+            { name: null, last_heartbeat: beat },
+            { name: null, last_heartbeat: beat },
+            { name: 'w', pulp_href: '/pulp/api/v3/workers/1/' },
+          ],
+          online_api_apps: [
+            { name: 'api', last_heartbeat: beat },
+            { name: 'api', last_heartbeat: beat },
+          ],
+          online_content_apps: [{ last_heartbeat: beat }],
+        }),
+      ),
+    );
+
+    renderStatus();
+
+    await screen.findByRole('button', { name: 'JSON' });
+    expect(screen.getAllByText('Not connected')).toHaveLength(2);
+    expect(
+      screen.getAllByText('Last heartbeat', { exact: false }),
+    ).toHaveLength(6);
+    const warned = error.mock.calls.some((call) =>
+      String(call[0]).includes('unique "key"'),
+    );
+    error.mockRestore();
+    expect(warned).toBe(false);
   });
 });
 

@@ -54,10 +54,19 @@ const StatusVersions = ({
   );
 };
 
+// A worker or an application process is keyed by its address when the server
+// sends one. The name may be missing or shared by two processes, so without an
+// address the position in the list keeps the key unique.
+const processKey = (
+  { pulp_href, name }: { pulp_href?: string; name? },
+  index: number,
+) => pulp_href ?? `${name ?? ''}-${index}`;
+
 const StatusOnlineWorkers = ({
   onlineWorkers,
 }: {
   onlineWorkers: {
+    pulp_href?: string;
     current_task;
     last_heartbeat;
     name;
@@ -68,10 +77,20 @@ const StatusOnlineWorkers = ({
   <>
     {onlineWorkers.map(
       (
-        { current_task, last_heartbeat, name, pulp_created, pulp_last_updated },
+        {
+          pulp_href,
+          current_task,
+          last_heartbeat,
+          name,
+          pulp_created,
+          pulp_last_updated,
+        },
         i,
       ) => (
-        <div key={name} style={{ paddingTop: i ? '8px' : '0' }}>
+        <div
+          key={processKey({ pulp_href, name }, i)}
+          style={{ paddingTop: i ? '8px' : '0' }}
+        >
           <strong>{t`Name`}</strong>: {name}
           <br />
           <strong>{t`Created`}</strong>: <DateComponent date={pulp_created} />
@@ -91,10 +110,17 @@ const StatusOnlineWorkers = ({
   </>
 );
 
-const StatusOnlineApps = ({ apps }: { apps: { name; last_heartbeat }[] }) => (
+const StatusOnlineApps = ({
+  apps,
+}: {
+  apps: { pulp_href?: string; name; last_heartbeat }[];
+}) => (
   <>
-    {apps.map(({ name, last_heartbeat }, i) => (
-      <div key={name} style={{ paddingTop: i ? '8px' : '0' }}>
+    {apps.map(({ pulp_href, name, last_heartbeat }, i) => (
+      <div
+        key={processKey({ pulp_href, name }, i)}
+        style={{ paddingTop: i ? '8px' : '0' }}
+      >
         <strong>{t`Name`}</strong>: {name}
         <br />
         <strong>{t`Last heartbeat`}</strong>:{' '}
@@ -107,26 +133,26 @@ const StatusOnlineApps = ({ apps }: { apps: { name; last_heartbeat }[] }) => (
 const StatusOnlineApiApps = ({
   onlineApiApps,
 }: {
-  onlineApiApps: { name; last_heartbeat }[];
+  onlineApiApps: { pulp_href?: string; name; last_heartbeat }[];
 }) => <StatusOnlineApps apps={onlineApiApps} />;
 
 const StatusOnlineContentApps = ({
   onlineContentApps,
 }: {
-  onlineContentApps: { name; last_heartbeat }[];
+  onlineContentApps: { pulp_href?: string; name; last_heartbeat }[];
 }) => <StatusOnlineApps apps={onlineContentApps} />;
 
 const StatusDatabaseConnection = ({
   databaseConnection,
 }: {
   databaseConnection: { connected: boolean };
-}) => (databaseConnection?.connected ? t`Connected` : `Not connected`);
+}) => (databaseConnection?.connected ? t`Connected` : t`Not connected`);
 
 const StatusRedisConnection = ({
   redisConnection,
 }: {
   redisConnection: { connected: boolean };
-}) => (redisConnection?.connected ? t`Connected` : `Not connected`);
+}) => (redisConnection?.connected ? t`Connected` : t`Not connected`);
 
 // pulpcore measures total and free space only when artifacts live on a
 // filesystem. Every other backend reports both as null -- an object store has no

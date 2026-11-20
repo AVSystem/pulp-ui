@@ -7,14 +7,12 @@ import {
   HelperTextItem,
 } from '@patternfly/react-core';
 import { type ReactNode } from 'react';
-import { Link } from 'react-router';
 import { useAppContext } from 'src/app-context';
-import { DateComponent, ExternalLink, MaybeLink } from 'src/components';
+import { DateComponent, ExternalLink } from 'src/components';
 import {
   type VersionDifference,
   versionDifferences,
 } from 'src/entities/core/status/generated-versions';
-import { Paths, formatPath } from 'src/paths';
 import { usePlugins } from 'src/plugins';
 import { config } from 'src/ui-config';
 import PulpLogo from 'static/images/pulp_logo.png';
@@ -75,9 +73,6 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
   const ui_version = UI_BUILD_INFO?.version;
   const ui_extra = config.EXTRA_VERSION;
 
-  // FIXME
-  const user = { username, id: null, groups: [] };
-
   return (
     <AboutModal
       brandImageAlt={t`Pulp logo`}
@@ -132,36 +127,7 @@ export const PulpAboutModal = ({ isOpen, onClose, username }: IProps) => {
           </Value>
 
           <Label>{t`Username`}</Label>
-          <Value>
-            <MaybeLink
-              to={
-                user.id
-                  ? formatPath(Paths.core.user.detail, { user_id: user.id })
-                  : null
-              }
-              title={username}
-            >
-              {username}
-              {user?.username && user.username !== username ? (
-                <> ({user.username})</>
-              ) : null}
-            </MaybeLink>
-          </Value>
-
-          <Label>{t`User groups`}</Label>
-          <Value>
-            {user.groups.map(({ id: group, name }, index) => (
-              <>
-                {index ? ', ' : null}
-                <Link
-                  key={group}
-                  to={formatPath(Paths.core.group.detail, { group })}
-                >
-                  {name}
-                </Link>
-              </>
-            ))}
-          </Value>
+          <Value>{username}</Value>
         </Content>
         {differences.length ? (
           <HelperText component='ul'>

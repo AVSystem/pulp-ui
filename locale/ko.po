@@ -4644,6 +4644,10 @@ msgid "Not allowed"
 msgstr "허용되지 않음"
 
 #: src/containers/pulp-status.tsx
+msgid "Not connected"
+msgstr "연결되지 않음"
+
+#: src/containers/pulp-status.tsx
 msgid "Not enabled"
 msgstr "사용 안 함"
 
@@ -8248,8 +8252,8 @@ msgstr "사용자 세부 정보"
 #~ msgstr ""
 
 #: src/components/pulp-about-modal.tsx
-msgid "User groups"
-msgstr "사용자 그룹"
+#~ msgid "User groups"
+#~ msgstr "사용자 그룹"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "User Groups"
