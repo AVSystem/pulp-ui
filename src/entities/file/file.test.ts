@@ -386,6 +386,7 @@ describe('Unit: the file repository entity', { tags: ['unit'] }, () => {
     it('lists the versions of a repository by page and sort', async () => {
       const row = repository();
       const versions = listOf(`${row.pulp_href}versions/`, [
+        repositoryVersion(row, 3),
         repositoryVersion(row, 2),
         repositoryVersion(row, 1),
       ]);
@@ -393,16 +394,17 @@ describe('Unit: the file repository entity', { tags: ['unit'] }, () => {
 
       const answer = await fileRepository.versions(row.pulp_href, {
         page: 2,
-        page_size: 10,
+        page_size: 2,
         sort: '-number',
       });
 
       expect(Object.fromEntries(versions.queries[0])).toEqual({
-        offset: '10',
-        limit: '10',
+        offset: '2',
+        limit: '2',
         ordering: '-number',
       });
-      expect(answer.results.map((version) => version.number)).toEqual([2, 1]);
+      expect(answer.count).toBe(3);
+      expect(answer.results.map((version) => version.number)).toEqual([1]);
     });
 
     it('reads one version by its address', async () => {

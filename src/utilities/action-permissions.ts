@@ -1,9 +1,11 @@
+import type { HrefPlugin } from 'src/entities/href';
+
 // The permission each repository and remote action needs, per plugin. The
 // names are the permissions the plugins' own viewsets check, so an action is
 // shown exactly when the server would let its request through (the server
 // still decides every request: hiding an action is presentation only).
 
-export type PermissionPlugin = 'file' | 'deb' | 'rpm' | 'python' | 'ansible';
+export type PermissionPlugin = HrefPlugin;
 
 export interface IPluginPermissions {
   // true when a role granted on a single repository or remote counts, as the
@@ -124,17 +126,3 @@ export const ACTION_PERMISSIONS: Record<PermissionPlugin, IPluginPermissions> =
       },
     },
   };
-
-// The plugin a repository, repository version or remote address belongs to:
-// the segment after "repositories/" or "remotes/". Anything else answers
-// nothing.
-export function pluginOfHref(
-  href: string | null | undefined,
-): PermissionPlugin | undefined {
-  const segment = /\/(?:repositories|remotes)\/([^/]+)\//.exec(href ?? '')?.[1];
-
-  return segment &&
-    Object.prototype.hasOwnProperty.call(ACTION_PERMISSIONS, segment)
-    ? (segment as PermissionPlugin)
-    : undefined;
-}
