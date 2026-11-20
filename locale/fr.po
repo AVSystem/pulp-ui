@@ -543,6 +543,7 @@ msgstr "Ajouter une source distante"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "Ajouter un référentiel"
 
@@ -2576,6 +2577,7 @@ msgstr "Menu déroulant"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Modifier"
 
@@ -8799,6 +8801,7 @@ msgstr "Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot 
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "Vos permissions n'ont pas pu être lues"
 

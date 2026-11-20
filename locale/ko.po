@@ -543,6 +543,7 @@ msgstr "원격 추가"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "리포지토리 추가"
 
@@ -2576,6 +2577,7 @@ msgstr "드롭다운"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "편집"
 
@@ -8799,6 +8801,7 @@ msgstr "비밀번호가 변경되었습니다. 새 비밀번호로 로그인하�
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "권한을 읽을 수 없습니다"
 

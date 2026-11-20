@@ -1,6 +1,13 @@
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
-import { AlertActionLink } from '@patternfly/react-core';
+import {
+  AlertActionLink,
+  Button,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
+} from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -15,6 +22,7 @@ import {
   EmptyStateNoData,
   InsufficientPermissions,
   ListErrorState,
+  ListItemActions,
   LoadingSpinner,
   Main,
   PulpPagination,
@@ -22,7 +30,9 @@ import {
   Table,
   closeAlert,
 } from 'src/components';
+import { RowActionsColumn } from 'src/components/list-item-actions';
 import { useVersionSummaries } from 'src/entities/core/repository-version/queries';
+import { useObjectPermissions } from 'src/entities/core/role-assignment/queries';
 import type { Task } from 'src/entities/core/task/model';
 import { lastTaskOf, useTaskIndex } from 'src/entities/core/task/task-index';
 import { useDistributionIndex } from 'src/entities/plugin/distribution';
@@ -37,8 +47,13 @@ import {
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
-import type { ColumnDef, PluginDescriptor } from '../descriptor';
-import type { FrameworkPlugin } from '../manifest';
+import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
+import {
+  type FrameworkPlugin,
+  PLUGIN_MANIFESTS,
+  type PluginManifest,
+} from '../manifest';
+import { newRepositoryPath } from '../route-patterns';
 import {
   BaseUrlCell,
   type ColumnState,
@@ -52,11 +67,24 @@ import {
   paramsOfAddress,
   searchOf,
 } from './list-params';
+import {
+  REPOSITORY_ROW_ACTIONS,
+  type RepositoryPermission,
+  type RowAction,
+  type RowActionContext,
+  actionsFor,
+} from './row-actions';
 
 interface Props {
   plugin: FrameworkPlugin;
   descriptor: PluginDescriptor;
+  // The actions of a row's menu. Every list has the ones of
+  // REPOSITORY_ROW_ACTIONS; a screen that adds actions passes its own list.
+  actions?: RowAction<RepositoryBase>[];
 }
+
+const NO_COLUMNS: ColumnDef<RepositoryBase>[] = [];
+const NO_FILTERS: FilterDef[] = [];
 
 // What every list reads of a repository whatever its columns are: the address
 // the derived columns match on, the PRN the last task is found by and the
@@ -94,7 +122,11 @@ function stateOf(
 // distributions, the latest versions in groups, the task index), so the number
 // of requests does not grow with the rows. A column whose read fails says so
 // with a Retry and leaves the rows and the other columns alone.
-export const RepositoryList = ({ plugin, descriptor }: Props) => {
+export const RepositoryList = ({
+  plugin,
+  descriptor,
+  actions = REPOSITORY_ROW_ACTIONS,
+}: Props) => {
   const { distribution, publication } = descriptor;
 
   if (!distribution) {
@@ -107,6 +139,7 @@ export const RepositoryList = ({ plugin, descriptor }: Props) => {
     <RepositoryListScreen
       plugin={plugin}
       descriptor={descriptor}
+      actions={actions}
       distribution={distribution.entity}
       publication={publication?.entity}
     />
@@ -120,14 +153,32 @@ interface ScreenProps extends Props {
 }
 
 const RepositoryListScreen = ({
+  plugin,
   descriptor,
+  actions = REPOSITORY_ROW_ACTIONS,
   distribution,
   publication,
 }: ScreenProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { alerts: queuedAlerts, setAlerts: setQueuedAlerts } = useAppContext();
-  const { entity, columns = [], filters = [] } = descriptor.repository;
+  const {
+    alerts: queuedAlerts,
+    setAlerts: setQueuedAlerts,
+    hasPermission,
+    permissionsError,
+    permissionsFailed,
+    permissionsReady,
+    retryPermissions,
+  } = useAppContext();
+  const {
+    entity,
+    columns = NO_COLUMNS,
+    filters = NO_FILTERS,
+  } = descriptor.repository;
+  const manifest = PLUGIN_MANIFESTS.find(
+    (candidate) => candidate.plugin === plugin,
+  ) as PluginManifest;
+  const names = manifest.permissions.repository;
 
   const options = useMemo(
     () => ({
@@ -177,6 +228,57 @@ const RepositoryListScreen = ({
   const versions = useVersionSummaries(
     rows.map((row) => row.latest_version_href),
   );
+
+  // Whether the user may take an action on a row: the permission is held on
+  // every repository, or, for a plugin whose roles can be granted on a single
+  // repository, held on this one according to the roles the user has on single
+  // objects. Anything not known yet is no.
+  const needsObjectRoles =
+    manifest.permissions.objectRoles &&
+    permissionsReady &&
+    actions.some(({ permission }) => !hasPermission(names[permission]));
+  const rowsShown = rows.length > 0 && !query.isPlaceholderData;
+  // The roles on single objects are read behind the rows, and only for a user
+  // who lacks a permission on every repository.
+  const objectRoles = useObjectPermissions({
+    enabled: rowsShown && needsObjectRoles,
+  });
+  const permits = (permission: RepositoryPermission, row: RepositoryBase) =>
+    hasPermission(names[permission]) ||
+    (needsObjectRoles && objectRoles.can(row.pulp_href, names[permission]));
+  const actionContext = useMemo<RowActionContext>(
+    () => ({ plugin, navigate }),
+    [plugin, navigate],
+  );
+
+  // A failed read of what the user may do says so once, with the one button
+  // that reads it again. Nothing the user may not be confirmed to do is drawn
+  // meanwhile, and the failure is never taken for a refusal.
+  const permissionsNotice =
+    permissionsFailed || (needsObjectRoles && objectRoles.state === 'error') ? (
+      <Alert
+        isInline
+        variant='warning'
+        title={t`Your permissions could not be read`}
+        actionLinks={
+          <AlertActionLink
+            onClick={permissionsFailed ? retryPermissions : objectRoles.retry}
+          >{t`Retry`}</AlertActionLink>
+        }
+        style={{ marginBottom: '16px' }}
+      >
+        {permissionsFailed ? requestErrorDescription(permissionsError) : null}
+      </Alert>
+    ) : null;
+
+  const addButton = hasPermission(names.add) ? (
+    <Button
+      variant='primary'
+      onClick={() => navigate(newRepositoryPath(plugin))}
+    >
+      {t`Add repository`}
+    </Button>
+  ) : undefined;
 
   // What other screens queued for this one is shown once, then forgotten.
   const [alerts, setAlerts] = useState<AlertType[]>(() => queuedAlerts ?? []);
@@ -264,9 +366,11 @@ const RepositoryListScreen = ({
       <>
         {alertList}
         {header}
+        {permissionsNotice ? <Main>{permissionsNotice}</Main> : null}
         <EmptyStateNoData
           title={t`No repositories yet`}
           description={t`Repositories will appear once created.`}
+          button={addButton}
         />
       </>
     );
@@ -308,6 +412,15 @@ const RepositoryListScreen = ({
       : null,
   ].flatMap((failure) => (failure ? [failure] : []));
 
+  // The actions each row offers, by id, so a row is rebuilt only when its own
+  // actions change. A list in which no row offers one has no actions column.
+  const rowActionIds = rows.map((row) =>
+    actionsFor(actions, row, permits)
+      .map(({ id }) => id)
+      .join(','),
+  );
+  const anyRowAction = rowActionIds.some((ids) => ids !== '');
+
   const headers = [
     ...columns.map((column: ColumnDef<RepositoryBase>) => ({
       id: column.sortField ?? column.id,
@@ -319,6 +432,7 @@ const RepositoryListScreen = ({
       title: title(),
       type: 'none',
     })),
+    ...(anyRowAction ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
 
   return (
@@ -328,6 +442,15 @@ const RepositoryListScreen = ({
       <Main>
         <section className='pulp-section'>
           <div className='pulp-toolbar'>
+            {addButton ? (
+              <Toolbar>
+                <ToolbarContent>
+                  <ToolbarGroup>
+                    <ToolbarItem>{addButton}</ToolbarItem>
+                  </ToolbarGroup>
+                </ToolbarContent>
+              </Toolbar>
+            ) : null}
             <PulpPagination
               params={params}
               updateParams={updateParams}
@@ -346,6 +469,7 @@ const RepositoryListScreen = ({
               )}
             />
           </div>
+          {permissionsNotice}
           {failures.map(({ id, title, retry, description }) => (
             <Alert
               key={id}
@@ -381,27 +505,32 @@ const RepositoryListScreen = ({
                 params={params}
                 updateParams={updateParams}
               />
-              <Tbody>
-                {rows.map((row) => (
-                  <RepositoryRow
-                    key={row.pulp_href}
-                    row={row}
-                    columns={columns}
-                    baseUrlState={baseUrlState}
-                    baseUrls={distributions.baseUrlsByRepository?.get(
-                      row.pulp_href,
-                    )}
-                    contentState={contentState}
-                    contentCount={
-                      row.latest_version_href
-                        ? versions.counts.get(row.latest_version_href)
-                        : undefined
-                    }
-                    taskState={taskState}
-                    lastTask={lastTaskOf(tasks, row.prn)}
-                  />
-                ))}
-              </Tbody>
+              <RowActionsColumn.Provider value={anyRowAction}>
+                <Tbody>
+                  {rows.map((row, position) => (
+                    <RepositoryRow
+                      key={row.pulp_href}
+                      row={row}
+                      columns={columns}
+                      actions={actions}
+                      actionIds={rowActionIds[position] as string}
+                      actionContext={actionContext}
+                      baseUrlState={baseUrlState}
+                      baseUrls={distributions.baseUrlsByRepository?.get(
+                        row.pulp_href,
+                      )}
+                      contentState={contentState}
+                      contentCount={
+                        row.latest_version_href
+                          ? versions.counts.get(row.latest_version_href)
+                          : undefined
+                      }
+                      taskState={taskState}
+                      lastTask={lastTaskOf(tasks, row.prn)}
+                    />
+                  ))}
+                </Tbody>
+              </RowActionsColumn.Provider>
             </Table>
           )}
           <PulpPagination
@@ -419,6 +548,10 @@ const RepositoryListScreen = ({
 interface RowProps {
   row: RepositoryBase;
   columns: ColumnDef<RepositoryBase>[];
+  actions: RowAction<RepositoryBase>[];
+  // The ids of the actions the row offers, joined by commas.
+  actionIds: string;
+  actionContext: RowActionContext;
   baseUrlState: ColumnState;
   baseUrls: readonly string[] | undefined;
   contentState: ColumnState;
@@ -433,6 +566,9 @@ interface RowProps {
 const RepositoryRow = memo(function RepositoryRow({
   row,
   columns,
+  actions,
+  actionIds,
+  actionContext,
   baseUrlState,
   baseUrls,
   contentState,
@@ -461,6 +597,11 @@ const RepositoryRow = memo(function RepositoryRow({
       <Td>
         <LastTaskCell state={taskState} task={lastTask} />
       </Td>
+      <ListItemActions
+        kebabItems={actions
+          .filter(({ id }) => actionIds.split(',').includes(id))
+          .map((action) => action.item(row, actionContext))}
+      />
     </Tr>
   );
 });

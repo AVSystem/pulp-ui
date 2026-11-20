@@ -13,6 +13,7 @@ import {
   type IRepository,
   distributionListHandler,
   listOf,
+  page,
   pluginDistribution,
   pluginListHandler,
   pluginPublication,
@@ -762,11 +763,21 @@ describe(
     // as the server lists them. `held` may answer later than the rows.
     function serveRolesOnObjects(
       grants: IRepository[],
-      { held = Promise.resolve(), catalogueStatus = 200 } = {},
+      {
+        held = Promise.resolve(),
+        catalogueStatus = 200,
+        // what the user holds on every repository
+        everywhere = [] as string[],
+      } = {},
     ) {
-      const assignments = grants.map((repository) =>
-        roleAssignment(OWNER, repository.pulp_href),
-      );
+      const assignments = [
+        ...grants.map((repository) =>
+          roleAssignment(OWNER, repository.pulp_href),
+        ),
+        ...(everywhere.length > 0
+          ? [roleAssignment('global', null, { permissions: everywhere })]
+          : []),
+      ];
       const own = listOf(`${API}/users/7/roles/`, assignments, {
         pageSize: 1000,
         matching: (row, query) =>
@@ -793,6 +804,7 @@ describe(
     it('shows Add repository only to a user who holds the add permission, and leads to the create address', async () => {
       holding(ADD);
       serveLab({ repositories: named(2) });
+      serveRolesOnObjects([], { everywhere: [ADD] });
 
       const { user } = renderList();
       await tableOf();
@@ -822,7 +834,19 @@ describe(
       const requests = recordRequests();
 
       const { user } = renderList();
-      await tableOf();
+      const table = await tableOf();
+      await waitFor(() =>
+        expect(table).toHaveAttribute('data-columns-loaded', 'true'),
+      );
+      for (const repository of repositories) {
+        expect(kebabOf(rowOf(repository.name))).not.toBeNull();
+      }
+      // no read of the catalogue of roles or of single assignments
+      requests.stop();
+      expect(
+        requests.all.filter((path) => /\/roles\/\?.*fields=/.test(path)),
+      ).toEqual([]);
+
       const row = rowOf((repositories[0] as IRepository).name);
       await user.click(kebabOf(row) as HTMLElement);
       await user.click(await screen.findByRole('menuitem', { name: 'Edit' }));
@@ -830,14 +854,6 @@ describe(
       expect(screen.getByTestId('location').textContent).toBe(
         `/file/repositories/${(repositories[0] as IRepository).name}/edit/`,
       );
-      for (const repository of repositories.slice(1)) {
-        expect(kebabOf(rowOf(repository.name))).not.toBeNull();
-      }
-      requests.stop();
-      // no read of the catalogue of roles or of fields of single assignments
-      expect(
-        requests.all.filter((path) => /\/roles\/\?.*fields=/.test(path)),
-      ).toEqual([]);
     });
 
     it('offers Edit on the rows the user holds the change permission on, found in the roles on single objects', async () => {
@@ -870,8 +886,10 @@ describe(
       });
 
       renderList();
-      await tableOf();
-      await screen.findByText('No recent task');
+      const table = await tableOf();
+      await waitFor(() =>
+        expect(table).toHaveAttribute('data-columns-loaded', 'true'),
+      );
 
       expect(kebabOf(rowOf((repositories[0] as IRepository).name))).toBeNull();
       expect(screen.queryByRole('progressbar')).toBeNull();
@@ -1028,7 +1046,7 @@ describe(
       const { user } = renderWithProviders(
         <AppContextProvider>
           <PermissionsKnown>
-            <Routed />
+            <Where />
             <RepositoryList plugin='file' descriptor={filtered} />
           </PermissionsKnown>
         </AppContextProvider>,
@@ -1037,8 +1055,11 @@ describe(
 
       expect(await screen.findByText('No results found')).toBeVisible();
       expect(screen.queryByText('No repositories yet')).toBeNull();
+      const empty = screen
+        .getByText('No results found')
+        .closest('.pf-v6-c-empty-state') as HTMLElement;
       await user.click(
-        screen.getByRole('button', { name: 'Clear all filters' }),
+        within(empty).getByRole('button', { name: 'Clear all filters' }),
       );
       await waitFor(() =>
         expect(screen.getByTestId('location').textContent).toBe(

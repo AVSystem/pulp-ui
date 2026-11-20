@@ -543,6 +543,7 @@ msgstr "Remote toevoegen"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "Repository toevoegen"
 
@@ -2576,6 +2577,7 @@ msgstr "Dropdown"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Bewerken"
 
@@ -8799,6 +8801,7 @@ msgstr "Uw wachtwoord is gewijzigd. Log in met het nieuwe wachtwoord."
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "Uw machtigingen kunnen niet worden gelezen"
 

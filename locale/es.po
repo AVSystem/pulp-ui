@@ -543,6 +543,7 @@ msgstr "Añadir remoto"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "Añadir repositorio"
 
@@ -2576,6 +2577,7 @@ msgstr "Desplegable"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Editar"
 
@@ -8799,6 +8801,7 @@ msgstr "Se cambió su contraseña. Inicie sesión con la nueva contraseña."
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "No se pudieron leer sus permisos"
 

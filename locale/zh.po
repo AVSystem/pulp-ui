@@ -543,6 +543,7 @@ msgstr "添加远程"
 #: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "添加软件仓库"
 
@@ -2576,6 +2577,7 @@ msgstr "下拉菜单"
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "编辑"
 
@@ -8799,6 +8801,7 @@ msgstr "您的密码已更改。请使用新密码登录。"
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "无法读取您的权限"
 
