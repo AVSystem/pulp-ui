@@ -7819,6 +7819,10 @@ msgstr "仓库 \"{repositoryName}\" 的还原仍在运行。"
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "该角色是无版本化的，将始终从 head/main/master 分支安装。"
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "所选角色将添加到此特定的 Ansible 远程中。"
@@ -9080,6 +9084,7 @@ msgstr "您的密码已更改。请使用新密码登录。"
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "无法读取您的权限"

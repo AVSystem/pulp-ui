@@ -7819,6 +7819,10 @@ msgstr "Le rétablissement du référentiel \"{repositoryName}\" est toujours en
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "Le rôle est sans version et s'installe toujours à partir de la branche head/main/master."
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "Les rôles sélectionnés seront ajoutés à cette source distante Ansible spécifique."
@@ -9080,6 +9084,7 @@ msgstr "Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot 
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "Vos permissions n'ont pas pu être lues"

@@ -7819,6 +7819,10 @@ msgstr "リポジトリー \"{repositoryName}\" の復元はまだ実行中で�
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "ロールはバージョンレスで、常に head/main/master ブランチからインストールされます。"
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "選択したロールは、この特定の Ansible リモートに追加されます。"
@@ -9080,6 +9084,7 @@ msgstr "パスワードが変更されました。新しいパスワードでロ
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "パーミッションを読み取れませんでした"

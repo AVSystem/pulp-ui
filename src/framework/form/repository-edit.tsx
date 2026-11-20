@@ -38,6 +38,7 @@ import {
   toForm,
   toRequest,
 } from './form-values';
+import { FormPermissionGate } from './permission-gate';
 import { NAME_FIELD, repositoryFields } from './repository-fields';
 import { type SaveFailure, saveFailure } from './save-errors';
 
@@ -239,7 +240,13 @@ const RepositoryEditScreen = ({
   return (
     <>
       {alertList}
-      <>
+      <FormPermissionGate
+        plugin={plugin}
+        repository={repository}
+        permission='change'
+        title={repositoryName}
+        keep={edit !== null}
+      >
         <BaseHeader
           title={repositoryName}
           breadcrumbs={
@@ -281,7 +288,7 @@ const RepositoryEditScreen = ({
             </DescriptorForm>
           </section>
         </Main>
-      </>
+      </FormPermissionGate>
     </>
   );
 };

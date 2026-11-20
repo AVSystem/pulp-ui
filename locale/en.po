@@ -7820,6 +7820,10 @@ msgstr "The revert of repository \"{repositoryName}\" is still running."
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "The role is versionless and will always install from the head/main/master branch."
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr "The roles you hold on single objects could not be read."
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "The selected roles will be added to this specific Ansible remote."
@@ -9081,6 +9085,7 @@ msgstr "Your password was changed. Sign in with the new password."
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "Your permissions could not be read"

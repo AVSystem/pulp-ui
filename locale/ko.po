@@ -7819,6 +7819,10 @@ msgstr "리포지토리 \"{repositoryName}\"의 복원이 아직 실행 중입�
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "역할은 버전이 없으며 항상 head/main/master 브랜치에서 설치됩니다."
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "선택한 역할은 이 특정 Ansible 원격에 추가됩니다."
@@ -9080,6 +9084,7 @@ msgstr "비밀번호가 변경되었습니다. 새 비밀번호로 로그인하�
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "권한을 읽을 수 없습니다"

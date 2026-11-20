@@ -7819,6 +7819,10 @@ msgstr "Het terugzetten van repository \"{repositoryName}\" wordt nog uitgevoerd
 #~ msgid "The role is versionless and will always install from the head/main/master branch."
 #~ msgstr "De rol is versievrij en wordt altijd geïnstalleerd vanaf de hoofd/main/master vertakking."
 
+#: src/framework/form/permission-gate.tsx
+msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
 msgstr "De geselecteerde rollen worden toegevoegd aan deze specifieke Ansible-remote."
@@ -9080,6 +9084,7 @@ msgstr "Uw wachtwoord is gewijzigd. Log in met het nieuwe wachtwoord."
 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
+#: src/framework/form/permission-gate.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Your permissions could not be read"
 msgstr "Uw machtigingen kunnen niet worden gelezen"
