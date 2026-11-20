@@ -27,6 +27,8 @@ import {
 } from 'react';
 import { Link, useLocation } from 'react-router';
 import { NavList } from 'src/components';
+import { type FrameworkPlugin, PLUGIN_MANIFESTS } from './framework/manifest';
+import { remoteListPath, repositoryListPath } from './framework/route-patterns';
 import { Paths, formatPath } from './paths';
 import { usePermissions } from './permissions';
 import { usePlugins } from './plugins';
@@ -84,40 +86,35 @@ const altPath = (path: string) =>
 interface IPluginPaths {
   key: string;
   label: string;
-  repositories: string;
-  remotes: string;
+  repositories?: string;
+  remotes?: string;
   packages?: string;
 }
 
-// The plugins that have screens, in the order the second level lists them.
+// The lists of packages the plugins have; they are not part of a manifest
+// because their screens are not described by a descriptor.
+const PACKAGE_LISTS: Partial<Record<FrameworkPlugin, string>> = {
+  rpm: Paths.rpm.package.list,
+  python: Paths.python.package.list,
+};
+
+// The plugins that have screens, in the order the second level lists them: the
+// plugins of the manifests, with an entry for each resource a manifest lists,
+// then ansible, which has no manifest yet. The label is translated here, where
+// it is drawn, because a manifest holds plain strings only.
 function pluginPaths(): IPluginPaths[] {
   return [
-    {
-      key: 'file',
-      label: t`File`,
-      repositories: Paths.file.repository.list,
-      remotes: Paths.file.remote.list,
-    },
-    {
-      key: 'deb',
-      label: 'deb',
-      repositories: Paths.deb.repository.list,
-      remotes: Paths.deb.remote.list,
-    },
-    {
-      key: 'rpm',
-      label: 'RPM',
-      repositories: Paths.rpm.repository.list,
-      remotes: Paths.rpm.remote.list,
-      packages: Paths.rpm.package.list,
-    },
-    {
-      key: 'python',
-      label: 'Python',
-      repositories: Paths.python.repository.list,
-      remotes: Paths.python.remote.list,
-      packages: Paths.python.package.list,
-    },
+    ...PLUGIN_MANIFESTS.map(({ plugin, label, resources }) => ({
+      key: plugin,
+      label: plugin === 'file' ? t`File` : label,
+      repositories: resources.includes('repository')
+        ? repositoryListPath(plugin)
+        : undefined,
+      remotes: resources.includes('remote')
+        ? remoteListPath(plugin)
+        : undefined,
+      packages: PACKAGE_LISTS[plugin],
+    })),
     {
       key: 'ansible',
       label: 'Ansible',

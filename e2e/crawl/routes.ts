@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { runInNewContext } from 'node:vm';
+import {
+  PLUGIN_MANIFESTS,
+  type PluginManifest,
+} from '../../src/framework/manifest';
+import { patternsOf } from '../../src/framework/route-patterns';
 
 // The screens the crawler visits: every route of the application plus the
 // index and one path no route matches. The routes are read from the source of
@@ -9,7 +14,9 @@ import { runInNewContext } from 'node:vm';
 // resolved against the Paths object of src/paths.ts, whose literal is read the
 // same way so the end-to-end code does not compile the application. An entry
 // that cannot be read stops the crawl, so a route added to the application can
-// never be skipped without anyone noticing.
+// never be skipped without anyone noticing. The addresses of the plugins whose
+// screens come from a descriptor are plain data (src/framework/route-patterns)
+// and are the second source: they are added after the routes read as text.
 
 export interface CrawlRoute {
   // The route as declared, with :parameters (for example /deb/remotes/detail/:name).
@@ -139,8 +146,14 @@ export function paramsOf(pattern: string): string[] {
   );
 }
 
-// Parses the text of the routes module. Exported for the tests of the parser.
-export function parseRoutes(source: string, pathsSource: string): CrawlRoute[] {
+// Parses the text of the routes module, then adds the given framework
+// addresses. An address the application's own routes already hold is listed
+// once. Exported for the tests of the parser.
+export function parseRoutes(
+  source: string,
+  pathsSource: string,
+  frameworkPatterns: readonly string[] = [],
+): CrawlRoute[] {
   const paths = readPaths(pathsSource);
   const routes: CrawlRoute[] = [];
 
@@ -167,6 +180,20 @@ export function parseRoutes(source: string, pathsSource: string): CrawlRoute[] {
     throw new Error('src/app-routes.tsx: no route entries were found');
   }
 
+  const known = new Set(routes.map((route) => route.pattern));
+  for (const pattern of frameworkPatterns) {
+    if (known.has(pattern)) {
+      continue;
+    }
+    known.add(pattern);
+    routes.push({
+      pattern,
+      slug: slugOf(pattern),
+      noAuth: false,
+      params: paramsOf(pattern),
+    });
+  }
+
   routes.push(
     { pattern: '/', slug: slugOf('/'), noAuth: false, params: [] },
     { pattern: '*', slug: slugOf('*'), noAuth: false, params: [] },
@@ -185,10 +212,19 @@ export function parseRoutes(source: string, pathsSource: string): CrawlRoute[] {
   return routes;
 }
 
-export function crawlRoutes(): CrawlRoute[] {
+// The routes to visit: the application's own and the addresses of every plugin
+// that is on the framework.
+export function crawlRoutes(
+  manifests: readonly PluginManifest[] = PLUGIN_MANIFESTS,
+): CrawlRoute[] {
   return parseRoutes(
     readFileSync(resolve('src', 'app-routes.tsx'), 'utf8'),
     readFileSync(resolve('src', 'paths.ts'), 'utf8'),
+    manifests
+      .filter(({ onFramework }) => onFramework)
+      .flatMap(({ plugin }) =>
+        patternsOf(plugin).map(({ pattern }) => pattern),
+      ),
   );
 }
 

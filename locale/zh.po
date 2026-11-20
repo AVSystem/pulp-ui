@@ -606,6 +606,7 @@ msgstr "追加：仅添加新内容"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "所有"
 
@@ -2283,6 +2284,7 @@ msgstr "不允许删除自己。"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Description"
 msgstr "描述"
 
@@ -2319,6 +2321,7 @@ msgstr "描述"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Details"
 msgstr "详情"
 
@@ -3782,6 +3785,7 @@ msgstr "将同步安装程序软件包"
 #: src/containers/role-management/role-edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Insufficient permissions"
 msgstr "权限不足"
 
@@ -3869,6 +3873,7 @@ msgstr "密钥指纹"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Labels"
 msgstr "标签"
 
@@ -4632,6 +4637,8 @@ msgstr "还没有用户"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
+#: src/framework/labels/label-chips.tsx
 msgid "None"
 msgstr "无"
 
@@ -5897,6 +5904,7 @@ msgstr "修复任务"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5968,6 +5976,7 @@ msgstr "已创建仓库 \"{name}\"。由于无法读取任务状态，创建分�
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Repository could not be displayed."
 msgstr "仓库无法被显示。"
 
@@ -5989,6 +5998,7 @@ msgstr "仓库无法被显示。"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Repository name"
 msgstr "仓库名称"
 
@@ -6081,6 +6091,7 @@ msgstr "保留的软件包版本"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "保留版本计数"
 

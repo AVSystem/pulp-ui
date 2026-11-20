@@ -27,6 +27,8 @@ import {
 } from 'src/containers/coming-soon-screens';
 import LoginPage from 'src/containers/login/login';
 import SignedOut from 'src/containers/signed-out';
+import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
+import { frameworkRoutes } from 'src/framework/routes';
 import { Paths, formatPath } from 'src/paths';
 import { usePermissions } from 'src/permissions';
 import { usePlugins } from 'src/plugins';
@@ -869,8 +871,10 @@ const AuthHandler = ({
   );
 };
 
-const appRoutes = () =>
-  routes.map(
+// Every route passes the same gate: the session, the installed plugin and the
+// screen's own permission come before the screen.
+export const guardRoutes = (configs: IRouteConfig[]) =>
+  configs.map(
     ({ beta, component, noAuth, path, plugin, screenAccess, ...rest }) => ({
       element: (
         <AuthHandler
@@ -886,6 +890,18 @@ const appRoutes = () =>
       ...rest,
     }),
   );
+
+// The routes of the plugins whose screens come from their descriptors are built
+// from the manifests and appended here. They are never added to the literal
+// above, which the crawler reads as text; it reads their addresses from the
+// route patterns instead.
+const appRoutes = () =>
+  guardRoutes([
+    ...routes,
+    ...frameworkRoutes(
+      PLUGIN_MANIFESTS.filter(({ onFramework }) => onFramework),
+    ),
+  ]);
 
 // Task links published before tasks moved to /tasks/<id> (bookmarks, alerts
 // pasted into chats) use /tasks/detail/<id> and must keep working. The user

@@ -606,6 +606,7 @@ msgstr "Additief: alleen nieuwe inhoud toevoegen"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "Alle"
 
@@ -2283,6 +2284,7 @@ msgstr "Jezelf verwijderen is niet toegestaan."
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Description"
 msgstr "Omschrijving"
 
@@ -2319,6 +2321,7 @@ msgstr "Omschrijving"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Details"
 msgstr "Meer informatie"
 
@@ -3782,6 +3785,7 @@ msgstr "Installatiepakketten worden gesynchroniseerd"
 #: src/containers/role-management/role-edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Insufficient permissions"
 msgstr "Onvoldoende machtigingen"
 
@@ -3869,6 +3873,7 @@ msgstr "Sleutel fingerprint"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Labels"
 msgstr "Labels"
 
@@ -4632,6 +4637,8 @@ msgstr "Nog geen gebruikers"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/file/descriptor.tsx
+#: src/framework/labels/label-chips.tsx
 msgid "None"
 msgstr "Geen"
 
@@ -5897,6 +5904,7 @@ msgstr "Reparatietaak"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/detail/repository-detail.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "Repositories"
@@ -5968,6 +5976,7 @@ msgstr "Repository \"{name}\" is aangemaakt. Het resultaat van het aanmaken van 
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/detail/repository-detail.tsx
 msgid "Repository could not be displayed."
 msgstr "Repository kan niet worden weergegeven."
 
@@ -5989,6 +5998,7 @@ msgstr "Repository kan niet worden weergegeven."
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Repository name"
 msgstr "Naam repository"
 
@@ -6081,6 +6091,7 @@ msgstr "Behouden pakketversies"
 #: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "Aantal behouden versies"
 

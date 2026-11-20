@@ -1,3 +1,4 @@
+import { fillPath } from './utilities/fill-path';
 import { ParamHelper, type ParamType } from './utilities/param-helper';
 
 export function formatPath(
@@ -6,33 +7,7 @@ export function formatPath(
   params?: ParamType,
   options?,
 ) {
-  const url = ((path as string) + '/')
-    .replaceAll('//', '/')
-    .split('/')
-    .map((fragment) => {
-      const match = fragment.match(/^:(\w+)\??$/);
-      if (!match) {
-        return fragment;
-      }
-
-      const key = match[1];
-      if (!data[key]) {
-        if (options?.ignoreMissing) {
-          // preserve for activateMenu
-          return fragment;
-        }
-
-        if (!fragment.endsWith('?')) {
-          throw new Error(`missing url param ${key}`);
-        }
-
-        return '';
-      }
-
-      return encodeURIComponent(data[key]);
-    })
-    .join('/')
-    .replaceAll('//', '/');
+  const url = fillPath(path, data, options);
 
   return params ? `${url}?${ParamHelper.getQueryString(params)}` : url;
 }

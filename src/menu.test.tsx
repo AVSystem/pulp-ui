@@ -11,6 +11,7 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { settle } from 'src/test-utils/settle';
 import { dataRoutes } from './app-routes';
+import { PLUGIN_MANIFESTS } from './framework/manifest';
 import { PulpMenu, useMenuModel } from './menu';
 
 const guardedRoutes = (dataRoutes[0]?.children?.[0]?.children ?? []).filter(
@@ -157,6 +158,35 @@ describe('navigation menu', () => {
     ]);
     expect(second('packages')).toEqual(['RPM', 'Python']);
     expect(second('users-and-groups')).toEqual(['Users', 'Groups']);
+  });
+
+  it('takes the plugin entries from the manifests, one for each resource a manifest lists', async () => {
+    signIn();
+    reportPlugins(ALL_PLUGINS);
+    const file = PLUGIN_MANIFESTS.find(({ plugin }) => plugin === 'file');
+    const resources = file?.resources;
+    if (!file || !resources) {
+      throw new Error('the file manifest is missing');
+    }
+    file.resources = ['repository'];
+
+    try {
+      await menuShown();
+      await screen.findByRole('button', { name: 'Repositories' });
+
+      const second = (id: string) =>
+        labels(Array.from(section(id)?.querySelectorAll('a') ?? []));
+      expect(second('repositories')).toEqual([
+        'File',
+        'deb',
+        'RPM',
+        'Python',
+        'Ansible',
+      ]);
+      expect(second('remotes')).toEqual(['deb', 'RPM', 'Python', 'Ansible']);
+    } finally {
+      file.resources = resources;
+    }
   });
 
   it('gives every entry a stable id that does not depend on its text', async () => {

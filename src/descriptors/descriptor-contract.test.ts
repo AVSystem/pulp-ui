@@ -1,0 +1,173 @@
+import type { MessageDescriptor } from '@lingui/core';
+import { describe, expect, it } from 'vitest';
+import type { PluginDescriptor } from 'src/framework/descriptor';
+import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
+
+// What every descriptor must hold so the generic screens can draw it: a label
+// on every row, field and column, unique ids, tabs that are unique within the
+// plugin, and nothing required of the parts a plugin may lack (sync,
+// publication, a snippet), because maven, npm and ansible have no publication
+// endpoint and need none of them.
+
+const LOADERS: Record<string, () => Promise<{ default: PluginDescriptor }>> = {
+  file: () => import('./file/descriptor'),
+};
+
+function labelled(
+  label: unknown,
+  where: string,
+): asserts label is { id: string } {
+  expect(label, `${where} has a label`).toBeTruthy();
+  expect(
+    typeof (label as { id?: unknown }).id,
+    `${where} label is a message`,
+  ).toBe('string');
+}
+
+function unique(ids: string[], where: string) {
+  expect(new Set(ids).size, `${where} ids are unique: ${ids.join(', ')}`).toBe(
+    ids.length,
+  );
+}
+
+// The checks every descriptor, real or declared, must pass.
+function checkDescriptor(name: string, descriptor: PluginDescriptor) {
+  const { repository } = descriptor;
+
+  expect(repository.entity, `${name} has a repository entity`).toBeTruthy();
+  expect(
+    repository.detailRows.length,
+    `${name} has detail rows`,
+  ).toBeGreaterThan(0);
+  for (const row of repository.detailRows) {
+    labelled(row.label, `${name} detail row ${row.id}`);
+    expect(typeof row.render).toBe('function');
+  }
+  unique(
+    repository.detailRows.map(({ id }) => id),
+    `${name} detail rows`,
+  );
+
+  for (const field of repository.fields ?? []) {
+    labelled(field.label, `${name} field ${field.name}`);
+    expect(field.kind, `${name} field ${field.name} has a kind`).toBeTruthy();
+  }
+  unique(
+    (repository.fields ?? []).map(({ name: field }) => field),
+    `${name} fields`,
+  );
+
+  for (const column of repository.columns ?? []) {
+    labelled(column.label, `${name} column ${column.id}`);
+  }
+  unique(
+    (repository.columns ?? []).map(({ id }) => id),
+    `${name} columns`,
+  );
+
+  for (const filter of repository.filters ?? []) {
+    labelled(filter.label, `${name} filter ${filter.id}`);
+    expect(
+      filter.param,
+      `${name} filter ${filter.id} sets a parameter`,
+    ).toBeTruthy();
+  }
+
+  for (const tab of repository.tabs ?? []) {
+    labelled(tab.label, `${name} tab ${tab.id}`);
+  }
+  unique(
+    (repository.tabs ?? []).map(({ id }) => id),
+    `${name} tabs`,
+  );
+
+  for (const type of descriptor.contentTypes ?? []) {
+    labelled(type.label, `${name} content type ${type.id}`);
+  }
+}
+
+// A message descriptor as the message macro builds it, without extracting a
+// message into the catalogs for a test.
+const message = (id: string): MessageDescriptor => ({ id });
+
+describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
+  it.each(Object.keys(LOADERS))(
+    'the %s descriptor holds what the screens need',
+    async (plugin) => {
+      const loader = LOADERS[plugin];
+      expect(loader).toBeDefined();
+      const { default: descriptor } = await (
+        loader as NonNullable<typeof loader>
+      )();
+
+      checkDescriptor(plugin, descriptor);
+    },
+  );
+
+  it('has a descriptor for every plugin that is on the framework', () => {
+    for (const { plugin, onFramework } of PLUGIN_MANIFESTS) {
+      if (onFramework) {
+        expect(LOADERS[plugin], `${plugin} has a descriptor`).toBeDefined();
+      }
+    }
+  });
+
+  it('accepts a plugin with no publication, no sync and no snippet, and its own tabs and content types', () => {
+    // The shape of a plugin like maven: nothing is served from a publication,
+    // nothing is synced, and its tabs and content types are its own.
+    const entity = {
+      app: 'maven',
+      object: 'repository',
+    } as unknown as PluginDescriptor['repository']['entity'];
+    const publicationLess: PluginDescriptor = {
+      repository: {
+        entity,
+        detailRows: [
+          {
+            id: 'name',
+            label: message('Repository name'),
+            render: (row) => row.name,
+          },
+        ],
+        tabs: [
+          {
+            id: 'packages',
+            label: message('Artifacts'),
+            render: () => null,
+          },
+        ],
+      },
+      contentTypes: [{ id: 'artifact', label: message('Artifacts') }],
+    };
+
+    expect(publicationLess.publication).toBeUndefined();
+    expect(publicationLess.repository.sync).toBeUndefined();
+    expect(publicationLess.repository.snippet).toBeUndefined();
+    expect(() => checkDescriptor('maven', publicationLess)).not.toThrow();
+  });
+
+  it('rejects a row without a label and two tabs with one address', () => {
+    const entity = {} as PluginDescriptor['repository']['entity'];
+    const unlabelled = {
+      repository: {
+        entity,
+        detailRows: [{ id: 'name', render: () => null }],
+      },
+    } as unknown as PluginDescriptor;
+    const twice = {
+      repository: {
+        entity,
+        detailRows: [
+          { id: 'name', label: message('Name'), render: () => null },
+        ],
+        tabs: [
+          { id: 'packages', label: message('A'), render: () => null },
+          { id: 'packages', label: message('B'), render: () => null },
+        ],
+      },
+    } as PluginDescriptor;
+
+    expect(() => checkDescriptor('x', unlabelled)).toThrow();
+    expect(() => checkDescriptor('x', twice)).toThrow();
+  });
+});
