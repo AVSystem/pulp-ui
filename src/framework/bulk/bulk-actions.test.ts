@@ -3,9 +3,12 @@ import { SessionSuspendedError } from 'src/session/session-events';
 import type { DeleteRepositoryResult } from '../delete/delete-repository';
 import {
   type BulkOutcome,
+  bulkSetLabel,
+  bulkUnsetLabel,
   outcomeOfDelete,
   runBulk,
   summarize,
+  watchLimiter,
 } from './bulk-actions';
 
 const rows = (count: number) =>
@@ -108,6 +111,73 @@ describe('Unit: running a bulk action', { tags: ['unit'] }, () => {
   });
 });
 
+describe('Unit: the labels of a bulk action', { tags: ['unit'] }, () => {
+  it('sets the label on every row with one request each', async () => {
+    const sent: unknown[] = [];
+
+    const results = await bulkSetLabel(
+      {
+        setLabel: async (href, label) => {
+          sent.push([href, label]);
+        },
+      },
+      rows(3),
+      { key: 'team', value: null },
+    );
+
+    expect(sent).toHaveLength(3);
+    expect(sent).toContainEqual(['/api/1/', { key: 'team', value: null }]);
+    expect(results.every(({ outcome }) => outcome.kind === 'succeeded')).toBe(
+      true,
+    );
+  });
+
+  it('skips a row that lacks the key without a request, and counts the server saying it is not set as skipped, not failed', async () => {
+    const sent: string[] = [];
+    const labelled = [
+      { name: 'has', pulp_href: '/api/has/', pulp_labels: { team: 'a' } },
+      { name: 'lacks', pulp_href: '/api/lacks/', pulp_labels: { tier: 'b' } },
+      { name: 'none', pulp_href: '/api/none/', pulp_labels: null },
+      { name: 'stale', pulp_href: '/api/stale/', pulp_labels: { team: 'c' } },
+      { name: 'broken', pulp_href: '/api/broken/', pulp_labels: { team: 'd' } },
+    ];
+
+    const results = await bulkUnsetLabel(
+      {
+        unsetLabel: async (href) => {
+          sent.push(href);
+          if (href === '/api/stale/') {
+            throw answer(400, {
+              detail: "Label 'team' is not set on the object.",
+            });
+          }
+          if (href === '/api/broken/') {
+            throw answer(400, { detail: 'Something else was wrong.' });
+          }
+        },
+      },
+      labelled,
+      'team',
+    );
+
+    expect(sent).toEqual(['/api/has/', '/api/stale/', '/api/broken/']);
+    expect(results.map(({ outcome }) => outcome.kind)).toEqual([
+      'succeeded',
+      'skipped',
+      'skipped',
+      'skipped',
+      'failed',
+    ]);
+    expect(summarize(results)).toEqual({
+      succeeded: 1,
+      started: 0,
+      skipped: 3,
+      failed: 1,
+      stopped: 0,
+    });
+  });
+});
+
 describe('Unit: the outcome of a repository delete', { tags: ['unit'] }, () => {
   it('is succeeded when the repository is gone, naming the distributions removed with it', () => {
     expect(
@@ -151,5 +221,19 @@ describe('Unit: the outcome of a repository delete', { tags: ['unit'] }, () => {
     expect(outcomeOfDelete({ ...emptyResult(), notSent: ['x'] }).kind).toBe(
       'unconfirmed',
     );
+  });
+});
+
+describe('Unit: following the tasks of a run', { tags: ['unit'] }, () => {
+  it('follows the first tasks only', () => {
+    const follow = watchLimiter(3);
+
+    expect([1, 2, 3, 4, 5].map(() => follow())).toEqual([
+      true,
+      true,
+      true,
+      false,
+      false,
+    ]);
   });
 });

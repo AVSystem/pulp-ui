@@ -14,11 +14,13 @@ import {
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   type IDistribution,
+  type IRemote,
   type IRepository,
   distribution,
   listOf,
   page,
   pluginListHandler,
+  pluginRemote,
   pluginRepository,
   projectedBy,
   role,
@@ -28,6 +30,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { serveSyncLab } from 'src/test-utils/sync-lab';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
 import { frameworkRoutes } from '../routes';
 
@@ -271,6 +274,18 @@ describe(
 
       expect(screen.queryByRole('checkbox')).toBeNull();
       expect(screen.queryByRole('button', { name: 'Bulk actions' })).toBeNull();
+    });
+
+    it('asks the server for the remote and for what the sync options read, which the row actions decide on', async () => {
+      const lab = serveScreens(named(2));
+      renderAt('/file/repositories');
+      await tableOf();
+
+      const query = lab.listQueries[0] as URLSearchParams;
+      const fields = query.getAll('fields').flatMap((f) => f.split(','));
+      expect(fields).toEqual(
+        expect.arrayContaining(['remote', 'pulp_labels', 'autopublish']),
+      );
     });
   },
 );
@@ -517,6 +532,492 @@ describe(
       ).toBeVisible();
       expect(confirmButton(dialog, 'Delete')).toBeDisabled();
       expect(lab.deletes).toStrictEqual([]);
+    });
+  },
+);
+
+const REMOTE = `${API}/remotes/file/file/00000000-0000-4000-8000-000000000999/`;
+
+interface Sent {
+  method: string;
+  path: string;
+  body: unknown;
+}
+
+// The label requests of a repository or remote, answered as the server does.
+// `refuse` answers a request with an error for the objects it names.
+function serveLabels(
+  kind: 'repositories' | 'remotes',
+  refuse: (
+    path: string,
+    action: 'set' | 'unset',
+  ) => Response | undefined = () => undefined,
+) {
+  const sent: Sent[] = [];
+  const answer =
+    (action: 'set' | 'unset') =>
+    async ({ request }: { request: Request }) => {
+      const path = new URL(request.url).pathname;
+      const body = (await request.json()) as Record<string, unknown>;
+      sent.push({ method: request.method, path, body });
+      return refuse(path, action) ?? HttpResponse.json(body);
+    };
+  server.use(
+    http.post(`*${API}/${kind}/file/file/:id/set_label/`, answer('set')),
+    http.post(`*${API}/${kind}/file/file/:id/unset_label/`, answer('unset')),
+  );
+  return sent;
+}
+
+const resultOf = (dialog: HTMLElement, name: string) =>
+  within(within(dialog).getByRole('grid', { name: 'Results' }))
+    .getByText(name)
+    .closest('tr') as HTMLElement;
+
+describe(
+  'Integration: syncing selected repositories',
+  { tags: ['integration'] },
+  () => {
+    it('starts one sync for every selected repository with a remote, with the options chosen once, and skips the one without a remote', async () => {
+      const repositories = [
+        pluginRepository('file', { name: 'repo-0001', remote: REMOTE }),
+        pluginRepository('file', { name: 'repo-0002', remote: null }),
+        {
+          ...pluginRepository('file', { name: 'repo-0003', remote: REMOTE }),
+          autopublish: true,
+        },
+      ];
+      serveScreens(repositories);
+      const lab = serveSyncLab({ repository: repositories[0] as IRepository });
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await selectAllBox());
+      const dialog = await chooseBulk(user, 'Sync');
+
+      // what the dialog says about the rows before anything is sent
+      expect(
+        within(dialog).getByText('Sync selected repositories'),
+      ).toBeVisible();
+      expect(
+        within(dialog).getByText(/Has no remote, so it is skipped/),
+      ).toBeVisible();
+      expect(
+        within(dialog).getByText(
+          /Mirroring cannot be combined with autopublish/,
+        ),
+      ).toBeVisible();
+      expect(lab.syncs).toStrictEqual([]);
+
+      // the options are chosen once for every row
+      await user.click(
+        within(dialog).getByRole('switch', {
+          name: /Only perform the sync if changes are reported/,
+        }),
+      );
+      await user.click(confirmButton(dialog, 'Sync'));
+      await finished(dialog);
+
+      expect(lab.syncs).toHaveLength(2);
+      const bodyOf = (index: number) =>
+        lab.syncs.find(
+          ({ path }) =>
+            path === `${(repositories[index] as IRepository).pulp_href}sync/`,
+        )?.body;
+      expect(bodyOf(0)).toEqual({
+        remote: REMOTE,
+        mirror: true,
+        optimize: false,
+      });
+      // a repository that publishes by itself is never asked to mirror
+      expect(bodyOf(2)).toEqual({
+        remote: REMOTE,
+        mirror: false,
+        optimize: false,
+      });
+
+      // one result per row: started with a link to its task, or skipped
+      for (const name of ['repo-0001', 'repo-0003']) {
+        const row = resultOf(dialog, name);
+        expect(within(row).getByText('Started')).toBeVisible();
+        expect(
+          within(row).getByRole('link', { name: 'View the task' }),
+        ).toHaveAttribute('href', expect.stringMatching(/\/tasks\//));
+      }
+      const skipped = resultOf(dialog, 'repo-0002');
+      expect(within(skipped).getByText('Skipped')).toBeVisible();
+      expect(
+        within(skipped).getByText('No remote to sync from.'),
+      ).toBeVisible();
+      expect(
+        screen.getByText('Syncing the selected repositories was requested'),
+      ).toBeVisible();
+      expect(
+        screen.getAllByText('2 started, 1 skipped').length,
+      ).toBeGreaterThan(0);
+    });
+
+    it('offers no Sync to a user who may not sync, and the other actions they may take', async () => {
+      const repositories = [
+        pluginRepository('file', { name: 'repo-0001', remote: REMOTE }),
+      ];
+      serveScreens(repositories);
+      serveAccount({ isStaff: false, own: [['file.change_filerepository']] });
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await boxOf('repo-0001'));
+      await user.click(
+        await screen.findByRole('button', { name: 'Bulk actions' }),
+      );
+
+      expect(
+        await screen.findByRole('menuitem', { name: 'Add label' }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole('menuitem', { name: 'Remove label' }),
+      ).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Sync' })).toBeNull();
+      expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBeNull();
+    });
+  },
+);
+
+describe(
+  'Integration: changing the labels of selected repositories',
+  { tags: ['integration'] },
+  () => {
+    const labelled = () => [
+      pluginRepository('file', {
+        name: 'repo-0001',
+        pulp_labels: { team: 'docs', tier: null },
+      }),
+      pluginRepository('file', { name: 'repo-0002', pulp_labels: {} }),
+      pluginRepository('file', {
+        name: 'repo-0003',
+        pulp_labels: { team: 'tools' },
+      }),
+    ];
+
+    it('sets the label on every selected repository with one request each and shows a result per row', async () => {
+      const repositories = labelled();
+      serveScreens(repositories);
+      const sent = serveLabels('repositories');
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await selectAllBox());
+      const dialog = await chooseBulk(user, 'Add label');
+      const add = confirmButton(dialog, 'Add label');
+      expect(add).toBeDisabled();
+
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+        'env',
+      );
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label value' }),
+        'prod',
+      );
+      expect(add).toBeEnabled();
+      expect(sent).toStrictEqual([]);
+      await user.click(add);
+      await finished(dialog);
+
+      expect(sent).toHaveLength(3);
+      expect(sent.map(({ path }) => path).sort()).toEqual(
+        repositories.map(({ pulp_href }) => `${pulp_href}set_label/`).sort(),
+      );
+      for (const { body } of sent) {
+        expect(body).toEqual({ key: 'env', value: 'prod' });
+      }
+      expect(
+        within(
+          within(dialog).getByRole('grid', { name: 'Results' }),
+        ).getAllByText('Succeeded'),
+      ).toHaveLength(3);
+    });
+
+    it('refuses a key or a value the server would refuse before anything is sent', async () => {
+      serveScreens(labelled());
+      const sent = serveLabels('repositories');
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await selectAllBox());
+      const dialog = await chooseBulk(user, 'Add label');
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+        'bad/key',
+      );
+
+      expect(
+        within(dialog).getByText(/A label key can contain only letters/),
+      ).toBeVisible();
+      expect(confirmButton(dialog, 'Add label')).toBeDisabled();
+
+      await user.clear(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+      );
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+        'good',
+      );
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label value' }),
+        'no (parentheses)',
+      );
+      expect(
+        within(dialog).getByText('A label value cannot contain parentheses.'),
+      ).toBeVisible();
+      expect(confirmButton(dialog, 'Add label')).toBeDisabled();
+      expect(sent).toStrictEqual([]);
+    });
+
+    it('removes the key from the rows that have it, and skips the rows that lack it without a request', async () => {
+      const repositories = labelled();
+      serveScreens(repositories);
+      const sent = serveLabels('repositories');
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await selectAllBox());
+      const dialog = await chooseBulk(user, 'Remove label');
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+        'team',
+      );
+
+      // the row that lacks the key says so before the user confirms
+      expect(
+        within(dialog).getAllByText(
+          /Does not have this label, so it is skipped/,
+        ),
+      ).toHaveLength(1);
+      await user.click(confirmButton(dialog, 'Remove label'));
+      await finished(dialog);
+
+      expect(sent.map(({ path }) => path).sort()).toEqual(
+        [repositories[0], repositories[2]]
+          .map((row) => `${(row as IRepository).pulp_href}unset_label/`)
+          .sort(),
+      );
+      for (const { body } of sent) {
+        expect(body).toEqual({ key: 'team' });
+      }
+      const skipped = resultOf(dialog, 'repo-0002');
+      expect(within(skipped).getByText('Skipped')).toBeVisible();
+      expect(within(skipped).getByText('The label is not set.')).toBeVisible();
+      expect(resultOf(dialog, 'repo-0001')).toHaveTextContent('Succeeded');
+      expect(
+        screen.getAllByText('2 succeeded, 1 skipped').length,
+      ).toBeGreaterThan(0);
+    });
+
+    it('counts the server saying the label is not set as skipped, not failed, and shows the server reason of a real failure', async () => {
+      const repositories = labelled();
+      serveScreens(repositories);
+      const stale = (repositories[0] as IRepository).pulp_href;
+      const broken = (repositories[2] as IRepository).pulp_href;
+      serveLabels('repositories', (path) =>
+        path === `${stale}unset_label/`
+          ? HttpResponse.json(
+              { detail: "Label 'team' is not set on the object." },
+              { status: 400 },
+            )
+          : path === `${broken}unset_label/`
+            ? HttpResponse.json(
+                { detail: 'The object is locked.' },
+                { status: 400 },
+              )
+            : undefined,
+      );
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await selectAllBox());
+      const dialog = await chooseBulk(user, 'Remove label');
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+        'team',
+      );
+      await user.click(confirmButton(dialog, 'Remove label'));
+      await finished(dialog);
+
+      expect(resultOf(dialog, 'repo-0001')).toHaveTextContent('Skipped');
+      const failed = resultOf(dialog, 'repo-0003');
+      expect(within(failed).getByText('Failed')).toBeVisible();
+      expect(within(failed).getByText(/The object is locked\./)).toBeVisible();
+    });
+  },
+);
+
+// The remotes the list reads, the repositories the used by column and the
+// delete confirmation are found from, and the deletes, answered with a task.
+function serveRemotes(
+  remotes: IRemote[],
+  repositories: IRepository[] = [],
+  refuse: (path: string) => Response | undefined = () => undefined,
+) {
+  const deletes: string[] = [];
+  server.use(
+    pluginListHandler('file', 'remote', remotes, { pageSize: 1000 }).handler,
+    pluginListHandler('file', 'repository', repositories, { pageSize: 1000 })
+      .handler,
+    listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler,
+    taskListHandler([]).handler,
+    http.delete(`*${API}/remotes/file/file/:id/`, ({ request, params }) => {
+      const path = new URL(request.url).pathname;
+      deletes.push(path);
+      return (
+        refuse(path) ??
+        HttpResponse.json(
+          { task: taskHref(String(params.id)) },
+          { status: 202 },
+        )
+      );
+    }),
+    http.get(`*${API}/tasks/:id/`, ({ params }) =>
+      HttpResponse.json({
+        pulp_href: taskHref(String(params.id)),
+        name: 'delete',
+        state: 'running',
+      }),
+    ),
+  );
+  return deletes;
+}
+
+describe(
+  'Integration: bulk actions on the remote list',
+  { tags: ['integration'] },
+  () => {
+    const remotes = () => [
+      pluginRemote('file', { name: 'rm-0001', pulp_labels: { team: 'a' } }),
+      pluginRemote('file', { name: 'rm-0002', pulp_labels: {} }),
+      pluginRemote('file', { name: 'rm-0003', pulp_labels: { team: 'c' } }),
+    ];
+
+    const remoteBox = (name: string) =>
+      screen.findByRole('checkbox', { name: `Select ${name}` });
+
+    it('offers delete and the two label actions on remotes, and no sync', async () => {
+      serveRemotes(remotes());
+      const { user } = renderAt('/file/remotes');
+      await screen.findByRole('grid', { name: 'Remotes' });
+
+      await user.click(await remoteBox('rm-0001'));
+      await user.click(
+        await screen.findByRole('button', { name: 'Bulk actions' }),
+      );
+
+      expect(
+        await screen.findByRole('menuitem', { name: 'Delete' }),
+      ).toBeVisible();
+      expect(screen.getByRole('menuitem', { name: 'Add label' })).toBeVisible();
+      expect(
+        screen.getByRole('menuitem', { name: 'Remove label' }),
+      ).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Sync' })).toBeNull();
+    });
+
+    it('names the repositories that use each remote, deletes the selected remotes one request each and links the task of each', async () => {
+      const list = remotes();
+      const using = pluginRepository('file', {
+        name: 'uses-rm-0001',
+        remote: (list[0] as IRemote).pulp_href,
+      });
+      const deletes = serveRemotes(list, [using]);
+      const { user } = renderAt('/file/remotes');
+      await screen.findByRole('grid', { name: 'Remotes' });
+
+      await user.click(await remoteBox('rm-0001'));
+      await user.click(await remoteBox('rm-0003'));
+      const dialog = await chooseBulk(user, 'Delete');
+
+      expect(
+        within(dialog).getByText('Delete selected remotes?'),
+      ).toBeVisible();
+      expect(
+        await within(dialog).findByText(/Used by uses-rm-0001/),
+      ).toBeVisible();
+      expect(within(dialog).queryByText('rm-0002')).toBeNull();
+      expect(deletes).toStrictEqual([]);
+
+      await user.click(confirmButton(dialog, 'Delete'));
+      await finished(dialog);
+
+      expect(deletes.sort()).toEqual(
+        [list[0], list[2]].map((row) => (row as IRemote).pulp_href).sort(),
+      );
+      for (const name of ['rm-0001', 'rm-0003']) {
+        const row = resultOf(dialog, name);
+        expect(within(row).getByText('Started')).toBeVisible();
+        expect(
+          within(row).getByRole('link', { name: 'View the task' }),
+        ).toBeVisible();
+      }
+    });
+
+    it('shows the reason of a delete the server refused and starts the others', async () => {
+      const list = remotes();
+      const refused = (list[1] as IRemote).pulp_href;
+      serveRemotes(list, [], (path) =>
+        path === refused
+          ? HttpResponse.json({ detail: 'In use elsewhere.' }, { status: 400 })
+          : undefined,
+      );
+      const { user } = renderAt('/file/remotes');
+      await screen.findByRole('grid', { name: 'Remotes' });
+
+      await user.click(
+        await screen.findByRole('checkbox', {
+          name: 'Select all remotes on this page',
+        }),
+      );
+      const dialog = await chooseBulk(user, 'Delete');
+      await user.click(confirmButton(dialog, 'Delete'));
+      await finished(dialog);
+
+      const failed = resultOf(dialog, 'rm-0002');
+      expect(within(failed).getByText('Failed')).toBeVisible();
+      expect(within(failed).getByText(/In use elsewhere\./)).toBeVisible();
+      expect(resultOf(dialog, 'rm-0001')).toHaveTextContent('Started');
+      expect(resultOf(dialog, 'rm-0003')).toHaveTextContent('Started');
+    });
+
+    it('removes a label from the remotes that have it and skips the others without a request', async () => {
+      const list = remotes();
+      serveRemotes(list);
+      const sent = serveLabels('remotes');
+      const { user } = renderAt('/file/remotes');
+      await screen.findByRole('grid', { name: 'Remotes' });
+
+      await user.click(
+        await screen.findByRole('checkbox', {
+          name: 'Select all remotes on this page',
+        }),
+      );
+      const dialog = await chooseBulk(user, 'Remove label');
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Label key' }),
+        'team',
+      );
+      await user.click(confirmButton(dialog, 'Remove label'));
+      await finished(dialog);
+
+      expect(sent).toHaveLength(2);
+      expect(resultOf(dialog, 'rm-0002')).toHaveTextContent('Skipped');
+    });
+
+    it('offers neither check boxes nor bulk actions to a user who may do nothing on the remotes', async () => {
+      serveRemotes(remotes());
+      serveAccount({ isStaff: false });
+      renderAt('/file/remotes');
+      await screen.findByRole('grid', { name: 'Remotes' });
+
+      expect(screen.queryByRole('checkbox')).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Bulk actions' })).toBeNull();
     });
   },
 );
