@@ -6,7 +6,6 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { TaskAPI } from '../api/task';
 import { debRepositorySyncAction } from './deb-repository-sync';
-import { fileRepositorySyncAction } from './file-repository-sync';
 import { pythonRepositorySyncAction } from './python-repository-sync';
 import { rpmRepositorySyncAction } from './rpm-repository-sync';
 
@@ -41,11 +40,6 @@ function Harness({
 }
 
 describe.each([
-  [
-    'file',
-    fileRepositorySyncAction,
-    'pulp_file.app.tasks.synchronizing.synchronize',
-  ],
   [
     'deb',
     debRepositorySyncAction,

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { fileRepositoryDeleteAction } from './file-repository-delete';
+import { rpmRepositoryDeleteAction } from './rpm-repository-delete';
 
 const API = '/pulp/api/v3';
 
@@ -68,12 +68,12 @@ function Harness({
       >
         open second
       </button>
-      {fileRepositoryDeleteAction.modal(context)}
+      {rpmRepositoryDeleteAction.modal(context)}
     </>
   );
 }
 
-// Serves a file plugin with no distributions, accepts the repository delete
+// Serves an rpm plugin with no distributions, accepts the repository delete
 // and holds the answer of its task until the returned function is called.
 function serveDelete(): () => void {
   let release: () => void;
@@ -81,9 +81,9 @@ function serveDelete(): () => void {
     release = resolve;
   });
   server.use(
-    listOf(`${API}/distributions/file/file/`, []).handler,
-    listOf(`${API}/publications/file/file/`, []).handler,
-    http.delete(`*${API}/repositories/file/file/:id/`, () =>
+    listOf(`${API}/distributions/rpm/rpm/`, []).handler,
+    listOf(`${API}/publications/rpm/rpm/`, []).handler,
+    http.delete(`*${API}/repositories/rpm/rpm/:id/`, () =>
       HttpResponse.json(
         { task: `${API}/tasks/00000000-0000-4000-8000-0000000000dd/` },
         { status: 202 },
@@ -237,9 +237,9 @@ describe('the Delete action of a repository', () => {
     const first = repository({ name: 'zz-first' });
     const second = repository({ name: 'zz-second' });
     server.use(
-      listOf(`${API}/distributions/file/file/`, []).handler,
-      listOf(`${API}/publications/file/file/`, []).handler,
-      http.delete(`*${API}/repositories/file/file/:id/`, () =>
+      listOf(`${API}/distributions/rpm/rpm/`, []).handler,
+      listOf(`${API}/publications/rpm/rpm/`, []).handler,
+      http.delete(`*${API}/repositories/rpm/rpm/:id/`, () =>
         HttpResponse.json({ detail: 'Not for you.' }, { status: 403 }),
       ),
     );
