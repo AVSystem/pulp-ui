@@ -105,6 +105,19 @@ const repositoryCreateScreen = (plugin: FrameworkPlugin) =>
     ),
   );
 
+// The detail of a remote.
+const remoteDetailScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/detail/remote-detail'
+      ),
+    ({ RemoteDetail }, descriptor) => (
+      <RemoteDetail plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
 // The list of a plugin's remotes.
 const remoteListScreen = (plugin: FrameworkPlugin) =>
   descriptorScreen(
@@ -137,6 +150,8 @@ function componentOf(
       return repositoryCreateScreen(plugin);
     case 'remote-list':
       return remoteListScreen(plugin);
+    case 'remote-detail':
+      return remoteDetailScreen(plugin);
     default:
       return null;
   }

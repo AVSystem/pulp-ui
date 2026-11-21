@@ -748,6 +748,11 @@ msgstr "已经是当前版本"
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "ASCII 封装的公钥。设置后，每次同步都会验证上游 Release 文件的签名，这使通过纯 HTTP 同步变得安全。"
 
+#. placeholder {0}: users.total - users.users.length
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "And {0} more."
+msgstr ""
+
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
@@ -898,6 +903,10 @@ msgstr "架构"
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Architectures"
 msgstr "架构"
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "Are you sure you want to delete the remote <0>{name}</0>?"
+msgstr ""
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
@@ -1080,6 +1089,7 @@ msgstr "无法编辑内置角色。"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "CA certificate"
 msgstr "CA 证书"
 
@@ -1332,10 +1342,12 @@ msgstr "CLI 配置"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Client certificate"
 msgstr "客户端证书"
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Client key"
 msgstr "客户端密钥"
 
@@ -2161,7 +2173,9 @@ msgstr "Debian 原样发布"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Delete"
 msgstr "删除"
@@ -2259,6 +2273,7 @@ msgstr "删除组？"
 #~ msgstr "删除远程注册表？"
 
 #: src/components/delete-remote-modal.tsx
+#: src/framework/delete/delete-remote-dialog.tsx
 msgid "Delete remote?"
 msgstr "删除远程？"
 
@@ -2473,6 +2488,7 @@ msgstr "描述"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 msgid "Details"
 msgstr "详情"
@@ -2497,6 +2513,7 @@ msgstr "详情"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
 msgstr "禁用"
 
@@ -2623,6 +2640,7 @@ msgstr "下载客户端认证文件"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Download concurrency"
 msgstr "下载并发"
 
@@ -2723,6 +2741,7 @@ msgstr ""
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/remote-row-actions.tsx
@@ -2813,6 +2832,7 @@ msgstr "电子邮件"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
 msgstr "启用"
 
@@ -3151,6 +3171,10 @@ msgstr "失败：{when}"
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Failed to create role namespace"
 #~ msgstr ""
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "Failed to delete remote \"{name}\""
+msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Failed to delete remote registry {name}"
@@ -3992,6 +4016,7 @@ msgstr "将同步安装程序软件包"
 #: src/containers/role-management/role-edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
@@ -4109,6 +4134,7 @@ msgstr ""
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
@@ -4289,6 +4315,10 @@ msgstr "正在加载分发..."
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "正在加载分发"
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "Loading repositories"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Loading..."
@@ -4832,6 +4862,10 @@ msgstr "还没有远程"
 msgid "No repositories yet"
 msgstr "还没有仓库"
 
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "No repository uses this remote."
+msgstr ""
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/file-repository/tab-repository-versions.tsx
@@ -4934,6 +4968,7 @@ msgstr "还没有用户"
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
@@ -5316,6 +5351,7 @@ msgstr "父任务"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Password"
 msgstr "密码"
@@ -5557,6 +5593,7 @@ msgstr "来源证明"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Proxy password"
 msgstr "代理密码"
 
@@ -5566,10 +5603,12 @@ msgstr "代理密码"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Proxy URL"
 msgstr "代理 URL"
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Proxy username"
 msgstr "代理用户名"
 
@@ -5909,6 +5948,7 @@ msgstr "Python 软件包上传"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Rate limit"
 msgstr "速率限制"
 
@@ -6034,6 +6074,7 @@ msgstr "远程"
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Remote could not be displayed."
 msgstr "远程无法被显示。"
 
@@ -6051,6 +6092,7 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "远程名称"
@@ -6094,6 +6136,7 @@ msgstr "远程注册表"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
@@ -6121,6 +6164,10 @@ msgstr "远程在创建后将会出现。"
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "从仓库 \"{repositoryName}\" 中删除 {namespace}.{name} v{version} 已开始。"
 
+#: src/framework/delete/delete-remote.ts
+msgid "Removal of remote {name}"
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -6132,6 +6179,7 @@ msgstr "从仓库 \"{repositoryName}\" 中删除 {namespace}.{name} v{version} �
 #: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
+#: src/framework/delete/delete-remote.ts
 msgid "Removal started for remote {name}"
 msgstr "为远程 {name} 删除开始"
 
@@ -6294,6 +6342,7 @@ msgstr "修复任务"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -6315,6 +6364,10 @@ msgstr "无法使用您的账户搜索仓库。"
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "仓库无法显示。"
+
+#: src/framework/detail/remote-detail.tsx
+msgid "Repositories could not be loaded"
+msgstr ""
 
 #: src/framework/list/remote-list.tsx
 msgid "Repositories using the remotes could not be read."
@@ -6547,8 +6600,10 @@ msgstr "重试次数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
@@ -7412,6 +7467,10 @@ msgstr "停止任务？"
 msgid "Storage"
 msgstr "存储"
 
+#: src/framework/detail/remote-detail.tsx
+msgid "Stored credentials"
+msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
@@ -7916,6 +7975,10 @@ msgstr "配置无法复制到剪贴板。"
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "删除因意外错误而停止。部分分发或仓库可能已被删除：请先检查列表，再重试。"
 
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
@@ -8036,6 +8099,14 @@ msgstr "删除远程 {name} 仍在运行。"
 #: src/framework/delete/delete-outcome.tsx
 msgid "The removal of the repository has not been confirmed."
 msgstr "尚未确认仓库的删除。"
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "The repositories that use this remote cannot be listed for your account."
+msgstr ""
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "The repositories that use this remote could not be listed, so nothing can be deleted."
+msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -8250,6 +8321,10 @@ msgstr "没有资源记录"
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "这些分发提供此仓库。它们会随仓库一起删除，其 URL 将停止工作："
 
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "These repositories use this remote. They are kept, without a remote, and cannot be synced until they have one:"
+msgstr ""
+
 #: src/components/delete-group-modal.tsx
 msgid "These users will lose access to the group content:"
 msgstr "这些用户将丢失对组群内容的访问权限："
@@ -8381,6 +8456,7 @@ msgstr "这将从组中撤销与此角色关联的所有权限。"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "TLS validation"
 msgstr "TLS 验证"
 
@@ -8401,6 +8477,7 @@ msgstr "TLS 验证"
 #~ msgstr "To revoke a token or see all of your tokens, visit the <0>offline API token management</0> page."
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Token"
 msgstr "令牌"
@@ -8647,6 +8724,7 @@ msgstr "上传"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
@@ -8892,6 +8970,7 @@ msgstr "用户列表"
 #: src/components/user-form.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Username"
 msgstr "用户名"

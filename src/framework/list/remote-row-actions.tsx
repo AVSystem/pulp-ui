@@ -17,6 +17,8 @@ export type RemotePermission = keyof IPluginPermissions['remote'];
 export interface RemoteActionContext {
   plugin: FrameworkPlugin;
   navigate: (to: string) => void;
+  // Opens the dialog that deletes the row's remote.
+  requestDelete: (row: RemoteBase) => void;
 }
 
 export interface RemoteRowAction {
@@ -38,6 +40,15 @@ export const REMOTE_ROW_ACTIONS: RemoteRowAction[] = [
         onClick={() => navigate(remoteEditPath(plugin, row.name))}
       >
         {t`Edit`}
+      </DropdownItem>
+    ),
+  },
+  {
+    id: 'delete',
+    permission: 'delete',
+    item: (row, { requestDelete }) => (
+      <DropdownItem key='delete' onClick={() => requestDelete(row)}>
+        {t`Delete`}
       </DropdownItem>
     ),
   },

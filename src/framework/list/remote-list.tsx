@@ -2,7 +2,7 @@ import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
 import { Button } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { memo, useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
@@ -28,6 +28,7 @@ import {
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { DeleteRemoteDialog } from '../delete/delete-remote-dialog';
 import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
 import {
@@ -167,9 +168,12 @@ const RemoteListScreen = ({
     objectRoles: manifest.permissions.objectRoles,
     rowsShown,
   });
+  // The remote whose delete dialog is open.
+  const [deleting, setDeleting] = useState<RemoteBase | null>(null);
+  const requestDelete = useCallback((row: RemoteBase) => setDeleting(row), []);
   const actionContext = useMemo<RemoteActionContext>(
-    () => ({ plugin, navigate }),
-    [plugin, navigate],
+    () => ({ plugin, navigate, requestDelete }),
+    [plugin, navigate, requestDelete],
   );
 
   const addButton = hasPermission(names.add) ? (
@@ -349,6 +353,20 @@ const RemoteListScreen = ({
     <>
       {alertList}
       {header}
+      {deleting ? (
+        <DeleteRemoteDialog
+          key={deleting.pulp_href}
+          descriptor={descriptor}
+          remote={deleting}
+          onClose={() => setDeleting(null)}
+          onAccepted={(alert) => {
+            // The task is followed from the application root, which reads the
+            // remotes again when it ends; this screen says that it started.
+            setAlerts((current) => [...current, alert]);
+            setDeleting(null);
+          }}
+        />
+      ) : null}
       <ListLayout
         filters={
           <ListFilters

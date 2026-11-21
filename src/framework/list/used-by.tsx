@@ -83,6 +83,9 @@ interface CellProps {
   remote: string;
   state: ColumnState;
   users: readonly UsingRepository[];
+  // How many repositories use the remote in all, when `users` holds only the
+  // first of them.
+  total?: number;
   // How many repositories are named before the rest are counted.
   limit?: number;
 }
@@ -94,6 +97,7 @@ export const UsedBy = ({
   remote,
   state,
   users,
+  total = users.length,
   limit = 3,
 }: CellProps) => {
   if (state === 'loading') {
@@ -102,11 +106,11 @@ export const UsedBy = ({
   if (state !== 'ready') {
     return <>{t`Not loaded`}</>;
   }
-  if (users.length === 0) {
+  if (total === 0) {
     return <>{t`Not used`}</>;
   }
 
-  const more = users.length - limit;
+  const more = total - Math.min(limit, users.length);
 
   return (
     <>

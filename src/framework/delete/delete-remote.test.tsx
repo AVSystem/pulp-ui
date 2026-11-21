@@ -43,6 +43,13 @@ function serveDelete(
 ) {
   const deletes: string[] = [];
   server.use(
+    // the task the delete started, which the application root follows
+    http.get(`*${API}/tasks/:id/`, () =>
+      HttpResponse.json({
+        ...task({ pulp_href: TASK_HREF, state: 'running' }),
+        name: 'delete',
+      }),
+    ),
     http.delete(`*${API}/remotes/file/file/:id/`, ({ request }) => {
       deletes.push(new URL(request.url).pathname);
       return answer();
@@ -81,10 +88,7 @@ function Harness({
   onAccepted?: (alert: AlertType) => void;
   alerts?: AlertType[];
 }) {
-  const { remove, isPending } = useDeleteRemote({
-    entity: fileRemote,
-    plugin: 'file',
-  });
+  const { remove, isPending } = useDeleteRemote(fileRemote);
   const [result, setResult] = useState<DeleteRemoteResult | null>(null);
 
   return (
@@ -219,7 +223,10 @@ describe(
       server.use(
         http.get(`*${API}/tasks/:id/`, () => {
           reads += 1;
-          return HttpResponse.json(task({ pulp_href: TASK_HREF }));
+          return HttpResponse.json({
+            ...task({ pulp_href: TASK_HREF }),
+            name: 'delete',
+          });
         }),
       );
       const { user } = renderHarness(<Harness />);
@@ -308,14 +315,10 @@ describe(
       await waitFor(() => expect(deletes).toHaveLength(2));
     });
 
-    it('reports nothing for a session that ended, and lets the delete be asked for again', async () => {
-      let answers = 0;
-      const { deletes } = serveDelete(() => {
-        answers += 1;
-        return answers === 1
-          ? HttpResponse.json({ detail: 'Sign in.' }, { status: 401 })
-          : HttpResponse.json({ task: TASK_HREF }, { status: 202 });
-      });
+    it('reports nothing for a session that ended and releases the guard, and sends nothing again by itself', async () => {
+      const { deletes } = serveDelete(() =>
+        HttpResponse.json({ detail: 'Sign in.' }, { status: 401 }),
+      );
       const { user } = renderHarness(<Harness />);
 
       await user.click(screen.getByRole('button', { name: 'Delete mirror' }));
@@ -325,9 +328,11 @@ describe(
       );
       expect(screen.getByTestId('failure')).toBeEmptyDOMElement();
       expect(screen.getByTestId('pending')).toHaveTextContent('false');
-
-      await user.click(screen.getByRole('button', { name: 'Delete mirror' }));
-      await waitFor(() => expect(deletes).toHaveLength(2));
+      // the request is not repeated by itself
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      });
+      expect(deletes).toHaveLength(1);
     });
 
     it('answers busy and sends nothing while a delete is on its way', async () => {
@@ -339,10 +344,7 @@ describe(
       const seen: string[] = [];
 
       function Twice() {
-        const { remove } = useDeleteRemote({
-          entity: fileRemote,
-          plugin: 'file',
-        });
+        const { remove } = useDeleteRemote(fileRemote);
 
         return (
           <button
@@ -377,10 +379,7 @@ function Routed() {
   return (
     <>
       <p data-testid='location'>{pathname}</p>
-      <button
-        type='button'
-        onClick={() => navigate('/file/repositories/other/')}
-      >
+      <button type='button' onClick={() => navigate('/elsewhere/')}>
         Leave for another screen
       </button>
       {useRoutes(guardRoutes(frameworkRoutes([FILE])))}
@@ -425,7 +424,10 @@ describe(
       const { deletes } = serveDelete();
       server.use(
         http.get(`*${API}/tasks/:id/`, () =>
-          HttpResponse.json(task({ pulp_href: TASK_HREF, state: 'running' })),
+          HttpResponse.json({
+            ...task({ pulp_href: TASK_HREF, state: 'running' }),
+            name: 'delete',
+          }),
         ),
       );
       const { user } = renderRoutes('/file/remotes/mirror/');
@@ -451,7 +453,10 @@ describe(
       });
       server.use(
         http.get(`*${API}/tasks/:id/`, () =>
-          HttpResponse.json(task({ pulp_href: TASK_HREF, state: 'running' })),
+          HttpResponse.json({
+            ...task({ pulp_href: TASK_HREF, state: 'running' }),
+            name: 'delete',
+          }),
         ),
       );
       const { user } = renderRoutes('/file/remotes/mirror/');
@@ -462,19 +467,18 @@ describe(
       await waitFor(() => expect(deletes).toHaveLength(1));
 
       await user.click(
-        screen.getByRole('button', { name: 'Leave for another screen' }),
+        screen.getByRole('button', {
+          name: 'Leave for another screen',
+          hidden: true,
+        }),
       );
-      expect(screen.getByTestId('location')).toHaveTextContent(
-        '/file/repositories/other/',
-      );
+      expect(screen.getByTestId('location')).toHaveTextContent('/elsewhere/');
       await act(async () => {
         answered.open();
         await new Promise((resolve) => setTimeout(resolve, 100));
       });
 
-      expect(screen.getByTestId('location')).toHaveTextContent(
-        '/file/repositories/other/',
-      );
+      expect(screen.getByTestId('location')).toHaveTextContent('/elsewhere/');
       // the result is queued for the screen the user is on
       expect(
         await screen.findByText('Removal started for remote mirror'),
@@ -492,7 +496,10 @@ describe(
       });
       server.use(
         http.get(`*${API}/tasks/:id/`, () =>
-          HttpResponse.json(task({ pulp_href: TASK_HREF, state: 'running' })),
+          HttpResponse.json({
+            ...task({ pulp_href: TASK_HREF, state: 'running' }),
+            name: 'delete',
+          }),
         ),
       );
       const { user } = renderRoutes('/file/remotes/mirror/');

@@ -4,20 +4,27 @@ import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
+import { AlertList } from 'src/components';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   type IRemote,
   type IRepository,
+  listOf,
   pluginListHandler,
   pluginRemote,
   pluginRepository,
+  task,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
 import { repositoryListPath } from '../route-patterns';
 import { frameworkRoutes } from '../routes';
+import {
+  WatchedTasksProvider,
+  useWatchedAnnouncements,
+} from '../watched-tasks';
 
 const API = '/pulp/api/v3';
 
@@ -43,7 +50,12 @@ function serveLab({
       pageSize: 1000,
     }),
   };
-  server.use(lab.remotes.handler, lab.repositories.handler);
+  server.use(
+    lab.remotes.handler,
+    lab.repositories.handler,
+    // the roles an account that holds permissions on single objects is read
+    listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler,
+  );
   return lab;
 }
 
@@ -556,6 +568,95 @@ describe(
           '/file/remotes',
         ),
       );
+    });
+  },
+);
+
+// What the shell shows of the tasks that ended, as the application root says it.
+function Announcements() {
+  const { alerts, dismiss } = useWatchedAnnouncements();
+
+  return <AlertList alerts={alerts} closeAlert={dismiss} />;
+}
+
+describe(
+  'Integration: the delete from a row of the remote list',
+  { tags: ['integration'] },
+  () => {
+    const TASK_HREF = `${API}/tasks/5f1c3a0e-7d2b-4c1e-9a55-0c9d2e3f4a5b/`;
+
+    it('sends one delete, says the removal started, and reads the list again when the task has ended', async () => {
+      const held = named(2) as IRemote[];
+      const lab = serveLab({ remotes: held });
+      const deletes: string[] = [];
+      server.use(
+        http.delete(`*${API}/remotes/file/file/:id/`, ({ request }) => {
+          const path = new URL(request.url).pathname;
+          deletes.push(path);
+          const at = held.findIndex(({ pulp_href }) => pulp_href === path);
+          if (at >= 0) {
+            held.splice(at, 1);
+          }
+          return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
+        }),
+        http.get(`*${API}/tasks/:id/`, () =>
+          HttpResponse.json({
+            ...task({ pulp_href: TASK_HREF }),
+            name: 'delete',
+          }),
+        ),
+      );
+
+      const { user } = renderWithProviders(
+        <AppContextProvider>
+          <WatchedTasksProvider>
+            <PermissionsKnown>
+              <Announcements />
+              <Routed />
+            </PermissionsKnown>
+          </WatchedTasksProvider>
+        </AppContextProvider>,
+        { route: '/file/remotes', signedIn: true },
+      );
+      await tableOf();
+      const [gone, kept] = held.slice() as IRemote[];
+
+      await user.click(
+        within(rowOf((gone as IRemote).name)).getByRole('button', {
+          name: /actions|kebab/i,
+        }),
+      );
+      await user.click(await screen.findByRole('menuitem', { name: 'Delete' }));
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByText((gone as IRemote).name)).toBeVisible();
+      await user.click(
+        await within(dialog).findByText('No repository uses this remote.'),
+      );
+      await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(deletes).toEqual([(gone as IRemote).pulp_href]);
+      expect(
+        await screen.findByText(
+          `Removal started for remote ${(gone as IRemote).name}`,
+        ),
+      ).toBeVisible();
+      // the end of the task is announced and the list is read again without it
+      expect(
+        await screen.findByText(
+          `Removal of remote ${(gone as IRemote).name} finished.`,
+        ),
+      ).toBeVisible();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('link', { name: (gone as IRemote).name }),
+        ).toBeNull(),
+      );
+      expect(
+        screen.getByRole('link', { name: (kept as IRemote).name }),
+      ).toBeVisible();
+      expect(lab.remotes.queries.length).toBeGreaterThan(1);
+      expect(deletes).toHaveLength(1);
     });
   },
 );

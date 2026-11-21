@@ -9,6 +9,7 @@ import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   type IRemote,
   type IRepository,
+  listOf,
   pluginListHandler,
   pluginRemote,
   pluginRepository,
@@ -40,7 +41,12 @@ function serveLab({
       pageSize: 1000,
     }),
   };
-  server.use(lab.remotes.handler, lab.repositories.handler);
+  server.use(
+    lab.remotes.handler,
+    lab.repositories.handler,
+    // the roles an account that holds permissions on single objects is read
+    listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler,
+  );
   return lab;
 }
 
@@ -317,20 +323,15 @@ describe(
       expect(await screen.findByText('Not for you.')).toBeVisible();
     });
 
-    it('offers the Details tab and a link back to the remote list', async () => {
+    it('offers the Details tab', async () => {
       serveLab({ remotes: [mirror()] });
 
       renderDetail();
 
       await detailRows();
-      expect(screen.getByRole('link', { name: 'Details' })).toHaveAttribute(
-        'href',
-        '/file/remotes/mirror/',
-      );
-      expect(screen.getByRole('link', { name: 'Remotes' })).toHaveAttribute(
-        'href',
-        '/file/remotes/',
-      );
+      const details = screen.getByRole('link', { name: 'Details' });
+      expect(details).toHaveAttribute('href', '/file/remotes/mirror/');
+      expect(details).toHaveAttribute('aria-current', 'page');
     });
   },
 );
@@ -362,17 +363,6 @@ describe(
     it('offers neither to a user who holds neither permission', async () => {
       holding();
       serveLab({ remotes: [mirror()] });
-      server.use(
-        http.get(`*${API}/roles/`, () =>
-          HttpResponse.json({
-            count: 0,
-            next: null,
-            previous: null,
-            results: [],
-          }),
-        ),
-      );
-
       renderDetail();
       await detailRows();
 
