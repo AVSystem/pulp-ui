@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 import { pipInstallCommand } from 'src/containers/python-repository/tab-distributions';
-import { rpmRemoteCommand } from 'src/containers/rpm-repository/tab-distributions';
 import { shellQuote } from './shell-quote';
 
 // What a POSIX shell makes of the quoted word, printed as raw bytes.
@@ -47,16 +46,7 @@ describe('shellQuote', () => {
 // A repository name is free text and the URL comes from the server, so every
 // copy-paste command of the Distributions tabs quotes each value it holds.
 describe('Distributions tab commands', () => {
-  const hostile = "a$(id)'b`id`";
-  const quotedHostile = "'a$(id)'\\''b`id`'";
-  const url = 'https://pulp.example/pulp/content/served/tools/';
-
   it.each([
-    [
-      'rpm',
-      rpmRemoteCommand(hostile, url),
-      `pulp rpm remote create --name ${quotedHostile} --url '${url}'`,
-    ],
     [
       'python',
       pipInstallCommand("https://pulp.example/a$(id)'b/"),

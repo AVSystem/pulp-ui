@@ -162,30 +162,6 @@ const PythonPackageList = lazyScreen(
 const RPMPackageList = lazyScreen(
   () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm/package-list'),
 );
-const RPMRemoteDetail = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-remote/detail'),
-);
-const RPMRemoteEdit = lazyScreen(
-  () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-remote/edit'),
-);
-const RPMRemoteList = lazyScreen(
-  () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-remote/list'),
-);
-const RPMRepositoryList = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-repository/list'),
-);
-const RPMRepositoryEdit = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "rpm" */ 'src/containers/rpm-repository/edit'),
-);
-const RPMRepositoryDetail = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "rpm" */ 'src/containers/rpm-repository/detail'
-    ),
-);
 const UserProfile = lazyScreen(
   () =>
     import(
@@ -502,36 +478,6 @@ const routes: IRouteConfig[] = [
     path: Paths.rpm.package.list,
     plugin: 'rpm',
     beta: true,
-  },
-  {
-    component: RPMRepositoryList,
-    path: Paths.rpm.repository.list,
-    plugin: 'rpm',
-  },
-  {
-    component: RPMRepositoryEdit,
-    path: Paths.rpm.repository.edit,
-    plugin: 'rpm',
-  },
-  {
-    component: RPMRepositoryDetail,
-    path: Paths.rpm.repository.detail,
-    plugin: 'rpm',
-  },
-  {
-    component: RPMRemoteDetail,
-    path: Paths.rpm.remote.detail,
-    plugin: 'rpm',
-  },
-  {
-    component: RPMRemoteEdit,
-    path: Paths.rpm.remote.edit,
-    plugin: 'rpm',
-  },
-  {
-    component: RPMRemoteList,
-    path: Paths.rpm.remote.list,
-    plugin: 'rpm',
   },
 ];
 

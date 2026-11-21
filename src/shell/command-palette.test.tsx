@@ -614,16 +614,29 @@ describe('repository search', () => {
 
   it('opens the detail screen of the chosen repository with Enter', async () => {
     signIn();
-    answerRepositories([repo('rpm', 'rpm', 'zz-rpm-1')]);
+    answerRepositories([repo('python', 'python', 'zz-python-1')]);
     const { user } = renderPalette();
     await openPalette(user);
 
     await user.type(await input(), 'zz');
-    await screen.findByRole('option', { name: 'zz-rpm-1, RPM' });
+    await screen.findByRole('option', { name: 'zz-python-1, Python' });
     await user.keyboard('{Enter}');
 
-    expect(where()).toBe('/rpm/repositories/detail/zz-rpm-1/');
+    expect(where()).toBe('/python/repositories/detail/zz-python-1/');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens an rpm repository at its address on the framework, with the name in one segment', async () => {
+    signIn();
+    answerRepositories([repo('rpm', 'rpm', 'zz-rpm/1')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    await screen.findByRole('option', { name: 'zz-rpm/1, RPM' });
+    await user.keyboard('{Enter}');
+
+    expect(where()).toBe('/rpm/repositories/zz-rpm%2F1/');
   });
 
   it('opens a deb repository at its address on the framework, with the name in one segment', async () => {

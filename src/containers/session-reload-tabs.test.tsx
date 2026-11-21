@@ -23,7 +23,6 @@ import { RepositoryAccessTab } from './ansible-repository/tab-access';
 import { CollectionVersionsTab } from './ansible-repository/tab-collection-versions';
 import { RepositoryVersionsTab as AnsibleVersionsTab } from './ansible-repository/tab-repository-versions';
 import { RepositoryVersionsTab as PythonVersionsTab } from './python-repository/tab-repository-versions';
-import { RepositoryVersionsTab as RpmVersionsTab } from './rpm-repository/tab-repository-versions';
 
 // What every tab that reads data must do once the session has ended: read
 // again when the same user signs in again, and show no alert and no error
@@ -459,10 +458,6 @@ function accessTabTests({
     expect(unhandled).not.toHaveBeenCalled();
   });
 }
-
-describe('the rpm repository versions tab', () => {
-  versionsTabTests({ Tab: RpmVersionsTab, base: 'repositories/rpm/rpm' });
-});
 
 describe('the python repository versions tab', () => {
   versionsTabTests({

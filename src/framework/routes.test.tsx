@@ -101,13 +101,13 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
   });
 
   it('refuses a plugin that has no descriptor yet instead of routing it to nothing', () => {
-    const rpm = {
+    const python = {
       ...FILE,
-      plugin: 'rpm',
+      plugin: 'python',
       onFramework: true,
     } satisfies PluginManifest;
 
-    expect(() => frameworkRoutes([rpm])).toThrow(/descriptor/);
+    expect(() => frameworkRoutes([python])).toThrow(/descriptor/);
   });
 });
 

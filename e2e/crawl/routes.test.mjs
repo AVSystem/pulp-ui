@@ -139,6 +139,10 @@ describe('the framework route source', () => {
       '/deb/repositories/:name/distributions',
       '/deb/remotes/:name/edit',
       '/deb/remote/new',
+      '/rpm/repositories',
+      '/rpm/repositories/:name/packages',
+      '/rpm/remotes/:name/edit',
+      '/rpm/remote/new',
     ]) {
       expect(patterns, pattern).toContain(pattern);
     }
@@ -147,8 +151,10 @@ describe('the framework route source', () => {
     expect(patterns).not.toContain('/file/remotes/edit/:name');
     expect(patterns).not.toContain('/deb/repositories/detail/:name');
     expect(patterns).not.toContain('/deb/remotes/edit/:name');
+    expect(patterns).not.toContain('/rpm/repositories/detail/:name');
+    expect(patterns).not.toContain('/rpm/remotes/edit/:name');
     // the plugins that are not on the framework are still read from the routes
-    expect(patterns).toContain('/rpm/repositories/detail/:name');
+    expect(patterns).toContain('/python/repositories/detail/:name');
   });
 
   it('lists every address of a plugin that is on the framework, each once, with unique report names', () => {
@@ -194,8 +200,8 @@ describe('the framework route source', () => {
   it('keeps the other plugins as they are', () => {
     const patterns = crawlRoutes(fileOnFramework).map((r) => r.pattern);
 
-    expect(patterns).not.toContain('/rpm/repositories/:name');
-    expect(patterns).toContain('/rpm/repositories/detail/:name');
+    expect(patterns).not.toContain('/python/repositories/:name');
+    expect(patterns).toContain('/python/repositories/detail/:name');
   });
 
   it('still stops on an entry of the application routes that cannot be read', () => {

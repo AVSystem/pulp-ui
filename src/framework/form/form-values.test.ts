@@ -146,6 +146,64 @@ describe('Unit: the body of a create', { tags: ['unit'] }, () => {
     });
   });
 
+  describe('a number the server never takes null for', () => {
+    const kept: FieldDef[] = [
+      {
+        name: 'keep',
+        label: msg`Retain`,
+        kind: 'integer',
+        blankValue: 0,
+      },
+      { name: 'retain', label: msg`Retain`, kind: 'integer' },
+    ];
+
+    it('is sent as its blank value when the input is empty or spaces, and as the number otherwise', () => {
+      const names = ['keep', 'retain'];
+
+      expect(toRequest(kept, { keep: '', retain: '' }, names)).toEqual({
+        keep: 0,
+        retain: null,
+      });
+      expect(toRequest(kept, { keep: '  ', retain: '' }, names)).toEqual({
+        keep: 0,
+        retain: null,
+      });
+      expect(toRequest(kept, { keep: ' 4 ', retain: '5' }, names)).toEqual({
+        keep: 4,
+        retain: 5,
+      });
+      expect(toCreateBody(kept, { keep: '', retain: '' })).toEqual({
+        keep: 0,
+        retain: null,
+      });
+    });
+
+    it('shows the blank value as an empty input, so keep-all reads as blank and a typed 0 is the same thing', () => {
+      expect(toForm(kept, { keep: 0, retain: 0 })).toEqual({
+        keep: '',
+        retain: '0',
+      });
+      expect(toForm(kept, { keep: 3, retain: null })).toEqual({
+        keep: '3',
+        retain: '',
+      });
+    });
+
+    it('counts emptying the input as a change from a number, and leaving the blank value alone as none', () => {
+      const before = toForm(kept, { keep: 3, retain: null });
+
+      expect(changedNames(kept, before, { ...before, keep: '' })).toEqual([
+        'keep',
+      ]);
+      expect(
+        changedNames(kept, toForm(kept, { keep: 0, retain: null }), {
+          keep: '',
+          retain: '',
+        }),
+      ).toEqual([]);
+    });
+  });
+
   describe('a field that is required', () => {
     const required: FieldDef[] = [
       { name: 'name', label: msg`Name`, kind: 'text', required: true },

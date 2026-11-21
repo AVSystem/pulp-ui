@@ -106,6 +106,11 @@ export interface FieldDef {
   // What an empty number input shows: the value the server uses when the field
   // is left empty.
   placeholder?: string;
+  // The number an empty `integer` input stands for, for a number the server
+  // never takes null for (0 keeps everything). An empty input is sent as this
+  // value, and the form shows the value as an empty input, so keeping
+  // everything reads as blank whichever way it was saved.
+  blankValue?: number;
   // The least a number may be. A smaller value is shown as a problem and the
   // form is not sent. A field with no minimum leaves every number to the
   // server.

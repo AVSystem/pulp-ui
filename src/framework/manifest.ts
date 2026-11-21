@@ -127,7 +127,7 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
         manageRoles: 'rpm.manage_roles_rpmremote',
       },
     },
-    onFramework: false,
+    onFramework: true,
   },
   {
     plugin: 'python',

@@ -25,6 +25,11 @@ export interface ListAddressOptions {
   sortable: readonly string[];
   // The query parameters of the filters the screen has.
   filters: readonly string[];
+  // What the address leaves out: the page size and the order a screen shows
+  // when the address names none. A repository or remote list shows 50 rows by
+  // name; a tab of a repository may differ.
+  defaultPageSize?: number;
+  defaultSort?: string;
 }
 
 const DIGITS = /^[1-9][0-9]*$/;
@@ -46,7 +51,12 @@ function acceptsFilter(param: string, value: string): boolean {
 // The list the address asks for, as the screen shows it.
 export function paramsOfAddress(
   address: string,
-  { sortable, filters }: ListAddressOptions,
+  {
+    sortable,
+    filters,
+    defaultPageSize = DEFAULT_PAGE_SIZE,
+    defaultSort = DEFAULT_SORT,
+  }: ListAddressOptions,
 ): ListParams {
   const search = new URLSearchParams(address);
 
@@ -64,11 +74,11 @@ export function paramsOfAddress(
       page !== null && DIGITS.test(page) && Number.isSafeInteger(Number(page))
         ? Number(page)
         : 1,
-    page_size: PAGE_SIZES.includes(pageSize) ? pageSize : DEFAULT_PAGE_SIZE,
+    page_size: PAGE_SIZES.includes(pageSize) ? pageSize : defaultPageSize,
     sort:
       sort !== null && field !== null && sortable.includes(field)
         ? sort
-        : DEFAULT_SORT,
+        : defaultSort,
   };
 
   for (const key of filters) {
@@ -83,16 +93,22 @@ export function paramsOfAddress(
 
 // The query string of a list, leaving out what is the default so the plain
 // address of a list stays plain. An empty string when nothing differs.
-export function searchOf(params: ListParams): string {
+export function searchOf(
+  params: ListParams,
+  {
+    defaultPageSize = DEFAULT_PAGE_SIZE,
+    defaultSort = DEFAULT_SORT,
+  }: Pick<ListAddressOptions, 'defaultPageSize' | 'defaultSort'> = {},
+): string {
   const parts: string[] = [];
 
   if (params.page !== 1) {
     parts.push(`page=${params.page}`);
   }
-  if (params.page_size !== DEFAULT_PAGE_SIZE) {
+  if (params.page_size !== defaultPageSize) {
     parts.push(`page_size=${params.page_size}`);
   }
-  if (params.sort !== DEFAULT_SORT) {
+  if (params.sort !== defaultSort) {
     parts.push(`sort=${encodeURIComponent(params.sort)}`);
   }
   for (const [key, value] of Object.entries(params)) {

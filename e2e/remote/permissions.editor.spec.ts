@@ -274,7 +274,19 @@ async function rowsWithMenus(
 test('rpm repositories offer actions on the owned repository only', async ({
   page,
 }) => {
-  const expected = allowedRowActions('rpm', owned.permissions);
+  // The framework list offers Sync, Edit, Delete in that order, and Sync only
+  // for a repository that has a remote to sync from.
+  const { results: found } = await apiGet<{
+    results: { name: string; remote: string | null }[];
+  }>(api, getRepositoriesRpmRpmListUrl(), {
+    name: owned.name,
+    fields: 'name,remote',
+  });
+  const allowed = allowedRowActions('rpm', owned.permissions);
+  const expected = FILE_ROW_ORDER.filter(
+    (action) =>
+      allowed.includes(action) && (action !== 'Sync' || !!found[0]?.remote),
+  );
   expect(expected, 'the object role grants at least one action').not.toEqual(
     [],
   );

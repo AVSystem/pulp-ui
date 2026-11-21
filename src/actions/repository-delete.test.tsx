@@ -5,7 +5,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { rpmRepositoryDeleteAction } from './rpm-repository-delete';
+import { repositoryDeleteAction } from './repository-delete';
+
+// The generic Delete action, as the screens that still use it build it.
+const rpmRepositoryDeleteAction = repositoryDeleteAction('rpm');
 
 const API = '/pulp/api/v3';
 
