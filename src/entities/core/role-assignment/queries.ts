@@ -10,11 +10,13 @@ import { userHref, userUrlId } from 'src/entities/core/user/href';
 import { useUser } from 'src/entities/core/user/queries';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useUserContext } from 'src/user-context';
+import { requestErrorStatus } from 'src/utilities/request-error';
 import { RoleAssignmentClient } from './client';
 import {
   type ObjectGrants,
   type RoleOwner,
   addAssignments,
+  addPermissions,
   objectPermissionIndex,
 } from './model';
 
@@ -43,6 +45,9 @@ const latestRun = new WeakMap<object, symbol>();
 
 interface Progress {
   grants: ObjectGrants;
+  // What each role allows, as far as the assignments read so far say. Only
+  // filled when the roles may not be read.
+  permissions: Map<string, readonly string[]>;
   pages: number;
 }
 
@@ -54,11 +59,13 @@ interface Progress {
 // a partial answer is never taken for the whole one. The read goes on when the
 // screen that started it is gone, because the answer is for the session; it
 // stops when its entry has been removed from the cache (another account) or
-// has been read again since.
+// has been read again since. With `withPermissions` every assignment carries the
+// permissions of its role, for an account that may not read the roles.
 async function readIndex(
   queryClient: QueryClient,
   user: string,
   groups: string[],
+  withPermissions: boolean,
 ): Promise<ObjectGrants> {
   const cache = queryClient.getQueryCache();
   const key = roleAssignmentKeys.objectIndex(user);
@@ -73,6 +80,7 @@ async function readIndex(
     latestRun.get(self) === run;
 
   const grants: ObjectGrants = new Map();
+  const permissions = new Map<string, readonly string[]>();
   let pages = 0;
   let failed = false;
 
@@ -80,6 +88,7 @@ async function readIndex(
     if (alive()) {
       queryClient.setQueryData<Progress>(roleAssignmentKeys.progress(user), {
         grants,
+        permissions,
         pages,
       });
     }
@@ -87,8 +96,16 @@ async function readIndex(
   publish();
 
   const take = async (owner: RoleOwner, offset: number) => {
-    const read = await RoleAssignmentClient.page(owner, offset);
+    const read = await RoleAssignmentClient.page(
+      owner,
+      offset,
+      undefined,
+      withPermissions,
+    );
     addAssignments(grants, read.results);
+    if (withPermissions) {
+      addPermissions(permissions, read.results);
+    }
     pages++;
     publish();
     return read;
@@ -191,11 +208,16 @@ export function useObjectPermissions({
     staleTime: Infinity,
     gcTime: Infinity,
   });
+  // An account the server does not let read the roles learns what a role allows
+  // from its own assignments instead. That costs more per assignment, which is
+  // why it is only done for such an account; it holds few roles.
+  const refused =
+    catalogue.isError && requestErrorStatus(catalogue.error) === 403;
 
   const index = useSessionQuery({
     queryKey: roleAssignmentKeys.objectIndex(own ?? ''),
-    queryFn: () => readIndex(queryClient, own as string, groups),
-    enabled: ready,
+    queryFn: () => readIndex(queryClient, own as string, groups, refused),
+    enabled: ready && (catalogue.isSuccess || refused),
     staleTime: Infinity,
     gcTime: Infinity,
     // A page that fails ends the read; the user asks again with Retry, and the
@@ -212,12 +234,13 @@ export function useObjectPermissions({
     gcTime: Infinity,
   }).data;
 
+  const permissionsOfRole = refused ? progress?.permissions : catalogue.data;
   const answer = useMemo(
     () =>
-      progress && catalogue.data
-        ? objectPermissionIndex(progress.grants, catalogue.data)
+      progress && permissionsOfRole
+        ? objectPermissionIndex(progress.grants, permissionsOfRole)
         : NOTHING,
-    [progress, catalogue.data],
+    [progress, permissionsOfRole],
   );
 
   const retry = useCallback(() => {
@@ -225,7 +248,8 @@ export function useObjectPermissions({
       predicate: (query) =>
         query.state.status === 'error' &&
         [
-          roleAssignmentKeys.rolePermissions,
+          // a refusal to read the roles is the answer, not a failure to retry
+          ...(refused ? [] : [roleAssignmentKeys.rolePermissions]),
           roleAssignmentKeys.objectIndex(own ?? ''),
         ].some((key) =>
           key.every((part, position) => query.queryKey[position] === part),
@@ -234,17 +258,17 @@ export function useObjectPermissions({
     if (record.isError) {
       void record.refetch();
     }
-  }, [own, queryClient, record]);
+  }, [own, queryClient, record, refused]);
 
   if (staff) {
     return { state: 'ready', can: EVERYTHING, retry };
   }
-  const failed = [record, catalogue, index].some(
-    (read) => read.isError && !read.isFetching,
+  const failed = [record, refused ? null : catalogue, index].some(
+    (read) => read !== null && read.isError && !read.isFetching,
   );
   const state = failed
     ? 'error'
-    : catalogue.isSuccess && index.isSuccess
+    : (catalogue.isSuccess || refused) && index.isSuccess
       ? 'ready'
       : 'loading';
 

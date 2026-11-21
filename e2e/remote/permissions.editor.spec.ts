@@ -6,6 +6,8 @@ import {
   test,
 } from '@playwright/test';
 import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
+import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
+import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
 import {
   getRepositoriesRpmRpmListRolesUrl,
   getRepositoriesRpmRpmListUrl,
@@ -137,27 +139,83 @@ async function offeredActions(row: Locator, page: Page): Promise<string[]> {
   return names;
 }
 
-test('file repositories offer the actions the group role allows', async ({
+// Sync needs a remote to sync from, so the list offers it on the rows that have
+// one and leaves it out of the others.
+async function expectedFileActions(names: string[]): Promise<string[][]> {
+  const { results } = await apiGet<{
+    results: { name: string; remote: string | null }[];
+  }>(api, getRepositoriesFileFileListUrl(), {
+    name__in: names.join(','),
+    limit: String(Math.max(names.length, 1)),
+    fields: 'name,remote',
+  });
+  const allowed = allowedRowActions('file', filePermissions);
+  return names.map((name) => {
+    const row = results.find((found) => found.name === name);
+    expect(row, `file repository ${name} exists on the server`).toBeDefined();
+    return row?.remote
+      ? allowed
+      : allowed.filter((action) => action !== 'Sync');
+  });
+}
+
+test('file repositories offer the actions the group role allows, Sync only where there is a remote', async ({
   page,
 }) => {
-  const expected = allowedRowActions('file', filePermissions);
-  expect(expected, 'the group role grants at least one action').not.toEqual([]);
+  expect(
+    allowedRowActions('file', filePermissions),
+    'the group role grants at least one action',
+  ).not.toEqual([]);
 
   await openRepositoryList(page, 'file');
 
   const rows = page.locator('tbody tr');
   await expect(rows.first()).toBeVisible();
   const shown = Math.min(await rows.count(), 3);
+  const names = await Promise.all(
+    Array.from({ length: shown }, async (_, index) =>
+      (await rows.nth(index).locator('td a').first().innerText()).trim(),
+    ),
+  );
+  const expected = await expectedFileActions(names);
   for (let index = 0; index < shown; index += 1) {
     expect(
       await offeredActions(rows.nth(index), page),
       `actions of file repository row ${index + 1}`,
-    ).toEqual(expected);
+    ).toEqual(expected[index]);
   }
 
   await expect(addRepository(page)).toHaveCount(
     filePermissions.has(ACTION_PERMISSIONS.file.repository.add) ? 1 : 0,
   );
+});
+
+test('a file repository with a remote offers Sync to the editor', async ({
+  page,
+}) => {
+  // the seeded repository of one of the remotes made for the sync checks
+  const { results } = await apiGet<{ results: { name: string }[] }>(
+    api,
+    getRemotesFileFileListUrl(),
+    { name__startswith: 'zz-synth-file-', name__endswith: '-src', limit: '1' },
+  );
+  const remote = results[0]?.name ?? '';
+  expect(remote, 'a seeded file remote').not.toBe('');
+  const name = remote.slice(0, -'-src'.length);
+  const [expected] = await expectedFileActions([name]);
+  expect(
+    expected,
+    'Sync is among the actions of a repository with a remote',
+  ).toContain('Sync');
+
+  await openRepositoryList(
+    page,
+    'file',
+    `?name__icontains=${encodeURIComponent(name)}`,
+  );
+  const row = page.locator('tbody tr', { hasText: name }).first();
+  await expect(row).toBeVisible();
+  expect(await offeredActions(row, page)).toEqual(expected);
 });
 
 test('python repositories offer Add repository and no row action', async ({
