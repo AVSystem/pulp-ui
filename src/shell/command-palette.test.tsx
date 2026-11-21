@@ -614,16 +614,29 @@ describe('repository search', () => {
 
   it('opens the detail screen of the chosen repository with Enter', async () => {
     signIn();
-    answerRepositories([repo('deb', 'apt', 'zz-deb-1')]);
+    answerRepositories([repo('rpm', 'rpm', 'zz-rpm-1')]);
     const { user } = renderPalette();
     await openPalette(user);
 
     await user.type(await input(), 'zz');
-    await screen.findByRole('option', { name: 'zz-deb-1, deb' });
+    await screen.findByRole('option', { name: 'zz-rpm-1, RPM' });
     await user.keyboard('{Enter}');
 
-    expect(where()).toBe('/deb/repositories/detail/zz-deb-1/');
+    expect(where()).toBe('/rpm/repositories/detail/zz-rpm-1/');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens a deb repository at its address on the framework, with the name in one segment', async () => {
+    signIn();
+    answerRepositories([repo('deb', 'apt', 'zz-deb/1')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    await screen.findByRole('option', { name: 'zz-deb/1, deb' });
+    await user.keyboard('{Enter}');
+
+    expect(where()).toBe('/deb/repositories/zz-deb%2F1/');
   });
 
   it('opens a file repository at its address on the framework, with the name in one segment', async () => {

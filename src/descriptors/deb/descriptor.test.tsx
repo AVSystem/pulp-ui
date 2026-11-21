@@ -3,8 +3,8 @@ import type { MessageDescriptor } from '@lingui/core';
 import { screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 import { remoteFields } from 'src/framework/form/remote-fields';
+import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 import { pluginRemote, pluginRepository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import descriptor from './descriptor';
@@ -277,9 +277,9 @@ describe('Unit: the deb descriptor', { tags: ['unit'] }, () => {
         'sync_installer',
       ];
 
-      expect(names.slice(names.indexOf('policy') + 1, names.indexOf('username'))).toEqual(
-        own,
-      );
+      expect(
+        names.slice(names.indexOf('policy') + 1, names.indexOf('username')),
+      ).toEqual(own);
     });
 
     it('requires the distributions, which the server refuses a remote without, and nothing else of its own', () => {
@@ -357,18 +357,18 @@ describe('Unit: the deb descriptor', { tags: ['unit'] }, () => {
         'sync-installer',
         'gpgkey',
       ]);
-      expect((remote?.detailRows ?? []).map(({ label }) => text(label))).toEqual(
-        [
-          'Download policy',
-          'Distributions',
-          'Components',
-          'Architectures',
-          'Sync sources',
-          'Sync installer packages',
-          'Sync installer files',
-          'GPG key',
-        ],
-      );
+      expect(
+        (remote?.detailRows ?? []).map(({ label }) => text(label)),
+      ).toEqual([
+        'Download policy',
+        'Distributions',
+        'Components',
+        'Architectures',
+        'Sync sources',
+        'Sync installer packages',
+        'Sync installer files',
+        'GPG key',
+      ]);
     });
 
     it('says what the server holds: the suites, All for no components or architectures, Enabled or Disabled for the sync choices', () => {
@@ -405,12 +405,15 @@ describe('Unit: the deb descriptor', { tags: ['unit'] }, () => {
       const row = rowOf(remote?.detailRows, 'gpgkey');
 
       expect(shown(row.render(DEB_REMOTE as never))).toHaveTextContent('None');
+    });
 
+    it('shows a stored GPG key as a code block', () => {
+      const row = rowOf(remote?.detailRows, 'gpgkey');
       const key = '-----BEGIN PGP PUBLIC KEY BLOCK-----\nabc';
-      const block = shown(
-        row.render({ ...DEB_REMOTE, gpgkey: key } as never),
-      );
-      expect(block).toHaveTextContent('BEGIN PGP PUBLIC KEY BLOCK');
+
+      expect(
+        shown(row.render({ ...DEB_REMOTE, gpgkey: key } as never)),
+      ).toHaveTextContent('BEGIN PGP PUBLIC KEY BLOCK');
     });
 
     it('filters by name and labels', () => {

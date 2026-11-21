@@ -84,30 +84,6 @@ const AnsibleRepositoryList = lazyScreen(
       /* webpackChunkName: "ansible" */ 'src/containers/ansible-repository/list'
     ),
 );
-const DebRemoteDetail = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "deb" */ 'src/containers/deb-remote/detail'),
-);
-const DebRemoteEdit = lazyScreen(
-  () => import(/* webpackChunkName: "deb" */ 'src/containers/deb-remote/edit'),
-);
-const DebRemoteList = lazyScreen(
-  () => import(/* webpackChunkName: "deb" */ 'src/containers/deb-remote/list'),
-);
-const DebRepositoryDetail = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "deb" */ 'src/containers/deb-repository/detail'
-    ),
-);
-const DebRepositoryEdit = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "deb" */ 'src/containers/deb-repository/edit'),
-);
-const DebRepositoryList = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "deb" */ 'src/containers/deb-repository/list'),
-);
 const GroupDetail = lazyScreen(
   () =>
     import(
@@ -377,36 +353,6 @@ const routes: IRouteConfig[] = [
     component: AnsibleRepositoryList,
     path: Paths.ansible.repository.list,
     plugin: 'ansible',
-  },
-  {
-    component: DebRemoteDetail,
-    path: Paths.deb.remote.detail,
-    plugin: 'deb',
-  },
-  {
-    component: DebRemoteEdit,
-    path: Paths.deb.remote.edit,
-    plugin: 'deb',
-  },
-  {
-    component: DebRemoteList,
-    path: Paths.deb.remote.list,
-    plugin: 'deb',
-  },
-  {
-    component: DebRepositoryDetail,
-    path: Paths.deb.repository.detail,
-    plugin: 'deb',
-  },
-  {
-    component: DebRepositoryEdit,
-    path: Paths.deb.repository.edit,
-    plugin: 'deb',
-  },
-  {
-    component: DebRepositoryList,
-    path: Paths.deb.repository.list,
-    plugin: 'deb',
   },
   {
     component: UserProfile,

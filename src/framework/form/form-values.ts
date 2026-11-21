@@ -282,9 +282,44 @@ export function fieldProblem(
   return number < field.min ? 'min' : null;
 }
 
+// The kinds whose value is a text that can be empty, which a required field of
+// that kind must not be. A box is never missing (unticked is an answer), and a
+// secret, the labels and a remote are never required of a plugin.
+const TEXT_VALUED_KINDS: readonly FieldDef['kind'][] = [
+  'text',
+  'textarea',
+  'url',
+  'certificate',
+  'select',
+  'integer',
+  'decimal',
+];
+
+// Whether a required field holds nothing, or only spaces: the server refuses
+// such a request, so the form keeps Save off instead of sending it.
+export function missingRequired(
+  fields: readonly FieldDef[],
+  values: FormValues,
+): boolean {
+  return fields.some(
+    (field) =>
+      field.required === true &&
+      !isSecret(field) &&
+      TEXT_VALUED_KINDS.includes(field.kind) &&
+      text(values[field.name]).trim() === '',
+  );
+}
+
 // Whether a value of the form is one the server would refuse, so the form does
 // not send what it knows to fail.
 export function hasProblems(
+  fields: readonly FieldDef[],
+  values: FormValues,
+): boolean {
+  return missingRequired(fields, values) || hasInvalidValue(fields, values);
+}
+
+function hasInvalidValue(
   fields: readonly FieldDef[],
   values: FormValues,
 ): boolean {

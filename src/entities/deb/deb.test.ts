@@ -220,12 +220,12 @@ describe('Unit: the deb entities', { tags: ['unit'] }, () => {
       });
       await debRemote.setLabel(row.pulp_href, { key: 'k', value: 'v' });
 
-      expect(calls.seen.map(({ method, pathname }) => [method, pathname])).toEqual(
-        [
-          ['POST', `${API}/remotes/deb/apt/`],
-          ['POST', `${row.pulp_href}set_label/`],
-        ],
-      );
+      expect(
+        calls.seen.map(({ method, pathname }) => [method, pathname]),
+      ).toEqual([
+        ['POST', `${API}/remotes/deb/apt/`],
+        ['POST', `${row.pulp_href}set_label/`],
+      ]);
       expect(calls.seen[0]?.body).toEqual({
         name: 'r',
         url: 'https://deb.example/debian/',

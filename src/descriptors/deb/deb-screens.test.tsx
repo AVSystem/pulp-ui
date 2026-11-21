@@ -19,6 +19,8 @@ import {
   pluginRepository,
   projectedBy,
   publicationListHandler,
+  taskListHandler,
+  versionSummaryHandler,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -100,8 +102,10 @@ function serveLab({
   server.use(
     lab.repositories.handler,
     lab.remotes.handler,
-    distributionListHandler('deb', distributions),
-    publicationListHandler('deb', publications),
+    distributionListHandler('deb', distributions).handler,
+    publicationListHandler('deb', publications).handler,
+    versionSummaryHandler({ patched: true, versions: [] }).handler,
+    taskListHandler([]).handler,
     listOf(`${API}/remotes/`, remotes, {
       pageSize: 1000,
       matching: (row, query) => {
@@ -225,7 +229,8 @@ describe(
       await user.type(await nameField(), 'upstream');
       await user.type(urlField(), 'https://deb.example/debian/');
       await user.type(distributionsField(), 'bookworm');
-      const key = '-----BEGIN PGP PUBLIC KEY BLOCK-----\nabc\n-----END PGP PUBLIC KEY BLOCK-----';
+      const key =
+        '-----BEGIN PGP PUBLIC KEY BLOCK-----\nabc\n-----END PGP PUBLIC KEY BLOCK-----';
       // the GPG key is the first file input: the advanced options are closed
       const uploads = document.querySelectorAll('input[type="file"]');
       await user.upload(
@@ -302,9 +307,9 @@ describe(
       const headers = within(table)
         .getAllByRole('columnheader')
         .map((header) => header.textContent);
-      expect(headers).toEqual(
-        expect.arrayContaining(['Remote name', 'URL', 'Distributions']),
-      );
+      for (const title of ['Remote name', 'URL', 'Distributions']) {
+        expect(headers.map((header) => header?.trim())).toContain(title);
+      }
       const row = (name: string) =>
         screen.getByRole('link', { name }).closest('tr') as HTMLElement;
       expect(row('main-mirror')).toHaveTextContent('bookworm trixie');
@@ -391,12 +396,8 @@ describe(
         const row = screen
           .getByRole('link', { name })
           .closest('tr') as HTMLElement;
-        await user.click(
-          within(row).getByRole('button', { name: /actions/i }),
-        );
-        return screen
-          .getAllByRole('menuitem')
-          .map((item) => item.textContent);
+        await user.click(within(row).getByRole('button', { name: /actions/i }));
+        return screen.getAllByRole('menuitem').map((item) => item.textContent);
       };
 
       expect(await menu('synced')).toEqual(['Sync', 'Edit', 'Delete']);
@@ -416,14 +417,16 @@ describe(
             repository: repository.pulp_href,
           }),
         ],
+        publications: [
+          pluginPublication('deb', { repository: repository.pulp_href }),
+        ],
       });
       render('/deb/repositories/bookworm-mirror/distributions');
 
-      expect(
-        await screen.findByDisplayValue(
-          "pulp deb remote create --name 'bookworm-mirror' --url 'https://pulp.example/pulp/content/bookworm/' --distributions '<suite>'",
-        ),
-      ).toBeInTheDocument();
+      const line = await screen.findByText(/--distributions/);
+      expect(line.textContent).toBe(
+        "pulp deb remote create --name 'bookworm-mirror' --url 'https://pulp.example/pulp/content/bookworm/' --distributions '<suite>'",
+      );
     });
   },
 );
@@ -438,10 +441,13 @@ describe('Integration: the deb sync dialog', { tags: ['integration'] }, () => {
     serveSyncLab({ repository });
     const syncs: Record<string, unknown>[] = [];
     server.use(
-      http.post(`*${API}/repositories/deb/apt/:id/sync/`, async ({ request }) => {
-        syncs.push((await request.json()) as Record<string, unknown>);
-        return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
-      }),
+      http.post(
+        `*${API}/repositories/deb/apt/:id/sync/`,
+        async ({ request }) => {
+          syncs.push((await request.json()) as Record<string, unknown>);
+          return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
+        },
+      ),
     );
     const { user } = renderWithProviders(
       <SyncDialog

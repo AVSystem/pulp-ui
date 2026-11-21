@@ -728,6 +728,7 @@ msgstr "追加：仅添加新内容"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "所有"
@@ -794,6 +795,7 @@ msgstr "已经是当前版本"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "ASCII 封装的公钥。设置后，每次同步都会验证上游 Release 文件的签名，这使通过纯 HTTP 同步变得安全。"
 
@@ -950,6 +952,7 @@ msgstr "架构"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Architectures"
 msgstr "架构"
 
@@ -1017,6 +1020,7 @@ msgstr "至少必须选择一种状态。"
 #: src/components/repository-form.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "自动发布"
@@ -1059,9 +1063,9 @@ msgstr "返回"
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/framework/repository-columns.tsx
 msgid "Base path"
 msgstr "基本路径"
 
@@ -1381,6 +1385,7 @@ msgstr "清除所有过滤器"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
 msgstr "CLI 配置"
@@ -1713,6 +1718,7 @@ msgstr "已完成：{when}"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Components"
 msgstr "组件"
 
@@ -1845,6 +1851,7 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "在软件仓库中没有发行版的内容对客户端无法进行同步、下载或搜索。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "远程仓库中不存在的内容将从本地仓库中删除"
@@ -1999,6 +2006,7 @@ msgstr "使用至少 {minLength} 个字符创建密码，包括特殊字符，�
 #~ msgstr "Create a password using at least 9 characters, including special characters , ex <!@$%>. Avoid using common names or expressions."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
 msgstr "为每个新仓库版本创建发布，使指向此仓库的分发始终提供最新内容。"
@@ -2058,10 +2066,10 @@ msgstr "创建"
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 #: src/framework/remote-columns.tsx
+#: src/framework/repository-columns.tsx
 msgid "Created date"
 msgstr "创建日期"
 
@@ -2577,6 +2585,7 @@ msgstr "详情"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
@@ -2618,6 +2627,7 @@ msgstr ""
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "Distributions"
@@ -2925,6 +2935,7 @@ msgstr "电子邮件"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
@@ -3724,6 +3735,7 @@ msgstr "转到起始页"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "GPG key"
 msgstr "GPG 密钥"
 
@@ -3907,6 +3919,7 @@ msgstr "每个软件包保留的版本数量；较旧的版本在同步时会被
 #~ msgstr "我理解这个行动是无法撤销的。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "如果选中，远程仓库中不存在的所有内容都将从本地仓库中删除；否则，同步将添加缺失的内容。"
@@ -4108,6 +4121,7 @@ msgstr "使用 pip 安装"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Installer files will be synchronized"
 msgstr "将同步安装程序文件"
 
@@ -4116,6 +4130,7 @@ msgstr "将同步安装程序文件"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Installer packages will be synchronized"
 msgstr "将同步安装程序软件包"
 
@@ -4262,7 +4277,6 @@ msgstr ""
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -4270,6 +4284,7 @@ msgstr ""
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 #: src/framework/remote-columns.tsx
+#: src/framework/repository-columns.tsx
 msgid "Labels"
 msgstr "标签"
 
@@ -4551,6 +4566,7 @@ msgstr "跟随系统"
 #~ msgstr "信息"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "镜像"
@@ -4637,6 +4653,7 @@ msgstr "我的配置集"
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 msgid "Name"
@@ -5110,6 +5127,7 @@ msgstr "还没有用户"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5297,11 +5315,13 @@ msgid "Online workers"
 msgstr "在线 worker"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "仅在远程服务器报告有更改时才执行同步。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "仅在远程服务器报告有更改时才执行同步。要强制执行同步，请取消选择此选项。"
@@ -5343,6 +5363,7 @@ msgstr "运维"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "优化"
@@ -5781,11 +5802,17 @@ msgid "Publish"
 msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Publish new versions automatically"
 msgstr "自动发布新版本"
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release fields of the upstream repository"
+msgstr ""
+
 #: src/containers/deb-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
 msgstr "发布上游 Release 字段"
 
@@ -6213,10 +6240,10 @@ msgstr "重新加载"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/repository-columns.tsx
 msgid "Remote"
 msgstr "远程"
 
@@ -6633,8 +6660,8 @@ msgstr "仓库无法被显示。"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/repository-columns.tsx
 msgid "Repository name"
 msgstr "仓库名称"
 
@@ -6748,6 +6775,7 @@ msgstr "保留的软件包版本"
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "保留版本计数"
@@ -7564,6 +7592,7 @@ msgstr "无法搜索部分仓库列表。"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Source packages will be synchronized"
 msgstr "将同步源软件包"
 
@@ -7832,10 +7861,12 @@ msgid "Sync installer"
 msgstr "同步安装程序"
 
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync installer files"
 msgstr "同步安装程序文件"
 
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync installer packages"
 msgstr "同步安装程序软件包"
 
@@ -7884,6 +7915,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync sources"
 msgstr "同步源"
 
@@ -7985,6 +8017,10 @@ msgstr "标记镜像"
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Tags could not be displayed."
 #~ msgstr "无法显示标签。"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Take the version, origin, label and description of the Release file from the upstream repository that was synced, instead of values of Pulp's own."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8996,6 +9032,7 @@ msgstr "上传"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "URL"
@@ -9538,14 +9575,17 @@ msgid "Whether to include pre-release versions in the sync."
 msgstr "是否在同步中包含预发布版本。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of architectures to sync, for example \"amd64 arm64\". If none are supplied, all that are available will be synchronized."
 msgstr "以空格分隔的要同步的架构列表，例如 \"amd64 arm64\"。如果未提供，将同步所有可用的架构。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of components to sync, for example \"main contrib\". If none are supplied, all that are available will be synchronized."
 msgstr "以空格分隔的要同步的组件列表，例如 \"main contrib\"。如果未提供，将同步所有可用的组件。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of distributions (also known as suites) to sync, for example \"bookworm bookworm-updates\"."
 msgstr "以空格分隔的要同步的分发列表（也称为 suite），例如 \"bookworm bookworm-updates\"。"
 

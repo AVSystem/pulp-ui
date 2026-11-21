@@ -150,9 +150,9 @@ describe('Unit: the body of a create', { tags: ['unit'] }, () => {
     const required: FieldDef[] = [
       { name: 'name', label: msg`Name`, kind: 'text', required: true },
       { name: 'url', label: msg`URL`, kind: 'url', required: true },
-      { name: 'suites', label: msg`Suites`, kind: 'text', required: true },
-      { name: 'note', label: msg`Note`, kind: 'text' },
-      { name: 'on', label: msg`On`, kind: 'boolean', required: true },
+      { name: 'suites', label: msg`Description`, kind: 'text', required: true },
+      { name: 'note', label: msg`Mode`, kind: 'text' },
+      { name: 'on', label: msg`Publish`, kind: 'boolean', required: true },
     ];
     const filled = {
       name: 'a',

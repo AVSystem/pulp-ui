@@ -26,6 +26,8 @@ const DESCRIPTORS: Partial<
 > = {
   file: () =>
     import(/* webpackChunkName: "file" */ 'src/descriptors/file/descriptor'),
+  deb: () =>
+    import(/* webpackChunkName: "deb" */ 'src/descriptors/deb/descriptor'),
 };
 
 // A screen drawn by generic code from a plugin's descriptor: the descriptor

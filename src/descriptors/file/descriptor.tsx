@@ -1,7 +1,5 @@
 import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
-import { Link } from 'react-router';
-import { DateComponent } from 'src/components';
 import { fileDistribution } from 'src/entities/file/distribution';
 import type { FileRepository } from 'src/entities/file/model';
 import { filePublication } from 'src/entities/file/publication';
@@ -10,13 +8,15 @@ import { fileRepository } from 'src/entities/file/repository';
 import type { FieldDef, PluginDescriptor } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
-import { LabelChips } from 'src/framework/labels/label-chips';
 import {
   POLICY_ROW,
   REMOTE_FILTERS,
   remoteColumns,
 } from 'src/framework/remote-columns';
-import { repositoryPath } from 'src/framework/route-patterns';
+import {
+  REPOSITORY_FILTERS,
+  repositoryColumns,
+} from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
 
 // What a publication of a file repository does about SHA256SUMS files, which
@@ -119,61 +119,8 @@ const descriptor: PluginDescriptor<FileRepository> = {
       build: ({ name, url }) =>
         `pulp file remote create --name ${shellQuote(name)} --url ${shellQuote(`${url}PULP_MANIFEST`)}`,
     },
-    filters: [
-      {
-        id: 'name',
-        label: msg`Repository name`,
-        param: 'name__icontains',
-        kind: 'text',
-      },
-      {
-        id: 'base-path',
-        label: msg`Base path`,
-        param: 'base_path',
-        kind: 'text',
-      },
-      {
-        id: 'remote',
-        label: msg`Remote`,
-        param: 'remote',
-        kind: 'remote',
-      },
-      {
-        id: 'labels',
-        label: msg`Labels`,
-        param: 'pulp_label_select',
-        kind: 'labels',
-      },
-    ],
-    columns: [
-      {
-        id: 'name',
-        label: msg`Repository name`,
-        sortField: 'name',
-        fields: ['name'],
-        render: (repository) => (
-          <Link to={repositoryPath('file', repository.name)}>
-            {repository.name}
-          </Link>
-        ),
-      },
-      {
-        id: 'labels',
-        label: msg`Labels`,
-        fields: ['pulp_labels'],
-        render: (repository) => <LabelChips labels={repository.pulp_labels} />,
-      },
-      {
-        id: 'created',
-        label: msg`Created date`,
-        sortField: 'pulp_created',
-        sortKind: 'numeric',
-        fields: ['pulp_created'],
-        render: (repository) => (
-          <DateComponent date={repository.pulp_created ?? ''} />
-        ),
-      },
-    ],
+    filters: REPOSITORY_FILTERS,
+    columns: repositoryColumns<FileRepository>('file'),
   },
   remote: {
     entity: fileRemote,

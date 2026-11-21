@@ -728,6 +728,7 @@ msgstr "Additif : ajouter uniquement du nouveau contenu"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "Tout"
@@ -794,6 +795,7 @@ msgstr "Déjà la version actuelle"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "Une clé publique au format ASCII armuré. Si elle est définie, la signature du fichier Release amont est vérifiée à chaque synchronisation, ce qui rend sûre une synchronisation en HTTP non chiffré."
 
@@ -950,6 +952,7 @@ msgstr "Architecture"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Architectures"
 msgstr "Architectures"
 
@@ -1017,6 +1020,7 @@ msgstr "Au moins un état doit être sélectionné."
 #: src/components/repository-form.tsx
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "Publication automatique"
@@ -1059,9 +1063,9 @@ msgstr "Retour"
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/framework/repository-columns.tsx
 msgid "Base path"
 msgstr "Chemin de base"
 
@@ -1381,6 +1385,7 @@ msgstr "Effacer tous les filtres"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
 msgstr "Configuration CLI"
@@ -1713,6 +1718,7 @@ msgstr "Terminée {when}"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Components"
 msgstr "Composants"
 
@@ -1845,6 +1851,7 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "Le contenu des dépôts sans distribution ne sera pas visible par les clients pour la synchronisation, le téléchargement ou la recherche."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "Le contenu absent du référentiel distant sera supprimé du référentiel local"
@@ -1999,6 +2006,7 @@ msgstr "Créez un mot de passe comportant au moins {minLength} caractères, y co
 #~ msgstr "Create a password using at least 9 characters, including special characters , ex <!@$%>. Avoid using common names or expressions."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
 msgstr "Crée une publication pour chaque nouvelle version du référentiel, afin que les distributions qui pointent vers ce référentiel servent toujours le contenu le plus récent."
@@ -2058,10 +2066,10 @@ msgstr "Créé"
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 #: src/framework/remote-columns.tsx
+#: src/framework/repository-columns.tsx
 msgid "Created date"
 msgstr "Date de création"
 
@@ -2577,6 +2585,7 @@ msgstr "Détails"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
@@ -2618,6 +2627,7 @@ msgstr ""
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "Distributions"
@@ -2925,6 +2935,7 @@ msgstr "Email"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
@@ -3724,6 +3735,7 @@ msgstr "Aller à la page d'accueil"
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "GPG key"
 msgstr "Clé GPG"
 
@@ -3907,6 +3919,7 @@ msgstr "Nombre de versions de chaque paquet à conserver ; les plus anciennes so
 #~ msgstr "Je comprends que cette action ne puisse être annulée."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "Si cette option est sélectionnée, tout le contenu absent du référentiel distant sera supprimé du référentiel local ; sinon, la synchronisation ajoutera le contenu manquant."
@@ -4108,6 +4121,7 @@ msgstr "Installer avec pip"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Installer files will be synchronized"
 msgstr "Les fichiers d'installation seront synchronisés"
 
@@ -4116,6 +4130,7 @@ msgstr "Les fichiers d'installation seront synchronisés"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Installer packages will be synchronized"
 msgstr "Les paquets d'installation seront synchronisés"
 
@@ -4262,7 +4277,6 @@ msgstr ""
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -4270,6 +4284,7 @@ msgstr ""
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 #: src/framework/remote-columns.tsx
+#: src/framework/repository-columns.tsx
 msgid "Labels"
 msgstr "Libellés"
 
@@ -4551,6 +4566,7 @@ msgstr "Identique au système"
 #~ msgstr "Message"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "Miroir"
@@ -4637,6 +4653,7 @@ msgstr "Mon profil"
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 msgid "Name"
@@ -5110,6 +5127,7 @@ msgstr "Aucun utilisateur existant"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5297,11 +5315,13 @@ msgid "Online workers"
 msgstr "Workers en ligne"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "Ne synchroniser que si le serveur distant signale des modifications."
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "Ne synchroniser que si le serveur distant signale des modifications. Pour forcer une synchronisation, désélectionnez cette option."
@@ -5343,6 +5363,7 @@ msgstr "Opérations"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "Optimiser"
@@ -5781,11 +5802,17 @@ msgid "Publish"
 msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Publish new versions automatically"
 msgstr "Publier automatiquement les nouvelles versions"
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release fields of the upstream repository"
+msgstr ""
+
 #: src/containers/deb-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
 msgstr "Publier les champs de version amont"
 
@@ -6213,10 +6240,10 @@ msgstr "Recharger"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/repository-columns.tsx
 msgid "Remote"
 msgstr "Source distante"
 
@@ -6633,8 +6660,8 @@ msgstr "Le référentiel n’a pas pu être affiché."
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/repository-columns.tsx
 msgid "Repository name"
 msgstr "Nom du référentiel"
 
@@ -6748,6 +6775,7 @@ msgstr "Versions de paquets conservées"
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "Nombre de versions conservées"
@@ -7564,6 +7592,7 @@ msgstr "Certaines listes de référentiels n'ont pas pu être interrogées."
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Source packages will be synchronized"
 msgstr "Les paquets sources seront synchronisés"
 
@@ -7832,10 +7861,12 @@ msgid "Sync installer"
 msgstr "Synchroniser l'installateur"
 
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync installer files"
 msgstr "Synchroniser les fichiers d'installation"
 
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync installer packages"
 msgstr "Synchroniser les paquets d'installation"
 
@@ -7884,6 +7915,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync sources"
 msgstr "Synchroniser les sources"
 
@@ -7985,6 +8017,10 @@ msgstr "Étiqueter l'image"
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Tags could not be displayed."
 #~ msgstr "Les tags n’ont pas pu être affichés."
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Take the version, origin, label and description of the Release file from the upstream repository that was synced, instead of values of Pulp's own."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8996,6 +9032,7 @@ msgstr "Téléversements"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "URL"
@@ -9538,14 +9575,17 @@ msgid "Whether to include pre-release versions in the sync."
 msgstr "Indique s'il faut inclure les pré-versions dans la synchronisation."
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of architectures to sync, for example \"amd64 arm64\". If none are supplied, all that are available will be synchronized."
 msgstr "Liste d'architectures à synchroniser, séparées par des espaces, par exemple \"amd64 arm64\". Si aucune n'est indiquée, toutes celles qui sont disponibles seront synchronisées."
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of components to sync, for example \"main contrib\". If none are supplied, all that are available will be synchronized."
 msgstr "Liste de composants à synchroniser, séparés par des espaces, par exemple \"main contrib\". Si aucun n'est indiqué, tous ceux qui sont disponibles seront synchronisés."
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of distributions (also known as suites) to sync, for example \"bookworm bookworm-updates\"."
 msgstr "Liste de distributions (aussi appelées suites) à synchroniser, séparées par des espaces, par exemple \"bookworm bookworm-updates\"."
 

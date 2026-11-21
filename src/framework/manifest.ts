@@ -103,7 +103,7 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
         manageRoles: 'deb.manage_roles_aptremote',
       },
     },
-    onFramework: false,
+    onFramework: true,
   },
   {
     plugin: 'rpm',
