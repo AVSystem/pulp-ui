@@ -74,6 +74,21 @@ export function isLoginUrl(url: string): boolean {
   return path.slice(prefix?.length ?? 0).startsWith('login/');
 }
 
+// Whether the URL is the list of roles. Whoever may not read it is refused,
+// and that refusal is the answer the caller asked for (what the account may
+// read), not a sign that the session ended: a screen reads this list to learn
+// what an account may do, and a limited account is refused it by the server's
+// access rules. Only the list itself counts, not one role and not the roles
+// of a user or group, which are asked for other reasons.
+export function isRolesListUrl(url: string): boolean {
+  const path = collapseDoubleSlash(url);
+  const prefix = [config.API_BASE_PATH, SCHEMA_API_ROOT].find((candidate) =>
+    path.startsWith(candidate),
+  );
+
+  return (path.slice(prefix?.length ?? 0).split('?')[0] ?? '') === 'roles/';
+}
+
 // The methods the server checks the CSRF token of: those that change state.
 const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -166,6 +181,9 @@ const isForOlderSession = (context: IRequestContext | undefined) =>
 // who-is-signed-in request, made by `checkSession`, tells them apart: a 2xx
 // answer means the refusal is real and the error reaches the caller
 // untouched; a 401 or 403 answer means the session ended.
+// The one read that is no occasion for that request is the roles list: its
+// refusal is an answer, and any later request of an ended session is refused
+// again and tells.
 export async function handleFailure(
   status: number | undefined,
   url: string,
@@ -179,7 +197,11 @@ export async function handleFailure(
 
   if (status === 401) {
     reportUnauthorized('request');
-  } else if (status === 403 && isSignedIn()) {
+  } else if (
+    status === 403 &&
+    isSignedIn() &&
+    !(context?.method === 'GET' && isRolesListUrl(url))
+  ) {
     if ((await sessionEnded(checkSession)) && !isForOlderSession(context)) {
       markSessionEnd(error);
       reportUnauthorized('request');
