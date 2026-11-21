@@ -12,6 +12,13 @@ const FILE: PluginManifest = {
   onFramework: true,
 };
 
+const RPM: PluginManifest = {
+  ...(PLUGIN_MANIFESTS.find(
+    ({ plugin }) => plugin === 'rpm',
+  ) as PluginManifest),
+  onFramework: true,
+};
+
 const DEB: PluginManifest = {
   ...(PLUGIN_MANIFESTS.find(
     ({ plugin }) => plugin === 'deb',
@@ -243,13 +250,54 @@ describe(
 
     it('leaves the old addresses of the plugins that are not on the framework alone', async () => {
       renderWithProviders(<Routed manifests={[DEB]} />, {
-        route: '/rpm/repositories/detail/r',
+        route: '/python/repositories/detail/r',
       });
       await screen.findByText('arrived');
 
       expect(screen.getByTestId('location')).toHaveTextContent(
-        /^\/rpm\/repositories\/detail\/r$/,
+        /^\/python\/repositories\/detail\/r$/,
       );
+    });
+  },
+);
+
+describe(
+  'Integration: the addresses of the rpm screens before the framework',
+  { tags: ['integration'] },
+  () => {
+    it('sends every old rpm address to its new one, keeping the query that is not a tab', async () => {
+      const cases: [string, string][] = [
+        ['/rpm/repositories/detail/r', '/rpm/repositories/r/'],
+        [
+          '/rpm/repositories/detail/r?tab=packages&page=2',
+          '/rpm/repositories/r/packages/?page=2',
+        ],
+        [
+          '/rpm/repositories/detail/r?tab=distributions',
+          '/rpm/repositories/r/distributions/',
+        ],
+        [
+          '/rpm/repositories/detail/r?tab=repository-versions&repositoryVersion=2',
+          '/rpm/repositories/r/versions/2/',
+        ],
+        ['/rpm/repositories/edit/r', '/rpm/repositories/r/edit/'],
+        ['/rpm/repositories/edit/_', '/rpm/repository/new/'],
+        ['/rpm/remotes/detail/r', '/rpm/remotes/r/'],
+        ['/rpm/remotes/edit/r', '/rpm/remotes/r/edit/'],
+        ['/rpm/remotes/edit/_', '/rpm/remote/new/'],
+      ];
+
+      for (const [from, to] of cases) {
+        const { unmount } = renderWithProviders(
+          <Routed manifests={[RPM]} />,
+          { route: from },
+        );
+        await screen.findByText('arrived');
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          new RegExp(`^${to.replace(/[?.]/g, '\\$&')}$`),
+        );
+        unmount();
+      }
     });
   },
 );

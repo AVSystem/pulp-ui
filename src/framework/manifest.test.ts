@@ -57,7 +57,7 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
     ).toEqual([
       ['file', true],
       ['deb', true],
-      ['rpm', false],
+      ['rpm', true],
       ['python', false],
     ]);
   });
