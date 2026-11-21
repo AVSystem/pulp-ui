@@ -2,12 +2,7 @@ import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { task } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
-import {
-  TaskPending,
-  TaskUnknown,
-  waitForTask,
-  waitForTaskUrl,
-} from './wait-for-task';
+import { TaskPending, TaskUnknown, waitForTaskUrl } from './wait-for-task';
 
 const TASK_ID = '00000000-0000-4000-8000-0000000000bb';
 const TASK_HREF = `/pulp/api/v3/tasks/${TASK_ID}/`;
@@ -34,11 +29,11 @@ function serveTask(overrides: Parameters<typeof task>[0]) {
 
 const fast = { waitMs: 1, multiplier: 1 };
 
-describe('waitForTask', () => {
+describe('waitForTaskUrl', () => {
   it('resolves once the task has completed', async () => {
     serveTask({ state: 'completed' });
 
-    await expect(waitForTask(TASK_ID, fast)).resolves.toBeUndefined();
+    await expect(waitForTaskUrl(TASK_HREF, fast)).resolves.toBeUndefined();
     expect(polls).toBe(1);
   });
 
@@ -54,14 +49,16 @@ describe('waitForTask', () => {
       }),
     );
 
-    await expect(waitForTask(TASK_ID, fast)).resolves.toBeUndefined();
+    await expect(waitForTaskUrl(TASK_HREF, fast)).resolves.toBeUndefined();
     expect(polls).toBe(3);
   });
 
   it('rejects with the error description of a failed task', async () => {
     serveTask({ state: 'failed', error: { description: 'disk is full' } });
 
-    const outcome = await waitForTask(TASK_ID, fast).catch((e: unknown) => e);
+    const outcome = await waitForTaskUrl(TASK_HREF, fast).catch(
+      (e: unknown) => e,
+    );
 
     expect(outcome).toBe('disk is full');
     expect(outcome).not.toBeInstanceOf(TaskPending);
@@ -70,7 +67,9 @@ describe('waitForTask', () => {
   it('rejects with a readable message for a canceled task without an error', async () => {
     serveTask({ state: 'canceled' });
 
-    const outcome = await waitForTask(TASK_ID, fast).catch((e: unknown) => e);
+    const outcome = await waitForTaskUrl(TASK_HREF, fast).catch(
+      (e: unknown) => e,
+    );
 
     expect(outcome).toBe('Task failed without error message.');
     expect(outcome).not.toBeInstanceOf(TaskPending);
@@ -79,9 +78,10 @@ describe('waitForTask', () => {
   it('rejects with TaskPending carrying the task href when the task outlives the attempts', async () => {
     serveTask({ state: 'running' });
 
-    const outcome = await waitForTask(TASK_ID, { ...fast, bailAfter: 2 }).catch(
-      (e: unknown) => e,
-    );
+    const outcome = await waitForTaskUrl(TASK_HREF, {
+      ...fast,
+      bailAfter: 2,
+    }).catch((e: unknown) => e);
 
     expect(outcome).toBeInstanceOf(TaskPending);
     expect((outcome as TaskPending).taskHref).toBe(TASK_HREF);
@@ -90,9 +90,10 @@ describe('waitForTask', () => {
   it('names the number of attempts actually made, not a fixed number', async () => {
     serveTask({ state: 'waiting' });
 
-    const outcome = await waitForTask(TASK_ID, { ...fast, bailAfter: 2 }).catch(
-      (e: unknown) => e,
-    );
+    const outcome = await waitForTaskUrl(TASK_HREF, {
+      ...fast,
+      bailAfter: 2,
+    }).catch((e: unknown) => e);
 
     expect(polls).toBe(3);
     expect((outcome as Error).message).toBe(
@@ -103,13 +104,15 @@ describe('waitForTask', () => {
   it('makes one attempt more than the retries it was allowed', async () => {
     serveTask({ state: 'running' });
 
-    await waitForTask(TASK_ID, { ...fast, bailAfter: 0 }).catch(() => null);
+    await waitForTaskUrl(TASK_HREF, { ...fast, bailAfter: 0 }).catch(
+      () => null,
+    );
 
     expect(polls).toBe(1);
   });
 });
 
-describe('waitForTask when the status cannot be read', () => {
+describe('waitForTaskUrl when the status cannot be read', () => {
   it('rejects with TaskUnknown carrying the task href, not with the error of the request', async () => {
     server.use(
       http.get('*/pulp/api/v3/tasks/:id/', () =>
@@ -117,7 +120,9 @@ describe('waitForTask when the status cannot be read', () => {
       ),
     );
 
-    const outcome = await waitForTask(TASK_ID, fast).catch((e: unknown) => e);
+    const outcome = await waitForTaskUrl(TASK_HREF, fast).catch(
+      (e: unknown) => e,
+    );
 
     expect(outcome).toBeInstanceOf(TaskUnknown);
     expect(outcome).toBeInstanceOf(TaskPending);
@@ -134,17 +139,26 @@ describe('waitForTask when the status cannot be read', () => {
       }),
     );
 
-    const outcome = await waitForTask(TASK_ID, fast).catch((e: unknown) => e);
+    const outcome = await waitForTaskUrl(TASK_HREF, fast).catch(
+      (e: unknown) => e,
+    );
 
     expect(outcome).toBeInstanceOf(TaskUnknown);
   });
 });
 
-describe('waitForTaskUrl', () => {
-  it('reads the task id from the task href', async () => {
+describe('waitForTaskUrl with an address that is not a task', () => {
+  it.each([
+    '/pulp/api/v3/users/7/',
+    `/pulp/api/v3/tasks/${TASK_ID}/cancel/`,
+    `https://evil.example/pulp/api/v3/tasks/${TASK_ID}/`,
+    '',
+  ])('reports an unknown outcome and sends nothing for %j', async (href) => {
     serveTask({ state: 'completed' });
 
-    await expect(waitForTaskUrl(TASK_HREF, fast)).resolves.toBeUndefined();
-    expect(polls).toBe(1);
+    const outcome = await waitForTaskUrl(href, fast).catch((e: unknown) => e);
+
+    expect(outcome).toBeInstanceOf(TaskUnknown);
+    expect(polls).toBe(0);
   });
 });

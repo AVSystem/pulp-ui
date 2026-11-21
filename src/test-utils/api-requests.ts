@@ -32,15 +32,16 @@ export function recordApiRequests(): SentRequest[] {
 // the API base, name another collection, or hide a dot segment in an escape.
 export function hrefsOutsideCollection(collection: string): string[] {
   const id = '00000000-0000-4000-8000-0000000000aa';
+  const other = collection === 'users/' ? 'groups/' : 'users/';
 
   return [
     `/other/api/v3/${collection}${id}/`,
     `https://evil.example/pulp/api/v3/${collection}${id}/`,
     `//evil.example/pulp/api/v3/${collection}${id}/`,
-    `/pulp/api/v3/${collection}%2e%2e/%2e%2e/users/${id}/`,
+    `/pulp/api/v3/${collection}%2e%2e/%2e%2e/${other}${id}/`,
     `/pulp/api/v3/${collection}${id}/?next=1`,
     `/pulp/api/v3/${collection}${id}/versions/1/`,
-    `/pulp/api/v3/users/${id}/`,
+    `/pulp/api/v3/${other}${id}/`,
     '/pulp/api/v3/',
     '',
   ];
