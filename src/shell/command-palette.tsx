@@ -98,7 +98,7 @@ function repositoryScreens(): Record<
   return {
     file: { label: t`File`, detail: (name) => repositoryPath('file', name) },
     deb: { label: 'deb', detail: (name) => repositoryPath('deb', name) },
-    rpm: { label: 'RPM', detail: legacy(Paths.rpm.repository.detail) },
+    rpm: { label: 'RPM', detail: (name) => repositoryPath('rpm', name) },
     python: {
       label: 'Python',
       detail: legacy(Paths.python.repository.detail),

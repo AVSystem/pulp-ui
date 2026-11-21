@@ -288,10 +288,9 @@ describe(
       ];
 
       for (const [from, to] of cases) {
-        const { unmount } = renderWithProviders(
-          <Routed manifests={[RPM]} />,
-          { route: from },
-        );
+        const { unmount } = renderWithProviders(<Routed manifests={[RPM]} />, {
+          route: from,
+        });
         await screen.findByText('arrived');
         expect(screen.getByTestId('location')).toHaveTextContent(
           new RegExp(`^${to.replace(/[?.]/g, '\\$&')}$`),

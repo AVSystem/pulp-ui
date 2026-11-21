@@ -67,7 +67,9 @@ function formValue(
   switch (field.kind) {
     case 'integer':
     case 'decimal':
-      return typeof value === 'number' ? String(value) : '';
+      return typeof value === 'number' && value !== field.blankValue
+        ? String(value)
+        : '';
     case 'boolean':
       return value === true;
     case 'labels':
@@ -117,7 +119,7 @@ function requestValue(field: FieldDef, value: unknown): unknown {
     case 'integer':
     case 'decimal': {
       const digits = text(value).trim();
-      return digits === '' ? null : Number(digits);
+      return digits === '' ? (field.blankValue ?? null) : Number(digits);
     }
     case 'labels':
       return Object.fromEntries(

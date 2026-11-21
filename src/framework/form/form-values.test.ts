@@ -192,9 +192,9 @@ describe('Unit: the body of a create', { tags: ['unit'] }, () => {
     it('counts emptying the input as a change from a number, and leaving the blank value alone as none', () => {
       const before = toForm(kept, { keep: 3, retain: null });
 
-      expect(
-        changedNames(kept, before, { ...before, keep: '' }),
-      ).toEqual(['keep']);
+      expect(changedNames(kept, before, { ...before, keep: '' })).toEqual([
+        'keep',
+      ]);
       expect(
         changedNames(kept, toForm(kept, { keep: 0, retain: null }), {
           keep: '',

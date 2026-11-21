@@ -96,7 +96,10 @@ describe('Unit: the rpm entities', { tags: ['unit'] }, () => {
 
       expect(result).toEqual({ kind: 'task', task: TASK });
       expect(calls.seen.map(({ method, body }) => [method, body])).toEqual([
-        ['POST', { name: 'new', autopublish: false, retain_package_versions: 0 }],
+        [
+          'POST',
+          { name: 'new', autopublish: false, retain_package_versions: 0 },
+        ],
         ['PATCH', { retain_package_versions: 0 }],
       ]);
       expect(calls.seen[0]?.pathname).toBe(`${API}/repositories/rpm/rpm/`);

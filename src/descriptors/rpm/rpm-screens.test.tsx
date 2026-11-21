@@ -326,7 +326,10 @@ describe(
 
     it('names the ULN remote of a repository as text and links the remote of the plugin', async () => {
       const uln = pluginRemote('rpm', { name: 'uln-channel' });
-      uln.pulp_href = uln.pulp_href.replace('remotes/rpm/rpm', 'remotes/rpm/uln');
+      uln.pulp_href = uln.pulp_href.replace(
+        'remotes/rpm/rpm',
+        'remotes/rpm/uln',
+      );
       const plain = upstream();
       serveLab({
         repositories: [
@@ -342,9 +345,9 @@ describe(
       await waitFor(() =>
         expect(rows.get('Remote')).toHaveTextContent('uln-channel'),
       );
-      expect(within(rows.get('Remote') as HTMLElement).queryByRole('link')).toBe(
-        null,
-      );
+      expect(
+        within(rows.get('Remote') as HTMLElement).queryByRole('link'),
+      ).toBe(null);
     });
 
     it('links the remote of the plugin to its page', async () => {

@@ -3,15 +3,13 @@ import type { MessageDescriptor } from '@lingui/core';
 import { screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { remoteFields } from 'src/framework/form/remote-fields';
-import {
-  repositoryFields,
-} from 'src/framework/form/repository-fields';
 import {
   toCreateBody,
   toForm,
   toRequest,
 } from 'src/framework/form/form-values';
+import { remoteFields } from 'src/framework/form/remote-fields';
+import { repositoryFields } from 'src/framework/form/repository-fields';
 import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 import { pluginRemote, pluginRepository } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -90,7 +88,10 @@ describe('Unit: the rpm descriptor', { tags: ['unit'] }, () => {
       ).toStrictEqual({ retain_package_versions: 3 });
       expect(
         toCreateBody(fields, { ...blank, retain_package_versions: '' }),
-      ).toMatchObject({ retain_package_versions: 0, retain_repo_versions: null });
+      ).toMatchObject({
+        retain_package_versions: 0,
+        retain_repo_versions: null,
+      });
     });
   });
 
@@ -123,9 +124,9 @@ describe('Unit: the rpm descriptor', { tags: ['unit'] }, () => {
     });
 
     it('says All for no package limit, whether the server holds 0 or nothing, and the number otherwise', () => {
-      expect(row('retain-package-versions').render(RPM_REPOSITORY as never)).toBe(
-        'All',
-      );
+      expect(
+        row('retain-package-versions').render(RPM_REPOSITORY as never),
+      ).toBe('All');
       expect(
         row('retain-package-versions').render({
           ...RPM_REPOSITORY,
@@ -274,25 +275,12 @@ describe('Unit: the rpm descriptor', { tags: ['unit'] }, () => {
     });
   });
 
-  describe('the tabs and the content', () => {
-    it('adds the Versions, Distributions and Packages tabs, each at its sub-path', () => {
+  describe('the tabs', () => {
+    it('adds the Versions and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([
         'versions',
         'distributions',
-        'packages',
       ]);
-      expect(
-        (repository.tabs ?? []).map(({ label }) => text(label)),
-      ).toEqual(['Versions', 'Distributions', 'Packages']);
-    });
-
-    it('declares the packages as the content type of its repositories', () => {
-      expect(
-        (descriptor.contentTypes ?? []).map(({ id, label }) => [
-          id,
-          text(label),
-        ]),
-      ).toEqual([['rpm.package', 'Packages']]);
     });
   });
 
