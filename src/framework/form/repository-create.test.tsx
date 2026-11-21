@@ -673,6 +673,26 @@ describe(
       ).toHaveLength(0);
     });
 
+    it('trims the name once: the repository, the distribution and the address after the create all use the trimmed name', async () => {
+      const lab = serveLab();
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), '  tools  ');
+      await tick(user);
+      expect(basePathInput()).toHaveValue('tools');
+      await user.click(save());
+
+      await atDetail('tools');
+      expect(bodiesOf(REPOSITORY_PATH)).toMatchObject([{ name: 'tools' }]);
+      expect(bodiesOf(DISTRIBUTION_PATH)).toStrictEqual([
+        {
+          name: 'tools',
+          base_path: 'tools',
+          repository: lab.repositories[0]?.pulp_href,
+        },
+      ]);
+    });
+
     it('creates the repository, then the distribution bound to it at the chosen base path, and reports both', async () => {
       const lab = serveLab();
       const { user } = renderCreate();

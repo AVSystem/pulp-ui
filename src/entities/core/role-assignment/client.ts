@@ -5,6 +5,7 @@ import type { UsersRolesListParams } from '@pulp-ui/sdk/core/models/users-roles/
 import { rolesList } from '@pulp-ui/sdk/core/roles';
 import { usersRolesList } from '@pulp-ui/sdk/core/users-roles';
 import { parseResponse } from 'src/entities/response-shape';
+import { refusalIsAnswer } from 'src/session/request-policy';
 import {
   type RoleAssignmentPage,
   type RoleOwner,
@@ -53,7 +54,10 @@ async function page(
 }
 
 // Reads the catalogue of roles with only the name and the permissions of each,
-// every page, as one map from the role's name to what it allows.
+// every page, as one map from the role's name to what it allows. An account
+// that may not read the roles is refused, and that refusal is the answer (it
+// learns the permissions from its assignments instead), so the session is not
+// checked for it.
 async function rolePermissions(
   options?: RequestInit,
 ): Promise<RolePermissions> {
@@ -68,7 +72,7 @@ async function rolePermissions(
     };
     const read = parseResponse(
       rolePermissionsPageSchema,
-      await rolesList(params, options),
+      await rolesList(params, refusalIsAnswer(options)),
     );
     for (const role of read.results) {
       permissions.set(role.name, role.permissions ?? []);

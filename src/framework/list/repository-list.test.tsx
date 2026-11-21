@@ -699,6 +699,27 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
     expect(own.filter((path) => SINGLE_OBJECT.test(path))).toEqual([]);
   }, 90_000);
 
+  it('goes to the last page that has rows when the address is past the end, and never says there are no repositories', async () => {
+    serveLab({ repositories: named(11) });
+
+    renderList('/file/repositories?page=9&page_size=10');
+
+    const table = await tableOf();
+    expect(bodyRows(table)).toHaveLength(1);
+    expect(screen.getByTestId('location').textContent).toBe(
+      '/file/repositories?page=2&page_size=10',
+    );
+    expect(screen.queryByText('No repositories yet')).toBeNull();
+  });
+
+  it('shows no repositories yet only when the server counts none', async () => {
+    serveLab({ repositories: [] });
+
+    renderList('/file/repositories?page=3&page_size=10');
+
+    expect(await screen.findByText('No repositories yet')).toBeVisible();
+  });
+
   it('shows the first-read error with Retry, never an empty list', async () => {
     serveLab({ repositories: [] });
     let answer = 500;

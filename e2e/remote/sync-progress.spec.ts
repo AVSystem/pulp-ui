@@ -47,7 +47,9 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   test.setTimeout(180_000);
-  await objects.cleanUp();
+  // objects is not set when opening the API context failed in beforeAll, and
+  // that failure must not be hidden by a second one here.
+  await objects?.cleanUp();
 });
 
 async function repositoryWithRemote(suffix: string): Promise<string> {

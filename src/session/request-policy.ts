@@ -74,19 +74,20 @@ export function isLoginUrl(url: string): boolean {
   return path.slice(prefix?.length ?? 0).startsWith('login/');
 }
 
-// Whether the URL is the list of roles. Whoever may not read it is refused,
-// and that refusal is the answer the caller asked for (what the account may
-// read), not a sign that the session ended: a screen reads this list to learn
-// what an account may do, and a limited account is refused it by the server's
-// access rules. Only the list itself counts, not one role and not the roles
-// of a user or group, which are asked for other reasons.
-export function isRolesListUrl(url: string): boolean {
-  const path = collapseDoubleSlash(url);
-  const prefix = [config.API_BASE_PATH, SCHEMA_API_ROOT].find((candidate) =>
-    path.startsWith(candidate),
-  );
+// The header a caller sets to say that a refusal (403) of this one request is
+// the answer it asked for, not a sign that the session ended. The permission
+// index reads the roles list to learn what an account may read, and a limited
+// account is refused it by the server's access rules. Every other read of the
+// same address (the roles screen, a role picker) still has its refusal checked.
+// The header never leaves the browser: `prepareRequest` removes it.
+const REFUSAL_IS_ANSWER_HEADER = 'X-Pulp-UI-Refusal-Is-Answer';
 
-  return (path.slice(prefix?.length ?? 0).split('?')[0] ?? '') === 'roles/';
+// The options of a request marked so that a refusal of it is the answer.
+export function refusalIsAnswer(options?: RequestInit): RequestInit {
+  const headers = new Headers(options?.headers);
+  headers.set(REFUSAL_IS_ANSWER_HEADER, '1');
+
+  return { ...options, headers };
 }
 
 // The methods the server checks the CSRF token of: those that change state.
@@ -96,6 +97,8 @@ const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 // request.
 interface IHeaderSink {
   set(name: string, value: string): unknown;
+  has(name: string): boolean;
+  delete(name: string): unknown;
 }
 
 // What the policy remembers of a request from the moment it is sent. The
@@ -106,6 +109,8 @@ export interface IRequestContext {
   readonly method: string;
   // The session the request was sent for.
   readonly epoch: number;
+  // Whether the caller said that a refusal of this request is its answer.
+  readonly refusalIsAnswer: boolean;
 }
 
 // Runs before every request of either client. While the session has ended and
@@ -127,6 +132,9 @@ export function prepareRequest(
     throw new SessionSuspendedError();
   }
 
+  const answersRefusal = headers.has(REFUSAL_IS_ANSWER_HEADER);
+  headers.delete(REFUSAL_IS_ANSWER_HEADER);
+
   const upperMethod = method.toUpperCase();
   if (UNSAFE_METHODS.has(upperMethod)) {
     const csrfToken = Cookies.get('csrftoken');
@@ -135,7 +143,12 @@ export function prepareRequest(
     }
   }
 
-  return { url, method: upperMethod, epoch: currentRequestEpoch() };
+  return {
+    url,
+    method: upperMethod,
+    epoch: currentRequestEpoch(),
+    refusalIsAnswer: answersRefusal,
+  };
 }
 
 // The one who-is-signed-in request that tells an ended session from a real
@@ -181,9 +194,9 @@ const isForOlderSession = (context: IRequestContext | undefined) =>
 // who-is-signed-in request, made by `checkSession`, tells them apart: a 2xx
 // answer means the refusal is real and the error reaches the caller
 // untouched; a 401 or 403 answer means the session ended.
-// The one read that is no occasion for that request is the roles list: its
-// refusal is an answer, and any later request of an ended session is refused
-// again and tells.
+// The one kind of request that is no occasion for that request is one marked
+// with `refusalIsAnswer`: its refusal is the answer the caller asked for, and
+// any later request of an ended session is refused again and tells.
 export async function handleFailure(
   status: number | undefined,
   url: string,
@@ -197,11 +210,7 @@ export async function handleFailure(
 
   if (status === 401) {
     reportUnauthorized('request');
-  } else if (
-    status === 403 &&
-    isSignedIn() &&
-    !(context?.method === 'GET' && isRolesListUrl(url))
-  ) {
+  } else if (status === 403 && isSignedIn() && !context?.refusalIsAnswer) {
     if ((await sessionEnded(checkSession)) && !isForOlderSession(context)) {
       markSessionEnd(error);
       reportUnauthorized('request');

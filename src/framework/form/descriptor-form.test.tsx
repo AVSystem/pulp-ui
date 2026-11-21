@@ -57,7 +57,6 @@ function Harness({ errors = {} }: { errors?: Record<string, string> }) {
       onChange={(name, value) =>
         setValues((now) => ({ ...now, [name]: value }))
       }
-      onSubmit={() => undefined}
     />
   );
 }
@@ -107,7 +106,6 @@ describe('Integration: DescriptorForm', { tags: ['integration'] }, () => {
         errors={{}}
         failureTitle='Not saved'
         onChange={(name, value) => changes.push([name, value])}
-        onSubmit={() => undefined}
       />,
     );
 
@@ -122,5 +120,29 @@ describe('Integration: DescriptorForm', { tags: ['integration'] }, () => {
       ['types', ['fast', 'slow']],
       ['types', []],
     ]);
+  });
+
+  it('does not send the form, or reload the page, when Enter is pressed in its only text input', async () => {
+    const single: FieldDef[] = [
+      { name: 'name', label: msg`Name`, kind: 'text' },
+    ];
+    const submitted: boolean[] = [];
+    const { user, container } = renderWithProviders(
+      <DescriptorForm
+        fields={single}
+        values={{ name: 'tools' }}
+        errors={{}}
+        failureTitle='Not saved'
+        onChange={() => undefined}
+      />,
+    );
+    // seen after the form's own handler, which runs on the way up
+    container.addEventListener('submit', (event) =>
+      submitted.push(event.defaultPrevented),
+    );
+
+    await user.type(screen.getByRole('textbox', { name: /Name/ }), '{Enter}');
+
+    expect(submitted).toEqual([true]);
   });
 });

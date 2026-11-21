@@ -11,6 +11,24 @@ describe('Unit: fillPath', { tags: ['unit'] }, () => {
     );
   });
 
+  it.each([
+    ['..', '/a/%252E%252E/'],
+    ['.', '/a/%252E/'],
+  ])('never lets the value %j resolve as a dot segment', (name, expected) => {
+    expect(fillPath('/a/:name', { name })).toBe(expected);
+    // the address the browser resolves keeps the segment in place
+    expect(new URL(fillPath('/a/:name', { name }), 'https://h').pathname).toBe(
+      expected,
+    );
+  });
+
+  it('keeps a dot that is part of a longer value', () => {
+    expect(fillPath('/a/:name', { name: 'v1.0' })).toBe('/a/v1.0/');
+    expect(fillPath('/a/:name', { name: '.hidden' })).toBe('/a/.hidden/');
+    expect(fillPath('/a/:name', { name: 'a..' })).toBe('/a/a../');
+    expect(fillPath('/a/:name', { name: '...' })).toBe('/a/.../');
+  });
+
   it('drops an optional parameter that has no value', () => {
     expect(fillPath('/a/:x?/:y', { y: 'v' })).toBe('/a/v/');
   });

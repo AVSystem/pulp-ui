@@ -71,7 +71,9 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
     (candidate) => candidate.plugin === plugin,
   ) as PluginManifest;
 
-  const name = String(values[NAME_FIELD] ?? '');
+  // The server stores a name without surrounding white space, so the requests
+  // and the address after the create use the trimmed name.
+  const name = String(values[NAME_FIELD] ?? '').trim();
   // The option is offered only to a user who may add a distribution of the
   // plugin and only for a plugin that has distributions.
   const offered =
@@ -173,7 +175,6 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
             failure={failure?.general}
             failureTitle={t`Repository could not be created`}
             onChange={change}
-            onSubmit={save}
             extra={
               offered ? (
                 <DistributionOption

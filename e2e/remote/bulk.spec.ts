@@ -2,8 +2,13 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
 import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
 import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
-import { type PulpObject, TestObjects, runId } from '../support/api';
-import { clickSidebar, listTable } from '../support/framework-list';
+import {
+  type PulpObject,
+  TestObjects,
+  allSettled,
+  runId,
+} from '../support/api';
+import { clickSidebar, listTable, shownNames } from '../support/framework-list';
 import { title } from '../support/sign-in';
 
 // The bulk actions of the file repository list against a real server, on
@@ -44,7 +49,7 @@ test.beforeAll(async () => {
   // repository has a remote of its own, because syncing the same content
   // through one remote in two repositories at once made one of the two tasks
   // fail on the server.
-  withRemote = (await Promise.all(
+  withRemote = (await allSettled(
     ['a', 'b'].map(async (suffix) => {
       const remote = await objects.create(REMOTES, {
         name: objects.name(`remote-${suffix}`),
@@ -64,17 +69,51 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   test.setTimeout(180_000);
-  await objects.cleanUp();
+  // objects is not set when opening the API context failed in beforeAll, and
+  // that failure must not be hidden by a second one here.
+  await objects?.cleanUp();
 });
 
+// The names of the repositories this test made or checks, as the list shows
+// them in the order of the names.
+const namesOf = (rows: PulpObject[]): string[] =>
+  rows.map(({ name }) => name as string).sort();
+
+// Waits until the rows shown are exactly the expected ones, every one of them
+// an object of this run. Select-all followed by Delete or Sync acts on every
+// row shown, so nothing is selected before the list is proven to hold this
+// run's objects alone: a filter that did not apply would otherwise reach the
+// seeded lab repositories.
+async function expectOnlyRunRows(
+  page: Page,
+  expected: string[],
+): Promise<void> {
+  for (const name of expected) {
+    expect(
+      name.startsWith(objects.prefix),
+      `${name} is an object of this run`,
+    ).toBe(true);
+  }
+  await expect
+    .poll(async () => (await shownNames(page, 'Repositories')).sort(), {
+      message: "the rows shown must be this run's repositories and no others",
+    })
+    .toEqual([...expected].sort());
+}
+
 // The list narrowed to the repositories of this run whose name starts with
-// `stem`, with its rows shown.
-async function openRun(page: Page, stem: string): Promise<void> {
+// `stem`, with the expected rows shown and no others.
+async function openRun(
+  page: Page,
+  stem: string,
+  expected: PulpObject[],
+): Promise<void> {
   await page.goto(
     `file/repositories?name__icontains=${encodeURIComponent(objects.name(stem))}`,
   );
   await expect(title(page, 'Repositories')).toBeVisible();
   await expect(listTable(page, 'Repositories', { rows: true })).toBeVisible();
+  await expectOnlyRunRows(page, namesOf(expected));
 }
 
 const tick = (page: Page, name: string) =>
@@ -106,7 +145,7 @@ test('a label added to two repositories and removed from three is reported row b
   const key = labelKey();
   const [a, b] = withRemote;
 
-  await openRun(page, '');
+  await openRun(page, '', [a, b, withoutRemote]);
   for (const row of [a, b]) {
     await tick(page, row.name as string);
   }
@@ -186,7 +225,7 @@ test('a sync of three repositories starts one task for each that has a remote an
   page,
 }) => {
   test.setTimeout(180_000);
-  await openRun(page, '');
+  await openRun(page, '', [...withRemote, withoutRemote]);
   await page
     .getByRole('checkbox', { name: 'Select all repositories on this page' })
     .check();
@@ -231,7 +270,7 @@ test('a sync of three repositories starts one task for each that has a remote an
 });
 
 async function makeRepositories(stem: string, count: number) {
-  return Promise.all(
+  return allSettled(
     Array.from({ length: count }, (_, index) =>
       objects.create(REPOSITORIES, {
         name: objects.name(`${stem}-${index + 1}`),
@@ -252,7 +291,7 @@ test('a bulk delete shows each repository as removed in the result table', async
   test.setTimeout(180_000);
   const doomed = await makeRepositories('delete-here', 2);
 
-  await openRun(page, 'delete-here');
+  await openRun(page, 'delete-here', doomed);
   await page
     .getByRole('checkbox', { name: 'Select all repositories on this page' })
     .check();
@@ -280,7 +319,7 @@ test('a bulk delete that ends after the user has left the list reports on the sc
   page,
 }) => {
   test.setTimeout(180_000);
-  await makeRepositories('delete-away', 2);
+  const away = await makeRepositories('delete-away', 2);
 
   // Two screens of the application in a row, so that going back is a move
   // inside it and the run goes on in the page.
@@ -292,7 +331,7 @@ test('a bulk delete that ends after the user has left the list reports on the sc
   await box.fill(objects.name('delete-away'));
   await box.press('Enter');
   await expect(listTable(page, 'Repositories', { rows: true })).toBeVisible();
-  await expect(page.locator('tbody tr')).toHaveCount(2);
+  await expectOnlyRunRows(page, namesOf(away));
 
   await page
     .getByRole('checkbox', { name: 'Select all repositories on this page' })

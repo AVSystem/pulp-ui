@@ -9598,6 +9598,10 @@ msgstr "Pulp からログアウトされました。"
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "次の項目に対してはこの操作を行う権限がないため、それらには何も送信されません:"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "選択した行に対して一括操作を行う権限がありません。"
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "パスワードが変更されました。新しいパスワードでログインしてください。"

@@ -379,6 +379,59 @@ describe(
       ]);
     });
 
+    it('keeps the count of the selected rows and says why there is no menu when none of them may be acted on', async () => {
+      const repositories = named(3);
+      serveScreens(repositories);
+      serveAccount({ isStaff: false });
+      server.use(
+        listOf(
+          `${API}/users/7/roles/`,
+          [roleAssignment('owner', (repositories[1] as IRepository).pulp_href)],
+          {
+            pageSize: 1000,
+            matching: (row, query) =>
+              query.get('content_object') !== 'null' ||
+              row.content_object === null,
+            projected: projectedBy,
+          },
+        ).handler,
+        http.get(`*${API}/roles/`, () =>
+          HttpResponse.json(
+            page([
+              role({
+                name: 'owner',
+                permissions: ['file.delete_filerepository'],
+              }),
+            ]),
+          ),
+        ),
+      );
+      const { user } = renderAt('/file/repositories');
+      await tableOf();
+
+      await user.click(await boxOf('repo-0001'));
+
+      expect(screen.getByText('1 row selected')).toBeVisible();
+      expect(
+        screen.getByText(
+          'You may not take a bulk action on the selected rows.',
+        ),
+      ).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Bulk actions' })).toBeNull();
+
+      await user.click(await boxOf('repo-0002'));
+
+      expect(screen.getByText('2 rows selected')).toBeVisible();
+      expect(
+        screen.queryByText(
+          'You may not take a bulk action on the selected rows.',
+        ),
+      ).toBeNull();
+      expect(
+        screen.getByRole('button', { name: 'Bulk actions' }),
+      ).toBeVisible();
+    });
+
     it('deletes with at most four in flight and shows one result per selected name and a summary on the list', async () => {
       const repositories = named(12);
       const lab = serveScreens(repositories);

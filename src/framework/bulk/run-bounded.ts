@@ -10,6 +10,13 @@ export async function runBounded<T, R>(
   limit: number,
   job: (item: T) => Promise<R>,
 ): Promise<R[]> {
+  // With no worker the run would resolve at once with an array of holes.
+  if (!(limit >= 1)) {
+    throw new RangeError(
+      `runBounded needs a limit of at least 1, got ${limit}`,
+    );
+  }
+
   const results: R[] = new Array(items.length);
   let next = 0;
 

@@ -1,6 +1,8 @@
 import { type Page, expect, test } from '@playwright/test';
 import { apiContext } from '../support/api';
+import { baseUrl } from '../support/env';
 import {
+  type ListKind,
   clickSidebar,
   expectedRepositories,
   listTable,
@@ -94,17 +96,51 @@ async function fresh(page: Page, group: string): Promise<void> {
 
 // Moves inside the application to an address, as following a link does: the
 // page is not loaded again, so what the application has read stays in its
-// cache.
+// cache. The address is below the UI root of the run, which the page must be
+// under; a page anywhere else is a mistake of the test and fails here, not as
+// a missing table later.
 async function moveTo(page: Page, address: string): Promise<void> {
-  await page.evaluate((to) => {
-    // an address below the UI root, whichever screen the page is on
-    const root = window.location.pathname.slice(
-      0,
-      window.location.pathname.indexOf('/ui/') + '/ui/'.length,
-    );
-    window.history.pushState({}, '', `${root}${to}`);
+  const root = new URL(baseUrl()).pathname;
+  const here = new URL(page.url()).pathname;
+  if (!here.startsWith(root)) {
+    throw new Error(`the page is at ${here}, not under the UI root ${root}`);
+  }
+
+  await page.evaluate((target) => {
+    window.history.pushState({}, '', target);
     window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
-  }, address);
+  }, `${root}${address}`);
+}
+
+// Times how long a list takes to show its rows and then to settle every column
+// that reads for itself, from the moment `trigger` is called. Both waits are
+// started before the trigger and both are always handled: a trigger that fails
+// must not leave a wait behind that rejects unhandled later, when its timeout
+// runs out, and is reported as a second, misleading failure.
+async function timeLoad(
+  page: Page,
+  kind: ListKind,
+  trigger: () => Promise<unknown>,
+): Promise<{ rows: number; columns: number }> {
+  const start = performance.now();
+  const timeUntil = (settled: { rows?: boolean; columns?: boolean }) =>
+    listTable(page, kind, settled)
+      .waitFor()
+      .then(() => elapsed(start));
+  const waits = Promise.allSettled([
+    timeUntil({ rows: true }),
+    timeUntil({ rows: true, columns: true }),
+  ]);
+
+  await trigger();
+  const [rows, columns] = await waits;
+  if (rows.status === 'rejected') {
+    throw rows.reason;
+  }
+  if (columns.status === 'rejected') {
+    throw columns.reason;
+  }
+  return { rows: rows.value, columns: columns.value };
 }
 
 const requestsOf = (page: Page) => {
@@ -163,19 +199,9 @@ test.describe('@scale the file lists at 1000 or more repositories', () => {
       const requests = requestsOf(page);
       const link = page.locator('[data-cy=pulp-menu-item-file-repositories]');
 
-      const start = performance.now();
-      const shown = listTable(page, 'Repositories', { rows: true })
-        .waitFor()
-        .then(() => elapsed(start));
-      const settled = listTable(page, 'Repositories', {
-        rows: true,
-        columns: true,
-      })
-        .waitFor()
-        .then(() => elapsed(start));
-      await link.click();
-      rows.push(await shown);
-      columns.push(await settled);
+      const timed = await timeLoad(page, 'Repositories', () => link.click());
+      rows.push(timed.rows);
+      columns.push(timed.columns);
       await settle(page);
       requests.stop();
 
@@ -208,19 +234,11 @@ test.describe('@scale the file lists at 1000 or more repositories', () => {
       await fresh(page, 'Repositories');
       const requests = requestsOf(page);
 
-      const start = performance.now();
-      const shown = listTable(page, 'Repositories', { rows: true })
-        .waitFor()
-        .then(() => elapsed(start));
-      const settled = listTable(page, 'Repositories', {
-        rows: true,
-        columns: true,
-      })
-        .waitFor()
-        .then(() => elapsed(start));
-      await moveTo(page, 'file/repositories?page_size=500');
-      rows.push(await shown);
-      columns.push(await settled);
+      const timed = await timeLoad(page, 'Repositories', () =>
+        moveTo(page, 'file/repositories?page_size=500'),
+      );
+      rows.push(timed.rows);
+      columns.push(timed.columns);
       await settle(page);
       requests.stop();
 
@@ -427,12 +445,10 @@ test.describe('@scale the file lists at 1000 or more repositories', () => {
 
     for (let run = 0; run < RUNS; run += 1) {
       await fresh(page, 'Remotes');
-      const start = performance.now();
-      const settled = listTable(page, 'Remotes', { rows: true, columns: true })
-        .waitFor()
-        .then(() => elapsed(start));
-      await page.locator('[data-cy=pulp-menu-item-file-remotes]').click();
-      remotes.push(await settled);
+      const timed = await timeLoad(page, 'Remotes', () =>
+        page.locator('[data-cy=pulp-menu-item-file-remotes]').click(),
+      );
+      remotes.push(timed.columns);
     }
 
     judge('L5 repository Details tab shown', detail, BUDGET.detail);

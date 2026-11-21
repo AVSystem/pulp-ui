@@ -9598,6 +9598,10 @@ msgstr "您已退出 Pulp。"
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "您无权对以下项目执行此操作，因此不会为它们发送任何内容："
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "您无权对所选行执行批量操作。"
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "您的密码已更改。请使用新密码登录。"

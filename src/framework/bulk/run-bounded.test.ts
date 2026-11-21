@@ -26,6 +26,20 @@ describe('Unit: runBounded', { tags: ['unit'] }, () => {
     expect(results).toStrictEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]);
   });
 
+  it.each([0, -1, Number.NaN, 0.5])(
+    'refuses the limit %s instead of sending nothing and resolving with holes',
+    async (limit) => {
+      let sent = 0;
+
+      await expect(
+        runBounded(['a', 'b'], limit, async () => {
+          sent += 1;
+        }),
+      ).rejects.toThrow(RangeError);
+      expect(sent).toBe(0);
+    },
+  );
+
   it('sends nothing for no items', async () => {
     expect(await runBounded([], 4, async () => 1)).toStrictEqual([]);
   });

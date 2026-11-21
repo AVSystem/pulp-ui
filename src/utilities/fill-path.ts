@@ -41,7 +41,16 @@ export function fillPath(
         return '';
       }
 
-      return encodeURIComponent(value as string | number | boolean);
+      const segment = encodeURIComponent(value as string | number | boolean);
+      // A segment that is `.` or `..` is resolved by the browser as the
+      // current or the parent folder, written plainly or as `%2E`, so the link
+      // would open another screen. No encoding of those two names survives
+      // address resolution, so their dots are escaped twice: the segment stays
+      // one literal segment, the object is not found under that text and the
+      // screen says so instead of showing a different one.
+      return segment === '.' || segment === '..'
+        ? segment.replaceAll('.', '%252E')
+        : segment;
     })
     .join('/')
     .replaceAll('//', '/');

@@ -270,7 +270,6 @@ const RepositoryEditScreen = ({
               failure={failure?.general}
               failureTitle={t`Repository "${repositoryName}" could not be updated`}
               onChange={change}
-              onSubmit={save}
             >
               <ActionGroup>
                 <Button

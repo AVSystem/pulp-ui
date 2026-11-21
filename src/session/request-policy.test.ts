@@ -4,6 +4,7 @@ import {
   handleFailure,
   isLoginUrl,
   prepareRequest,
+  refusalIsAnswer,
   resolveApiUrl,
 } from './request-policy';
 import {
@@ -324,19 +325,21 @@ describe('handleFailure', () => {
     '/pulp/api/v3/roles/?fields=name%2Cpermissions&limit=1000',
     '/pulp/api/v3/roles/',
     'roles/?limit=1',
+    '/pulp/api/v3/users/1/roles/',
   ])(
-    'asks nothing for a 403 of a read of the roles list (%s), which is the answer to what the account may read',
+    'asks nothing for a 403 of a request marked as one whose refusal is the answer (%s)',
     async (url) => {
       setSignedIn(true);
       const check = vi.fn();
       const error = answer(403);
+      const headers = new Headers(refusalIsAnswer().headers);
 
       await handleFailure(
         403,
         url,
         error,
         check,
-        prepareRequest(url, 'GET', new Headers()),
+        prepareRequest(url, 'GET', headers),
       );
 
       expect(check).not.toHaveBeenCalled();
@@ -345,27 +348,53 @@ describe('handleFailure', () => {
     },
   );
 
+  it('never sends the marker to the server', () => {
+    const headers = new Headers(refusalIsAnswer().headers);
+
+    prepareRequest('/pulp/api/v3/roles/', 'GET', headers);
+
+    expect(Array.from(headers.keys())).toStrictEqual([]);
+  });
+
+  it('keeps the headers a caller already set when it marks a request', () => {
+    const marked = refusalIsAnswer({
+      headers: { Accept: 'application/json' },
+      signal: new AbortController().signal,
+    });
+    const headers = new Headers(marked.headers);
+
+    prepareRequest('/pulp/api/v3/roles/', 'GET', headers);
+
+    expect(headers.get('Accept')).toBe('application/json');
+    expect(marked.signal).toBeDefined();
+  });
+
   it.each([
+    ['a read of the roles list', 'GET', '/pulp/api/v3/roles/'],
+    ['a read of the roles list with a query', 'GET', 'roles/?limit=1'],
     ['a read of one role', 'GET', '/pulp/api/v3/roles/0001/'],
     ['the roles of a user', 'GET', '/pulp/api/v3/users/1/roles/'],
     ['the roles of a group', 'GET', '/pulp/api/v3/groups/1/roles/'],
     ['a role being made', 'POST', '/pulp/api/v3/roles/'],
     ['a role being removed', 'DELETE', '/pulp/api/v3/roles/'],
     ['a list that only ends alike', 'GET', '/pulp/api/v3/things/roles/'],
-  ])('still asks about the session for a 403 of %s', async (_, method, url) => {
-    setSignedIn(true);
-    const check = vi.fn(() => Promise.resolve({ username: 'zoe' }));
+  ])(
+    'still asks about the session for a 403 of %s that is not marked',
+    async (_, method, url) => {
+      setSignedIn(true);
+      const check = vi.fn(() => Promise.resolve({ username: 'zoe' }));
 
-    await handleFailure(
-      403,
-      url,
-      answer(403),
-      check,
-      prepareRequest(url, method, new Headers()),
-    );
+      await handleFailure(
+        403,
+        url,
+        answer(403),
+        check,
+        prepareRequest(url, method, new Headers()),
+      );
 
-    expect(check).toHaveBeenCalledTimes(1);
-  });
+      expect(check).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it('shares one check between refusals that arrive together, whoever asks', async () => {
     setSignedIn(true);

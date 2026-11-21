@@ -9599,6 +9599,10 @@ msgstr "You have been signed out of Pulp."
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "You may not do this on the following, so nothing is sent for them:"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "You may not take a bulk action on the selected rows."
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Your password was changed. Sign in with the new password."

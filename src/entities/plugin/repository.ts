@@ -335,7 +335,7 @@ export function makeRepositoryEntity<
               toRequestParams({ ...params, pulp_href__in: values }),
             ),
           ),
-        hrefs,
+        Array.from(new Set(hrefs)),
       ),
     readChunks: async (chunks, params = {}, options) => {
       const pages = await runBounded(chunks, CHUNK_READS_AT_ONCE, (chunk) =>

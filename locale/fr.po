@@ -9598,6 +9598,10 @@ msgstr "Vous avez été déconnecté de Pulp."
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "Vous n'avez pas le droit de le faire sur les éléments suivants, rien n'est donc envoyé pour eux :"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "Vous n'avez pas le droit d'effectuer une action groupée sur les lignes sélectionnées."
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe."

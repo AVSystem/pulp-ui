@@ -9598,6 +9598,10 @@ msgstr "Pulp에서 로그아웃되었습니다."
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "다음 항목에 대해서는 이 작업을 수행할 수 없으므로 해당 항목에는 아무것도 전송되지 않습니다:"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "선택한 행에 대해 일괄 작업을 수행할 수 없습니다."
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "비밀번호가 변경되었습니다. 새 비밀번호로 로그인하세요."

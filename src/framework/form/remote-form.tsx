@@ -312,7 +312,6 @@ const RemoteEditScreen = ({
               failure={failure?.general}
               failureTitle={t`Remote "${remoteName}" could not be updated`}
               onChange={change}
-              onSubmit={save}
             >
               <ActionGroup>
                 <Button
@@ -434,7 +433,6 @@ export const RemoteCreate = ({ plugin, descriptor }: Props) => {
             failure={failure?.general}
             failureTitle={t`Remote could not be created`}
             onChange={change}
-            onSubmit={save}
           >
             <ActionGroup>
               <Button
