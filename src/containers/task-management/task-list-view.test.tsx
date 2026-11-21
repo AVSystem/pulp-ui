@@ -832,5 +832,32 @@ describe('the writes of the task list', () => {
       await act(() => new Promise((resolve) => setTimeout(resolve, 80)));
       expect(calls).toEqual(['GET list', `POST ${action.path}`]);
     });
+
+    it(`${action.button} shows the three-part refusal with the server's reason when it is refused`, async () => {
+      servePermissions({ isStaff: true });
+      const { calls } = serveWith({
+        path: action.path,
+        method: 'post',
+        status: 403,
+      });
+      const { user } = renderTasks();
+      await screen.findByText('zz.running');
+
+      await user.click(
+        await screen.findByRole('button', { name: action.button }),
+      );
+      await user.click(await screen.findByRole('button', { name: 'Yes' }));
+
+      const alert = (await screen.findByText(action.failed)).closest(
+        '.pf-v6-c-alert',
+      ) as HTMLElement;
+      expect(alert).not.toBeNull();
+      expect(alert).toHaveTextContent('You do not have permission to do this.');
+      expect(alert).toHaveTextContent('refused');
+      expect(alert).toHaveTextContent(
+        'Contact your organization administrator for more information.',
+      );
+      expect(calls).toEqual(['GET list', `POST ${action.path}`]);
+    });
   }
 });
