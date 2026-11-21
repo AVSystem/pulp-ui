@@ -3,14 +3,17 @@ import { z } from 'zod';
 // One role held by a user or a group, cut to what the object-permission index
 // needs: the role's name and the object it is held on (null, or absent, for a
 // role held on every object of its kind). The permissions of the role are not
-// part of an assignment: asking the server for them on every row costs several
-// times the rest of the answer, so they come from one read of the roles. A
-// field this schema does not name is kept as it came.
+// asked for with an assignment: asking the server for them on every row costs
+// several times the rest of the answer, so they come from one read of the
+// roles. Only an account that may not read the roles asks for them with each
+// assignment, and then they are present. A field this schema does not name is
+// kept as it came.
 //
 // The generated response schema of the sdk is used for types only.
 const roleAssignmentSchema = z.looseObject({
   role: z.string(),
   content_object: z.string().nullish(),
+  permissions: z.array(z.string()).nullish(),
 });
 
 const roleAssignmentPageSchema = z.looseObject({
@@ -68,6 +71,20 @@ function addAssignments(
   }
 }
 
+// Records what each role allows as the assignments carry it, for an account
+// that may not read the catalogue of roles. A role is the same whoever holds
+// it, so the first assignment of a role says what it allows.
+function addPermissions(
+  permissions: Map<string, readonly string[]>,
+  assignments: readonly Pick<RoleAssignment, 'role' | 'permissions'>[],
+): void {
+  for (const { role, permissions: allowed } of assignments) {
+    if (allowed && !permissions.has(role)) {
+      permissions.set(role, allowed);
+    }
+  }
+}
+
 // The question "may the user do this on that object": true when a role held on
 // that object allows the permission. A role the catalogue does not know allows
 // nothing. This is for showing or hiding an action only; the server decides
@@ -89,6 +106,7 @@ function objectPermissionIndex(
 
 export {
   addAssignments,
+  addPermissions,
   objectPermissionIndex,
   roleAssignmentPageSchema,
   roleAssignmentSchema,

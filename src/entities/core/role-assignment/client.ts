@@ -18,8 +18,13 @@ export const ASSIGNMENT_PAGE = 1000;
 
 // What an assignment is asked for. The permissions of a role are left out on
 // purpose: they are the costliest part of the answer and the same for every
-// assignment of one role.
+// assignment of one role. An account that may not read the roles has no other
+// way to learn them, and asks for them with each assignment.
 const ASSIGNMENT_FIELDS = ['role', 'content_object'];
+const ASSIGNMENT_FIELDS_WITH_PERMISSIONS = [
+  ...ASSIGNMENT_FIELDS,
+  'permissions',
+];
 
 // Reads one page of the roles an owner holds, on every object and on single
 // objects alike (no `content_object` filter). The pages are ordered by key so
@@ -30,12 +35,15 @@ async function page(
   owner: RoleOwner,
   offset: number,
   options?: RequestInit,
+  withPermissions = false,
 ): Promise<RoleAssignmentPage> {
   const params: UsersRolesListParams & GroupsRolesListParams = {
     offset,
     limit: ASSIGNMENT_PAGE,
     ordering: ['pk'],
-    fields: ASSIGNMENT_FIELDS,
+    fields: withPermissions
+      ? ASSIGNMENT_FIELDS_WITH_PERMISSIONS
+      : ASSIGNMENT_FIELDS,
   };
   const data =
     owner.kind === 'user'

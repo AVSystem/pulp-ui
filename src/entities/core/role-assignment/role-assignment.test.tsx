@@ -11,7 +11,7 @@ import {
 import { createTestQueryClient } from 'src/test-utils/query';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
-import { addAssignments, objectPermissionIndex } from './model';
+import { addAssignments, addPermissions, objectPermissionIndex } from './model';
 import { type ObjectPermissions, useObjectPermissions } from './queries';
 
 const API = '/pulp/api/v3';
@@ -68,6 +68,20 @@ describe('Unit: the object-permission index', { tags: ['unit'] }, () => {
     expect(can(repositoryHref(1), VIEW)).toBe(true);
     expect(can(repositoryHref(1), SYNC)).toBe(true);
     expect(can(repositoryHref(1), DELETE)).toBe(false);
+  });
+
+  it('learns what a role allows from the first assignment that carries its permissions', () => {
+    const known = new Map<string, readonly string[]>();
+    addPermissions(known, [
+      { role: VIEWER, permissions: [VIEW] },
+      { role: OWNER },
+      { role: OWNER, permissions: null },
+      { role: OWNER, permissions: [VIEW, SYNC] },
+      { role: OWNER, permissions: [VIEW] },
+    ]);
+
+    expect(known.get(VIEWER)).toEqual([VIEW]);
+    expect(known.get(OWNER)).toEqual([VIEW, SYNC]);
   });
 
   it('ignores a role held on no object and a role the catalogue does not know', () => {
@@ -382,9 +396,7 @@ describe('Integration: useObjectPermissions', { tags: ['integration'] }, () => {
 
   it('takes the permissions of each role from the assignments when the account may not read the roles', async () => {
     serveAccount({
-      own: [
-        roleAssignment(VIEWER, repositoryHref(1), { permissions: [VIEW] }),
-      ],
+      own: [roleAssignment(VIEWER, repositoryHref(1), { permissions: [VIEW] })],
       groups: [
         {
           id: 3,
