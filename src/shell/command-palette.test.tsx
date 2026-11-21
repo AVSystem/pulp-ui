@@ -626,6 +626,19 @@ describe('repository search', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('opens a file repository at its address on the framework, with the name in one segment', async () => {
+    signIn();
+    answerRepositories([repo('file', 'file', 'zz-file/1')]);
+    const { user } = renderPalette();
+    await openPalette(user);
+
+    await user.type(await input(), 'zz');
+    await screen.findByRole('option', { name: 'zz-file/1, File' });
+    await user.keyboard('{Enter}');
+
+    expect(where()).toBe('/file/repositories/zz-file%2F1/');
+  });
+
   it('shows a spinner and a message while the request runs, with the screens already listed', async () => {
     signIn();
     let release: () => void = () => undefined;

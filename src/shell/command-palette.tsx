@@ -25,6 +25,7 @@ import {
 import { useNavigate } from 'react-router';
 import { GenericRepositoryAPI } from 'src/api/generic-pulp';
 import { Spinner } from 'src/components';
+import { repositoryPath } from 'src/framework/route-patterns';
 import { useMenuModel } from 'src/menu';
 import { Paths, formatPath } from 'src/paths';
 import { usePlugins } from 'src/plugins';
@@ -88,14 +89,24 @@ interface IRepositoryRow {
 // for the plugin and where a repository of it opens.
 function repositoryScreens(): Record<
   string,
-  { label: string; detail: string }
+  { label: string; detail: (name: string) => string }
 > {
+  // Built from the route and the name, never from an address the server sent.
+  const legacy = (pattern: string) => (name: string) =>
+    formatPath(pattern, { name });
+
   return {
-    file: { label: t`File`, detail: Paths.file.repository.detail },
-    deb: { label: 'deb', detail: Paths.deb.repository.detail },
-    rpm: { label: 'RPM', detail: Paths.rpm.repository.detail },
-    python: { label: 'Python', detail: Paths.python.repository.detail },
-    ansible: { label: 'Ansible', detail: Paths.ansible.repository.detail },
+    file: { label: t`File`, detail: (name) => repositoryPath('file', name) },
+    deb: { label: 'deb', detail: legacy(Paths.deb.repository.detail) },
+    rpm: { label: 'RPM', detail: legacy(Paths.rpm.repository.detail) },
+    python: {
+      label: 'Python',
+      detail: legacy(Paths.python.repository.detail),
+    },
+    ansible: {
+      label: 'Ansible',
+      detail: legacy(Paths.ansible.repository.detail),
+    },
   };
 }
 
@@ -243,9 +254,7 @@ function repositoryResults(
       id: `repository-${results.length}`,
       name: repository.name,
       plugin: screen.label,
-      // Built from the route and the name, never from the address the
-      // server sent.
-      path: formatPath(screen.detail, { name: repository.name }),
+      path: screen.detail(repository.name),
     });
   }
   return results;

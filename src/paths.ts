@@ -93,18 +93,6 @@ export const Paths = {
       list: '/deb/repositories',
     },
   },
-  file: {
-    remote: {
-      detail: '/file/remotes/detail/:name',
-      edit: '/file/remotes/edit/:name',
-      list: '/file/remotes',
-    },
-    repository: {
-      detail: '/file/repositories/detail/:name',
-      edit: '/file/repositories/edit/:name',
-      list: '/file/repositories',
-    },
-  },
   meta: {
     about: '/about',
     login: '/login',

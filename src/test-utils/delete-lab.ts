@@ -4,6 +4,7 @@ import {
   type IDistribution,
   type IPublication,
   listOf,
+  projectedBy,
   task,
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
@@ -51,6 +52,7 @@ export function serveDeleteLab({
       query.has('repository')
         ? row.repository === query.get('repository')
         : true,
+    projected: projectedBy,
   });
   const polls = new Map<string, number>();
   const distributionTasks = new Set<string>();
@@ -65,6 +67,7 @@ export function serveDeleteLab({
     listOf(PUBLICATIONS, publications, {
       pageSize: 1000,
       matching: (row, query) => row.repository === query.get('repository'),
+      projected: projectedBy,
     }).handler,
     http.delete(`*${DISTRIBUTIONS}:id/`, ({ request, params }) => {
       const path = new URL(request.url).pathname;

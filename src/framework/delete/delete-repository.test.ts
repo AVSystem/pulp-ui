@@ -17,6 +17,7 @@ import {
   distribution,
   inSetOf,
   listOf,
+  projectedBy,
   publication,
   repository,
 } from 'src/test-utils/pulp';
@@ -425,8 +426,12 @@ describe(
       const sent = serve({ distributions: [ours, foreign] });
       // the lists answer with every row of the plugin
       server.use(
-        listOf(DISTRIBUTIONS, [ours, foreign], { pageSize: 1000 }).handler,
-        listOf(PUBLICATIONS, [], { pageSize: 1000 }).handler,
+        listOf(DISTRIBUTIONS, [ours, foreign], {
+          pageSize: 1000,
+          projected: projectedBy,
+        }).handler,
+        listOf(PUBLICATIONS, [], { pageSize: 1000, projected: projectedBy })
+          .handler,
       );
 
       const result = await run(repo, [ours]);
@@ -675,6 +680,7 @@ describe(
         pageSize: 1000,
         matching: (row, query) =>
           (inSetOf(query, 'pulp_href__in') ?? []).includes(row.pulp_href),
+        projected: projectedBy,
       });
       server.use(publications.handler);
 

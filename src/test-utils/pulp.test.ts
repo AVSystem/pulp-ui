@@ -251,6 +251,17 @@ describe('pluginListHandler', { tags: ['unit'] }, () => {
     ]);
   });
 
+  it('answers only the fields the query asks for, as the server does, and every field when it asks for none', async () => {
+    const { body } = await read('fields=pulp_href&fields=name&name=beta');
+
+    expect(body.results).toEqual([
+      { pulp_href: rows[0].pulp_href, name: 'beta' },
+    ]);
+    expect(Object.keys((await read('name=beta')).body.results[0])).toContain(
+      'pulp_labels',
+    );
+  });
+
   it('pages after it has filtered and ordered', async () => {
     const { body } = await read('ordering=-name&offset=1&limit=2');
 

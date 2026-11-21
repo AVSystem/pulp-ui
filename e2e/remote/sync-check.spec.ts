@@ -32,14 +32,14 @@ test('opening the sync dialog asks the server for running tasks of the repositor
   });
   const name = repository.name as string;
 
-  await page.goto(`file/repositories/detail/${name}`);
+  await page.goto(`file/repositories/${name}`);
   await expect(title(page, name)).toBeVisible();
 
   const question = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
       url.pathname === '/pulp/api/v3/tasks/' &&
-      url.searchParams.has('exclusive_resources') &&
+      url.searchParams.has('reserved_resources') &&
       url.searchParams.has('state__in')
     );
   });
@@ -47,7 +47,7 @@ test('opening the sync dialog asks the server for running tasks of the repositor
   const answer = await question;
 
   const asked = new URL(answer.url()).searchParams;
-  expect(asked.get('exclusive_resources'), 'the repository asked about').toBe(
+  expect(asked.get('reserved_resources'), 'the repository asked about').toBe(
     repository.pulp_href,
   );
   expect(asked.get('state__in'), 'the states asked about').toBe(

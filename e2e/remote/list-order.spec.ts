@@ -24,13 +24,17 @@ test('the file repository list opens with the repositories in the order the serv
   try {
     await page.goto('file/repositories');
     await expect(title(page, 'Repositories')).toBeVisible();
-    const links = page.locator('tbody tr td:first-child a');
-    await expect(links.first()).toBeVisible();
+    // the first link of each row is the repository's name; a row may start
+    // with the cell of its check box
+    const rows = page.locator('tbody tr');
+    await expect(rows.first().locator('td a').first()).toBeVisible();
 
     // Other specs create repositories while this one runs, so the rows shown
     // are compared with the server's order of exactly those names, and the
     // top row with the server's first name.
-    const shown = await links.allInnerTexts();
+    const shown = await rows.evaluateAll((trs) =>
+      trs.map((tr) => tr.querySelector('td a')?.textContent ?? ''),
+    );
     expect(shown.length, 'rows shown').toBeGreaterThan(1);
     expect(shown, 'the rows, top to bottom').toEqual(
       await names({ name__in: shown.join(','), limit: '100' }),
@@ -44,7 +48,7 @@ test('the file repository list opens with the repositories in the order the serv
 test('the file repository add form marks Name as required and keeps Save disabled while it is empty', async ({
   page,
 }) => {
-  await page.goto('file/repositories/edit/_');
+  await page.goto('file/repository/new');
   await expect(title(page, 'Add new repository')).toBeVisible();
 
   const nameGroup = page.locator('.pf-v6-c-form__group', {

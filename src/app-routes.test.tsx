@@ -6,7 +6,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import RootRoute from 'src/routes/root';
 import { servePermissions } from 'src/test-utils/permissions';
-import { listOf, repository } from 'src/test-utils/pulp';
+import {
+  distributionListHandler,
+  listOf,
+  pluginListHandler,
+  pluginRepository,
+  publicationListHandler,
+  taskListHandler,
+  versionSummaryHandler,
+} from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { settle } from 'src/test-utils/settle';
@@ -855,6 +863,8 @@ describe('plugin routes while the installed plugins are unknown', () => {
     ['ansible', '/ansible/repositories'],
     ['deb', '/deb/repositories'],
     ['file', '/file/repositories'],
+    ['file', '/file/repositories/detail/r1'],
+    ['file', '/file/remotes/edit/_'],
     ['python', '/python/repositories'],
     ['rpm', '/rpm/repositories'],
     ['ansible', '/ansible/namespaces'],
@@ -1000,11 +1010,13 @@ describe('lazily loaded screens', () => {
   it('shows a plugin section screen on a deep link once its code has loaded', async () => {
     signIn();
     server.use(
-      listOf('/pulp/api/v3/repositories/file/file/', [
-        repository({ name: 'zz-test-repo' }),
+      pluginListHandler('file', 'repository', [
+        pluginRepository('file', { name: 'zz-test-repo' }),
       ]).handler,
-      listOf('/pulp/api/v3/remotes/file/file/', []).handler,
-      listOf('/pulp/api/v3/distributions/file/file/', []).handler,
+      distributionListHandler('file', []).handler,
+      publicationListHandler('file', []).handler,
+      versionSummaryHandler({ patched: true, versions: [] }).handler,
+      taskListHandler([]).handler,
     );
 
     renderWithProviders(
@@ -1015,6 +1027,31 @@ describe('lazily loaded screens', () => {
     );
 
     expect(await screen.findByText('zz-test-repo')).toBeVisible();
+  });
+
+  it('opens a repository at its new address from a link made before the file screens were rebuilt', async () => {
+    signIn();
+    server.use(
+      pluginListHandler('file', 'repository', [
+        pluginRepository('file', { name: 'zz-test-repo' }),
+      ]).handler,
+      distributionListHandler('file', []).handler,
+      publicationListHandler('file', []).handler,
+    );
+
+    renderWithProviders(
+      <AppContextProvider>
+        <Routed />
+      </AppContextProvider>,
+      { route: '/file/repositories/detail/zz-test-repo?tab=details' },
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'zz-test-repo', level: 1 }),
+    ).toBeVisible();
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      /^\/file\/repositories\/zz-test-repo\/$/,
+    );
   });
 });
 

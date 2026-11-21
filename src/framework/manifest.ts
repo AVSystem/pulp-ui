@@ -76,7 +76,7 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
         manageRoles: 'file.manage_roles_fileremote',
       },
     },
-    onFramework: false,
+    onFramework: true,
   },
   {
     plugin: 'deb',

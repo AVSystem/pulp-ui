@@ -163,6 +163,7 @@ function serveLab({
         }
         return true;
       },
+      projected: projectedBy,
     }).handler,
     http.get(`*${API}/status/`, () =>
       HttpResponse.json({

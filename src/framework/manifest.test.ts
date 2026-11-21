@@ -51,12 +51,14 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
     }
   });
 
-  it('keeps every plugin on its own screens until it is switched over', () => {
-    expect(PLUGIN_MANIFESTS.map((manifest) => manifest.onFramework)).toEqual([
-      false,
-      false,
-      false,
-      false,
+  it('puts a plugin on the framework once it is switched over and keeps the others on their own screens', () => {
+    expect(
+      PLUGIN_MANIFESTS.map(({ plugin, onFramework }) => [plugin, onFramework]),
+    ).toEqual([
+      ['file', true],
+      ['deb', false],
+      ['rpm', false],
+      ['python', false],
     ]);
   });
 

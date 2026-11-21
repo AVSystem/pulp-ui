@@ -10,8 +10,6 @@ import AnsibleRemoteEdit from '../containers/ansible-remote/edit';
 import AnsibleRepositoryEdit from '../containers/ansible-repository/edit';
 import DebRemoteEdit from '../containers/deb-remote/edit';
 import DebRepositoryEdit from '../containers/deb-repository/edit';
-import FileRemoteEdit from '../containers/file-remote/edit';
-import FileRepositoryEdit from '../containers/file-repository/edit';
 import PythonRemoteEdit from '../containers/python-remote/edit';
 import PythonRepositoryEdit from '../containers/python-repository/edit';
 import RPMRemoteEdit from '../containers/rpm-remote/edit';
@@ -1067,18 +1065,6 @@ describe('every repository and remote edit page opened by its address', () => {
       Edit: DebRepositoryEdit,
       route: Paths.deb.repository.edit,
       list: 'repositories/deb/apt/',
-    },
-    {
-      name: 'file remote',
-      Edit: FileRemoteEdit,
-      route: Paths.file.remote.edit,
-      list: 'remotes/file/file/',
-    },
-    {
-      name: 'file repository',
-      Edit: FileRepositoryEdit,
-      route: Paths.file.repository.edit,
-      list: 'repositories/file/file/',
     },
     {
       name: 'python remote',

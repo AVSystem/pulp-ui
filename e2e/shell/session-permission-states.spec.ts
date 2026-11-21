@@ -486,7 +486,7 @@ test.describe('insufficient permissions page', () => {
 
 // Opens the edit form of the run's file repository and types into it.
 async function typeIntoEditForm(page: Page): Promise<void> {
-  await page.goto(`file/repositories/edit/${fileRepository.name as string}`);
+  await page.goto(`file/repositories/${fileRepository.name as string}/edit`);
   await expect(page.locator('#description')).toBeVisible();
   await page
     .locator('#description')
@@ -621,10 +621,6 @@ async function deleteRefusedWith(page: Page, detail: string): Promise<Locator> {
   await page.getByRole('menuitem', { name: 'Delete' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-  // the confirmation asks for the repository name before it enables Delete
-  await dialog
-    .getByRole('textbox', { name: /confirm/i })
-    .fill(fileRepository.name as string);
   await dialog.getByRole('button', { name: /^(Delete|Remove)$/ }).click();
   return dialog;
 }

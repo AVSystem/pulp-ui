@@ -23,13 +23,15 @@ test('a file remote created without touching the policy is stored as on demand',
   page,
 }) => {
   const name = objects.name('default');
-  await page.goto('file/remotes/edit/_');
+  await page.goto('file/remote/new');
   await page.locator('#name').fill(name);
   await page.locator('#url').fill('https://pulp.example/files/');
   await expect(page.locator('#policy')).toHaveValue('on_demand');
 
   await page.getByRole('button', { name: 'Save' }).click();
-  await page.waitForURL(/remotes\/detail\//);
+  await page.waitForURL(
+    new RegExp(`/file/remotes/${encodeURIComponent(name)}/?$`),
+  );
   await expect(title(page, name)).toBeVisible();
 
   const [created] = await objects.list(REMOTES, {

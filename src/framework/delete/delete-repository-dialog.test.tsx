@@ -18,6 +18,7 @@ import {
   distribution,
   listOf,
   pluginRepository,
+  projectedBy,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -415,7 +416,10 @@ describe(
       await screen.findByText('a-shown');
       // the distribution appears after the dialog listed them
       server.use(
-        listOf(DISTRIBUTIONS, [shown, late], { pageSize: 1000 }).handler,
+        listOf(DISTRIBUTIONS, [shown, late], {
+          pageSize: 1000,
+          projected: projectedBy,
+        }).handler,
       );
 
       await user.click(deleteButton());
@@ -433,7 +437,7 @@ describe(
         http.get(`*${DISTRIBUTIONS}`, () =>
           HttpResponse.json({ detail: 'boom' }, { status: 500 }),
         ),
-        listOf(PUBLICATIONS, []).handler,
+        listOf(PUBLICATIONS, [], { projected: projectedBy }).handler,
       );
       renderDialog();
 

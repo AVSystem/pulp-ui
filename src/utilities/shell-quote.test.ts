@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 import { debRemoteCommand } from 'src/containers/deb-repository/tab-distributions';
-import { fileRemoteCommand } from 'src/containers/file-repository/tab-distributions';
 import { pipInstallCommand } from 'src/containers/python-repository/tab-distributions';
 import { rpmRemoteCommand } from 'src/containers/rpm-repository/tab-distributions';
 import { shellQuote } from './shell-quote';
@@ -54,11 +53,6 @@ describe('Distributions tab commands', () => {
   const url = 'https://pulp.example/pulp/content/served/tools/';
 
   it.each([
-    [
-      'file',
-      fileRemoteCommand(hostile, url),
-      `pulp file remote create --name ${quotedHostile} --url '${url}PULP_MANIFEST'`,
-    ],
     [
       'deb',
       debRemoteCommand(hostile, url),

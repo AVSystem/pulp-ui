@@ -12,7 +12,6 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryVersionsTab as AnsibleTab } from '../containers/ansible-repository/tab-repository-versions';
 import { RepositoryVersionsTab as DebTab } from '../containers/deb-repository/tab-repository-versions';
-import { RepositoryVersionsTab as FileTab } from '../containers/file-repository/tab-repository-versions';
 import { RepositoryVersionsTab as PythonTab } from '../containers/python-repository/tab-repository-versions';
 import { RepositoryVersionsTab as RpmTab } from '../containers/rpm-repository/tab-repository-versions';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
@@ -34,13 +33,6 @@ import { debRepositoryCreateAction } from './deb-repository-create';
 import { debRepositoryDeleteAction } from './deb-repository-delete';
 import { debRepositoryEditAction } from './deb-repository-edit';
 import { debRepositorySyncAction } from './deb-repository-sync';
-import { fileRemoteCreateAction } from './file-remote-create';
-import { fileRemoteDeleteAction } from './file-remote-delete';
-import { fileRemoteEditAction } from './file-remote-edit';
-import { fileRepositoryCreateAction } from './file-repository-create';
-import { fileRepositoryDeleteAction } from './file-repository-delete';
-import { fileRepositoryEditAction } from './file-repository-edit';
-import { fileRepositorySyncAction } from './file-repository-sync';
 import { pythonDistributionEditAction } from './python-distribution-edit';
 import { pythonRemoteCreateAction } from './python-remote-create';
 import { pythonRemoteDeleteAction } from './python-remote-delete';
@@ -205,20 +197,6 @@ const collectionVersionItem = {
 
 const ROWS: Row[] = [
   ...rowsOf(
-    'file',
-    { repository: 'filerepository', remote: 'fileremote' },
-    { repository: 'file/file', remote: 'file/file' },
-    {
-      repositoryCreate: fileRepositoryCreateAction,
-      repositoryEdit: fileRepositoryEditAction,
-      repositorySync: fileRepositorySyncAction,
-      repositoryDelete: fileRepositoryDeleteAction,
-      remoteCreate: fileRemoteCreateAction,
-      remoteEdit: fileRemoteEditAction,
-      remoteDelete: fileRemoteDeleteAction,
-    },
-  ),
-  ...rowsOf(
     'deb',
     { repository: 'aptrepository', remote: 'aptremote' },
     { repository: 'deb/apt', remote: 'deb/apt' },
@@ -368,7 +346,6 @@ describe.each(ROWS)('the $label action', (row) => {
 });
 
 describe.each([
-  ['file', 'file', 'file.modify_filerepository', 'file.change_filerepository'],
   [
     'deb',
     'apt',
@@ -445,7 +422,6 @@ describe.each([
 // on every row; what it may check is the repository the page shows.
 describe('the revert action in the versions tab of a repository page', () => {
   const TABS = [
-    { plugin: 'file', path: 'repositories/file/file', Tab: FileTab },
     { plugin: 'deb', path: 'repositories/deb/apt', Tab: DebTab },
     { plugin: 'rpm', path: 'repositories/rpm/rpm', Tab: RpmTab },
     { plugin: 'python', path: 'repositories/python/python', Tab: PythonTab },

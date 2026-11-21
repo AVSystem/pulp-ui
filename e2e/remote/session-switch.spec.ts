@@ -136,7 +136,7 @@ test.describe('over an open dialog', () => {
       }
     });
 
-    await page.goto(`file/repositories/detail/${name}`);
+    await page.goto(`file/repositories/${name}`);
     await expect(title(page, name)).toBeVisible();
     await page.getByRole('button', { name: 'Sync', exact: true }).click();
 

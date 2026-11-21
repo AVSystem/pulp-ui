@@ -45,7 +45,7 @@ test('reverting to version 1 from the versions tab adds a version 3 with the con
   expect(await contentCount(`${href}versions/1/`), 'version 1').toBe(1);
   expect(await contentCount(`${href}versions/2/`), 'version 2').toBe(2);
 
-  await page.goto(`file/repositories/detail/${name}?tab=repository-versions`);
+  await page.goto(`file/repositories/${name}/versions`);
   await expect(title(page, name)).toBeVisible();
 
   const row = page.getByRole('row').filter({
@@ -59,15 +59,15 @@ test('reverting to version 1 from the versions tab adds a version 3 with the con
   await dialog.getByRole('button', { name: 'Revert', exact: true }).click();
 
   await expect(
-    page.getByText(`Reverted repository "${name}" to version "1".`),
+    page.getByText(`Revert started for repository "${name}".`),
   ).toBeVisible();
 
-  // the page reloads and shows the new latest version
+  // the task is followed to its end, then the tab shows the new latest version
   await expect(
     page.getByRole('row').filter({
       has: page.getByRole('link', { name: '3', exact: true }),
     }),
-  ).toContainText('(latest)');
+  ).toContainText('(latest)', { timeout: 60_000 });
 
   const latest = await objects.get(href);
   expect(latest['latest_version_href']).toBe(`${href}versions/3/`);

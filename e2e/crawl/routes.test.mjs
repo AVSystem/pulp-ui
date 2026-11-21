@@ -114,10 +114,35 @@ describe('the framework route source', () => {
       readFileSync(resolve('src', 'app-routes.tsx'), 'utf8'),
       readFileSync(resolve('src', 'paths.ts'), 'utf8'),
     );
+    const none = PLUGIN_MANIFESTS.map((manifest) => ({
+      ...manifest,
+      onFramework: false,
+    }));
 
-    expect(crawlRoutes().map((r) => r.pattern)).toEqual(
+    expect(crawlRoutes(none).map((r) => r.pattern)).toEqual(
       fromText.map((r) => r.pattern),
     );
+  });
+
+  it('visits the screens of the plugins the application serves from the framework', () => {
+    const patterns = crawlRoutes().map((r) => r.pattern);
+
+    for (const pattern of [
+      '/file/repositories',
+      '/file/repositories/:name',
+      '/file/repositories/:name/versions/:number',
+      '/file/repository/new',
+      '/file/remotes',
+      '/file/remotes/:name/edit',
+      '/file/remote/new',
+    ]) {
+      expect(patterns, pattern).toContain(pattern);
+    }
+    // the old addresses are redirects, not screens to crawl
+    expect(patterns).not.toContain('/file/repositories/detail/:name');
+    expect(patterns).not.toContain('/file/remotes/edit/:name');
+    // the plugins that are not on the framework are still read from the routes
+    expect(patterns).toContain('/deb/repositories/detail/:name');
   });
 
   it('lists every address of a plugin that is on the framework, each once, with unique report names', () => {
