@@ -27,6 +27,7 @@ import {
 } from 'src/containers/coming-soon-screens';
 import LoginPage from 'src/containers/login/login';
 import SignedOut from 'src/containers/signed-out';
+import { legacyRedirectRoutes } from 'src/framework/legacy-redirects';
 import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 import { frameworkRoutes } from 'src/framework/routes';
 import { Paths, formatPath } from 'src/paths';
@@ -106,36 +107,6 @@ const DebRepositoryEdit = lazyScreen(
 const DebRepositoryList = lazyScreen(
   () =>
     import(/* webpackChunkName: "deb" */ 'src/containers/deb-repository/list'),
-);
-const FileRemoteDetail = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/detail'),
-);
-const FileRemoteEdit = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/edit'),
-);
-const FileRemoteList = lazyScreen(
-  () =>
-    import(/* webpackChunkName: "file" */ 'src/containers/file-remote/list'),
-);
-const FileRepositoryDetail = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "file" */ 'src/containers/file-repository/detail'
-    ),
-);
-const FileRepositoryEdit = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "file" */ 'src/containers/file-repository/edit'
-    ),
-);
-const FileRepositoryList = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "file" */ 'src/containers/file-repository/list'
-    ),
 );
 const GroupDetail = lazyScreen(
   () =>
@@ -436,36 +407,6 @@ const routes: IRouteConfig[] = [
     component: DebRepositoryList,
     path: Paths.deb.repository.list,
     plugin: 'deb',
-  },
-  {
-    component: FileRemoteDetail,
-    path: Paths.file.remote.detail,
-    plugin: 'file',
-  },
-  {
-    component: FileRemoteEdit,
-    path: Paths.file.remote.edit,
-    plugin: 'file',
-  },
-  {
-    component: FileRemoteList,
-    path: Paths.file.remote.list,
-    plugin: 'file',
-  },
-  {
-    component: FileRepositoryDetail,
-    path: Paths.file.repository.detail,
-    plugin: 'file',
-  },
-  {
-    component: FileRepositoryEdit,
-    path: Paths.file.repository.edit,
-    plugin: 'file',
-  },
-  {
-    component: FileRepositoryList,
-    path: Paths.file.repository.list,
-    plugin: 'file',
   },
   {
     component: UserProfile,
@@ -895,13 +836,10 @@ export const guardRoutes = (configs: IRouteConfig[]) =>
 // from the manifests and appended here. They are never added to the literal
 // above, which the crawler reads as text; it reads their addresses from the
 // route patterns instead.
+const onFramework = PLUGIN_MANIFESTS.filter(({ onFramework }) => onFramework);
+
 const appRoutes = () =>
-  guardRoutes([
-    ...routes,
-    ...frameworkRoutes(
-      PLUGIN_MANIFESTS.filter(({ onFramework }) => onFramework),
-    ),
-  ]);
+  guardRoutes([...routes, ...frameworkRoutes(onFramework)]);
 
 // Task links published before tasks moved to /tasks/<id> (bookmarks, alerts
 // pasted into chats) use /tasks/detail/<id> and must keep working. The user
@@ -938,6 +876,9 @@ export const dataRoutes = [
             path: Paths.core.task.legacyDetail,
             element: <LegacyTaskDetailRedirect />,
           },
+          // The addresses the screens of a plugin on the framework had before
+          // they were rebuilt move to their new addresses.
+          ...legacyRedirectRoutes(onFramework),
           // "No matching route" is not handled by the error boundary.
           { path: '*', element: <NotFound /> },
         ],

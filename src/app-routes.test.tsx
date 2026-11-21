@@ -9,9 +9,11 @@ import { servePermissions } from 'src/test-utils/permissions';
 import {
   distributionListHandler,
   listOf,
-  projectedBy,
+  pluginListHandler,
+  pluginRepository,
   publicationListHandler,
-  repository,
+  taskListHandler,
+  versionSummaryHandler,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -1008,15 +1010,13 @@ describe('lazily loaded screens', () => {
   it('shows a plugin section screen on a deep link once its code has loaded', async () => {
     signIn();
     server.use(
-      listOf(
-        '/pulp/api/v3/repositories/file/file/',
-        [repository({ name: 'zz-test-repo' })],
-        { projected: projectedBy },
-      ).handler,
-      listOf('/pulp/api/v3/remotes/file/file/', [], {
-        projected: projectedBy,
-      }).handler,
+      pluginListHandler('file', 'repository', [
+        pluginRepository('file', { name: 'zz-test-repo' }),
+      ]).handler,
       distributionListHandler('file', []).handler,
+      publicationListHandler('file', []).handler,
+      versionSummaryHandler({ patched: true, versions: [] }).handler,
+      taskListHandler([]).handler,
     );
 
     renderWithProviders(
@@ -1032,14 +1032,9 @@ describe('lazily loaded screens', () => {
   it('opens a repository at its new address from a link made before the file screens were rebuilt', async () => {
     signIn();
     server.use(
-      listOf(
-        '/pulp/api/v3/repositories/file/file/',
-        [repository({ name: 'zz-test-repo' })],
-        {
-          matching: (row, query) => row.name === query.get('name'),
-          projected: projectedBy,
-        },
-      ).handler,
+      pluginListHandler('file', 'repository', [
+        pluginRepository('file', { name: 'zz-test-repo' }),
+      ]).handler,
       distributionListHandler('file', []).handler,
       publicationListHandler('file', []).handler,
     );

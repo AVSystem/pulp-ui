@@ -39,10 +39,13 @@ function Routed({ manifests = [FILE] }: { manifests?: PluginManifest[] }) {
   );
 }
 
+// Opens the address in a router of its own and reports where it ended up.
 async function redirectedFrom(route: string): Promise<string> {
-  renderWithProviders(<Routed />, { route });
+  const { unmount } = renderWithProviders(<Routed />, { route });
   await screen.findByText('arrived');
-  return screen.getByTestId('location').textContent as string;
+  const where = screen.getByTestId('location').textContent as string;
+  unmount();
+  return where;
 }
 
 describe(
