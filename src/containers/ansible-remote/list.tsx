@@ -12,7 +12,6 @@ import {
 import { AnsibleRemoteAPI, type AnsibleRemoteType } from 'src/api';
 import { CopyURL, ListItemActions, ListPage } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { parsePulpIDFromURL } from 'src/utilities';
 
 const listItemActions = [
   // Edit
@@ -45,11 +44,10 @@ const AnsibleRemoteList = ListPage<AnsibleRemoteType>({
   noDataTitle: msg`No remotes yet`,
   query: ({ params }) => AnsibleRemoteAPI.list(params),
   renderTableRow(item: AnsibleRemoteType, index: number, actionContext) {
-    const { name, pulp_href, url } = item;
-    const id = parsePulpIDFromURL(pulp_href);
+    const { name, url } = item;
 
     const kebabItems = listItemActions.map((action) =>
-      action.dropdownItem({ ...item, id }, actionContext),
+      action.dropdownItem(item, actionContext),
     );
 
     return (
