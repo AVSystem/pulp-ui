@@ -58,7 +58,7 @@ msgstr "{0, plural, one {Failed to add collection to repository \"{repositoryNam
 #. placeholder {0}: row.name
 #: src/framework/bulk/repository-bulk.tsx
 msgid "{0} (protected by a content guard)"
-msgstr ""
+msgstr "{0} (beschermd door een contentguard)"
 
 #. placeholder {0}: namespace.name
 #: src/components/partner-header.tsx
@@ -108,7 +108,7 @@ msgstr "{count, plural, one {# mislukte taak in de afgelopen 24 uur} other {# mi
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "{count, plural, one {# row selected} other {# rows selected}}"
-msgstr ""
+msgstr "{count, plural, one {# rij geselecteerd} other {# rijen geselecteerd}}"
 
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# running task} other {# running tasks}}"
@@ -132,7 +132,7 @@ msgstr "{count, plural, one {# actieve taak} other {# actieve taken}}"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} failed"
-msgstr ""
+msgstr "{count} mislukt"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{count} more"
@@ -140,19 +140,19 @@ msgstr "{count} meer"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} not carried out because the session ended"
-msgstr ""
+msgstr "{count} niet uitgevoerd omdat de sessie is beëindigd"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} skipped"
-msgstr ""
+msgstr "{count} overgeslagen"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} started"
-msgstr ""
+msgstr "{count} gestart"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} succeeded"
-msgstr ""
+msgstr "{count} geslaagd"
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (browser default)"
@@ -164,7 +164,7 @@ msgstr "{currentLanguage} (huidig)"
 
 #: src/components/progress-reports.tsx
 msgid "{done} done"
-msgstr ""
+msgstr "{done} klaar"
 
 #: src/components/download-count.tsx
 #~ msgid "{downloadCount} downloads"
@@ -176,7 +176,7 @@ msgstr ""
 
 #: src/components/progress-reports.tsx
 msgid "{figure} of {total}"
-msgstr ""
+msgstr "{figure} van {total}"
 
 #: src/components/legacy-role-list/legacy-role-item.tsx
 #~ msgid "{github_user} logo"
@@ -184,23 +184,23 @@ msgstr ""
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} can no longer be followed."
-msgstr ""
+msgstr "{label} kan niet meer worden gevolgd."
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} failed."
-msgstr ""
+msgstr "{label} is mislukt."
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} finished."
-msgstr ""
+msgstr "{label} is voltooid."
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} was canceled."
-msgstr ""
+msgstr "{label} is geannuleerd."
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} was skipped."
-msgstr ""
+msgstr "{label} is overgeslagen."
 
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
@@ -271,7 +271,7 @@ msgstr "{unread, plural, one {Meldingen, # ongelezen melding} other {Meldingen, 
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "+{more} more"
-msgstr ""
+msgstr "+{more} meer"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-activities.tsx
 #~ msgid "<0/> was added"
@@ -406,23 +406,23 @@ msgstr "Er bestaat al een distributie met de naam \"{0}\"."
 
 #: src/framework/form/create-flow.ts
 msgid "A distribution named \"{name}\" already exists."
-msgstr ""
+msgstr "Er bestaat al een distributie met de naam \"{name}\"."
 
 #: src/framework/list/label-filter.tsx
 msgid "A key may hold letters, digits, spaces, dots, hyphens and underscores."
-msgstr ""
+msgstr "Een sleutel mag letters, cijfers, spaties, punten, koppeltekens en underscores bevatten."
 
 #: src/framework/form/labels-field.tsx
 msgid "A label key can contain only letters, digits, underscores, spaces, dots and hyphens."
-msgstr ""
+msgstr "Een labelsleutel mag alleen letters, cijfers, underscores, spaties, punten en koppeltekens bevatten."
 
 #: src/framework/form/labels-field.tsx
 msgid "A label value cannot contain parentheses."
-msgstr ""
+msgstr "Een labelwaarde mag geen haakjes bevatten."
 
 #: src/framework/form/remote-fields.ts
 msgid "A PEM encoded CA certificate used to check the certificate of the server."
-msgstr ""
+msgstr "Een PEM-gecodeerd CA-certificaat dat wordt gebruikt om het certificaat van de server te controleren."
 
 #: src/components/remote-form.tsx
 #: src/framework/form/remote-fields.ts
@@ -436,11 +436,11 @@ msgstr "Een PEM-gecodeerde privésleutel die wordt gebruikt voor authentificatie
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A repository for which this cannot be turned on is synced with the value that is allowed."
-msgstr ""
+msgstr "Een repository waarvoor dit niet kan worden ingeschakeld, wordt gesynchroniseerd met de waarde die is toegestaan."
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A sync is started for every selected repository that has a remote, with the options below. Each sync runs as a task of its own."
-msgstr ""
+msgstr "Voor elke geselecteerde repository met een remote wordt een synchronisatie gestart, met de onderstaande opties. Elke synchronisatie wordt als een afzonderlijke taak uitgevoerd."
 
 #: src/components/sync-modal.tsx
 #: src/framework/sync/sync-dialog.tsx
@@ -466,7 +466,7 @@ msgstr "Als dit selectievakje is aangevinkt, wordt elke nieuwe versie gepublicee
 
 #: src/framework/list/label-filter.tsx
 msgid "A value may not contain parentheses."
-msgstr ""
+msgstr "Een waarde mag geen haakjes bevatten."
 
 #: src/components/remote-form.tsx
 #: src/framework/form/remote-fields.ts
@@ -586,15 +586,15 @@ msgstr "Collectie toevoegen"
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Add label"
-msgstr ""
+msgstr "Label toevoegen"
 
 #: src/framework/list/label-filter.tsx
 msgid "Add label condition"
-msgstr ""
+msgstr "Labelvoorwaarde toevoegen"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Add label to selected"
-msgstr ""
+msgstr "Label toevoegen aan selectie"
 
 #: src/constants.tsx
 #~ msgid "Add namespace"
@@ -683,7 +683,7 @@ msgstr "Item toevoegen"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Adding the label to the selected rows finished"
-msgstr ""
+msgstr "Het toevoegen van het label aan de geselecteerde rijen is voltooid"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Additional details"
@@ -782,7 +782,7 @@ msgstr "Een publieke sleutel in ASCII-armor-indeling. Als deze is ingesteld, wor
 #. placeholder {0}: users.total - users.users.length
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "And {0} more."
-msgstr ""
+msgstr "En nog {0}."
 
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
@@ -886,7 +886,7 @@ msgstr "Ansible-repository's"
 
 #: src/framework/list/label-filter.tsx
 msgid "Apply"
-msgstr ""
+msgstr "Toepassen"
 
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Approval"
@@ -937,7 +937,7 @@ msgstr "Architecturen"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?"
-msgstr ""
+msgstr "Weet u zeker dat u de remote <0>{name}</0> wilt verwijderen?"
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
@@ -1051,11 +1051,11 @@ msgstr "Basispaden die beginnen met \"{reserved}\" zijn gereserveerd op deze ser
 
 #: src/framework/list/repository-list.tsx
 msgid "Base URL"
-msgstr ""
+msgstr "Basis-URL"
 
 #: src/framework/list/repository-list.tsx
 msgid "Base URLs could not be read."
-msgstr ""
+msgstr "De basis-URL's konden niet worden gelezen."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1068,31 +1068,31 @@ msgstr "Basisversie"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_dmg"
-msgstr ""
+msgstr "bdist_dmg"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_dumb"
-msgstr ""
+msgstr "bdist_dumb"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_egg"
-msgstr ""
+msgstr "bdist_egg"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_msi"
-msgstr ""
+msgstr "bdist_msi"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_rpm"
-msgstr ""
+msgstr "bdist_rpm"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_wheel"
-msgstr ""
+msgstr "bdist_wheel"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "bdist_wininst"
-msgstr ""
+msgstr "bdist_wininst"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
@@ -1136,7 +1136,7 @@ msgstr "Ingebouwde rollen kunnen niet worden bewerkt."
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "Bulk actions"
-msgstr ""
+msgstr "Bulkacties"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -1174,11 +1174,11 @@ msgstr "Annuleren"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Cancel sync"
-msgstr ""
+msgstr "Synchronisatie annuleren"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Cancel task"
-msgstr ""
+msgstr "Taak annuleren"
 
 #: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
@@ -1192,7 +1192,7 @@ msgstr "Geannuleerd: {when}"
 
 #: src/components/progress-reports.tsx
 msgid "Canceling"
-msgstr ""
+msgstr "Bezig met annuleren"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1372,7 +1372,7 @@ msgstr "Wissen"
 
 #: src/framework/form/secret-field.tsx
 msgid "Clear {label}"
-msgstr ""
+msgstr "{label} wissen"
 
 #: src/components/applied-filters.tsx
 #: src/components/empty-state-filter.tsx
@@ -1652,7 +1652,7 @@ msgstr "Collecties synchroniseren"
 
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Colour"
-msgstr ""
+msgstr "Kleur"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Command"
@@ -1821,7 +1821,7 @@ msgstr "Inhoud toegevoegd"
 
 #: src/framework/list/repository-list.tsx
 msgid "Content counts could not be read."
-msgstr ""
+msgstr "De aantallen inhoud konden niet worden gelezen."
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Content from roles and collections can be referenced in Ansible playbooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
@@ -1959,7 +1959,7 @@ msgstr "Een distributie \"{0}\" voor deze repository aanmaken"
 
 #: src/framework/form/distribution-option.tsx
 msgid "Create a distribution \"{name}\" for this repository"
-msgstr ""
+msgstr "Een distributie \"{name}\" voor deze repository aanmaken"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -2324,11 +2324,11 @@ msgstr "Rol verwijderen?"
 
 #: src/framework/bulk/remote-bulk.tsx
 msgid "Delete selected remotes?"
-msgstr ""
+msgstr "Geselecteerde remotes verwijderen?"
 
 #: src/framework/bulk/repository-bulk.tsx
 msgid "Delete selected repositories?"
-msgstr ""
+msgstr "Geselecteerde repository's verwijderen?"
 
 #: src/constants.tsx
 #~ msgid "Delete synclist"
@@ -2428,11 +2428,11 @@ msgstr "Gebruiker verwijderen?"
 
 #: src/framework/bulk/remote-bulk.tsx
 msgid "Deleting the selected remotes was started"
-msgstr ""
+msgstr "Het verwijderen van de geselecteerde remotes is gestart"
 
 #: src/framework/bulk/repository-bulk.tsx
 msgid "Deleting the selected repositories finished"
-msgstr ""
+msgstr "Het verwijderen van de geselecteerde repository's is voltooid"
 
 #: src/components/delete-group-modal.tsx
 msgid "Deleting this group will affect {count} users."
@@ -2552,19 +2552,19 @@ msgstr "Uitgeschakeld"
 
 #: src/descriptors/python/distribution-edit.tsx
 msgid "Distribution \"{name}\" could not be updated"
-msgstr ""
+msgstr "De distributie \"{name}\" kon niet worden bijgewerkt"
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} is still being removed."
-msgstr ""
+msgstr "Distributie {name} wordt nog verwijderd."
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} was not removed: {reason}"
-msgstr ""
+msgstr "Distributie {name} is niet verwijderd: {reason}"
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} was not shown, so it was not removed."
-msgstr ""
+msgstr "Distributie {name} werd niet getoond en is daarom niet verwijderd."
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Distribution name"
@@ -2591,7 +2591,7 @@ msgstr "Distributies kunnen niet worden weergegeven."
 
 #: src/framework/detail/details-tab.tsx
 msgid "Distributions could not be loaded"
-msgstr ""
+msgstr "De distributies konden niet worden geladen"
 
 #: src/components/distribution-url.tsx
 msgid "Distributions could not be loaded: {error}"
@@ -2600,7 +2600,7 @@ msgstr "Distributies konden niet worden geladen: {error}"
 #. placeholder {0}: serving .map((row) => row.content_guard ? t`${row.name} (protected by a content guard)` : row.name, ) .join(', ')
 #: src/framework/bulk/repository-bulk.tsx
 msgid "Distributions deleted with it: {0}"
-msgstr ""
+msgstr "Samen verwijderde distributies: {0}"
 
 #. placeholder {0}: resource?.plugin
 #: src/utilities/repository-distro.ts
@@ -2610,12 +2610,12 @@ msgstr "Distributies van {0} repository's kunnen niet worden opgezocht"
 #. placeholder {0}: result.removed.join(', ')
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distributions removed: {0}"
-msgstr ""
+msgstr "Verwijderde distributies: {0}"
 
 #. placeholder {0}: result.removed.join(', ')
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distributions removed: {0}."
-msgstr ""
+msgstr "Verwijderde distributies: {0}."
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -2639,7 +2639,7 @@ msgstr "Documentatie"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Does not have this label, so it is skipped"
-msgstr ""
+msgstr "Heeft dit label niet en wordt daarom overgeslagen"
 
 #: src/components/ratings.tsx
 #~ msgid "Does what it promises"
@@ -2667,7 +2667,7 @@ msgstr "{filename} downloaden"
 
 #: src/framework/form/certificate-field.tsx
 msgid "Download {label}"
-msgstr ""
+msgstr "{label} downloaden"
 
 #: src/actions/ansible-remote-download-ca.tsx
 msgid "Download CA certificate"
@@ -2758,7 +2758,7 @@ msgstr "Dropdown"
 
 #: src/framework/form/labels-field.tsx
 msgid "Each label key can be used once."
-msgstr ""
+msgstr "Elke labelsleutel kan maar één keer worden gebruikt."
 
 #: src/components/ratings.tsx
 #~ msgid "Ease of use"
@@ -2809,7 +2809,7 @@ msgstr "Bewerken in YAML-editor"
 
 #: src/framework/labels/label-editor.tsx
 msgid "Edit labels"
-msgstr ""
+msgstr "Labels bewerken"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -2870,7 +2870,7 @@ msgstr "Ingeschakeld"
 #. placeholder {0}: field.min
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter {0} or more."
-msgstr ""
+msgstr "Voer {0} of meer in."
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -2879,19 +2879,19 @@ msgstr "Voer een basispad in."
 
 #: src/framework/form/labels-field.tsx
 msgid "Enter a key for this label."
-msgstr ""
+msgstr "Voer een sleutel voor dit label in."
 
 #: src/framework/list/label-filter.tsx
 msgid "Enter a label key."
-msgstr ""
+msgstr "Voer een labelsleutel in."
 
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter a number."
-msgstr ""
+msgstr "Voer een getal in."
 
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter a whole number."
-msgstr ""
+msgstr "Voer een geheel getal in."
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
@@ -3221,18 +3221,16 @@ msgstr "Mislukt: {when}"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Failed to delete remote \"{name}\""
-msgstr ""
+msgstr "Verwijderen van remote \"{name}\" mislukt"
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Failed to delete remote registry {name}"
 #~ msgstr "Failed to delete remote registry {name}"
 
-#: src/utilities/plugin-repository-base-path.ts
 #: src/utilities/repository-distro.ts
 msgid "Failed to find a distribution for repository {name}"
 msgstr "Kan geen distributie vinden voor repository {name}"
 
-#: src/utilities/plugin-repository-base-path.ts
 #: src/utilities/repository-distro.ts
 msgid "Failed to find repository {name}"
 msgstr "Kan repository {name} niet vinden"
@@ -3286,7 +3284,7 @@ msgstr "Kan distributies niet laden: {error}"
 #. placeholder {0}: requestErrorText(found.error)
 #: src/framework/form/remote-field.tsx
 msgid "Failed to load remotes: {0}"
-msgstr ""
+msgstr "Laden van remotes mislukt: {0}"
 
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
@@ -3442,7 +3440,7 @@ msgstr "Terugvallen op standaardwaarden"
 
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Fast"
-msgstr ""
+msgstr "Snel"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Featured"
@@ -3481,7 +3479,7 @@ msgstr "Filteren op {0}"
 
 #: src/framework/list/label-filter.tsx
 msgid "Filter by labels"
-msgstr ""
+msgstr "Filteren op labels"
 
 #: src/components/collection-dependencies-list/collection-usedby-dependencies-list.tsx
 #~ msgid "Filter by name"
@@ -3549,11 +3547,11 @@ msgstr "Vrij"
 
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Free text."
-msgstr ""
+msgstr "Vrije tekst."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "freebsd"
-msgstr ""
+msgstr "freebsd"
 
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
@@ -3788,7 +3786,7 @@ msgstr "Contentguard: {guardName}"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Has no remote, so it is skipped"
-msgstr ""
+msgstr "Heeft geen remote en wordt daarom overgeslagen"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
@@ -4103,7 +4101,7 @@ msgstr "Ongeldige inloggegevens."
 
 #: src/framework/form/secret-field.tsx
 msgid "Is set"
-msgstr ""
+msgstr "Ingesteld"
 
 #: src/containers/about-project.tsx
 msgid "Issue tracker"
@@ -4115,11 +4113,11 @@ msgstr "Probleem tracker"
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "It is not known whether distribution {name} was removed."
-msgstr ""
+msgstr "Het is niet bekend of distributie {name} is verwijderd."
 
 #: src/framework/delete/delete-outcome.tsx
 msgid "It is not known whether the repository was removed."
-msgstr ""
+msgstr "Het is niet bekend of de repository is verwijderd."
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
@@ -4147,21 +4145,21 @@ msgstr "JSON"
 
 #: src/framework/form/secret-field.tsx
 msgid "Keep it"
-msgstr ""
+msgstr "Behouden"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Keep running"
-msgstr ""
+msgstr "Laten doorlopen"
 
 #: src/framework/form/secret-field.tsx
 msgid "Keep the stored {label}"
-msgstr ""
+msgstr "De opgeslagen waarde van {label} behouden"
 
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Key"
-msgstr ""
+msgstr "Sleutel"
 
 #: src/containers/signature-keys/list.tsx
 msgid "Key fingerprint"
@@ -4182,21 +4180,21 @@ msgstr "Sleutel fingerprint"
 
 #: src/framework/list/label-filter.tsx
 msgid "Label expression"
-msgstr ""
+msgstr "Label-expressie"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
-msgstr ""
+msgstr "Labelsleutel"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label value"
-msgstr ""
+msgstr "Labelwaarde"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -4214,11 +4212,11 @@ msgstr "Labels"
 
 #: src/framework/form/remote-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find remotes."
-msgstr ""
+msgstr "Labels zijn paren van een sleutel en een optionele waarde. Filters en scripts gebruiken ze om remotes te vinden."
 
 #: src/framework/form/repository-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
-msgstr ""
+msgstr "Labels zijn paren van een sleutel en een optionele waarde. Filters en scripts gebruiken ze om repository's te vinden."
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4240,7 +4238,7 @@ msgstr "Achternaam"
 
 #: src/framework/detail/details-tab.tsx
 msgid "Last sync"
-msgstr ""
+msgstr "Laatste synchronisatie"
 
 #: src/containers/ansible-repository/list.tsx
 #~ msgid "Last synced"
@@ -4248,11 +4246,11 @@ msgstr ""
 
 #: src/framework/list/repository-list.tsx
 msgid "Last task"
-msgstr ""
+msgstr "Laatste taak"
 
 #: src/framework/list/repository-list.tsx
 msgid "Last tasks could not be read."
-msgstr ""
+msgstr "De laatste taken konden niet worden gelezen."
 
 #: src/containers/pulp-status.tsx
 msgid "Last updated"
@@ -4273,7 +4271,7 @@ msgstr "De laatst toegestane datum is vandaag."
 
 #: src/framework/list/repository-list.tsx
 msgid "Latest version"
-msgstr ""
+msgstr "Nieuwste versie"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -4294,7 +4292,7 @@ msgstr "Bewaarde nieuwste versies per pakket"
 
 #: src/framework/form/remote-fields.ts
 msgid "Leave empty to use the default of 10 connections."
-msgstr ""
+msgstr "Laat leeg om de standaardwaarde van 10 verbindingen te gebruiken."
 
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Legacy"
@@ -4353,7 +4351,7 @@ msgstr "Beperkt de totale downloadsnelheid in verzoeken per seconde."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "linux"
-msgstr ""
+msgstr "linux"
 
 #: src/components/collection-list.tsx
 #: src/containers/search/search.tsx
@@ -4402,7 +4400,7 @@ msgstr "Distributies laden"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Loading repositories"
-msgstr ""
+msgstr "Repository's laden"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Loading..."
@@ -4442,7 +4440,7 @@ msgstr "Afmelden"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "macos"
-msgstr ""
+msgstr "macos"
 
 #: src/menu.tsx
 msgid "Main"
@@ -4483,7 +4481,7 @@ msgstr "Beheer collectie-remotes."
 
 #: src/framework/list/repository-list.tsx
 msgid "Many repositories match this base path"
-msgstr ""
+msgstr "Veel repository's komen overeen met dit basispad"
 
 #: src/shell/theme-menu.tsx
 msgid "Match system"
@@ -4519,7 +4517,7 @@ msgstr "Spiegelen kan niet worden gecombineerd met automatisch publiceren, dus d
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
 msgid "Mode"
-msgstr ""
+msgstr "Modus"
 
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
@@ -4531,7 +4529,7 @@ msgstr "Meer informatie"
 
 #: src/framework/list/repository-list.tsx
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
-msgstr ""
+msgstr "Meer dan {LARGE_MATCH} repository's komen overeen. Voeg nog een filter toe om de lijst te beperken."
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4611,7 +4609,7 @@ msgstr "Naam"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Names not permitted"
-msgstr ""
+msgstr "Niet-toegestane namen"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "namespace"
@@ -4707,7 +4705,7 @@ msgstr "nooit gesynchroniseerd"
 
 #: src/framework/sync/last-sync.tsx
 msgid "Never synced"
-msgstr ""
+msgstr "Nooit gesynchroniseerd"
 
 #: src/components/import-modal.tsx
 #~ msgid "New collection"
@@ -4906,7 +4904,7 @@ msgstr "Geen machtigingen"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "No progress reported yet."
-msgstr ""
+msgstr "Nog geen voortgang gemeld."
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
@@ -4918,7 +4916,7 @@ msgstr ""
 
 #: src/framework/list/derived-columns.tsx
 msgid "No recent task"
-msgstr ""
+msgstr "Geen recente taak"
 
 #: src/containers/ansible-repository/list.tsx
 msgid "no remote"
@@ -4934,7 +4932,7 @@ msgstr "geen remote"
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "No remote to sync from."
-msgstr ""
+msgstr "Geen remote om vanaf te synchroniseren."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -4948,7 +4946,7 @@ msgstr "Nog geen repository's"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "No repository uses this remote."
-msgstr ""
+msgstr "Geen enkele repository gebruikt deze remote."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -4974,7 +4972,7 @@ msgstr "Geen resultaten voldoen aan de filtercriteria. Probeer uw filterinstelli
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "No rows selected"
-msgstr ""
+msgstr "Geen rijen geselecteerd"
 
 #: src/shell/command-palette.tsx
 msgid "No screens or repositories match"
@@ -5059,12 +5057,12 @@ msgstr "Niet toegestaan"
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
-msgstr ""
+msgstr "Niet beschikbaar"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
-msgstr ""
+msgstr "Niet bevestigd"
 
 #: src/containers/pulp-status.tsx
 msgid "Not connected"
@@ -5085,11 +5083,11 @@ msgstr "Niet gevonden"
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "Not loaded"
-msgstr ""
+msgstr "Niet geladen"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Not permitted"
-msgstr ""
+msgstr "Niet toegestaan"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -5112,11 +5110,11 @@ msgstr "Niet gerapporteerd"
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not sent"
-msgstr ""
+msgstr "Niet verzonden"
 
 #: src/framework/list/derived-columns.tsx
 msgid "Not served"
-msgstr ""
+msgstr "Niet aangeboden"
 
 #: src/components/distribution-url.tsx
 #: src/components/lazy-distributions.tsx
@@ -5126,7 +5124,7 @@ msgstr "Niet aangeboden: geen publicatie"
 #: src/framework/form/fields.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Not set"
-msgstr ""
+msgstr "Niet ingesteld"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Not synced"
@@ -5134,7 +5132,7 @@ msgstr "Niet gesynchroniseerd"
 
 #: src/framework/list/used-by.tsx
 msgid "Not used"
-msgstr ""
+msgstr "Niet gebruikt"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5146,7 +5144,7 @@ msgstr ""
 
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Notes"
-msgstr ""
+msgstr "Opmerkingen"
 
 #: src/descriptors/python/distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
@@ -5154,7 +5152,7 @@ msgstr "Er is niets gewijzigd in distributie {name}."
 
 #: src/framework/form/remote-form.tsx
 msgid "Nothing changed in remote {remoteName}."
-msgstr ""
+msgstr "Er is niets gewijzigd in remote {remoteName}."
 
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
@@ -5162,7 +5160,7 @@ msgstr "Er is niets gewijzigd in repository {name}."
 
 #: src/framework/form/repository-edit.tsx
 msgid "Nothing changed in repository {repositoryName}."
-msgstr ""
+msgstr "Er is niets gewijzigd in repository {repositoryName}."
 
 #: src/shell/command-palette.tsx
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
@@ -5200,11 +5198,11 @@ msgstr "Op aanvraag haalt inhoud op wanneer een client erom vraagt. Direct downl
 
 #: src/descriptors/file/descriptor.tsx
 msgid "One file at the root"
-msgstr ""
+msgstr "Eén bestand in de hoofdmap"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "One file in every directory"
-msgstr ""
+msgstr "Eén bestand in elke map"
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
@@ -5707,7 +5705,7 @@ msgstr "Openbare sleutel"
 
 #: src/framework/form/form-values.test.ts
 msgid "Publish"
-msgstr ""
+msgstr "Publiceren"
 
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -5718,7 +5716,7 @@ msgstr "Nieuwe versies automatisch publiceren"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release fields of the upstream repository"
-msgstr ""
+msgstr "De Release-velden van de upstream-repository publiceren"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
@@ -6143,11 +6141,11 @@ msgstr "Remote"
 
 #: src/framework/form/remote-form.tsx
 msgid "Remote \"{remoteName}\" could not be updated"
-msgstr ""
+msgstr "De remote \"{remoteName}\" kon niet worden bijgewerkt"
 
 #: src/framework/form/remote-form.tsx
 msgid "Remote could not be created"
-msgstr ""
+msgstr "De remote kon niet worden aangemaakt"
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
@@ -6158,7 +6156,7 @@ msgstr "Remote kan niet worden weergegeven."
 
 #: src/framework/detail/remote-reference.tsx
 msgid "Remote could not be loaded"
-msgstr ""
+msgstr "De remote kon niet worden geladen"
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -6218,7 +6216,7 @@ msgstr "Verwijdering van {namespace}.{name} v{version} uit repository \"{reposit
 #: src/framework/bulk/remote-bulk.tsx
 #: src/framework/delete/delete-remote.ts
 msgid "Removal of remote {name}"
-msgstr ""
+msgstr "Verwijdering van remote {name}"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -6268,19 +6266,19 @@ msgstr "Groep {groupname} verwijderen?"
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/form/labels-field.tsx
 msgid "Remove label"
-msgstr ""
+msgstr "Label verwijderen"
 
 #: src/framework/labels/label-editor.tsx
 msgid "Remove label {name}"
-msgstr ""
+msgstr "Label {name} verwijderen"
 
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
-msgstr ""
+msgstr "Labelvoorwaarde verwijderen"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Remove label from selected"
-msgstr ""
+msgstr "Label verwijderen van selectie"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6335,7 +6333,7 @@ msgstr "Repository {name} verwijderd"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Removing the label from the selected rows finished"
-msgstr ""
+msgstr "Het verwijderen van het label van de geselecteerde rijen is voltooid"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair"
@@ -6406,11 +6404,11 @@ msgstr "Repository's kunnen niet worden weergegeven."
 
 #: src/framework/detail/remote-detail.tsx
 msgid "Repositories could not be loaded"
-msgstr ""
+msgstr "De repository's konden niet worden geladen"
 
 #: src/framework/list/remote-list.tsx
 msgid "Repositories using the remotes could not be read."
-msgstr ""
+msgstr "De repository's die de remotes gebruiken, konden niet worden gelezen."
 
 #: src/containers/ansible-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -6449,7 +6447,7 @@ msgstr "Repository \"{name}\" is aangemaakt. De distributie \"{name}\" is niet a
 
 #: src/framework/form/create-flow.ts
 msgid "Repository \"{name}\" was created. The distribution \"{name}\" was not created: {reason}"
-msgstr ""
+msgstr "Repository \"{name}\" is aangemaakt. De distributie \"{name}\" is niet aangemaakt: {reason}"
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -6458,7 +6456,7 @@ msgstr "Repository \"{name}\" is aangemaakt. Het resultaat van het aanmaken van 
 
 #: src/framework/form/repository-edit.tsx
 msgid "Repository \"{repositoryName}\" could not be updated"
-msgstr ""
+msgstr "De repository \"{repositoryName}\" kon niet worden bijgewerkt"
 
 #. placeholder {0}: keptTitle(result)
 #: src/framework/delete/delete-outcome.tsx
@@ -6475,7 +6473,7 @@ msgstr ""
 
 #: src/framework/form/repository-create.tsx
 msgid "Repository could not be created"
-msgstr ""
+msgstr "De repository kon niet worden aangemaakt"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
@@ -6510,11 +6508,11 @@ msgstr "Repository-URL"
 
 #: src/framework/detail/version-detail.tsx
 msgid "Repository version could not be displayed."
-msgstr ""
+msgstr "De repositoryversie kon niet worden weergegeven."
 
 #: src/framework/detail/version-detail.tsx
 msgid "Repository version not found"
-msgstr ""
+msgstr "Repositoryversie niet gevonden"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6533,7 +6531,7 @@ msgstr "Repository-versies verschijnen zodra de repository is gewijzigd."
 
 #: src/framework/delete/delete-outcome.tsx
 msgid "Repository: {name}"
-msgstr ""
+msgstr "Repository: {name}"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "required"
@@ -6573,7 +6571,7 @@ msgstr "Herstellen naar browserstandaarden"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Result"
-msgstr ""
+msgstr "Resultaat"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
@@ -6582,7 +6580,7 @@ msgstr "Resultaten"
 
 #: src/framework/form/form-values.test.ts
 msgid "Retain"
-msgstr ""
+msgstr "Behouden"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
@@ -6654,7 +6652,7 @@ msgstr "Terugzetten"
 
 #: src/framework/detail/revert-version.tsx
 msgid "Revert of {repositoryName}"
-msgstr ""
+msgstr "Terugzetten van {repositoryName}"
 
 #: src/actions/repository-version-revert.tsx
 #: src/framework/detail/revert-version.tsx
@@ -6663,7 +6661,7 @@ msgstr "Repository terugzetten"
 
 #: src/framework/detail/revert-version.tsx
 msgid "Revert repository \"{repositoryName}\" to version {number}?"
-msgstr ""
+msgstr "Repository \"{repositoryName}\" terugzetten naar versie {number}?"
 
 #: src/actions/repository-version-revert.tsx
 #: src/framework/detail/revert-version.tsx
@@ -6907,7 +6905,7 @@ msgstr "Wijzigingen opgeslagen naar gebruiker \"{username}\"."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Scan new repository versions for vulnerabilities after a sync"
-msgstr ""
+msgstr "Nieuwe repositoryversies na een synchronisatie scannen op kwetsbaarheden"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
@@ -6923,7 +6921,7 @@ msgstr "Vooruit scrollen"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "sdist"
-msgstr ""
+msgstr "sdist"
 
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -6988,7 +6986,7 @@ msgstr "Selecteren"
 #: src/framework/list/remote-list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Select {0}"
-msgstr ""
+msgstr "{0} selecteren"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Select a collection"
@@ -7025,11 +7023,11 @@ msgstr "Selecteer een gebruiker"
 
 #: src/framework/list/remote-list.tsx
 msgid "Select all remotes on this page"
-msgstr ""
+msgstr "Alle remotes op deze pagina selecteren"
 
 #: src/framework/list/repository-list.tsx
 msgid "Select all repositories on this page"
-msgstr ""
+msgstr "Alle repository's op deze pagina selecteren"
 
 #: src/components/collection-header.tsx
 #~ msgid "Select collection version"
@@ -7091,7 +7089,7 @@ msgstr "Geselecteerde groep"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Selected names"
-msgstr ""
+msgstr "Geselecteerde namen"
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Selected provider namespace"
@@ -7108,7 +7106,7 @@ msgstr "Geselecteerde gebruiker"
 
 #: src/framework/list/label-filter.tsx
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
-msgstr ""
+msgstr "Scheid termen met komma's en schrijf sleutel=waarde, sleutel of !sleutel. Schrijf {ESCAPED_COMMA} voor een komma in een waarde."
 
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
@@ -7137,7 +7135,7 @@ msgstr "Instellingen"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "SHA256SUMS files"
-msgstr ""
+msgstr "SHA256SUMS-bestanden"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -7455,7 +7453,7 @@ msgstr "Vanaf nul beginnen"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Started"
-msgstr ""
+msgstr "Gestart"
 
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Started adding {0}.{1} v{2} from \"{3}\" to repository \"{repo}\"."
@@ -7518,7 +7516,7 @@ msgstr "Opslag"
 
 #: src/framework/detail/remote-detail.tsx
 msgid "Stored credentials"
-msgstr ""
+msgstr "Opgeslagen inloggegevens"
 
 #: src/components/remote-form.tsx
 #: src/framework/form/descriptor-form.test.tsx
@@ -7528,7 +7526,7 @@ msgstr "Gestreamd"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Succeeded"
-msgstr ""
+msgstr "Geslaagd"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Success"
@@ -7562,7 +7560,7 @@ msgstr "Remote {0} succesvol gemaakt"
 
 #: src/framework/form/remote-form.tsx
 msgid "Successfully created remote {name}"
-msgstr ""
+msgstr "Remote {name} is aangemaakt"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -7657,15 +7655,15 @@ msgstr "Synchroniseren"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync canceled"
-msgstr ""
+msgstr "Synchronisatie geannuleerd"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync completed"
-msgstr ""
+msgstr "Synchronisatie voltooid"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync failed"
-msgstr ""
+msgstr "Synchronisatie mislukt"
 
 #: src/containers/execution-environment-detail/base.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -7698,16 +7696,16 @@ msgstr "Installatiepakketten synchroniseren"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync is being canceled"
-msgstr ""
+msgstr "Synchronisatie wordt geannuleerd"
 
 #: src/framework/sync/last-sync.tsx
 msgid "Sync is unavailable because this repository has no remote."
-msgstr ""
+msgstr "Synchroniseren is niet beschikbaar omdat deze repository geen remote heeft."
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Sync of {name}"
-msgstr ""
+msgstr "Synchronisatie van {name}"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -7721,7 +7719,7 @@ msgstr "Synchronisatiebeleid"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync queued"
-msgstr ""
+msgstr "Synchronisatie in de wachtrij"
 
 #: src/components/sync-modal.tsx
 #: src/framework/sync/sync-dialog.tsx
@@ -7735,11 +7733,11 @@ msgstr "Repository \"{name}\" synchroniseren"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync running"
-msgstr ""
+msgstr "Synchronisatie wordt uitgevoerd"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Sync selected repositories"
-msgstr ""
+msgstr "Geselecteerde repository's synchroniseren"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -7802,7 +7800,7 @@ msgstr "Gesynchroniseerd"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Syncing the selected repositories was requested"
-msgstr ""
+msgstr "Synchronisatie van de geselecteerde repository's is aangevraagd"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Synclist distribution was not found."
@@ -7844,7 +7842,7 @@ msgstr "Image taggen"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Take the version, origin, label and description of the Release file from the upstream repository that was synced, instead of values of Pulp's own."
-msgstr ""
+msgstr "Neemt de versie, herkomst, het label en de beschrijving van het Release-bestand over uit de gesynchroniseerde upstream-repository, in plaats van eigen waarden van Pulp."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -7873,7 +7871,7 @@ msgstr "Taak kan niet worden weergegeven."
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Task could not be stopped."
-msgstr ""
+msgstr "De taak kon niet worden gestopt."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Task detail"
@@ -7969,7 +7967,7 @@ msgstr "Het basispad \"{basePath}\" wordt al gebruikt door of overlapt met de di
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "The bulk action stopped with an unexpected error. Some rows may already have been changed: check the list before trying again."
-msgstr ""
+msgstr "De bulkactie is gestopt door een onverwachte fout. Sommige rijen zijn mogelijk al gewijzigd: controleer de lijst voordat u het opnieuw probeert."
 
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
@@ -8044,7 +8042,7 @@ msgstr "Het verwijderen is gestopt door een onverwachte fout. Mogelijk zijn somm
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
-msgstr ""
+msgstr "Het verwijderen is gestopt door een onverwachte fout. De remote is mogelijk al verwijderd: controleer de lijst voordat u het opnieuw probeert."
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -8053,11 +8051,11 @@ msgstr "De distributie krijgt geen contentguard: iedereen die deze server kan be
 
 #: src/framework/bulk/repository-bulk.tsx
 msgid "The distributions could not be listed, so nothing can be deleted."
-msgstr ""
+msgstr "De distributies konden niet worden opgesomd, dus er kan niets worden verwijderd."
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "The distributions could not be listed, so nothing was deleted: {reason}"
-msgstr ""
+msgstr "De distributies konden niet worden opgesomd, dus er is niets verwijderd: {reason}"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -8102,23 +8100,23 @@ msgstr "De volgende rollen worden toegepast op gebruiker: <0>{0}</0>"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "The key is removed from every selected row that has it."
-msgstr ""
+msgstr "De sleutel wordt verwijderd van elke geselecteerde rij die deze heeft."
 
 #: src/framework/labels/label-editor.tsx
 msgid "The label could not be changed."
-msgstr ""
+msgstr "Het label kon niet worden gewijzigd."
 
 #: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
-msgstr ""
+msgstr "Het labelfilter is niet geaccepteerd."
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "The label is not set."
-msgstr ""
+msgstr "Het label is niet ingesteld."
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "The label is set on every selected row. A row that already has the key gets the new value."
-msgstr ""
+msgstr "Het label wordt ingesteld op elke geselecteerde rij. Een rij die de sleutel al heeft, krijgt de nieuwe waarde."
 
 #: src/session/reauth-dialog.tsx
 msgid "The last action was not completed. Repeat it after you log in."
@@ -8126,7 +8124,7 @@ msgstr "De laatste actie is niet voltooid. Herhaal deze nadat u bent ingelogd."
 
 #: src/framework/sync/last-sync.tsx
 msgid "The last sync could not be read."
-msgstr ""
+msgstr "De laatste synchronisatie kon niet worden gelezen."
 
 #: src/components/external-sign-in-incomplete.tsx
 msgid "The login page returned without a signed-in session."
@@ -8169,7 +8167,7 @@ msgstr "De pluginlijst kan niet worden geladen"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "The progress of this task cannot be shown."
-msgstr ""
+msgstr "De voortgang van deze taak kan niet worden getoond."
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -8182,11 +8180,11 @@ msgstr "Het verwijderen van de repository is niet bevestigd."
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "The repositories that use this remote cannot be listed for your account."
-msgstr ""
+msgstr "De repository's die deze remote gebruiken, kunnen niet worden opgesomd voor uw account."
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "The repositories that use this remote could not be listed, so nothing can be deleted."
-msgstr ""
+msgstr "De repository's die deze remote gebruiken, konden niet worden opgesomd, dus er kan niets worden verwijderd."
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -8200,11 +8198,11 @@ msgstr "De repository kon niet worden verwijderd: {0}"
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "The repository could not be removed: {reason}"
-msgstr ""
+msgstr "De repository kon niet worden verwijderd: {reason}"
 
 #: src/framework/detail/revert-version.tsx
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
-msgstr ""
+msgstr "De repository krijgt een nieuwe nieuwste versie met de inhoud van die versie. Er worden geen versies en geen inhoud verwijderd."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8218,7 +8216,7 @@ msgstr "De repository is behouden omdat niet elke distributie is verwijderd."
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "The repository was kept."
-msgstr ""
+msgstr "De repository is behouden."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8248,15 +8246,15 @@ msgstr "Het terugzetten van repository \"{repositoryName}\" wordt nog uitgevoerd
 
 #: src/framework/form/permission-gate.tsx
 msgid "The roles you hold on single objects could not be read."
-msgstr ""
+msgstr "De rollen die u op afzonderlijke objecten hebt, konden niet worden gelezen."
 
 #: src/framework/bulk/remote-bulk.tsx
 msgid "The selected remotes are deleted. The repositories that use them are kept and are left without a remote."
-msgstr ""
+msgstr "De geselecteerde remotes worden verwijderd. De repository's die ze gebruiken, blijven behouden en houden geen remote over."
 
 #: src/framework/bulk/repository-bulk.tsx
 msgid "The selected repositories are deleted together with the distributions that serve them, and the URLs of those distributions stop working."
-msgstr ""
+msgstr "De geselecteerde repository's worden verwijderd samen met de distributies die ze aanbieden, en de URL's van die distributies werken niet meer."
 
 #: src/containers/ansible-remote/tab-access.tsx
 msgid "The selected roles will be added to this specific Ansible remote."
@@ -8292,7 +8290,7 @@ msgstr "De sessie kan niet worden gecontroleerd"
 
 #: src/framework/delete/delete-outcome.tsx
 msgid "The session ended before the delete was finished."
-msgstr ""
+msgstr "De sessie is beëindigd voordat het verwijderen klaar was."
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -8301,11 +8299,11 @@ msgstr "De sessie is beëindigd voordat de distributie kon worden gemaakt. Contr
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "The session ended before this one was sent."
-msgstr ""
+msgstr "De sessie is beëindigd voordat dit item werd verzonden."
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "The session ended while this one was on its way."
-msgstr ""
+msgstr "De sessie is beëindigd terwijl dit item werd verzonden."
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."
@@ -8317,11 +8315,11 @@ msgstr "De status van de taak kon niet worden gelezen."
 
 #: src/framework/form/secret-field.tsx
 msgid "The stored value is removed when you save."
-msgstr ""
+msgstr "De opgeslagen waarde wordt verwijderd wanneer u opslaat."
 
 #: src/framework/form/secret-field.tsx
 msgid "The stored value is replaced when you save."
-msgstr ""
+msgstr "De opgeslagen waarde wordt vervangen wanneer u opslaat."
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
@@ -8338,7 +8336,7 @@ msgstr "De URL-indeling moet \"http(s)://\" zijn."
 
 #: src/framework/form/remote-fields.ts
 msgid "The URL of a proxy the downloads go through, for example http://proxy.example:3128."
-msgstr ""
+msgstr "De URL van een proxy waarlangs de downloads lopen, bijvoorbeeld http://proxy.example:3128."
 
 #: src/components/remote-form.tsx
 #: src/framework/form/remote-fields.ts
@@ -8438,7 +8436,7 @@ msgstr "Deze distributies bieden de repository aan. Ze worden er samen mee verwi
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "These repositories use this remote. They are kept, without a remote, and cannot be synced until they have one:"
-msgstr ""
+msgstr "Deze repository's gebruiken deze remote. Ze blijven behouden, zonder remote, en kunnen niet worden gesynchroniseerd totdat ze er een hebben:"
 
 #: src/components/delete-group-modal.tsx
 msgid "These users will lose access to the group content:"
@@ -8483,7 +8481,7 @@ msgstr "Items kunnen niet worden weergegeven."
 
 #: src/framework/list/label-filter.tsx
 msgid "This expression cannot be shown as fields."
-msgstr ""
+msgstr "Deze expressie kan niet als velden worden getoond."
 
 #: src/utilities/map-role-errors.ts
 msgid "This field can only contain letters and numbers"
@@ -8527,7 +8525,7 @@ msgstr "Dit project is een poging om de codebase van de Ansible Galaxy UI te upc
 
 #: src/framework/detail/version-detail.tsx
 msgid "This repository has no version {number}."
-msgstr ""
+msgstr "Deze repository heeft geen versie {number}."
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
@@ -8547,11 +8545,11 @@ msgstr "Dit scherm is nog niet beschikbaar in deze UI."
 
 #: src/framework/sync/progress-panel.tsx
 msgid "This task has already finished."
-msgstr ""
+msgstr "Deze taak is al voltooid."
 
 #: src/framework/sync/progress-panel.tsx
 msgid "This task no longer exists."
-msgstr ""
+msgstr "Deze taak bestaat niet meer."
 
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
@@ -8722,11 +8720,11 @@ msgstr "Collectie-remote bijwerken"
 
 #: src/descriptors/python/distribution-edit.tsx
 msgid "Update of distribution {name}"
-msgstr ""
+msgstr "Bijwerken van distributie {name}"
 
 #: src/descriptors/python/distribution-edit.tsx
 msgid "Update started for distribution {name}"
-msgstr ""
+msgstr "Bijwerken gestart voor distributie {name}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
@@ -8735,7 +8733,7 @@ msgstr "Update gestart voor remote {0}"
 
 #: src/framework/form/remote-form.tsx
 msgid "Update started for remote {remoteName}"
-msgstr ""
+msgstr "Bijwerken gestart voor remote {remoteName}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -8750,7 +8748,7 @@ msgstr "Update gestart voor repository {name}"
 
 #: src/framework/form/repository-edit.tsx
 msgid "Update started for repository {repositoryName}"
-msgstr ""
+msgstr "Bijwerken gestart voor repository {repositoryName}"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "updated {0}"
@@ -8770,7 +8768,7 @@ msgstr "Distributie {name} bijgewerkt"
 
 #: src/framework/form/remote-form.tsx
 msgid "Updated remote {remoteName}"
-msgstr ""
+msgstr "Remote {remoteName} bijgewerkt"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -8785,7 +8783,7 @@ msgstr "Repository {name} bijgewerkt"
 
 #: src/framework/form/repository-edit.tsx
 msgid "Updated repository {repositoryName}"
-msgstr ""
+msgstr "Repository {repositoryName} bijgewerkt"
 
 #: src/components/import-modal.tsx
 #: src/components/upload-signature-modal.tsx
@@ -8868,7 +8866,7 @@ msgstr "URL (voorbeeld): {url}"
 
 #: src/framework/list/label-filter.tsx
 msgid "Use key and value fields"
-msgstr ""
+msgstr "Sleutel- en waardevelden gebruiken"
 
 #: src/components/remote-form.tsx
 msgid "Use template"
@@ -8940,15 +8938,15 @@ msgstr "Gebruikt"
 
 #: src/framework/list/remote-list.tsx
 msgid "Used by"
-msgstr ""
+msgstr "Gebruikt door"
 
 #: src/framework/bulk/remote-bulk.tsx
 msgid "Used by {names}"
-msgstr ""
+msgstr "Gebruikt door {names}"
 
 #: src/framework/bulk/remote-bulk.tsx
 msgid "Used by {names} and {more} more"
-msgstr ""
+msgstr "Gebruikt door {names} en {more} andere"
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -9146,7 +9144,7 @@ msgstr "Gebruikers verschijnen zodra ze zijn aangemaakt"
 
 #: src/framework/form/remote-fields.ts
 msgid "Validate the TLS certificate of the server"
-msgstr ""
+msgstr "Het TLS-certificaat van de server valideren"
 
 #: src/components/repository-badge.tsx
 #~ msgid "Validated"
@@ -9155,7 +9153,7 @@ msgstr ""
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Value"
-msgstr ""
+msgstr "Waarde"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "VALUE"
@@ -9163,7 +9161,7 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Value (optional)"
-msgstr ""
+msgstr "Waarde (optioneel)"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "var"
@@ -9308,7 +9306,7 @@ msgstr "Gebruikers bekijken, toevoegen, verwijderen en wijzigen."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Vulnerability scan"
-msgstr ""
+msgstr "Kwetsbaarhedenscan"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Waiting"
@@ -9320,7 +9318,7 @@ msgstr "Wachten"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Waiting for a worker to take the task."
-msgstr ""
+msgstr "Wachten tot een worker de taak oppakt."
 
 #: src/components/import-console.tsx
 #~ msgid "waiting for approval"
@@ -9369,7 +9367,7 @@ msgstr "Wanneer pakketten worden geweigerd"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
-msgstr ""
+msgstr "Of de publicaties van deze repository SHA256SUMS-bestanden bevatten, die de checksum van elk gepubliceerd bestand vermelden zodat clients een download kunnen verifiëren."
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -9383,7 +9381,7 @@ msgstr "Of pre-releaseversies in de synchronisatie moeten worden opgenomen."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Whether to scan the new repository version for vulnerabilities after a sync."
-msgstr ""
+msgstr "Of de nieuwe repositoryversie na een synchronisatie op kwetsbaarheden wordt gescand."
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -9418,7 +9416,7 @@ msgstr "Controleert of de checksum van alle opgeslagen bestanden overeenkomt met
 
 #: src/descriptors/python/descriptor.tsx
 msgid "windows"
-msgstr ""
+msgstr "windows"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #: src/containers/legacy-namespaces/legacy-namespace.tsx
@@ -9440,7 +9438,7 @@ msgstr "Workers, opslag en inhoudsinstellingen worden getoond aan beheerders."
 
 #: src/framework/list/label-filter.tsx
 msgid "Write an expression"
-msgstr ""
+msgstr "Een expressie schrijven"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -9470,7 +9468,7 @@ msgstr "Ja"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Yes, cancel"
-msgstr ""
+msgstr "Ja, annuleren"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -9598,7 +9596,7 @@ msgstr "U bent afgemeld bij Pulp."
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "You may not do this on the following, so nothing is sent for them:"
-msgstr ""
+msgstr "U mag dit niet doen voor het volgende, dus er wordt niets voor verzonden:"
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
