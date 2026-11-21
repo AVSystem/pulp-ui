@@ -272,9 +272,32 @@ export interface RemoteKind<Row> {
   filters?: FilterDef[];
 }
 
+// An action on one distribution of the Distributions tab, which opens a dialog
+// of the plugin's own. The distributions of a repository are not read one by
+// one for what the user may do with them, so the action is offered only to a
+// user who holds the permission on every distribution of the plugin: hiding it
+// from a user who holds it on one distribution only is the safe direction, and
+// Pulp decides every request.
+export interface DistributionEditDef {
+  // The permission, held on every distribution, that the action needs.
+  permission: string;
+  // The label of the row's action.
+  label: MessageDescriptor;
+  // The dialog that edits one distribution. It closes itself through `onClose`
+  // and puts what happened on the screen through `addAlert`.
+  dialog: (props: {
+    distribution: DistributionBase;
+    onClose: () => void;
+    addAlert: (alert: AlertType) => void;
+  }) => ReactNode;
+}
+
 export interface DistributionKind<Row extends DistributionBase> {
   entity: AnyDistributionEntity<Row>;
   columns?: ColumnDef<Row>[];
+  // The action that changes a distribution, for a plugin whose distributions
+  // have fields worth changing after they are made.
+  edit?: DistributionEditDef;
 }
 
 // A plugin that serves a repository through a publication. Absent for a plugin

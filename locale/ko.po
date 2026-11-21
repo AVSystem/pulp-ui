@@ -768,6 +768,7 @@ msgid "Allow same-filename packages with different contents"
 msgstr "파일 이름은 같지만 내용이 다른 패키지 허용"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Allow uploads to this distribution"
 msgstr "이 배포에 대한 업로드 허용"
 
@@ -1178,6 +1179,7 @@ msgstr "CA 인증서"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/form/remote-form.tsx
@@ -2578,6 +2580,10 @@ msgstr "비활성화됨"
 #~ msgid "Distribution"
 #~ msgstr "배포"
 
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Distribution \"{name}\" could not be updated"
+msgstr ""
+
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} is still being removed."
 msgstr ""
@@ -2826,6 +2832,8 @@ msgstr "편집"
 #~ msgstr "세부 정보 편집"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Edit distribution"
 msgstr "배포 편집"
 
@@ -3366,7 +3374,13 @@ msgstr "리포지토리를 로드하지 못했습니다: {error}"
 msgid "Failed to load status"
 msgstr "상태를 불러오지 못했습니다"
 
+#. placeholder {0}: requestErrorText(query.error)
+#: src/descriptors/python/distribution-edit.tsx
+#~ msgid "Failed to load the distribution: {0}"
+#~ msgstr ""
+
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
 msgstr "배포를 불러오지 못했습니다: {loadError}"
 
@@ -3493,6 +3507,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4624,6 +4639,7 @@ msgstr "내 프로필"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -4929,6 +4945,7 @@ msgstr "아직 그룹 없음"
 #~ msgstr "아직 네임스페이스가 없음"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "No packages in the latest version"
 msgstr "최신 버전에 패키지가 없습니다"
@@ -5205,6 +5222,7 @@ msgid "Notes"
 msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
 msgstr "배포 {name}에 변경된 내용이 없습니다."
 
@@ -5401,6 +5419,7 @@ msgstr "결과를 알 수 없습니다. 작업을 확인하세요"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Package name"
 msgstr "패키지 이름"
@@ -5412,6 +5431,7 @@ msgstr "패키지 대체"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Package type"
 msgstr "패키지 유형"
 
@@ -5430,6 +5450,8 @@ msgstr "동기화할 패키지 유형입니다. 모두 선택하지 않으면 �
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages"
@@ -5442,11 +5464,13 @@ msgstr "패키지 및 아티팩트"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages could not be displayed."
 msgstr "패키지를 표시할 수 없습니다."
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
 msgstr "이 배포에 없는 패키지는 원격에서 가져옵니다. 비워 두면 업로드된 항목만 제공합니다."
 
@@ -5806,6 +5830,7 @@ msgstr "업스트림 릴리스 필드 게시"
 #~ msgstr "이미지 가져오기"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Pull-through remote"
 msgstr "풀스루 원격"
 
@@ -6637,6 +6662,7 @@ msgstr ""
 #~ msgstr "Ansible 필요"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Requires Python"
 msgstr "필요한 Python"
 
@@ -6698,6 +6724,7 @@ msgstr "재시도 횟수"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6963,6 +6990,7 @@ msgstr "실행 중"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -7875,6 +7903,7 @@ msgid "Sync this repository or add packages to it."
 msgstr "이 리포지토리를 동기화하거나 패키지를 추가하세요."
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Sync this repository or upload packages to it."
 msgstr "이 리포지토리를 동기화하거나 패키지를 업로드하세요."
 
@@ -8759,6 +8788,7 @@ msgstr "지정한 타임스탬프 이전에 완료된 작업을 삭제하는 비
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Type"
 msgstr "유형"
 
@@ -8819,6 +8849,14 @@ msgstr "컬렉션 원격 업데이트"
 #~ msgid "Update container information"
 #~ msgstr "Update container information"
 
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Update of distribution {name}"
+msgstr ""
+
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Update started for distribution {name}"
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
@@ -8857,6 +8895,7 @@ msgstr ""
 #~ msgstr "업데이트됨 <0/>"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Updated distribution {name}"
 msgstr "배포 {name}을/를 업데이트했습니다"
 
@@ -8920,6 +8959,7 @@ msgstr "커밋 업로드"
 #~ msgstr "Upload to namespace"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Uploads"
 msgstr "업로드"
 
@@ -9271,6 +9311,7 @@ msgstr "체크섬 검증"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Version"
 msgstr "버전"

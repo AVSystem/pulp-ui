@@ -404,9 +404,10 @@ describe(
       await user.click(uploadsBox(dialog));
       await user.click(saveButton(dialog));
 
+      // the refusal is described in three parts, each naming the permission
       expect(
-        await within(dialog).findByText(/do not have permission/),
-      ).toBeInTheDocument();
+        (await within(dialog).findAllByText(/do not have permission/)).length,
+      ).toBeGreaterThan(0);
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 

@@ -24,6 +24,17 @@ const pythonRemoteSchema = remoteSchema.extend({
   vulnerabilities: z.boolean().nullish(),
 });
 
+// One package of a repository version, as far as the Packages tab reads it. A
+// package that states no Python requirement has none, which is not an error.
+const pythonPackageSchema = z.looseObject({
+  pulp_href: z.string(),
+  name: z.string(),
+  version: z.string(),
+  packagetype: z.string().nullish(),
+  filename: z.string().nullish(),
+  requires_python: z.string().nullish(),
+});
+
 // A python distribution: the pull-through remote that fetches what the index
 // lacks, and whether packages may be uploaded to it. Uploads are on unless the
 // server says otherwise.
@@ -43,11 +54,18 @@ interface PythonDistributionChanges {
 type PythonRepository = z.infer<typeof pythonRepositorySchema>;
 type PythonRemote = z.infer<typeof pythonRemoteSchema>;
 type PythonDistribution = z.infer<typeof pythonDistributionSchema>;
+type PythonPackage = z.infer<typeof pythonPackageSchema>;
 
-export { pythonDistributionSchema, pythonRemoteSchema, pythonRepositorySchema };
+export {
+  pythonDistributionSchema,
+  pythonPackageSchema,
+  pythonRemoteSchema,
+  pythonRepositorySchema,
+};
 export type {
   PythonDistribution,
   PythonDistributionChanges,
+  PythonPackage,
   PythonRemote,
   PythonRepository,
 };

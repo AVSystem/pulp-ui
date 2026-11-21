@@ -768,6 +768,7 @@ msgid "Allow same-filename packages with different contents"
 msgstr "同じファイル名で内容が異なるパッケージを許可"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Allow uploads to this distribution"
 msgstr "このディストリビューションへのアップロードを許可"
 
@@ -1178,6 +1179,7 @@ msgstr "CA 証明書"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/form/remote-form.tsx
@@ -2578,6 +2580,10 @@ msgstr "無効化"
 #~ msgid "Distribution"
 #~ msgstr "ディストリビューション"
 
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Distribution \"{name}\" could not be updated"
+msgstr ""
+
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} is still being removed."
 msgstr ""
@@ -2826,6 +2832,8 @@ msgstr "編集"
 #~ msgstr "詳細の編集"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Edit distribution"
 msgstr "ディストリビューションの編集"
 
@@ -3366,7 +3374,13 @@ msgstr "リポジトリーの読み込みに失敗しました: {error}"
 msgid "Failed to load status"
 msgstr "ステータスの読み込みに失敗しました"
 
+#. placeholder {0}: requestErrorText(query.error)
+#: src/descriptors/python/distribution-edit.tsx
+#~ msgid "Failed to load the distribution: {0}"
+#~ msgstr ""
+
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
 msgstr "ディストリビューションの読み込みに失敗しました: {loadError}"
 
@@ -3493,6 +3507,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4624,6 +4639,7 @@ msgstr "自分のプロファイル"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -4929,6 +4945,7 @@ msgstr "まだグループはありません"
 #~ msgstr "まだ名前空間はありません"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "No packages in the latest version"
 msgstr "最新バージョンにパッケージはありません"
@@ -5205,6 +5222,7 @@ msgid "Notes"
 msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
 msgstr "ディストリビューション {name} に変更はありませんでした。"
 
@@ -5401,6 +5419,7 @@ msgstr "結果は不明です。タスクを確認してください"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Package name"
 msgstr "パッケージ名"
@@ -5412,6 +5431,7 @@ msgstr "パッケージの置き換え"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Package type"
 msgstr "パッケージタイプ"
 
@@ -5430,6 +5450,8 @@ msgstr "同期するパッケージタイプ。すべてチェックを外すと
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages"
@@ -5442,11 +5464,13 @@ msgstr "パッケージとアーティファクト"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages could not be displayed."
 msgstr "パッケージを表示できませんでした。"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
 msgstr "このディストリビューションにないパッケージはリモートから取得されます。空のままにすると、アップロードされたものだけを配信します。"
 
@@ -5806,6 +5830,7 @@ msgstr "上流のリリースフィールドをパブリッシュ"
 #~ msgstr "このイメージのプル"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Pull-through remote"
 msgstr "プルスルーリモート"
 
@@ -6637,6 +6662,7 @@ msgstr ""
 #~ msgstr "Ansible が必要です"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Requires Python"
 msgstr "必要な Python"
 
@@ -6698,6 +6724,7 @@ msgstr "再試行回数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6963,6 +6990,7 @@ msgstr "実行中"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -7875,6 +7903,7 @@ msgid "Sync this repository or add packages to it."
 msgstr "このリポジトリーを同期するか、パッケージを追加してください。"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Sync this repository or upload packages to it."
 msgstr "このリポジトリーを同期するか、パッケージをアップロードしてください。"
 
@@ -8759,6 +8788,7 @@ msgstr "指定したタイムスタンプより前に終了した完了済みタ
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Type"
 msgstr "タイプ"
 
@@ -8819,6 +8849,14 @@ msgstr "コレクションリモートの更新"
 #~ msgid "Update container information"
 #~ msgstr "Update container information"
 
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Update of distribution {name}"
+msgstr ""
+
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Update started for distribution {name}"
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
@@ -8857,6 +8895,7 @@ msgstr ""
 #~ msgstr "<0/> に更新"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Updated distribution {name}"
 msgstr "ディストリビューション {name} を更新しました"
 
@@ -8920,6 +8959,7 @@ msgstr "コミットのアップロード"
 #~ msgstr "Upload to namespace"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Uploads"
 msgstr "アップロード"
 
@@ -9271,6 +9311,7 @@ msgstr "チェックサムの検証"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Version"
 msgstr "バージョン"

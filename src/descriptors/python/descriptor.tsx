@@ -21,6 +21,8 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
+import { PythonDistributionEdit } from './distribution-edit';
+import { packagesTab } from './packages-tab';
 
 // What a python remote holds beyond what every remote has, read from the loose
 // shape of a remote the generic screens pass around.
@@ -227,6 +229,7 @@ const descriptor: PluginDescriptor<PythonRepository> = {
     tabs: [
       versionsTab<PythonRepository>(),
       distributionsTab<PythonRepository>(),
+      packagesTab,
     ],
     sync: {
       taskName: 'pulp_python.app.tasks.sync.sync',
@@ -261,9 +264,18 @@ const descriptor: PluginDescriptor<PythonRepository> = {
     detailRows: REMOTE_ROWS,
     fields: REMOTE_FIELDS,
   },
+  contentTypes: [{ id: 'python.package', label: msg`Packages` }],
   // A python distribution is served without a publication, so the descriptor
-  // declares none.
-  distribution: { entity: pythonDistribution },
+  // declares none. Its pull-through remote and upload permission can be
+  // changed after it is made, by an account that may change distributions.
+  distribution: {
+    entity: pythonDistribution,
+    edit: {
+      permission: 'python.change_pythondistribution',
+      label: msg`Edit distribution`,
+      dialog: (props) => <PythonDistributionEdit {...props} />,
+    },
+  },
 };
 
 export default descriptor;

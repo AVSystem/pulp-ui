@@ -1,6 +1,7 @@
 import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import {
+  DropdownItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -8,7 +9,9 @@ import {
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { useMemo, useState } from 'react';
+import { useAppContext } from 'src/app-context';
 import {
+  type AlertType,
   AppliedFilters,
   ClipboardCopy,
   CompoundFilter,
@@ -22,6 +25,7 @@ import {
   Table,
 } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
+import { ListItemActions } from 'src/components/list-item-actions';
 import {
   type ServingDistribution,
   useRepositoryDistributions,
@@ -91,6 +95,9 @@ function shown(
 interface Props {
   repository: RepositoryBase;
   descriptor: PluginDescriptor;
+  // Puts an alert on the screen above the tab, for what the plugin's edit
+  // dialog reports.
+  addAlert?: (alert: AlertType) => void;
 }
 
 // Every distribution that serves a repository, bound to it, to one of its
@@ -98,7 +105,11 @@ interface Props {
 // it, whether it serves content and the plugin's client command for it. The
 // rows come from the index of the plugin's distributions that the other screens
 // share, so the tab sends no request of its own per row.
-export const DistributionsTab = ({ repository, descriptor }: Props) => {
+export const DistributionsTab = ({
+  repository,
+  descriptor,
+  addAlert = () => undefined,
+}: Props) => {
   const { distribution, publication } = descriptor;
   if (!distribution) {
     throw new Error(
@@ -111,6 +122,12 @@ export const DistributionsTab = ({ repository, descriptor }: Props) => {
     publication,
     repository.pulp_href,
   );
+  const { hasPermission } = useAppContext();
+  const edit = distribution.edit;
+  // Offered to a user who holds the permission on every distribution; nothing
+  // is drawn on a guess.
+  const canEdit = edit !== undefined && hasPermission(edit.permission);
+  const [editing, setEditing] = useState<DistributionBase | null>(null);
   const [params, setParams] = useState<TabParams>(DEFAULT_PARAMS);
   const [inputText, setInputText] = useState('');
 
@@ -238,6 +255,15 @@ export const DistributionsTab = ({ repository, descriptor }: Props) => {
                     )}
                   </Td>
                 ) : null}
+                {edit && canEdit ? (
+                  <ListItemActions
+                    kebabItems={[
+                      <DropdownItem key='edit' onClick={() => setEditing(row)}>
+                        {i18n._(edit.label)}
+                      </DropdownItem>,
+                    ]}
+                  />
+                ) : null}
               </Tr>
             ))}
           </Tbody>
@@ -250,6 +276,13 @@ export const DistributionsTab = ({ repository, descriptor }: Props) => {
           count={rows.length}
         />
       ) : null}
+      {edit && editing
+        ? edit.dialog({
+            distribution: editing,
+            onClose: () => setEditing(null),
+            addAlert,
+          })
+        : null}
     </>
   );
 };
@@ -260,7 +293,11 @@ export const distributionsTab = <
 >(): TabDef<Row> => ({
   id: 'distributions',
   label: msg`Distributions`,
-  render: ({ repository, descriptor }) => (
-    <DistributionsTab repository={repository} descriptor={descriptor} />
+  render: ({ repository, descriptor, addAlert }) => (
+    <DistributionsTab
+      repository={repository}
+      descriptor={descriptor}
+      addAlert={addAlert}
+    />
   ),
 });

@@ -768,6 +768,7 @@ msgid "Allow same-filename packages with different contents"
 msgstr "允许文件名相同但内容不同的软件包"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Allow uploads to this distribution"
 msgstr "允许上传到此分发"
 
@@ -1178,6 +1179,7 @@ msgstr "CA 证书"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/form/remote-form.tsx
@@ -2578,6 +2580,10 @@ msgstr "禁用"
 #~ msgid "Distribution"
 #~ msgstr "分发"
 
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Distribution \"{name}\" could not be updated"
+msgstr ""
+
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} is still being removed."
 msgstr ""
@@ -2826,6 +2832,8 @@ msgstr "编辑"
 #~ msgstr "编辑详情"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Edit distribution"
 msgstr "编辑分发"
 
@@ -3366,7 +3374,13 @@ msgstr "加载软件仓库失败：{error}"
 msgid "Failed to load status"
 msgstr "加载状态失败"
 
+#. placeholder {0}: requestErrorText(query.error)
+#: src/descriptors/python/distribution-edit.tsx
+#~ msgid "Failed to load the distribution: {0}"
+#~ msgstr ""
+
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Failed to load the distribution: {loadError}"
 msgstr "无法加载分发：{loadError}"
 
@@ -3493,6 +3507,7 @@ msgstr ""
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4624,6 +4639,7 @@ msgstr "我的配置集"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -4929,6 +4945,7 @@ msgstr "还没有组"
 #~ msgstr "还没有命名空间"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "No packages in the latest version"
 msgstr "最新版本中没有软件包"
@@ -5205,6 +5222,7 @@ msgid "Notes"
 msgstr ""
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
 msgstr "分发 {name} 没有任何更改。"
 
@@ -5401,6 +5419,7 @@ msgstr "结果未知，请检查任务"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Package name"
 msgstr "软件包名称"
@@ -5412,6 +5431,7 @@ msgstr "软件包替换"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Package type"
 msgstr "软件包类型"
 
@@ -5430,6 +5450,8 @@ msgstr "要同步的软件包类型。全部不勾选则同步所有类型。"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages"
@@ -5442,11 +5464,13 @@ msgstr "软件包和构件"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages could not be displayed."
 msgstr "无法显示软件包。"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
 msgstr "此分发中缺少的软件包会从远程获取。留空则仅提供已上传的内容。"
 
@@ -5806,6 +5830,7 @@ msgstr "发布上游 Release 字段"
 #~ msgstr "拉取此镜像"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Pull-through remote"
 msgstr "Pull-through 远程"
 
@@ -6637,6 +6662,7 @@ msgstr ""
 #~ msgstr "需要 Ansible"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Requires Python"
 msgstr "需要 Python"
 
@@ -6698,6 +6724,7 @@ msgstr "重试次数"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6963,6 +6990,7 @@ msgstr "运行中"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -7875,6 +7903,7 @@ msgid "Sync this repository or add packages to it."
 msgstr "同步此仓库或向其添加软件包。"
 
 #: src/containers/python-repository/tab-packages.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Sync this repository or upload packages to it."
 msgstr "同步此仓库或向其上传软件包。"
 
@@ -8759,6 +8788,7 @@ msgstr "触发异步任务，删除在指定时间戳之前完成的已完成任
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/python/packages-tab.tsx
 msgid "Type"
 msgstr "类型"
 
@@ -8819,6 +8849,14 @@ msgstr "更新集合远程"
 #~ msgid "Update container information"
 #~ msgstr "Update container information"
 
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Update of distribution {name}"
+msgstr ""
+
+#: src/descriptors/python/distribution-edit.tsx
+msgid "Update started for distribution {name}"
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
@@ -8857,6 +8895,7 @@ msgstr ""
 #~ msgstr "更新的 <0/>"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Updated distribution {name}"
 msgstr "已更新分发 {name}"
 
@@ -8920,6 +8959,7 @@ msgstr "上传提交"
 #~ msgstr "Upload to namespace"
 
 #: src/actions/python-distribution-edit.tsx
+#: src/descriptors/python/distribution-edit.tsx
 msgid "Uploads"
 msgstr "上传"
 
@@ -9271,6 +9311,7 @@ msgstr "验证校验和"
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Version"
 msgstr "版本"
