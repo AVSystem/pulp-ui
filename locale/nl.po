@@ -9598,6 +9598,10 @@ msgstr "U bent afgemeld bij Pulp."
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "U mag dit niet doen voor het volgende, dus er wordt niets voor verzonden:"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "U mag geen bulkactie uitvoeren op de geselecteerde rijen."
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Uw wachtwoord is gewijzigd. Log in met het nieuwe wachtwoord."

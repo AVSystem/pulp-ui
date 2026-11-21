@@ -9598,6 +9598,10 @@ msgstr "Se ha cerrado su sesión de Pulp."
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "No tiene permiso para hacerlo en lo siguiente, por lo que no se envía nada para ello:"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "You may not take a bulk action on the selected rows."
+msgstr "No tiene permiso para realizar una acción en bloque sobre las filas seleccionadas."
+
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
 msgstr "Se cambió su contraseña. Inicie sesión con la nueva contraseña."
