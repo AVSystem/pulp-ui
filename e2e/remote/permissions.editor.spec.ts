@@ -9,13 +9,14 @@ import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
 import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
 import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
 import {
+  getRepositoriesRpmRpmAddRoleUrl,
   getRepositoriesRpmRpmListRolesUrl,
   getRepositoriesRpmRpmListUrl,
 } from '@pulp-ui/sdk/rpm/repositories-rpm';
 import { ACTION_PERMISSIONS } from '../../src/utilities/action-permissions';
 import { account } from '../support/accounts';
-import { apiContext, listAll } from '../support/api';
-import { apiGet } from '../support/sdk-request';
+import { TestObjects, apiContext, listAll } from '../support/api';
+import { apiGet, apiPost } from '../support/sdk-request';
 import { isPermissionsRead } from '../support/session';
 import { title } from '../support/sign-in';
 
@@ -31,6 +32,7 @@ import { title } from '../support/sign-in';
 const FILE_ROLE = 'file.filerepository_owner';
 const PYTHON_ROLE = 'python.pythonrepository_creator';
 const RPM_ROLE = 'rpm.rpmrepository_owner';
+const RPM_VIEWER_ROLE = 'rpm.rpmrepository_viewer';
 
 const ROW_ACTIONS = [
   { title: 'Edit', key: 'change' },
@@ -41,6 +43,7 @@ const ROW_ACTIONS = [
 type Plugin = 'file' | 'python' | 'rpm' | 'deb';
 
 let api: APIRequestContext;
+let objects: TestObjects;
 let filePermissions: Set<string>;
 let pythonPermissions: Set<string>;
 let owned: { name: string; permissions: Set<string> };
@@ -85,6 +88,7 @@ async function ownedRpmRepository(
 }
 
 test.beforeAll(async () => {
+  objects = await TestObjects.open('editor');
   api = await apiContext();
   filePermissions = await rolePermissions(FILE_ROLE);
   pythonPermissions = await rolePermissions(PYTHON_ROLE);
@@ -96,6 +100,7 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   await api.dispose();
+  await objects.cleanUp();
 });
 
 // The titles of the row actions a set of permissions allows on a plugin's
@@ -139,6 +144,8 @@ async function offeredActions(row: Locator, page: Page): Promise<string[]> {
   return names;
 }
 
+const FILE_ROW_ORDER = ['Sync', 'Edit', 'Delete'];
+
 // Sync needs a remote to sync from, so the list offers it on the rows that have
 // one and leaves it out of the others.
 async function expectedFileActions(names: string[]): Promise<string[][]> {
@@ -149,7 +156,10 @@ async function expectedFileActions(names: string[]): Promise<string[][]> {
     limit: String(Math.max(names.length, 1)),
     fields: 'name,remote',
   });
-  const allowed = allowedRowActions('file', filePermissions);
+  // the order the framework list offers the actions in
+  const allowed = FILE_ROW_ORDER.filter((action) =>
+    allowedRowActions('file', filePermissions).includes(action),
+  );
   return names.map((name) => {
     const row = results.find((found) => found.name === name);
     expect(row, `file repository ${name} exists on the server`).toBeDefined();
@@ -197,9 +207,9 @@ test('a file repository with a remote offers Sync to the editor', async ({
   const { results } = await apiGet<{ results: { name: string }[] }>(
     api,
     getRemotesFileFileListUrl(),
-    { name__startswith: 'zz-synth-file-', name__endswith: '-src', limit: '1' },
+    { name__contains: '-src', name__startswith: 'zz-synth-file-', limit: '20' },
   );
-  const remote = results[0]?.name ?? '';
+  const remote = results.find(({ name }) => name.endsWith('-src'))?.name ?? '';
   expect(remote, 'a seeded file remote').not.toBe('');
   const name = remote.slice(0, -'-src'.length);
   const [expected] = await expectedFileActions([name]);
@@ -289,25 +299,30 @@ test('rpm repositories offer actions on the owned repository only', async ({
   ).toEqual(expected);
   await expect(addRepository(page)).toHaveCount(0);
 
-  // A second filtered view of a repository that exists but is not owned: the
-  // server lists only what the account may read, and no row that is listed
-  // draws a menu.
-  const others = (
-    await apiGet<{ results: { name: string }[] }>(
-      api,
-      getRepositoriesRpmRpmListUrl(),
-      { limit: '20', fields: 'name' },
-    )
-  ).results
-    .map(({ name }) => name)
-    .filter((name) => !name.includes(owned.name) && !owned.name.includes(name));
-  expect(others, 'rpm repositories that are not owned').not.toEqual([]);
+  // A second filtered view, of a repository the editor may read and does not
+  // own: the editor is given the viewer role on a repository of this run, which
+  // goes away with the repository. The server lists only what the account may
+  // read, and no row that is listed for a repository it does not own draws a
+  // menu.
+  const viewable = await objects.create('repositories/rpm/rpm/', {
+    name: objects.name('viewable'),
+  });
+  await apiPost(api, getRepositoriesRpmRpmAddRoleUrl(viewable.pulp_href), {
+    role: RPM_VIEWER_ROLE,
+    users: [account('editor').username],
+  });
   await openRepositoryList(
     page,
     'rpm',
-    `?name__icontains=${encodeURIComponent(others[0] as string)}`,
+    `?name__icontains=${encodeURIComponent(viewable.name as string)}`,
   );
-  for (const { name, toggles } of await rowsWithMenus(page)) {
+  const listed = await rowsWithMenus(page);
+  // an empty listing would pass the loop below without checking anything
+  expect(
+    listed.map(({ name }) => name),
+    'the repository the editor may read and does not own is listed',
+  ).toEqual([viewable.name]);
+  for (const { name, toggles } of listed) {
     expect(
       toggles,
       `actions menu of ${name}, a repository that is not owned`,

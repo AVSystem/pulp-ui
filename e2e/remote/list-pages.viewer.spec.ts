@@ -1,6 +1,8 @@
 import { type Page, expect, test } from '@playwright/test';
+import { PLUGIN_MANIFESTS } from '../../src/framework/manifest';
 import { title } from '../support/sign-in';
 import {
+  type ListPage,
   absentOptionalPlugin,
   expectNothingLoaded,
   expectPageShown,
@@ -50,7 +52,13 @@ const READ_ONLY_CONTROLS: string[] = [
   'Go back',
   // expands the card that shows the status answer as text
   'JSON',
+  // opens the label filter, which only writes the list's address when applied
+  'Labels',
 ];
+
+// The button that unfolds the labels a row has beyond the first ones ("2
+// more"): it only shows more of the row.
+const MORE_LABELS = /^\d+ more$/;
 
 // Every visible button and menu item of the page content that is not read-only
 // by where it sits, by accessible name. A control with no name is reported as
@@ -94,7 +102,7 @@ async function controlNames(page: Page): Promise<string[]> {
 // not read-only.
 async function expectOnlyReadOnlyControls(page: Page): Promise<void> {
   const offending = (await controlNames(page)).filter(
-    (name) => !READ_ONLY_CONTROLS.includes(name),
+    (name) => !READ_ONLY_CONTROLS.includes(name) && !MORE_LABELS.test(name),
   );
   expect(
     offending,
@@ -123,6 +131,20 @@ function permissionsRead(page: Page) {
       ),
   );
 }
+
+// A list on the framework reads the catalogue of roles to learn what the roles
+// the account holds on single objects allow. A server that keeps the roles from
+// an account that is not an administrator answers 403, and the list then reads
+// what each role allows from the account's own assignments. That refusal is the
+// expected answer, not a failure of the page.
+const onFramework = (entry: ListPage) =>
+  PLUGIN_MANIFESTS.some(
+    ({ plugin, onFramework: served }) =>
+      served && entry.path.startsWith(`${plugin}/`),
+  );
+
+const expectedRefusal = ({ url, status }: { url: string; status: number }) =>
+  status === 403 && url === '/pulp/api/v3/roles/';
 
 for (const entry of listPages) {
   const how = entry.viewerNoScreen
@@ -169,7 +191,12 @@ for (const entry of listPages) {
 
     if (!entry.viewerRefused) {
       await expect(failureShown(page)).toHaveCount(0);
-      expect(watch.failed, 'API requests of the page that failed').toEqual([]);
+      expect(
+        watch.failed.filter(
+          (failed) => !(onFramework(entry) && expectedRefusal(failed)),
+        ),
+        'API requests of the page that failed',
+      ).toEqual([]);
       expectNothingLoaded(watch, entry, notInstalled);
       await expectOnlyReadOnlyControls(page);
       await expectNoRowActions(page);
