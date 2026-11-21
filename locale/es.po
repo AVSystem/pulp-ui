@@ -714,6 +714,7 @@ msgstr "Aditivo: solo añadir contenido nuevo"
 #: src/containers/python-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "All"
 msgstr "Todos"
@@ -727,6 +728,7 @@ msgstr "Se han eliminado todos los permisos asociados a este rol."
 #~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "All projects"
 msgstr "Todos los proyectos"
 
@@ -751,14 +753,17 @@ msgstr "Permitir todas las acciones en una tarea."
 #~ msgstr "Permitir todas las acciones en un programa de tareas."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow package substitution"
 msgstr "Permitir la sustitución de paquetes"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow replacing an existing package with one that has the same filename but a different checksum. When off, any new repository version that would cause such a substitution is rejected, whether from sync, upload or modify."
 msgstr "Permite reemplazar un paquete existente por otro con el mismo nombre de archivo pero distinta suma de comprobación. Si está desactivado, se rechaza cualquier versión nueva del repositorio que cause tal sustitución, ya sea por sincronización, subida o modificación."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow same-filename packages with different contents"
 msgstr "Permitir paquetes con el mismo nombre de archivo y distinto contenido"
 
@@ -767,6 +772,7 @@ msgid "Allow uploads to this distribution"
 msgstr "Permitir subidas a esta distribución"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allowed"
 msgstr "Permitido"
 
@@ -1072,6 +1078,34 @@ msgstr "Versión base"
 #: src/components/ratings.tsx
 #~ msgid "Based on {0} surveys."
 #~ msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_dmg"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_dumb"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_egg"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_msi"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_rpm"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_wheel"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_wininst"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
@@ -1822,6 +1856,7 @@ msgstr "El contenido en repositorios sin una distribución no será visible para
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "El contenido que no esté en el repositorio remoto se eliminará del repositorio local"
 
@@ -2533,6 +2568,7 @@ msgstr "Detalles"
 #: src/containers/python-remote/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
@@ -2860,6 +2896,7 @@ msgstr "Correo electrónico"
 #: src/containers/python-remote/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
@@ -3098,16 +3135,19 @@ msgid "Except for members of groups below."
 msgstr "Excepto los miembros de los grupos indicados abajo."
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excluded"
 msgstr "Excluido"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excluded platforms"
 msgstr "Plataformas excluidas"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excludes"
 msgstr "Exclusiones"
 
@@ -3167,14 +3207,17 @@ msgstr "Expandir la barra lateral"
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail on rejected packages"
 msgstr "Fallar si se rechazan paquetes"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail the whole version"
 msgstr "Hacer fallar la versión completa"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail the whole version if any package is rejected"
 msgstr "Hacer fallar la versión completa si se rechaza algún paquete"
 
@@ -3546,6 +3589,10 @@ msgstr "Libre"
 msgid "Free text."
 msgstr ""
 
+#: src/descriptors/python/descriptor.tsx
+msgid "freebsd"
+msgstr ""
+
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
 #~ msgstr ""
@@ -3816,6 +3863,7 @@ msgstr "Ocultar la contraseña"
 #~ msgstr "Ocultar la firma"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions."
 msgstr "Cuántas de las versiones más recientes de cada paquete se sincronizan, incluidas las preversiones si se sincronizan. Déjelo en blanco para conservar todas las versiones."
 
@@ -3839,6 +3887,7 @@ msgstr "Cuántas versiones de cada paquete se conservan; las más antiguas se de
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "Si se selecciona, todo el contenido que no esté en el repositorio remoto se eliminará del repositorio local; de lo contrario, la sincronización añadirá el contenido que falte."
 
@@ -3957,15 +4006,18 @@ msgid "Include all dependencies when syncing a collection."
 msgstr "Incluir todas las dependencias al sincronizar una colección."
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Include pre-release versions"
 msgstr "Incluir preversiones"
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Included"
 msgstr "Incluido"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Includes"
 msgstr "Inclusiones"
 
@@ -4023,6 +4075,7 @@ msgstr "Información"
 #~ msgstr "Install Version"
 
 #: src/containers/python-repository/tab-distributions.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Install with pip"
 msgstr "Instalar con pip"
 
@@ -4267,6 +4320,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Latest versions kept per package"
 msgstr "Últimas versiones conservadas por paquete"
 
@@ -4340,6 +4394,10 @@ msgstr "Limita la velocidad total de descarga en solicitudes por segundo."
 #: src/components/namespace-form.tsx
 #~ msgid "Link URL"
 #~ msgstr "Enlace URL"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "linux"
+msgstr ""
 
 #: src/components/collection-list.tsx
 #: src/containers/search/search.tsx
@@ -4426,6 +4484,10 @@ msgstr "Inicio de sesión"
 msgid "Logout"
 msgstr "Finalización de la sesión"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "macos"
+msgstr ""
+
 #: src/menu.tsx
 msgid "Main"
 msgstr "Principal"
@@ -4482,6 +4544,7 @@ msgstr "Igual que el sistema"
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Mirror"
 msgstr "Espejo"
 
@@ -5022,6 +5085,7 @@ msgstr "No existe ningún usuario"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5040,6 +5104,7 @@ msgstr "Ninguno"
 #~ msgstr "No es un súper usuario"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
 msgstr "No permitido"
 
@@ -5119,6 +5184,7 @@ msgid "Not set"
 msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Not synced"
 msgstr "No sincronizado"
 
@@ -5340,6 +5406,7 @@ msgid "Package name"
 msgstr "Nombre del paquete"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package substitution"
 msgstr "Sustitución de paquetes"
 
@@ -5350,10 +5417,12 @@ msgstr "Tipo de paquete"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package types"
 msgstr "Tipos de paquete"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "Tipos de paquete que se sincronizan. Deje todos sin marcar para sincronizar todos los tipos."
 
@@ -5524,6 +5593,7 @@ msgstr "No se pudieron mostrar los permisos para el grupo \"{0}\"."
 #~ msgstr "Pipeline añade etiquetas de repositorio con significados predefinidos:<0><1><2>Ninguno</2>: los usuarios necesitan permisos para modificar el contenido de este repositorio para subir una colección.</1><3><4>Aprobado</4>: las colecciones se pueden mover aquí una vez aprobadas. La publicación directa en este repositorio está desactivada.</3><5><6>Puesta en escena</6>: las colecciones subidas aquí requieren aprobación antes de aparecer en la página de búsqueda. Cualquiera con permisos de carga para un espacio de nombres puede subir colecciones a este repositorio.</5></0>"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Platforms whose packages should not be synced."
 msgstr "Plataformas cuyos paquetes no deben sincronizarse."
 
@@ -5594,6 +5664,7 @@ msgstr "Complemento no instalado"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Pre-releases"
 msgstr "Preversiones"
 
@@ -5620,10 +5691,12 @@ msgid "Progress messages"
 msgstr "Mensajes de progreso"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Projects to skip, one specifier per line, for example \"django<4\". Applied after includes."
 msgstr "Proyectos que se omiten, un especificador por línea, por ejemplo \"django<4\". Se aplica después de las inclusiones."
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 msgstr "Proyectos que se sincronizan, un especificador por línea, por ejemplo \"django>=4.2\". Déjelo vacío para sincronizar todos los proyectos que ofrece el remoto."
 
@@ -5638,6 +5711,7 @@ msgstr "Protegido por una protección de contenido: URL para clientes"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Provenance"
 msgstr "Procedencia"
 
@@ -6612,6 +6686,7 @@ msgstr "Versiones de paquete retenidas"
 #: src/containers/python-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Retained version count"
 msgstr "Recuento de versiones retenidas"
@@ -6919,6 +6994,10 @@ msgstr "Guardar"
 msgid "Saved changes to user \"{username}\"."
 msgstr "Se guardaron los cambios en el usuario \"{username}\"."
 
+#: src/descriptors/python/descriptor.tsx
+msgid "Scan new repository versions for vulnerabilities after a sync"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
 msgstr "Desplazar hacia atrás"
@@ -6930,6 +7009,10 @@ msgstr "Desplazar hacia delante"
 #: src/components/import-console.tsx
 #~ msgid "Scroll to end"
 #~ msgstr "Desplácese hasta el final"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "sdist"
+msgstr ""
 
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -7402,6 +7485,7 @@ msgstr "URL de inicio de sesión único."
 #~ msgstr "Tamaño: {size}"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Skip them"
 msgstr "Omitirlos"
 
@@ -7414,6 +7498,10 @@ msgstr "Saltar al contenido"
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Skipped"
 msgstr "Omitido"
+
+#: src/framework/form/descriptor-form.test.tsx
+#~ msgid "Slow"
+#~ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Some repository lists could not be searched."
@@ -7524,6 +7612,7 @@ msgid "Stored credentials"
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.test.tsx
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "Transmitida"
@@ -7714,6 +7803,7 @@ msgid "Sync of {name}"
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Sync package provenance"
 msgstr "Sincronizar la procedencia de los paquetes"
 
@@ -7797,6 +7887,7 @@ msgstr "Sincronizar udebs"
 #~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Synced"
 msgstr "Sincronizado"
 
@@ -9313,6 +9404,10 @@ msgstr "Ver, añadir, eliminar y modificar usuarios."
 #~ msgid "View, and cancel any task."
 #~ msgstr "Ver y cancelar cualquier tarea."
 
+#: src/descriptors/python/descriptor.tsx
+msgid "Vulnerability scan"
+msgstr ""
+
 #: src/containers/task-management/task-list-view.tsx
 msgid "Waiting"
 msgstr "Esperando"
@@ -9362,10 +9457,12 @@ msgid "What you have entered on this page is kept."
 msgstr "Lo que ha introducido en esta página se conserva."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
 msgstr "Si está activado, un paquete rechazado hace fallar toda la versión del repositorio y no se añade nada. Si está desactivado, los paquetes rechazados se omiten, el resto se añade y los omitidos se enumeran en el informe de progreso de la tarea."
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "When packages are rejected"
 msgstr "Cuando se rechazan paquetes"
 
@@ -9374,12 +9471,18 @@ msgid "Whether the publications of this repository include SHA256SUMS files, whi
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
 msgstr "Indica si también se sincronizan las atestaciones de procedencia publicadas para los paquetes."
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Whether to include pre-release versions in the sync."
 msgstr "Indica si se incluyen preversiones en la sincronización."
+
+#: src/descriptors/python/descriptor.tsx
+msgid "Whether to scan the new repository version for vulnerabilities after a sync."
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -9411,6 +9514,10 @@ msgstr "Lista de distribuciones (también llamadas suites) que se sincronizan, s
 #: src/components/repair-task-modal.tsx
 msgid "Will verify that the checksum of all stored files matches what saved in the database. Otherwise only the existence of the files will be checked. Enabled by default."
 msgstr "Verifica que la suma de comprobación de todos los archivos almacenados coincida con la guardada en la base de datos. En caso contrario, solo se comprueba que los archivos existan. Habilitado de forma predeterminada."
+
+#: src/descriptors/python/descriptor.tsx
+msgid "windows"
+msgstr ""
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #: src/containers/legacy-namespaces/legacy-namespace.tsx

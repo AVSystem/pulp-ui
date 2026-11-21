@@ -62,11 +62,14 @@ export type SyncBody = { remote?: string } & Record<string, unknown>;
 // number that may be left blank, `decimal` a number with an optional fraction
 // that may be left blank, `labels` the pairs of a key and an optional value,
 // `remote` the address of a remote or none, `secret` a value the server keeps
-// and never returns (a password), and `certificate` a PEM text that is typed,
-// pasted or taken from a file.
+// and never returns (a password), `certificate` a PEM text that is typed,
+// pasted or taken from a file, `lines` a list of texts typed one to a line
+// and `choices` a set of the values of `options`, each with a box of its own.
 export type FieldKind =
   | 'text'
   | 'textarea'
+  | 'lines'
+  | 'choices'
   | 'integer'
   | 'decimal'
   | 'certificate'
@@ -98,7 +101,7 @@ export interface FieldDef {
   // The text beside the box of a `boolean` field, which says what ticking it
   // does; the label above names the setting.
   boxLabel?: MessageDescriptor;
-  // The choices of a select.
+  // The choices of a select, and the values a set of choices offers.
   options?: { value: string; label: MessageDescriptor }[];
   // A sentence under the input that tells what to enter or what happens when
   // it is left empty. A message about the value the server refused replaces it.

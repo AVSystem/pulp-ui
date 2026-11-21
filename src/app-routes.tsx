@@ -117,42 +117,6 @@ const RoleList = lazyScreen(
       /* webpackChunkName: "roles" */ 'src/containers/role-management/role-list'
     ),
 );
-const PythonRemoteDetail = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python-remote/detail'
-    ),
-);
-const PythonRemoteEdit = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python-remote/edit'
-    ),
-);
-const PythonRemoteList = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python-remote/list'
-    ),
-);
-const PythonRepositoryDetail = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python-repository/detail'
-    ),
-);
-const PythonRepositoryEdit = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python-repository/edit'
-    ),
-);
-const PythonRepositoryList = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python-repository/list'
-    ),
-);
 const PythonPackageList = lazyScreen(
   () =>
     import(
@@ -441,36 +405,6 @@ const routes: IRouteConfig[] = [
   {
     component: PythonPackageList,
     path: Paths.python.package.list,
-    plugin: 'python',
-  },
-  {
-    component: PythonRemoteDetail,
-    path: Paths.python.remote.detail,
-    plugin: 'python',
-  },
-  {
-    component: PythonRemoteEdit,
-    path: Paths.python.remote.edit,
-    plugin: 'python',
-  },
-  {
-    component: PythonRemoteList,
-    path: Paths.python.remote.list,
-    plugin: 'python',
-  },
-  {
-    component: PythonRepositoryDetail,
-    path: Paths.python.repository.detail,
-    plugin: 'python',
-  },
-  {
-    component: PythonRepositoryEdit,
-    path: Paths.python.repository.edit,
-    plugin: 'python',
-  },
-  {
-    component: PythonRepositoryList,
-    path: Paths.python.repository.list,
     plugin: 'python',
   },
   {

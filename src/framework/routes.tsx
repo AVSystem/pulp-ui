@@ -30,6 +30,10 @@ const DESCRIPTORS: Partial<
     import(/* webpackChunkName: "deb" */ 'src/descriptors/deb/descriptor'),
   rpm: () =>
     import(/* webpackChunkName: "rpm" */ 'src/descriptors/rpm/descriptor'),
+  python: () =>
+    import(
+      /* webpackChunkName: "python" */ 'src/descriptors/python/descriptor'
+    ),
 };
 
 // A screen drawn by generic code from a plugin's descriptor: the descriptor

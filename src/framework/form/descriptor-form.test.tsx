@@ -95,7 +95,7 @@ describe('Integration: DescriptorForm', { tags: ['integration'] }, () => {
         kind: 'choices',
         options: [
           { value: 'fast', label: msg`Fast` },
-          { value: 'slow', label: msg`Slow` },
+          { value: 'slow', label: msg`Streamed` },
         ],
       },
     ];
@@ -113,10 +113,10 @@ describe('Integration: DescriptorForm', { tags: ['integration'] }, () => {
 
     expect(screen.getByRole('textbox', { name: /Notes/ })).toHaveValue('a\nb');
     expect(screen.getByRole('checkbox', { name: 'Fast' })).not.toBeChecked();
-    expect(screen.getByRole('checkbox', { name: 'Slow' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Streamed' })).toBeChecked();
 
     await user.click(screen.getByRole('checkbox', { name: 'Fast' }));
-    await user.click(screen.getByRole('checkbox', { name: 'Slow' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Streamed' }));
 
     expect(changes).toEqual([
       ['types', ['fast', 'slow']],

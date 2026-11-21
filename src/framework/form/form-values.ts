@@ -40,6 +40,25 @@ export type FieldProblem = 'number' | 'whole' | 'min' | 'url';
 const text = (value: unknown): string =>
   typeof value === 'string' ? value : '';
 
+// The texts of a list the server sent, and none for anything else.
+const textsOf = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : [];
+
+// The values of a set of choices that are chosen, in the order of the options,
+// followed by any the options do not name: a value a later server adds is kept
+// and sent back as it was, never dropped by an edit that did not touch it.
+function chosenOf(field: FieldDef, value: unknown): string[] {
+  const chosen = textsOf(value);
+  const offered = (field.options ?? []).map((option) => option.value);
+
+  return [
+    ...offered.filter((option) => chosen.includes(option)),
+    ...chosen.filter((option) => !offered.includes(option)),
+  ];
+}
+
 // Whether the field is one the server keeps and never returns.
 export const isSecret = (field: FieldDef): boolean =>
   field.kind === 'secret' || field.secret === true;
@@ -81,6 +100,10 @@ function formValue(
       );
     case 'remote':
       return typeof value === 'string' && value !== '' ? value : null;
+    case 'lines':
+      return textsOf(value).join('\n');
+    case 'choices':
+      return chosenOf(field, value);
     default:
       return text(value);
   }
@@ -121,6 +144,15 @@ function requestValue(field: FieldDef, value: unknown): unknown {
       const digits = text(value).trim();
       return digits === '' ? (field.blankValue ?? null) : Number(digits);
     }
+    case 'lines':
+      // One item for each line that holds something: a blank line and the
+      // spaces around an item are not part of it.
+      return text(value)
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line !== '');
+    case 'choices':
+      return textsOf(value);
     case 'labels':
       return Object.fromEntries(
         (value as LabelRow[])
@@ -222,8 +254,8 @@ export function labelProblem(
 }
 
 // The body of a create that sends only what was filled in: a field left empty,
-// a number left blank, a secret nobody typed and labels with no rows are not
-// sent at all, so the server applies its own default for each and is never told
+// a number left blank, a secret nobody typed, labels with no rows and a list or
+// a set with no item are not sent at all, so the server applies its own default for each and is never told
 // that a username is the empty string. A box that is unticked and the number 0
 // are values and are sent.
 export function toFilledBody(
@@ -239,6 +271,9 @@ export function toFilledBody(
   return Object.fromEntries(
     Object.entries(body).filter(([, value]) => {
       if (value === null || value === '') {
+        return false;
+      }
+      if (Array.isArray(value) && value.length === 0) {
         return false;
       }
       return !(

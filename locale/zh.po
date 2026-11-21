@@ -714,6 +714,7 @@ msgstr "追加：仅添加新内容"
 #: src/containers/python-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "All"
 msgstr "所有"
@@ -727,6 +728,7 @@ msgstr "此角色下的所有关联权限都将被删除。"
 #~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "All projects"
 msgstr "所有项目"
 
@@ -751,14 +753,17 @@ msgstr "允许对一个任务的所有操作。"
 #~ msgstr "允许对一个任务调度的所有操作。"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow package substitution"
 msgstr "允许替换软件包"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow replacing an existing package with one that has the same filename but a different checksum. When off, any new repository version that would cause such a substitution is rejected, whether from sync, upload or modify."
 msgstr "允许用文件名相同但校验和不同的软件包替换现有软件包。关闭时，任何会导致此类替换的新仓库版本都会被拒绝，无论来自同步、上传还是修改。"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow same-filename packages with different contents"
 msgstr "允许文件名相同但内容不同的软件包"
 
@@ -767,6 +772,7 @@ msgid "Allow uploads to this distribution"
 msgstr "允许上传到此分发"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allowed"
 msgstr "允许"
 
@@ -1072,6 +1078,34 @@ msgstr "基本版本"
 #: src/components/ratings.tsx
 #~ msgid "Based on {0} surveys."
 #~ msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_dmg"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_dumb"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_egg"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_msi"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_rpm"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_wheel"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_wininst"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
@@ -1822,6 +1856,7 @@ msgstr "在软件仓库中没有发行版的内容对客户端无法进行同步
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "远程仓库中不存在的内容将从本地仓库中删除"
 
@@ -2533,6 +2568,7 @@ msgstr "详情"
 #: src/containers/python-remote/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
@@ -2860,6 +2896,7 @@ msgstr "电子邮件"
 #: src/containers/python-remote/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
@@ -3098,16 +3135,19 @@ msgid "Except for members of groups below."
 msgstr "以下组的成员除外。"
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excluded"
 msgstr "已排除"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excluded platforms"
 msgstr "已排除的平台"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excludes"
 msgstr "排除项"
 
@@ -3167,14 +3207,17 @@ msgstr "展开侧边栏"
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail on rejected packages"
 msgstr "软件包被拒绝时失败"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail the whole version"
 msgstr "使整个版本失败"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail the whole version if any package is rejected"
 msgstr "如果有任何软件包被拒绝，则使整个版本失败"
 
@@ -3546,6 +3589,10 @@ msgstr "空闲"
 msgid "Free text."
 msgstr ""
 
+#: src/descriptors/python/descriptor.tsx
+msgid "freebsd"
+msgstr ""
+
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
 #~ msgstr ""
@@ -3816,6 +3863,7 @@ msgstr "隐藏密码"
 #~ msgstr "隐藏签名"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions."
 msgstr "每个软件包要同步的最新版本数量，如果同步预发布版本，则包括预发布版本。留空则保留所有版本。"
 
@@ -3839,6 +3887,7 @@ msgstr "每个软件包保留的版本数量；较旧的版本在同步时会被
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "如果选中，远程仓库中不存在的所有内容都将从本地仓库中删除；否则，同步将添加缺失的内容。"
 
@@ -3957,15 +4006,18 @@ msgid "Include all dependencies when syncing a collection."
 msgstr "同步集合时包含所有依赖项。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Include pre-release versions"
 msgstr "包含预发布版本"
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Included"
 msgstr "已包含"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Includes"
 msgstr "包含项"
 
@@ -4023,6 +4075,7 @@ msgstr "信息"
 #~ msgstr "Install Version"
 
 #: src/containers/python-repository/tab-distributions.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Install with pip"
 msgstr "使用 pip 安装"
 
@@ -4267,6 +4320,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Latest versions kept per package"
 msgstr "每个软件包保留的最新版本数"
 
@@ -4340,6 +4394,10 @@ msgstr "限制请求的每秒总下载率。"
 #: src/components/namespace-form.tsx
 #~ msgid "Link URL"
 #~ msgstr "链接 URL"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "linux"
+msgstr ""
 
 #: src/components/collection-list.tsx
 #: src/containers/search/search.tsx
@@ -4426,6 +4484,10 @@ msgstr "登录"
 msgid "Logout"
 msgstr "退出"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "macos"
+msgstr ""
+
 #: src/menu.tsx
 msgid "Main"
 msgstr "主要内容"
@@ -4482,6 +4544,7 @@ msgstr "跟随系统"
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Mirror"
 msgstr "镜像"
 
@@ -5022,6 +5085,7 @@ msgstr "还没有用户"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5040,6 +5104,7 @@ msgstr "无"
 #~ msgstr "不是一个超级用户"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
 msgstr "不允许"
 
@@ -5119,6 +5184,7 @@ msgid "Not set"
 msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Not synced"
 msgstr "未同步"
 
@@ -5340,6 +5406,7 @@ msgid "Package name"
 msgstr "软件包名称"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package substitution"
 msgstr "软件包替换"
 
@@ -5350,10 +5417,12 @@ msgstr "软件包类型"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package types"
 msgstr "软件包类型"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "要同步的软件包类型。全部不勾选则同步所有类型。"
 
@@ -5524,6 +5593,7 @@ msgstr "无法显示组 \"{0}\" 的权限。"
 #~ msgstr "管道添加带有预定义的仓库标签代表：<0><1><2>None</2> - 用户需要修改此仓库中的内容的权限才能上传集合。</1><3><4>Approved</4> - 集合可以在批准后移到此仓库。直接在这个仓库中发布被禁用。</3><5><6>Staging</6> - 上传到这里的集合在可以出现在搜索页前需要被批准。有一个命名空间的上传权限的任何人都可以将集群上传到这个仓库。</5></0>"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Platforms whose packages should not be synced."
 msgstr "不应同步其软件包的平台。"
 
@@ -5594,6 +5664,7 @@ msgstr "插件未安装"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Pre-releases"
 msgstr "预发布版本"
 
@@ -5620,10 +5691,12 @@ msgid "Progress messages"
 msgstr "进度消息"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Projects to skip, one specifier per line, for example \"django<4\". Applied after includes."
 msgstr "要跳过的项目，每行一个规范，例如 \"django<4\"。在包含项之后应用。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 msgstr "要同步的项目，每行一个规范，例如 \"django>=4.2\"。留空则同步远程提供的所有项目。"
 
@@ -5638,6 +5711,7 @@ msgstr "受内容保护：面向客户的 URL"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Provenance"
 msgstr "来源证明"
 
@@ -6612,6 +6686,7 @@ msgstr "保留的软件包版本"
 #: src/containers/python-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Retained version count"
 msgstr "保留版本计数"
@@ -6919,6 +6994,10 @@ msgstr "保存"
 msgid "Saved changes to user \"{username}\"."
 msgstr "保存对用户 \"{username}\" 的更改。"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "Scan new repository versions for vulnerabilities after a sync"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
 msgstr "向后滚动"
@@ -6930,6 +7009,10 @@ msgstr "向前滚动"
 #: src/components/import-console.tsx
 #~ msgid "Scroll to end"
 #~ msgstr "滚动至末尾"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "sdist"
+msgstr ""
 
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -7402,6 +7485,7 @@ msgstr "单点登录。"
 #~ msgstr "大小：{size}"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Skip them"
 msgstr "跳过它们"
 
@@ -7414,6 +7498,10 @@ msgstr "跳到内容"
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Skipped"
 msgstr "已跳过"
+
+#: src/framework/form/descriptor-form.test.tsx
+#~ msgid "Slow"
+#~ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Some repository lists could not be searched."
@@ -7524,6 +7612,7 @@ msgid "Stored credentials"
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.test.tsx
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "流式"
@@ -7714,6 +7803,7 @@ msgid "Sync of {name}"
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Sync package provenance"
 msgstr "同步软件包来源证明"
 
@@ -7797,6 +7887,7 @@ msgstr "同步 udeb"
 #~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Synced"
 msgstr "已同步"
 
@@ -9313,6 +9404,10 @@ msgstr "查看、添加、删除和更改用户。"
 #~ msgid "View, and cancel any task."
 #~ msgstr "查看和取消任何任务。"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "Vulnerability scan"
+msgstr ""
+
 #: src/containers/task-management/task-list-view.tsx
 msgid "Waiting"
 msgstr "等待"
@@ -9362,10 +9457,12 @@ msgid "What you have entered on this page is kept."
 msgstr "您在此页面上输入的内容会被保留。"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
 msgstr "开启时，被拒绝的软件包会使整个仓库版本失败，且不会添加任何内容。关闭时，被拒绝的软件包将被跳过，其余软件包会被添加，被跳过的软件包会列在任务的进度报告中。"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "When packages are rejected"
 msgstr "软件包被拒绝时"
 
@@ -9374,12 +9471,18 @@ msgid "Whether the publications of this repository include SHA256SUMS files, whi
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
 msgstr "是否同时同步为软件包发布的来源证明。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Whether to include pre-release versions in the sync."
 msgstr "是否在同步中包含预发布版本。"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "Whether to scan the new repository version for vulnerabilities after a sync."
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -9411,6 +9514,10 @@ msgstr "以空格分隔的要同步的分发列表（也称为 suite），例如
 #: src/components/repair-task-modal.tsx
 msgid "Will verify that the checksum of all stored files matches what saved in the database. Otherwise only the existence of the files will be checked. Enabled by default."
 msgstr "将验证所有已存储文件的校验和是否与数据库中保存的一致。否则只检查文件是否存在。默认启用。"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "windows"
+msgstr ""
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #: src/containers/legacy-namespaces/legacy-namespace.tsx

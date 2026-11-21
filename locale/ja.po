@@ -714,6 +714,7 @@ msgstr "追加: 新しいコンテンツのみを追加"
 #: src/containers/python-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "All"
 msgstr "すべて"
@@ -727,6 +728,7 @@ msgstr "このロールに関連付けられているすべてのパーミッシ
 #~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "All projects"
 msgstr "すべてのプロジェクト"
 
@@ -751,14 +753,17 @@ msgstr "タスクのすべてのアクションを許可します。"
 #~ msgstr "taskschedule のすべてのアクションを許可します。"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow package substitution"
 msgstr "パッケージの置き換えを許可"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow replacing an existing package with one that has the same filename but a different checksum. When off, any new repository version that would cause such a substitution is rejected, whether from sync, upload or modify."
 msgstr "同じファイル名でチェックサムが異なる既存のパッケージを置き換えることを許可します。オフの場合、このような置き換えが発生する新しいリポジトリーバージョンは、同期、アップロード、変更のいずれによるものでも拒否されます。"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allow same-filename packages with different contents"
 msgstr "同じファイル名で内容が異なるパッケージを許可"
 
@@ -767,6 +772,7 @@ msgid "Allow uploads to this distribution"
 msgstr "このディストリビューションへのアップロードを許可"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Allowed"
 msgstr "許可"
 
@@ -1072,6 +1078,34 @@ msgstr "ベースバージョン"
 #: src/components/ratings.tsx
 #~ msgid "Based on {0} surveys."
 #~ msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_dmg"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_dumb"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_egg"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_msi"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_rpm"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_wheel"
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
+msgid "bdist_wininst"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
@@ -1822,6 +1856,7 @@ msgstr "ディストリビューションのないリポジトリーのコンテ
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "リモートリポジトリーに存在しないコンテンツは、ローカルリポジトリーから削除されます"
 
@@ -2533,6 +2568,7 @@ msgstr "詳細"
 #: src/containers/python-remote/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
@@ -2860,6 +2896,7 @@ msgstr "メール"
 #: src/containers/python-remote/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
@@ -3098,16 +3135,19 @@ msgid "Except for members of groups below."
 msgstr "以下のグループのメンバーを除きます。"
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excluded"
 msgstr "除外"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excluded platforms"
 msgstr "除外するプラットフォーム"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Excludes"
 msgstr "除外"
 
@@ -3167,14 +3207,17 @@ msgstr "サイドバーを展開"
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail on rejected packages"
 msgstr "パッケージが拒否された場合に失敗"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail the whole version"
 msgstr "バージョン全体を失敗にする"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Fail the whole version if any package is rejected"
 msgstr "パッケージが 1 つでも拒否された場合はバージョン全体を失敗にする"
 
@@ -3546,6 +3589,10 @@ msgstr "空き"
 msgid "Free text."
 msgstr ""
 
+#: src/descriptors/python/descriptor.tsx
+msgid "freebsd"
+msgstr ""
+
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Galaxy Importer"
 #~ msgstr ""
@@ -3816,6 +3863,7 @@ msgstr "パスワードを非表示"
 #~ msgstr "署名の非表示"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "How many of the newest versions of each package to sync, including pre-releases if those are synced. Leave blank to keep all versions."
 msgstr "各パッケージについて同期する最新バージョンの数。プレリリースが同期される場合はそれも含みます。空白のままにするとすべてのバージョンを保持します。"
 
@@ -3839,6 +3887,7 @@ msgstr "各パッケージについて保持するバージョンの数。古い
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "選択すると、リモートリポジトリーに存在しないコンテンツがすべてローカルリポジトリーから削除されます。選択しない場合、同期は不足しているコンテンツを追加します。"
 
@@ -3957,15 +4006,18 @@ msgid "Include all dependencies when syncing a collection."
 msgstr "コレクションを同期するときにすべての依存関係を含めます。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Include pre-release versions"
 msgstr "プレリリースバージョンを含める"
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Included"
 msgstr "含む"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Includes"
 msgstr "含む"
 
@@ -4023,6 +4075,7 @@ msgstr "情報"
 #~ msgstr "Install Version"
 
 #: src/containers/python-repository/tab-distributions.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Install with pip"
 msgstr "pip でインストール"
 
@@ -4267,6 +4320,7 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Latest versions kept per package"
 msgstr "パッケージごとに保持する最新バージョン数"
 
@@ -4340,6 +4394,10 @@ msgstr "1 秒あたりの要求の合計ダウンロード速度を制限しま�
 #: src/components/namespace-form.tsx
 #~ msgid "Link URL"
 #~ msgstr "リンク URL"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "linux"
+msgstr ""
 
 #: src/components/collection-list.tsx
 #: src/containers/search/search.tsx
@@ -4426,6 +4484,10 @@ msgstr "ログイン"
 msgid "Logout"
 msgstr "ログアウト"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "macos"
+msgstr ""
+
 #: src/menu.tsx
 msgid "Main"
 msgstr "メイン"
@@ -4482,6 +4544,7 @@ msgstr "システムに合わせる"
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Mirror"
 msgstr "ミラー"
 
@@ -5022,6 +5085,7 @@ msgstr "まだユーザーはありません"
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5040,6 +5104,7 @@ msgstr "なし"
 #~ msgstr "スーパーユーザーではありません"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
 msgstr "許可されていません"
 
@@ -5119,6 +5184,7 @@ msgid "Not set"
 msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Not synced"
 msgstr "未同期"
 
@@ -5340,6 +5406,7 @@ msgid "Package name"
 msgstr "パッケージ名"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package substitution"
 msgstr "パッケージの置き換え"
 
@@ -5350,10 +5417,12 @@ msgstr "パッケージタイプ"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package types"
 msgstr "パッケージタイプ"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "同期するパッケージタイプ。すべてチェックを外すと、すべてのタイプを同期します。"
 
@@ -5524,6 +5593,7 @@ msgstr "グループ \"{0}\" のパーミッションを表示できませんで
 #~ msgstr "Pipeline は、事前定義済みの意味を持つリポジトリーラベルを追加します:<0><1><2>なし</2> - ユーザーがコレクションをアップロードするには、このリポジトリーのコンテンツを変更するパーミッションが必要です。</1><3><4>承認済み</4> - コレクションは、承認後にここに移動できます。このリポジトリーへの直接公開は無効になっています。</3><5><6>ステージング</6> - ここにアップロードされたコレクションは、検索ページに表示される前に承認が必要です。名前空間のアップロードパーミッションを持つユーザーは誰でも、コレクションをこのリポジトリーにアップロードできます。</5></0>"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Platforms whose packages should not be synced."
 msgstr "パッケージを同期しないプラットフォーム。"
 
@@ -5594,6 +5664,7 @@ msgstr "プラグインがインストールされていません"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Pre-releases"
 msgstr "プレリリース"
 
@@ -5620,10 +5691,12 @@ msgid "Progress messages"
 msgstr "進捗メッセージ"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Projects to skip, one specifier per line, for example \"django<4\". Applied after includes."
 msgstr "スキップするプロジェクト。1 行に 1 つ指定子を記述します (例: \"django<4\")。含めるものの適用後に適用されます。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 msgstr "同期するプロジェクト。1 行に 1 つ指定子を記述します (例: \"django>=4.2\")。空のままにすると、リモートが提供するすべてのプロジェクトを同期します。"
 
@@ -5638,6 +5711,7 @@ msgstr "コンテンツガードで保護されています: 顧客向け URL"
 
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Provenance"
 msgstr "来歴"
 
@@ -6612,6 +6686,7 @@ msgstr "保持するパッケージバージョン"
 #: src/containers/python-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Retained version count"
 msgstr "保持バージョン数"
@@ -6919,6 +6994,10 @@ msgstr "保存"
 msgid "Saved changes to user \"{username}\"."
 msgstr "ユーザー \"{username}\" への変更を保存しました。"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "Scan new repository versions for vulnerabilities after a sync"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Scroll back"
 msgstr "前へスクロール"
@@ -6930,6 +7009,10 @@ msgstr "次へスクロール"
 #: src/components/import-console.tsx
 #~ msgid "Scroll to end"
 #~ msgstr "最後までスクロール"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "sdist"
+msgstr ""
 
 #: src/components/compound-filter.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -7402,6 +7485,7 @@ msgstr "シングルサインオン URL。"
 #~ msgstr "サイズ: {size}"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Skip them"
 msgstr "スキップする"
 
@@ -7414,6 +7498,10 @@ msgstr "コンテンツへスキップ"
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Skipped"
 msgstr "スキップ済み"
+
+#: src/framework/form/descriptor-form.test.tsx
+#~ msgid "Slow"
+#~ msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "Some repository lists could not be searched."
@@ -7524,6 +7612,7 @@ msgid "Stored credentials"
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.test.tsx
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "ストリーミング"
@@ -7714,6 +7803,7 @@ msgid "Sync of {name}"
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Sync package provenance"
 msgstr "パッケージの来歴の同期"
 
@@ -7797,6 +7887,7 @@ msgstr "udeb の同期"
 #~ msgstr ""
 
 #: src/containers/python-remote/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Synced"
 msgstr "同期済み"
 
@@ -9313,6 +9404,10 @@ msgstr "ユーザーを表示、追加、削除、および変更します。"
 #~ msgid "View, and cancel any task."
 #~ msgstr "タスクを表示およびキャンセルします。"
 
+#: src/descriptors/python/descriptor.tsx
+msgid "Vulnerability scan"
+msgstr ""
+
 #: src/containers/task-management/task-list-view.tsx
 msgid "Waiting"
 msgstr "待機中"
@@ -9362,10 +9457,12 @@ msgid "What you have entered on this page is kept."
 msgstr "このページに入力した内容は保持されます。"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "When on, a rejected package fails the whole repository version and nothing is added. When off, rejected packages are skipped, the rest are added, and the skipped ones are listed in the task's progress report."
 msgstr "オンの場合、拒否されたパッケージが 1 つでもあるとリポジトリーバージョン全体が失敗し、何も追加されません。オフの場合、拒否されたパッケージはスキップされ、残りが追加され、スキップされたものはタスクの進行状況レポートに一覧表示されます。"
 
 #: src/containers/python-repository/tab-details.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "When packages are rejected"
 msgstr "パッケージが拒否された場合"
 
@@ -9374,12 +9471,18 @@ msgid "Whether the publications of this repository include SHA256SUMS files, whi
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
 msgstr "パッケージ向けに公開された来歴証明も同期するかどうか。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Whether to include pre-release versions in the sync."
 msgstr "同期にプレリリースバージョンを含めるかどうか。"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "Whether to scan the new repository version for vulnerabilities after a sync."
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -9411,6 +9514,10 @@ msgstr "同期するディストリビューション (スイートとも呼ば�
 #: src/components/repair-task-modal.tsx
 msgid "Will verify that the checksum of all stored files matches what saved in the database. Otherwise only the existence of the files will be checked. Enabled by default."
 msgstr "保存されているすべてのファイルのチェックサムがデータベースに保存された値と一致することを検証します。オフの場合は、ファイルの存在のみを確認します。既定で有効です。"
+
+#: src/descriptors/python/descriptor.tsx
+msgid "windows"
+msgstr ""
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #: src/containers/legacy-namespaces/legacy-namespace.tsx
