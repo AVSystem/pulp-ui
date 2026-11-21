@@ -1,5 +1,4 @@
 import type { GenericDistribution } from './common';
-import { PulpAPI } from './pulp';
 
 /**
  * Container Distribution Type.
@@ -37,8 +36,6 @@ interface ContainerPullThroughDistributionType extends Omit<
   private?: boolean;
   readonly pulp_domain?: string;
 }
-
-const base = new PulpAPI();
 
 export const ContainerDistributionAPI = {
   url: (distro_data) => distro_data.registry_path,
