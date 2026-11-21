@@ -328,6 +328,45 @@ describe('Integration: useObjectPermissions', { tags: ['integration'] }, () => {
     expect(latest.can(repositoryHref(1004), SYNC)).toBe(true);
   });
 
+  it('is loading, not ready, while an index that was read once is read again', async () => {
+    const rows = Array.from({ length: 1005 }, (_, id) =>
+      roleAssignment(OWNER, repositoryHref(id)),
+    );
+    serveAccount({ own: rows });
+    let hold = false;
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(`*${API}/users/7/roles/`, async ({ request }) => {
+        if (
+          hold &&
+          new URL(request.url).searchParams.get('offset') === '1000'
+        ) {
+          await gate;
+        }
+        return undefined;
+      }),
+    );
+
+    const { queryClient } = renderWithProviders(<Probe />, { signedIn: true });
+    await state('ready');
+
+    hold = true;
+    void queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey.includes('object-index'),
+    });
+
+    await waitFor(() => expect(latest.state).toBe('loading'));
+    // the second page has not arrived, so the answer must not claim to be whole
+    expect(latest.can(repositoryHref(1004), SYNC)).toBe(false);
+
+    release();
+    await state('ready');
+    expect(latest.can(repositoryHref(1004), SYNC)).toBe(true);
+  });
+
   it('keeps at most two pages of one list in flight', async () => {
     const rows = Array.from({ length: 6500 }, (_, id) =>
       roleAssignment(OWNER, repositoryHref(id)),
