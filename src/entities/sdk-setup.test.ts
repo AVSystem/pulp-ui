@@ -1,4 +1,5 @@
 import { loginRead } from '@pulp-ui/sdk/core/login';
+import { rolesList } from '@pulp-ui/sdk/core/roles';
 import { statusRead } from '@pulp-ui/sdk/core/status';
 import { tasksDelete, tasksRead } from '@pulp-ui/sdk/core/tasks';
 import { HttpResponse, http } from 'msw';
@@ -242,6 +243,19 @@ describe('the sdk and the session', () => {
     );
     return { arrived, release };
   }
+
+  it('asks who is signed in nothing for a refused read of the roles list, and leaves the refusal to its caller', async () => {
+    setSignedIn(true);
+    refuse('*/pulp/api/v3/roles/', 403, 'Forbidden here.');
+    const logins = recordHits('*/pulp/api/v3/login/');
+
+    const error = await rolesList({ fields: ['name'] }).catch((e) => e);
+
+    expect(requestErrorStatus(error)).toBe(403);
+    expect(isSessionEnd(error)).toBe(false);
+    expect(logins).toHaveLength(0);
+    expect(getSnapshot().ended).toBe(false);
+  });
 
   it('ignores the 401 of a call sent before the session was resumed', async () => {
     setSignedIn(true);
