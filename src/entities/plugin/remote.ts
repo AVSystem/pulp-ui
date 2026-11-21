@@ -55,6 +55,15 @@ export interface RemoteApi<TListParams, TCreate, TUpdate> {
   ) => Promise<unknown>;
 }
 
+// What an edit sends: the fields the user changed. A generic screen builds it
+// from the descriptor's fields, so it is not typed by plugin; the server checks
+// every field.
+export type RemoteChanges = Record<string, unknown>;
+
+// What a create sends: the name, the URL and the fields the form filled. As
+// with an edit, the server checks every field.
+export type RemoteCreate = { name: string; url: string } & RemoteChanges;
+
 export interface RemoteEntity<Row, TCreate, TUpdate> {
   // The plugin and the object, which key every cached read:
   // ['pulp', app, object, ...].

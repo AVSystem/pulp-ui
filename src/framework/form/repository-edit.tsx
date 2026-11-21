@@ -243,7 +243,7 @@ const RepositoryEditScreen = ({
       <FormPermissionGate
         plugin={plugin}
         repository={repository}
-        permission='change'
+        permission={(permissions) => permissions.repository.change}
         title={repositoryName}
         keep={edit !== null}
       >

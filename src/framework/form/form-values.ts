@@ -1,3 +1,4 @@
+import { validateURLHelper } from 'src/utilities/validate-url-helper';
 import type { FieldDef } from '../descriptor';
 import { labelKeyProblem, labelValueProblem } from '../labels/label-rules';
 
@@ -15,17 +16,57 @@ export interface LabelRow {
   value: string;
 }
 
+// A secret field as the form holds it. The server never returns a secret, only
+// whether one is stored, so the form holds that, whether the user pressed Clear,
+// and what the user typed. Nothing the server stored is ever in the form.
+export interface SecretValue {
+  // A value is stored on the server (from the remote's hidden fields).
+  isSet: boolean;
+  // The user asked for the stored value to be removed.
+  cleared: boolean;
+  // What the user typed; empty when nothing was.
+  text: string;
+}
+
 // A label key or value the server would refuse, or a key used twice (the
 // second would silently replace the first).
 export type LabelProblem = 'empty' | 'characters' | 'parentheses' | 'duplicate';
 
+// A value of a field the server would refuse, or one the form cannot turn into
+// a request: a number that is not a number, a whole number with a fraction,
+// a number under the field's minimum, a URL that is not http or https.
+export type FieldProblem = 'number' | 'whole' | 'min' | 'url';
+
 const text = (value: unknown): string =>
   typeof value === 'string' ? value : '';
 
+// Whether the field is one the server keeps and never returns.
+export const isSecret = (field: FieldDef): boolean =>
+  field.kind === 'secret' || field.secret === true;
+
 // What a form holds for a field of the object as it was read.
-function formValue(field: FieldDef, value: unknown): unknown {
+function formValue(
+  field: FieldDef,
+  value: unknown,
+  source: Record<string, unknown>,
+): unknown {
+  if (isSecret(field)) {
+    const hidden = Array.isArray(source['hidden_fields'])
+      ? (source['hidden_fields'] as { name?: unknown; is_set?: unknown }[])
+      : [];
+    const secret: SecretValue = {
+      isSet: hidden.some(
+        ({ name, is_set }) => name === field.name && is_set === true,
+      ),
+      cleared: false,
+      text: '',
+    };
+    return secret;
+  }
+
   switch (field.kind) {
     case 'integer':
+    case 'decimal':
       return typeof value === 'number' ? String(value) : '';
     case 'boolean':
       return value === true;
@@ -49,7 +90,10 @@ export function toForm(
   source: Record<string, unknown>,
 ): FormValues {
   return Object.fromEntries(
-    fields.map((field) => [field.name, formValue(field, source[field.name])]),
+    fields.map((field) => [
+      field.name,
+      formValue(field, source[field.name], source),
+    ]),
   );
 }
 
@@ -59,8 +103,19 @@ const isBlank = ({ key, value }: LabelRow) => key === '' && value === '';
 // What a request sends for a form value. An empty text stays empty here: the
 // comparison with the stored object turns it into null where that is a change.
 function requestValue(field: FieldDef, value: unknown): unknown {
+  if (isSecret(field)) {
+    // A secret is sent only when something was typed or the stored value was
+    // cleared; anything else says nothing about it.
+    const { text: typed, cleared } = value as SecretValue;
+    if (typed !== '') {
+      return typed;
+    }
+    return cleared ? null : undefined;
+  }
+
   switch (field.kind) {
-    case 'integer': {
+    case 'integer':
+    case 'decimal': {
       const digits = text(value).trim();
       return digits === '' ? null : Number(digits);
     }
@@ -93,7 +148,8 @@ export function changedNames(
     .map(({ name }) => name);
 }
 
-// The request values of the named fields.
+// The request values of the named fields. A secret nobody typed into or cleared
+// has no request value and is left out.
 export function toRequest(
   fields: readonly FieldDef[],
   values: FormValues,
@@ -102,7 +158,11 @@ export function toRequest(
   return Object.fromEntries(
     fields
       .filter(({ name }) => names.includes(name))
-      .map((field) => [field.name, requestValue(field, values[field.name])]),
+      .map((field): [string, unknown] => [
+        field.name,
+        requestValue(field, values[field.name]),
+      ])
+      .filter(([, value]) => value !== undefined),
   );
 }
 
@@ -112,7 +172,7 @@ const TEXT_KINDS: readonly FieldDef['kind'][] = [
   'text',
   'textarea',
   'url',
-  'secret',
+  'certificate',
   'select',
 ];
 
@@ -159,6 +219,40 @@ export function labelProblem(
     : null;
 }
 
+// What is wrong with the value of a field, or null when nothing is. Only a
+// field that declares a minimum has its numbers checked (every other number is
+// left to the server), and a URL is checked when something was typed.
+export function fieldProblem(
+  field: FieldDef,
+  value: unknown,
+): FieldProblem | null {
+  if (field.kind === 'url') {
+    const url = text(value).trim();
+    return url !== '' && validateURLHelper(undefined, url).variant === 'error'
+      ? 'url'
+      : null;
+  }
+
+  if (
+    field.min === undefined ||
+    (field.kind !== 'integer' && field.kind !== 'decimal')
+  ) {
+    return null;
+  }
+  const digits = text(value).trim();
+  if (digits === '') {
+    return null;
+  }
+  const number = Number(digits);
+  if (Number.isNaN(number)) {
+    return 'number';
+  }
+  if (field.kind === 'integer' && !Number.isInteger(number)) {
+    return 'whole';
+  }
+  return number < field.min ? 'min' : null;
+}
+
 // Whether a value of the form is one the server would refuse, so the form does
 // not send what it knows to fail.
 export function hasProblems(
@@ -166,11 +260,12 @@ export function hasProblems(
   values: FormValues,
 ): boolean {
   return fields.some(
-    ({ kind, name }) =>
-      kind === 'labels' &&
-      (values[name] as LabelRow[]).some(
-        (_row, index) =>
-          labelProblem(values[name] as LabelRow[], index) !== null,
-      ),
+    (field) =>
+      fieldProblem(field, values[field.name]) !== null ||
+      (field.kind === 'labels' &&
+        (values[field.name] as LabelRow[]).some(
+          (_row, index) =>
+            labelProblem(values[field.name] as LabelRow[], index) !== null,
+        )),
   );
 }

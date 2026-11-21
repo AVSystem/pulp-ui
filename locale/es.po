@@ -395,11 +395,17 @@ msgstr ""
 msgid "A label value cannot contain parentheses."
 msgstr ""
 
+#: src/framework/form/remote-fields.ts
+msgid "A PEM encoded CA certificate used to check the certificate of the server."
+msgstr ""
+
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "A PEM encoded client certificate used for authentication."
 msgstr "Un certificado de cliente codificado en PEM utilizado para la autenticación."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "A PEM encoded private key used for authentication."
 msgstr "Una clave privada codificada en PEM utilizada para la autenticación."
 
@@ -430,6 +436,7 @@ msgid "A value may not contain parentheses."
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "A whole number. Leave empty to use the server default."
 msgstr "Un número entero. Déjelo vacío para usar el valor predeterminado del servidor."
 
@@ -1090,6 +1097,7 @@ msgstr "Los roles incorporados no pueden editarse."
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "CA certificate"
 msgstr "Certificado de CA"
 
@@ -1113,6 +1121,7 @@ msgstr "Certificado de CA"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Cancel"
@@ -1311,9 +1320,14 @@ msgstr "Tareas para niños"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/typeahead.tsx
+#: src/framework/form/secret-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Clear"
 msgstr "Borrar"
+
+#: src/framework/form/secret-field.tsx
+msgid "Clear {label}"
+msgstr ""
 
 #: src/components/applied-filters.tsx
 #: src/components/empty-state-filter.tsx
@@ -1343,11 +1357,13 @@ msgstr "Configuración CLI"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Client certificate"
 msgstr "Certificado de cliente"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "Clave de cliente"
 
@@ -2614,6 +2630,10 @@ msgstr "Finalizado"
 msgid "Download {filename}"
 msgstr "Descargar {filename}"
 
+#: src/framework/form/certificate-field.tsx
+msgid "Download {label}"
+msgstr ""
+
 #: src/actions/ansible-remote-download-ca.tsx
 msgid "Download CA certificate"
 msgstr "Descargar certificado CA"
@@ -2641,6 +2661,7 @@ msgstr "Descargar el archivo de certificación del cliente"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Download concurrency"
 msgstr "Descargar la concurrencia"
 
@@ -2670,6 +2691,7 @@ msgstr "Descargar solo colecciones firmadas"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "Política de descarga"
@@ -2743,6 +2765,7 @@ msgstr ""
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
@@ -2836,6 +2859,11 @@ msgstr "Correo electrónico"
 msgid "Enabled"
 msgstr "Habilitado"
 
+#. placeholder {0}: field.min
+#: src/framework/form/descriptor-form.tsx
+msgid "Enter {0} or more."
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "Enter a base path."
@@ -2847,6 +2875,14 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Enter a label key."
+msgstr ""
+
+#: src/framework/form/descriptor-form.tsx
+msgid "Enter a number."
+msgstr ""
+
+#: src/framework/form/descriptor-form.tsx
+msgid "Enter a whole number."
 msgstr ""
 
 #: src/components/render-plugin-doc.tsx
@@ -3761,6 +3797,7 @@ msgid "hidden value"
 msgstr "valor oculto"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.tsx
 msgid "Hide advanced options"
 msgstr "Ocultar las opciones avanzadas"
 
@@ -3781,6 +3818,7 @@ msgid "How many of the newest versions of each package to sync, including pre-re
 msgstr "Cuántas de las versiones más recientes de cada paquete se sincronizan, incluidas las preversiones si se sincronizan. Déjelo en blanco para conservar todas las versiones."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "How many times a failed download is tried again before the sync gives up."
 msgstr "Cuántas veces se reintenta una descarga fallida antes de que la sincronización se rinda."
 
@@ -3801,6 +3839,7 @@ msgid "If selected, all content that is not present in the remote repository wil
 msgstr "Si se selecciona, todo el contenido que no esté en el repositorio remoto se eliminará del repositorio local; de lo contrario, la sincronización añadirá el contenido que falte."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "If selected, TLS peer validation must be performed."
 msgstr "Si se selecciona, se debe realizar la validación de pares TLS."
 
@@ -3851,6 +3890,7 @@ msgid "Immediate"
 msgstr "Inmediata"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it."
 msgstr "Inmediata descarga todo el contenido durante la sincronización y es necesaria cuando el remoto no seguirá accesible. Bajo demanda sincroniza solo los metadatos y descarga cada elemento la primera vez que un cliente lo solicita. Transmitida pasa el contenido a los clientes sin almacenarlo."
 
@@ -4018,6 +4058,7 @@ msgstr "Se sincronizarán los paquetes del instalador"
 #: src/containers/user-management/user-detail.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
 msgstr "Permisos insuficientes"
@@ -4041,6 +4082,10 @@ msgstr "Permisos insuficientes"
 #: src/utilities/login-error.ts
 msgid "Invalid login credentials."
 msgstr "Credenciales de acceso no válidas."
+
+#: src/framework/form/secret-field.tsx
+msgid "Is set"
+msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "Issue tracker"
@@ -4078,8 +4123,16 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
+#: src/framework/form/secret-field.tsx
+msgid "Keep it"
+msgstr ""
+
 #: src/framework/sync/progress-panel.tsx
 msgid "Keep running"
+msgstr ""
+
+#: src/framework/form/secret-field.tsx
+msgid "Keep the stored {label}"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
@@ -4136,11 +4189,16 @@ msgstr ""
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
+#: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 #: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "Etiquetas"
+
+#: src/framework/form/remote-fields.ts
+msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find remotes."
+msgstr ""
 
 #: src/framework/form/repository-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
@@ -4218,6 +4276,10 @@ msgstr "Últimas versiones conservadas por paquete"
 #~ msgid "Learn more about Ansible Wisdom."
 #~ msgstr "Learn more about Ansible Wisdom."
 
+#: src/framework/form/remote-fields.ts
+msgid "Leave empty to use the default of 10 connections."
+msgstr ""
+
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Legacy"
 #~ msgstr "Heredado"
@@ -4261,6 +4323,7 @@ msgid "Light"
 msgstr "Claro"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Limits total download rate in requests per second."
 msgstr "Limita la velocidad total de descarga en solicitudes por segundo."
 
@@ -4497,6 +4560,7 @@ msgstr "Mi perfil"
 #: src/containers/task-management/task-detail.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 msgid "Name"
 msgstr "Nombre"
@@ -5080,6 +5144,10 @@ msgstr ""
 msgid "Nothing changed in distribution {name}."
 msgstr "No cambió nada en la distribución {name}."
 
+#: src/framework/form/remote-form.tsx
+msgid "Nothing changed in remote {remoteName}."
+msgstr ""
+
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
 msgstr "No cambió nada en el repositorio {name}."
@@ -5118,6 +5186,7 @@ msgid "On demand"
 msgstr "Bajo demanda"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it."
 msgstr "Bajo demanda obtiene el contenido cuando un cliente lo solicita. Inmediata lo descarga todo al sincronizar. Transmitida pasa el contenido sin almacenarlo."
 
@@ -5352,6 +5421,7 @@ msgstr "Tarea principal"
 #: src/components/remote-form.tsx
 #: src/components/user-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 #: src/session/reauth-dialog.tsx
 msgid "Password"
 msgstr "Contraseña"
@@ -5594,6 +5664,7 @@ msgstr "Procedencia"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Proxy password"
 msgstr "Contraseña del proxy"
 
@@ -5604,11 +5675,13 @@ msgstr "Contraseña del proxy"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Proxy URL"
 msgstr "URL del proxy"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Proxy username"
 msgstr "Nombre de usuario del proxy"
 
@@ -5949,6 +6022,7 @@ msgstr "Subida de paquetes de Python"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Rate limit"
 msgstr "Límite de tarifa"
 
@@ -6064,6 +6138,10 @@ msgstr "Recargar"
 msgid "Remote"
 msgstr "Remoto"
 
+#: src/framework/form/remote-form.tsx
+msgid "Remote \"{remoteName}\" could not be updated"
+msgstr ""
+
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
@@ -6075,6 +6153,7 @@ msgstr "Remoto"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Remote could not be displayed."
 msgstr "No se ha podido visualizar el remoto."
 
@@ -6137,6 +6216,7 @@ msgstr "Registros remotos"
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
@@ -6595,6 +6675,7 @@ msgid "Retained version count"
 msgstr "Recuento de versiones retenidas"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Retries"
 msgstr "Reintentos"
 
@@ -6864,6 +6945,7 @@ msgstr "Ejecutándose"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Save"
@@ -6949,6 +7031,7 @@ msgid "Searching repositories..."
 msgstr "Buscando repositorios..."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Seconds. Leave empty to use the server default."
 msgstr "Segundos. Déjelo vacío para usar el valor predeterminado del servidor."
 
@@ -7107,6 +7190,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.tsx
 msgid "Show advanced options"
 msgstr "Mostrar opciones avanzadas"
 
@@ -8071,6 +8155,7 @@ msgid "The outcome of the update of distribution {name} is unknown, because the 
 msgstr "Se desconoce el resultado de la actualización de la distribución {name}, porque no se pudo leer el estado de la tarea. Compruebe la tarea."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "The password to be used for authentication when syncing."
 msgstr "Contraseña que se utilizará para la autenticación al sincronizar."
 
@@ -8211,6 +8296,14 @@ msgstr "La respuesta de estado no enumera ningún plugin."
 msgid "The status of the task could not be read."
 msgstr "No se pudo leer el estado de la tarea."
 
+#: src/framework/form/secret-field.tsx
+msgid "The stored value is removed when you save."
+msgstr ""
+
+#: src/framework/form/secret-field.tsx
+msgid "The stored value is replaced when you save."
+msgstr ""
+
 #: src/containers/token/token-insights.tsx
 #~ msgid "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
 #~ msgstr "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
@@ -8219,15 +8312,22 @@ msgstr "No se pudo leer el estado de la tarea."
 msgid "The update of distribution {name} is still running."
 msgstr "La actualización de la distribución {name} sigue en ejecución."
 
+#: src/framework/form/descriptor-form.tsx
 #: src/utilities/validate-url-helper.ts
 msgid "The URL needs to be in 'http(s)://' format."
 msgstr "La URL debe estar en el formato 'http(s)://'."
 
+#: src/framework/form/remote-fields.ts
+msgid "The URL of a proxy the downloads go through, for example http://proxy.example:3128."
+msgstr ""
+
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "The URL of an external content source."
 msgstr "La URL de una fuente de contenido externa."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "The username to be used for authentication when syncing."
 msgstr "El nombre de usuario que se utilizará para la autenticación al sincronizar."
 
@@ -8457,6 +8557,7 @@ msgstr "Esto revocará todos los permisos asociados con este rol del grupo."
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "TLS validation"
 msgstr "Validación TLS"
 
@@ -8499,14 +8600,17 @@ msgid "Total"
 msgstr "Total"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Total number of simultaneous connections."
 msgstr "Número total de conexiones simultáneas."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Total time in seconds allowed for one download, including connecting and reading. Decimals such as 2.5 are accepted."
 msgstr "Tiempo total en segundos permitido para una descarga, incluidos la conexión y la lectura. Se aceptan decimales como 2.5."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Total timeout"
 msgstr "Tiempo de espera total"
 
@@ -8614,6 +8718,10 @@ msgstr "Actualizar el remoto de colecciones"
 msgid "Update started for remote {0}"
 msgstr "Se ha iniciado la actualización del remoto {0}"
 
+#: src/framework/form/remote-form.tsx
+msgid "Update started for remote {remoteName}"
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-repository/edit.tsx
@@ -8644,6 +8752,10 @@ msgstr ""
 #: src/actions/python-distribution-edit.tsx
 msgid "Updated distribution {name}"
 msgstr "Distribución {name} actualizada"
+
+#: src/framework/form/remote-form.tsx
+msgid "Updated remote {remoteName}"
+msgstr ""
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -8725,6 +8837,7 @@ msgstr "Subidas"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
@@ -8971,6 +9084,7 @@ msgstr "Lista de usuarios"
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 #: src/session/reauth-dialog.tsx
 msgid "Username"
 msgstr "Usuario"
@@ -9017,6 +9131,10 @@ msgstr "Los usuarios aparecerán una vez añadidos a este grupo"
 #: src/containers/user-management/user-list.tsx
 msgid "Users will appear once created"
 msgstr "Los usuarios aparecerán una vez creados"
+
+#: src/framework/form/remote-fields.ts
+msgid "Validate the TLS certificate of the server"
+msgstr ""
 
 #: src/components/repository-badge.tsx
 #~ msgid "Validated"
