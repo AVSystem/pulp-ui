@@ -246,6 +246,8 @@ interface LayoutProps {
   filters: ReactNode;
   // The button that adds an object, or undefined when the user may not.
   addButton: ReactNode;
+  // The bulk actions, as items of the toolbar; nothing when the user has none.
+  bulk?: ReactNode;
   params: ListParams;
   updateParams: (next: object) => void;
   count: number;
@@ -266,6 +268,7 @@ interface LayoutProps {
 export const ListLayout = ({
   filters,
   addButton,
+  bulk,
   params,
   updateParams,
   count,
@@ -285,6 +288,7 @@ export const ListLayout = ({
                 <ToolbarItem>{addButton}</ToolbarItem>
               </ToolbarGroup>
             ) : null}
+            {bulk ? <ToolbarGroup>{bulk}</ToolbarGroup> : null}
           </ToolbarContent>
         </Toolbar>
         <PulpPagination

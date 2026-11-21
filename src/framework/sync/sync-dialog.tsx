@@ -40,7 +40,7 @@ interface Props {
 
 // What every option holds before the user touches it, from the repository,
 // with the options the server would refuse held at the value that is allowed.
-function initialValues(
+export function initialValues(
   options: readonly SyncOptionDef<RepositoryBase>[],
   repository: RepositoryBase,
 ): Record<string, unknown> {
@@ -208,7 +208,10 @@ export const SyncDialog = ({
 
 interface OptionFieldProps {
   option: SyncOptionDef<RepositoryBase>;
-  repository: RepositoryBase;
+  // The repository the option is held for. A dialog that syncs several
+  // repositories passes none and says in `hint` what is held per repository.
+  repository?: RepositoryBase;
+  hint?: string;
   value: unknown;
   isDisabled: boolean;
   onChange: (value: unknown) => void;
@@ -217,14 +220,15 @@ interface OptionFieldProps {
 // One option of the dialog: a switch, or a choice among the plugin's values. An
 // option the server would refuse for this repository shows the value that is
 // allowed, cannot be changed, and says why.
-const OptionField = ({
+export const OptionField = ({
   option,
   repository,
+  hint,
   value,
   isDisabled,
   onChange,
 }: OptionFieldProps) => {
-  const fixed = option.fixed?.(repository) ?? null;
+  const fixed = repository ? (option.fixed?.(repository) ?? null) : null;
   const id = useId();
   const shown = fixed ? fixed.value : value;
 
@@ -261,6 +265,7 @@ const OptionField = ({
         />
       )}
       {fixed ? <FormFieldHelper>{fixed.reason}</FormFieldHelper> : null}
+      {hint ? <FormFieldHelper>{hint}</FormFieldHelper> : null}
     </FormGroup>
   );
 };

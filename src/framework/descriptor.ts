@@ -216,6 +216,11 @@ export interface SyncDef<Row> {
   taskName: string;
   // The options the sync dialog offers beyond the remote, in order.
   options?: SyncOptionDef<Row>[];
+  // The fields of a repository the options read to decide their initial value
+  // or whether they are held (an option that depends on a field of the
+  // repository names it here). A list asks the server for them, because it
+  // reads only the fields it shows.
+  fields?: string[];
 }
 
 // The command a distribution's address is turned into for the plugin's own

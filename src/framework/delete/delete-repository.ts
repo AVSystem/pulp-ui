@@ -1,6 +1,10 @@
 import type { DistributionBase } from 'src/entities/plugin/distribution';
 import { distributionsOfRepository } from 'src/entities/plugin/distribution';
-import type { PublicationBase } from 'src/entities/plugin/publication';
+import {
+  type PublicationBase,
+  type PublicationEntity,
+  repositoryOfPublication,
+} from 'src/entities/plugin/publication';
 import type { Options } from 'src/entities/plugin/request';
 import { isSessionEnd } from 'src/utilities/request-error';
 import { BULK_CONCURRENCY, runBounded } from '../bulk/run-bounded';
@@ -85,6 +89,11 @@ export interface DeleteRepositoryParams {
   // the distributions the user was shown and confirmed; exactly these are
   // deleted, and only while they still serve the repository
   shown: { name: string; pulp_href: string }[];
+  // The distributions that serve the repository now, read once by a caller
+  // that deletes many repositories in a row (see readServingSnapshot). When
+  // given, nothing is read per repository: reading the whole index for each of
+  // five hundred repositories would cost more than the deletes themselves.
+  serving?: readonly DistributionBase[];
   // Ends the waits for the tasks, for a screen that stops waiting on purpose.
   // Leaving the screen is not such a case: the delete goes on and reports
   // what became of it.
@@ -108,9 +117,13 @@ type DistributionOutcome =
 async function servingNow({
   distribution,
   publication,
+  serving,
   target,
   signal,
 }: DeleteRepositoryParams): Promise<DistributionBase[]> {
+  if (serving) {
+    return [...serving];
+  }
   if (!distribution) {
     return [];
   }
@@ -125,6 +138,48 @@ async function servingNow({
     );
 
     return distributionsOfRepository(rows, known, target.pulp_href);
+  } catch (error) {
+    throw new DeleteNotStarted(error);
+  }
+}
+
+// Reads every distribution of the plugin once, with the publications the bound
+// ones point at, and answers which of them serve a repository. A run that
+// deletes many repositories takes it after the user confirmed and hands each
+// repository its own part, so the delete of each still compares what serves it
+// with what the user was shown. It rejects with DeleteNotStarted when the
+// listing fails, before anything was sent.
+export async function readServingSnapshot({
+  distribution,
+  publication,
+  signal,
+}: {
+  distribution?: { index: (options?: Options) => Promise<DistributionBase[]> };
+  publication?: {
+    entity: Pick<PublicationEntity<PublicationBase>, 'chunks' | 'ofHrefs'>;
+  };
+  signal?: AbortSignal;
+}): Promise<(repository: string) => DistributionBase[]> {
+  if (!distribution) {
+    return () => [];
+  }
+  try {
+    const rows = await distribution.index({ signal });
+    const known = new Map<string, string | null>();
+    if (publication) {
+      const bound = rows.flatMap((row) =>
+        row.publication ? [row.publication] : [],
+      );
+      for (const chunk of publication.entity.chunks(bound)) {
+        for (const found of await publication.entity.ofHrefs(chunk, {
+          signal,
+        })) {
+          known.set(found.pulp_href, repositoryOfPublication(found));
+        }
+      }
+    }
+
+    return (repository) => distributionsOfRepository(rows, known, repository);
   } catch (error) {
     throw new DeleteNotStarted(error);
   }

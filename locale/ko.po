@@ -59,6 +59,11 @@ msgstr "{0, plural, =0 {결과 없음} one {결과 #개} other {결과 #개}}"
 msgid "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
 msgstr "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
 
+#. placeholder {0}: row.name
+#: src/framework/bulk/repository-bulk.tsx
+msgid "{0} (protected by a content guard)"
+msgstr ""
+
 #. placeholder {0}: namespace.name
 #: src/components/partner-header.tsx
 #~ msgid "{0} logo"
@@ -105,6 +110,10 @@ msgstr "{alertType} 알림:"
 msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
 msgstr "{count, plural, one {지난 24시간 동안 실패한 작업 #개} other {지난 24시간 동안 실패한 작업 #개}}"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "{count, plural, one {# row selected} other {# rows selected}}"
+msgstr ""
+
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# running task} other {# running tasks}}"
 msgstr "{count, plural, one {실행 중인 작업 #개} other {실행 중인 작업 #개}}"
@@ -125,9 +134,29 @@ msgstr "{count, plural, one {실행 중인 작업 #개} other {실행 중인 작
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} failed"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{count} more"
 msgstr "{count} 기타 정보"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} not carried out because the session ended"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} skipped"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} started"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} succeeded"
+msgstr ""
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (browser default)"
@@ -409,6 +438,14 @@ msgstr "인증에 사용되는 PEM 인코딩 클라이언트 인증서입니다.
 msgid "A PEM encoded private key used for authentication."
 msgstr "인증에 사용되는 PEM 인코딩 개인 키입니다."
 
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "A repository for which this cannot be turned on is synced with the value that is allowed."
+msgstr ""
+
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "A sync is started for every selected repository that has a remote, with the options below. Each sync runs as a task of its own."
+msgstr ""
+
 #: src/components/sync-modal.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already queued."
@@ -555,6 +592,9 @@ msgstr "컬렉션 추가"
 #~ msgid "Add group"
 #~ msgstr "Add group"
 
+#: src/framework/bulk/label-bulk-dialog.tsx
+#: src/framework/bulk/remote-bulk.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Add label"
@@ -562,6 +602,10 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Add label condition"
+msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Add label to selected"
 msgstr ""
 
 #: src/constants.tsx
@@ -664,6 +708,10 @@ msgstr "항목 추가"
 #~ "\"{namespace}\" container namespace."
 #~ msgstr "Adding groups provides access to all repositories in the\n"
 #~ "\"{namespace}\" container namespace."
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Adding the label to the selected rows finished"
+msgstr ""
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Additional details"
@@ -1092,6 +1140,10 @@ msgstr "기본 제공 역할은 편집하거나 삭제할 수 없습니다."
 msgid "Built-in roles cannot be edited."
 msgstr "기본 제공 역할은 편집할 수 없습니다."
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "Bulk actions"
+msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -1122,6 +1174,7 @@ msgstr "CA 인증서"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
@@ -1385,6 +1438,7 @@ msgstr "닫기"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "닫기"
@@ -2191,6 +2245,8 @@ msgstr "Debian 원본 그대로 게시"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/bulk/remote-bulk.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/list/remote-row-actions.tsx
@@ -2313,6 +2369,14 @@ msgstr "역할 삭제: {0}"
 msgid "Delete role?"
 msgstr "역할을 삭제하시겠습니까?"
 
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Delete selected remotes?"
+msgstr ""
+
+#: src/framework/bulk/repository-bulk.tsx
+msgid "Delete selected repositories?"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Delete synclist"
 #~ msgstr "Delete synclist"
@@ -2408,6 +2472,14 @@ msgstr "사용자를 삭제하시겠습니까?"
 #: src/components/delete-user-modal.tsx
 #~ msgid "Deleting super users is not allowed."
 #~ msgstr "수퍼 유저를 삭제하는 것은 허용되지 않습니다."
+
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Deleting the selected remotes was started"
+msgstr ""
+
+#: src/framework/bulk/repository-bulk.tsx
+msgid "Deleting the selected repositories finished"
+msgstr ""
 
 #: src/components/delete-group-modal.tsx
 msgid "Deleting this group will affect {count} users."
@@ -2506,6 +2578,7 @@ msgstr "설명"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 msgid "Details"
@@ -2538,6 +2611,18 @@ msgstr "비활성화됨"
 #: src/containers/ansible-repository/tab-details.tsx
 #~ msgid "Distribution"
 #~ msgstr "배포"
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distribution {name} is still being removed."
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distribution {name} was not removed: {reason}"
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distribution {name} was not shown, so it was not removed."
+msgstr ""
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Distribution name"
@@ -2583,10 +2668,25 @@ msgstr ""
 msgid "Distributions could not be loaded: {error}"
 msgstr "배포를 불러올 수 없습니다: {error}"
 
+#. placeholder {0}: serving .map((row) => row.content_guard ? t`${row.name} (protected by a content guard)` : row.name, ) .join(', ')
+#: src/framework/bulk/repository-bulk.tsx
+msgid "Distributions deleted with it: {0}"
+msgstr ""
+
 #. placeholder {0}: resource?.plugin
 #: src/utilities/repository-distro.ts
 msgid "Distributions of {0} repositories cannot be looked up"
 msgstr "리포지토리 {0}개의 배포를 조회할 수 없습니다"
+
+#. placeholder {0}: result.removed.join(', ')
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distributions removed: {0}"
+msgstr ""
+
+#. placeholder {0}: result.removed.join(', ')
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distributions removed: {0}."
+msgstr ""
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -2607,6 +2707,10 @@ msgstr "문서"
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Documentation Syntax Error: cannot parse plugin documention."
 #~ msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Does not have this label, so it is skipped"
+msgstr ""
 
 #: src/components/ratings.tsx
 #~ msgid "Does what it promises"
@@ -3178,6 +3282,7 @@ msgstr "패키지가 하나라도 거부되면 전체 버전을 실패 처리"
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 msgid "Failed"
 msgstr "실패"
 
@@ -3781,6 +3886,10 @@ msgstr "그룹이 생성되면 나타납니다"
 msgid "Guard: {guardName}"
 msgstr "콘텐츠 가드: {guardName}"
 
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "Has no remote, so it is skipped"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
 msgstr "단어 포함"
@@ -4097,6 +4206,10 @@ msgstr "문제 추적기"
 #~ msgid "It does not make sense to include and exclude tags at the same time."
 #~ msgstr "It does not make sense to include and exclude tags at the same time."
 
+#: src/framework/bulk/bulk-actions.ts
+msgid "It is not known whether distribution {name} was removed."
+msgstr ""
+
 #: src/framework/delete/delete-outcome.tsx
 msgid "It is not known whether the repository was removed."
 msgstr ""
@@ -4164,12 +4277,14 @@ msgstr "키 지문"
 msgid "Label expression"
 msgstr ""
 
+#: src/framework/bulk/label-bulk-dialog.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
+#: src/framework/bulk/label-bulk-dialog.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
@@ -4377,6 +4492,7 @@ msgid "Loading distribution..."
 msgstr "배포를 불러오는 중..."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "배포를 불러오는 중"
@@ -4560,6 +4676,7 @@ msgstr "내 프로필"
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/remote-fields.ts
@@ -4586,6 +4703,10 @@ msgstr "이름"
 #: src/components/namespace-form.tsx
 #~ msgid "Name must not be empty."
 #~ msgstr "이름은 비워 둘 수 없습니다."
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Names not permitted"
+msgstr ""
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "namespace"
@@ -4910,6 +5031,10 @@ msgstr "원격 없음"
 #~ msgid "No remote repositories yet"
 #~ msgstr "No remote repositories yet"
 
+#: src/framework/bulk/bulk-actions.ts
+msgid "No remote to sync from."
+msgstr ""
+
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
 #: src/containers/file-remote/list.tsx
@@ -4957,6 +5082,10 @@ msgstr "필터 기준과 일치하는 결과가 없습니다. 필터 설정을 �
 #: src/containers/ansible-role/role-list.tsx
 #~ msgid "No roles yet"
 #~ msgstr "역할이 없음"
+
+#: src/framework/bulk/bulk-menu.tsx
+msgid "No rows selected"
+msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "No screens or repositories match"
@@ -5061,6 +5190,7 @@ msgstr "허용되지 않음"
 msgid "Not available"
 msgstr ""
 
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
 msgstr ""
@@ -5086,6 +5216,10 @@ msgstr "찾을 수 없음"
 msgid "Not loaded"
 msgstr ""
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Not permitted"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not removed"
@@ -5104,6 +5238,7 @@ msgstr "보고되지 않음"
 #~ msgid "Not required for use by other collections"
 #~ msgstr "다른 컬렉션에 사용할 필요가 없음"
 
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not sent"
 msgstr ""
@@ -5313,6 +5448,7 @@ msgid "Ostree sync"
 msgstr "Ostree 동기화"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/bulk/bulk-actions.ts
 #: src/framework/delete/delete-outcome.tsx
 msgid "Outcome unknown, check the task"
 msgstr "결과를 알 수 없습니다. 작업을 확인하세요"
@@ -5446,6 +5582,7 @@ msgstr "경로 접두사"
 
 #: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 msgid "Pending"
 msgstr "보류 중"
 
@@ -6250,6 +6387,7 @@ msgstr "생성된 원격이 표시됩니다."
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "리포지터리 \"{repositoryName}\"에서 {namespace}.{name} v{version} 제거가 시작되었습니다."
 
+#: src/framework/bulk/remote-bulk.tsx
 #: src/framework/delete/delete-remote.ts
 msgid "Removal of remote {name}"
 msgstr ""
@@ -6301,6 +6439,9 @@ msgstr "그룹 제거"
 msgid "Remove group {groupname}?"
 msgstr "그룹 {groupname}을/를 삭제하시겠습니까?"
 
+#: src/framework/bulk/label-bulk-dialog.tsx
+#: src/framework/bulk/remote-bulk.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/form/labels-field.tsx
 msgid "Remove label"
 msgstr ""
@@ -6311,6 +6452,10 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
+msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Remove label from selected"
 msgstr ""
 
 #: src/components/access-tab.tsx
@@ -6363,6 +6508,10 @@ msgstr "리포지토리 {name}을/를 제거했습니다"
 #: src/components/delete-collection-modal.tsx
 #~ msgid "Removing collection version <0>{0} v{collectionVersion}</0> from repository <1>{deleteFromRepo}</1>."
 #~ msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Removing the label from the selected rows finished"
+msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair"
@@ -6654,6 +6803,11 @@ msgstr "브라우저 기본값으로 재설정"
 #~ msgid "Resources"
 #~ msgstr "리소스"
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Result"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
 msgid "Results"
 msgstr "결과"
@@ -6687,6 +6841,7 @@ msgstr "재시도 횟수"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
@@ -7053,6 +7208,12 @@ msgstr "이 작업의 상태에 대해서는 작업 관리 <0>세부 정보 페�
 msgid "Select"
 msgstr "선택"
 
+#. placeholder {0}: row.name
+#: src/framework/list/remote-list.tsx
+#: src/framework/list/repository-list.tsx
+msgid "Select {0}"
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Select a collection"
 msgstr "컬렉션 선택"
@@ -7086,6 +7247,14 @@ msgstr "사용자 선택"
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Select all ({itemsCount} items)"
 #~ msgstr ""
+
+#: src/framework/list/remote-list.tsx
+msgid "Select all remotes on this page"
+msgstr ""
+
+#: src/framework/list/repository-list.tsx
+msgid "Select all repositories on this page"
+msgstr ""
 
 #: src/components/collection-header.tsx
 #~ msgid "Select collection version"
@@ -7137,13 +7306,17 @@ msgstr "역할 선택"
 msgid "Select users"
 msgstr "사용자 선택"
 
-#: src/components/multiple-repo-selector.tsx
-#~ msgid "Selected"
-#~ msgstr "선택됨"
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Selected"
+msgstr "선택됨"
 
 #: src/components/select-group.tsx
 msgid "Selected group"
 msgstr "선택된 그룹"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Selected names"
+msgstr ""
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Selected provider namespace"
@@ -7456,6 +7629,7 @@ msgstr "콘텐츠로 건너뛰기"
 
 #: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 msgid "Skipped"
 msgstr "건너뜀"
 
@@ -7499,6 +7673,10 @@ msgstr "SSO URL"
 msgid "Start from scratch"
 msgstr "처음부터 시작"
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Started"
+msgstr ""
+
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Started adding {0}.{1} v{2} from \"{3}\" to repository \"{repo}\"."
 #~ msgstr ""
@@ -7540,6 +7718,7 @@ msgstr "상태"
 #~ msgstr "상태:"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/bulk/bulk-actions.ts
 #: src/framework/delete/delete-outcome.tsx
 msgid "Still being removed"
 msgstr "아직 제거 중"
@@ -7565,6 +7744,10 @@ msgstr ""
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "스트리밍"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Succeeded"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Success"
@@ -7690,6 +7873,8 @@ msgstr "요약"
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
+#: src/framework/bulk/repository-bulk.tsx
+#: src/framework/bulk/sync-bulk-dialog.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/list/row-actions.tsx
 #: src/framework/sync/progress-panel.tsx
@@ -7746,6 +7931,7 @@ msgstr ""
 msgid "Sync is unavailable because this repository has no remote."
 msgstr ""
 
+#: src/framework/bulk/sync-bulk-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Sync of {name}"
 msgstr ""
@@ -7774,6 +7960,10 @@ msgstr "리포지토리 \"{name}\" 동기화"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync running"
+msgstr ""
+
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "Sync selected repositories"
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -7838,6 +8028,10 @@ msgstr "동기화됨"
 #: src/utilities/translate-task.ts
 #~ msgid "Synchronize"
 #~ msgstr ""
+
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "Syncing the selected repositories was requested"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Synclist distribution was not found."
@@ -7998,6 +8192,10 @@ msgstr "{plugin} 플러그인이 이 Pulp 서버에 설치되어 있지 않습�
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
 msgstr "기본 경로 \"{basePath}\"는 배포 \"{otherName}\"({otherPath})에서 이미 사용 중이거나 겹칩니다."
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "The bulk action stopped with an unexpected error. Some rows may already have been changed: check the list before trying again."
+msgstr ""
+
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
@@ -8078,6 +8276,14 @@ msgstr ""
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "이 배포에는 콘텐츠 가드가 없습니다. 이 서버에 접근할 수 있는 사람은 누구나 로그인하지 않고도 이 리포지토리의 콘텐츠를 다운로드할 수 있습니다."
 
+#: src/framework/bulk/repository-bulk.tsx
+msgid "The distributions could not be listed, so nothing can be deleted."
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "The distributions could not be listed, so nothing was deleted: {reason}"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
@@ -8119,12 +8325,24 @@ msgstr "다음 역할이 다음 그룹에 적용됩니다: <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "다음 역할이 사용자 <0>{0}</0>에게 적용됩니다"
 
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "The key is removed from every selected row that has it."
+msgstr ""
+
 #: src/framework/labels/label-editor.tsx
 msgid "The label could not be changed."
 msgstr ""
 
 #: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "The label is not set."
+msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "The label is set on every selected row. A row that already has the key gets the new value."
 msgstr ""
 
 #: src/session/reauth-dialog.tsx
@@ -8213,6 +8431,10 @@ msgstr "리포지토리 콘텐츠를 읽을 수 없습니다"
 msgid "The repository could not be removed: {0}"
 msgstr "리포지토리를 제거할 수 없습니다: {0}"
 
+#: src/framework/bulk/bulk-actions.ts
+msgid "The repository could not be removed: {reason}"
+msgstr ""
+
 #: src/framework/detail/revert-version.tsx
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 msgstr ""
@@ -8226,6 +8448,10 @@ msgstr "리포지토리를 아직 제거하는 중입니다:"
 #: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
 msgstr "일부 배포가 제거되지 않아 리포지토리는 유지되었습니다."
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "The repository was kept."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8255,6 +8481,14 @@ msgstr "리포지토리 \"{repositoryName}\"의 복원이 아직 실행 중입�
 
 #: src/framework/form/permission-gate.tsx
 msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
+#: src/framework/bulk/remote-bulk.tsx
+msgid "The selected remotes are deleted. The repositories that use them are kept and are left without a remote."
+msgstr ""
+
+#: src/framework/bulk/repository-bulk.tsx
+msgid "The selected repositories are deleted together with the distributions that serve them, and the URLs of those distributions stop working."
 msgstr ""
 
 #: src/containers/ansible-remote/tab-access.tsx
@@ -8297,6 +8531,14 @@ msgstr ""
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr "배포를 만들기 전에 세션이 종료되었습니다. 로그인한 후 배포를 확인하고, 없으면 만드십시오."
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "The session ended before this one was sent."
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "The session ended while this one was on its way."
+msgstr ""
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."
@@ -8948,6 +9190,14 @@ msgstr "사용 중"
 msgid "Used by"
 msgstr ""
 
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Used by {names}"
+msgstr ""
+
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Used by {names} and {more} more"
+msgstr ""
+
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
 #~ msgstr "유용한 링크"
@@ -9281,6 +9531,7 @@ msgstr "모든 작업을 보고 취소합니다."
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/framework/sync/sync-dialog.tsx
@@ -9585,6 +9836,10 @@ msgstr "Pulp에서 로그아웃되었습니다."
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "You have unsaved changes"
 #~ msgstr "저장되지 않은 변경 사항이 있습니다"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "You may not do this on the following, so nothing is sent for them:"
+msgstr ""
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."

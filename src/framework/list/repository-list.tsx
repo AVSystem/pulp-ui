@@ -37,6 +37,13 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
+import {
+  BULK_REPOSITORY_PERMISSIONS,
+  RepositoryBulk,
+  repositoryBulkActions,
+} from '../bulk/repository-bulk';
+import { SelectCell } from '../bulk/select-cells';
+import { usePageSelection } from '../bulk/selection';
 import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
 import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
@@ -64,6 +71,7 @@ import {
   useRowPermits,
   useShownRows,
 } from './list-frame';
+import { searchOf } from './list-params';
 import { type BasePathSelection, useRepositoryRows } from './repository-rows';
 import {
   REPOSITORY_ROW_ACTIONS,
@@ -88,9 +96,17 @@ const NO_FILTERS: FilterDef[] = [];
 const LARGE_MATCH = 500;
 
 // What every list reads of a repository whatever its columns are: the address
-// the derived columns match on, the PRN the last task is found by and the
-// latest version the content count is read for.
-const BASE_FIELDS = ['pulp_href', 'name', 'prn', 'latest_version_href'];
+// the derived columns match on, the PRN the last task is found by, the latest
+// version the content count is read for, and the remote and the labels the row
+// and bulk actions decide on.
+const BASE_FIELDS = [
+  'pulp_href',
+  'name',
+  'prn',
+  'latest_version_href',
+  'remote',
+  'pulp_labels',
+];
 
 // The columns that fill from reads shared between the rows.
 const DERIVED_HEADERS = [
@@ -184,10 +200,11 @@ const RepositoryListScreen = ({
       Array.from(
         new Set([
           ...BASE_FIELDS,
+          ...(descriptor.repository.sync?.fields ?? []),
           ...columns.flatMap((column) => column.fields ?? []),
         ]),
       ),
-    [columns],
+    [columns, descriptor.repository.sync],
   );
   // The base path is not a field of a repository: it selects repositories
   // through the distributions that serve them, so it is not part of the request.
@@ -259,10 +276,32 @@ const RepositoryListScreen = ({
   const rowsShown = rows.length > 0 && !query.isPlaceholderData;
   const { permits, notice: permissionsNotice } = useRowPermits({
     names,
-    needed: actions.map(({ permission }) => permission),
+    needed: [
+      ...actions.map(({ permission }) => permission),
+      ...BULK_REPOSITORY_PERMISSIONS,
+    ],
     objectRoles: manifest.permissions.objectRoles,
     rowsShown,
   });
+
+  // The rows ticked for a bulk action: those of this page of this list, and
+  // none once the address changes. The actions offered are those the user may
+  // take on at least one of the selected rows, or on one of the rows of the
+  // page while nothing is selected; a list in which none is offered has no
+  // check boxes.
+  const shownHrefs = useMemo(() => rows.map((row) => row.pulp_href), [rows]);
+  const selection = usePageSelection(searchOf(params), shownHrefs);
+  const { selected, toggle, toggleAll } = selection;
+  const selectedRows = useMemo(
+    () => rows.filter((row) => selected.has(row.pulp_href)),
+    [rows, selected],
+  );
+  const pageBulkActions = repositoryBulkActions(descriptor, rows, permits);
+  const selectable = pageBulkActions.length > 0;
+  const bulkActions =
+    selection.count > 0
+      ? repositoryBulkActions(descriptor, selectedRows, permits)
+      : pageBulkActions;
   // The repository whose delete dialog is open.
   const [deleting, setDeleting] = useState<RepositoryBase | null>(null);
   const requestDelete = useCallback(
@@ -457,6 +496,19 @@ const RepositoryListScreen = ({
           options={{ headers }}
           params={params}
           updateParams={updateParams}
+          selectAll={
+            selectable
+              ? {
+                  isSelected: selection.allSelected
+                    ? true
+                    : selection.count > 0
+                      ? null
+                      : false,
+                  onSelect: toggleAll,
+                  label: t`Select all repositories on this page`,
+                }
+              : undefined
+          }
         />
         <RowActionsColumn.Provider value={anyRowAction}>
           <Tbody>
@@ -464,6 +516,10 @@ const RepositoryListScreen = ({
               <RepositoryRow
                 key={row.pulp_href}
                 row={row}
+                position={position}
+                selectable={selectable}
+                selected={selected.has(row.pulp_href)}
+                onToggle={toggle}
                 columns={columns}
                 actions={actions}
                 actionIds={rowActionIds[position] as string}
@@ -538,6 +594,16 @@ const RepositoryListScreen = ({
           />
         }
         addButton={addButton}
+        bulk={
+          <RepositoryBulk
+            descriptor={descriptor}
+            selected={selectedRows}
+            actions={bulkActions}
+            permits={permits}
+            index={distributions}
+            onFinished={(alert) => setAlerts((current) => [...current, alert])}
+          />
+        }
         params={params}
         updateParams={updateParams}
         count={count}
@@ -574,6 +640,15 @@ const RepositoryListScreen = ({
 
 interface RowProps {
   row: RepositoryBase;
+  // The row's place on the page, which names its check box for assistive
+  // technology.
+  position: number;
+  // Whether the list has a column of check boxes, and whether this row's is
+  // ticked. They are plain values so a change of the selection rebuilds only
+  // the rows it touches.
+  selectable: boolean;
+  selected: boolean;
+  onToggle: (href: string, checked: boolean) => void;
   columns: ColumnDef<RepositoryBase>[];
   actions: RowAction<RepositoryBase>[];
   // The ids of the actions the row offers, joined by commas.
@@ -592,6 +667,10 @@ interface RowProps {
 // of 500.
 const RepositoryRow = memo(function RepositoryRow({
   row,
+  position,
+  selectable,
+  selected,
+  onToggle,
   columns,
   actions,
   actionIds,
@@ -604,7 +683,15 @@ const RepositoryRow = memo(function RepositoryRow({
   lastTask,
 }: RowProps) {
   return (
-    <Tr data-cy={`RepositoryList-row-${row.name}`}>
+    <Tr data-cy={`RepositoryList-row-${row.name}`} isRowSelected={selected}>
+      {selectable ? (
+        <SelectCell
+          id={`bulk-select-${position}`}
+          label={t`Select ${row.name}`}
+          checked={selected}
+          onChange={(checked) => onToggle(row.pulp_href, checked)}
+        />
+      ) : null}
       {columns.map((column) => (
         <Td key={column.id}>{column.render(row)}</Td>
       ))}
