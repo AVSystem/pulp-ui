@@ -106,7 +106,7 @@ async function expectUrlsAndLabels(
   page: Page,
   { repositoryName, distributions }: Installation,
 ) {
-  await page.goto(`deb/repositories/detail/${repositoryName}`);
+  await page.goto(`deb/repositories/${encodeURIComponent(repositoryName)}`);
   await expect(title(page, repositoryName)).toBeVisible();
 
   const details = page.locator('.pf-v6-c-description-list__group', {
@@ -120,7 +120,7 @@ async function expectUrlsAndLabels(
   );
 
   await page.goto(
-    `deb/repositories/detail/${repositoryName}?tab=distributions`,
+    `deb/repositories/${encodeURIComponent(repositoryName)}/distributions`,
   );
   for (const { name, base_url, served } of distributions) {
     const row = page.getByRole('row').filter({
@@ -161,79 +161,96 @@ test('a distribution with nothing to serve shows its base_url and the not-served
   await expectUrlsAndLabels(page, installation as Installation);
 });
 
-// The addresses the file screens had before they were rebuilt are in tickets,
-// bookmarks and documents. Each of them still opens its screen at the address
-// it has now.
-test.describe('the old addresses of the file screens', () => {
-  let repositoryName: string;
-  let remoteName: string;
+// The addresses the screens of a plugin had before they were rebuilt are in
+// tickets, bookmarks and documents. Each of them still opens its screen at the
+// address it has now.
+const REBUILT = [
+  {
+    plugin: 'file',
+    endpoint: 'file/file',
+    remote: { url: 'https://pulp.example/zz-e2e/PULP_MANIFEST' },
+  },
+  {
+    plugin: 'deb',
+    endpoint: 'deb/apt',
+    remote: { url: 'https://pulp.example/zz-e2e/', distributions: 'stable' },
+  },
+] as const;
 
-  test.beforeAll(async () => {
-    const remote = await objects.create('remotes/file/file/', {
-      name: objects.name('legacy-remote'),
-      url: 'https://pulp.example/zz-e2e/PULP_MANIFEST',
+for (const { plugin, endpoint, remote: remoteBody } of REBUILT) {
+  test.describe(`the old addresses of the ${plugin} screens`, () => {
+    let repositoryName: string;
+    let remoteName: string;
+
+    test.beforeAll(async () => {
+      const remote = await objects.create(`remotes/${endpoint}/`, {
+        name: objects.name(`legacy-remote-${plugin}`),
+        ...remoteBody,
+      });
+      const repository = await objects.create(`repositories/${endpoint}/`, {
+        name: objects.name(`legacy-repo-${plugin}`),
+        remote: remote.pulp_href,
+      });
+      remoteName = remote.name as string;
+      repositoryName = repository.name as string;
     });
-    const repository = await objects.create('repositories/file/file/', {
-      name: objects.name('legacy-repo'),
-      remote: remote.pulp_href,
+
+    const ends = (path: string) =>
+      new RegExp(`/ui/${path.replaceAll('/', '\\/')}/?$`);
+
+    test('repository detail, with and without a tab, ends on the new addresses', async ({
+      page,
+    }) => {
+      const base = `${plugin}/repositories/${repositoryName}`;
+      const old = `${plugin}/repositories/detail/${repositoryName}`;
+
+      await page.goto(old);
+      await expect(page).toHaveURL(ends(base));
+      await expect(title(page, repositoryName)).toBeVisible();
+
+      await page.goto(`${old}?tab=details`);
+      await expect(page).toHaveURL(ends(base));
+
+      await page.goto(`${old}?tab=repository-versions`);
+      await expect(page).toHaveURL(ends(`${base}/versions`));
+
+      await page.goto(`${old}?tab=repository-versions&repositoryVersion=0`);
+      await expect(page).toHaveURL(ends(`${base}/versions/0`));
+
+      await page.goto(`${old}?tab=distributions`);
+      await expect(page).toHaveURL(ends(`${base}/distributions`));
     });
-    remoteName = remote.name as string;
-    repositoryName = repository.name as string;
+
+    test('repository edit and create end on the new addresses', async ({
+      page,
+    }) => {
+      await page.goto(`${plugin}/repositories/edit/${repositoryName}`);
+      await expect(page).toHaveURL(
+        ends(`${plugin}/repositories/${repositoryName}/edit`),
+      );
+      await expect(page.locator('#description')).toBeVisible();
+
+      await page.goto(`${plugin}/repositories/edit/_`);
+      await expect(page).toHaveURL(ends(`${plugin}/repository/new`));
+      await expect(title(page, 'Add new repository')).toBeVisible();
+    });
+
+    test('remote detail, edit and create end on the new addresses', async ({
+      page,
+    }) => {
+      await page.goto(`${plugin}/remotes/detail/${remoteName}`);
+      await expect(page).toHaveURL(ends(`${plugin}/remotes/${remoteName}`));
+      await expect(title(page, remoteName)).toBeVisible();
+
+      await page.goto(`${plugin}/remotes/edit/${remoteName}`);
+      await expect(page).toHaveURL(
+        ends(`${plugin}/remotes/${remoteName}/edit`),
+      );
+      await expect(page.locator('#url')).toBeVisible();
+
+      await page.goto(`${plugin}/remotes/edit/_`);
+      await expect(page).toHaveURL(ends(`${plugin}/remote/new`));
+      await expect(page.locator('#name')).toBeVisible();
+    });
   });
-
-  const ends = (path: string) =>
-    new RegExp(`/ui/${path.replaceAll('/', '\\/')}/?$`);
-
-  test('repository detail, with and without a tab, ends on the new addresses', async ({
-    page,
-  }) => {
-    const base = `file/repositories/${repositoryName}`;
-    const old = `file/repositories/detail/${repositoryName}`;
-
-    await page.goto(old);
-    await expect(page).toHaveURL(ends(base));
-    await expect(title(page, repositoryName)).toBeVisible();
-
-    await page.goto(`${old}?tab=details`);
-    await expect(page).toHaveURL(ends(base));
-
-    await page.goto(`${old}?tab=repository-versions`);
-    await expect(page).toHaveURL(ends(`${base}/versions`));
-
-    await page.goto(`${old}?tab=repository-versions&repositoryVersion=0`);
-    await expect(page).toHaveURL(ends(`${base}/versions/0`));
-
-    await page.goto(`${old}?tab=distributions`);
-    await expect(page).toHaveURL(ends(`${base}/distributions`));
-  });
-
-  test('repository edit and create end on the new addresses', async ({
-    page,
-  }) => {
-    await page.goto(`file/repositories/edit/${repositoryName}`);
-    await expect(page).toHaveURL(
-      ends(`file/repositories/${repositoryName}/edit`),
-    );
-    await expect(page.locator('#description')).toBeVisible();
-
-    await page.goto('file/repositories/edit/_');
-    await expect(page).toHaveURL(ends('file/repository/new'));
-    await expect(title(page, 'Add new repository')).toBeVisible();
-  });
-
-  test('remote detail, edit and create end on the new addresses', async ({
-    page,
-  }) => {
-    await page.goto(`file/remotes/detail/${remoteName}`);
-    await expect(page).toHaveURL(ends(`file/remotes/${remoteName}`));
-    await expect(title(page, remoteName)).toBeVisible();
-
-    await page.goto(`file/remotes/edit/${remoteName}`);
-    await expect(page).toHaveURL(ends(`file/remotes/${remoteName}/edit`));
-    await expect(page.locator('#url')).toBeVisible();
-
-    await page.goto('file/remotes/edit/_');
-    await expect(page).toHaveURL(ends('file/remote/new'));
-    await expect(page.locator('#name')).toBeVisible();
-  });
-});
+}

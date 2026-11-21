@@ -56,7 +56,7 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
       PLUGIN_MANIFESTS.map(({ plugin, onFramework }) => [plugin, onFramework]),
     ).toEqual([
       ['file', true],
-      ['deb', false],
+      ['deb', true],
       ['rpm', false],
       ['python', false],
     ]);

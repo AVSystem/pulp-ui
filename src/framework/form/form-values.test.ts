@@ -6,6 +6,7 @@ import {
   changedNames,
   hasProblems,
   labelProblem,
+  missingRequired,
   toCreateBody,
   toForm,
   toRequest,
@@ -142,6 +143,36 @@ describe('Unit: the body of a create', { tags: ['unit'] }, () => {
       mode: 'root',
       labels: { env: null },
       remote: '/pulp/api/v3/remotes/file/file/1/',
+    });
+  });
+
+  describe('a field that is required', () => {
+    const required: FieldDef[] = [
+      { name: 'name', label: msg`Name`, kind: 'text', required: true },
+      { name: 'url', label: msg`URL`, kind: 'url', required: true },
+      { name: 'suites', label: msg`Description`, kind: 'text', required: true },
+      { name: 'note', label: msg`Mode`, kind: 'text' },
+      { name: 'on', label: msg`Publish`, kind: 'boolean', required: true },
+    ];
+    const filled = {
+      name: 'a',
+      url: 'https://x.example/',
+      suites: 'bookworm',
+      note: '',
+      on: false,
+    };
+
+    it('is missing while its text is empty or only spaces, and never for a field that is not required', () => {
+      expect(missingRequired(required, filled)).toBe(false);
+      expect(missingRequired(required, { ...filled, suites: '' })).toBe(true);
+      expect(missingRequired(required, { ...filled, suites: '  \t' })).toBe(
+        true,
+      );
+      expect(missingRequired(required, { ...filled, note: '' })).toBe(false);
+    });
+
+    it('does not take an unticked box for a missing value, because false is an answer', () => {
+      expect(missingRequired(required, { ...filled, on: false })).toBe(false);
     });
   });
 });

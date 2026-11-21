@@ -11,7 +11,6 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryVersionsTab as AnsibleTab } from '../containers/ansible-repository/tab-repository-versions';
-import { RepositoryVersionsTab as DebTab } from '../containers/deb-repository/tab-repository-versions';
 import { RepositoryVersionsTab as PythonTab } from '../containers/python-repository/tab-repository-versions';
 import { RepositoryVersionsTab as RpmTab } from '../containers/rpm-repository/tab-repository-versions';
 import type * as WaitForTask from '../utilities/wait-for-task';
@@ -35,7 +34,6 @@ vi.mock('../utilities/wait-for-task', async (importOriginal) => {
 const API = '/pulp/api/v3';
 
 const PLUGINS = [
-  { name: 'deb', path: 'repositories/deb/apt', Tab: DebTab },
   { name: 'rpm', path: 'repositories/rpm/rpm', Tab: RpmTab },
   { name: 'python', path: 'repositories/python/python', Tab: PythonTab },
   { name: 'ansible', path: 'repositories/ansible/ansible', Tab: AnsibleTab },

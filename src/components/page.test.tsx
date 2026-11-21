@@ -8,8 +8,6 @@ import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import AnsibleRemoteEdit from '../containers/ansible-remote/edit';
 import AnsibleRepositoryEdit from '../containers/ansible-repository/edit';
-import DebRemoteEdit from '../containers/deb-remote/edit';
-import DebRepositoryEdit from '../containers/deb-repository/edit';
 import PythonRemoteEdit from '../containers/python-remote/edit';
 import PythonRepositoryEdit from '../containers/python-repository/edit';
 import RPMRemoteEdit from '../containers/rpm-remote/edit';
@@ -1053,18 +1051,6 @@ describe('every repository and remote edit page opened by its address', () => {
       Edit: AnsibleRepositoryEdit,
       route: Paths.ansible.repository.edit,
       list: 'repositories/ansible/ansible/',
-    },
-    {
-      name: 'deb remote',
-      Edit: DebRemoteEdit,
-      route: Paths.deb.remote.edit,
-      list: 'remotes/deb/apt/',
-    },
-    {
-      name: 'deb repository',
-      Edit: DebRepositoryEdit,
-      route: Paths.deb.repository.edit,
-      list: 'repositories/deb/apt/',
     },
     {
       name: 'python remote',

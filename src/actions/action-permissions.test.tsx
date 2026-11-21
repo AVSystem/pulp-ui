@@ -11,7 +11,6 @@ import { listOf, repository, repositoryVersion } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryVersionsTab as AnsibleTab } from '../containers/ansible-repository/tab-repository-versions';
-import { RepositoryVersionsTab as DebTab } from '../containers/deb-repository/tab-repository-versions';
 import { RepositoryVersionsTab as PythonTab } from '../containers/python-repository/tab-repository-versions';
 import { RepositoryVersionsTab as RpmTab } from '../containers/rpm-repository/tab-repository-versions';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
@@ -26,13 +25,6 @@ import { ansibleRepositoryCreateAction } from './ansible-repository-create';
 import { ansibleRepositoryDeleteAction } from './ansible-repository-delete';
 import { ansibleRepositoryEditAction } from './ansible-repository-edit';
 import { ansibleRepositorySyncAction } from './ansible-repository-sync';
-import { debRemoteCreateAction } from './deb-remote-create';
-import { debRemoteDeleteAction } from './deb-remote-delete';
-import { debRemoteEditAction } from './deb-remote-edit';
-import { debRepositoryCreateAction } from './deb-repository-create';
-import { debRepositoryDeleteAction } from './deb-repository-delete';
-import { debRepositoryEditAction } from './deb-repository-edit';
-import { debRepositorySyncAction } from './deb-repository-sync';
 import { pythonDistributionEditAction } from './python-distribution-edit';
 import { pythonRemoteCreateAction } from './python-remote-create';
 import { pythonRemoteDeleteAction } from './python-remote-delete';
@@ -101,9 +93,6 @@ const rowsOf = (
   names: { repository: string; remote: string },
   paths: { repository: string; remote: string },
   actions: PluginActions,
-  // false: a role granted on one object is not read, so only permissions held
-  // on every object count for the plugin's change, sync and delete actions
-  objectRoles = true,
 ): Row[] => {
   const remoteHref = `${API}/remotes/${paths.remote}/00000000-0000-4000-8000-0000000000b1/`;
   const repositoryItem = {
@@ -129,7 +118,7 @@ const rowsOf = (
       label: `${plugin} repository edit`,
       action: actions.repositoryEdit,
       permission: repo('change'),
-      objectLevel: objectRoles,
+      objectLevel: true,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -139,7 +128,7 @@ const rowsOf = (
       action: actions.repositorySync,
       permission: repo('sync'),
       lookalike: repo('change'),
-      objectLevel: objectRoles,
+      objectLevel: true,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -148,7 +137,7 @@ const rowsOf = (
       label: `${plugin} repository delete`,
       action: actions.repositoryDelete,
       permission: repo('delete'),
-      objectLevel: objectRoles,
+      objectLevel: true,
       item: repositoryItem,
       listed: repositoryItem,
       plugin,
@@ -166,7 +155,7 @@ const rowsOf = (
       label: `${plugin} remote edit`,
       action: actions.remoteEdit,
       permission: remote('change'),
-      objectLevel: objectRoles,
+      objectLevel: true,
       item: remoteItem,
       listed: remoteItem,
       plugin,
@@ -175,7 +164,7 @@ const rowsOf = (
       label: `${plugin} remote delete`,
       action: actions.remoteDelete,
       permission: remote('delete'),
-      objectLevel: objectRoles,
+      objectLevel: true,
       item: remoteItem,
       listed: remoteItem,
       plugin,
@@ -196,21 +185,6 @@ const collectionVersionItem = {
 };
 
 const ROWS: Row[] = [
-  ...rowsOf(
-    'deb',
-    { repository: 'aptrepository', remote: 'aptremote' },
-    { repository: 'deb/apt', remote: 'deb/apt' },
-    {
-      repositoryCreate: debRepositoryCreateAction,
-      repositoryEdit: debRepositoryEditAction,
-      repositorySync: debRepositorySyncAction,
-      repositoryDelete: debRepositoryDeleteAction,
-      remoteCreate: debRemoteCreateAction,
-      remoteEdit: debRemoteEditAction,
-      remoteDelete: debRemoteDeleteAction,
-    },
-    false,
-  ),
   ...rowsOf(
     'rpm',
     { repository: 'rpmrepository', remote: 'rpmremote' },
@@ -347,12 +321,6 @@ describe.each(ROWS)('the $label action', (row) => {
 
 describe.each([
   [
-    'deb',
-    'apt',
-    'deb.modify_content_aptrepository',
-    'deb.change_aptrepository',
-  ],
-  [
     'rpm',
     'rpm',
     'rpm.modify_content_rpmrepository',
@@ -380,8 +348,6 @@ describe.each([
     isLatest: false,
     repositoryName: 'zz-test-repo',
   };
-  const objectRoles = plugin !== 'deb';
-
   it('is absent for a user without the modify permission', () => {
     const ctx = context({ object: {} });
 
@@ -397,19 +363,14 @@ describe.each([
     expect(revert.dropdownItem(version, ctx)).not.toBeNull();
   });
 
-  it(
-    objectRoles
-      ? 'is shown when the page reports the permission for its repository'
-      : 'is absent when only the page reports the permission for its repository',
-    () => {
-      const ctx = {
-        hasPermission: () => false,
-        hasObjectPermission: (name: string) => name === modify,
-      };
+  it('is shown when the page reports the permission for its repository', () => {
+    const ctx = {
+      hasPermission: () => false,
+      hasObjectPermission: (name: string) => name === modify,
+    };
 
-      expect(revert.isShown(version, ctx)).toBe(objectRoles);
-    },
-  );
+    expect(revert.isShown(version, ctx)).toBe(true);
+  });
 
   it('does not accept the change permission instead', () => {
     const ctx = context({ global: [change] });
@@ -422,7 +383,6 @@ describe.each([
 // on every row; what it may check is the repository the page shows.
 describe('the revert action in the versions tab of a repository page', () => {
   const TABS = [
-    { plugin: 'deb', path: 'repositories/deb/apt', Tab: DebTab },
     { plugin: 'rpm', path: 'repositories/rpm/rpm', Tab: RpmTab },
     { plugin: 'python', path: 'repositories/python/python', Tab: PythonTab },
     {
@@ -432,7 +392,7 @@ describe('the revert action in the versions tab of a repository page', () => {
     },
   ] as const;
 
-  it.each(TABS.filter(({ plugin }) => plugin !== 'deb'))(
+  it.each(TABS)(
     'is shown for a $plugin repository whose own permissions list modify',
     async ({ plugin, path, Tab }) => {
       const { modify } = ACTION_PERMISSIONS[plugin].repository;
@@ -484,70 +444,6 @@ describe('the revert action in the versions tab of a repository page', () => {
       expect(asked.every((target) => target === item)).toBe(true);
     },
   );
-
-  // A role granted on one deb repository does not show the revert action, even
-  // when the page's own check lists the permission for its repository.
-  describe('for a deb repository', () => {
-    const { modify } = ACTION_PERMISSIONS.deb.repository;
-
-    const renderVersions = (held: boolean) => {
-      const repo = repository({
-        name: 'zz-test-repo',
-        pulp_href: `${API}/repositories/deb/apt/00000000-0000-4000-8000-0000000000c1/`,
-      });
-      const first = repositoryVersion(repo, 1);
-      const second = repositoryVersion(repo, 2);
-      const item = { ...repo, latest_version_href: second.pulp_href };
-      server.use(
-        listOf(`${API}/repositories/deb/apt/:id/versions/`, [second, first])
-          .handler,
-      );
-      const Versions = DebTab as unknown as ComponentType<{
-        item: object;
-        actionContext: object;
-      }>;
-
-      return renderWithProviders(
-        <Versions
-          item={item}
-          actionContext={{
-            addAlert: vi.fn(),
-            hasObjectPermission: (name: string) => name === modify,
-            hasPermission: (name: string) => held && name === modify,
-            query: vi.fn(),
-            state: { params: {} },
-          }}
-        />,
-      );
-    };
-
-    it('is absent for a role held on the repository only', async () => {
-      renderVersions(false);
-
-      const link = await screen.findByRole('link', { name: /^1/ });
-
-      expect(
-        within(link.closest('tr') as HTMLElement).queryByRole('button', {
-          name: 'Actions',
-        }),
-      ).toBeNull();
-    });
-
-    it('is shown for a holder of the modify permission on every object', async () => {
-      const { user } = renderVersions(true);
-
-      const link = await screen.findByRole('link', { name: /^1/ });
-      await user.click(
-        within(link.closest('tr') as HTMLElement).getByRole('button', {
-          name: 'Actions',
-        }),
-      );
-
-      expect(
-        await screen.findByRole('menuitem', { name: 'Revert to this version' }),
-      ).toBeInTheDocument();
-    });
-  });
 });
 
 // The ansible repository actions that are not rows above.

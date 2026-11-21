@@ -11,6 +11,7 @@ import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 
 const LOADERS: Record<string, () => Promise<{ default: PluginDescriptor }>> = {
   file: () => import('./file/descriptor'),
+  deb: () => import('./deb/descriptor'),
 };
 
 function labelled(

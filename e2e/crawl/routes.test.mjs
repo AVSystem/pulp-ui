@@ -135,14 +135,20 @@ describe('the framework route source', () => {
       '/file/remotes',
       '/file/remotes/:name/edit',
       '/file/remote/new',
+      '/deb/repositories',
+      '/deb/repositories/:name/distributions',
+      '/deb/remotes/:name/edit',
+      '/deb/remote/new',
     ]) {
       expect(patterns, pattern).toContain(pattern);
     }
     // the old addresses are redirects, not screens to crawl
     expect(patterns).not.toContain('/file/repositories/detail/:name');
     expect(patterns).not.toContain('/file/remotes/edit/:name');
+    expect(patterns).not.toContain('/deb/repositories/detail/:name');
+    expect(patterns).not.toContain('/deb/remotes/edit/:name');
     // the plugins that are not on the framework are still read from the routes
-    expect(patterns).toContain('/deb/repositories/detail/:name');
+    expect(patterns).toContain('/rpm/repositories/detail/:name');
   });
 
   it('lists every address of a plugin that is on the framework, each once, with unique report names', () => {
@@ -188,8 +194,8 @@ describe('the framework route source', () => {
   it('keeps the other plugins as they are', () => {
     const patterns = crawlRoutes(fileOnFramework).map((r) => r.pattern);
 
-    expect(patterns).not.toContain('/deb/repositories/:name');
-    expect(patterns).toContain('/deb/repositories/detail/:name');
+    expect(patterns).not.toContain('/rpm/repositories/:name');
+    expect(patterns).toContain('/rpm/repositories/detail/:name');
   });
 
   it('still stops on an entry of the application routes that cannot be read', () => {

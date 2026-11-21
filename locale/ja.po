@@ -25,7 +25,6 @@ msgstr ""
 #~ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -527,8 +526,6 @@ msgstr "アクション"
 #: src/components/wizard-modal.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/ansible-repository/edit.tsx
-#: src/containers/deb-remote/edit.tsx
-#: src/containers/deb-repository/edit.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-repository/edit.tsx
@@ -610,7 +607,6 @@ msgstr ""
 #~ msgstr "Add namespace"
 
 #: src/containers/ansible-remote/edit.tsx
-#: src/containers/deb-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/framework/form/remote-form.tsx
@@ -618,7 +614,6 @@ msgid "Add new remote"
 msgstr "新しいリモートの追加"
 
 #: src/containers/ansible-repository/edit.tsx
-#: src/containers/deb-repository/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/framework/form/repository-create.tsx
@@ -642,7 +637,6 @@ msgid "Add or remove content"
 msgstr "コンテンツの追加または削除"
 
 #: src/actions/ansible-remote-create.tsx
-#: src/actions/deb-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
 #: src/framework/list/remote-list.tsx
@@ -654,7 +648,6 @@ msgstr "リモートの追加"
 #~ msgstr "リモートレジストリーの追加"
 
 #: src/actions/ansible-repository-create.tsx
-#: src/actions/deb-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
 #: src/framework/list/repository-list.tsx
@@ -723,11 +716,10 @@ msgstr "追加: 新しいコンテンツのみを追加"
 #~ msgstr ""
 
 #: src/containers/ansible-repository/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "All"
 msgstr "すべて"
@@ -794,6 +786,7 @@ msgstr "すでに現行バージョン"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "ASCII アーマー形式の公開鍵。設定すると、同期のたびに上流の Release ファイルの署名が検証されるため、プレーン HTTP 経由の同期でも安全になります。"
 
@@ -949,7 +942,7 @@ msgid "Arch"
 msgstr "アーキテクチャー"
 
 #: src/components/remote-form.tsx
-#: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Architectures"
 msgstr "アーキテクチャー"
 
@@ -1015,8 +1008,8 @@ msgstr "少なくとも 1 つの状態を選択する必要があります。"
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Autopublish"
 msgstr "自動パブリッシュ"
@@ -1056,12 +1049,11 @@ msgstr "戻る"
 
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/framework/repository-columns.tsx
 msgid "Base path"
 msgstr "ベースパス"
 
@@ -1079,7 +1071,6 @@ msgid "Base URLs could not be read."
 msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1136,7 +1127,6 @@ msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -1379,8 +1369,8 @@ msgid "Clear all filters"
 msgstr "すべてのフィルターの解除"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
 msgstr "CLI 設定"
@@ -1395,7 +1385,6 @@ msgstr "CLI 設定"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -1409,7 +1398,6 @@ msgstr "クライアント証明書"
 msgid "Client key"
 msgstr "クライアントキー"
 
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -1712,7 +1700,7 @@ msgid "Completed {when}"
 msgstr "完了: {when}"
 
 #: src/components/remote-form.tsx
-#: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Components"
 msgstr "コンポーネント"
 
@@ -1812,7 +1800,6 @@ msgid "Content"
 msgstr "コンテンツ"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1845,12 +1832,12 @@ msgid "Content in repositories without a distribution will not be visible to cli
 msgstr "ディストリビューションのないリポジトリーのコンテンツは、クライアントに表示されないため、同期、ダウンロード、または検索できません。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Content not present in remote repository will be removed from the local repository"
 msgstr "リモートリポジトリーに存在しないコンテンツは、ローカルリポジトリーから削除されます"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1938,7 +1925,6 @@ msgstr "名前とベースパスが使用可能かどうかを確認できませ
 #~ msgstr "Could not update the certification status for {0}.{1}.{2}."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1999,6 +1985,7 @@ msgstr "特殊文字 (例: <!@$%>) を含めた {minLength} 文字以上のパ�
 #~ msgstr "Create a password using at least 9 characters, including special characters , ex <!@$%>. Avoid using common names or expressions."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
 msgstr "新しいリポジトリーバージョンごとにパブリケーションを作成します。これにより、このリポジトリーを指すディストリビューションは常に最新のコンテンツを配信します。"
@@ -2040,7 +2027,6 @@ msgid "Create, delete and change collection namespaces. Upload and delete collec
 msgstr "コレクションの名前空間を作成、削除、および変更します。コレクションをアップロードおよび削除します。リモートからのコレクションを同期します。コレクションを承認および拒否します。"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/role-management/role-list.tsx
@@ -2052,16 +2038,14 @@ msgstr "作成済み"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/list.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 #: src/framework/remote-columns.tsx
+#: src/framework/repository-columns.tsx
 msgid "Created date"
 msgstr "作成日"
 
@@ -2113,7 +2097,6 @@ msgstr "Ctrl K"
 #~ msgstr "同期リストリポジトリーのバッチのキュレート"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -2213,7 +2196,6 @@ msgstr "Debian そのままパブリッシュ"
 #~ msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
-#: src/actions/deb-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/repository-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
@@ -2509,7 +2491,6 @@ msgstr "自分自身は削除できません。"
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/role-management/role-list.tsx
@@ -2547,8 +2528,6 @@ msgstr "説明"
 #: src/components/role-form.tsx
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-repository/detail.tsx
-#: src/containers/deb-remote/detail.tsx
-#: src/containers/deb-repository/detail.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
@@ -2572,11 +2551,10 @@ msgstr "詳細"
 #~ msgstr ""
 
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
@@ -2610,21 +2588,17 @@ msgstr ""
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/deb-remote/list.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/detail.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "Distributions"
 msgstr "ディストリビューション"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -2733,7 +2707,6 @@ msgstr "クライアント認定ファイルのダウンロード"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -2815,8 +2788,6 @@ msgstr ""
 
 #: src/actions/ansible-remote-edit.tsx
 #: src/actions/ansible-repository-edit.tsx
-#: src/actions/deb-remote-edit.tsx
-#: src/actions/deb-repository-edit.tsx
 #: src/actions/python-distribution-edit.tsx
 #: src/actions/python-remote-edit.tsx
 #: src/actions/python-repository-edit.tsx
@@ -2824,8 +2795,6 @@ msgstr ""
 #: src/actions/rpm-repository-edit.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/ansible-repository/edit.tsx
-#: src/containers/deb-remote/edit.tsx
-#: src/containers/deb-repository/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/role-management/role-list.tsx
@@ -2919,12 +2888,11 @@ msgid "Email"
 msgstr "メール"
 
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
@@ -3299,7 +3267,6 @@ msgid "Failed to find repository {name}"
 msgstr "リポジトリー {name} が見つかりませんでした"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 msgid "Failed to find repository version"
@@ -3429,7 +3396,6 @@ msgstr "リポジトリー \"{repositoryName}\" から {namespace}.{name} v{vers
 #~ msgstr "ディストリビューション {name} の削除に失敗しました"
 
 #: src/actions/ansible-remote-delete.tsx
-#: src/actions/deb-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "Failed to remove remote {name}"
@@ -3491,7 +3457,6 @@ msgstr "リポジトリー \"{repositoryName}\" をバージョン \"{number}\" 
 #~ msgstr "バージョンへの署名に失敗しました。"
 
 #: src/actions/ansible-repository-sync.tsx
-#: src/actions/deb-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/framework/sync/sync-dialog.tsx
@@ -3723,7 +3688,7 @@ msgid "Go to the start page"
 msgstr "スタートページへ移動"
 
 #: src/components/remote-form.tsx
-#: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "GPG key"
 msgstr "GPG 鍵"
 
@@ -3907,6 +3872,7 @@ msgstr "各パッケージについて保持するバージョンの数。古い
 #~ msgstr "この操作は元に戻せないことを理解しています。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "If selected, all content that is not present in the remote repository will be removed from the local repository; otherwise, sync will add missing content."
 msgstr "選択すると、リモートリポジトリーに存在しないコンテンツがすべてローカルリポジトリーから削除されます。選択しない場合、同期は不足しているコンテンツを追加します。"
@@ -4108,6 +4074,7 @@ msgstr "pip でインストール"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Installer files will be synchronized"
 msgstr "インストーラーファイルが同期されます"
 
@@ -4116,6 +4083,7 @@ msgstr "インストーラーファイルが同期されます"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Installer packages will be synchronized"
 msgstr "インストーラーパッケージが同期されます"
 
@@ -4256,13 +4224,10 @@ msgstr ""
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
-#: src/containers/deb-repository/list.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -4270,6 +4235,7 @@ msgstr ""
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 #: src/framework/remote-columns.tsx
+#: src/framework/repository-columns.tsx
 msgid "Labels"
 msgstr "ラベル"
 
@@ -4551,6 +4517,7 @@ msgstr "システムに合わせる"
 #~ msgstr "メッセージ"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Mirror"
 msgstr "ミラー"
@@ -4625,7 +4592,6 @@ msgstr "自分のプロファイル"
 #: src/components/select-user.tsx
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
@@ -4637,6 +4603,7 @@ msgstr "自分のプロファイル"
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 msgid "Name"
@@ -4841,7 +4808,6 @@ msgstr "コレクションバージョンはまだありません"
 #~ msgid "No dependencies"
 #~ msgstr "依存関係なし"
 
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -4993,7 +4959,6 @@ msgid "No remote to sync from."
 msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
-#: src/containers/deb-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -5001,7 +4966,6 @@ msgid "No remotes yet"
 msgstr "リモートはまだありません"
 
 #: src/containers/ansible-repository/list.tsx
-#: src/containers/deb-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -5013,7 +4977,6 @@ msgid "No repository uses this remote."
 msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -5094,11 +5057,6 @@ msgstr "まだユーザーはありません"
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/list.tsx
-#: src/containers/deb-repository/tab-details.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/list.tsx
@@ -5110,6 +5068,7 @@ msgstr "まだユーザーはありません"
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5297,11 +5256,13 @@ msgid "Online workers"
 msgstr "オンラインのワーカー"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "リモートサーバーから変更が報告された場合にのみ同期を実行します。"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "リモートサーバーから変更が報告された場合にのみ同期を実行します。同期を強制的に実行するには、このオプションの選択を解除してください。"
@@ -5343,6 +5304,7 @@ msgstr "操作"
 #~ msgstr "Opt out of Wisdom"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Optimize"
 msgstr "最適化"
@@ -5758,7 +5720,6 @@ msgstr "プロキシーパスワード"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5781,11 +5742,16 @@ msgid "Publish"
 msgstr ""
 
 #: src/components/repository-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Publish new versions automatically"
 msgstr "新しいバージョンを自動的にパブリッシュ"
 
-#: src/containers/deb-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release fields of the upstream repository"
+msgstr ""
+
+#: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
 msgstr "上流のリリースフィールドをパブリッシュ"
 
@@ -5909,7 +5875,6 @@ msgstr "Pulp は、開発者がソフトウェアパッケージをオンプレ�
 msgid "Pulp label"
 msgstr "Pulp ラベル"
 
-#: src/containers/deb-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 msgid "Pulp Label"
@@ -5937,7 +5902,6 @@ msgid "Pulp refused this request."
 msgstr "Pulp がこのリクエストを拒否しました。"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -6102,7 +6066,6 @@ msgstr "Python パッケージのアップロード"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -6207,16 +6170,14 @@ msgstr "再読み込み"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
-#: src/containers/deb-repository/list.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/repository-columns.tsx
 msgid "Remote"
 msgstr "リモート"
 
@@ -6230,8 +6191,6 @@ msgstr ""
 
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
-#: src/containers/deb-remote/detail.tsx
-#: src/containers/deb-remote/edit.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/detail.tsx
@@ -6247,8 +6206,6 @@ msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/list.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
@@ -6285,9 +6242,6 @@ msgstr "リモートレジストリー"
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/ansible-remote/list.tsx
-#: src/containers/deb-remote/detail.tsx
-#: src/containers/deb-remote/edit.tsx
-#: src/containers/deb-remote/list.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-remote/list.tsx
@@ -6302,7 +6256,6 @@ msgid "Remotes"
 msgstr "リモート"
 
 #: src/containers/ansible-remote/list.tsx
-#: src/containers/deb-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -6310,7 +6263,6 @@ msgid "Remotes could not be displayed."
 msgstr "リモートを表示できませんでした。"
 
 #: src/containers/ansible-remote/list.tsx
-#: src/containers/deb-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -6333,7 +6285,6 @@ msgstr ""
 #~ msgstr "ディストリビューション {name} の削除を開始しました"
 
 #: src/actions/ansible-remote-delete.tsx
-#: src/actions/deb-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 #: src/framework/delete/delete-remote.ts
@@ -6494,10 +6445,6 @@ msgstr "修復タスク"
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/ansible-repository/list.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/detail.tsx
-#: src/containers/deb-repository/edit.tsx
-#: src/containers/deb-repository/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/edit.tsx
@@ -6521,7 +6468,6 @@ msgid "Repositories cannot be searched with your account."
 msgstr "お使いのアカウントではリポジトリーを検索できません。"
 
 #: src/containers/ansible-repository/list.tsx
-#: src/containers/deb-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -6537,7 +6483,6 @@ msgid "Repositories using the remotes could not be read."
 msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
-#: src/containers/deb-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -6606,8 +6551,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/ansible-repository/edit.tsx
-#: src/containers/deb-repository/detail.tsx
-#: src/containers/deb-repository/edit.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/detail.tsx
@@ -6627,14 +6570,12 @@ msgstr "リポジトリーを表示できませんでした。"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
-#: src/containers/deb-repository/list.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/containers/rpm-repository/tab-details.tsx
-#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/repository-columns.tsx
 msgid "Repository name"
 msgstr "リポジトリー名"
 
@@ -6643,7 +6584,6 @@ msgstr "リポジトリー名"
 #~ msgstr "リポジトリー名 {originRepoName} が見つかりません。"
 
 #: src/containers/ansible-repository/tab-details.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
@@ -6659,7 +6599,6 @@ msgid "Repository version not found"
 msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6667,7 +6606,6 @@ msgid "Repository versions"
 msgstr "リポジトリーのバージョン"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6675,7 +6613,6 @@ msgid "Repository versions could not be displayed."
 msgstr "リポジトリーのバージョンを表示できませんでした。"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6745,9 +6682,9 @@ msgid "Retained package versions"
 msgstr "保持するパッケージバージョン"
 
 #: src/containers/ansible-repository/tab-details.tsx
-#: src/containers/deb-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Retained version count"
 msgstr "保持バージョン数"
@@ -7564,6 +7501,7 @@ msgstr "一部のリポジトリー一覧を検索できませんでした。"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Source packages will be synchronized"
 msgstr "ソースパッケージが同期されます"
 
@@ -7694,7 +7632,6 @@ msgstr "クリップボードへのコピーに成功しました!"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
-#: src/containers/deb-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
@@ -7785,7 +7722,6 @@ msgstr "概要"
 #~ msgstr ""
 
 #: src/actions/ansible-repository-sync.tsx
-#: src/actions/deb-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
@@ -7831,11 +7767,11 @@ msgstr ""
 msgid "Sync installer"
 msgstr "インストーラーの同期"
 
-#: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync installer files"
 msgstr "インストーラーファイルの同期"
 
-#: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync installer packages"
 msgstr "インストーラーパッケージの同期"
 
@@ -7883,7 +7819,7 @@ msgid "Sync selected repositories"
 msgstr ""
 
 #: src/components/remote-form.tsx
-#: src/containers/deb-remote/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Sync sources"
 msgstr "ソースの同期"
 
@@ -7905,7 +7841,6 @@ msgstr "ソースの同期"
 #~ msgstr "リモートレジストリー \"{name}\" の同期が開始されました。"
 
 #: src/actions/ansible-repository-sync.tsx
-#: src/actions/deb-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/framework/list/repository-list.tsx
@@ -7985,6 +7920,10 @@ msgstr "イメージのタグ付け"
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Tags could not be displayed."
 #~ msgstr "タグを表示できませんでした。"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Take the version, origin, label and description of the Release file from the upstream repository that was synced, instead of values of Pulp's own."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8273,7 +8212,6 @@ msgid "The login page returned without a signed-in session."
 msgstr "ログインページはログイン済みのセッションなしで戻りました。"
 
 #: src/actions/ansible-remote-delete.tsx
-#: src/actions/deb-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
@@ -8315,7 +8253,6 @@ msgid "The progress of this task cannot be shown."
 msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
-#: src/actions/deb-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -8550,7 +8487,6 @@ msgid "There are no distributions associated with this repository."
 msgstr "このリポジトリーに関連付けられたディストリビューションはありません。"
 
 #: src/actions/ansible-repository-sync.tsx
-#: src/actions/deb-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 msgid "There are no remotes associated with this repository."
@@ -8716,7 +8652,6 @@ msgstr "これにより、このロールに関連付けられたすべてのパ
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -8874,7 +8809,6 @@ msgstr "コレクションリモートの更新"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
-#: src/containers/deb-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Update started for remote {0}"
@@ -8985,9 +8919,6 @@ msgstr "アップロード"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/ansible-remote/tab-details.tsx
-#: src/containers/deb-remote/list.tsx
-#: src/containers/deb-remote/tab-details.tsx
-#: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-distributions.tsx
@@ -8996,6 +8927,7 @@ msgstr "アップロード"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "URL"
@@ -9336,14 +9268,12 @@ msgid "Version"
 msgstr "バージョン"
 
 #: src/containers/ansible-repository/detail.tsx
-#: src/containers/deb-repository/detail.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
 msgid "Version {repositoryVersion}"
 msgstr "バージョン {repositoryVersion}"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/containers/deb-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -9356,7 +9286,6 @@ msgstr "バージョンナンバー"
 #~ msgstr "バージョン:"
 
 #: src/containers/ansible-repository/detail.tsx
-#: src/containers/deb-repository/detail.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
@@ -9538,14 +9467,17 @@ msgid "Whether to include pre-release versions in the sync."
 msgstr "同期にプレリリースバージョンを含めるかどうか。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of architectures to sync, for example \"amd64 arm64\". If none are supplied, all that are available will be synchronized."
 msgstr "同期するアーキテクチャーの空白区切りリスト (例: \"amd64 arm64\")。指定しない場合、利用可能なものがすべて同期されます。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of components to sync, for example \"main contrib\". If none are supplied, all that are available will be synchronized."
 msgstr "同期するコンポーネントの空白区切りリスト (例: \"main contrib\")。指定しない場合、利用可能なものがすべて同期されます。"
 
 #: src/components/remote-form.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "Whitespace separated list of distributions (also known as suites) to sync, for example \"bookworm bookworm-updates\"."
 msgstr "同期するディストリビューション (スイートとも呼ばれます) の空白区切りリスト (例: \"bookworm bookworm-updates\")。"
 

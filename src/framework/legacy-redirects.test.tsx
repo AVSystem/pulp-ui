@@ -12,6 +12,13 @@ const FILE: PluginManifest = {
   onFramework: true,
 };
 
+const DEB: PluginManifest = {
+  ...(PLUGIN_MANIFESTS.find(
+    ({ plugin }) => plugin === 'deb',
+  ) as PluginManifest),
+  onFramework: true,
+};
+
 // Where the address bar ends up: the redirect routes of the given plugins, and
 // a stand-in for every address they lead to.
 function Routed({ manifests = [FILE] }: { manifests?: PluginManifest[] }) {
@@ -196,6 +203,53 @@ describe(
         '/file/remotes/edit/:name',
         '/file/remotes/edit/_',
       ]);
+    });
+  },
+);
+
+describe(
+  'Integration: the addresses of the deb screens before the framework',
+  { tags: ['integration'] },
+  () => {
+    it('sends every old deb address to its new one, keeping the query that is not a tab', async () => {
+      const cases: [string, string][] = [
+        ['/deb/repositories/detail/r', '/deb/repositories/r/'],
+        [
+          '/deb/repositories/detail/r?tab=distributions&page=2',
+          '/deb/repositories/r/distributions/?page=2',
+        ],
+        [
+          '/deb/repositories/detail/r?tab=repository-versions&repositoryVersion=2',
+          '/deb/repositories/r/versions/2/',
+        ],
+        ['/deb/repositories/edit/r', '/deb/repositories/r/edit/'],
+        ['/deb/repositories/edit/_', '/deb/repository/new/'],
+        ['/deb/remotes/detail/r', '/deb/remotes/r/'],
+        ['/deb/remotes/edit/r', '/deb/remotes/r/edit/'],
+        ['/deb/remotes/edit/_', '/deb/remote/new/'],
+      ];
+
+      for (const [from, to] of cases) {
+        const { unmount } = renderWithProviders(<Routed manifests={[DEB]} />, {
+          route: from,
+        });
+        await screen.findByText('arrived');
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          new RegExp(`^${to.replace(/[?.]/g, '\\$&')}$`),
+        );
+        unmount();
+      }
+    });
+
+    it('leaves the old addresses of the plugins that are not on the framework alone', async () => {
+      renderWithProviders(<Routed manifests={[DEB]} />, {
+        route: '/rpm/repositories/detail/r',
+      });
+      await screen.findByText('arrived');
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        /^\/rpm\/repositories\/detail\/r$/,
+      );
     });
   },
 );
