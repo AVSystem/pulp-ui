@@ -20,7 +20,7 @@ import {
   PulpLabels,
 } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { lastSyncStatus, lastSynced, parsePulpIDFromURL } from 'src/utilities';
+import { lastSyncStatus, lastSynced } from 'src/utilities';
 
 const listItemActions = [
   // Edit
@@ -85,14 +85,11 @@ const AnsibleRepositoryList = ListPage<AnsibleRepositoryType>({
       name,
       private: isPrivate,
       pulp_created,
-      pulp_href,
       pulp_labels,
       remote,
     } = item;
-    const id = parsePulpIDFromURL(pulp_href);
-
     const kebabItems = listItemActions.map((action) =>
-      action.dropdownItem({ ...item, id }, actionContext),
+      action.dropdownItem(item, actionContext),
     );
 
     return (

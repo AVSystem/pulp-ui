@@ -9,7 +9,6 @@ import {
 import { AnsibleRemoteAPI, type AnsibleRemoteType } from 'src/api';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import { parsePulpIDFromURL } from 'src/utilities';
 import { RemoteAccessTab } from './tab-access';
 import { DetailsTab } from './tab-details';
 
@@ -47,9 +46,7 @@ const AnsibleRemoteDetail = PageWithTabs<AnsibleRemoteType>({
           return Promise.reject({ response: { status: 404 } });
         }
 
-        return AnsibleRemoteAPI.myPermissions(
-          parsePulpIDFromURL(remote.pulp_href),
-        )
+        return AnsibleRemoteAPI.myPermissions(remote.pulp_href)
           .then(({ data: { permissions } }) => permissions)
           .catch((e) => {
             console.error(e);

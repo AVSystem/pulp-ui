@@ -5,7 +5,6 @@ import { Paths, formatPath } from 'src/paths';
 import { taskAlert } from 'src/utilities';
 import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import { saveErrorMessages } from 'src/utilities/create-repository';
-import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 
 const initialRemote: AnsibleRemoteType = {
   name: '',
@@ -60,9 +59,7 @@ const AnsibleRemoteEdit = Page<AnsibleRemoteType>({
         if (!remote) {
           return remote;
         }
-        return AnsibleRemoteAPI.myPermissions(
-          parsePulpIDFromURL(remote.pulp_href),
-        )
+        return AnsibleRemoteAPI.myPermissions(remote.pulp_href)
           .then(({ data: { permissions } }) => permissions)
           .catch((e) => {
             console.error(e);
@@ -121,11 +118,7 @@ const AnsibleRemoteEdit = Page<AnsibleRemoteType>({
 
       const promise = !item
         ? AnsibleRemoteAPI.create(data)
-        : AnsibleRemoteAPI.smartUpdate(
-            parsePulpIDFromURL(item.pulp_href),
-            data,
-            item,
-          );
+        : AnsibleRemoteAPI.smartUpdate(item.pulp_href, data, item);
 
       promise
         .then(({ data: task }) => {

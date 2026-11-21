@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { GenericRepository } from './common';
 import { PulpAPI } from './pulp';
 
@@ -30,23 +31,10 @@ const base = new PulpAPI();
 export const FileRepositoryAPI = {
   create: (data) => base.http.post(`repositories/file/file/`, data),
 
-  delete: (id) => base.http.delete(`repositories/file/file/${id}/`),
+  delete: (href: string) =>
+    atHref(href, 'repositories/file/file/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/file/file/`, params),
-
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/file/file/${id}/versions/`, params),
-
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/file/file/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/file/file/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/file/file/${id}/sync/`, body),
 };
 
 export type { FileRepositoryType };

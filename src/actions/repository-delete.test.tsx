@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { listOf, repository, task } from 'src/test-utils/pulp';
+import { listOf, pluginRepository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { repositoryDeleteAction } from './repository-delete';
@@ -15,7 +15,6 @@ const API = '/pulp/api/v3';
 interface Open {
   name: string;
   pulp_href: string;
-  pulpId: string;
 }
 interface State {
   deleteModalOpen?: Open | null;
@@ -24,7 +23,6 @@ interface State {
 const opened = (repo: { name: string; pulp_href: string }): Open => ({
   name: repo.name,
   pulp_href: repo.pulp_href,
-  pulpId: repo.pulp_href.split('/').filter(Boolean).pop(),
 });
 
 // The action keeps its dialog state in the page that renders it. A small
@@ -107,8 +105,8 @@ function serveDelete(): () => void {
 
 describe('the Delete action of a repository', () => {
   it('closes only its own dialog when a delete that outlived it finishes after another repository dialog was opened', async () => {
-    const first = repository({ name: 'zz-first' });
-    const second = repository({ name: 'zz-second' });
+    const first = pluginRepository('rpm', { name: 'zz-first' });
+    const second = pluginRepository('rpm', { name: 'zz-second' });
     const release = serveDelete();
     const addAlert = vi.fn();
     const { user } = renderWithProviders(
@@ -140,8 +138,8 @@ describe('the Delete action of a repository', () => {
   });
 
   it('queues the result and does not leave the page when the page is gone by the time the delete finishes', async () => {
-    const first = repository({ name: 'zz-first' });
-    const second = repository({ name: 'zz-second' });
+    const first = pluginRepository('rpm', { name: 'zz-first' });
+    const second = pluginRepository('rpm', { name: 'zz-second' });
     const release = serveDelete();
     const addAlert = vi.fn();
     const queueAlert = vi.fn();
@@ -181,8 +179,8 @@ describe('the Delete action of a repository', () => {
   });
 
   it('shows the result on the page and reloads it while the page is still there', async () => {
-    const first = repository({ name: 'zz-first' });
-    const second = repository({ name: 'zz-second' });
+    const first = pluginRepository('rpm', { name: 'zz-first' });
+    const second = pluginRepository('rpm', { name: 'zz-second' });
     serveDelete()();
     const addAlert = vi.fn();
     const queueAlert = vi.fn();
@@ -213,8 +211,8 @@ describe('the Delete action of a repository', () => {
   });
 
   it('does not report a failed delete, and still closes its dialog, when a page update fails after the repository was removed', async () => {
-    const first = repository({ name: 'zz-first' });
-    const second = repository({ name: 'zz-second' });
+    const first = pluginRepository('rpm', { name: 'zz-first' });
+    const second = pluginRepository('rpm', { name: 'zz-second' });
     serveDelete()();
     const addAlert = vi.fn(() => {
       throw new Error('alerts are broken');
@@ -237,8 +235,8 @@ describe('the Delete action of a repository', () => {
   });
 
   it('shows one alert that says the user may not delete, with the server text, and leaves the list as it was when the delete is refused', async () => {
-    const first = repository({ name: 'zz-first' });
-    const second = repository({ name: 'zz-second' });
+    const first = pluginRepository('rpm', { name: 'zz-first' });
+    const second = pluginRepository('rpm', { name: 'zz-second' });
     server.use(
       listOf(`${API}/distributions/rpm/rpm/`, []).handler,
       listOf(`${API}/publications/rpm/rpm/`, []).handler,

@@ -75,7 +75,13 @@ function Page({
           </li>
         ))}
       </ul>
-      {action.button({ id: REMOTE_ID, name: REMOTE_NAME }, context)}
+      {action.button(
+        {
+          pulp_href: `${API}/remotes/ansible/collection/${REMOTE_ID}/`,
+          name: REMOTE_NAME,
+        },
+        context,
+      )}
       {action.modal(context)}
     </>
   );

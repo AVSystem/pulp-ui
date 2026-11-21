@@ -21,7 +21,6 @@ import {
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import { useSessionEpoch } from 'src/user-context';
-import { parsePulpIDFromURL } from 'src/utilities';
 import { useLatestRead } from 'src/utilities/latest-read';
 import {
   isSessionEnd,
@@ -187,13 +186,12 @@ export const RepositoryVersionsTab = ({
     query: reloadPage,
   },
 }: TabProps) => {
-  const pulpId = parsePulpIDFromURL(item.pulp_href);
   const latest_href = item.latest_version_href;
   const repositoryName = item.name;
   const queryList = ({ params }) =>
-    AnsibleRepositoryAPI.listVersions(pulpId, params);
+    AnsibleRepositoryAPI.listVersions(item.pulp_href, params);
   const queryDetail = ({ number }) =>
-    AnsibleRepositoryAPI.listVersions(pulpId, { number });
+    AnsibleRepositoryAPI.listVersions(item.pulp_href, { number });
   const [modalState, setModalState] = useState({});
   // The answer to the last read, with the version number it was asked for. A
   // null version means the server has no such version. The answer is used only

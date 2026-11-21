@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { AnsibleLastSyncType, GenericRepository } from './common';
 import { PulpAPI } from './pulp';
 
@@ -20,74 +21,60 @@ interface AnsibleRepositoryType extends GenericRepository {
 
 const base = new PulpAPI();
 
+const COLLECTION = 'repositories/ansible/ansible/';
+
+// Members that act on one repository take its address (pulp_href).
+const at = (href: string, send: (path: string) => Promise<{ data }>) =>
+  atHref(href, COLLECTION, send);
+
 export const AnsibleRepositoryAPI = {
-  addContent: (id: string, collection_version_hrefs) =>
-    base.http.post(`repositories/ansible/ansible/${id}/modify/`, {
-      add_content_units: collection_version_hrefs,
-    }),
-
-  addRole: (id: string, role) =>
-    base.http.post(`repositories/ansible/ansible/${id}/add_role/`, role),
-
-  copyCollectionVersion: (
-    id: string,
-    body: {
-      collection_versions: string[];
-      destination_repositories: string[];
-      signing_service?: string;
-    },
-  ) =>
-    base.http.post(
-      `repositories/ansible/ansible/${id}/copy_collection_version/`,
-      body,
+  addContent: (href: string, collection_version_hrefs) =>
+    at(href, (path) =>
+      base.http.post(`${path}modify/`, {
+        add_content_units: collection_version_hrefs,
+      }),
     ),
+
+  addRole: (href: string, role) =>
+    at(href, (path) => base.http.post(`${path}add_role/`, role)),
 
   create: (data) => base.http.post(`repositories/ansible/ansible/`, data),
 
-  delete: (id) => base.http.delete(`repositories/ansible/ansible/${id}/`),
+  delete: (href: string) => at(href, (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/ansible/ansible/`, params),
 
-  listRoles: (id: string, params?) =>
-    base.list(`repositories/ansible/ansible/${id}/list_roles/`, params),
+  listRoles: (href: string, params?) =>
+    at(href, (path) => base.list(`${path}list_roles/`, params)),
 
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/ansible/ansible/${id}/versions/`, params),
+  listVersions: (href: string, params?) =>
+    at(href, (path) => base.list(`${path}versions/`, params)),
 
-  moveCollectionVersion: (
-    id: string,
-    body: {
-      collection_versions: string[];
-      destination_repositories: string[];
-      signing_service?: string;
-    },
-  ) =>
-    base.http.post(
-      `repositories/ansible/ansible/${id}/move_collection_version/`,
-      body,
+  myPermissions: (href: string, params?) =>
+    at(href, (path) => base.list(`${path}my_permissions/`, params)),
+
+  removeContent: (href: string, collection_version_href) =>
+    at(href, (path) =>
+      base.http.post(`${path}modify/`, {
+        remove_content_units: [collection_version_href],
+      }),
     ),
 
-  myPermissions: (id: string, params?) =>
-    base.list(`repositories/ansible/ansible/${id}/my_permissions/`, params),
+  removeRole: (href: string, role) =>
+    at(href, (path) => base.http.post(`${path}remove_role/`, role)),
 
-  removeContent: (id: string, collection_version_href) =>
-    base.http.post(`repositories/ansible/ansible/${id}/modify/`, {
-      remove_content_units: [collection_version_href],
-    }),
+  patch: (href: string, data) =>
+    at(href, (path) => base.http.patch(path, data)),
 
-  removeRole: (id: string, role) =>
-    base.http.post(`repositories/ansible/ansible/${id}/remove_role/`, role),
+  revert: (href: string, version_href) =>
+    at(href, (path) =>
+      base.http.post(`${path}modify/`, {
+        base_version: version_href,
+      }),
+    ),
 
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/ansible/ansible/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/ansible/ansible/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/ansible/ansible/${id}/sync/`, body),
+  sync: (href: string, body = {}) =>
+    at(href, (path) => base.http.post(`${path}sync/`, body)),
 };
 
 export type { AnsibleRepositoryType };

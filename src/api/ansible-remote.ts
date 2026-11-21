@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { AnsibleLastSyncType, GenericRemote } from './common';
 import { PulpAPI } from './pulp';
 
@@ -49,32 +50,38 @@ function smartUpdate(
 
 const base = new PulpAPI();
 
+const COLLECTION = 'remotes/ansible/collection/';
+
+// Members that act on one remote take its address (pulp_href).
+const at = (href: string, send: (path: string) => Promise<{ data }>) =>
+  atHref(href, COLLECTION, send);
+
 export const AnsibleRemoteAPI = {
-  addRole: (id, role) =>
-    base.http.post(`remotes/ansible/collection/${id}/add_role/`, role),
+  addRole: (href: string, role) =>
+    at(href, (path) => base.http.post(`${path}add_role/`, role)),
 
   create: (data) => base.http.post(`remotes/ansible/collection/`, data),
 
-  delete: (id) => base.http.delete(`remotes/ansible/collection/${id}/`),
+  delete: (href: string) => at(href, (path) => base.http.delete(path)),
 
-  get: (id) => base.http.get(`remotes/ansible/collection/${id}/`),
+  get: (href: string) => at(href, (path) => base.http.get(path)),
 
   list: (params?) => base.list(`remotes/ansible/collection/`, params),
 
-  listRoles: (id, params?) =>
-    base.list(`remotes/ansible/collection/${id}/list_roles/`, params),
+  listRoles: (href: string, params?) =>
+    at(href, (path) => base.list(`${path}list_roles/`, params)),
 
-  myPermissions: (id, params?) =>
-    base.list(`remotes/ansible/collection/${id}/my_permissions/`, params),
+  myPermissions: (href: string, params?) =>
+    at(href, (path) => base.list(`${path}my_permissions/`, params)),
 
-  removeRole: (id, role) =>
-    base.http.post(`remotes/ansible/collection/${id}/remove_role/`, role),
+  removeRole: (href: string, role) =>
+    at(href, (path) => base.http.post(`${path}remove_role/`, role)),
 
-  smartUpdate: (id, newValue: AnsibleRemoteType, oldValue: AnsibleRemoteType) =>
-    base.http.put(
-      `remotes/ansible/collection/${id}/`,
-      smartUpdate(newValue, oldValue),
-    ),
+  smartUpdate: (
+    href: string,
+    newValue: AnsibleRemoteType,
+    oldValue: AnsibleRemoteType,
+  ) => at(href, (path) => base.http.put(path, smartUpdate(newValue, oldValue))),
 };
 
 export type { AnsibleRemoteType };

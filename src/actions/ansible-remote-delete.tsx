@@ -3,7 +3,6 @@ import { AnsibleRemoteAPI } from '../api/ansible-remote';
 import { DeleteRemoteModal } from '../components/delete-remote-modal';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
 import {
   TaskPending,
@@ -26,16 +25,13 @@ export const ansibleRemoteDeleteAction = Action({
       />
     ) : null,
   onClick: (
-    { name, id, pulp_href }: { name: string; id?: string; pulp_href?: string },
+    { name, pulp_href }: { name: string; pulp_href?: string },
     { setState },
-  ) =>
-    setState({
-      deleteModalOpen: { pulpId: id || parsePulpIDFromURL(pulp_href), name },
-    }),
+  ) => setState({ deleteModalOpen: { pulp_href, name } }),
 });
 
-function deleteRemote({ name, pulpId }, { addAlert, setState, listQuery }) {
-  return AnsibleRemoteAPI.delete(pulpId)
+function deleteRemote({ name, pulp_href }, { addAlert, setState, listQuery }) {
+  return AnsibleRemoteAPI.delete(pulp_href)
     .then(({ data }) => {
       addAlert(taskAlert(data.task, t`Removal started for remote ${name}`));
       setState({ deleteModalOpen: null });

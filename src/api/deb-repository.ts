@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import { PulpAPI } from './pulp';
 
 export interface DebRepositoryType {
@@ -22,21 +23,8 @@ const base = new PulpAPI();
 export const DebRepositoryAPI = {
   create: (data) => base.http.post(`repositories/deb/apt/`, data),
 
-  delete: (id) => base.http.delete(`repositories/deb/apt/${id}/`),
+  delete: (href: string) =>
+    atHref(href, 'repositories/deb/apt/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/deb/apt/`, params),
-
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/deb/apt/${id}/versions/`, params),
-
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/deb/apt/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/deb/apt/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/deb/apt/${id}/sync/`, body),
 };

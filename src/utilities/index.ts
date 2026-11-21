@@ -27,10 +27,7 @@ export {
   parsePulpResource,
   translatePulpResourceToURL,
 } from './parse-pulp-id';
-export {
-  plugin2api,
-  pluginRepositoryBasePath,
-} from './plugin-repository-base-path';
+export { plugin2api } from './plugin-repository-base-path';
 export { plugin_versions } from './plugin-version';
 export { repositoryBasePath, repositoryDistro } from './repository-distro';
 export { taskAlert } from './task-alert';

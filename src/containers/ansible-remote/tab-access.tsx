@@ -11,7 +11,7 @@ import {
 import { AccessTab, ListErrorState } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
 import { useSessionEpoch } from 'src/user-context';
-import { assignRoles, parsePulpIDFromURL } from 'src/utilities';
+import { assignRoles } from 'src/utilities';
 import { ACTION_PERMISSIONS } from 'src/utilities/action-permissions';
 import {
   isSessionEnd,
@@ -41,7 +41,7 @@ export const RemoteAccessTab = ({
     state: { params },
   },
 }: TabProps) => {
-  const id = item?.pulp_href && parsePulpIDFromURL(item.pulp_href);
+  const href = item?.pulp_href;
   const [name] = useState<string>(item?.name);
   const [groups, setGroups] = useState<GroupType[]>(null); // loading
   const [users, setUsers] = useState<UserType[]>(null); // loading
@@ -85,7 +85,7 @@ export const RemoteAccessTab = ({
     }
 
     // TODO handle pagination
-    AnsibleRemoteAPI.listRoles(id, { page_size: 100 })
+    AnsibleRemoteAPI.listRoles(href, { page_size: 100 })
       .then(({ data: { roles } }) => {
         const { users, groups } = assignRoles(roles);
 
@@ -147,7 +147,7 @@ export const RemoteAccessTab = ({
 
   const addUser = (user, roles) => {
     const rolePromises = roles.map((role) =>
-      AnsibleRemoteAPI.addRole(id, {
+      AnsibleRemoteAPI.addRole(href, {
         role: role.name,
         users: [user.username],
       }),
@@ -162,7 +162,7 @@ export const RemoteAccessTab = ({
 
   const removeUser = (user) => {
     const roles = user.object_roles.map((role) =>
-      AnsibleRemoteAPI.removeRole(id, {
+      AnsibleRemoteAPI.removeRole(href, {
         role,
         users: [user.username],
       }),
@@ -177,7 +177,7 @@ export const RemoteAccessTab = ({
 
   const addGroup = (group, roles) => {
     const rolePromises = roles.map((role) =>
-      AnsibleRemoteAPI.addRole(id, {
+      AnsibleRemoteAPI.addRole(href, {
         role: role.name,
         groups: [group.name],
       }),
@@ -192,7 +192,7 @@ export const RemoteAccessTab = ({
 
   const removeGroup = (group) => {
     const roles = group.object_roles.map((role) =>
-      AnsibleRemoteAPI.removeRole(id, {
+      AnsibleRemoteAPI.removeRole(href, {
         role,
         groups: [group.name],
       }),
@@ -207,7 +207,7 @@ export const RemoteAccessTab = ({
 
   const addUserRole = (user, roles) => {
     const rolePromises = roles.map((role) =>
-      AnsibleRemoteAPI.addRole(id, {
+      AnsibleRemoteAPI.addRole(href, {
         role: role.name,
         users: [user.username],
       }),
@@ -221,7 +221,7 @@ export const RemoteAccessTab = ({
   };
 
   const removeUserRole = (role, user) => {
-    const removedRole = AnsibleRemoteAPI.removeRole(id, {
+    const removedRole = AnsibleRemoteAPI.removeRole(href, {
       role,
       users: [user.username],
     });
@@ -235,7 +235,7 @@ export const RemoteAccessTab = ({
 
   const addRole = (group, roles) => {
     const rolePromises = roles.map((role) =>
-      AnsibleRemoteAPI.addRole(id, {
+      AnsibleRemoteAPI.addRole(href, {
         role: role.name,
         groups: [group.name],
       }),
@@ -249,7 +249,7 @@ export const RemoteAccessTab = ({
   };
 
   const removeRole = (role, group) => {
-    const removedRole = AnsibleRemoteAPI.removeRole(id, {
+    const removedRole = AnsibleRemoteAPI.removeRole(href, {
       role,
       groups: [group.name],
     });

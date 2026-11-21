@@ -1,11 +1,10 @@
 import { t } from '@lingui/core/macro';
 import { type AlertType } from 'src/components/alert-list';
 import { changedFields } from './changed-fields';
-import { parsePulpIDFromURL } from './parse-pulp-id';
 import { taskAlert } from './task-alert';
 
 interface PatchRepositoryParams {
-  RepositoryAPI: { patch: (id: string, data) => Promise<{ data }> };
+  RepositoryAPI: { patch: (href: string, data) => Promise<{ data }> };
   // the repository as the server returned it when the page loaded
   item: { name: string; pulp_href: string };
   // the same repository with the user's edits applied
@@ -32,10 +31,7 @@ export async function patchRepository({
     };
   }
 
-  const { data: task } = await RepositoryAPI.patch(
-    parsePulpIDFromURL(item.pulp_href),
-    changes,
-  );
+  const { data: task } = await RepositoryAPI.patch(item.pulp_href, changes);
 
   return task?.task
     ? taskAlert(task, t`Update started for repository ${name}`)

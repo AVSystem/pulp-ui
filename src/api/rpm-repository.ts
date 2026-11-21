@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { GenericRepository } from './common';
 import { PulpAPI } from './pulp';
 
@@ -36,23 +37,10 @@ const base = new PulpAPI();
 export const RPMRepositoryAPI = {
   create: (data) => base.http.post(`repositories/rpm/rpm/`, data),
 
-  delete: (id) => base.http.delete(`repositories/rpm/rpm/${id}/`),
+  delete: (href: string) =>
+    atHref(href, 'repositories/rpm/rpm/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/rpm/rpm/`, params),
-
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/rpm/rpm/${id}/versions/`, params),
-
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/rpm/rpm/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/rpm/rpm/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/rpm/rpm/${id}/sync/`, body),
 };
 
 export type { RPMRepositoryType };

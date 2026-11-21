@@ -7,11 +7,10 @@ import {
   ModalHeader,
 } from '@patternfly/react-core';
 import { useId, useState } from 'react';
-import { pluginOfHref } from 'src/entities/href';
+import { pluginOfHref, repositoryOfVersion } from 'src/entities/href';
 import { Spinner } from '../components/patternfly-wrappers/l10n';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { isSessionEnd } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import {
@@ -24,7 +23,7 @@ import { Action } from './action';
 // What the action needs of a plugin's repository API: a request that makes a
 // new latest version out of an existing one.
 interface RevertAPI {
-  revert: (id: string, versionHref: string) => Promise<{ data: { task } }>;
+  revert: (href: string, versionHref: string) => Promise<{ data: { task } }>;
 }
 
 const RevertModal = ({
@@ -87,8 +86,8 @@ export const repositoryVersionRevertAction = (RepositoryAPI: RevertAPI) => {
     { repositoryName, pulp_href, number },
     { addAlert, setState, reloadPage },
   ) {
-    // the first uuid of a version href is the repository's
-    const repositoryId = parsePulpIDFromURL(pulp_href);
+    // a version address is the repository's address followed by the version
+    const repositoryHref = repositoryOfVersion(pulp_href);
     const failed = handleHttpError(
       t`Failed to revert repository "${repositoryName}" to version "${number}"`,
       () => setState({ revertModal: null }),
@@ -99,7 +98,7 @@ export const repositoryVersionRevertAction = (RepositoryAPI: RevertAPI) => {
     try {
       ({
         data: { task },
-      } = await RepositoryAPI.revert(repositoryId, pulp_href));
+      } = await RepositoryAPI.revert(repositoryHref, pulp_href));
     } catch (e) {
       // A request that did not go through because the session ended leaves
       // the dialog open, and nothing is sent again by itself.

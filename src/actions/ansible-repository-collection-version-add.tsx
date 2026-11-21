@@ -25,7 +25,6 @@ import {
 import { DetailList } from '../components/detail-list';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { isSessionEnd } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
@@ -41,7 +40,6 @@ async function add(
   collections: AnsibleCollectionVersion[],
   { addAlert, setState, reloadPage },
 ) {
-  const pulpId = parsePulpIDFromURL(repositoryHref);
   const collectionVersionHrefs = collections.map((c) => c.pulp_href);
   const failed = handleHttpError(
     plural(collections.length, {
@@ -56,7 +54,10 @@ async function add(
   try {
     ({
       data: { task },
-    } = await AnsibleRepositoryAPI.addContent(pulpId, collectionVersionHrefs));
+    } = await AnsibleRepositoryAPI.addContent(
+      repositoryHref,
+      collectionVersionHrefs,
+    ));
   } catch (e) {
     if (!isSessionEnd(e)) {
       failed(e);

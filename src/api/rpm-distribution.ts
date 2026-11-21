@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { GenericDistribution } from './common';
 import { PulpAPI } from './pulp';
 
@@ -16,7 +17,8 @@ const base = new PulpAPI();
 export const RPMDistributionAPI = {
   create: (data) => base.http.post(`distributions/rpm/rpm/`, data),
 
-  delete: (id) => base.http.delete(`distributions/rpm/rpm/${id}/`),
+  delete: (href: string) =>
+    atHref(href, 'distributions/rpm/rpm/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`distributions/rpm/rpm/`, params),
 };
