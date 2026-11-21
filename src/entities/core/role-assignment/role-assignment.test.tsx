@@ -380,6 +380,76 @@ describe('Integration: useObjectPermissions', { tags: ['integration'] }, () => {
     expect(latest.can(repositoryHref(1), SYNC)).toBe(false);
   });
 
+  it('takes the permissions of each role from the assignments when the account may not read the roles', async () => {
+    serveAccount({
+      own: [
+        roleAssignment(VIEWER, repositoryHref(1), { permissions: [VIEW] }),
+      ],
+      groups: [
+        {
+          id: 3,
+          rows: [
+            roleAssignment(OWNER, repositoryHref(2), {
+              permissions: [VIEW, SYNC, DELETE],
+            }),
+          ],
+        },
+      ],
+    });
+    server.use(
+      http.get(`*${API}/roles/`, () =>
+        HttpResponse.json(
+          { detail: 'You do not have permission to perform this action.' },
+          { status: 403 },
+        ),
+      ),
+    );
+
+    renderWithProviders(<Probe />, { signedIn: true });
+    await state('ready');
+
+    expect(latest.can(repositoryHref(1), VIEW)).toBe(true);
+    expect(latest.can(repositoryHref(1), SYNC)).toBe(false);
+    expect(latest.can(repositoryHref(2), SYNC)).toBe(true);
+    expect(latest.can(repositoryHref(9), VIEW)).toBe(false);
+
+    // the roles were asked for once and not again, and the assignments were
+    // asked for their permissions in place of the roles
+    const roles = recorder.reads.filter((read) =>
+      read.startsWith(`${API}/roles/`),
+    );
+    expect(roles).toHaveLength(1);
+    const assignments = recorder.reads.filter((read) =>
+      /\/(users|groups)\/\d+\/roles\//.test(read),
+    );
+    expect(assignments).toHaveLength(2);
+    for (const read of assignments) {
+      const query = new URL(read, 'https://pulp.example').searchParams;
+      expect(query.getAll('fields').sort()).toEqual([
+        'content_object',
+        'permissions',
+        'role',
+      ]);
+    }
+  });
+
+  it('does not take a refused roles read for a failed one, and still fails when an assignment page fails', async () => {
+    serveAccount({ own: [roleAssignment(OWNER, repositoryHref(1))] });
+    server.use(
+      http.get(`*${API}/roles/`, () =>
+        HttpResponse.json({ detail: 'no' }, { status: 403 }),
+      ),
+      http.get(`*${API}/users/7/roles/`, () =>
+        HttpResponse.json({ detail: 'boom' }, { status: 500 }),
+      ),
+    );
+
+    renderWithProviders(<Probe />, { signedIn: true });
+
+    await state('error');
+    expect(latest.can(repositoryHref(1), SYNC)).toBe(false);
+  });
+
   it('reads nothing while the screen has not asked for it', async () => {
     serveAccount({ own: [roleAssignment(OWNER, repositoryHref(1))] });
 
