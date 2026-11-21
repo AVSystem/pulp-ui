@@ -1,5 +1,4 @@
 import { failureReason } from './create-repository';
-import { parsePulpIDFromURL } from './parse-pulp-id';
 import {
   type RepositoryDistribution,
   type RepositoryDistributionPlugin,
@@ -27,8 +26,8 @@ export const DELETE_CONCURRENCY = 4;
 
 export interface DeleteRepositoryParams {
   plugin: RepositoryDistributionPlugin;
-  RepositoryAPI: { delete: (id: string) => Promise<{ data }> };
-  DistributionAPI: { delete: (id: string) => Promise<{ data }> };
+  RepositoryAPI: { delete: (href: string) => Promise<{ data }> };
+  DistributionAPI: { delete: (href: string) => Promise<{ data }> };
   repository: { name: string; pulp_href: string };
   // the distributions the user was shown and confirmed; exactly these are
   // deleted, and only while they still serve the repository
@@ -150,10 +149,7 @@ export async function deleteRepositoryWithDistributions({
     DELETE_CONCURRENCY,
     async ({ name, pulp_href }): Promise<DistributionOutcome> => {
       try {
-        await deleteAndWait(
-          () => DistributionAPI.delete(parsePulpIDFromURL(pulp_href)),
-          wait,
-        );
+        await deleteAndWait(() => DistributionAPI.delete(pulp_href), wait);
         return { name, status: 'removed' };
       } catch (e) {
         if (e instanceof TaskUnknown) {
@@ -200,10 +196,7 @@ export async function deleteRepositoryWithDistributions({
   }
 
   try {
-    await deleteAndWait(
-      () => RepositoryAPI.delete(parsePulpIDFromURL(repository.pulp_href)),
-      wait,
-    );
+    await deleteAndWait(() => RepositoryAPI.delete(repository.pulp_href), wait);
     result.repositoryDeleted = true;
   } catch (e) {
     if (e instanceof TaskUnknown) {

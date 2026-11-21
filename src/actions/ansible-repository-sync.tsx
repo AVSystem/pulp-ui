@@ -6,7 +6,6 @@ import { SyncModal } from '../components/sync-modal';
 import { Paths, formatPath } from '../paths';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleDialogWriteError } from '../utilities/fail-alerts';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
 
@@ -69,8 +68,7 @@ export const ansibleRepositorySyncAction = Action({
 });
 
 function syncRepository({ name, pulp_href }, { addAlert, query }, syncParams) {
-  const pulpId = parsePulpIDFromURL(pulp_href);
-  return AnsibleRepositoryAPI.sync(pulpId, syncParams || { mirror: true })
+  return AnsibleRepositoryAPI.sync(pulp_href, syncParams || { mirror: true })
     .then(({ data }) => {
       addAlert(taskAlert(data.task, t`Sync started for repository "${name}".`));
 

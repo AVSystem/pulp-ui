@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { GenericDistribution } from './common';
 import { PulpAPI } from './pulp';
 
@@ -19,7 +20,10 @@ const base = new PulpAPI();
 export const AnsibleDistributionAPI = {
   create: (data) => base.http.post(`distributions/ansible/ansible/`, data),
 
-  delete: (id) => base.http.delete(`distributions/ansible/ansible/${id}/`),
+  delete: (href: string) =>
+    atHref(href, 'distributions/ansible/ansible/', (path) =>
+      base.http.delete(path),
+    ),
 
   list: (params?) => base.list(`distributions/ansible/ansible/`, params),
 

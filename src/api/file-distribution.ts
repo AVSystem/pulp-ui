@@ -1,3 +1,4 @@
+import { atHref } from 'src/utilities/at-href';
 import type { GenericDistribution } from './common';
 import { PulpAPI } from './pulp';
 
@@ -16,7 +17,8 @@ const base = new PulpAPI();
 export const FileDistributionAPI = {
   create: (data) => base.http.post(`distributions/file/file/`, data),
 
-  delete: (id) => base.http.delete(`distributions/file/file/${id}/`),
+  delete: (href: string) =>
+    atHref(href, 'distributions/file/file/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`distributions/file/file/`, params),
 };

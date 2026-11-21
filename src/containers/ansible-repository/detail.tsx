@@ -15,12 +15,7 @@ import {
 } from 'src/api';
 import { PageWithTabs } from 'src/components';
 import { Paths, formatPath } from 'src/paths';
-import {
-  lastSyncStatus,
-  lastSynced,
-  parsePulpIDFromURL,
-  repositoryDistro,
-} from 'src/utilities';
+import { lastSyncStatus, lastSynced, repositoryDistro } from 'src/utilities';
 import { RepositoryAccessTab } from './tab-access';
 import { CollectionVersionsTab } from './tab-collection-versions';
 import { DetailsTab } from './tab-details';
@@ -90,13 +85,11 @@ const AnsibleRepositoryDetail = PageWithTabs<
             repository.pulp_href,
             AnsibleDistributionAPI,
           ).catch(err(null)),
-          AnsibleRepositoryAPI.myPermissions(
-            parsePulpIDFromURL(repository.pulp_href),
-          )
+          AnsibleRepositoryAPI.myPermissions(repository.pulp_href)
             .then(({ data: { permissions } }) => permissions)
             .catch(err([])),
           repository.remote
-            ? AnsibleRemoteAPI.get(parsePulpIDFromURL(repository.remote))
+            ? AnsibleRemoteAPI.get(repository.remote)
                 .then(({ data }) => data)
                 .catch(() => null)
             : null,

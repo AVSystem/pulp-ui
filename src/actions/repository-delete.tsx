@@ -2,7 +2,6 @@ import { msg, t } from '@lingui/core/macro';
 import { DeleteRepositoryModal } from '../components/delete-repository-modal';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { deleteRepositoryWithDistributions } from '../utilities/delete-repository';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { plugin2api } from '../utilities/plugin-repository-base-path';
 import { type RepositoryDistributionPlugin } from '../utilities/repository-distributions';
 import { Action } from './action';
@@ -89,19 +88,8 @@ export const repositoryDeleteAction = (
         />
       ) : null,
     onClick: (
-      {
-        name,
-        id,
-        pulp_href,
-      }: { name: string; id?: string; pulp_href?: string },
+      { name, pulp_href }: { name: string; pulp_href?: string },
       { setState },
-    ) =>
-      setState({
-        deleteModalOpen: {
-          pulpId: id || parsePulpIDFromURL(pulp_href),
-          name,
-          pulp_href,
-        },
-      }),
+    ) => setState({ deleteModalOpen: { name, pulp_href } }),
   });
 };

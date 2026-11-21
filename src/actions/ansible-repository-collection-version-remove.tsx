@@ -6,7 +6,6 @@ import { AnsibleRepositoryAPI } from '../api/ansible-repository';
 import { DeleteModal } from '../components/delete-modal';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { handleHttpError } from '../utilities/fail-alerts';
-import { parsePulpIDFromURL } from '../utilities/parse-pulp-id';
 import { isSessionEnd } from '../utilities/request-error';
 import { taskAlert } from '../utilities/task-alert';
 import { Action } from './action';
@@ -25,7 +24,6 @@ async function remove(
   },
   { addAlert, setState, reloadPage },
 ) {
-  const pulpId = parsePulpIDFromURL(repositoryHref);
   const failed = handleHttpError(
     t`Failed to remove ${namespace}.${name} v${version} from repository "${repositoryName}".`,
     () => setState((ms) => ({ ...ms, removeCollectionVersionModal: null })),
@@ -37,7 +35,7 @@ async function remove(
     ({
       data: { task },
     } = await AnsibleRepositoryAPI.removeContent(
-      pulpId,
+      repositoryHref,
       collectionVersionHref,
     ));
   } catch (e) {

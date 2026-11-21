@@ -12,7 +12,6 @@ import {
   createRepository,
   saveErrorMessages,
 } from 'src/utilities/create-repository';
-import { parsePulpIDFromURL } from 'src/utilities/parse-pulp-id';
 import { patchRepository } from 'src/utilities/update-repository';
 
 // retain_repo_versions null keeps every version of a new repository
@@ -57,9 +56,7 @@ const AnsibleRepositoryEdit = Page<AnsibleRepositoryType>({
         if (!repository) {
           return repository;
         }
-        return AnsibleRepositoryAPI.myPermissions(
-          parsePulpIDFromURL(repository.pulp_href),
-        )
+        return AnsibleRepositoryAPI.myPermissions(repository.pulp_href)
           .then(({ data: { permissions } }) => permissions)
           .catch((e) => {
             console.error(e);

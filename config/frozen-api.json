@@ -21,13 +21,11 @@
     "AnsibleRepositoryAPI": [
       "addContent",
       "addRole",
-      "copyCollectionVersion",
       "create",
       "delete",
       "list",
       "listRoles",
       "listVersions",
-      "moveCollectionVersion",
       "myPermissions",
       "patch",
       "removeContent",

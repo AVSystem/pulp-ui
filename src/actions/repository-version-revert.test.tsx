@@ -86,7 +86,10 @@ function Page({
 // Serves the versions of a repository (version 2 is the latest) and records
 // the modify requests and the task polls.
 function setup(plugin: (typeof PLUGINS)[number]) {
-  const repo = repository({ name: 'zz-test-repo' });
+  const repo = repository({
+    name: 'zz-test-repo',
+    pulp_href: `${API}/${plugin.path}/00000000-0000-4000-8000-0000000000e1/`,
+  });
   const first = repositoryVersion(repo, 1);
   const second = repositoryVersion(repo, 2);
   const item = { ...repo, latest_version_href: second.pulp_href };
