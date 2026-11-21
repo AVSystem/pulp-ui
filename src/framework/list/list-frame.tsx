@@ -73,6 +73,39 @@ export function useListAddress(
   };
 }
 
+// Whether the page the address names lies beyond the last one: the server
+// answers an offset past the end with no rows and the real count. Such a page
+// is not an empty list, so the screen moves to the last page that has rows
+// (replacing the address, so Back does not return to the empty page) and
+// reports the state meanwhile.
+export function useLastPageWhenPastEnd(
+  data: Page<unknown> | undefined,
+  params: ListParams,
+  settled: boolean,
+): boolean {
+  const navigate = useNavigate();
+  const pastEnd =
+    settled &&
+    !!data &&
+    data.count > 0 &&
+    data.results.length === 0 &&
+    params.page > 1;
+  const count = data?.count ?? 0;
+  const { page, page_size: pageSize } = params;
+  const last = Math.max(1, Math.ceil(count / pageSize));
+
+  useEffect(() => {
+    if (pastEnd && last < page) {
+      navigate(
+        { search: searchOf({ ...params, page: last } as ListParams) },
+        { replace: true },
+      );
+    }
+  }, [pastEnd, last, page, params, navigate]);
+
+  return pastEnd;
+}
+
 // The rows to show of one read of a list. The server refuses a label
 // expression it cannot read with a 400. That is an answer about the
 // expression and not a failure of the list: the rows of the last result stay

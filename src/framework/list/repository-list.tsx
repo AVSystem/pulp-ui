@@ -66,6 +66,7 @@ import { FilterChips, ListFilters } from './filters';
 import {
   ColumnFailures,
   ListLayout,
+  useLastPageWhenPastEnd,
   useListAddress,
   useRereadAlert,
   useRowPermits,
@@ -244,6 +245,11 @@ const RepositoryListScreen = ({
 
   const { data, labelRefusal, lastShown } = useShownRows(query, params);
   const rows = useMemo(() => data?.results ?? [], [data]);
+  const pastEnd = useLastPageWhenPastEnd(
+    data,
+    params,
+    !query.isPlaceholderData,
+  );
   // The label keys offered are those of the rows shown and, once the label
   // filter has been opened, those of every repository of the plugin.
   const [indexWanted, setIndexWanted] = useState(false);
@@ -355,7 +361,7 @@ const RepositoryListScreen = ({
 
   const failed = query.isError && !sessionEnded && !data && !query.isFetching;
   const loading = !data && !failed;
-  const noData = !!data && rows.length === 0 && !filterIsSet;
+  const noData = !!data && data.count === 0 && !filterIsSet;
 
   if (loading && !everShown.current) {
     return (
@@ -463,7 +469,7 @@ const RepositoryListScreen = ({
   // What the table's place shows: the rows, the way out of a filter that
   // matches nothing, or the state of a read that is still on its way or failed.
   let content;
-  if (loading) {
+  if (loading || pastEnd) {
     content = <LoadingSpinner />;
   } else if (failed) {
     content = (

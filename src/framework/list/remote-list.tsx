@@ -50,6 +50,7 @@ import { FilterChips, ListFilters } from './filters';
 import {
   ColumnFailures,
   ListLayout,
+  useLastPageWhenPastEnd,
   useListAddress,
   useRereadAlert,
   useRowPermits,
@@ -156,6 +157,11 @@ const RemoteListScreen = ({
   const query = useEntityList(entity, request);
   const { data, labelRefusal } = useShownRows(query, params);
   const rows = useMemo(() => data?.results ?? [], [data]);
+  const pastEnd = useLastPageWhenPastEnd(
+    data,
+    params,
+    !query.isPlaceholderData,
+  );
   // The label keys offered are those of the rows shown.
   const labelKeys = useMemo(() => labelKeysOf(rows), [rows]);
 
@@ -243,7 +249,7 @@ const RemoteListScreen = ({
 
   const failed = query.isError && !sessionEnded && !data && !query.isFetching;
   const loading = !data && !failed;
-  const noData = !!data && rows.length === 0 && !filterIsSet;
+  const noData = !!data && data.count === 0 && !filterIsSet;
 
   if (loading && !everShown.current) {
     return (
@@ -325,7 +331,7 @@ const RemoteListScreen = ({
   // What the table's place shows: the rows, the way out of a filter that
   // matches nothing, or the state of a read that is still on its way or failed.
   let content;
-  if (loading) {
+  if (loading || pastEnd) {
     content = <LoadingSpinner />;
   } else if (failed) {
     content = (
