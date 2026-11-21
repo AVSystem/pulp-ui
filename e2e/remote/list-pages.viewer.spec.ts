@@ -1,6 +1,8 @@
 import { type Page, expect, test } from '@playwright/test';
+import { PLUGIN_MANIFESTS } from '../../src/framework/manifest';
 import { title } from '../support/sign-in';
 import {
+  type ListPage,
   absentOptionalPlugin,
   expectNothingLoaded,
   expectPageShown,
@@ -124,6 +126,20 @@ function permissionsRead(page: Page) {
   );
 }
 
+// A list on the framework reads the catalogue of roles to learn what the roles
+// the account holds on single objects allow. A server that keeps the roles from
+// an account that is not an administrator answers 403, and the list then reads
+// what each role allows from the account's own assignments. That refusal is the
+// expected answer, not a failure of the page.
+const onFramework = (entry: ListPage) =>
+  PLUGIN_MANIFESTS.some(
+    ({ plugin, onFramework: served }) =>
+      served && entry.path.startsWith(`${plugin}/`),
+  );
+
+const expectedRefusal = ({ url, status }: { url: string; status: number }) =>
+  status === 403 && url === '/pulp/api/v3/roles/';
+
 for (const entry of listPages) {
   const how = entry.viewerNoScreen
     ? 'shows the insufficient permissions page'
@@ -169,7 +185,12 @@ for (const entry of listPages) {
 
     if (!entry.viewerRefused) {
       await expect(failureShown(page)).toHaveCount(0);
-      expect(watch.failed, 'API requests of the page that failed').toEqual([]);
+      expect(
+        watch.failed.filter(
+          (failed) => !(onFramework(entry) && expectedRefusal(failed)),
+        ),
+        'API requests of the page that failed',
+      ).toEqual([]);
       expectNothingLoaded(watch, entry, notInstalled);
       await expectOnlyReadOnlyControls(page);
       await expectNoRowActions(page);

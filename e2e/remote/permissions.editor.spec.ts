@@ -139,6 +139,8 @@ async function offeredActions(row: Locator, page: Page): Promise<string[]> {
   return names;
 }
 
+const FILE_ROW_ORDER = ['Sync', 'Edit', 'Delete'];
+
 // Sync needs a remote to sync from, so the list offers it on the rows that have
 // one and leaves it out of the others.
 async function expectedFileActions(names: string[]): Promise<string[][]> {
@@ -149,7 +151,10 @@ async function expectedFileActions(names: string[]): Promise<string[][]> {
     limit: String(Math.max(names.length, 1)),
     fields: 'name,remote',
   });
-  const allowed = allowedRowActions('file', filePermissions);
+  // the order the framework list offers the actions in
+  const allowed = FILE_ROW_ORDER.filter((action) =>
+    allowedRowActions('file', filePermissions).includes(action),
+  );
   return names.map((name) => {
     const row = results.find((found) => found.name === name);
     expect(row, `file repository ${name} exists on the server`).toBeDefined();
