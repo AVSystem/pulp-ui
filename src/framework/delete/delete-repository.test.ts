@@ -15,6 +15,7 @@ import {
 import {
   type IDistribution,
   distribution,
+  inSetOf,
   listOf,
   publication,
   repository,
@@ -24,6 +25,7 @@ import {
   DeleteNotStarted,
   type DeleteRepositoryResult,
   deleteRepositoryWithDistributions,
+  readServingSnapshot,
 } from './delete-repository';
 
 // Runs the delete for the distributions the dialog would have shown, unless
@@ -643,6 +645,128 @@ describe(
         expect(result.failed).toStrictEqual([]);
         expect(sent.deletes).not.toContain(repo.pulp_href);
       });
+    });
+  },
+);
+
+describe(
+  'Integration: deleting many repositories from one reading of the distributions',
+  { tags: ['integration'] },
+  () => {
+    // Two repositories: one served by a distribution bound to it, one by a
+    // distribution bound to a publication of it.
+    const lab = () => {
+      const first = repository();
+      const second = repository();
+      const bound = distribution({
+        base_path: 'by-repository',
+        repository: first.pulp_href,
+      });
+      const viaPublication = publication({
+        repository: second.pulp_href,
+        repository_version: `${second.pulp_href}versions/1/`,
+      });
+      const byPublication = distribution({
+        base_path: 'by-publication',
+        publication: viaPublication.pulp_href,
+      });
+      const sent = serve({ distributions: [bound, byPublication] });
+      const publications = listOf(PUBLICATIONS, [viaPublication], {
+        pageSize: 1000,
+        matching: (row, query) =>
+          (inSetOf(query, 'pulp_href__in') ?? []).includes(row.pulp_href),
+      });
+      server.use(publications.handler);
+
+      return {
+        first,
+        second,
+        bound,
+        byPublication,
+        sent,
+        publicationReads: () => publications.queries,
+      };
+    };
+
+    it('reads every distribution once and the publications they are bound to in groups, and tells which serve each repository', async () => {
+      const { first, second, bound, byPublication, sent, publicationReads } =
+        lab();
+
+      const servingOf = await readServingSnapshot({
+        distribution: fileDistribution,
+        publication: { entity: filePublication },
+      });
+
+      expect(servingOf(first.pulp_href).map(({ name }) => name)).toStrictEqual([
+        bound.name,
+      ]);
+      expect(servingOf(second.pulp_href).map(({ name }) => name)).toStrictEqual(
+        [byPublication.name],
+      );
+      expect(servingOf(repository().pulp_href)).toStrictEqual([]);
+      expect(sent.queries).toHaveLength(1);
+      expect(publicationReads()).toHaveLength(1);
+      expect(sent.deletes).toStrictEqual([]);
+    });
+
+    it('rejects before anything is sent when the distributions cannot be listed', async () => {
+      lab();
+      server.use(
+        http.get(`*${DISTRIBUTIONS}`, () =>
+          HttpResponse.json({ detail: 'Broken.' }, { status: 500 }),
+        ),
+      );
+
+      await expect(
+        readServingSnapshot({
+          distribution: fileDistribution,
+          publication: { entity: filePublication },
+        }),
+      ).rejects.toBeInstanceOf(DeleteNotStarted);
+    });
+
+    it('deletes with the snapshot it was given and reads nothing of its own, while still holding the delete to what was shown', async () => {
+      const { first, bound, sent } = lab();
+      const servingOf = await readServingSnapshot({
+        distribution: fileDistribution,
+        publication: { entity: filePublication },
+      });
+      const reads = sent.queries.length;
+
+      const shownAll = await deleteRepositoryWithDistributions({
+        repository: fileRepository,
+        distribution: fileDistribution,
+        publication: { entity: filePublication },
+        target: first,
+        shown: [bound],
+        serving: servingOf(first.pulp_href),
+        pollMs: 1,
+      });
+
+      expect(shownAll).toMatchObject({
+        removed: [bound.name],
+        repositoryDeleted: true,
+      });
+      expect(sent.queries).toHaveLength(reads);
+
+      // a distribution that was not shown is reported and keeps the repository
+      const other = repository();
+      const late = distribution({
+        base_path: 'late',
+        repository: other.pulp_href,
+      });
+      const notShown = await deleteRepositoryWithDistributions({
+        repository: fileRepository,
+        distribution: fileDistribution,
+        target: other,
+        shown: [],
+        serving: [late],
+        pollMs: 1,
+      });
+
+      expect(notShown.unlisted).toStrictEqual(['late']);
+      expect(notShown.repositoryDeleted).toBe(false);
+      expect(sent.deletes).not.toContain(other.pulp_href);
     });
   },
 );

@@ -825,7 +825,7 @@ describe(
           ),
       ).toHaveLength(sent.length + 1);
       expect(
-        Array.from(table.querySelectorAll('tbody tr td:first-child a')).map(
+        Array.from(table.querySelectorAll('tbody tr td:nth-child(2) a')).map(
           (a) => a.textContent,
         ),
       ).toEqual(repositories.slice(0, 50).map(({ name }) => name));
@@ -837,7 +837,7 @@ describe(
       );
       await waitFor(() =>
         expect(
-          document.querySelector('tbody tr td:first-child a')?.textContent,
+          document.querySelector('tbody tr td:nth-child(2) a')?.textContent,
         ).toBe(repositories[50]?.name),
       );
       expect(lab.repositories.queries).toHaveLength(before);
@@ -858,7 +858,7 @@ describe(
 
       expect(lab.repositories.queries.length).toBeGreaterThan(1);
       expect(
-        Array.from(table.querySelectorAll('tbody tr td:first-child a')).map(
+        Array.from(table.querySelectorAll('tbody tr td:nth-child(2) a')).map(
           (a) => a.textContent,
         ),
       ).toEqual(

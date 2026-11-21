@@ -967,6 +967,8 @@ describe(
       holding(SYNC);
       const repositories = named(2) as IRepository[];
       serveLab({ repositories });
+      // the bulk actions need to know the roles held on single objects too
+      server.use(listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler);
       const sync: RowAction<RepositoryBase> = {
         id: 'sync',
         permission: 'sync',
