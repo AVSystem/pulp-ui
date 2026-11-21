@@ -358,7 +358,7 @@ test.describe('sessions of their own', () => {
       const isRepositoryWrite = (call: { method: string; path: string }) =>
         call.method === 'PATCH' && call.path === repository.pulp_href;
 
-      await page.goto(`file/repositories/edit/${repository.name}`);
+      await page.goto(`file/repositories/${repository.name}/edit`);
       await expect(page.locator('#description')).toBeVisible();
       await page.locator('#description').fill(typed);
 
@@ -401,7 +401,7 @@ test.describe('sessions of their own', () => {
         sent.filter(isRepositoryWrite).length,
         'writes of the repository after the refused one',
       ).toBe(writesBefore);
-      await expect(page).toHaveURL(/file\/repositories\/edit\//);
+      await expect(page).toHaveURL(/file\/repositories\/[^/]+\/edit\/?$/);
     });
   });
 });

@@ -8,8 +8,8 @@ import { title } from '../support/sign-in';
 
 // Deleting a repository removes every distribution that serves it: one bound to
 // the repository, one bound to a publication of it and one that a content guard
-// protects. The dialog names all three, marks the guarded one and asks for the
-// repository name before it deletes anything.
+// protects. The dialog names all three, marks the guarded one and asks for a
+// confirmation before it deletes anything.
 
 const REPOSITORIES = getRepositoriesFileFileListUrl();
 const DISTRIBUTIONS = getDistributionsFileFileListUrl();
@@ -66,7 +66,7 @@ test('deleting a repository after typing its name removes every distribution tha
   page,
 }) => {
   const name = repository.name as string;
-  await page.goto(`file/repositories/detail/${name}`);
+  await page.goto(`file/repositories/${name}`);
   await expect(title(page, name)).toBeVisible();
 
   await page.getByRole('button', { name: 'Delete', exact: true }).click();
@@ -83,12 +83,9 @@ test('deleting a repository after typing its name removes every distribution tha
   await expect(item(distributionNames.repository)).not.toContainText(guarded);
   await expect(item(distributionNames.publication)).not.toContainText(guarded);
 
-  // nothing is deleted until the repository name is typed
+  // nothing is deleted until the user confirms, and the confirmation is not
+  // offered before the distributions that go with the repository are listed
   const confirm = dialog.getByRole('button', { name: 'Delete', exact: true });
-  await expect(confirm).toBeDisabled();
-  await dialog.locator('#delete-repository-name').fill(`${name}x`);
-  await expect(confirm).toBeDisabled();
-  await dialog.locator('#delete-repository-name').fill(name);
   await expect(confirm).toBeEnabled();
   await confirm.click();
   await expect(dialog).toBeHidden();

@@ -69,7 +69,7 @@ test('a repository page whose requests are aborted shows the error state and Ret
   });
   const name = repository.name as string;
 
-  await page.goto(`file/repositories/detail/${name}`);
+  await page.goto(`file/repositories/${name}`);
   await expect(title(page, name)).toBeVisible();
 
   await cutOffRepositories(page);

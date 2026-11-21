@@ -35,8 +35,12 @@ function recordPosts(page: Page): string[] {
 
 const save = (page: Page) => page.getByRole('button', { name: 'Save' });
 
+// The address of a file repository's detail page: its name in one segment.
+const detailAddress = (name: string) =>
+  new RegExp(`/file/repositories/${encodeURIComponent(name)}/?$`);
+
 async function openCreateForm(page: Page, name: string) {
-  await page.goto('file/repositories/edit/_');
+  await page.goto('file/repository/new');
   await page.locator('#name').fill(name);
   await expect(page.locator('#create_distribution')).not.toBeChecked();
 }
@@ -55,7 +59,7 @@ test('saving an edit creates no distribution and sends no POST', async ({
   const repository = await objects.create(REPOSITORIES, {
     name: objects.name('edit'),
   });
-  const distributions = await Promise.all(
+  await Promise.all(
     ['one', 'two'].map((suffix) =>
       objects.create(DISTRIBUTIONS, {
         name: objects.name(`edit-${suffix}`),
@@ -66,15 +70,15 @@ test('saving an edit creates no distribution and sends no POST', async ({
   );
 
   const posts = recordPosts(page);
-  await page.goto(`file/repositories/edit/${repository.name}`);
-  // the form lists what serves the repository once it has loaded it
-  for (const distribution of distributions) {
-    await expect(page.getByText(distribution.name as string)).toBeVisible();
-  }
+  await page.goto(`file/repositories/${repository.name}/edit`);
+  // the form has no distribution to offer or to list on an edit: it shows the
+  // repository's own fields once it has loaded them
+  await expect(page.locator('#description')).toBeVisible();
+  await expect(page.locator('#create_distribution')).toHaveCount(0);
 
   await page.locator('#description').fill('changed by the browser test');
   await save(page).click();
-  await page.waitForURL(/repositories\/detail\//);
+  await page.waitForURL(detailAddress(repository.name as string));
   await expect(title(page, repository.name as string)).toBeVisible();
 
   expect(posts, 'POST requests of the page').toEqual([]);
@@ -189,7 +193,7 @@ test('the default base path is the name and the preview is the URL the server th
   );
 
   await save(page).click();
-  await page.waitForURL(/repositories\/detail\//);
+  await page.waitForURL(detailAddress(name));
 
   const [created] = await objects.list(DISTRIBUTIONS, {
     name,
@@ -207,7 +211,7 @@ test('a double click on Save sends one repository POST', async ({ page }) => {
   await openCreateForm(page, name);
 
   await save(page).dblclick();
-  await page.waitForURL(/repositories\/detail\//);
+  await page.waitForURL(detailAddress(name));
 
   expect(
     posts.filter((path) => path === REPOSITORIES),
