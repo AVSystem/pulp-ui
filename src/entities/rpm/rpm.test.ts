@@ -10,6 +10,7 @@ import {
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import { rpmDistribution } from './distribution';
+import { rpmPackage } from './package';
 import { rpmPublication } from './publication';
 import { rpmRemote } from './remote';
 import { rpmRepository } from './repository';
@@ -241,6 +242,90 @@ describe('Unit: the rpm entities', { tags: ['unit'] }, () => {
       expect(published.results).toHaveLength(1);
       expect(distributions.queries).toHaveLength(1);
       expect(publications.queries).toHaveLength(1);
+    });
+  });
+
+  describe('the package', () => {
+    it('names the plugin and the object it keys its reads by', () => {
+      expect(rpmPackage.app).toBe('rpm');
+      expect(rpmPackage.object).toBe('package');
+    });
+
+    it('lists the packages of one repository version with the page, the order, the filters and the fields the screen asked for', async () => {
+      const seen: URLSearchParams[] = [];
+      server.use(
+        http.get(`*${API}/content/rpm/packages/`, ({ request }) => {
+          seen.push(new URL(request.url).searchParams);
+          return HttpResponse.json({
+            count: 41,
+            next: null,
+            previous: null,
+            results: [
+              {
+                pulp_href: `${API}/content/rpm/packages/1/`,
+                name: 'bash',
+                epoch: '1',
+                version: '5.2',
+                release: '3.el9',
+                arch: 'x86_64',
+                summary: 'The GNU shell',
+              },
+            ],
+          });
+        }),
+      );
+      const version = `${API}/repositories/rpm/rpm/1/versions/4/`;
+
+      const answer = await rpmPackage.list({
+        repository_version: version,
+        page: 3,
+        page_size: 20,
+        sort: '-name',
+        name__contains: 'ba',
+        arch: 'x86_64',
+        fields: ['name', 'epoch', 'version'],
+      });
+
+      expect(answer.count).toBe(41);
+      expect(answer.results[0]).toMatchObject({ name: 'bash', epoch: '1' });
+      expect(seen).toHaveLength(1);
+      expect(seen[0]?.get('repository_version')).toBe(version);
+      expect(seen[0]?.get('offset')).toBe('40');
+      expect(seen[0]?.get('limit')).toBe('20');
+      expect(seen[0]?.get('ordering')).toBe('-name');
+      expect(seen[0]?.get('name__contains')).toBe('ba');
+      expect(seen[0]?.get('arch')).toBe('x86_64');
+      expect(seen[0]?.getAll('fields')).toEqual(['name', 'epoch', 'version']);
+    });
+
+    it('sends no filter that was not set and never one it does not know', async () => {
+      const seen: URLSearchParams[] = [];
+      server.use(
+        http.get(`*${API}/content/rpm/packages/`, ({ request }) => {
+          seen.push(new URL(request.url).searchParams);
+          return HttpResponse.json({ count: 0, results: [] });
+        }),
+      );
+
+      await rpmPackage.list({
+        repository_version: `${API}/repositories/rpm/rpm/1/versions/4/`,
+        summary: 'x',
+      });
+
+      expect(Array.from(seen[0]?.keys() ?? []).sort()).toEqual([
+        'limit',
+        'offset',
+        'repository_version',
+      ]);
+    });
+
+    it('builds the address of a list, version included', () => {
+      expect(
+        rpmPackage.urlOf({
+          repository_version: `${API}/repositories/rpm/rpm/1/versions/4/`,
+          page_size: 20,
+        }),
+      ).toContain('repository_version=');
     });
   });
 });
