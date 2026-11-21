@@ -52,7 +52,13 @@ const READ_ONLY_CONTROLS: string[] = [
   'Go back',
   // expands the card that shows the status answer as text
   'JSON',
+  // opens the label filter, which only writes the list's address when applied
+  'Labels',
 ];
+
+// The button that unfolds the labels a row has beyond the first ones ("2
+// more"): it only shows more of the row.
+const MORE_LABELS = /^\d+ more$/;
 
 // Every visible button and menu item of the page content that is not read-only
 // by where it sits, by accessible name. A control with no name is reported as
@@ -96,7 +102,7 @@ async function controlNames(page: Page): Promise<string[]> {
 // not read-only.
 async function expectOnlyReadOnlyControls(page: Page): Promise<void> {
   const offending = (await controlNames(page)).filter(
-    (name) => !READ_ONLY_CONTROLS.includes(name),
+    (name) => !READ_ONLY_CONTROLS.includes(name) && !MORE_LABELS.test(name),
   );
   expect(
     offending,

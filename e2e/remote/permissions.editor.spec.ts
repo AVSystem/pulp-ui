@@ -202,9 +202,9 @@ test('a file repository with a remote offers Sync to the editor', async ({
   const { results } = await apiGet<{ results: { name: string }[] }>(
     api,
     getRemotesFileFileListUrl(),
-    { name__startswith: 'zz-synth-file-', name__endswith: '-src', limit: '1' },
+    { name__contains: '-src', name__startswith: 'zz-synth-file-', limit: '20' },
   );
-  const remote = results[0]?.name ?? '';
+  const remote = results.find(({ name }) => name.endsWith('-src'))?.name ?? '';
   expect(remote, 'a seeded file remote').not.toBe('');
   const name = remote.slice(0, -'-src'.length);
   const [expected] = await expectedFileActions([name]);
