@@ -27,41 +27,10 @@ interface PythonRemoteType extends GenericRemote {
   provenance?: boolean;
 }
 
-// as in deb-remote / file-remote
-function smartUpdate(
-  remote: PythonRemoteType,
-  unmodifiedRemote: PythonRemoteType,
-) {
-  for (const field of Object.keys(remote)) {
-    if (remote[field] === '') {
-      remote[field] = null;
-    }
-
-    // API returns headers:null but doesn't accept it .. and we don't edit headers
-    if (remote[field] === null && unmodifiedRemote[field] === null) {
-      delete remote[field];
-    }
-  }
-
-  return remote;
-}
-
 const base = new PulpAPI();
 
 export const PythonRemoteAPI = {
-  create: (data) => base.http.post(`remotes/python/python/`, data),
-
-  delete: (id) => base.http.delete(`remotes/python/python/${id}/`),
-
-  get: (id) => base.http.get(`remotes/python/python/${id}/`),
-
   list: (params?) => base.list(`remotes/python/python/`, params),
-
-  smartUpdate: (id, newValue: PythonRemoteType, oldValue: PythonRemoteType) =>
-    base.http.put(
-      `remotes/python/python/${id}/`,
-      smartUpdate(newValue, oldValue),
-    ),
 };
 
 export type { PythonPackageType, PythonPlatform, PythonRemoteType };

@@ -11,12 +11,5 @@ export const PythonDistributionAPI = {
       base.http.delete(path),
     ),
 
-  get: (id) => base.http.get(`distributions/python/pypi/${id}/`),
-
   list: (params?) => base.list(`distributions/python/pypi/`, params),
-
-  // Sends only the given fields, so a field changed elsewhere meanwhile is not
-  // overwritten with a stale value.
-  patch: (id, data) =>
-    base.http.patch(`distributions/python/pypi/${id}/`, data),
 };

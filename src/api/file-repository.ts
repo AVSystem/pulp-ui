@@ -35,20 +35,6 @@ export const FileRepositoryAPI = {
     atHref(href, 'repositories/file/file/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/file/file/`, params),
-
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/file/file/${id}/versions/`, params),
-
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/file/file/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/file/file/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/file/file/${id}/sync/`, body),
 };
 
 export type { FileRepositoryType };

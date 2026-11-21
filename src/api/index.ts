@@ -12,7 +12,6 @@ export {
 export { DebDistributionAPI } from './deb-distribution';
 export { DebRemoteAPI, type DebRemoteType } from './deb-remote';
 export { DebRepositoryAPI, type DebRepositoryType } from './deb-repository';
-export { FileContentAPI } from './file-content';
 export { FileDistributionAPI } from './file-distribution';
 export { FilePublicationAPI } from './file-publication';
 export { FileRemoteAPI, type FileRemoteType } from './file-remote';

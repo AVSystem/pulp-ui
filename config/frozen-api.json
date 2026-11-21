@@ -40,7 +40,7 @@
   },
   "collection-version.ts": {
     "AnsibleCollectionVersion": [],
-    "CollectionVersionAPI": ["get", "list"]
+    "CollectionVersionAPI": ["list"]
   },
   "common.ts": {
     "AnsibleLastSyncType": [],
@@ -51,9 +51,9 @@
     "TaskErrorType": []
   },
   "container-distribution.ts": {
-    "ContainerDistributionAPI": ["list", "patch", "url"],
+    "ContainerDistributionAPI": ["url"],
     "ContainerDistributionType": [],
-    "ContainerPullThroughDistributionAPI": ["list", "url"],
+    "ContainerPullThroughDistributionAPI": ["url"],
     "ContainerPullThroughDistributionType": []
   },
   "content-guard.ts": {
@@ -68,46 +68,27 @@
     "DebVerbatimPublicationAPI": ["list"]
   },
   "deb-remote.ts": {
-    "DebRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "DebRemoteAPI": ["list"],
     "DebRemoteType": []
   },
   "deb-repository.ts": {
-    "DebRepositoryAPI": [
-      "create",
-      "delete",
-      "list",
-      "listVersions",
-      "patch",
-      "revert",
-      "sync"
-    ],
+    "DebRepositoryAPI": ["create", "delete", "list"],
     "DebRepositoryType": []
-  },
-  "file-content.ts": {
-    "FileContentAPI": ["create", "get", "list"]
   },
   "file-distribution.ts": {
     "FileDistributionAPI": ["create", "delete", "list"],
     "FileDistributionType": []
   },
   "file-publication.ts": {
-    "FilePublicationAPI": ["create", "delete", "list"],
+    "FilePublicationAPI": ["list"],
     "FilePublicationType": []
   },
   "file-remote.ts": {
-    "FileRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "FileRemoteAPI": ["list"],
     "FileRemoteType": []
   },
   "file-repository.ts": {
-    "FileRepositoryAPI": [
-      "create",
-      "delete",
-      "list",
-      "listVersions",
-      "patch",
-      "revert",
-      "sync"
-    ],
+    "FileRepositoryAPI": ["create", "delete", "list"],
     "FileRepositoryType": []
   },
   "generic-pulp.ts": {
@@ -156,7 +137,6 @@
     "DebRepositoryAPI": [],
     "DebRepositoryType": [],
     "DocsBlobType": [],
-    "FileContentAPI": [],
     "FileDistributionAPI": [],
     "FilePublicationAPI": [],
     "FileRemoteAPI": [],
@@ -218,7 +198,7 @@
     "PulpAPI": ["mapPageToOffset", "sortParam"]
   },
   "python-distribution.ts": {
-    "PythonDistributionAPI": ["create", "delete", "get", "list", "patch"]
+    "PythonDistributionAPI": ["create", "delete", "list"]
   },
   "python-package.ts": {
     "PythonPackageAPI": ["list"]
@@ -229,19 +209,11 @@
   "python-remote.ts": {
     "PythonPackageType": [],
     "PythonPlatform": [],
-    "PythonRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "PythonRemoteAPI": ["list"],
     "PythonRemoteType": []
   },
   "python-repository.ts": {
-    "PythonRepositoryAPI": [
-      "create",
-      "delete",
-      "list",
-      "listVersions",
-      "patch",
-      "revert",
-      "sync"
-    ],
+    "PythonRepositoryAPI": ["create", "delete", "list"],
     "PythonRepositoryType": []
   },
   "repair.ts": {
@@ -420,19 +392,11 @@
     "RPMPublicationType": []
   },
   "rpm-remote.ts": {
-    "RPMRemoteAPI": ["create", "delete", "get", "list", "smartUpdate"],
+    "RPMRemoteAPI": ["list"],
     "RPMRemoteType": []
   },
   "rpm-repository.ts": {
-    "RPMRepositoryAPI": [
-      "create",
-      "delete",
-      "list",
-      "listVersions",
-      "patch",
-      "revert",
-      "sync"
-    ],
+    "RPMRepositoryAPI": ["create", "delete", "list"],
     "RPMRepositoryType": []
   },
   "signing-service.ts": {

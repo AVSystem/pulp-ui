@@ -41,20 +41,6 @@ export const RPMRepositoryAPI = {
     atHref(href, 'repositories/rpm/rpm/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/rpm/rpm/`, params),
-
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/rpm/rpm/${id}/versions/`, params),
-
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/rpm/rpm/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/rpm/rpm/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/rpm/rpm/${id}/sync/`, body),
 };
 
 export type { RPMRepositoryType };

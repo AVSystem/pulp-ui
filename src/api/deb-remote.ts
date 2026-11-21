@@ -39,33 +39,8 @@ export interface DebRemoteType {
   my_permissions?: string[];
 }
 
-// as in file-remote
-function smartUpdate(remote: DebRemoteType, unmodifiedRemote: DebRemoteType) {
-  for (const field of Object.keys(remote)) {
-    if (remote[field] === '') {
-      remote[field] = null;
-    }
-
-    // API returns headers:null but doesn't accept it .. and we don't edit headers
-    if (remote[field] === null && unmodifiedRemote[field] === null) {
-      delete remote[field];
-    }
-  }
-
-  return remote;
-}
-
 const base = new PulpAPI();
 
 export const DebRemoteAPI = {
-  create: (data) => base.http.post(`remotes/deb/apt/`, data),
-
-  delete: (id) => base.http.delete(`remotes/deb/apt/${id}/`),
-
-  get: (id) => base.http.get(`remotes/deb/apt/${id}/`),
-
   list: (params?) => base.list(`remotes/deb/apt/`, params),
-
-  smartUpdate: (id, newValue: DebRemoteType, oldValue: DebRemoteType) =>
-    base.http.put(`remotes/deb/apt/${id}/`, smartUpdate(newValue, oldValue)),
 };

@@ -27,18 +27,4 @@ export const DebRepositoryAPI = {
     atHref(href, 'repositories/deb/apt/', (path) => base.http.delete(path)),
 
   list: (params?) => base.list(`repositories/deb/apt/`, params),
-
-  listVersions: (id: string, params?) =>
-    base.list(`repositories/deb/apt/${id}/versions/`, params),
-
-  patch: (id: string, data) =>
-    base.http.patch(`repositories/deb/apt/${id}/`, data),
-
-  revert: (id: string, version_href) =>
-    base.http.post(`repositories/deb/apt/${id}/modify/`, {
-      base_version: version_href,
-    }),
-
-  sync: (id: string, body = {}) =>
-    base.http.post(`repositories/deb/apt/${id}/sync/`, body),
 };
