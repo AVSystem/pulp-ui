@@ -144,6 +144,19 @@ const remoteEditScreen = (plugin: FrameworkPlugin) =>
     ),
   );
 
+// The create form of a remote.
+const remoteCreateScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/form/remote-form'
+      ),
+    ({ RemoteCreate }, descriptor) => (
+      <RemoteCreate plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
 // The component of a pattern, or null while its screen does not exist yet:
 // such a pattern is not routed.
 function componentOf(
@@ -167,6 +180,8 @@ function componentOf(
       return remoteDetailScreen(plugin);
     case 'remote-edit':
       return remoteEditScreen(plugin);
+    case 'remote-create':
+      return remoteCreateScreen(plugin);
     default:
       return null;
   }

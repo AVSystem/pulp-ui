@@ -500,6 +500,7 @@ msgstr "アクション"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "追加"
@@ -572,6 +573,7 @@ msgstr ""
 #: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Add new remote"
 msgstr "新しいリモートの追加"
 
@@ -6142,6 +6144,10 @@ msgstr "リモート"
 msgid "Remote \"{remoteName}\" could not be updated"
 msgstr ""
 
+#: src/framework/form/remote-form.tsx
+msgid "Remote could not be created"
+msgstr ""
+
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
@@ -7593,6 +7599,10 @@ msgstr "クリップボードへのコピーに成功しました!"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
 msgstr "リモートが正常に作成されました {0}"
+
+#: src/framework/form/remote-form.tsx
+msgid "Successfully created remote {name}"
+msgstr ""
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx

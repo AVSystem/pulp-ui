@@ -501,6 +501,7 @@ msgstr "Actions"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "Add"
@@ -573,6 +574,7 @@ msgstr "Add label condition"
 #: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Add new remote"
 msgstr "Add new remote"
 
@@ -6143,6 +6145,10 @@ msgstr "Remote"
 msgid "Remote \"{remoteName}\" could not be updated"
 msgstr "Remote \"{remoteName}\" could not be updated"
 
+#: src/framework/form/remote-form.tsx
+msgid "Remote could not be created"
+msgstr "Remote could not be created"
+
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
@@ -7594,6 +7600,10 @@ msgstr "Successfully copied to clipboard!"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
 msgstr "Successfully created remote {0}"
+
+#: src/framework/form/remote-form.tsx
+msgid "Successfully created remote {name}"
+msgstr "Successfully created remote {name}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx

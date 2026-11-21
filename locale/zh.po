@@ -500,6 +500,7 @@ msgstr "操作"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "添加"
@@ -572,6 +573,7 @@ msgstr ""
 #: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Add new remote"
 msgstr "添加新远程"
 
@@ -6142,6 +6144,10 @@ msgstr "远程"
 msgid "Remote \"{remoteName}\" could not be updated"
 msgstr ""
 
+#: src/framework/form/remote-form.tsx
+msgid "Remote could not be created"
+msgstr ""
+
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
@@ -7593,6 +7599,10 @@ msgstr "成功复制至剪贴板！"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
 msgstr "成功创建远程 {0}"
+
+#: src/framework/form/remote-form.tsx
+msgid "Successfully created remote {name}"
+msgstr ""
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx

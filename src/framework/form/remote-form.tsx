@@ -17,8 +17,15 @@ import {
   closeAlert,
 } from 'src/components';
 import type { RemoteBase } from 'src/entities/plugin/model';
-import { useEntityByName, useUpdateEntity } from 'src/entities/plugin/queries';
-import type { RemoteChanges } from 'src/entities/plugin/remote';
+import {
+  useCreateEntity,
+  useEntityByName,
+  useUpdateEntity,
+} from 'src/entities/plugin/queries';
+import type {
+  RemoteChanges,
+  RemoteCreate as RemoteCreateBody,
+} from 'src/entities/plugin/remote';
 import { changedFields } from 'src/utilities/changed-fields';
 import {
   isSessionEnd,
@@ -27,7 +34,7 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
-import type { PluginDescriptor } from '../descriptor';
+import type { FieldDef, PluginDescriptor } from '../descriptor';
 import { useRereadAlert } from '../list/list-frame';
 import type { FrameworkPlugin } from '../manifest';
 import { remoteListPath, remotePath } from '../route-patterns';
@@ -37,12 +44,14 @@ import {
   changedNames,
   hasProblems,
   isSecret,
+  toFilledBody,
   toForm,
   toRequest,
 } from './form-values';
-import { FormPermissionGate } from './permission-gate';
+import { CreatePermissionGate, FormPermissionGate } from './permission-gate';
 import {
   NAME_FIELD,
+  REMOTE_CREATE_DEFAULTS,
   URL_FIELD,
   remoteFields,
   withTrailingSlash,
@@ -327,5 +336,127 @@ const RemoteEditScreen = ({
         </Main>
       </FormPermissionGate>
     </>
+  );
+};
+
+// What a new remote's form holds before the user types: every field blank as
+// its kind says, then the defaults of the fields this plugin's form has.
+function createValues(fields: readonly FieldDef[]): FormValues {
+  const defaults = Object.fromEntries(
+    Object.entries(REMOTE_CREATE_DEFAULTS).filter(([name]) =>
+      fields.some((field) => field.name === name),
+    ),
+  );
+
+  return { ...toForm(fields, {}), ...defaults };
+}
+
+// The form that makes a new remote, drawn from the plugin's descriptor. Only the
+// permission to add a remote opens it; Pulp decides the request. What was left
+// empty is not sent, so the server applies its own default for it.
+export const RemoteCreate = ({ plugin, descriptor }: Props) => {
+  const remoteKind = descriptor.remote;
+
+  if (!remoteKind) {
+    throw new Error(
+      `The ${plugin} descriptor declares no remotes, which their form needs`,
+    );
+  }
+
+  const fields = useMemo(
+    () => remoteFields(descriptor, 'create'),
+    [descriptor],
+  );
+  const shownNames = useMemo(() => fields.map(({ name }) => name), [fields]);
+  // The screen owns what is typed, so it survives the form being hidden while
+  // the permissions are read again.
+  const [values, setValues] = useState<FormValues>(() => createValues(fields));
+  const [failure, setFailure] = useState<SaveFailure | null>(null);
+  // A second press can arrive before the disabled button has rendered.
+  const sending = useRef(false);
+  const create = useCreateEntity<RemoteCreateBody, RemoteBase>(
+    remoteKind.entity,
+  );
+  const { queueAlert } = useAppContext();
+  const navigate = useNavigate();
+
+  const name = String(values[NAME_FIELD] ?? '').trim();
+  const url = String(values[URL_FIELD] ?? '').trim();
+
+  const change = (field: string, value: unknown) => {
+    setValues((current) => ({ ...current, [field]: value }));
+    setFailure((current) => withoutMessageOf(current, field));
+  };
+
+  const save = async () => {
+    if (sending.current) {
+      return;
+    }
+    sending.current = true;
+    setFailure(null);
+    try {
+      const body = withSlashedUrl(toFilledBody(fields, values));
+      await create.mutateAsync({ ...body, name } as RemoteCreateBody);
+      queueAlert({
+        variant: 'success',
+        title: t`Successfully created remote ${name}`,
+      });
+      navigate(remotePath(plugin, name));
+    } catch (error) {
+      setFailure(saveFailure(error, shownNames));
+    } finally {
+      sending.current = false;
+    }
+  };
+
+  const listPath = remoteListPath(plugin);
+
+  return (
+    <CreatePermissionGate
+      plugin={plugin}
+      permission={(permissions) => permissions.remote.add}
+      title={t`Add new remote`}
+    >
+      <BaseHeader
+        title={t`Add new remote`}
+        breadcrumbs={
+          <Breadcrumbs
+            links={[{ url: listPath, name: t`Remotes` }, { name: t`Add` }]}
+          />
+        }
+      />
+      <Main>
+        <section className='pulp-section' data-cy='RemoteCreate'>
+          <DescriptorForm
+            fields={fields}
+            values={values}
+            errors={failure?.fields ?? {}}
+            failure={failure?.general}
+            failureTitle={t`Remote could not be created`}
+            onChange={change}
+            onSubmit={save}
+          >
+            <ActionGroup>
+              <Button
+                variant='primary'
+                isDisabled={
+                  create.isPending ||
+                  name === '' ||
+                  url === '' ||
+                  hasProblems(fields, values)
+                }
+                onClick={save}
+              >
+                {t`Save`}
+                {create.isPending && <Spinner size='sm' />}
+              </Button>
+              <Button variant='link' onClick={() => navigate(listPath)}>
+                {t`Cancel`}
+              </Button>
+            </ActionGroup>
+          </DescriptorForm>
+        </section>
+      </Main>
+    </CreatePermissionGate>
   );
 };

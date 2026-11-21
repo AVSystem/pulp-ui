@@ -500,6 +500,7 @@ msgstr "동작"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "추가"
@@ -572,6 +573,7 @@ msgstr ""
 #: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Add new remote"
 msgstr "새 원격 추가"
 
@@ -6142,6 +6144,10 @@ msgstr "원격"
 msgid "Remote \"{remoteName}\" could not be updated"
 msgstr ""
 
+#: src/framework/form/remote-form.tsx
+msgid "Remote could not be created"
+msgstr ""
+
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
@@ -7593,6 +7599,10 @@ msgstr "클립보드에 성공적으로 복사되었습니다!"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
 msgstr "원격이 성공적으로 생성됨 {0}"
+
+#: src/framework/form/remote-form.tsx
+msgid "Successfully created remote {name}"
+msgstr ""
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx

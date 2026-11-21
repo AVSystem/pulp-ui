@@ -219,6 +219,35 @@ export function labelProblem(
     : null;
 }
 
+// The body of a create that sends only what was filled in: a field left empty,
+// a number left blank, a secret nobody typed and labels with no rows are not
+// sent at all, so the server applies its own default for each and is never told
+// that a username is the empty string. A box that is unticked and the number 0
+// are values and are sent.
+export function toFilledBody(
+  fields: readonly FieldDef[],
+  values: FormValues,
+): Record<string, unknown> {
+  const body = toRequest(
+    fields,
+    values,
+    fields.map(({ name }) => name),
+  );
+
+  return Object.fromEntries(
+    Object.entries(body).filter(([, value]) => {
+      if (value === null || value === '') {
+        return false;
+      }
+      return !(
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        Object.keys(value).length === 0
+      );
+    }),
+  );
+}
+
 // What is wrong with the value of a field, or null when nothing is. Only a
 // field that declares a minimum has its numbers checked (every other number is
 // left to the server), and a URL is checked when something was typed.
