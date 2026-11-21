@@ -9,6 +9,7 @@ import {
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import { pythonDistribution as pythonDistributionEntity } from './distribution';
+import { pythonPackage } from './package';
 import { pythonRemote } from './remote';
 import { pythonRepository } from './repository';
 
@@ -284,6 +285,99 @@ describe('Unit: the python entities', { tags: ['unit'] }, () => {
       expect(
         await pythonDistributionEntity.retrieve(row.pulp_href),
       ).toMatchObject({ name: 'simple', allow_uploads: true });
+    });
+  });
+
+  describe('the package', () => {
+    it('names the plugin and the object it keys its reads by', () => {
+      expect(pythonPackage.app).toBe('python');
+      expect(pythonPackage.object).toBe('package');
+    });
+
+    it('lists the packages of one repository version with the page, the order, the filters and the fields the screen asked for', async () => {
+      const seen: URLSearchParams[] = [];
+      server.use(
+        http.get(`*${API}/content/python/packages/`, ({ request }) => {
+          seen.push(new URL(request.url).searchParams);
+          return HttpResponse.json({
+            count: 41,
+            next: null,
+            previous: null,
+            results: [
+              {
+                pulp_href: `${API}/content/python/packages/1/`,
+                name: 'django',
+                version: '5.0',
+                packagetype: 'sdist',
+                filename: 'django-5.0.tar.gz',
+                requires_python: '>=3.10',
+              },
+            ],
+          });
+        }),
+      );
+      const version = `${API}/repositories/python/python/1/versions/4/`;
+
+      const answer = await pythonPackage.list({
+        repository_version: version,
+        page: 3,
+        page_size: 20,
+        sort: '-name',
+        name__contains: 'dja',
+        packagetype: 'sdist',
+        requires_python__contains: '3.10',
+        fields: ['name', 'version', 'packagetype'],
+      });
+
+      expect(answer.count).toBe(41);
+      expect(answer.results[0]).toMatchObject({
+        name: 'django',
+        packagetype: 'sdist',
+        requires_python: '>=3.10',
+      });
+      expect(seen).toHaveLength(1);
+      expect(seen[0]?.get('repository_version')).toBe(version);
+      expect(seen[0]?.get('offset')).toBe('40');
+      expect(seen[0]?.get('limit')).toBe('20');
+      expect(seen[0]?.get('ordering')).toBe('-name');
+      expect(seen[0]?.get('name__contains')).toBe('dja');
+      expect(seen[0]?.get('packagetype')).toBe('sdist');
+      expect(seen[0]?.get('requires_python__contains')).toBe('3.10');
+      expect(seen[0]?.getAll('fields')).toEqual([
+        'name',
+        'version',
+        'packagetype',
+      ]);
+    });
+
+    it('sends no filter that was not set and never one it does not know', async () => {
+      const seen: URLSearchParams[] = [];
+      server.use(
+        http.get(`*${API}/content/python/packages/`, ({ request }) => {
+          seen.push(new URL(request.url).searchParams);
+          return HttpResponse.json({ count: 0, results: [] });
+        }),
+      );
+
+      await pythonPackage.list({
+        repository_version: `${API}/repositories/python/python/1/versions/4/`,
+        summary: 'x',
+      });
+
+      expect(Array.from(seen[0]?.keys() ?? []).sort()).toEqual([
+        'limit',
+        'offset',
+        'repository_version',
+      ]);
+    });
+
+    it('builds the address of a list, version included', () => {
+      expect(
+        pythonPackage.urlOf({
+          repository_version: `${API}/repositories/python/python/1/versions/4/`,
+          page_size: 20,
+        }),
+      ).toContain('repository_version=');
     });
   });
 });

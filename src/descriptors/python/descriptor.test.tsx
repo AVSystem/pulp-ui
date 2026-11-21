@@ -276,16 +276,27 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
     });
   });
 
-  describe('the tabs', () => {
-    it('adds the Versions and Distributions tabs, each at its sub-path', () => {
+  describe('the tabs and the content', () => {
+    it('adds the Versions, Distributions and Packages tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([
         'versions',
         'distributions',
+        'packages',
       ]);
       expect((repository.tabs ?? []).map(({ label }) => text(label))).toEqual([
         'Versions',
         'Distributions',
+        'Packages',
       ]);
+    });
+
+    it('declares the packages as the content type of its repositories', () => {
+      expect(
+        (descriptor.contentTypes ?? []).map(({ id, label }) => [
+          id,
+          text(label),
+        ]),
+      ).toEqual([['python.package', 'Packages']]);
     });
   });
 
@@ -542,9 +553,15 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
   });
 
   describe('what serves and what is served', () => {
-    it('reads python distributions and declares no publication, because a python distribution is served without one', () => {
+    it('reads python distributions, declares no publication and offers Edit distribution for the permission held on every distribution', () => {
       expect(descriptor.distribution?.entity).toBeTruthy();
       expect(descriptor.publication).toBeUndefined();
+      expect(descriptor.distribution?.edit?.permission).toBe(
+        'python.change_pythondistribution',
+      );
+      expect(
+        text(descriptor.distribution?.edit?.label as MessageDescriptor),
+      ).toBe('Edit distribution');
     });
 
     it('is the descriptor of a plugin that is on the framework, with the permissions the python viewsets check and object roles as the manifest has them', () => {
