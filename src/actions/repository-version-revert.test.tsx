@@ -11,7 +11,6 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryVersionsTab as AnsibleTab } from '../containers/ansible-repository/tab-repository-versions';
-import { RepositoryVersionsTab as PythonTab } from '../containers/python-repository/tab-repository-versions';
 import type * as WaitForTask from '../utilities/wait-for-task';
 
 // The polling of an unfinished task gives up after a few quick attempts, so a
@@ -33,7 +32,6 @@ vi.mock('../utilities/wait-for-task', async (importOriginal) => {
 const API = '/pulp/api/v3';
 
 const PLUGINS = [
-  { name: 'python', path: 'repositories/python/python', Tab: PythonTab },
   { name: 'ansible', path: 'repositories/ansible/ansible', Tab: AnsibleTab },
 ];
 

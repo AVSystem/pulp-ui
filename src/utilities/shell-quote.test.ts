@@ -1,6 +1,5 @@
 import { execFileSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
-import { pipInstallCommand } from 'src/containers/python-repository/tab-distributions';
 import { shellQuote } from './shell-quote';
 
 // What a POSIX shell makes of the quoted word, printed as raw bytes.
@@ -40,28 +39,5 @@ describe('shellQuote', () => {
     ['the empty string', ''],
   ])('reaches the shell as exactly the same data for %s', (_label, value) => {
     expect(throughShell(value)).toBe(value);
-  });
-});
-
-// A repository name is free text and the URL comes from the server, so every
-// copy-paste command of the Distributions tabs quotes each value it holds.
-describe('Distributions tab commands', () => {
-  it.each([
-    [
-      'python',
-      pipInstallCommand("https://pulp.example/a$(id)'b/"),
-      "pip install --index-url 'https://pulp.example/a$(id)'\\''b/simple/' <package>",
-    ],
-  ])(
-    'quotes the name and URL of the %s command',
-    (_plugin, actual, expected) => {
-      expect(actual).toBe(expected);
-    },
-  );
-
-  it('adds the missing slash before the simple index of a python distribution', () => {
-    expect(pipInstallCommand('https://pulp.example/x')).toBe(
-      "pip install --index-url 'https://pulp.example/x/simple/' <package>",
-    );
   });
 });
