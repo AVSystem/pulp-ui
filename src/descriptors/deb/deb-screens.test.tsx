@@ -37,6 +37,7 @@ import debDescriptor from './descriptor';
 const API = '/pulp/api/v3';
 const TASK_HREF = `${API}/tasks/00000000-0000-4000-8000-0000000000dd/`;
 const REMOTE_PATH = `${API}/remotes/deb/apt/`;
+const REPOSITORY_PATH = `${API}/repositories/deb/apt/`;
 
 const DEB: PluginManifest = {
   ...(PLUGIN_MANIFESTS.find(
@@ -134,6 +135,30 @@ function serveLab({
       patched.push((await request.json()) as Record<string, unknown>);
       return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
     }),
+    http.patch(`*${REPOSITORY_PATH}:id/`, async ({ request }) => {
+      patched.push((await request.json()) as Record<string, unknown>);
+      return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
+    }),
+    http.post(REPOSITORY_PATH, async ({ request }) => {
+      const body = (await request.json()) as Record<string, unknown>;
+      posted.push(body);
+      return HttpResponse.json(
+        pluginRepository('deb', { name: String(body.name) }),
+        { status: 201 },
+      );
+    }),
+    http.get(`*${API}/status/`, () =>
+      HttpResponse.json({
+        versions: [
+          { component: 'core', version: '3.0.0' },
+          { component: 'deb', version: '3.0.0' },
+        ],
+        content_settings: {
+          content_origin: 'https://pulp.example',
+          content_path_prefix: '/pulp/content/',
+        },
+      }),
+    ),
   );
   return lab;
 }
@@ -547,6 +572,24 @@ describe(
       ).toEqual(['Sync', 'Edit', 'Delete']);
     });
 
+    it('shows an account that may only view neither the add button nor a row action', async () => {
+      serveAccount(['deb.view_aptrepository']);
+      serveLab({ repositories: [manuals({ name: 'viewed' })] });
+      render('/deb/repositories');
+
+      const table = await screen.findByRole('grid', { name: 'Repositories' });
+      await waitFor(() =>
+        expect(table).toHaveAttribute('data-columns-loaded', 'true'),
+      );
+
+      expect(
+        screen.queryByRole('button', { name: 'Add repository' }),
+      ).toBeNull();
+      expect(
+        within(rowOf('viewed')).queryByRole('button', { name: /actions/i }),
+      ).toBeNull();
+    });
+
     it('offers no row action for a repository the account holds a role on, and reads no role of it', async () => {
       const owned = manuals({ name: 'owned' });
       serveAccount([]);
@@ -570,6 +613,84 @@ describe(
         seen.filter((path) => /\/roles\/\?.*fields=|my_permissions/.test(path)),
       ).toEqual([]);
       server.events.removeAllListeners();
+    });
+  },
+);
+
+describe(
+  'Integration: the deb repository forms',
+  { tags: ['integration'] },
+  () => {
+    it('creates a repository that does not publish by itself and publishes the upstream release fields, as the server does when told nothing', async () => {
+      serveLab();
+      const { user } = render('/deb/repository/new');
+
+      await user.type(
+        await screen.findByRole('textbox', { name: /Name/ }),
+        'bookworm-mirror',
+      );
+      expect(
+        screen.getByRole('checkbox', {
+          name: /Publish new versions automatically/,
+        }),
+      ).not.toBeChecked();
+      expect(
+        screen.getByRole('checkbox', {
+          name: /Publish the release fields of the upstream repository/,
+        }),
+      ).toBeChecked();
+      await user.click(screen.getByRole('button', { name: /^Save/ }));
+
+      await waitFor(() => expect(posted).toHaveLength(1));
+      expect(posted[0]).toMatchObject({
+        name: 'bookworm-mirror',
+        autopublish: false,
+        publish_upstream_release_fields: true,
+      });
+      await waitFor(() =>
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          /^\/deb\/repositories\/bookworm-mirror\/?$/,
+        ),
+      );
+    });
+
+    it('edits a repository with one PATCH of the box that was changed and offers no distribution', async () => {
+      serveLab({ repositories: [manuals()] });
+      const { user } = render('/deb/repositories/bookworm-mirror/edit');
+
+      const upstreamFields = await screen.findByRole('checkbox', {
+        name: /Publish the release fields of the upstream repository/,
+      });
+      expect(upstreamFields).not.toBeChecked();
+      expect(
+        screen.getByRole('checkbox', {
+          name: /Publish new versions automatically/,
+        }),
+      ).toBeChecked();
+      expect(
+        screen.queryByRole('checkbox', { name: /Create a distribution/ }),
+      ).toBeNull();
+
+      await user.click(upstreamFields);
+      await user.click(screen.getByRole('button', { name: /^Save/ }));
+
+      await waitFor(() => expect(patched).toHaveLength(1));
+      expect(patched[0]).toStrictEqual({
+        publish_upstream_release_fields: true,
+      });
+    });
+
+    it('sends no request and says nothing changed when Save is pressed without a change', async () => {
+      serveLab({ repositories: [manuals()] });
+      const { user } = render('/deb/repositories/bookworm-mirror/edit');
+
+      await screen.findByRole('checkbox', {
+        name: /Publish the release fields of the upstream repository/,
+      });
+      await user.click(screen.getByRole('button', { name: /^Save/ }));
+
+      expect(await screen.findByText(/Nothing changed/)).toBeInTheDocument();
+      expect(patched).toEqual([]);
     });
   },
 );
