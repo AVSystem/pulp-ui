@@ -741,16 +741,14 @@ test.describe('refused action alert', () => {
     await typeIntoEditForm(page);
     await saveRefusedWith(page, 403, { detail: REFUSED });
 
-    // what happened, Pulp's reason and whom to ask, in one block of text
-    const message = page.locator('p.pulp-break-anywhere', {
+    // what happened, Pulp's reason and whom to ask, in the inline alert under
+    // the form, in that order
+    const alert = page.locator('.pf-v6-c-alert.pf-m-danger.pf-m-inline', {
       hasText: REFUSED,
     });
-    await expect(message).toBeVisible();
-    await expect(message).toContainText(
-      'You do not have permission to do this.',
-    );
-    await expect(message).toContainText(
-      'Contact your organization administrator for more information.',
+    await expect(alert).toBeVisible();
+    await expect(alert).toContainText(
+      /You do not have permission to do this\.\s*You do not have permission to perform this action\.\s*Contact your organization administrator for more information\./,
     );
     await capture(page, 's3-form-save-refused');
   });

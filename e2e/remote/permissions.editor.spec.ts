@@ -264,7 +264,8 @@ async function rowsWithMenus(
   for (let index = 0; index < count; index += 1) {
     const row = rows.nth(index);
     found.push({
-      name: (await row.locator('td').first().innerText()).trim(),
+      // the first cell holds the selection checkbox, the name is the link
+      name: ((await row.locator('td a').first().textContent()) ?? '').trim(),
       toggles: await row.locator('[data-cy=kebab-toggle]').count(),
     });
   }

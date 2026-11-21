@@ -366,6 +366,9 @@ test.describe('@scale the file lists at 1000 or more repositories', () => {
         listTable(page, 'Repositories', { rows: true }),
       ).toBeVisible();
       byLabel.push(elapsed(start));
+      // the panel is still closing for a moment: a key pressed while it traps
+      // the focus never reaches the next filter's box
+      await expect(popover).toHaveCount(0);
 
       // base path
       await moveTo(page, 'file/repositories');
