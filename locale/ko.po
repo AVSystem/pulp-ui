@@ -26,7 +26,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -530,8 +529,6 @@ msgstr "동작"
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-remote/edit.tsx
 #: src/containers/deb-repository/edit.tsx
-#: src/containers/file-remote/edit.tsx
-#: src/containers/file-repository/edit.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-repository/edit.tsx
@@ -614,7 +611,6 @@ msgstr ""
 
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/edit.tsx
-#: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/framework/form/remote-form.tsx
@@ -623,7 +619,6 @@ msgstr "새 원격 추가"
 
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-repository/edit.tsx
-#: src/containers/file-repository/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/framework/form/repository-create.tsx
@@ -648,7 +643,6 @@ msgstr "콘텐츠 추가 또는 제거"
 
 #: src/actions/ansible-remote-create.tsx
 #: src/actions/deb-remote-create.tsx
-#: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
 #: src/framework/list/remote-list.tsx
@@ -661,7 +655,6 @@ msgstr "원격 추가"
 
 #: src/actions/ansible-repository-create.tsx
 #: src/actions/deb-repository-create.tsx
-#: src/actions/file-repository-create.tsx
 #: src/actions/python-repository-create.tsx
 #: src/actions/rpm-repository-create.tsx
 #: src/framework/list/repository-list.tsx
@@ -732,7 +725,6 @@ msgstr "추가: 새 콘텐츠만 추가"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
@@ -1065,7 +1057,6 @@ msgstr "뒤로"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
@@ -1089,7 +1080,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1147,7 +1137,6 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -1391,7 +1380,6 @@ msgstr "모든 필터 지우기"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "CLI configuration"
@@ -1408,7 +1396,6 @@ msgstr "CLI 구성"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -1423,7 +1410,6 @@ msgid "Client key"
 msgstr "클라이언트 키"
 
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -1827,7 +1813,6 @@ msgstr "콘텐츠"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1866,7 +1851,6 @@ msgstr "원격 리포지토리에 없는 콘텐츠는 로컬 리포지토리에�
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -1955,7 +1939,6 @@ msgstr "이름과 기본 경로를 사용할 수 있는지 확인할 수 없습�
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -2058,7 +2041,6 @@ msgstr "컬렉션 네임스페이스를 생성, 삭제 및 변경합니다. 컬�
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/role-management/role-list.tsx
@@ -2072,8 +2054,6 @@ msgstr "생성됨"
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/list.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/list.tsx
@@ -2134,7 +2114,6 @@ msgstr "Ctrl K"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -2235,7 +2214,6 @@ msgstr "Debian 원본 그대로 게시"
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
-#: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/repository-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
@@ -2532,7 +2510,6 @@ msgstr "자신을 삭제하는 것은 허용되지 않습니다."
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/role-management/role-list.tsx
@@ -2572,8 +2549,6 @@ msgstr "설명"
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/deb-remote/detail.tsx
 #: src/containers/deb-repository/detail.tsx
-#: src/containers/file-remote/detail.tsx
-#: src/containers/file-repository/detail.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
@@ -2599,7 +2574,6 @@ msgstr "세부 정보"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
@@ -2640,8 +2614,6 @@ msgstr ""
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/detail.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/detail.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/detail.tsx
@@ -2653,7 +2625,6 @@ msgstr "배포"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -2763,7 +2734,6 @@ msgstr "클라이언트 인증 파일 다운로드"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -2847,8 +2817,6 @@ msgstr ""
 #: src/actions/ansible-repository-edit.tsx
 #: src/actions/deb-remote-edit.tsx
 #: src/actions/deb-repository-edit.tsx
-#: src/actions/file-remote-edit.tsx
-#: src/actions/file-repository-edit.tsx
 #: src/actions/python-distribution-edit.tsx
 #: src/actions/python-remote-edit.tsx
 #: src/actions/python-repository-edit.tsx
@@ -2858,8 +2826,6 @@ msgstr ""
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-remote/edit.tsx
 #: src/containers/deb-repository/edit.tsx
-#: src/containers/file-remote/edit.tsx
-#: src/containers/file-repository/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/role-management/role-list.tsx
@@ -2955,7 +2921,6 @@ msgstr "이메일"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
@@ -3335,7 +3300,6 @@ msgstr "리포지토리 {name}를 찾을 수 없음"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 msgid "Failed to find repository version"
@@ -3466,7 +3430,6 @@ msgstr "리포지터리 \"{repositoryName}\"에서 {namespace}.{name} v{version}
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
-#: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "Failed to remove remote {name}"
@@ -3529,7 +3492,6 @@ msgstr "리포지토리 \"{repositoryName}\"를 버전 \"{number}으로 되돌�
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
-#: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/framework/sync/sync-dialog.tsx
@@ -4296,8 +4258,6 @@ msgstr ""
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/list.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
@@ -4603,7 +4563,6 @@ msgstr "완전 미러링 (메타데이터를 포함한 정확한 사본)"
 msgid "Mirror content only"
 msgstr "콘텐츠만 미러링"
 
-#: src/actions/file-repository-sync.tsx
 #: src/descriptors/file/descriptor.tsx
 msgid "Mirroring cannot be combined with autopublish, so this sync only adds missing content."
 msgstr "미러링은 자동 게시와 함께 사용할 수 없으므로 이 동기화는 누락된 콘텐츠만 추가합니다."
@@ -4667,7 +4626,6 @@ msgstr "내 프로필"
 #: src/containers/ansible-repository/tab-collection-versions.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
@@ -4884,7 +4842,6 @@ msgstr "아직 컬렉션 버전이 없음"
 #~ msgstr "Python 종속 항목"
 
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -5037,7 +4994,6 @@ msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
-#: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -5046,7 +5002,6 @@ msgstr "원격이 아직 없음"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
-#: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -5059,7 +5014,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -5145,11 +5099,6 @@ msgstr "아직 사용자가 없음"
 #: src/containers/deb-repository/tab-details.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-remote/tab-details.tsx
-#: src/containers/file-repository/list.tsx
-#: src/containers/file-repository/tab-details.tsx
-#: src/containers/file-repository/tab-distributions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/list.tsx
@@ -5810,7 +5759,6 @@ msgstr "프록시 암호"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -5962,7 +5910,6 @@ msgid "Pulp label"
 msgstr "Pulp 레이블"
 
 #: src/containers/deb-repository/list.tsx
-#: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 msgid "Pulp Label"
@@ -5991,7 +5938,6 @@ msgstr "Pulp에서 이 요청을 거부했습니다."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -6157,7 +6103,6 @@ msgstr "Python 패키지 업로드"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -6264,8 +6209,6 @@ msgstr "다시 불러오기"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/list.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
@@ -6289,8 +6232,6 @@ msgstr ""
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
 #: src/containers/deb-remote/edit.tsx
-#: src/containers/file-remote/detail.tsx
-#: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/detail.tsx
@@ -6308,8 +6249,6 @@ msgstr ""
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/list.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/list.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
@@ -6349,9 +6288,6 @@ msgstr "원격 레지스트리"
 #: src/containers/deb-remote/detail.tsx
 #: src/containers/deb-remote/edit.tsx
 #: src/containers/deb-remote/list.tsx
-#: src/containers/file-remote/detail.tsx
-#: src/containers/file-remote/edit.tsx
-#: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-remote/list.tsx
@@ -6367,7 +6303,6 @@ msgstr "원격"
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
-#: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -6376,7 +6311,6 @@ msgstr "원격을 표시할 수 없습니다."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
-#: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
@@ -6400,7 +6334,6 @@ msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
-#: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 #: src/framework/delete/delete-remote.ts
@@ -6565,10 +6498,6 @@ msgstr "복구 작업"
 #: src/containers/deb-repository/detail.tsx
 #: src/containers/deb-repository/edit.tsx
 #: src/containers/deb-repository/list.tsx
-#: src/containers/file-remote/tab-details.tsx
-#: src/containers/file-repository/detail.tsx
-#: src/containers/file-repository/edit.tsx
-#: src/containers/file-repository/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/edit.tsx
@@ -6593,7 +6522,6 @@ msgstr "현재 계정으로는 리포지토리를 검색할 수 없습니다."
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
-#: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -6610,7 +6538,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
-#: src/containers/file-repository/list.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
@@ -6681,8 +6608,6 @@ msgstr ""
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-repository/detail.tsx
 #: src/containers/deb-repository/edit.tsx
-#: src/containers/file-repository/detail.tsx
-#: src/containers/file-repository/edit.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-repository/detail.tsx
@@ -6704,8 +6629,6 @@ msgstr "리포지토리를 표시할 수 없습니다."
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/list.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/list.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/list.tsx
@@ -6721,7 +6644,6 @@ msgstr "리포지터리 이름"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
@@ -6738,7 +6660,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6747,7 +6668,6 @@ msgstr "리포지터리 버전"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6756,7 +6676,6 @@ msgstr "리포지토리 버전을 표시할 수 없습니다."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
@@ -6827,7 +6746,6 @@ msgstr "유지되는 패키지 버전"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/deb-repository/tab-details.tsx
-#: src/containers/file-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
@@ -7777,7 +7695,6 @@ msgstr "클립보드에 성공적으로 복사되었습니다!"
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/edit.tsx
-#: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
@@ -7869,7 +7786,6 @@ msgstr "요약"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
-#: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
@@ -7990,7 +7906,6 @@ msgstr "소스 동기화"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
-#: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/framework/list/repository-list.tsx
@@ -8359,7 +8274,6 @@ msgstr "로그인 페이지가 로그인된 세션 없이 돌아왔습니다."
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
-#: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
@@ -8402,7 +8316,6 @@ msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/deb-remote-delete.tsx
-#: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -8638,7 +8551,6 @@ msgstr "이 리포지토리와 연결된 배포가 없습니다."
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/deb-repository-sync.tsx
-#: src/actions/file-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 msgid "There are no remotes associated with this repository."
@@ -8805,7 +8717,6 @@ msgstr "이렇게 하면 그룹에서 이 역할과 연결된 모든 권한이 �
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
-#: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -8964,7 +8875,6 @@ msgstr "컬렉션 원격 업데이트"
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/edit.tsx
-#: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 msgid "Update started for remote {0}"
@@ -9078,9 +8988,6 @@ msgstr "업로드"
 #: src/containers/deb-remote/list.tsx
 #: src/containers/deb-remote/tab-details.tsx
 #: src/containers/deb-repository/tab-distributions.tsx
-#: src/containers/file-remote/list.tsx
-#: src/containers/file-remote/tab-details.tsx
-#: src/containers/file-repository/tab-distributions.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-distributions.tsx
@@ -9430,7 +9337,6 @@ msgstr "버전"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/deb-repository/detail.tsx
-#: src/containers/file-repository/detail.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
 msgid "Version {repositoryVersion}"
@@ -9438,7 +9344,6 @@ msgstr "버전 {repositoryVersion}"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
-#: src/containers/file-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -9452,7 +9357,6 @@ msgstr "버전 번호"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/deb-repository/detail.tsx
-#: src/containers/file-repository/detail.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
