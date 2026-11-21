@@ -26,7 +26,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "(latest)"
 msgstr "(más reciente)"
@@ -529,8 +528,6 @@ msgstr "Acciones"
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-repository/edit.tsx
-#: src/containers/rpm-remote/edit.tsx
-#: src/containers/rpm-repository/edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add"
@@ -608,14 +605,12 @@ msgstr ""
 
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
-#: src/containers/rpm-remote/edit.tsx
 #: src/framework/form/remote-form.tsx
 msgid "Add new remote"
 msgstr "Añadir nuevo remoto"
 
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/python-repository/edit.tsx
-#: src/containers/rpm-repository/edit.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add new repository"
 msgstr "Añadir nuevo repositorio"
@@ -638,7 +633,6 @@ msgstr "Añadir o eliminar contenido"
 
 #: src/actions/ansible-remote-create.tsx
 #: src/actions/python-remote-create.tsx
-#: src/actions/rpm-remote-create.tsx
 #: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "Añadir remoto"
@@ -649,7 +643,6 @@ msgstr "Añadir remoto"
 
 #: src/actions/ansible-repository-create.tsx
 #: src/actions/python-repository-create.tsx
-#: src/actions/rpm-repository-create.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Add repository"
 msgstr "Añadir repositorio"
@@ -704,10 +697,11 @@ msgstr ""
 #~ msgstr "Más información"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Additive keeps everything already in the repository. Mirror content only removes what the remote no longer has. Mirror complete also reproduces the remote's metadata exactly, which kickstart trees need."
 msgstr "Aditivo conserva todo lo que ya está en el repositorio. Espejo de contenido solo elimina lo que el remoto ya no tiene. Espejo completo reproduce además los metadatos del remoto de forma exacta, algo que necesitan los árboles kickstart."
 
-#: src/actions/rpm-repository-sync.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Additive: only add new content"
 msgstr "Aditivo: solo añadir contenido nuevo"
 
@@ -718,9 +712,9 @@ msgstr "Aditivo: solo añadir contenido nuevo"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "All"
 msgstr "Todos"
 
@@ -936,8 +930,8 @@ msgstr "Aprueba, rechaza y sincroniza las colecciones desde los mandos a distanc
 #~ msgid "Approved"
 #~ msgstr "Aprobado"
 
-#: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Arch"
 msgstr "Arquitectura"
 
@@ -1008,9 +1002,9 @@ msgstr "Hay que seleccionar al menos un estado."
 #~ msgstr ""
 
 #: src/components/repository-form.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Autopublish"
 msgstr "Publicación automática"
 
@@ -1050,7 +1044,6 @@ msgstr "Volver"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
@@ -1072,7 +1065,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "Base version"
 msgstr "Versión base"
@@ -1128,7 +1120,6 @@ msgstr ""
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-fields.ts
 msgid "CA certificate"
@@ -1369,9 +1360,9 @@ msgid "Clear all filters"
 msgstr "Borrar todos los filtros"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "CLI configuration"
 msgstr "Configuración CLI"
 
@@ -1386,7 +1377,6 @@ msgstr "Configuración CLI"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-fields.ts
 msgid "Client certificate"
@@ -1399,7 +1389,6 @@ msgid "Client key"
 msgstr "Clave de cliente"
 
 #: src/containers/python-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "Los clientes no pueden descargar su contenido hasta que una distribución lo sirva."
@@ -1801,7 +1790,6 @@ msgstr "Contenido"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "Content added"
 msgstr "Contenido añadido"
@@ -1839,7 +1827,6 @@ msgstr "El contenido que no esté en el repositorio remoto se eliminará del rep
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "Content removed"
 msgstr "Contenido eliminado"
@@ -1926,7 +1913,6 @@ msgstr "No se pudo comprobar si el nombre y la ruta base están libres: {reason}
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "Count"
 msgstr "Recuento"
@@ -1987,6 +1973,7 @@ msgstr "Cree una contraseña con, al menos, {minLength} caracteres, incluidos lo
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Create a publication for every new repository version, so distributions pointing at this repository always serve the latest content."
 msgstr "Crea una publicación por cada versión nueva del repositorio, de modo que las distribuciones que apuntan a este repositorio siempre sirvan el contenido más reciente."
 
@@ -2030,7 +2017,6 @@ msgstr "Crear, eliminar y modificar los espacios de nombres de las colecciones. 
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/role-management/role-list.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/distributions-tab.tsx
 msgid "Created"
@@ -2040,8 +2026,6 @@ msgstr "Creado"
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/list.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 #: src/framework/remote-columns.tsx
@@ -2098,7 +2082,6 @@ msgstr "Ctrl K"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "Current content"
 msgstr "Contenido actual"
@@ -2198,7 +2181,6 @@ msgstr "Publicación literal de Debian"
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/repository-delete.tsx
-#: src/actions/rpm-remote-delete.tsx
 #: src/components/delete-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/group-management/group-list.tsx
@@ -2494,7 +2476,6 @@ msgstr "No está permitido borrarse a sí mismo."
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/role-management/role-list.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/framework/detail/details-tab.tsx
@@ -2530,8 +2511,6 @@ msgstr "Descripción"
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-repository/detail.tsx
-#: src/containers/rpm-remote/detail.tsx
-#: src/containers/rpm-repository/detail.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
@@ -2552,10 +2531,9 @@ msgstr "Detalles"
 
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
 msgstr "Deshabilitados"
@@ -2590,8 +2568,6 @@ msgstr ""
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/detail.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/distribution-option.tsx
@@ -2600,7 +2576,6 @@ msgstr "Distribuciones"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 msgid "Distributions could not be displayed."
 msgstr "No se pudieron mostrar las distribuciones."
@@ -2708,7 +2683,6 @@ msgstr "Descargar el archivo de certificación del cliente"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-fields.ts
 msgid "Download concurrency"
@@ -2738,8 +2712,6 @@ msgstr "Descargar solo colecciones firmadas"
 #: src/components/remote-form.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/list.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "Download policy"
@@ -2791,15 +2763,11 @@ msgstr ""
 #: src/actions/python-distribution-edit.tsx
 #: src/actions/python-remote-edit.tsx
 #: src/actions/python-repository-edit.tsx
-#: src/actions/rpm-remote-edit.tsx
-#: src/actions/rpm-repository-edit.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/role-management/role-list.tsx
-#: src/containers/rpm-remote/edit.tsx
-#: src/containers/rpm-repository/edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
@@ -2890,10 +2858,9 @@ msgstr "Correo electrónico"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
 msgstr "Habilitado"
@@ -3268,7 +3235,6 @@ msgstr "No se ha encontrado el repositorio {name}"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 msgid "Failed to find repository version"
 msgstr "Error al encontrar la versión del repositorio"
 
@@ -3397,7 +3363,6 @@ msgstr "Error al eliminar {namespace}.{name} v{version} del repositorio \"{repos
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
-#: src/actions/rpm-remote-delete.tsx
 msgid "Failed to remove remote {name}"
 msgstr "Se produjo un error al eliminar remoto {name}"
 
@@ -3458,7 +3423,6 @@ msgstr "Fallo al revertir el repositorio \"{repositoryName}\" a la versión \"{n
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
-#: src/actions/rpm-repository-sync.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Failed to sync repository \"{name}\""
 msgstr "Error al sincronizar el repositorio \"{name}\""
@@ -3861,6 +3825,7 @@ msgid "How many times a failed download is tried again before the sync gives up.
 msgstr "Cuántas veces se reintenta una descarga fallida antes de que la sincronización se rinda."
 
 #: src/components/repository-form.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions."
 msgstr "Cuántas versiones de cada paquete se conservan; las más antiguas se descartan al sincronizar. Déjelo en blanco para conservar todas las versiones."
 
@@ -3920,8 +3885,8 @@ msgstr "Si completa este archivo de requisitos, este remoto solo sincronizará l
 #~ msgstr "Las imágenes aparecerán una vez cargadas"
 
 #: src/containers/rpm-remote/tab-details.tsx
-msgid "immediate"
-msgstr "inmediata"
+#~ msgid "immediate"
+#~ msgstr "inmediata"
 
 #: src/components/remote-form.tsx
 #: src/framework/remote-columns.tsx
@@ -4226,8 +4191,6 @@ msgstr ""
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
-#: src/containers/rpm-repository/list.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -4522,11 +4485,11 @@ msgstr "Igual que el sistema"
 msgid "Mirror"
 msgstr "Espejo"
 
-#: src/actions/rpm-repository-sync.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Mirror complete (exact copy incl. metadata)"
 msgstr "Espejo completo (copia exacta con metadatos)"
 
-#: src/actions/rpm-repository-sync.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Mirror content only"
 msgstr "Espejo de contenido"
 
@@ -4596,10 +4559,9 @@ msgstr "Mi perfil"
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-packages.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
@@ -4809,7 +4771,6 @@ msgstr "Aún no hay versiones de colección"
 #~ msgstr "No hay dependencias"
 
 #: src/containers/python-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
 msgstr "Ninguna distribución sirve este repositorio"
@@ -4905,7 +4866,7 @@ msgstr "No hay grupos para añadir"
 #~ msgstr "Todavía no hay espacios de nombres"
 
 #: src/containers/python-repository/tab-packages.tsx
-#: src/containers/rpm-repository/tab-packages.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "No packages in the latest version"
 msgstr "No hay paquetes en la última versión"
 
@@ -4960,14 +4921,12 @@ msgstr ""
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/python-remote/list.tsx
-#: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "Aún no hay remotos"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/python-repository/list.tsx
-#: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "No repositories yet"
 msgstr "Todavía no hay repositorios"
@@ -4978,7 +4937,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "No repository versions yet"
 msgstr "Aún no hay versiones del repositorio"
@@ -5063,11 +5021,6 @@ msgstr "No existe ningún usuario"
 #: src/containers/python-repository/tab-details.tsx
 #: src/containers/python-repository/tab-distributions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-remote/tab-details.tsx
-#: src/containers/rpm-repository/list.tsx
-#: src/containers/rpm-repository/tab-details.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
@@ -5258,12 +5211,14 @@ msgstr "Workers en línea"
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server."
 msgstr "Realizar la sincronización solo si el servidor remoto informa de cambios."
 
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Only perform the sync if changes are reported by the remote server. To force a sync to happen, deselect this option."
 msgstr "Realizar la sincronización solo si el servidor remoto informa de cambios. Para forzar una sincronización, desmarque esta opción."
 
@@ -5306,6 +5261,7 @@ msgstr "Operaciones"
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Optimize"
 msgstr "Optimizar"
 
@@ -5378,8 +5334,8 @@ msgstr "Resultado desconocido, revise la tarea"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
-#: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Package name"
 msgstr "Nombre del paquete"
 
@@ -5404,9 +5360,9 @@ msgstr "Tipos de paquete que se sincronizan. Deje todos sin marcar para sincroni
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
-#: src/containers/rpm-repository/detail.tsx
-#: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/rpm/descriptor.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages"
 msgstr "Paquetes"
 
@@ -5416,8 +5372,8 @@ msgstr "Paquetes y artefactos"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
-#: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages could not be displayed."
 msgstr "No se pudieron mostrar los paquetes."
 
@@ -5721,7 +5677,6 @@ msgstr "Contraseña del proxy"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-fields.ts
 msgid "Proxy URL"
@@ -5744,6 +5699,7 @@ msgstr ""
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Publish new versions automatically"
 msgstr "Publicar las versiones nuevas automáticamente"
 
@@ -5876,7 +5832,6 @@ msgid "Pulp label"
 msgstr "Etiqueta de Pulp"
 
 #: src/containers/python-repository/list.tsx
-#: src/containers/rpm-repository/list.tsx
 msgid "Pulp Label"
 msgstr "Etiqueta de Pulp"
 
@@ -5903,7 +5858,6 @@ msgstr "Pulp rechazó esta solicitud."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "Pulp type"
 msgstr "Tipo de Pulp"
@@ -6067,7 +6021,6 @@ msgstr "Subida de paquetes de Python"
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-fields.ts
 msgid "Rate limit"
@@ -6172,8 +6125,6 @@ msgstr "Recargar"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
-#: src/containers/rpm-repository/list.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
@@ -6193,8 +6144,6 @@ msgstr ""
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-remote/edit.tsx
-#: src/containers/rpm-remote/detail.tsx
-#: src/containers/rpm-remote/edit.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-form.tsx
 msgid "Remote could not be displayed."
@@ -6208,8 +6157,6 @@ msgstr ""
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/list.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/remote-columns.tsx
 msgid "Remote name"
@@ -6245,9 +6192,6 @@ msgstr "Registros remotos"
 #: src/containers/python-remote/detail.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/python-remote/list.tsx
-#: src/containers/rpm-remote/detail.tsx
-#: src/containers/rpm-remote/edit.tsx
-#: src/containers/rpm-remote/list.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/list/remote-list.tsx
@@ -6257,14 +6201,12 @@ msgstr "Mandos a distancia"
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/python-remote/list.tsx
-#: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "No se han podido visualizar los remotos."
 
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/python-remote/list.tsx
-#: src/containers/rpm-remote/list.tsx
 #: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "Los remotos aparecerán una vez creados."
@@ -6286,7 +6228,6 @@ msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
-#: src/actions/rpm-remote-delete.tsx
 #: src/framework/delete/delete-remote.ts
 msgid "Removal started for remote {name}"
 msgstr "Se ha iniciado la eliminación del remoto {name}"
@@ -6449,10 +6390,6 @@ msgstr "Tarea de reparación"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/edit.tsx
 #: src/containers/python-repository/list.tsx
-#: src/containers/rpm-remote/tab-details.tsx
-#: src/containers/rpm-repository/detail.tsx
-#: src/containers/rpm-repository/edit.tsx
-#: src/containers/rpm-repository/list.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-create.tsx
@@ -6469,7 +6406,6 @@ msgstr "Su cuenta no puede buscar en los repositorios."
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/python-repository/list.tsx
-#: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "No se han podido visualizar los repositorios."
@@ -6484,7 +6420,6 @@ msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/python-repository/list.tsx
-#: src/containers/rpm-repository/list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Repositories will appear once created."
 msgstr "Los repositorios aparecerán una vez creados."
@@ -6553,8 +6488,6 @@ msgstr ""
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/python-repository/detail.tsx
 #: src/containers/python-repository/edit.tsx
-#: src/containers/rpm-repository/detail.tsx
-#: src/containers/rpm-repository/edit.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Repository could not be displayed."
@@ -6572,8 +6505,6 @@ msgstr "No se ha podido visualizar el repositorio."
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/python-repository/list.tsx
 #: src/containers/python-repository/tab-details.tsx
-#: src/containers/rpm-repository/list.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/repository-columns.tsx
 msgid "Repository name"
@@ -6585,7 +6516,6 @@ msgstr "Nombre del repositorio"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "URL del repositorio"
@@ -6600,21 +6530,18 @@ msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Repository versions"
 msgstr "Versiones del repositorio"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Repository versions could not be displayed."
 msgstr "No se han podido mostrar las versiones del repositorio."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Repository versions will appear once the repository is modified."
 msgstr "Las versiones del repositorio aparecerán cuando se modifique el repositorio."
@@ -6677,15 +6604,15 @@ msgstr ""
 msgid "Retained number of versions"
 msgstr "Número de versiones retenidas"
 
-#: src/containers/rpm-repository/tab-details.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Retained package versions"
 msgstr "Versiones de paquete retenidas"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/containers/python-repository/tab-details.tsx
-#: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Retained version count"
 msgstr "Recuento de versiones retenidas"
 
@@ -7633,7 +7560,6 @@ msgstr "¡Copiado correctamente en el portapapeles!"
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
-#: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
 msgstr "Remoto creado con éxito {0}"
 
@@ -7695,7 +7621,7 @@ msgstr "Repositorio {name} creado correctamente"
 #~ msgid "Successfully stopped task."
 #~ msgstr "Successfully stopped task."
 
-#: src/containers/rpm-repository/tab-packages.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Summary"
 msgstr "Resumen"
 
@@ -7723,7 +7649,6 @@ msgstr "Resumen"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
-#: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/bulk/sync-bulk-dialog.tsx
@@ -7793,6 +7718,7 @@ msgid "Sync package provenance"
 msgstr "Sincronizar la procedencia de los paquetes"
 
 #: src/components/sync-modal.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Sync policy"
 msgstr "Política de sincronización"
 
@@ -7842,7 +7768,6 @@ msgstr "Sincronizar fuentes"
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
-#: src/actions/rpm-repository-sync.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Sync started for repository \"{name}\"."
 msgstr "Sincronización iniciada para el repositorio \"{name}\"."
@@ -7855,7 +7780,7 @@ msgstr "Estado de sincronización"
 msgid "Sync task is already queued."
 msgstr "La tarea de sincronización ya está en cola."
 
-#: src/containers/rpm-repository/tab-packages.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Sync this repository or add packages to it."
 msgstr "Sincronice este repositorio o añádale paquetes."
 
@@ -8213,7 +8138,6 @@ msgstr "La página de inicio de sesión volvió sin una sesión iniciada."
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
-#: src/actions/rpm-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
 msgstr "Se desconoce el resultado de la eliminación del remoto {name}, porque no se pudo leer el estado de la tarea. Compruebe la tarea."
 
@@ -8254,7 +8178,6 @@ msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
-#: src/actions/rpm-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
 msgstr "La eliminación del remoto {name} sigue en curso."
 
@@ -8488,7 +8411,6 @@ msgstr "No hay distribuciones asociadas a este repositorio."
 
 #: src/actions/ansible-repository-sync.tsx
 #: src/actions/python-repository-sync.tsx
-#: src/actions/rpm-repository-sync.tsx
 msgid "There are no remotes associated with this repository."
 msgstr "No hay remotos asociadas a este repositorio."
 
@@ -8653,7 +8575,6 @@ msgstr "Esto revocará todos los permisos asociados con este rol del grupo."
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
-#: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/remote-fields.ts
 msgid "TLS validation"
@@ -8810,7 +8731,6 @@ msgstr "Actualizar el remoto de colecciones"
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
-#: src/containers/rpm-remote/edit.tsx
 msgid "Update started for remote {0}"
 msgstr "Se ha iniciado la actualización del remoto {0}"
 
@@ -8922,9 +8842,6 @@ msgstr "Subidas"
 #: src/containers/python-remote/list.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/python-repository/tab-distributions.tsx
-#: src/containers/rpm-remote/list.tsx
-#: src/containers/rpm-remote/tab-details.tsx
-#: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -9262,20 +9179,18 @@ msgstr "Verificar sumas de comprobación"
 
 #: src/containers/python-repository/tab-packages.tsx
 #: src/containers/python/package-list.tsx
-#: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/rpm/packages-tab.tsx
 msgid "Version"
 msgstr "Versión"
 
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/python-repository/detail.tsx
-#: src/containers/rpm-repository/detail.tsx
 msgid "Version {repositoryVersion}"
 msgstr "Versión {repositoryVersion}"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/python-repository/tab-repository-versions.tsx
-#: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Version number"
@@ -9288,12 +9203,12 @@ msgstr "Número de versión"
 #: src/containers/ansible-repository/detail.tsx
 #: src/containers/pulp-status.tsx
 #: src/containers/python-repository/detail.tsx
-#: src/containers/rpm-repository/detail.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Versions"
 msgstr "Versiones"
 
 #: src/components/repository-form.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Versions kept per package"
 msgstr "Versiones conservadas por paquete"
 
