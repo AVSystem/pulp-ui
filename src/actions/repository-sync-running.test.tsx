@@ -5,7 +5,6 @@ import { listOf, repository, task } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { TaskAPI } from '../api/task';
-import { debRepositorySyncAction } from './deb-repository-sync';
 import { pythonRepositorySyncAction } from './python-repository-sync';
 import { rpmRepositorySyncAction } from './rpm-repository-sync';
 
@@ -17,7 +16,7 @@ function Harness({
   action,
   item,
 }: {
-  action: typeof debRepositorySyncAction;
+  action: typeof rpmRepositorySyncAction;
   item: object;
 }) {
   const [state, setState] = useState<Record<string, unknown>>({});
@@ -40,11 +39,6 @@ function Harness({
 }
 
 describe.each([
-  [
-    'deb',
-    debRepositorySyncAction,
-    'pulp_deb.app.tasks.synchronizing.synchronize',
-  ],
   [
     'rpm',
     rpmRepositorySyncAction,

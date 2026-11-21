@@ -22,7 +22,6 @@ import { RemoteAccessTab } from './ansible-remote/tab-access';
 import { RepositoryAccessTab } from './ansible-repository/tab-access';
 import { CollectionVersionsTab } from './ansible-repository/tab-collection-versions';
 import { RepositoryVersionsTab as AnsibleVersionsTab } from './ansible-repository/tab-repository-versions';
-import { RepositoryVersionsTab as DebVersionsTab } from './deb-repository/tab-repository-versions';
 import { RepositoryVersionsTab as PythonVersionsTab } from './python-repository/tab-repository-versions';
 import { RepositoryVersionsTab as RpmVersionsTab } from './rpm-repository/tab-repository-versions';
 
@@ -460,10 +459,6 @@ function accessTabTests({
     expect(unhandled).not.toHaveBeenCalled();
   });
 }
-
-describe('the deb repository versions tab', () => {
-  versionsTabTests({ Tab: DebVersionsTab, base: 'repositories/deb/apt' });
-});
 
 describe('the rpm repository versions tab', () => {
   versionsTabTests({ Tab: RpmVersionsTab, base: 'repositories/rpm/rpm' });

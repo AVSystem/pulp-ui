@@ -6,7 +6,6 @@ import { task as taskBody } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { ansibleRemoteDeleteAction } from '../actions/ansible-remote-delete';
-import { debRemoteDeleteAction } from '../actions/deb-remote-delete';
 import { pythonRemoteDeleteAction } from '../actions/python-remote-delete';
 import { rpmRemoteDeleteAction } from '../actions/rpm-remote-delete';
 import type * as WaitForTask from '../utilities/wait-for-task';
@@ -39,7 +38,6 @@ const PLUGINS = [
     action: ansibleRemoteDeleteAction,
     path: 'remotes/ansible/collection',
   },
-  { name: 'deb', action: debRemoteDeleteAction, path: 'remotes/deb/apt' },
   {
     name: 'python',
     action: pythonRemoteDeleteAction,

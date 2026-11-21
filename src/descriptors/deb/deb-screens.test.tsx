@@ -12,6 +12,7 @@ import {
   distributionListHandler,
   inSetOf,
   listOf,
+  page,
   pluginDistribution,
   pluginListHandler,
   pluginPublication,
@@ -19,6 +20,8 @@ import {
   pluginRepository,
   projectedBy,
   publicationListHandler,
+  role,
+  roleAssignment,
   taskListHandler,
   versionSummaryHandler,
 } from 'src/test-utils/pulp';
@@ -147,6 +150,14 @@ const upstream = (overrides: Partial<Remote> = {}) =>
     sync_sources: false,
     sync_udebs: false,
     sync_installer: false,
+    ...overrides,
+  });
+
+const manuals = (overrides: Partial<Repository> = {}) =>
+  pluginRepository('deb', {
+    name: 'bookworm-mirror',
+    autopublish: true,
+    publish_upstream_release_fields: false,
     ...overrides,
   });
 
@@ -349,14 +360,6 @@ describe(
   'Integration: the deb repository screens',
   { tags: ['integration'] },
   () => {
-    const manuals = (overrides: Partial<Repository> = {}) =>
-      pluginRepository('deb', {
-        name: 'bookworm-mirror',
-        autopublish: true,
-        publish_upstream_release_fields: false,
-        ...overrides,
-      });
-
     it('shows the rows of every repository and the deb rows in one list', async () => {
       serveLab({ repositories: [manuals({ retain_repo_versions: 5 })] });
       render('/deb/repositories/bookworm-mirror/');
@@ -475,3 +478,98 @@ describe('Integration: the deb sync dialog', { tags: ['integration'] }, () => {
     });
   });
 });
+
+// The actions of a deb list follow the permissions held on every deb object.
+// A role granted on one repository is not consulted: the screens show what
+// the account may do everywhere, which hides an action the server would allow
+// rather than showing one it would refuse.
+describe(
+  'Integration: who may act on deb repositories',
+  { tags: ['integration'] },
+  () => {
+    const CHANGE = 'deb.change_aptrepository';
+    const DELETE = 'deb.delete_aptrepository';
+    const SYNC = 'deb.sync_aptrepository';
+    const OWNER = 'deb.aptrepository_owner';
+    const stops: { stop: () => void }[] = [];
+
+    afterEach(() => {
+      for (const served of stops.splice(0)) {
+        served.stop();
+      }
+    });
+
+    function serveAccount(held: string[]) {
+      stops.push(servePermissions({ id: 7, isStaff: false, own: [held] }));
+    }
+
+    // The roles of the account on single repositories, as the server lists them.
+    function serveOwnerOf(repository: Repository) {
+      server.use(
+        listOf(
+          `${API}/users/7/roles/`,
+          [roleAssignment(OWNER, repository.pulp_href)],
+          {
+            pageSize: 1000,
+            matching: (row, query) =>
+              query.get('content_object') !== 'null' ||
+              row.content_object === null,
+            projected: projectedBy,
+          },
+        ).handler,
+        http.get(`*${API}/roles/`, () =>
+          HttpResponse.json(
+            page([role({ name: OWNER, permissions: [CHANGE, DELETE, SYNC] })]),
+          ),
+        ),
+      );
+    }
+
+    const rowOf = (name: string) =>
+      screen.getByRole('link', { name }).closest('tr') as HTMLElement;
+
+    it('offers the row actions to an account that holds the permissions on every repository', async () => {
+      serveAccount([CHANGE, DELETE, SYNC]);
+      const remote = upstream();
+      serveLab({
+        remotes: [remote],
+        repositories: [manuals({ name: 'mirror', remote: remote.pulp_href })],
+      });
+      const { user } = render('/deb/repositories');
+
+      await screen.findByRole('link', { name: 'mirror' });
+      await user.click(
+        within(rowOf('mirror')).getByRole('button', { name: /actions/i }),
+      );
+
+      expect(
+        screen.getAllByRole('menuitem').map((item) => item.textContent),
+      ).toEqual(['Sync', 'Edit', 'Delete']);
+    });
+
+    it('offers no row action for a repository the account holds a role on, and reads no role of it', async () => {
+      const owned = manuals({ name: 'owned' });
+      serveAccount([]);
+      serveLab({ repositories: [owned] });
+      serveOwnerOf(owned);
+      const seen: string[] = [];
+      server.events.on('request:start', ({ request }) => {
+        seen.push(new URL(request.url).pathname + new URL(request.url).search);
+      });
+      render('/deb/repositories');
+
+      const table = await screen.findByRole('grid', { name: 'Repositories' });
+      await waitFor(() =>
+        expect(table).toHaveAttribute('data-columns-loaded', 'true'),
+      );
+
+      expect(
+        within(rowOf('owned')).queryByRole('button', { name: /actions/i }),
+      ).toBeNull();
+      expect(
+        seen.filter((path) => /\/roles\/\?.*fields=|my_permissions/.test(path)),
+      ).toEqual([]);
+      server.events.removeAllListeners();
+    });
+  },
+);
