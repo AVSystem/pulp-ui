@@ -1,7 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
+import { saveAs } from 'file-saver';
 import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
@@ -21,10 +22,13 @@ import { server } from 'src/test-utils/server';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
 import { frameworkRoutes } from '../routes';
 
+vi.mock('file-saver', () => ({ saveAs: vi.fn() }));
+
 const API = '/pulp/api/v3';
 const TASK_HREF = `${API}/tasks/00000000-0000-4000-8000-0000000000cc/`;
 const REMOTE_PATH = `${API}/remotes/file/file/`;
 const CHANGE = 'file.change_fileremote';
+const ADD = 'file.add_fileremote';
 
 const FILE: PluginManifest = {
   ...(PLUGIN_MANIFESTS.find(
@@ -40,14 +44,17 @@ interface Seen {
 
 let seen: Seen[];
 let patched: Record<string, unknown>[];
+let posted: Record<string, unknown>[];
 let permissionServers: { stop: () => void }[];
 
 const writes = () => seen.filter((r) => r.method !== 'GET');
 const patches = () => writes().filter((r) => r.method === 'PATCH');
+const posts = () => writes().filter((r) => r.method === 'POST');
 
 beforeEach(() => {
   seen = [];
   patched = [];
+  posted = [];
   permissionServers = [];
   server.events.on('request:start', ({ request }) => {
     seen.push({
@@ -95,9 +102,11 @@ const existing = (overrides: Partial<IRemote> = {}) =>
 function serveLab({
   remotes,
   patch,
+  create,
 }: {
   remotes: IRemote[];
   patch?: () => Response | Promise<Response>;
+  create?: () => Response | Promise<Response>;
 }) {
   server.use(
     pluginListHandler('file', 'remote', remotes).handler,
@@ -108,6 +117,20 @@ function serveLab({
       return (
         (await patch?.()) ??
         HttpResponse.json({ task: TASK_HREF }, { status: 202 })
+      );
+    }),
+    http.post(`*${REMOTE_PATH}`, async ({ request }) => {
+      const body = (await request.json()) as Record<string, unknown>;
+      posted.push(body);
+      return (
+        (await create?.()) ??
+        HttpResponse.json(
+          pluginRemote('file', {
+            name: String(body['name']),
+            url: String(body['url']),
+          }),
+          { status: 201 },
+        )
       );
     }),
   );
@@ -740,6 +763,358 @@ describe(
         await screen.findByText('Remote could not be displayed.'),
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Retry' })).toBeVisible();
+    });
+  },
+);
+
+describe(
+  'Integration: the remote create form built from the descriptor',
+  { tags: ['integration'] },
+  () => {
+    const NEW = '/file/remote/new';
+    const nameField = () => screen.findByRole('textbox', { name: 'Name' });
+
+    async function fillRequired(
+      user: ReturnType<typeof renderEdit>['user'],
+      name = 'tools',
+      url = 'https://pulp.example/files/',
+    ) {
+      await user.type(await nameField(), name);
+      await user.type(urlInput(), url);
+    }
+
+    const certificate = (label: RegExp) =>
+      screen.getByLabelText(label, { selector: 'textarea' });
+
+    it('opens with the on demand policy and its explanation, and keeps Save off until the name and the URL are given', async () => {
+      serveLab({ remotes: [] });
+      const { user } = renderEdit(NEW);
+
+      expect(
+        await screen.findByRole('heading', { name: 'Add new remote' }),
+      ).toBeInTheDocument();
+      expect(await nameField()).toBeEnabled();
+      expect(policy()).toHaveValue('on_demand');
+      expect(
+        screen.getByText(/On demand fetches content when a client asks for it/),
+      ).toBeInTheDocument();
+      expect(save()).toBeDisabled();
+
+      await user.type(await nameField(), 'tools');
+      expect(save()).toBeDisabled();
+      await user.type(urlInput(), 'https://pulp.example/files/');
+      expect(save()).toBeEnabled();
+
+      await showAdvanced(user);
+      expect(
+        screen.getByRole('checkbox', { name: /Validate the TLS certificate/ }),
+      ).toBeChecked();
+    });
+
+    it('sends only the filled fields, with the default policy and the trailing slash, and opens the new remote with a success alert', async () => {
+      serveLab({ remotes: [existing()] });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user, 'tools', 'https://pulp.example/files');
+      await user.click(save());
+
+      await waitFor(() =>
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          /^\/file\/remotes\/tools\/?$/,
+        ),
+      );
+      expect(posts()).toStrictEqual([
+        { method: 'POST', path: expect.stringContaining(REMOTE_PATH) },
+      ]);
+      expect(writes()).toHaveLength(1);
+      expect(posted).toStrictEqual([
+        {
+          name: 'tools',
+          url: 'https://pulp.example/files/',
+          policy: 'on_demand',
+          tls_validation: true,
+        },
+      ]);
+      expect(
+        await screen.findByText(/Successfully created remote tools/),
+      ).toBeInTheDocument();
+    });
+
+    it('sends the policy, the credentials and the options the user filled in, and nothing for a field that was typed into and emptied again', async () => {
+      serveLab({ remotes: [existing()] });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.selectOptions(policy(), 'immediate');
+      await user.type(
+        screen.getByRole('textbox', { name: /^Username/ }),
+        'zoe',
+      );
+      await user.type(
+        screen.getByLabelText(/^Password/, { selector: 'input' }),
+        'pw',
+      );
+      await showAdvanced(user);
+      const proxy = screen.getByRole('textbox', { name: 'Proxy URL' });
+      await user.type(proxy, 'http://proxy.example');
+      await user.clear(proxy);
+      await user.click(
+        screen.getByRole('checkbox', { name: /Validate the TLS certificate/ }),
+      );
+      await user.type(concurrency(), '4');
+      await user.type(timeout(), '2.5');
+      await user.click(save());
+
+      await waitFor(() => expect(posted).toHaveLength(1));
+      expect(posted[0]).toStrictEqual({
+        name: 'tools',
+        url: 'https://pulp.example/files/',
+        policy: 'immediate',
+        tls_validation: false,
+        username: 'zoe',
+        password: 'pw',
+        download_concurrency: 4,
+        total_timeout: 2.5,
+      });
+      expect(JSON.stringify(posted[0])).not.toContain('hidden_fields');
+    });
+
+    it('sends the labels of the label rows as pulp_labels, and refuses a label the server would refuse', async () => {
+      serveLab({ remotes: [existing()] });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.click(screen.getByRole('button', { name: 'Add label' }));
+      await user.type(
+        screen.getByRole('textbox', { name: 'Label key' }),
+        'te$t',
+      );
+      expect(save()).toBeDisabled();
+      await user.clear(screen.getByRole('textbox', { name: 'Label key' }));
+      await user.type(
+        screen.getByRole('textbox', { name: 'Label key' }),
+        'team',
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: 'Label value' }),
+        'infra',
+      );
+      await user.click(screen.getByRole('button', { name: 'Add label' }));
+      const keys = screen.getAllByRole('textbox', { name: 'Label key' });
+      await user.type(keys[1] as HTMLElement, 'tier');
+      await user.click(save());
+
+      await waitFor(() => expect(posted).toHaveLength(1));
+      expect(posted[0]).toMatchObject({
+        pulp_labels: { team: 'infra', tier: null },
+      });
+    });
+
+    it('takes a client certificate and a CA certificate from typed text and the client key from an uploaded file', async () => {
+      serveLab({ remotes: [existing()] });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await showAdvanced(user);
+      await user.click(certificate(/^Client certificate/));
+      await user.paste(
+        '-----BEGIN CERTIFICATE-----\nclient\n-----END CERTIFICATE-----',
+      );
+      await user.click(certificate(/^CA certificate/));
+      await user.paste(
+        '-----BEGIN CERTIFICATE-----\nca\n-----END CERTIFICATE-----',
+      );
+      const key = new File(
+        ['-----BEGIN PRIVATE KEY-----\nkey\n-----END PRIVATE KEY-----'],
+        'client.key',
+        {
+          type: 'text/plain',
+        },
+      );
+      const uploads = document.querySelectorAll('input[type="file"]');
+      // the client key is the first of the three file inputs
+      await user.upload(uploads[0] as HTMLInputElement, key);
+      await waitFor(() =>
+        expect(certificate(/^Client key/)).toHaveValue(
+          '-----BEGIN PRIVATE KEY-----\nkey\n-----END PRIVATE KEY-----',
+        ),
+      );
+      await user.click(save());
+
+      await waitFor(() => expect(posted).toHaveLength(1));
+      expect(posted[0]).toMatchObject({
+        client_cert:
+          '-----BEGIN CERTIFICATE-----\nclient\n-----END CERTIFICATE-----',
+        ca_cert: '-----BEGIN CERTIFICATE-----\nca\n-----END CERTIFICATE-----',
+        client_key:
+          '-----BEGIN PRIVATE KEY-----\nkey\n-----END PRIVATE KEY-----',
+      });
+    });
+
+    it('downloads the client certificate stored on a remote when its form is opened for edit', async () => {
+      const pem =
+        '-----BEGIN CERTIFICATE-----\nstored\n-----END CERTIFICATE-----';
+      serveLab({ remotes: [existing({ client_cert: pem })] });
+      const { user } = renderEdit();
+
+      await formReady();
+      await showAdvanced(user);
+      expect(certificate(/^Client certificate/)).toHaveValue(pem);
+      await user.click(
+        screen.getByRole('button', { name: 'Download Client certificate' }),
+      );
+
+      expect(vi.mocked(saveAs)).toHaveBeenCalledTimes(1);
+      const [blob, filename] = vi.mocked(saveAs).mock.calls[0] as [
+        Blob,
+        string,
+      ];
+      expect(await blob.text()).toBe(pem);
+      expect(filename).toBe('client_cert.pem');
+      // a key the server stored is not returned, so there is nothing to download
+      expect(
+        screen.queryByRole('button', { name: /Download Client key/ }),
+      ).toBeNull();
+    });
+
+    it('shows the server message for a name that is taken under the Name field and keeps what was typed', async () => {
+      serveLab({
+        remotes: [],
+        create: () =>
+          HttpResponse.json(
+            { name: ['remote with this name already exists.'] },
+            { status: 400 },
+          ),
+      });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.click(save());
+
+      expect(
+        await screen.findByText('remote with this name already exists.'),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId('location')).toHaveTextContent(/new/);
+      expect(await nameField()).toHaveValue('tools');
+      expect(urlInput()).toHaveValue('https://pulp.example/files/');
+      await waitFor(() => expect(save()).toBeEnabled());
+    });
+
+    it('shows a refusal with its three parts and keeps what was typed', async () => {
+      serveLab({
+        remotes: [],
+        create: () =>
+          HttpResponse.json({ detail: 'Not allowed here.' }, { status: 403 }),
+      });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.click(save());
+
+      const reason = await screen.findByText('Not allowed here.');
+      const alert = reason.closest('.pf-v6-c-alert') as HTMLElement;
+      expect(
+        Array.from(alert.querySelectorAll('p')).map((part) => part.textContent),
+      ).toEqual([
+        'You do not have permission to do this.',
+        'Not allowed here.',
+        'Contact your organization administrator for more information.',
+      ]);
+      expect(await nameField()).toHaveValue('tools');
+    });
+
+    it('shows a readable message and keeps the typed values when the request gets no answer', async () => {
+      serveLab({ remotes: [] });
+      server.use(http.post(`*${REMOTE_PATH}`, () => HttpResponse.error()));
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.click(save());
+
+      const failed = await screen.findByText(/Remote could not be created/);
+      expect(failed.closest('.pf-v6-c-alert')).not.toBeNull();
+      expect(screen.getByTestId('location')).toHaveTextContent(/new/);
+      expect(await nameField()).toHaveValue('tools');
+      await waitFor(() => expect(save()).toBeEnabled());
+    });
+
+    it('sends one POST for a double click on Save', async () => {
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      serveLab({
+        remotes: [existing()],
+        create: async () => {
+          await gate;
+          return HttpResponse.json(existing(), { status: 201 });
+        },
+      });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.dblClick(save());
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /^Save/ })).toBeDisabled(),
+      );
+      expect(posts()).toHaveLength(1);
+      release();
+
+      await waitFor(() =>
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          /^\/file\/remotes\/tools\/?$/,
+        ),
+      );
+      expect(posts()).toHaveLength(1);
+    });
+
+    it('goes back to the remote list on Cancel without a request', async () => {
+      serveLab({ remotes: [] });
+      const { user } = renderEdit(NEW);
+
+      await fillRequired(user);
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() =>
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          /^\/file\/remotes\/?$/,
+        ),
+      );
+      expect(writes()).toStrictEqual([]);
+    });
+
+    it('shows the insufficient permissions page, with no Save button and no write, to an account that may not add a remote', async () => {
+      serveAccount({ isStaff: false, own: [[CHANGE]] });
+      serveLab({ remotes: [] });
+      renderWithProviders(
+        <AppContextProvider>
+          <Routed />
+        </AppContextProvider>,
+        { route: NEW, signedIn: true },
+      );
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Insufficient permissions',
+        }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(writes()).toStrictEqual([]);
+    });
+
+    it('shows the form to an account that holds the add permission', async () => {
+      serveAccount({ isStaff: false, own: [[ADD]] });
+      serveLab({ remotes: [] });
+      renderWithProviders(
+        <AppContextProvider>
+          <Routed />
+        </AppContextProvider>,
+        { route: NEW, signedIn: true },
+      );
+
+      expect(await nameField()).toBeInTheDocument();
+      expect(save()).toBeInTheDocument();
     });
   },
 );
