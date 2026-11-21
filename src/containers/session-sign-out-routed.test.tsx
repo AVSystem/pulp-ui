@@ -3,7 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { type ReactNode, isValidElement } from 'react';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { UserAPI } from 'src/api/user';
+import { GenericPulpAPI } from 'src/api/generic-pulp';
 import { dataRoutes } from 'src/app-routes';
 import { Paths, formatPath } from 'src/paths';
 import { ReauthDialog } from 'src/session/reauth-dialog';
@@ -324,7 +324,7 @@ describe('signing in again as the same account on the status screen', () => {
         <p data-testid='generation'>{generation}</p>
         <button
           type='button'
-          onClick={() => UserAPI.get('4').catch(() => undefined)}
+          onClick={() => GenericPulpAPI.get('users/4/').catch(() => undefined)}
         >
           Probe request
         </button>

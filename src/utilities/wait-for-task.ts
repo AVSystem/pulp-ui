@@ -1,5 +1,4 @@
 import { t } from '@lingui/core/macro';
-import { taskHref, taskUrlId } from 'src/entities/core/task/href';
 import { TaskAPI } from '../api/task';
 
 interface Options {
@@ -39,11 +38,11 @@ export class TaskUnknown extends TaskPending {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Polls a task until it has completed. Rejects with the task's error
+// Polls the task the address names until it has completed. Rejects with the task's error
 // description when it failed, was skipped or was canceled, with a TaskPending
 // when it is still unfinished after the last attempt, and with a TaskUnknown
 // when a status request failed.
-export async function waitForTask(task, options: Options = {}) {
+export async function waitForTaskUrl(taskUrl: string, options: Options = {}) {
   // default to starting with a 2s wait, increasing the wait time 1.5x each time, with max 10 retries
   // 2000, 1.5, 10 = ~226s ; 500, 1.5, 10 = ~57s
   const { waitMs = 2000, multiplier = 1.5, bailAfter = 10 } = options;
@@ -53,9 +52,9 @@ export async function waitForTask(task, options: Options = {}) {
   for (let attempt = 1; ; attempt++) {
     let data;
     try {
-      ({ data } = await TaskAPI.get(task));
+      ({ data } = await TaskAPI.get(taskUrl));
     } catch {
-      throw new TaskUnknown(taskHref(task) ?? '');
+      throw new TaskUnknown(taskUrl ?? '');
     }
 
     if (failing.includes(data.state)) {
@@ -75,8 +74,4 @@ export async function waitForTask(task, options: Options = {}) {
     await sleep(wait);
     wait = Math.round(wait * multiplier);
   }
-}
-
-export function waitForTaskUrl(taskUrl, options = {}) {
-  return waitForTask(taskUrlId(taskUrl), options);
 }

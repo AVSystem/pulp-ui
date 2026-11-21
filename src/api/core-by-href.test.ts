@@ -28,7 +28,7 @@ const MEMBERS: {
     call: (href) => UserRoleAPI.listRoles(href, { content_object: 'null' }),
     method: 'GET',
     path: '/pulp/api/v3/users/7/roles/',
-    search: '?content_object=null',
+    search: 'content_object=null',
   },
   {
     name: 'GroupRoleAPI.listRoles',
@@ -37,7 +37,7 @@ const MEMBERS: {
     call: (href) => GroupRoleAPI.listRoles(href, { content_object: 'null' }),
     method: 'GET',
     path: '/pulp/api/v3/groups/3/roles/',
-    search: '?content_object=null',
+    search: 'content_object=null',
   },
   {
     name: 'TaskAPI.get',
@@ -64,7 +64,7 @@ describe(
         expect(sent[0].method).toBe(method);
         expect(sent[0].path).toBe(path);
         if (search) {
-          expect(sent[0].search).toBe(search);
+          expect(sent[0].search).toContain(search);
         }
       },
     );

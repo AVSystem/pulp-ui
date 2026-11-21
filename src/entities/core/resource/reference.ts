@@ -1,16 +1,10 @@
-import {
-  parsePulpResource,
-  translatePulpResourceToURL,
-} from 'src/utilities/parse-pulp-id';
+import { parsePulpResource, resourceHref } from './prn';
 
 // How a task detail shows one entry of the resources a task reserved: either
 // as text that needs no request, or as an object to read by its address.
 export type ResourceReference =
   | { kind: 'text'; type: string; name: string }
   | { kind: 'read'; href: string; plugin: string; type: string };
-
-// A resource id is part of a request path, so nothing but an id is accepted.
-const SAFE_ID = /^[0-9a-f-]+$/i;
 
 const DOMAIN_RESOURCE = 'Domain Resource';
 
@@ -35,11 +29,8 @@ export function resourceReference(record: string): ResourceReference | null {
   if (resource.plugin === 'core' && resource.model === 'domain') {
     return { kind: 'text', type: DOMAIN_RESOURCE, name: value };
   }
-  if (!resource.id || !SAFE_ID.test(resource.id)) {
-    return null;
-  }
 
-  const href = translatePulpResourceToURL(resource);
+  const href = resourceHref(resource);
   return href
     ? { kind: 'read', href, plugin: resource.plugin, type: resource.model }
     : null;

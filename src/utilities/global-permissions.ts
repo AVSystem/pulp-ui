@@ -1,3 +1,4 @@
+import { groupHref } from 'src/entities/core/group/href';
 import { GroupRoleAPI } from '../api/group-role';
 import { UserRoleAPI } from '../api/user-role';
 import { type ISessionUser } from '../user-context';
@@ -13,15 +14,6 @@ export interface IGlobalPermissions {
 
 interface IRoleEntry {
   permissions?: string[];
-}
-
-// The key of an object address: the last path segment, which is a number for
-// users and groups.
-export function idFromHref(href?: string | null): string | null {
-  const segments = String(href ?? '')
-    .split('/')
-    .filter(Boolean);
-  return segments.length ? segments[segments.length - 1] : null;
 }
 
 // What the permission read needs of the signed-in user's own record.
@@ -41,8 +33,8 @@ export async function loadGlobalPermissions(
   user: ISessionUser,
   readRecord: () => Promise<IOwnRecord>,
 ): Promise<IGlobalPermissions> {
-  const userId = idFromHref(user.pulp_href);
-  if (!userId) {
+  const userAddress = user.pulp_href;
+  if (!userAddress) {
     throw new Error('The signed-in user has no address to read roles from.');
   }
 
@@ -54,20 +46,24 @@ export async function loadGlobalPermissions(
     return { isStaff: true, global: new Set() };
   }
 
-  const groupIds: string[] = (record?.groups ?? [])
-    .map((group) => (group?.id ?? idFromHref(group?.pulp_href))?.toString())
+  // The group's number names its address; the address the record carries is
+  // the fallback for a record without one.
+  const groupAddresses: string[] = (record?.groups ?? [])
+    .map((group) =>
+      group?.id != null ? groupHref(String(group.id)) : group?.pulp_href,
+    )
     .filter(Boolean);
 
   // A role entry with content_object null is a role held on every object.
   const withoutObject = { content_object: 'null' };
   const lists = await Promise.all([
     listAll<IRoleEntry>(
-      (params) => UserRoleAPI.listRoles(userId, params),
+      (params) => UserRoleAPI.listRoles(userAddress, params),
       withoutObject,
     ),
-    ...groupIds.map((groupId) =>
+    ...groupAddresses.map((groupAddress) =>
       listAll<IRoleEntry>(
-        (params) => GroupRoleAPI.listRoles(groupId, params),
+        (params) => GroupRoleAPI.listRoles(groupAddress, params),
         withoutObject,
       ),
     ),
