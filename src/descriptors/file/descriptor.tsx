@@ -11,6 +11,11 @@ import type { FieldDef, PluginDescriptor } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
 import { LabelChips } from 'src/framework/labels/label-chips';
+import {
+  POLICY_ROW,
+  REMOTE_FILTERS,
+  remoteColumns,
+} from 'src/framework/remote-columns';
 import { repositoryPath } from 'src/framework/route-patterns';
 import { shellQuote } from 'src/utilities/shell-quote';
 
@@ -169,7 +174,12 @@ const descriptor: PluginDescriptor<FileRepository> = {
       },
     ],
   },
-  remote: { entity: fileRemote },
+  remote: {
+    entity: fileRemote,
+    columns: remoteColumns('file', { policy: true }),
+    filters: REMOTE_FILTERS,
+    detailRows: [POLICY_ROW],
+  },
   distribution: { entity: fileDistribution },
   publication: { entity: filePublication, servesFromPublication: true },
 };

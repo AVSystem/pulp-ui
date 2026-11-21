@@ -1,16 +1,9 @@
 import { i18n } from '@lingui/core';
 import { t } from '@lingui/core/macro';
-import {
-  AlertActionLink,
-  Button,
-  Toolbar,
-  ToolbarContent,
-  ToolbarGroup,
-  ToolbarItem,
-} from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
   Alert,
@@ -23,14 +16,12 @@ import {
   ListItemActions,
   LoadingSpinner,
   Main,
-  PulpPagination,
   SortTable,
   Table,
   closeAlert,
 } from 'src/components';
 import { RowActionsColumn } from 'src/components/list-item-actions';
 import { useVersionSummaries } from 'src/entities/core/repository-version/queries';
-import { useObjectPermissions } from 'src/entities/core/role-assignment/queries';
 import type { Task } from 'src/entities/core/task/model';
 import { lastTaskOf, useTaskIndex } from 'src/entities/core/task/task-index';
 import { useDistributionIndex } from 'src/entities/plugin/distribution';
@@ -43,7 +34,6 @@ import {
   isSessionEnd,
   requestErrorDescription,
   requestErrorDetail,
-  requestErrorReason,
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
@@ -67,15 +57,16 @@ import {
 } from './derived-columns';
 import { FilterChips, ListFilters } from './filters';
 import {
-  type ListParams,
-  PAGE_SIZES,
-  paramsOfAddress,
-  searchOf,
-} from './list-params';
+  ColumnFailures,
+  ListLayout,
+  useListAddress,
+  useRereadAlert,
+  useRowPermits,
+  useShownRows,
+} from './list-frame';
 import { type BasePathSelection, useRepositoryRows } from './repository-rows';
 import {
   REPOSITORY_ROW_ACTIONS,
-  type RepositoryPermission,
   type RowAction,
   type RowActionContext,
   actionsFor,
@@ -95,9 +86,6 @@ const NO_FILTERS: FilterDef[] = [];
 // How many repositories a base path may select before the list says so: they
 // are read and paged here, so a very wide match is worth narrowing.
 const LARGE_MATCH = 500;
-
-// The page a refused filter leaves on screen when there is no earlier one.
-const NO_PAGE = { count: 0, next: null, previous: null, results: [] };
 
 // What every list reads of a repository whatever its columns are: the address
 // the derived columns match on, the PRN the last task is found by and the
@@ -172,15 +160,8 @@ const RepositoryListScreen = ({
   distribution,
   publication,
 }: ScreenProps) => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const {
-    hasPermission,
-    permissionsError,
-    permissionsFailed,
-    permissionsReady,
-    retryPermissions,
-  } = useAppContext();
+  const { hasPermission } = useAppContext();
   const {
     entity,
     columns = NO_COLUMNS,
@@ -191,21 +172,9 @@ const RepositoryListScreen = ({
   ) as PluginManifest;
   const names = manifest.permissions.repository;
 
-  const options = useMemo(
-    () => ({
-      sortable: columns.flatMap(({ sortField }) =>
-        sortField ? [sortField] : [],
-      ),
-      filters: filters.map(({ param }) => param),
-    }),
-    [columns, filters],
-  );
-  const params = useMemo(
-    () => paramsOfAddress(location.search, options),
-    [location.search, options],
-  );
-  const filterIsSet = options.filters.some(
-    (param) => params[param] !== undefined,
+  const { params, filterIsSet, updateParams } = useListAddress(
+    columns,
+    filters,
   );
 
   // The fields the server is asked for: what every list needs and what the
@@ -256,26 +225,8 @@ const RepositoryListScreen = ({
   );
   const query = useRepositoryRows(entity, request, basePath);
 
-  // The server refuses a label expression it cannot read with a 400. That is
-  // an answer about the expression and not a failure of the list: the rows of
-  // the last result stay and the reason is shown at the filter.
-  const refusedFilter =
-    query.isError &&
-    requestErrorStatus(query.error) === 400 &&
-    params.pulp_label_select !== undefined;
-  const lastShown = useRef<typeof query.data>(undefined);
-  if (query.data && !query.isPlaceholderData) {
-    lastShown.current = query.data;
-  }
-  const data =
-    query.data ??
-    (refusedFilter
-      ? (lastShown.current ?? (NO_PAGE as unknown as typeof query.data))
-      : undefined);
+  const { data, labelRefusal, lastShown } = useShownRows(query, params);
   const rows = useMemo(() => data?.results ?? [], [data]);
-  const labelRefusal = refusedFilter
-    ? (requestErrorReason(query.error) ?? t`The label filter was not accepted.`)
-    : null;
   // The label keys offered are those of the rows shown and, once the label
   // filter has been opened, those of every repository of the plugin.
   const [indexWanted, setIndexWanted] = useState(false);
@@ -303,23 +254,15 @@ const RepositoryListScreen = ({
     rows.map((row) => row.latest_version_href),
   );
 
-  // Whether the user may take an action on a row: the permission is held on
-  // every repository, or, for a plugin whose roles can be granted on a single
-  // repository, held on this one according to the roles the user has on single
-  // objects. Anything not known yet is no.
-  const needsObjectRoles =
-    manifest.permissions.objectRoles &&
-    permissionsReady &&
-    actions.some(({ permission }) => !hasPermission(names[permission]));
+  // Whether the user may take an action on a row, and the notice of a failed
+  // read of what they may do.
   const rowsShown = rows.length > 0 && !query.isPlaceholderData;
-  // The roles on single objects are read behind the rows, and only for a user
-  // who lacks a permission on every repository.
-  const objectRoles = useObjectPermissions({
-    enabled: rowsShown && needsObjectRoles,
+  const { permits, notice: permissionsNotice } = useRowPermits({
+    names,
+    needed: actions.map(({ permission }) => permission),
+    objectRoles: manifest.permissions.objectRoles,
+    rowsShown,
   });
-  const permits = (permission: RepositoryPermission, row: RepositoryBase) =>
-    hasPermission(names[permission]) ||
-    (needsObjectRoles && objectRoles.can(row.pulp_href, names[permission]));
   // The repository whose delete dialog is open.
   const [deleting, setDeleting] = useState<RepositoryBase | null>(null);
   const requestDelete = useCallback(
@@ -333,26 +276,6 @@ const RepositoryListScreen = ({
     () => ({ plugin, navigate, requestDelete, requestSync }),
     [plugin, navigate, requestDelete, requestSync],
   );
-
-  // A failed read of what the user may do says so once, with the one button
-  // that reads it again. Nothing the user may not be confirmed to do is drawn
-  // meanwhile, and the failure is never taken for a refusal.
-  const permissionsNotice =
-    permissionsFailed || (needsObjectRoles && objectRoles.state === 'error') ? (
-      <Alert
-        isInline
-        variant='warning'
-        title={t`Your permissions could not be read`}
-        actionLinks={
-          <AlertActionLink
-            onClick={permissionsFailed ? retryPermissions : objectRoles.retry}
-          >{t`Retry`}</AlertActionLink>
-        }
-        style={{ marginBottom: '16px' }}
-      >
-        {permissionsFailed ? requestErrorDescription(permissionsError) : null}
-      </Alert>
-    ) : null;
 
   const addButton = hasPermission(names.add) ? (
     <Button
@@ -369,25 +292,7 @@ const RepositoryListScreen = ({
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
 
-  // A failed read of rows already on screen keeps the rows and says so once.
-  const alertedFailure = useRef(0);
-  const rereadFailed = query.isRefetchError && !sessionEnded && status !== 403;
-  useEffect(() => {
-    if (rereadFailed && alertedFailure.current !== query.errorUpdatedAt) {
-      alertedFailure.current = query.errorUpdatedAt;
-      setAlerts((current) => [
-        ...current,
-        {
-          variant: 'danger',
-          title: t`Repositories could not be displayed.`,
-          description: requestErrorDescription(query.error),
-        },
-      ]);
-    }
-  }, [rereadFailed, query.errorUpdatedAt, query.error]);
-
-  const updateParams = (next: object) =>
-    navigate({ search: searchOf(next as ListParams) });
+  useRereadAlert(query, t`Repositories could not be displayed.`, setAlerts);
 
   const header = <BaseHeader title={t`Repositories`} />;
   const alertList = (
@@ -620,79 +525,49 @@ const RepositoryListScreen = ({
           }}
         />
       ) : null}
-      <Main>
-        <section className='pulp-section'>
-          <div className='pulp-toolbar'>
-            <Toolbar>
-              <ToolbarContent>
-                <ListFilters
-                  filters={filters}
-                  params={params}
-                  updateParams={updateParams}
-                  labelKeys={labelKeys}
-                  labelRefusal={labelRefusal}
-                  onLabelFilterOpen={openLabelFilter}
-                  remotes={descriptor.remote?.entity}
-                />
-                {addButton ? (
-                  <ToolbarGroup>
-                    <ToolbarItem>{addButton}</ToolbarItem>
-                  </ToolbarGroup>
-                ) : null}
-              </ToolbarContent>
-            </Toolbar>
-            <PulpPagination
-              params={params}
-              updateParams={updateParams}
-              count={count}
-              perPageOptions={PAGE_SIZES}
-              isTop
-            />
-          </div>
-          <div>
-            <FilterChips
-              filters={filters}
-              params={params}
-              updateParams={updateParams}
-              remotes={descriptor.remote?.entity}
-            />
-          </div>
-          {query.baseMatches !== null && query.baseMatches > LARGE_MATCH ? (
-            <Alert
-              isInline
-              variant='info'
-              title={t`Many repositories match this base path`}
-              style={{ marginBottom: '16px' }}
-            >
-              {t`More than ${LARGE_MATCH} repositories match. Add another filter to narrow the list.`}
-            </Alert>
-          ) : null}
-          {permissionsNotice}
-          {failures.map(({ id, title, retry, description }) => (
-            <Alert
-              key={id}
-              isInline
-              variant='warning'
-              title={title}
-              actionLinks={
-                <AlertActionLink onClick={retry}>{t`Retry`}</AlertActionLink>
-              }
-              style={{ marginBottom: '16px' }}
-            >
-              {description}
-            </Alert>
-          ))}
-          {content}
-          {hasRows ? (
-            <PulpPagination
-              params={params}
-              updateParams={updateParams}
-              count={count}
-              perPageOptions={PAGE_SIZES}
-            />
-          ) : null}
-        </section>
-      </Main>
+      <ListLayout
+        filters={
+          <ListFilters
+            filters={filters}
+            params={params}
+            updateParams={updateParams}
+            labelKeys={labelKeys}
+            labelRefusal={labelRefusal}
+            onLabelFilterOpen={openLabelFilter}
+            remotes={descriptor.remote?.entity}
+          />
+        }
+        addButton={addButton}
+        params={params}
+        updateParams={updateParams}
+        count={count}
+        chips={
+          <FilterChips
+            filters={filters}
+            params={params}
+            updateParams={updateParams}
+            remotes={descriptor.remote?.entity}
+          />
+        }
+        notices={
+          <>
+            {query.baseMatches !== null && query.baseMatches > LARGE_MATCH ? (
+              <Alert
+                isInline
+                variant='info'
+                title={t`Many repositories match this base path`}
+                style={{ marginBottom: '16px' }}
+              >
+                {t`More than ${LARGE_MATCH} repositories match. Add another filter to narrow the list.`}
+              </Alert>
+            ) : null}
+            {permissionsNotice}
+            <ColumnFailures failures={failures} />
+          </>
+        }
+        content={content}
+        hasRows={hasRows}
+      />
     </>
   );
 };

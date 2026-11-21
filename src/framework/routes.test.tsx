@@ -74,7 +74,7 @@ const serveRepositories = (...rows: ReturnType<typeof repository>[]) => {
 };
 
 describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
-  it('builds the list, detail, tab, edit and create routes of a plugin, each behind the plugin gate', () => {
+  it('builds the repository routes of a plugin and the list and detail routes of its remotes, each behind the plugin gate', () => {
     const routes = frameworkRoutes([FILE]);
 
     expect(routes.map(({ path }) => path)).toEqual([
@@ -86,6 +86,8 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
       '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
+      '/file/remotes',
+      '/file/remotes/:name',
     ]);
     expect(new Set(routes.map(({ plugin }) => plugin))).toEqual(
       new Set(['file']),

@@ -244,6 +244,7 @@ msgid "{unread, plural, one {Notifications, # unread notification} other {Notifi
 msgstr "{unread, plural, one {Notificaciones, # notificación sin leer} other {Notificaciones, # notificaciones sin leer}}"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "+{more} more"
 msgstr ""
 
@@ -597,6 +598,7 @@ msgstr "Añadir o eliminar contenido"
 #: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "Añadir remoto"
 
@@ -745,6 +747,11 @@ msgstr "Ya está la versión actual"
 #: src/components/remote-form.tsx
 msgid "An armoured public key. When set, the signature on the upstream Release file is verified on every sync, which is what makes syncing over plain HTTP safe."
 msgstr "Una clave pública con armadura ASCII. Si se define, la firma del archivo Release de origen se verifica en cada sincronización, lo que hace segura la sincronización por HTTP sin cifrar."
+
+#. placeholder {0}: users.total - users.users.length
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "And {0} more."
+msgstr ""
 
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
@@ -896,6 +903,10 @@ msgstr "Arquitectura"
 #: src/containers/deb-remote/tab-details.tsx
 msgid "Architectures"
 msgstr "Arquitecturas"
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "Are you sure you want to delete the remote <0>{name}</0>?"
+msgstr ""
 
 #: src/components/delete-remote-modal.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this remote."
@@ -1078,6 +1089,7 @@ msgstr "Los roles incorporados no pueden editarse."
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "CA certificate"
 msgstr "Certificado de CA"
 
@@ -1330,10 +1342,12 @@ msgstr "Configuración CLI"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Client certificate"
 msgstr "Certificado de cliente"
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Client key"
 msgstr "Clave de cliente"
 
@@ -1995,6 +2009,7 @@ msgstr "Creado"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "Created date"
 msgstr "Fecha de creación"
 
@@ -2158,7 +2173,9 @@ msgstr "Publicación literal de Debian"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Delete"
 msgstr "ELIMINAR"
@@ -2256,6 +2273,7 @@ msgstr "¿Borrar el grupo?"
 #~ msgstr "¿Borrar el registro remoto?"
 
 #: src/components/delete-remote-modal.tsx
+#: src/framework/delete/delete-remote-dialog.tsx
 msgid "Delete remote?"
 msgstr "¿Borrar remoto?"
 
@@ -2470,6 +2488,7 @@ msgstr "Descripción"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 msgid "Details"
 msgstr "Detalles"
@@ -2494,6 +2513,7 @@ msgstr "Detalles"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Disabled"
 msgstr "Deshabilitados"
 
@@ -2620,6 +2640,7 @@ msgstr "Descargar el archivo de certificación del cliente"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Download concurrency"
 msgstr "Descargar la concurrencia"
 
@@ -2649,6 +2670,7 @@ msgstr "Descargar solo colecciones firmadas"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "Política de descarga"
 
@@ -2719,8 +2741,10 @@ msgstr ""
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Editar"
@@ -2808,6 +2832,7 @@ msgstr "Correo electrónico"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Enabled"
 msgstr "Habilitado"
 
@@ -3146,6 +3171,10 @@ msgstr "Fallida {when}"
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Failed to create role namespace"
 #~ msgstr ""
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "Failed to delete remote \"{name}\""
+msgstr ""
 
 #: src/containers/execution-environment/registry-list.tsx
 #~ msgid "Failed to delete remote registry {name}"
@@ -3817,6 +3846,7 @@ msgid "immediate"
 msgstr "inmediata"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Immediate"
 msgstr "Inmediata"
 
@@ -3986,6 +4016,7 @@ msgstr "Se sincronizarán los paquetes del instalador"
 #: src/containers/role-management/role-edit.tsx
 #: src/containers/settings/user-profile.tsx
 #: src/containers/user-management/user-detail.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
@@ -4103,9 +4134,11 @@ msgstr ""
 #: src/containers/rpm-repository/tab-details.tsx
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
+#: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "Etiquetas"
 
@@ -4282,6 +4315,10 @@ msgstr "Cargando la distribución..."
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "Cargando distribuciones"
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "Loading repositories"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Loading..."
@@ -4812,6 +4849,7 @@ msgstr "sin remoto"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "Aún no hay remotos"
 
@@ -4823,6 +4861,10 @@ msgstr "Aún no hay remotos"
 #: src/framework/list/repository-list.tsx
 msgid "No repositories yet"
 msgstr "Todavía no hay repositorios"
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "No repository uses this remote."
+msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/deb-repository/tab-repository-versions.tsx
@@ -4926,6 +4968,7 @@ msgstr "No existe ningún usuario"
 #: src/containers/rpm-repository/tab-repository-versions.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/labels-field.tsx
@@ -4973,6 +5016,7 @@ msgstr "No encontrado"
 #~ msgstr "No encontrado"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "Not loaded"
 msgstr ""
 
@@ -5015,6 +5059,10 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
 msgstr "No sincronizado"
+
+#: src/framework/list/used-by.tsx
+msgid "Not used"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5065,6 +5113,7 @@ msgstr "de"
 #~ msgstr "Offline token"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "On demand"
 msgstr "Bajo demanda"
 
@@ -5302,6 +5351,7 @@ msgstr "Tarea principal"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Password"
 msgstr "Contraseña"
@@ -5543,6 +5593,7 @@ msgstr "Procedencia"
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Proxy password"
 msgstr "Contraseña del proxy"
 
@@ -5552,10 +5603,12 @@ msgstr "Contraseña del proxy"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Proxy URL"
 msgstr "URL del proxy"
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Proxy username"
 msgstr "Nombre de usuario del proxy"
 
@@ -5895,6 +5948,7 @@ msgstr "Subida de paquetes de Python"
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Rate limit"
 msgstr "Límite de tarifa"
 
@@ -6020,6 +6074,7 @@ msgstr "Remoto"
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "Remote could not be displayed."
 msgstr "No se ha podido visualizar el remoto."
 
@@ -6037,6 +6092,8 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
+#: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "Nombre remoto"
 
@@ -6079,6 +6136,8 @@ msgstr "Registros remotos"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/detail/remote-detail.tsx
+#: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
 msgstr "Mandos a distancia"
@@ -6088,6 +6147,7 @@ msgstr "Mandos a distancia"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "No se han podido visualizar los remotos."
 
@@ -6096,12 +6156,17 @@ msgstr "No se han podido visualizar los remotos."
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "Los remotos aparecerán una vez creados."
 
 #: src/actions/ansible-repository-collection-version-remove.tsx
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "Se ha iniciado la eliminación de {namespace}.{name} v{version} del repositorio \"{repositoryName}\"."
+
+#: src/framework/delete/delete-remote.ts
+msgid "Removal of remote {name}"
+msgstr ""
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -6114,6 +6179,7 @@ msgstr "Se ha iniciado la eliminación de {namespace}.{name} v{version} del repo
 #: src/actions/file-remote-delete.tsx
 #: src/actions/python-remote-delete.tsx
 #: src/actions/rpm-remote-delete.tsx
+#: src/framework/delete/delete-remote.ts
 msgid "Removal started for remote {name}"
 msgstr "Se ha iniciado la eliminación del remoto {name}"
 
@@ -6276,6 +6342,7 @@ msgstr "Tarea de reparación"
 #: src/containers/rpm-repository/detail.tsx
 #: src/containers/rpm-repository/edit.tsx
 #: src/containers/rpm-repository/list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -6297,6 +6364,14 @@ msgstr "Su cuenta no puede buscar en los repositorios."
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "No se han podido visualizar los repositorios."
+
+#: src/framework/detail/remote-detail.tsx
+msgid "Repositories could not be loaded"
+msgstr ""
+
+#: src/framework/list/remote-list.tsx
+msgid "Repositories using the remotes could not be read."
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -6525,11 +6600,13 @@ msgstr "Reintentos"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7390,7 +7467,12 @@ msgstr "¿Detener la tarea?"
 msgid "Storage"
 msgstr "Almacenamiento"
 
+#: src/framework/detail/remote-detail.tsx
+msgid "Stored credentials"
+msgstr ""
+
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "Transmitida"
 
@@ -7893,6 +7975,10 @@ msgstr "No se pudo copiar la configuración al portapapeles."
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "La eliminación se detuvo con un error inesperado. Es posible que ya se hayan eliminado algunas distribuciones o el repositorio: revise las listas antes de volver a intentarlo."
 
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
@@ -7943,7 +8029,7 @@ msgstr "Se aplicarán los siguientes roles al usuario: <0>{0}</0>"
 msgid "The label could not be changed."
 msgstr ""
 
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
 msgstr ""
 
@@ -8013,6 +8099,14 @@ msgstr "La eliminación del remoto {name} sigue en curso."
 #: src/framework/delete/delete-outcome.tsx
 msgid "The removal of the repository has not been confirmed."
 msgstr "No se ha confirmado la eliminación del repositorio."
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "The repositories that use this remote cannot be listed for your account."
+msgstr ""
+
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "The repositories that use this remote could not be listed, so nothing can be deleted."
+msgstr ""
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -8227,6 +8321,10 @@ msgstr "No hay registro de recursos"
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "Estas distribuciones sirven el repositorio. Se eliminan con él y sus URL dejan de funcionar:"
 
+#: src/framework/delete/delete-remote-dialog.tsx
+msgid "These repositories use this remote. They are kept, without a remote, and cannot be synced until they have one:"
+msgstr ""
+
 #: src/components/delete-group-modal.tsx
 msgid "These users will lose access to the group content:"
 msgstr "Estos usuarios perderán el acceso al contenido del grupo:"
@@ -8358,6 +8456,7 @@ msgstr "Esto revocará todos los permisos asociados con este rol del grupo."
 #: src/containers/file-remote/tab-details.tsx
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/detail/remote-detail.tsx
 msgid "TLS validation"
 msgstr "Validación TLS"
 
@@ -8378,6 +8477,7 @@ msgstr "Validación TLS"
 #~ msgstr "To revoke a token or see all of your tokens, visit the <0>offline API token management</0> page."
 
 #: src/components/remote-form.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Token"
 msgstr "Token"
@@ -8624,6 +8724,8 @@ msgstr "Subidas"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/remote-detail.tsx
+#: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
 
@@ -8718,6 +8820,10 @@ msgstr "Utilizar plantilla"
 #: src/containers/pulp-status.tsx
 msgid "Used"
 msgstr "Usado"
+
+#: src/framework/list/remote-list.tsx
+msgid "Used by"
+msgstr ""
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -8864,6 +8970,7 @@ msgstr "Lista de usuarios"
 #: src/components/user-form.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/remote-detail.tsx
 #: src/session/reauth-dialog.tsx
 msgid "Username"
 msgstr "Usuario"
@@ -9358,7 +9465,7 @@ msgstr "Se cambió su contraseña. Inicie sesión con la nueva contraseña."
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
 #: src/framework/form/permission-gate.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "Your permissions could not be read"
 msgstr "No se pudieron leer sus permisos"
 

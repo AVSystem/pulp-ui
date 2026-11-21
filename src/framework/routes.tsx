@@ -1,4 +1,4 @@
-import type { ComponentType, ElementType } from 'react';
+import type { ComponentType, ElementType, ReactElement } from 'react';
 import { lazyScreen } from 'src/components/lazy-screen';
 import type { PluginDescriptor } from './descriptor';
 import type { FrameworkPlugin, PluginManifest } from './manifest';
@@ -28,97 +28,108 @@ const DESCRIPTORS: Partial<
     import(/* webpackChunkName: "file" */ 'src/descriptors/file/descriptor'),
 };
 
-// The list of a plugin's repositories, drawn by the generic screen from the
-// plugin's descriptor.
-function repositoryListScreen(plugin: FrameworkPlugin): ComponentType {
-  const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
-    (typeof DESCRIPTORS)[FrameworkPlugin]
-  >;
-
-  return lazyScreen(async () => {
-    const [{ default: descriptor }, { RepositoryList }] = await Promise.all([
-      loadDescriptor(),
-      import(
-        /* webpackChunkName: "framework" */ 'src/framework/list/repository-list'
-      ),
-    ]);
-
-    return {
-      default: () => <RepositoryList plugin={plugin} descriptor={descriptor} />,
-    };
-  });
-}
-
-// The detail of a repository on one of its tabs, drawn by the generic screen
-// from the plugin's descriptor. The generic code is a chunk shared by every
-// plugin.
-function repositoryDetailScreen(
+// A screen drawn by generic code from a plugin's descriptor: the descriptor
+// (the plugin's own chunk) and the generic screen (a chunk shared by every
+// plugin) load together when the screen is first shown.
+function descriptorScreen<Module>(
   plugin: FrameworkPlugin,
-  tab: RepositoryTab | null,
+  loadScreen: () => Promise<Module>,
+  draw: (module: Module, descriptor: PluginDescriptor) => ReactElement,
 ): ComponentType {
   const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
     (typeof DESCRIPTORS)[FrameworkPlugin]
   >;
 
   return lazyScreen(async () => {
-    const [{ default: descriptor }, { RepositoryDetail }] = await Promise.all([
+    const [{ default: descriptor }, module] = await Promise.all([
       loadDescriptor(),
+      loadScreen(),
+    ]);
+
+    return { default: () => draw(module, descriptor) };
+  });
+}
+
+// The list of a plugin's repositories.
+const repositoryListScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/list/repository-list'
+      ),
+    ({ RepositoryList }, descriptor) => (
+      <RepositoryList plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
+// The detail of a repository on one of its tabs.
+const repositoryDetailScreen = (
+  plugin: FrameworkPlugin,
+  tab: RepositoryTab | null,
+) =>
+  descriptorScreen(
+    plugin,
+    () =>
       import(
         /* webpackChunkName: "framework" */ 'src/framework/detail/repository-detail'
       ),
-    ]);
+    ({ RepositoryDetail }, descriptor) => (
+      <RepositoryDetail plugin={plugin} descriptor={descriptor} tab={tab} />
+    ),
+  );
 
-    return {
-      default: () => (
-        <RepositoryDetail plugin={plugin} descriptor={descriptor} tab={tab} />
-      ),
-    };
-  });
-}
-
-// The edit form of a repository, drawn by the generic screen from the plugin's
-// descriptor.
-function repositoryEditScreen(plugin: FrameworkPlugin): ComponentType {
-  const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
-    (typeof DESCRIPTORS)[FrameworkPlugin]
-  >;
-
-  return lazyScreen(async () => {
-    const [{ default: descriptor }, { RepositoryEdit }] = await Promise.all([
-      loadDescriptor(),
+// The edit form of a repository.
+const repositoryEditScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
       import(
         /* webpackChunkName: "framework" */ 'src/framework/form/repository-edit'
       ),
-    ]);
+    ({ RepositoryEdit }, descriptor) => (
+      <RepositoryEdit plugin={plugin} descriptor={descriptor} />
+    ),
+  );
 
-    return {
-      default: () => <RepositoryEdit plugin={plugin} descriptor={descriptor} />,
-    };
-  });
-}
-
-// The create form of a repository, drawn by the generic screen from the
-// plugin's descriptor.
-function repositoryCreateScreen(plugin: FrameworkPlugin): ComponentType {
-  const loadDescriptor = DESCRIPTORS[plugin] as NonNullable<
-    (typeof DESCRIPTORS)[FrameworkPlugin]
-  >;
-
-  return lazyScreen(async () => {
-    const [{ default: descriptor }, { RepositoryCreate }] = await Promise.all([
-      loadDescriptor(),
+// The create form of a repository.
+const repositoryCreateScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
       import(
         /* webpackChunkName: "framework" */ 'src/framework/form/repository-create'
       ),
-    ]);
+    ({ RepositoryCreate }, descriptor) => (
+      <RepositoryCreate plugin={plugin} descriptor={descriptor} />
+    ),
+  );
 
-    return {
-      default: () => (
-        <RepositoryCreate plugin={plugin} descriptor={descriptor} />
+// The detail of a remote.
+const remoteDetailScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/detail/remote-detail'
       ),
-    };
-  });
-}
+    ({ RemoteDetail }, descriptor) => (
+      <RemoteDetail plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
+// The list of a plugin's remotes.
+const remoteListScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/list/remote-list'
+      ),
+    ({ RemoteList }, descriptor) => (
+      <RemoteList plugin={plugin} descriptor={descriptor} />
+    ),
+  );
 
 // The component of a pattern, or null while its screen does not exist yet:
 // such a pattern is not routed.
@@ -137,6 +148,10 @@ function componentOf(
       return repositoryEditScreen(plugin);
     case 'repository-create':
       return repositoryCreateScreen(plugin);
+    case 'remote-list':
+      return remoteListScreen(plugin);
+    case 'remote-detail':
+      return remoteDetailScreen(plugin);
     default:
       return null;
   }
