@@ -150,7 +150,7 @@ describe('Unit: the body of a create', { tags: ['unit'] }, () => {
     const kept: FieldDef[] = [
       {
         name: 'keep',
-        label: msg`Keep`,
+        label: msg`Retain`,
         kind: 'integer',
         blankValue: 0,
       },

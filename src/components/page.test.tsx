@@ -10,8 +10,6 @@ import AnsibleRemoteEdit from '../containers/ansible-remote/edit';
 import AnsibleRepositoryEdit from '../containers/ansible-repository/edit';
 import PythonRemoteEdit from '../containers/python-remote/edit';
 import PythonRepositoryEdit from '../containers/python-repository/edit';
-import RPMRemoteEdit from '../containers/rpm-remote/edit';
-import RPMRepositoryEdit from '../containers/rpm-repository/edit';
 import { Paths } from '../paths';
 import { resetSessionEvents, setSignedIn } from '../session/session-events';
 import {
@@ -1063,18 +1061,6 @@ describe('every repository and remote edit page opened by its address', () => {
       Edit: PythonRepositoryEdit,
       route: Paths.python.repository.edit,
       list: 'repositories/python/python/',
-    },
-    {
-      name: 'rpm remote',
-      Edit: RPMRemoteEdit,
-      route: Paths.rpm.remote.edit,
-      list: 'remotes/rpm/rpm/',
-    },
-    {
-      name: 'rpm repository',
-      Edit: RPMRepositoryEdit,
-      route: Paths.rpm.repository.edit,
-      list: 'repositories/rpm/rpm/',
     },
   ];
 

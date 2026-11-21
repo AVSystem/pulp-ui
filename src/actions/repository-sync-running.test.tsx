@@ -6,7 +6,6 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { TaskAPI } from '../api/task';
 import { pythonRepositorySyncAction } from './python-repository-sync';
-import { rpmRepositorySyncAction } from './rpm-repository-sync';
 
 const API = '/pulp/api/v3';
 
@@ -16,7 +15,7 @@ function Harness({
   action,
   item,
 }: {
-  action: typeof rpmRepositorySyncAction;
+  action: typeof pythonRepositorySyncAction;
   item: object;
 }) {
   const [state, setState] = useState<Record<string, unknown>>({});
@@ -39,11 +38,6 @@ function Harness({
 }
 
 describe.each([
-  [
-    'rpm',
-    rpmRepositorySyncAction,
-    'pulp_rpm.app.tasks.synchronizing.synchronize',
-  ],
   ['python', pythonRepositorySyncAction, 'pulp_python.app.tasks.sync.sync'],
 ] as const)('syncing a %s repository', (_plugin, action, syncTaskName) => {
   it('disables Sync while a sync of the repository is already running', async () => {

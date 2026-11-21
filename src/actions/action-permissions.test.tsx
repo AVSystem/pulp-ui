@@ -12,7 +12,6 @@ import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryVersionsTab as AnsibleTab } from '../containers/ansible-repository/tab-repository-versions';
 import { RepositoryVersionsTab as PythonTab } from '../containers/python-repository/tab-repository-versions';
-import { RepositoryVersionsTab as RpmTab } from '../containers/rpm-repository/tab-repository-versions';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { type ActionType } from './action';
 import { ansibleRemoteCreateAction } from './ansible-remote-create';
@@ -34,13 +33,6 @@ import { pythonRepositoryDeleteAction } from './python-repository-delete';
 import { pythonRepositoryEditAction } from './python-repository-edit';
 import { pythonRepositorySyncAction } from './python-repository-sync';
 import { repositoryVersionRevertAction } from './repository-version-revert';
-import { rpmRemoteCreateAction } from './rpm-remote-create';
-import { rpmRemoteDeleteAction } from './rpm-remote-delete';
-import { rpmRemoteEditAction } from './rpm-remote-edit';
-import { rpmRepositoryCreateAction } from './rpm-repository-create';
-import { rpmRepositoryDeleteAction } from './rpm-repository-delete';
-import { rpmRepositoryEditAction } from './rpm-repository-edit';
-import { rpmRepositorySyncAction } from './rpm-repository-sync';
 
 const API = '/pulp/api/v3';
 
@@ -186,20 +178,6 @@ const collectionVersionItem = {
 
 const ROWS: Row[] = [
   ...rowsOf(
-    'rpm',
-    { repository: 'rpmrepository', remote: 'rpmremote' },
-    { repository: 'rpm/rpm', remote: 'rpm/rpm' },
-    {
-      repositoryCreate: rpmRepositoryCreateAction,
-      repositoryEdit: rpmRepositoryEditAction,
-      repositorySync: rpmRepositorySyncAction,
-      repositoryDelete: rpmRepositoryDeleteAction,
-      remoteCreate: rpmRemoteCreateAction,
-      remoteEdit: rpmRemoteEditAction,
-      remoteDelete: rpmRemoteDeleteAction,
-    },
-  ),
-  ...rowsOf(
     'python',
     { repository: 'pythonrepository', remote: 'pythonremote' },
     { repository: 'python/python', remote: 'python/python' },
@@ -321,12 +299,6 @@ describe.each(ROWS)('the $label action', (row) => {
 
 describe.each([
   [
-    'rpm',
-    'rpm',
-    'rpm.modify_content_rpmrepository',
-    'rpm.change_rpmrepository',
-  ],
-  [
     'python',
     'python',
     'python.modify_pythonrepository',
@@ -383,7 +355,6 @@ describe.each([
 // on every row; what it may check is the repository the page shows.
 describe('the revert action in the versions tab of a repository page', () => {
   const TABS = [
-    { plugin: 'rpm', path: 'repositories/rpm/rpm', Tab: RpmTab },
     { plugin: 'python', path: 'repositories/python/python', Tab: PythonTab },
     {
       plugin: 'ansible',

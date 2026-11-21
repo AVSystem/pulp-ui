@@ -101,16 +101,6 @@ export const Paths = {
     package: { list: '/python/packages' },
   },
   rpm: {
-    remote: {
-      detail: '/rpm/remotes/detail/:name',
-      edit: '/rpm/remotes/edit/:name',
-      list: '/rpm/remotes',
-    },
-    repository: {
-      detail: '/rpm/repositories/detail/:name',
-      edit: '/rpm/repositories/edit/:name',
-      list: '/rpm/repositories',
-    },
     package: { list: '/rpm/rpms' },
   },
 };
