@@ -1,5 +1,6 @@
 import { type Page, expect, test } from '@playwright/test';
 import { apiContext } from '../support/api';
+import { baseUrl } from '../support/env';
 import {
   clickSidebar,
   expectedRepositories,
@@ -94,17 +95,20 @@ async function fresh(page: Page, group: string): Promise<void> {
 
 // Moves inside the application to an address, as following a link does: the
 // page is not loaded again, so what the application has read stays in its
-// cache.
+// cache. The address is below the UI root of the run, which the page must be
+// under; a page anywhere else is a mistake of the test and fails here, not as
+// a missing table later.
 async function moveTo(page: Page, address: string): Promise<void> {
-  await page.evaluate((to) => {
-    // an address below the UI root, whichever screen the page is on
-    const root = window.location.pathname.slice(
-      0,
-      window.location.pathname.indexOf('/ui/') + '/ui/'.length,
-    );
-    window.history.pushState({}, '', `${root}${to}`);
+  const root = new URL(baseUrl()).pathname;
+  const here = new URL(page.url()).pathname;
+  if (!here.startsWith(root)) {
+    throw new Error(`the page is at ${here}, not under the UI root ${root}`);
+  }
+
+  await page.evaluate((target) => {
+    window.history.pushState({}, '', target);
     window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
-  }, address);
+  }, `${root}${address}`);
 }
 
 const requestsOf = (page: Page) => {
