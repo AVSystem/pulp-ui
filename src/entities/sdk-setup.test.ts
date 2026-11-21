@@ -6,7 +6,11 @@ import { HttpResponse, http } from 'msw';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PulpAPI } from 'src/api/pulp';
 import type * as RequestPolicy from 'src/session/request-policy';
-import { handleFailure, prepareRequest } from 'src/session/request-policy';
+import {
+  handleFailure,
+  prepareRequest,
+  refusalIsAnswer,
+} from 'src/session/request-policy';
 import {
   SessionSuspendedError,
   getSnapshot,
@@ -244,17 +248,44 @@ describe('the sdk and the session', () => {
     return { arrived, release };
   }
 
-  it('asks who is signed in nothing for a refused read of the roles list, and leaves the refusal to its caller', async () => {
+  it('asks who is signed in nothing for a refused read marked as one whose refusal is the answer, and sends no marker', async () => {
     setSignedIn(true);
-    refuse('*/pulp/api/v3/roles/', 403, 'Forbidden here.');
+    const sent: Headers[] = [];
+    server.use(
+      http.get('*/pulp/api/v3/roles/', ({ request }) => {
+        sent.push(request.headers);
+        return HttpResponse.json(
+          { detail: 'Forbidden here.' },
+          { status: 403 },
+        );
+      }),
+    );
     const logins = recordHits('*/pulp/api/v3/login/');
 
-    const error = await rolesList({ fields: ['name'] }).catch((e) => e);
+    const error = await rolesList(
+      { fields: ['name'] },
+      refusalIsAnswer(),
+    ).catch((e) => e);
 
     expect(requestErrorStatus(error)).toBe(403);
     expect(isSessionEnd(error)).toBe(false);
     expect(logins).toHaveLength(0);
     expect(getSnapshot().ended).toBe(false);
+    expect(sent).toHaveLength(1);
+    expect(Array.from((sent[0] as Headers).keys())).not.toContain(
+      'x-pulp-ui-refusal-is-answer',
+    );
+  });
+
+  it('still asks who is signed in for a refused read of the roles list that is not marked', async () => {
+    setSignedIn(true);
+    refuse('*/pulp/api/v3/roles/', 403, 'Forbidden here.');
+    const logins = recordHits('*/pulp/api/v3/login/');
+
+    const error = await rolesList({ limit: 10 }).catch((e) => e);
+
+    expect(requestErrorStatus(error)).toBe(403);
+    expect(logins).toHaveLength(1);
   });
 
   it('ignores the 401 of a call sent before the session was resumed', async () => {
