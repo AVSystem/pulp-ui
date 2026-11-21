@@ -195,6 +195,21 @@ function url(pathOrHref: string): string {
   return pathOrHref.startsWith('/') ? pathOrHref : `${API_BASE}${pathOrHref}`;
 }
 
+// Waits for every job, then rethrows the first failure. Used for creates that
+// run side by side: `Promise.all` would report the first failure at once while
+// the other creates are still running, and an object whose task finishes after
+// the clean-up has started would never be registered and stay on the server.
+export async function allSettled<T>(jobs: Promise<T>[]): Promise<T[]> {
+  const results = await Promise.allSettled(jobs);
+  const failure = results.find(
+    (result): result is PromiseRejectedResult => result.status === 'rejected',
+  );
+  if (failure) {
+    throw failure.reason;
+  }
+  return results.map((result) => (result as PromiseFulfilledResult<T>).value);
+}
+
 // The objects of one spec file on one deployment. Create them through this
 // class, call cleanUp() in afterAll.
 export class TestObjects {

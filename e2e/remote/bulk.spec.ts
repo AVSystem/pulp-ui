@@ -2,7 +2,12 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
 import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
 import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
-import { type PulpObject, TestObjects, runId } from '../support/api';
+import {
+  type PulpObject,
+  TestObjects,
+  allSettled,
+  runId,
+} from '../support/api';
 import { clickSidebar, listTable } from '../support/framework-list';
 import { title } from '../support/sign-in';
 
@@ -44,7 +49,7 @@ test.beforeAll(async () => {
   // repository has a remote of its own, because syncing the same content
   // through one remote in two repositories at once made one of the two tasks
   // fail on the server.
-  withRemote = (await Promise.all(
+  withRemote = (await allSettled(
     ['a', 'b'].map(async (suffix) => {
       const remote = await objects.create(REMOTES, {
         name: objects.name(`remote-${suffix}`),
@@ -64,7 +69,9 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   test.setTimeout(180_000);
-  await objects.cleanUp();
+  // objects is not set when opening the API context failed in beforeAll, and
+  // that failure must not be hidden by a second one here.
+  await objects?.cleanUp();
 });
 
 // The list narrowed to the repositories of this run whose name starts with
@@ -231,7 +238,7 @@ test('a sync of three repositories starts one task for each that has a remote an
 });
 
 async function makeRepositories(stem: string, count: number) {
-  return Promise.all(
+  return allSettled(
     Array.from({ length: count }, (_, index) =>
       objects.create(REPOSITORIES, {
         name: objects.name(`${stem}-${index + 1}`),
