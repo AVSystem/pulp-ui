@@ -1,4 +1,5 @@
 import { type Page, expect, test } from '@playwright/test';
+import { PLUGIN_MANIFESTS } from '../../src/framework/manifest';
 import { type PulpObject, TestObjects } from '../support/api';
 import { title } from '../support/sign-in';
 
@@ -10,6 +11,9 @@ import { title } from '../support/sign-in';
 
 interface Plugin {
   label: string;
+  // the plugin's screens come from the framework, at the addresses it has
+  // there; the others keep their own
+  onFramework: boolean;
   // path of the plugin's screens relative to the UI root
   screens: string;
   repositories: string;
@@ -24,8 +28,14 @@ interface Plugin {
   ) => Promise<Record<string, unknown>>;
 }
 
+const framework = (plugin: string) =>
+  PLUGIN_MANIFESTS.some(
+    (manifest) => manifest.plugin === plugin && manifest.onFramework,
+  );
+
 const rpm: Plugin = {
   label: 'RPM',
+  onFramework: framework('rpm'),
   screens: 'rpm',
   repositories: 'repositories/rpm/rpm/',
   remotes: 'remotes/rpm/rpm/',
@@ -42,6 +52,7 @@ const rpm: Plugin = {
 
 const python: Plugin = {
   label: 'Python',
+  onFramework: framework('python'),
   screens: 'python',
   repositories: 'repositories/python/python/',
   remotes: 'remotes/python/python/',
@@ -50,6 +61,22 @@ const python: Plugin = {
   // a Python distribution serves the latest version of its repository
   serve: async (_objects, repository) => ({ repository: repository.pulp_href }),
 };
+
+// The addresses of the screens this spec opens, for a plugin on the framework
+// and for one that is not.
+const addRemoteAddress = ({ screens, onFramework }: Plugin) =>
+  onFramework ? `${screens}/remote/new` : `${screens}/remotes/edit/_`;
+const addRepositoryAddress = ({ screens, onFramework }: Plugin) =>
+  onFramework ? `${screens}/repository/new` : `${screens}/repositories/edit/_`;
+const repositoryAddress = ({ screens, onFramework }: Plugin, name: string) =>
+  onFramework
+    ? `${screens}/repositories/${encodeURIComponent(name)}`
+    : `${screens}/repositories/detail/${name}`;
+// Where the browser ends up after a save: the page of the object just made.
+const remoteSaved = ({ onFramework }: Plugin) =>
+  onFramework ? /\/remotes\/[^/]+\/?$/ : /remotes\/detail\//;
+const repositorySaved = ({ onFramework }: Plugin) =>
+  onFramework ? /\/repositories\/[^/]+\/?$/ : /repositories\/detail\//;
 
 const NOT_SERVED = 'Not served: no publication';
 
@@ -134,11 +161,11 @@ for (const plugin of [rpm, python]) {
       page,
     }) => {
       const name = remoteName();
-      await page.goto(`${plugin.screens}/remotes/edit/_`);
+      await page.goto(addRemoteAddress(plugin));
       await page.locator('#name').fill(name);
       await page.locator('#url').fill(sourceUrl);
       await page.getByRole('button', { name: 'Save' }).click();
-      await page.waitForURL(/remotes\/detail\//);
+      await page.waitForURL(remoteSaved(plugin));
       await expect(title(page, name)).toBeVisible();
       await expect(page.getByText(sourceUrl).first()).toBeVisible();
 
@@ -156,13 +183,13 @@ for (const plugin of [rpm, python]) {
       page,
     }) => {
       const name = repositoryName();
-      await page.goto(`${plugin.screens}/repositories/edit/_`);
+      await page.goto(addRepositoryAddress(plugin));
       await page.locator('#name').fill(name);
       await pickRemote(page, remoteName());
       await page.locator('#create_distribution').check();
       await expect(page.locator('#base_path')).toHaveValue(name);
       await page.getByRole('button', { name: 'Save' }).click();
-      await page.waitForURL(/repositories\/detail\//);
+      await page.waitForURL(repositorySaved(plugin));
       await expect(title(page, name)).toBeVisible();
 
       await expect(await listed(page, 'repositories', name)).toBeVisible();
@@ -174,7 +201,7 @@ for (const plugin of [rpm, python]) {
       const reported = distribution?.['base_url'] as string;
       expect(reported).toMatch(/^https?:\/\//);
 
-      await page.goto(`${plugin.screens}/repositories/detail/${name}`);
+      await page.goto(repositoryAddress(plugin, name));
       await expect(title(page, name)).toBeVisible();
       const urlRow = page.locator('.pf-v6-c-description-list__group', {
         hasText: 'Repository URL',
@@ -214,7 +241,7 @@ for (const plugin of [rpm, python]) {
         'a sync before the dialog was used',
       ).toBeNull();
 
-      await page.goto(`${plugin.screens}/repositories/detail/${name}`);
+      await page.goto(repositoryAddress(plugin, name));
       await expect(title(page, name)).toBeVisible();
       await page.getByRole('button', { name: 'Sync', exact: true }).click();
       const dialog = page.getByRole('dialog');

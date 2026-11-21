@@ -175,6 +175,11 @@ const REBUILT = [
     endpoint: 'deb/apt',
     remote: { url: 'https://pulp.example/zz-e2e/', distributions: 'stable' },
   },
+  {
+    plugin: 'rpm',
+    endpoint: 'rpm/rpm',
+    remote: { url: 'https://pulp.example/zz-e2e/' },
+  },
 ] as const;
 
 for (const { plugin, endpoint, remote: remoteBody } of REBUILT) {
