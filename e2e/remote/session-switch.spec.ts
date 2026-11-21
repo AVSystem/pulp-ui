@@ -62,6 +62,13 @@ test('another account signing in through the dialog loads the start page under t
   await apiLogin(context);
   await page.goto('file/repositories');
   await expect(title(page, 'Repositories')).toBeVisible();
+  // the columns that have a read of their own are still on their way after the
+  // title shows; a late answer would be the refusal the test means to cause
+  await expect(
+    page.locator(
+      'table[aria-label="Repositories"][data-columns-loaded="true"]',
+    ),
+  ).toBeVisible();
   expect(await menuNames(page, account('admin').username)).toBe(true);
 
   expect(await endSessionBehindThePage(page)).toBe(204);
