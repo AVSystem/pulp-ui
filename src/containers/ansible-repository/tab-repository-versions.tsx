@@ -18,6 +18,7 @@ import {
   Spinner,
   Table,
 } from 'src/components';
+import { versionNumberOf } from 'src/entities/href';
 import { Paths, formatPath } from 'src/paths';
 import { config } from 'src/ui-config';
 import { useSessionEpoch } from 'src/user-context';
@@ -153,11 +154,12 @@ const BaseVersion = ({
   repositoryName: string;
   data?: string;
 }) => {
-  if (!data) {
+  const version = versionNumberOf(data);
+  if (version === null) {
     return <>{t`None`}</>;
   }
 
-  const number = data.split('/').at(-2);
+  const number = String(version);
   return (
     <Link
       to={formatPath(

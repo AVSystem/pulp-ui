@@ -1,6 +1,6 @@
+import { apiPathOfHref } from 'src/entities/href';
 import { type ActionType } from '../actions/action';
 import { GenericPulpAPI } from '../api/generic-pulp';
-import { config } from '../ui-config';
 
 // The permissions the signed-in user holds on one object, as the server lists
 // them for it. Roles granted on a single object appear only here: a role
@@ -13,9 +13,15 @@ export async function loadMyPermissions(
   href: string,
 ): Promise<string[] | null> {
   try {
-    const base = config.API_BASE_PATH;
-    const path = href.startsWith(base) ? href.slice(base.length) : href;
-    const { data } = await GenericPulpAPI.get(`${path}my_permissions/`);
+    // An address outside the API base names no object of this API: nothing is
+    // asked and the answer is "unknown".
+    const path = apiPathOfHref(href);
+    if (path === null) {
+      return null;
+    }
+    const { data } = await GenericPulpAPI.get(
+      `${path}${path.endsWith('/') ? '' : '/'}my_permissions/`,
+    );
     return Array.isArray(data?.permissions) ? data.permissions : null;
   } catch {
     return null;
