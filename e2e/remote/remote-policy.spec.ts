@@ -1,4 +1,5 @@
 import { type Page, expect, test } from '@playwright/test';
+import { PLUGIN_MANIFESTS } from '../../src/framework/manifest';
 import { type PulpObject, TestObjects } from '../support/api';
 import { title } from '../support/sign-in';
 import { installedPlugins } from './list-pages';
@@ -43,8 +44,17 @@ test('a file remote created without touching the policy is stored as on demand',
   expect(created?.['policy']).toBe('on_demand');
 });
 
+// The address of the form that adds a remote: the new address for a plugin on
+// the framework, the plugin's own for the others.
+function addAddress(plugin: string): string {
+  const onFramework = PLUGIN_MANIFESTS.some(
+    (manifest) => manifest.plugin === plugin && manifest.onFramework,
+  );
+  return onFramework ? `${plugin}/remote/new` : `${plugin}/remotes/edit/_`;
+}
+
 async function openAddForm(page: Page, plugin: string): Promise<void> {
-  await page.goto(`${plugin}/remotes/edit/_`);
+  await page.goto(addAddress(plugin));
   await expect(page.locator('#name')).toBeVisible();
 }
 
