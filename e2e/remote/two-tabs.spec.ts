@@ -32,6 +32,17 @@ test('after logging out in one tab, the other tab is refused by the server, asks
   await tabB.goto('file/repositories');
   await expect(title(tabA, 'Repositories')).toBeVisible();
   await expect(title(tabB, 'Repositories')).toBeVisible();
+  // A list reads more than its rows: every column that comes from a read of its
+  // own is still on its way after the title shows. Tab B must have everything
+  // it asked for before the session ends, or a late answer would be the
+  // refusal this test means to cause by moving on.
+  for (const tab of [tabA, tabB]) {
+    await expect(
+      tab.locator(
+        'table[aria-label="Repositories"][data-columns-loaded="true"]',
+      ),
+    ).toBeVisible();
+  }
 
   const answers: number[] = [];
   tabB.on('response', (response) => {
