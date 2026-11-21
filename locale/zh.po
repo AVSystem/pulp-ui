@@ -395,11 +395,17 @@ msgstr ""
 msgid "A label value cannot contain parentheses."
 msgstr ""
 
+#: src/framework/form/remote-fields.ts
+msgid "A PEM encoded CA certificate used to check the certificate of the server."
+msgstr ""
+
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "A PEM encoded client certificate used for authentication."
 msgstr "用于身份验证的 PEM 编码客户端证书。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "A PEM encoded private key used for authentication."
 msgstr "用于验证的 PEM 编码私钥。"
 
@@ -430,6 +436,7 @@ msgid "A value may not contain parentheses."
 msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "A whole number. Leave empty to use the server default."
 msgstr "整数。留空则使用服务器默认值。"
 
@@ -493,6 +500,7 @@ msgstr "操作"
 #: src/containers/python-repository/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-repository/edit.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 msgid "Add"
 msgstr "添加"
@@ -565,6 +573,7 @@ msgstr ""
 #: src/containers/file-remote/edit.tsx
 #: src/containers/python-remote/edit.tsx
 #: src/containers/rpm-remote/edit.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Add new remote"
 msgstr "添加新远程"
 
@@ -1090,6 +1099,7 @@ msgstr "无法编辑内置角色。"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "CA certificate"
 msgstr "CA 证书"
 
@@ -1113,6 +1123,7 @@ msgstr "CA 证书"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Cancel"
@@ -1311,9 +1322,14 @@ msgstr "子任务"
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/typeahead.tsx
+#: src/framework/form/secret-field.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Clear"
 msgstr "清除"
+
+#: src/framework/form/secret-field.tsx
+msgid "Clear {label}"
+msgstr ""
 
 #: src/components/applied-filters.tsx
 #: src/components/empty-state-filter.tsx
@@ -1343,11 +1359,13 @@ msgstr "CLI 配置"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Client certificate"
 msgstr "客户端证书"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "客户端密钥"
 
@@ -2614,6 +2632,10 @@ msgstr "完成"
 msgid "Download {filename}"
 msgstr "下载 {filename}"
 
+#: src/framework/form/certificate-field.tsx
+msgid "Download {label}"
+msgstr ""
+
 #: src/actions/ansible-remote-download-ca.tsx
 msgid "Download CA certificate"
 msgstr "下载 CA 认证"
@@ -2641,6 +2663,7 @@ msgstr "下载客户端认证文件"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Download concurrency"
 msgstr "下载并发"
 
@@ -2670,6 +2693,7 @@ msgstr "仅下载签名的集合"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "下载策略"
@@ -2743,6 +2767,7 @@ msgstr ""
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
@@ -2836,6 +2861,11 @@ msgstr "电子邮件"
 msgid "Enabled"
 msgstr "启用"
 
+#. placeholder {0}: field.min
+#: src/framework/form/descriptor-form.tsx
+msgid "Enter {0} or more."
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "Enter a base path."
@@ -2847,6 +2877,14 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Enter a label key."
+msgstr ""
+
+#: src/framework/form/descriptor-form.tsx
+msgid "Enter a number."
+msgstr ""
+
+#: src/framework/form/descriptor-form.tsx
+msgid "Enter a whole number."
 msgstr ""
 
 #: src/components/render-plugin-doc.tsx
@@ -3761,6 +3799,7 @@ msgid "hidden value"
 msgstr "隐藏值"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.tsx
 msgid "Hide advanced options"
 msgstr "隐藏高级选项"
 
@@ -3781,6 +3820,7 @@ msgid "How many of the newest versions of each package to sync, including pre-re
 msgstr "每个软件包要同步的最新版本数量，如果同步预发布版本，则包括预发布版本。留空则保留所有版本。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "How many times a failed download is tried again before the sync gives up."
 msgstr "同步放弃之前，失败的下载重试的次数。"
 
@@ -3801,6 +3841,7 @@ msgid "If selected, all content that is not present in the remote repository wil
 msgstr "如果选中，远程仓库中不存在的所有内容都将从本地仓库中删除；否则，同步将添加缺失的内容。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "If selected, TLS peer validation must be performed."
 msgstr "如果选中，则必须执行 TLS 对等验证。"
 
@@ -3851,6 +3892,7 @@ msgid "Immediate"
 msgstr "立即"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Immediate downloads all content during sync and is required when the remote will not stay reachable. On demand syncs metadata only and downloads each item the first time a client requests it. Streamed passes content through to clients without storing it."
 msgstr "立即会在同步期间下载所有内容，当远程无法持续访问时必须使用。按需只同步元数据，并在客户端首次请求时下载每个项目。流式会将内容直接传递给客户端而不存储。"
 
@@ -4018,6 +4060,7 @@ msgstr "将同步安装程序软件包"
 #: src/containers/user-management/user-detail.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
 msgstr "权限不足"
@@ -4041,6 +4084,10 @@ msgstr "权限不足"
 #: src/utilities/login-error.ts
 msgid "Invalid login credentials."
 msgstr "登录凭据无效。"
+
+#: src/framework/form/secret-field.tsx
+msgid "Is set"
+msgstr ""
 
 #: src/containers/about-project.tsx
 msgid "Issue tracker"
@@ -4078,8 +4125,16 @@ msgstr "JSON"
 #~ msgid "Jump-start your automation project with great content from the Ansible community. Galaxy provides pre-packaged units of work known to Ansible as roles and collections."
 #~ msgstr ""
 
+#: src/framework/form/secret-field.tsx
+msgid "Keep it"
+msgstr ""
+
 #: src/framework/sync/progress-panel.tsx
 msgid "Keep running"
+msgstr ""
+
+#: src/framework/form/secret-field.tsx
+msgid "Keep the stored {label}"
 msgstr ""
 
 #: src/framework/form/labels-field.tsx
@@ -4136,11 +4191,16 @@ msgstr ""
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/form/form-values.test.ts
+#: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
 #: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "标签"
+
+#: src/framework/form/remote-fields.ts
+msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find remotes."
+msgstr ""
 
 #: src/framework/form/repository-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
@@ -4218,6 +4278,10 @@ msgstr "每个软件包保留的最新版本数"
 #~ msgid "Learn more about Ansible Wisdom."
 #~ msgstr "Learn more about Ansible Wisdom."
 
+#: src/framework/form/remote-fields.ts
+msgid "Leave empty to use the default of 10 connections."
+msgstr ""
+
 #: src/loaders/standalone/menu.tsx
 #~ msgid "Legacy"
 #~ msgstr "传统"
@@ -4261,6 +4325,7 @@ msgid "Light"
 msgstr "浅色"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Limits total download rate in requests per second."
 msgstr "限制请求的每秒总下载率。"
 
@@ -4497,6 +4562,7 @@ msgstr "我的配置集"
 #: src/containers/task-management/task-detail.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
+#: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
 msgid "Name"
 msgstr "名称"
@@ -5080,6 +5146,10 @@ msgstr ""
 msgid "Nothing changed in distribution {name}."
 msgstr "分发 {name} 没有任何更改。"
 
+#: src/framework/form/remote-form.tsx
+msgid "Nothing changed in remote {remoteName}."
+msgstr ""
+
 #: src/utilities/update-repository.ts
 msgid "Nothing changed in repository {name}."
 msgstr "仓库 {name} 没有任何更改。"
@@ -5118,6 +5188,7 @@ msgid "On demand"
 msgstr "按需"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "On demand fetches content when a client asks for it. Immediate downloads everything at sync. Streamed passes content through without storing it."
 msgstr "按需会在客户端请求时获取内容。立即会在同步时下载所有内容。流式会直接传递内容而不存储。"
 
@@ -5352,6 +5423,7 @@ msgstr "父任务"
 #: src/components/remote-form.tsx
 #: src/components/user-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 #: src/session/reauth-dialog.tsx
 msgid "Password"
 msgstr "密码"
@@ -5594,6 +5666,7 @@ msgstr "来源证明"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Proxy password"
 msgstr "代理密码"
 
@@ -5604,11 +5677,13 @@ msgstr "代理密码"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Proxy URL"
 msgstr "代理 URL"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Proxy username"
 msgstr "代理用户名"
 
@@ -5949,6 +6024,7 @@ msgstr "Python 软件包上传"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Rate limit"
 msgstr "速率限制"
 
@@ -6064,6 +6140,14 @@ msgstr "重新加载"
 msgid "Remote"
 msgstr "远程"
 
+#: src/framework/form/remote-form.tsx
+msgid "Remote \"{remoteName}\" could not be updated"
+msgstr ""
+
+#: src/framework/form/remote-form.tsx
+msgid "Remote could not be created"
+msgstr ""
+
 #: src/containers/ansible-remote/detail.tsx
 #: src/containers/ansible-remote/edit.tsx
 #: src/containers/deb-remote/detail.tsx
@@ -6075,6 +6159,7 @@ msgstr "远程"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-form.tsx
 msgid "Remote could not be displayed."
 msgstr "远程无法被显示。"
 
@@ -6137,6 +6222,7 @@ msgstr "远程注册表"
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
@@ -6595,6 +6681,7 @@ msgid "Retained version count"
 msgstr "保留版本计数"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Retries"
 msgstr "重试次数"
 
@@ -6864,6 +6951,7 @@ msgstr "运行中"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
+#: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Save"
@@ -6949,6 +7037,7 @@ msgid "Searching repositories..."
 msgstr "正在搜索仓库..."
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Seconds. Leave empty to use the server default."
 msgstr "秒。留空则使用服务器默认值。"
 
@@ -7107,6 +7196,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/remote-form.tsx
+#: src/framework/form/descriptor-form.tsx
 msgid "Show advanced options"
 msgstr "显示高级选项"
 
@@ -7509,6 +7599,10 @@ msgstr "成功复制至剪贴板！"
 #: src/containers/rpm-remote/edit.tsx
 msgid "Successfully created remote {0}"
 msgstr "成功创建远程 {0}"
+
+#: src/framework/form/remote-form.tsx
+msgid "Successfully created remote {name}"
+msgstr ""
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -8071,6 +8165,7 @@ msgid "The outcome of the update of distribution {name} is unknown, because the 
 msgstr "由于无法读取任务状态，更新分发 {name} 的结果未知。请检查该任务。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "The password to be used for authentication when syncing."
 msgstr "同步时用于身份验证的密码。"
 
@@ -8211,6 +8306,14 @@ msgstr "状态响应中没有列出任何插件。"
 msgid "The status of the task could not be read."
 msgstr "无法读取任务的状态。"
 
+#: src/framework/form/secret-field.tsx
+msgid "The stored value is removed when you save."
+msgstr ""
+
+#: src/framework/form/secret-field.tsx
+msgid "The stored value is replaced when you save."
+msgstr ""
+
 #: src/containers/token/token-insights.tsx
 #~ msgid "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
 #~ msgstr "The token will expire after 30 days of inactivity. Run the command below periodically to prevent your token from expiring."
@@ -8219,15 +8322,22 @@ msgstr "无法读取任务的状态。"
 msgid "The update of distribution {name} is still running."
 msgstr "分发 {name} 的更新仍在运行。"
 
+#: src/framework/form/descriptor-form.tsx
 #: src/utilities/validate-url-helper.ts
 msgid "The URL needs to be in 'http(s)://' format."
 msgstr "URL 需要采用 'http(s)://' 格式。"
 
+#: src/framework/form/remote-fields.ts
+msgid "The URL of a proxy the downloads go through, for example http://proxy.example:3128."
+msgstr ""
+
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "The URL of an external content source."
 msgstr "外部内容源的 URL。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "The username to be used for authentication when syncing."
 msgstr "同步时用于身份验证的用户名。"
 
@@ -8457,6 +8567,7 @@ msgstr "这将从组中撤销与此角色关联的所有权限。"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 msgid "TLS validation"
 msgstr "TLS 验证"
 
@@ -8499,14 +8610,17 @@ msgid "Total"
 msgstr "总计"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Total number of simultaneous connections."
 msgstr "同时连接总数。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Total time in seconds allowed for one download, including connecting and reading. Decimals such as 2.5 are accepted."
 msgstr "一次下载允许的总时间（秒），包括连接和读取。可使用 2.5 之类的小数。"
 
 #: src/components/remote-form.tsx
+#: src/framework/form/remote-fields.ts
 msgid "Total timeout"
 msgstr "总超时"
 
@@ -8614,6 +8728,10 @@ msgstr "更新集合远程"
 msgid "Update started for remote {0}"
 msgstr "为远程 {0} 启动的更新"
 
+#: src/framework/form/remote-form.tsx
+msgid "Update started for remote {remoteName}"
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
 #: src/containers/deb-repository/edit.tsx
@@ -8644,6 +8762,10 @@ msgstr ""
 #: src/actions/python-distribution-edit.tsx
 msgid "Updated distribution {name}"
 msgstr "已更新分发 {name}"
+
+#: src/framework/form/remote-form.tsx
+msgid "Updated remote {remoteName}"
+msgstr ""
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-repository/edit.tsx
@@ -8725,6 +8847,7 @@ msgstr "上传"
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
@@ -8971,6 +9094,7 @@ msgstr "用户列表"
 #: src/containers/group-management/group-detail.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/form/remote-fields.ts
 #: src/session/reauth-dialog.tsx
 msgid "Username"
 msgstr "用户名"
@@ -9017,6 +9141,10 @@ msgstr "用户添加至该组后会出现"
 #: src/containers/user-management/user-list.tsx
 msgid "Users will appear once created"
 msgstr "用户创建后将会出现"
+
+#: src/framework/form/remote-fields.ts
+msgid "Validate the TLS certificate of the server"
+msgstr ""
 
 #: src/components/repository-badge.tsx
 #~ msgid "Validated"

@@ -10,9 +10,11 @@ import {
 import type { RemoteBase } from 'src/entities/plugin/model';
 import type { RemoteEntity } from 'src/entities/plugin/remote';
 import type { FieldDef } from '../descriptor';
-import type { LabelRow } from './form-values';
+import { CertificateField } from './certificate-field';
+import { type LabelRow, type SecretValue, isSecret } from './form-values';
 import { LabelsField } from './labels-field';
 import { RemoteField } from './remote-field';
+import { SecretField } from './secret-field';
 
 interface Props {
   field: FieldDef;
@@ -49,7 +51,61 @@ export const FieldInput = ({
     });
   }
 
+  if (isSecret(field)) {
+    const label = i18n._(field.label);
+
+    return (
+      <SecretField
+        id={id}
+        value={value as SecretValue}
+        label={label}
+        isDisabled={isDisabled}
+        hasError={hasError}
+        onChange={onChange}
+        input={
+          field.kind === 'certificate'
+            ? ({ id: inputId, text, onText }) => (
+                <CertificateField
+                  id={inputId}
+                  value={text}
+                  label={label}
+                  isDisabled={isDisabled}
+                  hasError={hasError}
+                  canDownload={false}
+                  onChange={onText}
+                />
+              )
+            : field.kind === 'secret'
+              ? undefined
+              : ({ id: inputId, text, onText }) => (
+                  <TextInput
+                    id={inputId}
+                    type='text'
+                    autoComplete='off'
+                    value={text}
+                    isDisabled={isDisabled}
+                    validated={hasError ? 'error' : 'default'}
+                    onChange={(_event, next) => onText(next)}
+                  />
+                )
+        }
+      />
+    );
+  }
+
   switch (field.kind) {
+    case 'certificate':
+      return (
+        <CertificateField
+          id={id}
+          value={String(value ?? '')}
+          label={i18n._(field.label)}
+          isDisabled={isDisabled}
+          hasError={hasError}
+          canDownload
+          onChange={onChange}
+        />
+      );
     case 'boolean':
       return (
         <Checkbox
@@ -124,14 +180,19 @@ export const FieldInput = ({
         <TextInput
           id={id}
           type={
-            field.kind === 'integer'
+            field.kind === 'integer' || field.kind === 'decimal'
               ? 'number'
-              : field.kind === 'secret'
-                ? 'password'
-                : field.kind === 'url'
-                  ? 'url'
-                  : 'text'
+              : field.kind === 'url'
+                ? 'url'
+                : 'text'
           }
+          {...(field.kind === 'integer' || field.kind === 'decimal'
+            ? {
+                min: field.min,
+                ...(field.kind === 'decimal' ? { step: 'any' } : {}),
+              }
+            : {})}
+          placeholder={field.placeholder}
           value={String(value ?? '')}
           isRequired={field.required}
           isDisabled={isDisabled}

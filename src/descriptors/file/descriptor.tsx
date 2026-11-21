@@ -176,6 +176,7 @@ const descriptor: PluginDescriptor<FileRepository> = {
   },
   remote: {
     entity: fileRemote,
+    policy: true,
     columns: remoteColumns('file', { policy: true }),
     filters: REMOTE_FILTERS,
     detailRows: [POLICY_ROW],

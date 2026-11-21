@@ -11,7 +11,11 @@ import type {
   PublicationBase,
   PublicationEntity,
 } from 'src/entities/plugin/publication';
-import type { RemoteEntity } from 'src/entities/plugin/remote';
+import type {
+  RemoteChanges,
+  RemoteCreate,
+  RemoteEntity,
+} from 'src/entities/plugin/remote';
 import type {
   RepositoryChanges,
   RepositoryCreate,
@@ -43,7 +47,7 @@ type AnyRepositoryEntity<Row> = RepositoryEntity<
   SyncBody,
   RevertBody
 >;
-type AnyRemoteEntity<Row> = RemoteEntity<Row, never, never>;
+type AnyRemoteEntity<Row> = RemoteEntity<Row, RemoteCreate, RemoteChanges>;
 type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
   Row,
   DistributionCreate,
@@ -55,12 +59,17 @@ type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
 export type SyncBody = { remote?: string } & Record<string, unknown>;
 
 // The kind of a field is the kind of value it holds: `integer` is a whole
-// number that may be left blank, `labels` the pairs of a key and an optional
-// value, and `remote` the address of a remote or none.
+// number that may be left blank, `decimal` a number with an optional fraction
+// that may be left blank, `labels` the pairs of a key and an optional value,
+// `remote` the address of a remote or none, `secret` a value the server keeps
+// and never returns (a password), and `certificate` a PEM text that is typed,
+// pasted or taken from a file.
 export type FieldKind =
   | 'text'
   | 'textarea'
   | 'integer'
+  | 'decimal'
+  | 'certificate'
   | 'boolean'
   | 'select'
   | 'url'
@@ -91,6 +100,23 @@ export interface FieldDef {
   boxLabel?: MessageDescriptor;
   // The choices of a select.
   options?: { value: string; label: MessageDescriptor }[];
+  // A sentence under the input that tells what to enter or what happens when
+  // it is left empty. A message about the value the server refused replaces it.
+  hint?: MessageDescriptor;
+  // What an empty number input shows: the value the server uses when the field
+  // is left empty.
+  placeholder?: string;
+  // The least a number may be. A smaller value is shown as a problem and the
+  // form is not sent. A field with no minimum leaves every number to the
+  // server.
+  min?: number;
+  // True for a field the server keeps and never returns (a password, a key)
+  // whatever its kind: the form shows that a value is set instead of the value,
+  // and sends it only when the user types a new one or clears it.
+  secret?: boolean;
+  // True for a field that is drawn inside the form's advanced options, after
+  // every other field.
+  advanced?: boolean;
   // A plugin's own input for a value its kind does not suit. It replaces the
   // input the kind would draw and holds the value in the kind's form.
   widget?: (props: FieldWidgetProps) => ReactNode;
@@ -223,7 +249,11 @@ export interface RepositoryKind<Row> {
 
 export interface RemoteKind<Row> {
   entity: AnyRemoteEntity<Row>;
+  // Whether the plugin's remotes have a download policy, which the form offers.
+  policy?: boolean;
   detailRows?: DetailRow<Row>[];
+  // The fields the plugin's remote form adds to the ones every remote has,
+  // drawn after the download policy.
   fields?: FieldDef[];
   columns?: ColumnDef<Row>[];
   filters?: FilterDef[];

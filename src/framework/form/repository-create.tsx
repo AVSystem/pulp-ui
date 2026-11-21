@@ -152,7 +152,7 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
   return (
     <CreatePermissionGate
       plugin={plugin}
-      permission='add'
+      permission={(permissions) => permissions.repository.add}
       title={t`Add new repository`}
     >
       <BaseHeader

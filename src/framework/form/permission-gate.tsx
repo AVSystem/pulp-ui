@@ -10,7 +10,6 @@ import {
   PermissionsFailed,
 } from 'src/components';
 import { useObjectPermissions } from 'src/entities/core/role-assignment/queries';
-import type { RepositoryBase } from 'src/entities/plugin/model';
 import { isSessionEnd } from 'src/utilities/request-error';
 import {
   type FrameworkPlugin,
@@ -21,10 +20,11 @@ import {
 
 interface Props {
   plugin: FrameworkPlugin;
-  // The repository the form changes.
-  repository: RepositoryBase;
-  // The permission the form needs, by its key in the plugin's manifest.
-  permission: keyof IPluginPermissions['repository'];
+  // The repository or remote the form changes.
+  repository: { pulp_href: string };
+  // The permission the form needs, picked out of the plugin's manifest, for
+  // example `(permissions) => permissions.remote.change`.
+  permission: (permissions: IPluginPermissions) => string;
   // The title of the page while it shows something other than the form.
   title: string;
   // True once the user has changed the form. A form the user changed is kept
@@ -59,7 +59,7 @@ export const FormPermissionGate = ({
   const manifest = PLUGIN_MANIFESTS.find(
     (candidate) => candidate.plugin === plugin,
   ) as PluginManifest;
-  const name = manifest.permissions.repository[permission];
+  const name = permission(manifest.permissions);
   const everywhere = hasPermission(name);
   // The roles on single objects matter only to a user who lacks the permission
   // everywhere, once the global permissions are known.
@@ -111,8 +111,9 @@ export const FormPermissionGate = ({
 
 interface CreateProps {
   plugin: FrameworkPlugin;
-  // The permission the form needs, by its key in the plugin's manifest.
-  permission: keyof IPluginPermissions['repository'];
+  // The permission the form needs, picked out of the plugin's manifest, for
+  // example `(permissions) => permissions.remote.add`.
+  permission: (permissions: IPluginPermissions) => string;
   title: string;
   children: ReactNode;
 }
@@ -146,7 +147,7 @@ export const CreatePermissionGate = ({
   if (!permissionsReady) {
     return <LoadingPage />;
   }
-  if (hasPermission(manifest.permissions.repository[permission])) {
+  if (hasPermission(permission(manifest.permissions))) {
     return <>{children}</>;
   }
 

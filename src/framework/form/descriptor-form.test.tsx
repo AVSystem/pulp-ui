@@ -43,7 +43,7 @@ function Harness({ errors = {} }: { errors?: Record<string, string> }) {
     name: 'tools',
     mode: '',
     notes: '',
-    token: '',
+    token: { isSet: false, cleared: false, text: '' },
     colour: 'red',
   });
 
