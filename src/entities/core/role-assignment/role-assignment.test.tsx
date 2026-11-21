@@ -560,6 +560,19 @@ describe('Integration: useObjectPermissions', { tags: ['integration'] }, () => {
     expect(recorder.reads).toEqual([]);
   });
 
+  it('is an error, not loading for ever, when the signed-in user has no address of their own', async () => {
+    serveAccount();
+    server.use(
+      http.get(`*${API}/login/`, () => HttpResponse.json({ username: 'zoe' })),
+    );
+
+    renderWithProviders(<Probe />, { signedIn: true });
+
+    await state('error');
+    expect(latest.can(repositoryHref(1), VIEW)).toBe(false);
+    expect(recorder.reads).toEqual([]);
+  });
+
   it('does not count a role held on every object as a role on a given object', async () => {
     serveAccount({ own: [roleAssignment(OWNER, null)] });
 

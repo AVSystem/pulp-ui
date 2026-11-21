@@ -263,9 +263,14 @@ export function useObjectPermissions({
   if (staff) {
     return { state: 'ready', can: EVERYTHING, retry };
   }
-  const failed = [record, refused ? null : catalogue, index].some(
-    (read) => read !== null && read.isError && !read.isFetching,
-  );
+  // A signed-in user whose record carries no address of their own can never
+  // have the index read, so waiting for it would never end.
+  const withoutAddress = enabled && session !== null && own === null;
+  const failed =
+    withoutAddress ||
+    [record, refused ? null : catalogue, index].some(
+      (read) => read !== null && read.isError && !read.isFetching,
+    );
   // A read that is running again is not complete, whatever it answered before:
   // it starts from an empty answer and fills it page by page.
   const settled = index.isSuccess && !index.isFetching;
