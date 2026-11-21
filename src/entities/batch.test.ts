@@ -1,5 +1,5 @@
 import { getRepositoryVersionsListUrl } from '@pulp-ui/sdk/core/repository-versions';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { URL_BUDGET, chunkByUrl, runBounded } from './batch';
 
 const UUID_TAIL = '-0000-4000-8000-';
@@ -132,6 +132,16 @@ describe('Unit: runBounded', { tags: ['unit'] }, () => {
     expect(seen.sort()).toEqual([1, 2, 3, 4, 5]);
     expect(await runBounded([], 4, async () => 1)).toEqual([]);
   });
+
+  it.each([0, -1, Number.NaN, 0.5])(
+    'refuses the limit %s instead of running no job and resolving with holes',
+    async (limit) => {
+      const job = vi.fn(async (item: number) => item);
+
+      await expect(runBounded([1, 2], limit, job)).rejects.toThrow(RangeError);
+      expect(job).not.toHaveBeenCalled();
+    },
+  );
 
   it('rejects with the first error and starts no further item', async () => {
     const started: number[] = [];
