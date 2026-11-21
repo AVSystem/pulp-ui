@@ -320,6 +320,53 @@ describe('handleFailure', () => {
     expect(check).not.toHaveBeenCalled();
   });
 
+  it.each([
+    '/pulp/api/v3/roles/?fields=name%2Cpermissions&limit=1000',
+    '/pulp/api/v3/roles/',
+    'roles/?limit=1',
+  ])(
+    'asks nothing for a 403 of a read of the roles list (%s), which is the answer to what the account may read',
+    async (url) => {
+      setSignedIn(true);
+      const check = vi.fn();
+      const error = answer(403);
+
+      await handleFailure(
+        403,
+        url,
+        error,
+        check,
+        prepareRequest(url, 'GET', new Headers()),
+      );
+
+      expect(check).not.toHaveBeenCalled();
+      expect(isMarkedSessionEnd(error)).toBe(false);
+      expect(getSnapshot().ended).toBe(false);
+    },
+  );
+
+  it.each([
+    ['a read of one role', 'GET', '/pulp/api/v3/roles/0001/'],
+    ['the roles of a user', 'GET', '/pulp/api/v3/users/1/roles/'],
+    ['the roles of a group', 'GET', '/pulp/api/v3/groups/1/roles/'],
+    ['a role being made', 'POST', '/pulp/api/v3/roles/'],
+    ['a role being removed', 'DELETE', '/pulp/api/v3/roles/'],
+    ['a list that only ends alike', 'GET', '/pulp/api/v3/things/roles/'],
+  ])('still asks about the session for a 403 of %s', async (_, method, url) => {
+    setSignedIn(true);
+    const check = vi.fn(() => Promise.resolve({ username: 'zoe' }));
+
+    await handleFailure(
+      403,
+      url,
+      answer(403),
+      check,
+      prepareRequest(url, method, new Headers()),
+    );
+
+    expect(check).toHaveBeenCalledTimes(1);
+  });
+
   it('shares one check between refusals that arrive together, whoever asks', async () => {
     setSignedIn(true);
     let finish: (value: unknown) => void = () => undefined;
