@@ -244,6 +244,7 @@ msgid "{unread, plural, one {Notifications, # unread notification} other {Notifi
 msgstr "{unread, plural, one {알림, 읽지 않은 알림 #개} other {알림, 읽지 않은 알림 #개}}"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "+{more} more"
 msgstr ""
 
@@ -597,6 +598,7 @@ msgstr "콘텐츠 추가 또는 제거"
 #: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "원격 추가"
 
@@ -1995,6 +1997,7 @@ msgstr "생성됨"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "Created date"
 msgstr "생성된 날짜"
 
@@ -2649,6 +2652,7 @@ msgstr "서명된 컬렉션만 다운로드"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "다운로드 정책"
 
@@ -2721,6 +2725,7 @@ msgstr ""
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "편집"
@@ -3817,6 +3822,7 @@ msgid "immediate"
 msgstr "즉시"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Immediate"
 msgstr "즉시"
 
@@ -4106,6 +4112,7 @@ msgstr ""
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
+#: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "레이블"
 
@@ -4812,6 +4819,7 @@ msgstr "원격 없음"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "원격이 아직 없음"
 
@@ -4973,6 +4981,7 @@ msgstr "찾을 수 없음"
 #~ msgstr "이미지를 찾을 수 없음"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "Not loaded"
 msgstr ""
 
@@ -5015,6 +5024,10 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
 msgstr "동기화되지 않음"
+
+#: src/framework/list/used-by.tsx
+msgid "Not used"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5065,6 +5078,7 @@ msgstr "/"
 #~ msgstr "Offline token"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "On demand"
 msgstr "온디맨드"
 
@@ -6037,6 +6051,7 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "원격 이름"
 
@@ -6079,6 +6094,7 @@ msgstr "원격 레지스트리"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
 msgstr "원격"
@@ -6088,6 +6104,7 @@ msgstr "원격"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "원격을 표시할 수 없습니다."
 
@@ -6096,6 +6113,7 @@ msgstr "원격을 표시할 수 없습니다."
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "생성된 원격이 표시됩니다."
 
@@ -6297,6 +6315,10 @@ msgstr "현재 계정으로는 리포지토리를 검색할 수 없습니다."
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "리포지토리를 표시할 수 없습니다."
+
+#: src/framework/list/remote-list.tsx
+msgid "Repositories using the remotes could not be read."
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -6529,7 +6551,7 @@ msgstr "재시도 횟수"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7391,6 +7413,7 @@ msgid "Storage"
 msgstr "스토리지"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "스트리밍"
 
@@ -7943,7 +7966,7 @@ msgstr "다음 역할이 사용자 <0>{0}</0>에게 적용됩니다"
 msgid "The label could not be changed."
 msgstr ""
 
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
 msgstr ""
 
@@ -8624,6 +8647,7 @@ msgstr "업로드"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
 
@@ -8718,6 +8742,10 @@ msgstr "템플릿 사용"
 #: src/containers/pulp-status.tsx
 msgid "Used"
 msgstr "사용 중"
+
+#: src/framework/list/remote-list.tsx
+msgid "Used by"
+msgstr ""
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -9358,7 +9386,7 @@ msgstr "비밀번호가 변경되었습니다. 새 비밀번호로 로그인하�
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
 #: src/framework/form/permission-gate.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "Your permissions could not be read"
 msgstr "권한을 읽을 수 없습니다"
 

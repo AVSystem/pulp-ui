@@ -16,6 +16,7 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
+import { repositoryListPath } from '../route-patterns';
 import { frameworkRoutes } from '../routes';
 
 const API = '/pulp/api/v3';
@@ -255,12 +256,17 @@ describe('Integration: the remote list', { tags: ['integration'] }, () => {
     expect(within(row).queryByRole('link', { name: 'repo-d' })).toBeNull();
     const more = within(row).getByRole('link', { name: '+2 more' });
     expect(more.getAttribute('href')).toBe(
-      `/file/repositories?remote=${encodeURIComponent((shared as IRemote).pulp_href)}`,
+      `${repositoryListPath('file')}?remote=${encodeURIComponent((shared as IRemote).pulp_href)}`,
     );
   });
 
   it('reads the page, order and filters of the address and keeps them there when a column is sorted', async () => {
-    const lab = serveLab({ remotes: named(5) });
+    const lab = serveLab({
+      remotes: named(5).map((remote) => ({
+        ...remote,
+        pulp_labels: { team: 'docs' },
+      })),
+    });
 
     const { user } = renderList(
       '/file/remotes?page_size=10&sort=-url&name__icontains=remote&pulp_label_select=team%3Ddocs',
@@ -488,7 +494,7 @@ describe(
       serveAccount({ isStaff: false, own: [permissions] });
 
     it('shows Add remote only to a user who holds the add permission, and leads to the create address', async () => {
-      holding(ADD);
+      holding(ADD, CHANGE);
       serveLab({ remotes: named(2) });
 
       const { user } = renderList();

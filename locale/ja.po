@@ -244,6 +244,7 @@ msgid "{unread, plural, one {Notifications, # unread notification} other {Notifi
 msgstr "{unread, plural, one {通知、未読 # 件} other {通知、未読 # 件}}"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "+{more} more"
 msgstr ""
 
@@ -597,6 +598,7 @@ msgstr "コンテンツの追加または削除"
 #: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "リモートの追加"
 
@@ -1995,6 +1997,7 @@ msgstr "作成済み"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "Created date"
 msgstr "作成日"
 
@@ -2649,6 +2652,7 @@ msgstr "署名済みコレクションのみのダウンロード"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "ダウンロードポリシー"
 
@@ -2721,6 +2725,7 @@ msgstr ""
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "編集"
@@ -3817,6 +3822,7 @@ msgid "immediate"
 msgstr "即時"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Immediate"
 msgstr "即時"
 
@@ -4106,6 +4112,7 @@ msgstr ""
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
+#: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "ラベル"
 
@@ -4812,6 +4819,7 @@ msgstr "リモートなし"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "リモートはまだありません"
 
@@ -4973,6 +4981,7 @@ msgstr "見つかりません"
 #~ msgstr "イメージが見つかりません"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "Not loaded"
 msgstr ""
 
@@ -5015,6 +5024,10 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
 msgstr "未同期"
+
+#: src/framework/list/used-by.tsx
+msgid "Not used"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5065,6 +5078,7 @@ msgstr "/"
 #~ msgstr "Offline token"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "On demand"
 msgstr "オンデマンド"
 
@@ -6037,6 +6051,7 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "リモート名"
 
@@ -6079,6 +6094,7 @@ msgstr "リモートレジストリー"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
 msgstr "リモート"
@@ -6088,6 +6104,7 @@ msgstr "リモート"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "リモートを表示できませんでした。"
 
@@ -6096,6 +6113,7 @@ msgstr "リモートを表示できませんでした。"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "リモートは作成後に表示されます。"
 
@@ -6297,6 +6315,10 @@ msgstr "お使いのアカウントではリポジトリーを検索できませ
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "リポジトリーを表示できませんでした。"
+
+#: src/framework/list/remote-list.tsx
+msgid "Repositories using the remotes could not be read."
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -6529,7 +6551,7 @@ msgstr "再試行回数"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7391,6 +7413,7 @@ msgid "Storage"
 msgstr "ストレージ"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "ストリーミング"
 
@@ -7943,7 +7966,7 @@ msgstr "次のロールがユーザー <0>{0}</0> に適用されます"
 msgid "The label could not be changed."
 msgstr ""
 
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
 msgstr ""
 
@@ -8624,6 +8647,7 @@ msgstr "アップロード"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
 
@@ -8718,6 +8742,10 @@ msgstr "テンプレートの使用"
 #: src/containers/pulp-status.tsx
 msgid "Used"
 msgstr "使用中"
+
+#: src/framework/list/remote-list.tsx
+msgid "Used by"
+msgstr ""
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -9358,7 +9386,7 @@ msgstr "パスワードが変更されました。新しいパスワードでロ
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
 #: src/framework/form/permission-gate.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "Your permissions could not be read"
 msgstr "パーミッションを読み取れませんでした"
 

@@ -245,6 +245,7 @@ msgid "{unread, plural, one {Notifications, # unread notification} other {Notifi
 msgstr "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "+{more} more"
 msgstr "+{more} more"
 
@@ -598,6 +599,7 @@ msgstr "Add or remove content"
 #: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "Add remote"
 
@@ -1996,6 +1998,7 @@ msgstr "Created"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "Created date"
 msgstr "Created date"
 
@@ -2650,6 +2653,7 @@ msgstr "Download only signed collections"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "Download policy"
 
@@ -2722,6 +2726,7 @@ msgstr "Each label key can be used once."
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Edit"
@@ -3818,6 +3823,7 @@ msgid "immediate"
 msgstr "immediate"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Immediate"
 msgstr "Immediate"
 
@@ -4107,6 +4113,7 @@ msgstr "Label value"
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
+#: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "Labels"
 
@@ -4813,6 +4820,7 @@ msgstr "no remote"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "No remotes yet"
 
@@ -4974,6 +4982,7 @@ msgstr "Not found"
 #~ msgstr "Not found image"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "Not loaded"
 msgstr "Not loaded"
 
@@ -5016,6 +5025,10 @@ msgstr "Not set"
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
 msgstr "Not synced"
+
+#: src/framework/list/used-by.tsx
+msgid "Not used"
+msgstr "Not used"
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5066,6 +5079,7 @@ msgstr "of"
 #~ msgstr "Offline token"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "On demand"
 msgstr "On demand"
 
@@ -6038,6 +6052,7 @@ msgstr "Remote could not be loaded"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "Remote name"
 
@@ -6080,6 +6095,7 @@ msgstr "Remote registries"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
 msgstr "Remotes"
@@ -6089,6 +6105,7 @@ msgstr "Remotes"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "Remotes could not be displayed."
 
@@ -6097,6 +6114,7 @@ msgstr "Remotes could not be displayed."
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "Remotes will appear once created."
 
@@ -6298,6 +6316,10 @@ msgstr "Repositories cannot be searched with your account."
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "Repositories could not be displayed."
+
+#: src/framework/list/remote-list.tsx
+msgid "Repositories using the remotes could not be read."
+msgstr "Repositories using the remotes could not be read."
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -6530,7 +6552,7 @@ msgstr "Retries"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7392,6 +7414,7 @@ msgid "Storage"
 msgstr "Storage"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "Streamed"
 
@@ -7944,7 +7967,7 @@ msgstr "The following roles will be applied to user: <0>{0}</0>"
 msgid "The label could not be changed."
 msgstr "The label could not be changed."
 
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
 msgstr "The label filter was not accepted."
 
@@ -8625,6 +8648,7 @@ msgstr "Uploads"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
 
@@ -8719,6 +8743,10 @@ msgstr "Use template"
 #: src/containers/pulp-status.tsx
 msgid "Used"
 msgstr "Used"
+
+#: src/framework/list/remote-list.tsx
+msgid "Used by"
+msgstr "Used by"
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -9359,7 +9387,7 @@ msgstr "Your password was changed. Sign in with the new password."
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
 #: src/framework/form/permission-gate.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "Your permissions could not be read"
 msgstr "Your permissions could not be read"
 

@@ -34,6 +34,17 @@ const remoteSchema = z.looseObject({
   prn: z.string().nullish(),
   url: z.string().nullish(),
   policy: z.string().nullish(),
+  proxy_url: z.string().nullish(),
+  tls_validation: z.boolean().nullish(),
+  client_cert: z.string().nullish(),
+  ca_cert: z.string().nullish(),
+  download_concurrency: z.number().nullish(),
+  rate_limit: z.number().nullish(),
+  // The secret fields of a remote (passwords, keys, tokens) are never part of
+  // an answer; the server lists their names here and whether a value is set.
+  hidden_fields: z
+    .array(z.looseObject({ name: z.string(), is_set: z.boolean() }))
+    .nullish(),
   pulp_labels: z.record(z.string(), z.string().nullable()).nullish(),
   pulp_created: z.string().nullish(),
   pulp_last_updated: z.string().nullish(),

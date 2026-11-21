@@ -244,6 +244,7 @@ msgid "{unread, plural, one {Notifications, # unread notification} other {Notifi
 msgstr "{unread, plural, one {Meldingen, # ongelezen melding} other {Meldingen, # ongelezen meldingen}}"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "+{more} more"
 msgstr ""
 
@@ -597,6 +598,7 @@ msgstr "Inhoud toevoegen of verwijderen"
 #: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "Remote toevoegen"
 
@@ -1995,6 +1997,7 @@ msgstr "Gemaakt"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "Created date"
 msgstr "Aanmaakdatum"
 
@@ -2649,6 +2652,7 @@ msgstr "Alleen ondertekende collecties downloaden"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "Downloadbeleid"
 
@@ -2721,6 +2725,7 @@ msgstr ""
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Bewerken"
@@ -3817,6 +3822,7 @@ msgid "immediate"
 msgstr "direct"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Immediate"
 msgstr "Direct"
 
@@ -4106,6 +4112,7 @@ msgstr ""
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
+#: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "Labels"
 
@@ -4812,6 +4819,7 @@ msgstr "geen remote"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "Nog geen remotes"
 
@@ -4973,6 +4981,7 @@ msgstr "Niet gevonden"
 #~ msgstr "Afbeelding niet gevonden"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "Not loaded"
 msgstr ""
 
@@ -5015,6 +5024,10 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
 msgstr "Niet gesynchroniseerd"
+
+#: src/framework/list/used-by.tsx
+msgid "Not used"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5065,6 +5078,7 @@ msgstr "van"
 #~ msgstr "Offline token"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "On demand"
 msgstr "Op aanvraag"
 
@@ -6037,6 +6051,7 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "Naam van de remote"
 
@@ -6079,6 +6094,7 @@ msgstr "Externe registries"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
 msgstr "Remotes"
@@ -6088,6 +6104,7 @@ msgstr "Remotes"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "Remotes kunnen niet worden weergegeven."
 
@@ -6096,6 +6113,7 @@ msgstr "Remotes kunnen niet worden weergegeven."
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "Remotes verschijnen zodra ze zijn aangemaakt."
 
@@ -6297,6 +6315,10 @@ msgstr "Repository's kunnen niet worden doorzocht met uw account."
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "Repository's kunnen niet worden weergegeven."
+
+#: src/framework/list/remote-list.tsx
+msgid "Repositories using the remotes could not be read."
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -6529,7 +6551,7 @@ msgstr "Nieuwe pogingen"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7391,6 +7413,7 @@ msgid "Storage"
 msgstr "Opslag"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "Gestreamd"
 
@@ -7943,7 +7966,7 @@ msgstr "De volgende rollen worden toegepast op gebruiker: <0>{0}</0>"
 msgid "The label could not be changed."
 msgstr ""
 
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
 msgstr ""
 
@@ -8624,6 +8647,7 @@ msgstr "Uploads"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
 
@@ -8718,6 +8742,10 @@ msgstr "Sjabloon gebruiken"
 #: src/containers/pulp-status.tsx
 msgid "Used"
 msgstr "Gebruikt"
+
+#: src/framework/list/remote-list.tsx
+msgid "Used by"
+msgstr ""
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -9358,7 +9386,7 @@ msgstr "Uw wachtwoord is gewijzigd. Log in met het nieuwe wachtwoord."
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
 #: src/framework/form/permission-gate.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "Your permissions could not be read"
 msgstr "Uw machtigingen kunnen niet worden gelezen"
 

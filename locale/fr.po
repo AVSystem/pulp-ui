@@ -244,6 +244,7 @@ msgid "{unread, plural, one {Notifications, # unread notification} other {Notifi
 msgstr "{unread, plural, one {Notifications, # notification non lue} other {Notifications, # notifications non lues}}"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "+{more} more"
 msgstr ""
 
@@ -597,6 +598,7 @@ msgstr "Ajouter ou supprimer du contenu"
 #: src/actions/file-remote-create.tsx
 #: src/actions/python-remote-create.tsx
 #: src/actions/rpm-remote-create.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Add remote"
 msgstr "Ajouter une source distante"
 
@@ -1995,6 +1997,7 @@ msgstr "Créé"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "Created date"
 msgstr "Date de création"
 
@@ -2649,6 +2652,7 @@ msgstr "Ne télécharger que les collections signées"
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Download policy"
 msgstr "Politique de téléchargement"
 
@@ -2721,6 +2725,7 @@ msgstr ""
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Edit"
 msgstr "Modifier"
@@ -3817,6 +3822,7 @@ msgid "immediate"
 msgstr "immédiat"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Immediate"
 msgstr "Immédiat"
 
@@ -4106,6 +4112,7 @@ msgstr ""
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/repository-fields.ts
 #: src/framework/list/label-filter.tsx
+#: src/framework/remote-columns.tsx
 msgid "Labels"
 msgstr "Libellés"
 
@@ -4812,6 +4819,7 @@ msgstr "aucune source distante"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "No remotes yet"
 msgstr "Pas encore de sources distantes"
 
@@ -4973,6 +4981,7 @@ msgstr "Introuvable"
 #~ msgstr "Image non trouvée"
 
 #: src/framework/list/derived-columns.tsx
+#: src/framework/list/used-by.tsx
 msgid "Not loaded"
 msgstr ""
 
@@ -5015,6 +5024,10 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 msgid "Not synced"
 msgstr "Non synchronisé"
+
+#: src/framework/list/used-by.tsx
+msgid "Not used"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Note: this URL contains all collections in Hub. To connect to your"
@@ -5065,6 +5078,7 @@ msgstr "de"
 #~ msgstr "Offline token"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "On demand"
 msgstr "À la demande"
 
@@ -6037,6 +6051,7 @@ msgstr ""
 #: src/containers/python-remote/tab-details.tsx
 #: src/containers/rpm-remote/list.tsx
 #: src/containers/rpm-remote/tab-details.tsx
+#: src/framework/remote-columns.tsx
 msgid "Remote name"
 msgstr "Nom de la source distante"
 
@@ -6079,6 +6094,7 @@ msgstr "Registres distants"
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-remote/edit.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 #: src/menu.tsx
 msgid "Remotes"
 msgstr "Sources distantes"
@@ -6088,6 +6104,7 @@ msgstr "Sources distantes"
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes could not be displayed."
 msgstr "Les sources distantes n’ont pas pu être affichées."
 
@@ -6096,6 +6113,7 @@ msgstr "Les sources distantes n’ont pas pu être affichées."
 #: src/containers/file-remote/list.tsx
 #: src/containers/python-remote/list.tsx
 #: src/containers/rpm-remote/list.tsx
+#: src/framework/list/remote-list.tsx
 msgid "Remotes will appear once created."
 msgstr "Les sources distantes apparaîtront une fois créées."
 
@@ -6297,6 +6315,10 @@ msgstr "Votre compte ne permet pas de rechercher dans les référentiels."
 #: src/framework/list/repository-list.tsx
 msgid "Repositories could not be displayed."
 msgstr "Les référentiels de la collection n’ont pas pu être affichés."
+
+#: src/framework/list/remote-list.tsx
+msgid "Repositories using the remotes could not be read."
+msgstr ""
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/deb-repository/list.tsx
@@ -6529,7 +6551,7 @@ msgstr "Nouvelles tentatives"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/form/remote-field.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7391,6 +7413,7 @@ msgid "Storage"
 msgstr "Stockage"
 
 #: src/components/remote-form.tsx
+#: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "En flux continu"
 
@@ -7943,7 +7966,7 @@ msgstr "Les rôles suivants seront appliqués à l'utilisateur : <0>{0}</0>"
 msgid "The label could not be changed."
 msgstr ""
 
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
 msgstr ""
 
@@ -8624,6 +8647,7 @@ msgstr "Téléversements"
 #: src/containers/rpm-remote/tab-details.tsx
 #: src/containers/rpm-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/remote-columns.tsx
 msgid "URL"
 msgstr "URL"
 
@@ -8718,6 +8742,10 @@ msgstr "Utiliser le modèle"
 #: src/containers/pulp-status.tsx
 msgid "Used"
 msgstr "Utilisé"
+
+#: src/framework/list/remote-list.tsx
+msgid "Used by"
+msgstr ""
 
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
@@ -9358,7 +9386,7 @@ msgstr "Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot 
 #: src/app-routes.tsx
 #: src/components/permissions-failed.tsx
 #: src/framework/form/permission-gate.tsx
-#: src/framework/list/repository-list.tsx
+#: src/framework/list/list-frame.tsx
 msgid "Your permissions could not be read"
 msgstr "Vos permissions n'ont pas pu être lues"
 

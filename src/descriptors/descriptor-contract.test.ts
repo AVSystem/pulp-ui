@@ -81,6 +81,33 @@ function checkDescriptor(name: string, descriptor: PluginDescriptor) {
     `${name} tabs`,
   );
 
+  const { remote } = descriptor;
+  if (remote) {
+    expect(remote.entity, `${name} has a remote entity`).toBeTruthy();
+    for (const row of remote.detailRows ?? []) {
+      labelled(row.label, `${name} remote detail row ${row.id}`);
+      expect(typeof row.render).toBe('function');
+    }
+    unique(
+      (remote.detailRows ?? []).map(({ id }) => id),
+      `${name} remote detail rows`,
+    );
+    for (const column of remote.columns ?? []) {
+      labelled(column.label, `${name} remote column ${column.id}`);
+    }
+    unique(
+      (remote.columns ?? []).map(({ id }) => id),
+      `${name} remote columns`,
+    );
+    for (const filter of remote.filters ?? []) {
+      labelled(filter.label, `${name} remote filter ${filter.id}`);
+      expect(
+        filter.param,
+        `${name} remote filter ${filter.id} sets a parameter`,
+      ).toBeTruthy();
+    }
+  }
+
   for (const type of descriptor.contentTypes ?? []) {
     labelled(type.label, `${name} content type ${type.id}`);
   }
