@@ -19,6 +19,13 @@ const RPM: PluginManifest = {
   onFramework: true,
 };
 
+const PYTHON: PluginManifest = {
+  ...(PLUGIN_MANIFESTS.find(
+    ({ plugin }) => plugin === 'python',
+  ) as PluginManifest),
+  onFramework: true,
+};
+
 const DEB: PluginManifest = {
   ...(PLUGIN_MANIFESTS.find(
     ({ plugin }) => plugin === 'deb',
@@ -250,12 +257,12 @@ describe(
 
     it('leaves the old addresses of the plugins that are not on the framework alone', async () => {
       renderWithProviders(<Routed manifests={[DEB]} />, {
-        route: '/python/repositories/detail/r',
+        route: '/ansible/repositories/detail/r',
       });
       await screen.findByText('arrived');
 
       expect(screen.getByTestId('location')).toHaveTextContent(
-        /^\/python\/repositories\/detail\/r$/,
+        /^\/ansible\/repositories\/detail\/r$/,
       );
     });
   },
@@ -291,6 +298,47 @@ describe(
         const { unmount } = renderWithProviders(<Routed manifests={[RPM]} />, {
           route: from,
         });
+        await screen.findByText('arrived');
+        expect(screen.getByTestId('location')).toHaveTextContent(
+          new RegExp(`^${to.replace(/[?.]/g, '\\$&')}$`),
+        );
+        unmount();
+      }
+    });
+  },
+);
+
+describe(
+  'Integration: the addresses of the python screens before the framework',
+  { tags: ['integration'] },
+  () => {
+    it('sends every old python address to its new one, keeping the query that is not a tab', async () => {
+      const cases: [string, string][] = [
+        ['/python/repositories/detail/r', '/python/repositories/r/'],
+        [
+          '/python/repositories/detail/r?tab=packages&page=2',
+          '/python/repositories/r/packages/?page=2',
+        ],
+        [
+          '/python/repositories/detail/r?tab=distributions',
+          '/python/repositories/r/distributions/',
+        ],
+        [
+          '/python/repositories/detail/r?tab=repository-versions&repositoryVersion=2',
+          '/python/repositories/r/versions/2/',
+        ],
+        ['/python/repositories/edit/r', '/python/repositories/r/edit/'],
+        ['/python/repositories/edit/_', '/python/repository/new/'],
+        ['/python/remotes/detail/r', '/python/remotes/r/'],
+        ['/python/remotes/edit/r', '/python/remotes/r/edit/'],
+        ['/python/remotes/edit/_', '/python/remote/new/'],
+      ];
+
+      for (const [from, to] of cases) {
+        const { unmount } = renderWithProviders(
+          <Routed manifests={[PYTHON]} />,
+          { route: from },
+        );
         await screen.findByText('arrived');
         expect(screen.getByTestId('location')).toHaveTextContent(
           new RegExp(`^${to.replace(/[?.]/g, '\\$&')}$`),
