@@ -1,9 +1,15 @@
 import { t } from '@lingui/core/macro';
+import type { RepositoryBase } from 'src/entities/plugin/model';
 import type {
   PublicationBase,
   PublicationEntity,
 } from 'src/entities/plugin/publication';
-import { isSessionEnd } from 'src/utilities/request-error';
+import type { Options } from 'src/entities/plugin/request';
+import {
+  isSessionEnd,
+  requestErrorReason,
+  requestErrorStatus,
+} from 'src/utilities/request-error';
 import {
   DeleteNotStarted,
   type DeleteRepositoryParams,
@@ -11,6 +17,7 @@ import {
   deleteRepositoryWithDistributions,
   readServingSnapshot,
 } from '../delete/delete-repository';
+import type { SyncBody, SyncDef } from '../descriptor';
 import { failureReason } from '../form/create-flow';
 import { BULK_CONCURRENCY, runBounded } from './run-bounded';
 
@@ -86,6 +93,22 @@ export async function runBulk<Row extends BulkTarget>(
     onSettled?.(result);
     return result;
   });
+}
+
+// How many rows of one run are told to the application root to be followed to
+// the end of their tasks. The root reads each followed task every few seconds
+// and announces its end, which is right for a handful and would flood the
+// server and the screen for five hundred; the result table links every task.
+export const BULK_WATCH_LIMIT = 20;
+
+// Turns the number of tasks a run has started into the question whether the
+// next one is followed.
+export function watchLimiter(limit = BULK_WATCH_LIMIT): () => boolean {
+  let seen = 0;
+  return () => {
+    seen += 1;
+    return seen <= limit;
+  };
 }
 
 // What a bulk delete of repositories needs of the plugin: the entities of
@@ -228,6 +251,153 @@ export async function bulkDelete(
           pollMs,
         }),
       ),
+    onSettled,
+  );
+}
+
+// Deletes remotes, each with one request that the server answers with the task
+// that does the work. `onStarted` hands the task to whoever follows it.
+export function bulkDeleteRemotes(
+  entity: { remove: (href: string, options?: Options) => Promise<string> },
+  rows: readonly BulkTarget[],
+  onStarted: (row: BulkTarget, task: string) => void,
+  onSettled?: OnSettled,
+): Promise<BulkResult[]> {
+  return runBulk(
+    rows,
+    async (row) => {
+      const task = await entity.remove(row.pulp_href);
+      onStarted(row, task);
+      return { kind: 'started', task };
+    },
+    onSettled,
+  );
+}
+
+// The options of a sync, as the dialog of a single repository sends them, for
+// one row: an option the server would refuse for this repository goes with the
+// value that is allowed.
+export function syncBodyOf(
+  sync: SyncDef<RepositoryBase>,
+  values: Record<string, unknown>,
+  row: RepositoryBase,
+): SyncBody {
+  return {
+    ...(row.remote ? { remote: row.remote } : {}),
+    ...Object.fromEntries(
+      (sync.options ?? []).map((option) => [
+        option.name,
+        option.fixed?.(row)?.value ?? values[option.name],
+      ]),
+    ),
+  };
+}
+
+// Starts a sync of every row that has a remote, with the options the user
+// chose once. A row with no remote has nothing to sync from and is skipped
+// without a request.
+export function bulkSync(
+  entity: {
+    sync?: (href: string, body: SyncBody, options?: Options) => Promise<string>;
+  },
+  sync: SyncDef<RepositoryBase>,
+  rows: readonly RepositoryBase[],
+  values: Record<string, unknown>,
+  onStarted: (row: RepositoryBase, task: string) => void,
+  onSettled?: OnSettled<RepositoryBase>,
+): Promise<BulkResult<RepositoryBase>[]> {
+  return runBulk(
+    rows,
+    async (row) => {
+      if (!row.remote) {
+        return { kind: 'skipped', reason: t`No remote to sync from.` };
+      }
+      if (!entity.sync) {
+        throw new Error('The plugin has no way to sync a repository');
+      }
+      const task = await entity.sync(
+        row.pulp_href,
+        syncBodyOf(sync, values, row),
+      );
+      onStarted(row, task);
+      return { kind: 'started', task };
+    },
+    onSettled,
+  );
+}
+
+// What the entities of a plugin offer to change one label.
+interface LabelEntity {
+  setLabel: (
+    href: string,
+    label: { key: string; value: string | null },
+    options?: Options,
+  ) => Promise<unknown>;
+  unsetLabel: (
+    href: string,
+    key: string,
+    options?: Options,
+  ) => Promise<unknown>;
+}
+
+// Sets one label on every row, with one request each.
+export function bulkSetLabel<Row extends BulkTarget>(
+  entity: Pick<LabelEntity, 'setLabel'>,
+  rows: readonly Row[],
+  label: { key: string; value: string | null },
+  onSettled?: OnSettled<Row>,
+): Promise<BulkResult<Row>[]> {
+  return runBulk(
+    rows,
+    async (row) => {
+      await entity.setLabel(row.pulp_href, label);
+      return { kind: 'succeeded' };
+    },
+    onSettled,
+  );
+}
+
+// Whether the server refused the removal of a label because the object does
+// not have it: it answers 400 and says the label is not set.
+function isNotSet(error: unknown): boolean {
+  return (
+    requestErrorStatus(error) === 400 &&
+    /is not set/i.test(requestErrorReason(error) ?? '')
+  );
+}
+
+// Removes one label from every row that has it. A row that was read without the
+// key is skipped without a request, and a row the server says does not have it
+// (its labels changed since the list was read) is skipped too, not failed.
+export function bulkUnsetLabel<
+  Row extends BulkTarget & { pulp_labels?: Record<string, unknown> | null },
+>(
+  entity: Pick<LabelEntity, 'unsetLabel'>,
+  rows: readonly Row[],
+  key: string,
+  onSettled?: OnSettled<Row>,
+): Promise<BulkResult<Row>[]> {
+  const skipped: BulkOutcome = {
+    kind: 'skipped',
+    reason: t`The label is not set.`,
+  };
+
+  return runBulk(
+    rows,
+    async (row) => {
+      if (!Object.keys(row.pulp_labels ?? {}).includes(key)) {
+        return skipped;
+      }
+      try {
+        await entity.unsetLabel(row.pulp_href, key);
+      } catch (error) {
+        if (isNotSet(error)) {
+          return skipped;
+        }
+        throw error;
+      }
+      return { kind: 'succeeded' };
+    },
     onSettled,
   );
 }

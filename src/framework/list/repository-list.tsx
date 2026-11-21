@@ -96,9 +96,17 @@ const NO_FILTERS: FilterDef[] = [];
 const LARGE_MATCH = 500;
 
 // What every list reads of a repository whatever its columns are: the address
-// the derived columns match on, the PRN the last task is found by and the
-// latest version the content count is read for.
-const BASE_FIELDS = ['pulp_href', 'name', 'prn', 'latest_version_href'];
+// the derived columns match on, the PRN the last task is found by, the latest
+// version the content count is read for, and the remote and the labels the row
+// and bulk actions decide on.
+const BASE_FIELDS = [
+  'pulp_href',
+  'name',
+  'prn',
+  'latest_version_href',
+  'remote',
+  'pulp_labels',
+];
 
 // The columns that fill from reads shared between the rows.
 const DERIVED_HEADERS = [
@@ -192,10 +200,11 @@ const RepositoryListScreen = ({
       Array.from(
         new Set([
           ...BASE_FIELDS,
+          ...(descriptor.repository.sync?.fields ?? []),
           ...columns.flatMap((column) => column.fields ?? []),
         ]),
       ),
-    [columns],
+    [columns, descriptor.repository.sync],
   );
   // The base path is not a field of a repository: it selects repositories
   // through the distributions that serve them, so it is not part of the request.

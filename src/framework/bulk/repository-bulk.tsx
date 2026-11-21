@@ -23,27 +23,42 @@ import {
   offeredActions,
   splitByPermission,
 } from './bulk-menu';
+import { LabelBulkDialog } from './label-bulk-dialog';
+import { SyncBulkDialog } from './sync-bulk-dialog';
 
 // The bulk actions of a list of repositories: the menu in the toolbar, and the
 // dialog of the one the user chose for the rows they selected.
 
+export type RepositoryBulkId = 'delete' | 'sync' | 'add-label' | 'remove-label';
+
 // What the list asks for to decide who may do what: the permission keys the
 // actions need.
-export const BULK_REPOSITORY_PERMISSIONS: RepositoryPermission[] = ['delete'];
+export const BULK_REPOSITORY_PERMISSIONS: RepositoryPermission[] = [
+  'delete',
+  'sync',
+  'change',
+];
 
 type RepositoryPermits = Permits<RepositoryPermission, RepositoryBase>;
 
-const ACTIONS = (): BulkMenuAction<RepositoryPermission>[] => [
+const ACTIONS = (
+  descriptor: PluginDescriptor,
+): BulkMenuAction<RepositoryPermission>[] => [
+  ...(descriptor.repository.sync
+    ? [{ id: 'sync', permission: 'sync' as const, label: t`Sync` }]
+    : []),
+  { id: 'add-label', permission: 'change', label: t`Add label` },
+  { id: 'remove-label', permission: 'change', label: t`Remove label` },
   { id: 'delete', permission: 'delete', label: t`Delete` },
 ];
 
 // The actions the user may take on at least one of the rows.
 export function repositoryBulkActions(
-  _descriptor: PluginDescriptor,
+  descriptor: PluginDescriptor,
   rows: readonly RepositoryBase[],
   permits: RepositoryPermits,
 ): BulkMenuAction<RepositoryPermission>[] {
-  return offeredActions(ACTIONS(), rows, permits);
+  return offeredActions(ACTIONS(descriptor), rows, permits);
 }
 
 interface Props {
@@ -102,7 +117,17 @@ export const RepositoryBulk = ({
         onChoose={choose}
       />
       {chosen && common ? (
-        <DeleteBulkDialog descriptor={descriptor} index={index} {...common} />
+        chosen.id === 'delete' ? (
+          <DeleteBulkDialog descriptor={descriptor} index={index} {...common} />
+        ) : chosen.id === 'sync' ? (
+          <SyncBulkDialog descriptor={descriptor} {...common} />
+        ) : (
+          <LabelBulkDialog
+            mode={chosen.id === 'add-label' ? 'add' : 'remove'}
+            entity={descriptor.repository.entity}
+            {...common}
+          />
+        )
       ) : null}
     </>
   );

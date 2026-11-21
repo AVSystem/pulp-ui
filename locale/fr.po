@@ -59,6 +59,11 @@ msgstr "{0, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}
 msgid "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
 msgstr "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
 
+#. placeholder {0}: row.name
+#: src/framework/bulk/repository-bulk.tsx
+msgid "{0} (protected by a content guard)"
+msgstr ""
+
 #. placeholder {0}: namespace.name
 #: src/components/partner-header.tsx
 #~ msgid "{0} logo"
@@ -105,6 +110,10 @@ msgstr "Alerte {alertType} :"
 msgid "{count, plural, one {# failed task in the last 24 hours} other {# failed tasks in the last 24 hours}}"
 msgstr "{count, plural, one {# tâche échouée au cours des dernières 24 heures} other {# tâches échouées au cours des dernières 24 heures}}"
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "{count, plural, one {# row selected} other {# rows selected}}"
+msgstr ""
+
 #: src/shell/task-counts.tsx
 msgid "{count, plural, one {# running task} other {# running tasks}}"
 msgstr "{count, plural, one {# tâche en cours} other {# tâches en cours}}"
@@ -125,9 +134,29 @@ msgstr "{count, plural, one {# tâche en cours} other {# tâches en cours}}"
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} failed"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{count} more"
 msgstr "{count} plus"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} not carried out because the session ended"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} skipped"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} started"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "{count} succeeded"
+msgstr ""
 
 #: src/components/language-switcher.tsx
 msgid "{currentLanguage} (browser default)"
@@ -409,6 +438,14 @@ msgstr "Un certificat client codé PEM utilisé pour l'authentification."
 msgid "A PEM encoded private key used for authentication."
 msgstr "Une clé privée codée PEM utilisée pour l'authentification."
 
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "A repository for which this cannot be turned on is synced with the value that is allowed."
+msgstr ""
+
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "A sync is started for every selected repository that has a remote, with the options below. Each sync runs as a task of its own."
+msgstr ""
+
 #: src/components/sync-modal.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "A sync of this repository is already queued."
@@ -555,6 +592,9 @@ msgstr "Ajouter collection"
 #~ msgid "Add group"
 #~ msgstr "Add group"
 
+#: src/framework/bulk/label-bulk-dialog.tsx
+#: src/framework/bulk/remote-bulk.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Add label"
@@ -562,6 +602,10 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Add label condition"
+msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Add label to selected"
 msgstr ""
 
 #: src/constants.tsx
@@ -664,6 +708,10 @@ msgstr "Ajouter un élément"
 #~ "\"{namespace}\" container namespace."
 #~ msgstr "Adding groups provides access to all repositories in the\n"
 #~ "\"{namespace}\" container namespace."
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Adding the label to the selected rows finished"
+msgstr ""
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Additional details"
@@ -1092,6 +1140,10 @@ msgstr "Les rôles intégrés ne peuvent pas être modifiés ou supprimés."
 msgid "Built-in roles cannot be edited."
 msgstr "Les rôles intégrés ne peuvent pas être modifiés."
 
+#: src/framework/bulk/bulk-menu.tsx
+msgid "Bulk actions"
+msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/containers/deb-remote/tab-details.tsx
@@ -1122,6 +1174,7 @@ msgstr "Certificat CA"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
@@ -1385,6 +1438,7 @@ msgstr "fermer"
 
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "Fermer"
@@ -2191,6 +2245,8 @@ msgstr "Publication Debian à l'identique"
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/bulk/remote-bulk.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/list/remote-row-actions.tsx
@@ -2313,6 +2369,14 @@ msgstr "Supprimer le rôle : {0}"
 msgid "Delete role?"
 msgstr "Supprimer le rôle ?"
 
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Delete selected remotes?"
+msgstr ""
+
+#: src/framework/bulk/repository-bulk.tsx
+msgid "Delete selected repositories?"
+msgstr ""
+
 #: src/constants.tsx
 #~ msgid "Delete synclist"
 #~ msgstr "Delete synclist"
@@ -2408,6 +2472,14 @@ msgstr "Supprimer l’utilisateur ?"
 #: src/components/delete-user-modal.tsx
 #~ msgid "Deleting super users is not allowed."
 #~ msgstr "La suppression des super utilisateurs n'est pas autorisée."
+
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Deleting the selected remotes was started"
+msgstr ""
+
+#: src/framework/bulk/repository-bulk.tsx
+msgid "Deleting the selected repositories finished"
+msgstr ""
 
 #: src/components/delete-group-modal.tsx
 msgid "Deleting this group will affect {count} users."
@@ -2506,6 +2578,7 @@ msgstr "Description"
 #: src/containers/python-repository/detail.tsx
 #: src/containers/rpm-remote/detail.tsx
 #: src/containers/rpm-repository/detail.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 msgid "Details"
@@ -2538,6 +2611,18 @@ msgstr "Désactivés"
 #: src/containers/ansible-repository/tab-details.tsx
 #~ msgid "Distribution"
 #~ msgstr "Distribution"
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distribution {name} is still being removed."
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distribution {name} was not removed: {reason}"
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distribution {name} was not shown, so it was not removed."
+msgstr ""
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Distribution name"
@@ -2583,10 +2668,25 @@ msgstr ""
 msgid "Distributions could not be loaded: {error}"
 msgstr "Les distributions n'ont pas pu être chargées : {error}"
 
+#. placeholder {0}: serving .map((row) => row.content_guard ? t`${row.name} (protected by a content guard)` : row.name, ) .join(', ')
+#: src/framework/bulk/repository-bulk.tsx
+msgid "Distributions deleted with it: {0}"
+msgstr ""
+
 #. placeholder {0}: resource?.plugin
 #: src/utilities/repository-distro.ts
 msgid "Distributions of {0} repositories cannot be looked up"
 msgstr "Les distributions des référentiels {0} ne peuvent pas être consultées"
+
+#. placeholder {0}: result.removed.join(', ')
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distributions removed: {0}"
+msgstr ""
+
+#. placeholder {0}: result.removed.join(', ')
+#: src/framework/bulk/bulk-actions.ts
+msgid "Distributions removed: {0}."
+msgstr ""
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -2607,6 +2707,10 @@ msgstr "Documentation"
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Documentation Syntax Error: cannot parse plugin documention."
 #~ msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Does not have this label, so it is skipped"
+msgstr ""
 
 #: src/components/ratings.tsx
 #~ msgid "Does what it promises"
@@ -3178,6 +3282,7 @@ msgstr "Faire échouer toute la version si un paquet est rejeté"
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 msgid "Failed"
 msgstr "Échec"
 
@@ -3781,6 +3886,10 @@ msgstr "Les groupes apparaîtront une fois créés"
 msgid "Guard: {guardName}"
 msgstr "Protection : {guardName}"
 
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "Has no remote, so it is skipped"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Has words"
 msgstr "Contient les mots"
@@ -4097,6 +4206,10 @@ msgstr "Suivi des problèmes"
 #~ msgid "It does not make sense to include and exclude tags at the same time."
 #~ msgstr "It does not make sense to include and exclude tags at the same time."
 
+#: src/framework/bulk/bulk-actions.ts
+msgid "It is not known whether distribution {name} was removed."
+msgstr ""
+
 #: src/framework/delete/delete-outcome.tsx
 msgid "It is not known whether the repository was removed."
 msgstr ""
@@ -4164,12 +4277,14 @@ msgstr "Empreinte digitale de la clé"
 msgid "Label expression"
 msgstr ""
 
+#: src/framework/bulk/label-bulk-dialog.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
 msgid "Label key"
 msgstr ""
 
+#: src/framework/bulk/label-bulk-dialog.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
@@ -4377,6 +4492,7 @@ msgid "Loading distribution..."
 msgstr "Chargement de la distribution..."
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "Chargement des distributions"
@@ -4560,6 +4676,7 @@ msgstr "Mon profil"
 #: src/containers/rpm-repository/tab-packages.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/remote-fields.ts
@@ -4586,6 +4703,10 @@ msgstr "Nom"
 #: src/components/namespace-form.tsx
 #~ msgid "Name must not be empty."
 #~ msgstr "Le nom ne peut pas rester vide."
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Names not permitted"
+msgstr ""
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "namespace"
@@ -4910,6 +5031,10 @@ msgstr "aucune source distante"
 #~ msgid "No remote repositories yet"
 #~ msgstr "No remote repositories yet"
 
+#: src/framework/bulk/bulk-actions.ts
+msgid "No remote to sync from."
+msgstr ""
+
 #: src/containers/ansible-remote/list.tsx
 #: src/containers/deb-remote/list.tsx
 #: src/containers/file-remote/list.tsx
@@ -4957,6 +5082,10 @@ msgstr "Aucun résultat ne correspond aux critères de filtrage. Essayez de modi
 #: src/containers/ansible-role/role-list.tsx
 #~ msgid "No roles yet"
 #~ msgstr "Aucun rôle pour l'instant"
+
+#: src/framework/bulk/bulk-menu.tsx
+msgid "No rows selected"
+msgstr ""
 
 #: src/shell/command-palette.tsx
 msgid "No screens or repositories match"
@@ -5061,6 +5190,7 @@ msgstr "Non autorisé"
 msgid "Not available"
 msgstr ""
 
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
 msgstr ""
@@ -5086,6 +5216,10 @@ msgstr "Introuvable"
 msgid "Not loaded"
 msgstr ""
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Not permitted"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not removed"
@@ -5104,6 +5238,7 @@ msgstr "Non signalé"
 #~ msgid "Not required for use by other collections"
 #~ msgstr "Non requis pour l'utilisation par d'autres collections"
 
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not sent"
 msgstr ""
@@ -5313,6 +5448,7 @@ msgid "Ostree sync"
 msgstr "Synchronisation Ostree"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/bulk/bulk-actions.ts
 #: src/framework/delete/delete-outcome.tsx
 msgid "Outcome unknown, check the task"
 msgstr "Résultat inconnu, vérifiez la tâche"
@@ -5446,6 +5582,7 @@ msgstr "Préfixe de chemin"
 
 #: src/components/progress-reports.tsx
 #: src/components/status-indicator.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 msgid "Pending"
 msgstr "En attente"
 
@@ -6250,6 +6387,7 @@ msgstr "Les sources distantes apparaîtront une fois créées."
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "Suppression de {namespace}.{name} v{version} du référentiel \"{repositoryName}\" a commencé."
 
+#: src/framework/bulk/remote-bulk.tsx
 #: src/framework/delete/delete-remote.ts
 msgid "Removal of remote {name}"
 msgstr ""
@@ -6301,6 +6439,9 @@ msgstr "Supprimer le groupe"
 msgid "Remove group {groupname}?"
 msgstr "Supprimer le groupe {groupname}?"
 
+#: src/framework/bulk/label-bulk-dialog.tsx
+#: src/framework/bulk/remote-bulk.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/form/labels-field.tsx
 msgid "Remove label"
 msgstr ""
@@ -6311,6 +6452,10 @@ msgstr ""
 
 #: src/framework/list/label-filter.tsx
 msgid "Remove label condition"
+msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Remove label from selected"
 msgstr ""
 
 #: src/components/access-tab.tsx
@@ -6363,6 +6508,10 @@ msgstr "Référentiel {name} supprimé"
 #: src/components/delete-collection-modal.tsx
 #~ msgid "Removing collection version <0>{0} v{collectionVersion}</0> from repository <1>{deleteFromRepo}</1>."
 #~ msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "Removing the label from the selected rows finished"
+msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "Repair"
@@ -6654,6 +6803,11 @@ msgstr "Rétablir les valeurs par défaut du navigateur"
 #~ msgid "Resources"
 #~ msgstr "Ressources"
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Result"
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
 msgid "Results"
 msgstr "Résultats"
@@ -6687,6 +6841,7 @@ msgstr "Nouvelles tentatives"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
+#: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
@@ -7053,6 +7208,12 @@ msgstr "Voir la <0>page de détails </0> de gestion des tâches pour voir le sta
 msgid "Select"
 msgstr "Sélectionner"
 
+#. placeholder {0}: row.name
+#: src/framework/list/remote-list.tsx
+#: src/framework/list/repository-list.tsx
+msgid "Select {0}"
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Select a collection"
 msgstr "Sélectionner une collection"
@@ -7086,6 +7247,14 @@ msgstr "Sélectionner un utilisateur"
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Select all ({itemsCount} items)"
 #~ msgstr ""
+
+#: src/framework/list/remote-list.tsx
+msgid "Select all remotes on this page"
+msgstr ""
+
+#: src/framework/list/repository-list.tsx
+msgid "Select all repositories on this page"
+msgstr ""
 
 #: src/components/collection-header.tsx
 #~ msgid "Select collection version"
@@ -7137,13 +7306,17 @@ msgstr "Sélectionner un ou plusieurs rôles"
 msgid "Select users"
 msgstr "Sélectionner les utilisateurs"
 
-#: src/components/multiple-repo-selector.tsx
-#~ msgid "Selected"
-#~ msgstr "Sélectionné"
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Selected"
+msgstr "Sélectionné"
 
 #: src/components/select-group.tsx
 msgid "Selected group"
 msgstr "Groupe sélectionné"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Selected names"
+msgstr ""
 
 #: src/components/role-namespace-edit-modal.tsx
 #~ msgid "Selected provider namespace"
@@ -7456,6 +7629,7 @@ msgstr "Aller au contenu"
 
 #: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 msgid "Skipped"
 msgstr "Ignoré"
 
@@ -7499,6 +7673,10 @@ msgstr "SSO URL"
 msgid "Start from scratch"
 msgstr "Partir de zéro"
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Started"
+msgstr ""
+
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Started adding {0}.{1} v{2} from \"{3}\" to repository \"{repo}\"."
 #~ msgstr ""
@@ -7540,6 +7718,7 @@ msgstr "Statut"
 #~ msgstr "Statut :"
 
 #: src/components/delete-repository-modal.tsx
+#: src/framework/bulk/bulk-actions.ts
 #: src/framework/delete/delete-outcome.tsx
 msgid "Still being removed"
 msgstr "Suppression encore en cours"
@@ -7565,6 +7744,10 @@ msgstr ""
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "En flux continu"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "Succeeded"
+msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Success"
@@ -7690,6 +7873,8 @@ msgstr "Résumé"
 #: src/actions/python-repository-sync.tsx
 #: src/actions/rpm-repository-sync.tsx
 #: src/components/sync-modal.tsx
+#: src/framework/bulk/repository-bulk.tsx
+#: src/framework/bulk/sync-bulk-dialog.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/list/row-actions.tsx
 #: src/framework/sync/progress-panel.tsx
@@ -7746,6 +7931,7 @@ msgstr ""
 msgid "Sync is unavailable because this repository has no remote."
 msgstr ""
 
+#: src/framework/bulk/sync-bulk-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Sync of {name}"
 msgstr ""
@@ -7774,6 +7960,10 @@ msgstr "Synchroniser le référentiel \"{name}\""
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Sync running"
+msgstr ""
+
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "Sync selected repositories"
 msgstr ""
 
 #: src/components/remote-form.tsx
@@ -7838,6 +8028,10 @@ msgstr "Synchronisé"
 #: src/utilities/translate-task.ts
 #~ msgid "Synchronize"
 #~ msgstr ""
+
+#: src/framework/bulk/sync-bulk-dialog.tsx
+msgid "Syncing the selected repositories was requested"
+msgstr ""
 
 #: src/containers/token/token-insights.tsx
 #~ msgid "Synclist distribution was not found."
@@ -7998,6 +8192,10 @@ msgstr "Le plugin {plugin} n'est pas installé sur ce serveur Pulp."
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
 msgstr "Le chemin de base \"{basePath}\" est déjà utilisé par la distribution \"{otherName}\" ({otherPath}) ou chevauche celle-ci."
 
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "The bulk action stopped with an unexpected error. Some rows may already have been changed: check the list before trying again."
+msgstr ""
+
 #. placeholder {0}: version.namespace
 #. placeholder {1}: version.name
 #. placeholder {2}: version.version
@@ -8078,6 +8276,14 @@ msgstr ""
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "La distribution n'aura pas de protection de contenu : toute personne pouvant accéder à ce serveur peut télécharger le contenu de ce référentiel sans se connecter."
 
+#: src/framework/bulk/repository-bulk.tsx
+msgid "The distributions could not be listed, so nothing can be deleted."
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "The distributions could not be listed, so nothing was deleted: {reason}"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing can be deleted."
@@ -8119,12 +8325,24 @@ msgstr "Les rôles suivants seront appliqués au groupe : <0>{0}</0>"
 msgid "The following roles will be applied to user: <0>{0}</0>"
 msgstr "Les rôles suivants seront appliqués à l'utilisateur : <0>{0}</0>"
 
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "The key is removed from every selected row that has it."
+msgstr ""
+
 #: src/framework/labels/label-editor.tsx
 msgid "The label could not be changed."
 msgstr ""
 
 #: src/framework/list/list-frame.tsx
 msgid "The label filter was not accepted."
+msgstr ""
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "The label is not set."
+msgstr ""
+
+#: src/framework/bulk/label-bulk-dialog.tsx
+msgid "The label is set on every selected row. A row that already has the key gets the new value."
 msgstr ""
 
 #: src/session/reauth-dialog.tsx
@@ -8213,6 +8431,10 @@ msgstr "Le contenu du référentiel n'a pas pu être lu"
 msgid "The repository could not be removed: {0}"
 msgstr "Le référentiel n'a pas pu être supprimé : {0}"
 
+#: src/framework/bulk/bulk-actions.ts
+msgid "The repository could not be removed: {reason}"
+msgstr ""
+
 #: src/framework/detail/revert-version.tsx
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 msgstr ""
@@ -8226,6 +8448,10 @@ msgstr "Le référentiel est encore en cours de suppression :"
 #: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
 msgstr "Le référentiel a été conservé car toutes les distributions n'ont pas été supprimées."
+
+#: src/framework/bulk/bulk-actions.ts
+msgid "The repository was kept."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8255,6 +8481,14 @@ msgstr "Le rétablissement du référentiel \"{repositoryName}\" est toujours en
 
 #: src/framework/form/permission-gate.tsx
 msgid "The roles you hold on single objects could not be read."
+msgstr ""
+
+#: src/framework/bulk/remote-bulk.tsx
+msgid "The selected remotes are deleted. The repositories that use them are kept and are left without a remote."
+msgstr ""
+
+#: src/framework/bulk/repository-bulk.tsx
+msgid "The selected repositories are deleted together with the distributions that serve them, and the URLs of those distributions stop working."
 msgstr ""
 
 #: src/containers/ansible-remote/tab-access.tsx
@@ -8297,6 +8531,14 @@ msgstr ""
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr "La session s'est terminée avant que la distribution puisse être créée. Après vous être connecté, vérifiez les distributions et créez-la si elle est absente."
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "The session ended before this one was sent."
+msgstr ""
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "The session ended while this one was on its way."
+msgstr ""
 
 #: src/utilities/plugin-version.ts
 msgid "The status answer lists no plugins."
@@ -8948,6 +9190,14 @@ msgstr "Utilisé"
 msgid "Used by"
 msgstr ""
 
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Used by {names}"
+msgstr ""
+
+#: src/framework/bulk/remote-bulk.tsx
+msgid "Used by {names} and {more} more"
+msgstr ""
+
 #: src/components/namespace-form.tsx
 #~ msgid "Useful links"
 #~ msgstr "Liens utiles"
@@ -9281,6 +9531,7 @@ msgstr "Afficher et annuler n'importe quelle tâche."
 #~ msgstr "View synclist"
 
 #: src/components/sync-modal.tsx
+#: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/framework/sync/sync-dialog.tsx
@@ -9585,6 +9836,10 @@ msgstr "Vous avez été déconnecté de Pulp."
 #: src/containers/edit-namespace/edit-namespace.tsx
 #~ msgid "You have unsaved changes"
 #~ msgstr "Vous avez des changements qui n’ont pas été sauvegardés"
+
+#: src/framework/bulk/bulk-dialog.tsx
+msgid "You may not do this on the following, so nothing is sent for them:"
+msgstr ""
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."

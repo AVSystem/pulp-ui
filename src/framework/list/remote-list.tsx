@@ -28,6 +28,13 @@ import {
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import {
+  BULK_REMOTE_PERMISSIONS,
+  RemoteBulk,
+  remoteBulkActions,
+} from '../bulk/remote-bulk';
+import { SelectCell } from '../bulk/select-cells';
+import { usePageSelection } from '../bulk/selection';
 import { DeleteRemoteDialog } from '../delete/delete-remote-dialog';
 import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
@@ -48,6 +55,7 @@ import {
   useRowPermits,
   useShownRows,
 } from './list-frame';
+import { searchOf } from './list-params';
 import {
   REMOTE_ROW_ACTIONS,
   type RemoteActionContext,
@@ -68,8 +76,9 @@ const NO_FILTERS: FilterDef[] = [];
 const NO_ACTION_IDS = '';
 
 // What every list reads of a remote whatever its columns are: the address a row
-// is held by and the name it is linked by.
-const BASE_FIELDS = ['pulp_href', 'name'];
+// is held by, the name it is linked by and the labels the bulk actions decide
+// on.
+const BASE_FIELDS = ['pulp_href', 'name', 'pulp_labels'];
 
 const noop = () => undefined;
 
@@ -164,10 +173,32 @@ const RemoteListScreen = ({
   });
   const { permits, notice: permissionsNotice } = useRowPermits({
     names,
-    needed: actions.map(({ permission }) => permission),
+    needed: [
+      ...actions.map(({ permission }) => permission),
+      ...BULK_REMOTE_PERMISSIONS,
+    ],
     objectRoles: manifest.permissions.objectRoles,
     rowsShown,
   });
+
+  // The rows ticked for a bulk action: those of this page of this list, and
+  // none once the address changes. The actions offered are those the user may
+  // take on at least one of the selected rows, or on one of the rows of the
+  // page while nothing is selected; a list in which none is offered has no
+  // check boxes.
+  const shownHrefs = useMemo(() => rows.map((row) => row.pulp_href), [rows]);
+  const selection = usePageSelection(searchOf(params), shownHrefs);
+  const { selected, toggle, toggleAll } = selection;
+  const selectedRows = useMemo(
+    () => rows.filter((row) => selected.has(row.pulp_href)),
+    [rows, selected],
+  );
+  const pageBulkActions = remoteBulkActions(rows, permits);
+  const selectable = pageBulkActions.length > 0;
+  const bulkActions =
+    selection.count > 0
+      ? remoteBulkActions(selectedRows, permits)
+      : pageBulkActions;
   // The remote whose delete dialog is open.
   const [deleting, setDeleting] = useState<RemoteBase | null>(null);
   const requestDelete = useCallback((row: RemoteBase) => setDeleting(row), []);
@@ -327,6 +358,19 @@ const RemoteListScreen = ({
           options={{ headers }}
           params={params}
           updateParams={updateParams}
+          selectAll={
+            selectable
+              ? {
+                  isSelected: selection.allSelected
+                    ? true
+                    : selection.count > 0
+                      ? null
+                      : false,
+                  onSelect: toggleAll,
+                  label: t`Select all remotes on this page`,
+                }
+              : undefined
+          }
         />
         <RowActionsColumn.Provider value={anyRowAction}>
           <Tbody>
@@ -335,6 +379,10 @@ const RemoteListScreen = ({
                 key={row.pulp_href}
                 plugin={plugin}
                 row={row}
+                position={position}
+                selectable={selectable}
+                selected={selected.has(row.pulp_href)}
+                onToggle={toggle}
                 columns={columns}
                 actions={actions}
                 actionIds={rowActionIds[position] as string}
@@ -379,6 +427,16 @@ const RemoteListScreen = ({
           />
         }
         addButton={addButton}
+        bulk={
+          <RemoteBulk
+            descriptor={descriptor}
+            selected={selectedRows}
+            actions={bulkActions}
+            permits={permits}
+            usedBy={usedBy.of}
+            onFinished={(alert) => setAlerts((current) => [...current, alert])}
+          />
+        }
         params={params}
         updateParams={updateParams}
         count={count}
@@ -405,6 +463,15 @@ const RemoteListScreen = ({
 interface RowProps {
   plugin: FrameworkPlugin;
   row: RemoteBase;
+  // The row's place on the page, which names its check box for assistive
+  // technology.
+  position: number;
+  // Whether the list has a column of check boxes, and whether this row's is
+  // ticked. They are plain values so a change of the selection rebuilds only
+  // the rows it touches.
+  selectable: boolean;
+  selected: boolean;
+  onToggle: (href: string, checked: boolean) => void;
   columns: ColumnDef<RemoteBase>[];
   actions: RemoteRowAction[];
   // The ids of the actions the row offers, joined by commas.
@@ -420,6 +487,10 @@ interface RowProps {
 const RemoteRow = memo(function RemoteRow({
   plugin,
   row,
+  position,
+  selectable,
+  selected,
+  onToggle,
   columns,
   actions,
   actionIds,
@@ -428,7 +499,15 @@ const RemoteRow = memo(function RemoteRow({
   users,
 }: RowProps) {
   return (
-    <Tr data-cy={`RemoteList-row-${row.name}`}>
+    <Tr data-cy={`RemoteList-row-${row.name}`} isRowSelected={selected}>
+      {selectable ? (
+        <SelectCell
+          id={`bulk-select-${position}`}
+          label={t`Select ${row.name}`}
+          checked={selected}
+          onChange={(checked) => onToggle(row.pulp_href, checked)}
+        />
+      ) : null}
       {columns.map((column) => (
         <Td key={column.id}>{column.render(row)}</Td>
       ))}

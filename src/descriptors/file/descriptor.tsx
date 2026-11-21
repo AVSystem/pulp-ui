@@ -82,6 +82,7 @@ const descriptor: PluginDescriptor<FileRepository> = {
     tabs: [versionsTab<FileRepository>(), distributionsTab<FileRepository>()],
     sync: {
       taskName: 'pulp_file.app.tasks.synchronizing.synchronize',
+      fields: ['autopublish'],
       options: [
         {
           name: 'mirror',
