@@ -678,6 +678,18 @@ describe('Unit: the repository index and chunks', { tags: ['unit'] }, () => {
     expect(fileRepository.chunks([])).toEqual([]);
   });
 
+  it('puts each address in the chunks once when it is given more than once', () => {
+    const hrefs = named(5).map(({ pulp_href }) => pulp_href);
+
+    const chunks = fileRepository.chunks([
+      ...hrefs,
+      ...hrefs,
+      hrefs[0] as string,
+    ]);
+
+    expect(chunks.flat()).toEqual(hrefs);
+  });
+
   it('reads each chunk once with the other filters and no order, and merges the rows', async () => {
     const rows = named(40);
     const list = pluginListHandler('file', 'repository', rows, {
