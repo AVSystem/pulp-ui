@@ -553,7 +553,10 @@ export function labelSelectOf(
 // The list of a plugin's repositories or remotes as a server answers it: the
 // filters name (exact), name__icontains, name__in and pulp_href__in (an empty
 // set matches nothing), pulp_label_select (an invalid term is a 400 with the
-// server's text), remote (`null` for no remote), the ordering of a column, and the paging of listOf.
+// server's text), remote (`null` for no remote), the ordering of a column, the
+// `fields` cut and the paging of listOf. A row is cut to the fields the query
+// names, so a screen that reads a field it did not ask for sees it missing, as
+// it would on a real server.
 // It serves the plugin's own list path, which is returned with the handler
 // and the recorded queries.
 export function pluginListHandler<
@@ -598,6 +601,7 @@ export function pluginListHandler<
       return selected && 'refusal' in selected ? [selected.refusal] : undefined;
     },
     ordered: orderedBy,
+    projected: projectedBy,
   });
 
   return { ...list, path };

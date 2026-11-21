@@ -3,7 +3,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { fileDistribution } from 'src/entities/file/distribution';
 import { fileRepository } from 'src/entities/file/repository';
 import { setSignedIn } from 'src/session/session-events';
-import { type IDistribution, distribution, listOf } from 'src/test-utils/pulp';
+import {
+  type IDistribution,
+  distribution,
+  listOf,
+  projectedBy,
+} from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import {
   type CreateOutcome,
@@ -69,6 +74,7 @@ function serveExistingDistributions(existing: IDistribution[]) {
       }
       return true;
     },
+    projected: projectedBy,
   });
   server.use(handler);
   return queries;
