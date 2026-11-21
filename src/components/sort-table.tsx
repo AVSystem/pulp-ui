@@ -1,6 +1,8 @@
+import { Checkbox } from '@patternfly/react-core';
 import ArrowsAltVIcon from '@patternfly/react-icons/dist/esm/icons/arrows-alt-v-icon';
 import LongArrowAltDownIcon from '@patternfly/react-icons/dist/esm/icons/long-arrow-alt-down-icon';
 import LongArrowAltUpIcon from '@patternfly/react-icons/dist/esm/icons/long-arrow-alt-up-icon';
+import tableStyles from '@patternfly/react-styles/css/components/Table/table.mjs';
 import { Th, Thead, Tr } from '@patternfly/react-table';
 import { ParamHelper } from 'src/utilities';
 import './sort-table.scss';
@@ -18,9 +20,22 @@ interface IProps {
     sort?: string;
   };
   updateParams: (params) => void;
+  // A leading column of check boxes: the box in the header ticks or unticks
+  // every row. `isSelected` is null while only some rows are ticked, which the
+  // box shows as a dash. `label` names it for assistive technology.
+  selectAll?: {
+    isSelected: boolean | null;
+    onSelect: (checked: boolean) => void;
+    label: string;
+  };
 }
 
-export const SortTable = ({ options, params, updateParams }: IProps) => {
+export const SortTable = ({
+  options,
+  params,
+  updateParams,
+  selectAll,
+}: IProps) => {
   function sort(id, isMinus) {
     // Alphabetical sorting is inverted in Django, so flip it here to make
     // things match up with the UI.
@@ -70,6 +85,16 @@ export const SortTable = ({ options, params, updateParams }: IProps) => {
   return (
     <Thead>
       <Tr className='pulp-SortTable-headers' data-cy='SortTable-headers'>
+        {selectAll ? (
+          <Th className={tableStyles.tableCheck}>
+            <Checkbox
+              id='bulk-select-all'
+              aria-label={selectAll.label}
+              isChecked={selectAll.isSelected}
+              onChange={(_event, checked) => selectAll.onSelect(checked)}
+            />
+          </Th>
+        ) : null}
         {options.headers.map((element) => getHeaderItem(element))}
       </Tr>
     </Thead>
