@@ -175,7 +175,6 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
             failure={failure?.general}
             failureTitle={t`Repository could not be created`}
             onChange={change}
-            onSubmit={save}
             extra={
               offered ? (
                 <DistributionOption

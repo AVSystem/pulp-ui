@@ -189,7 +189,6 @@ export const PythonDistributionEdit = ({
             failure={failure?.general}
             failureTitle={t`Distribution "${name}" could not be updated`}
             onChange={change}
-            onSubmit={save}
           />
         )}
       </ModalBody>

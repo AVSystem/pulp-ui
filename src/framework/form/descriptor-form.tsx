@@ -33,9 +33,6 @@ interface Props {
   // is not a field of the descriptor.
   extra?: ReactNode;
   onChange: (name: string, value: unknown) => void;
-  // Pressing Enter in a text input sends the form; the screen decides what
-  // sending does and guards against sending twice.
-  onSubmit: () => void;
   // The actions of the form.
   children?: ReactNode;
 }
@@ -68,7 +65,6 @@ export const DescriptorForm = ({
   failureTitle,
   extra,
   onChange,
-  onSubmit,
   children,
 }: Props) => {
   // The advanced options are folded away until the user opens them, and open on
@@ -123,10 +119,11 @@ export const DescriptorForm = ({
 
   return (
     <Form
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
+      // The screen sends the form with its Save button, which checks what the
+      // button checks. Enter in a text input must not send it by another way
+      // (a browser does that for a form with a single text input) or reload
+      // the page.
+      onSubmit={(event) => event.preventDefault()}
     >
       {basic.map(drawField)}
       {advanced.length > 0 ? (
