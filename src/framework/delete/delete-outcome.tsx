@@ -10,8 +10,16 @@ import type { DeleteRepositoryResult } from './delete-repository';
 // report of a dialog that stays open, or as the alert the next screen shows
 // when the delete outlived the one it started from.
 
-const taskLink = (taskHref: string) =>
-  formatPath(Paths.core.task.detail, { task: taskUrlId(taskHref) });
+// The link to a task's own page. An address that holds no task id has no page,
+// so it is shown as the plain word, never as a link that cannot be built.
+const TaskLink = ({ taskHref }: { taskHref: string }) =>
+  taskUrlId(taskHref) !== null ? (
+    <Link
+      to={formatPath(Paths.core.task.detail, { task: taskUrlId(taskHref) })}
+    >{t`task`}</Link>
+  ) : (
+    <>{t`task`}</>
+  );
 
 // Whether the session ended before the delete was finished.
 const sessionStopped = (result: DeleteRepositoryResult) =>
@@ -73,7 +81,7 @@ const WithTasks = ({
       <List>
         {rows.map(({ name, taskHref }) => (
           <ListItem key={name}>
-            {name} - <Link to={taskLink(taskHref)}>{t`task`}</Link>
+            {name} - <TaskLink taskHref={taskHref} />
           </ListItem>
         ))}
       </List>
@@ -120,13 +128,13 @@ export const OutcomeReport = ({
     {result.repositoryPending ? (
       <Content component='p'>
         {t`The repository is still being removed:`}{' '}
-        <Link to={taskLink(result.repositoryPending)}>{t`task`}</Link>
+        <TaskLink taskHref={result.repositoryPending} />
       </Content>
     ) : null}
     {result.repositoryUnknown ? (
       <Content component='p'>
         {t`The outcome of removing the repository is unknown. Check the task:`}{' '}
-        <Link to={taskLink(result.repositoryUnknown)}>{t`task`}</Link>
+        <TaskLink taskHref={result.repositoryUnknown} />
       </Content>
     ) : null}
     {result.repositoryUnconfirmed ? (

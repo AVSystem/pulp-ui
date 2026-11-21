@@ -100,6 +100,21 @@ describe(
   'Integration: the report of a delete that kept the repository',
   { tags: ['integration'] },
   () => {
+    it('shows the word task without a link for a task address that holds no task id, and does not fail', () => {
+      renderWithProviders(
+        <OutcomeReport
+          result={result({
+            pending: [{ name: 'odd-one', taskHref: `${API}/repositories/x/` }],
+            repositoryPending: `${API}/tasks/`,
+          })}
+        />,
+      );
+
+      expect(screen.getByText(/odd-one - task/)).toBeVisible();
+      expect(screen.getByText(/still being removed: task/)).toBeVisible();
+      expect(screen.queryByRole('link', { name: 'task' })).toBeNull();
+    });
+
     it('says what was removed, what failed with the reason, what is still being removed and what is unknown, with the links to the tasks', () => {
       renderWithProviders(
         <OutcomeReport
