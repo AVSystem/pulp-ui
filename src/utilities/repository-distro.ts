@@ -1,9 +1,9 @@
 import { t } from '@lingui/core/macro';
+import { parsePulpResource } from 'src/entities/core/resource/prn';
 import {
   GenericDistributionAPI,
   GenericRepositoryAPI,
 } from '../api/generic-pulp';
-import { parsePulpResource } from './parse-pulp-id';
 import { plugin2api } from './plugin-repository-base-path';
 
 // Returns the distribution that serves a repository, looked up by repository

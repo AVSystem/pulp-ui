@@ -1,89 +1,33 @@
 import { config } from 'src/ui-config';
 
-const UUIDRegEx =
-  /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/i;
-
-const IDRegEx = /^[0-9a-f-]+$/i;
-
-export function parsePulpIDFromURL(url: string): string {
-  for (const section of url.split('/')) {
-    if (section.match(UUIDRegEx)) {
-      return section;
-    }
-  }
-
-  return null;
-}
-
-export function parsePulpIDFromPRN(prn: string): string {
-  // PRNs are of the form prn:app_label.model_label:pulp_id
-  const sections = prn.split(':');
-  if (sections.length == 3 && sections[2].match(UUIDRegEx)) {
-    return sections[2];
-  }
-
-  return null;
-}
-
-interface PulpResource {
+// The kind of object a PRN or an address names, and the one place that reads
+// them. Only whole, anchored shapes are understood: a PRN of three parts, or an
+// address under the API base that ends in the object's id. Anything else is not
+// a resource and answers null, so no part of an unknown value ever reaches a
+// lookup or a request path.
+export interface PulpResource {
   id: string;
   plugin: string;
   model: string;
   resource_label?: string;
 }
 
-export function parsePulpResource(value: string): PulpResource {
-  // value can be a url or a prn
-  let id: string, plugin: string, model: string, resource_label;
-  if (value.startsWith(config.API_BASE_PATH)) {
-    const url = value.replace(config.API_BASE_PATH, '');
-    id = parsePulpIDFromURL(url);
-    const transLabel = translateURLToModelLabel(url);
-    if (!transLabel) {
-      return null;
-    }
-    [plugin, model] = transLabel.split('.');
-  } else if (value.startsWith('prn:')) {
-    // prn is of the form `prn:app_label.model_label:pulp_id`
-    let label;
-    [, label, id] = value.split(':');
-    [plugin, model] = label.split('.');
-  } else if (value.startsWith('pdrn:')) {
-    // pdrn is of the form `pdrn:domain_pulp_id:resource_label`
-    [, id, resource_label] = value.split(':');
-    [plugin, model] = ['core', 'domain'];
-  } else {
-    return null;
-  }
-  return {
-    id: id,
-    plugin: plugin,
-    model: model,
-    resource_label: resource_label,
-  };
-}
+const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
-export function translatePulpResourceToURL(resource: PulpResource): string {
-  // Doesn't handle PulpResources from pdrns. A kind this table does not know
-  // has no address: null, never a path built from "undefined".
-  const model_label = resource.plugin + '.' + resource.model;
-  const urlPrefix = ModelLabelToURL[model_label];
-  if (!urlPrefix) {
-    return null;
-  }
-  return config.API_BASE_PATH + urlPrefix + '/' + resource.id + '/';
-}
+// An object address: the collection path, the id, an optional trailing slash.
+const OBJECT_HREF = new RegExp(`^(.+?)/(${UUID})/?$`, 'i');
+// prn:<app label>.<model label>:<id>
+const PRN = /^prn:([a-z0-9_]+)\.([a-z0-9_]+):([^:]+)$/i;
+// pdrn:<domain id>:<resource label>
+const PDRN = /^pdrn:([^:]+):(.*)$/;
 
-function translateURLToModelLabel(url: string): string {
-  const value = url.replace(config.API_BASE_PATH, '');
-  const urlParts = value
-    .split('/')
-    .filter((part) => part.length && !part.match(IDRegEx));
-  const searchUrl = urlParts.join('/');
-  return URLToModelLabel[searchUrl];
-}
+// An id is part of a request path, so nothing but an id is put into one.
+const SAFE_ID = /^[0-9a-f-]+$/i;
 
-const URLToModelLabel = {
+// The collection paths below the API base, by the kind they hold. Looked up in
+// maps, never in object literals: a segment named like an inherited property
+// ("constructor") must find nothing.
+const KINDS: [string, string][] = Object.entries({
   // core
   access_policies: 'core.accesspolicy',
   groups: 'core.group',
@@ -207,9 +151,62 @@ const URLToModelLabel = {
   'distributions/deb/apt': 'deb.aptdistribution',
   'remotes/deb/apt': 'deb.aptremote',
   'repositories/deb/apt': 'deb.aptrepository',
-};
+});
 
-const ModelLabelToURL = Object.keys(URLToModelLabel).reduce((ret, key) => {
-  ret[URLToModelLabel[key]] = key;
-  return ret;
-}, {});
+const MODEL_LABEL_BY_COLLECTION = new Map(KINDS);
+const COLLECTION_BY_MODEL_LABEL = new Map(
+  KINDS.map(([collection, label]) => [label, collection]),
+);
+
+// What a PRN, a domain resource name or an address of the API names, or null
+// when the value is none of them.
+export function parsePulpResource(value: string): PulpResource | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  if (value.startsWith(config.API_BASE_PATH)) {
+    const match = OBJECT_HREF.exec(value.slice(config.API_BASE_PATH.length));
+    const label = match && MODEL_LABEL_BY_COLLECTION.get(match[1]);
+    if (!label) {
+      return null;
+    }
+    const [plugin, model] = label.split('.');
+    return { id: match[2], plugin, model, resource_label: undefined };
+  }
+
+  const prn = PRN.exec(value);
+  if (prn) {
+    return {
+      id: prn[3],
+      plugin: prn[1],
+      model: prn[2],
+      resource_label: undefined,
+    };
+  }
+
+  const pdrn = PDRN.exec(value);
+  if (pdrn) {
+    return {
+      id: pdrn[1],
+      plugin: 'core',
+      model: 'domain',
+      resource_label: pdrn[2],
+    };
+  }
+
+  return null;
+}
+
+// The address of a resource, or null for a kind this table does not know (an
+// address is never built from "undefined") and for an id that is not safe to
+// put into a path. A resource that came from a domain resource name has none.
+export function resourceHref(resource: PulpResource): string | null {
+  const collection = COLLECTION_BY_MODEL_LABEL.get(
+    `${resource.plugin}.${resource.model}`,
+  );
+  if (!collection || !SAFE_ID.test(resource.id ?? '')) {
+    return null;
+  }
+  return `${config.API_BASE_PATH}${collection}/${resource.id}/`;
+}

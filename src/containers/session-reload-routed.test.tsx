@@ -2,7 +2,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useRoutes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
-import { UserAPI } from 'src/api/user';
+import { GenericPulpAPI } from 'src/api/generic-pulp';
 import { AppContextProvider } from 'src/app-context';
 import { dataRoutes } from 'src/app-routes';
 import { ReauthDialog } from 'src/session/reauth-dialog';
@@ -42,7 +42,7 @@ function ReadUser() {
   return (
     <button
       type='button'
-      onClick={() => UserAPI.get('4').catch(() => undefined)}
+      onClick={() => GenericPulpAPI.get('users/4/').catch(() => undefined)}
     >
       Probe request
     </button>

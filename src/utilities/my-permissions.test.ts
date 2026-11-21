@@ -30,6 +30,32 @@ afterEach(() => {
 });
 
 describe('loadMyPermissions', () => {
+  it('reads the permissions of the object the address names', async () => {
+    answer([]);
+
+    await loadMyPermissions(HREF);
+    await loadMyPermissions(HREF.replace(/\/$/, ''));
+
+    expect(get.mock.calls.map(([path]) => path)).toEqual([
+      `repositories/file/file/00000000-0000-4000-8000-0000000000a1/my_permissions/`,
+      `repositories/file/file/00000000-0000-4000-8000-0000000000a1/my_permissions/`,
+    ]);
+  });
+
+  it.each([
+    'https://evil.example/pulp/api/v3/repositories/file/file/x/',
+    '//evil.example/pulp/api/v3/repositories/file/file/x/',
+    '/other/api/v3/repositories/file/file/x/',
+    '/pulp/api/v3/repositories/%2e%2e/%2e%2e/users/',
+    '/pulp/api/v3/repositories/file/file/x/?next=1',
+    'repositories/file/file/x/',
+    '',
+  ])('asks nothing and answers unknown for the address %j', async (href) => {
+    await expect(loadMyPermissions(href)).resolves.toBeNull();
+
+    expect(get).not.toHaveBeenCalled();
+  });
+
   it('answers the permissions the server lists', async () => {
     answer(['file.change_filerepository']);
 

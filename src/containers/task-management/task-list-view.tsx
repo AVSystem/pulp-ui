@@ -232,8 +232,9 @@ export const TaskListView = () => {
     });
   };
 
-  // A maintenance task is started once per confirmation. The session ended:
-  // the sign-in dialog explains it, so no alert is added.
+  // A maintenance task is started once per confirmation. A refusal says what
+  // the server answered, as the stop action does. The session ended: the
+  // sign-in dialog explains it, so no alert is added.
   const startMaintenance = <TRequest,>(
     mutation: {
       mutate: (
@@ -249,7 +250,11 @@ export const TaskListView = () => {
       onSuccess: () => addAlert({ variant: 'success', title: started }),
       onError: (e) => {
         if (!isSessionEnd(e)) {
-          addAlert({ variant: 'danger', title: failed });
+          addAlert({
+            variant: 'danger',
+            title: failed,
+            description: requestErrorDescription(e),
+          });
         }
       },
     });

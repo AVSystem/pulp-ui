@@ -131,6 +131,42 @@ describe('the deprecated entry point rule', () => {
   });
 });
 
+describe('the id parser import rule', () => {
+  it.each([
+    ['src/containers/page.tsx', 'src/utilities/parse-pulp-id'],
+    ['src/containers/page.tsx', '../utilities/parse-pulp-id'],
+    ['src/utilities/other.ts', './parse-pulp-id'],
+    ['src/entities/core/resource/other.ts', 'src/utilities/parse-pulp-id'],
+    ['src/framework/other.ts', 'src/utilities/parse-pulp-id'],
+  ])('reports an import in %s of %s', async (path, source) => {
+    const found = await reports(
+      `import { parsePulpResource } from '${source}';\nexport const x = parsePulpResource;`,
+      path,
+    );
+
+    expect(found.length).toBeGreaterThan(0);
+    expect(found[0].severity).toBe(2);
+    expect(found[0].message).toMatch(/id parser is gone/);
+  });
+
+  it('reports a re-export of the module too', async () => {
+    const found = await reports(
+      "export { parsePulpResource } from 'src/utilities/parse-pulp-id';",
+    );
+
+    expect(found.length).toBeGreaterThan(0);
+    expect(found[0].message).toMatch(/id parser is gone/);
+  });
+
+  it('accepts the module that took over its work', async () => {
+    expect(
+      await reports(
+        "import { parsePulpResource } from 'src/entities/core/resource/prn';\nexport const x = parsePulpResource;",
+      ),
+    ).toEqual([]);
+  });
+});
+
 describe('the barrel import rule', () => {
   it.each(['src/api', 'src/utilities', 'src/actions'])(
     'warns about the %s barrel',

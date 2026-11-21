@@ -101,19 +101,10 @@
     "GenericRepositoryVersionAPI": ["list"]
   },
   "group-role.ts": {
-    "GroupRoleAPI": ["addRoleToGroup", "listRoles", "removeRole"]
+    "GroupRoleAPI": ["listRoles"]
   },
   "group.ts": {
-    "GroupAPI": [
-      "addUserToGroup",
-      "create",
-      "delete",
-      "get",
-      "getUsers",
-      "list",
-      "removeUserFromGroup",
-      "update"
-    ]
+    "GroupAPI": ["list"]
   },
   "index.ts": {
     "AnsibleDistributionAPI": [],
@@ -369,16 +360,7 @@
     ]
   },
   "role.ts": {
-    "RoleAPI": [
-      "addPermission",
-      "create",
-      "delete",
-      "get",
-      "getPermissions",
-      "list",
-      "removePermission",
-      "updatePermissions"
-    ]
+    "RoleAPI": ["list"]
   },
   "rpm-distribution.ts": {
     "RPMDistributionAPI": ["create", "delete", "list"],
@@ -414,20 +396,12 @@
     "TaskPurgeAPI": ["create"]
   },
   "task.ts": {
-    "TaskAPI": ["get", "list", "patch"]
+    "TaskAPI": ["get", "list"]
   },
   "user-role.ts": {
     "UserRoleAPI": ["listRoles"]
   },
   "user.ts": {
-    "UserAPI": [
-      "create",
-      "delete",
-      "get",
-      "list",
-      "patch",
-      "saveUser",
-      "update"
-    ]
+    "UserAPI": ["list"]
   }
 }

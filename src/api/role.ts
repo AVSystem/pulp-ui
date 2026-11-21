@@ -4,18 +4,6 @@ import { PulpAPI } from './pulp';
 const base = new PulpAPI();
 
 export const RoleAPI = {
-  addPermission: (id, data) =>
-    base.http.post(`roles/${id}/model-permissions/`, data),
-
-  create: (data) => base.http.post(`roles/`, data),
-
-  delete: (id) => base.http.delete(`roles/${id}/`),
-
-  get: (id) => base.http.get(`roles/${id}/`),
-
-  getPermissions: (id) =>
-    base.http.get(`roles/${id}/model-permissions/?limit=100000&offset=0`),
-
   list: (params?, for_object_type?) => {
     const newParams = { ...params };
     if (for_object_type) {
@@ -25,9 +13,4 @@ export const RoleAPI = {
     }
     return base.list(`roles/`, newParams);
   },
-
-  removePermission: (id, permissionId) =>
-    base.http.delete(`roles/${id}/model-permissions/${permissionId}/`),
-
-  updatePermissions: (id, data) => base.http.patch(`roles/${id}/`, data),
 };

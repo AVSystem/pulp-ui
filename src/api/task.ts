@@ -1,11 +1,11 @@
+import { atHref } from 'src/utilities/at-href';
 import { PulpAPI } from './pulp';
 
 const base = new PulpAPI();
 
 export const TaskAPI = {
-  get: (id) => base.http.get(`tasks/${id}/`),
+  // The task the address names.
+  get: (href: string) => atHref(href, 'tasks/', (path) => base.http.get(path)),
 
   list: (params?) => base.list(`tasks/`, params),
-
-  patch: (id, data) => base.http.patch(`tasks/${id}/`, data),
 };

@@ -87,6 +87,14 @@ const FRAMEWORK_BARREL = {
   message: FRAMEWORK_MESSAGE,
 };
 
+// The id parser is gone: an address or a PRN is read by src/entities. The path
+// stays forbidden so a restored copy of the module cannot be imported again.
+const PARSER_PATTERN = {
+  group: ['**/parse-pulp-id', '**/parse-pulp-id.*'],
+  message:
+    'The id parser is gone: read an address or a PRN with the functions of src/entities, and request an object through its address.',
+};
+
 const DEPRECATED_PATTERN = {
   group: [
     '@patternfly/react-core/deprecated/**',
@@ -141,6 +149,7 @@ function importRestrictions({ sdk, framework = false }) {
       ],
       patterns: [
         DEPRECATED_PATTERN,
+        PARSER_PATTERN,
         ...(sdk ? [SDK_PATTERN] : []),
         ...(framework ? [FRAMEWORK_PATTERN] : []),
       ],

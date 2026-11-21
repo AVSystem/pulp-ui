@@ -25,6 +25,7 @@ import {
 import { useNavigate } from 'react-router';
 import { GenericRepositoryAPI } from 'src/api/generic-pulp';
 import { Spinner } from 'src/components';
+import { pluginOfHref } from 'src/entities/href';
 import { repositoryPath } from 'src/framework/route-patterns';
 import { useMenuModel } from 'src/menu';
 import { Paths, formatPath } from 'src/paths';
@@ -41,9 +42,9 @@ const SCREEN_LIMIT = 8;
 const MIN_REPOSITORY_QUERY = 2;
 const DEBOUNCE_MS = 250;
 
-// How many repositories of one type the palette lists, and how many the one
-// request asks for, so that several types can be represented in the answer.
-const REPOSITORIES_PER_TYPE = 5;
+// How many repositories of one plugin the palette lists, and how many the one
+// request asks for, so that several plugins can be represented in the answer.
+const REPOSITORIES_PER_PLUGIN = 5;
 const REPOSITORY_REQUEST_SIZE = 50;
 
 const TRIGGER_ID = 'pulp-palette-trigger';
@@ -108,13 +109,6 @@ function repositoryScreens(): Record<
       detail: legacy(Paths.ansible.repository.detail),
     },
   };
-}
-
-// The plugin and the type of a repository, which are the two segments of its
-// address after "repositories", for example deb and apt.
-function repositoryKind(href: string): { plugin: string; type: string } | null {
-  const match = /\/repositories\/([^/]+)\/([^/]+)\//.exec(href);
-  return match ? { plugin: match[1], type: match[2] } : null;
 }
 
 type RepositorySearch =
@@ -234,22 +228,20 @@ function repositoryResults(
   installed: ReadonlySet<string>,
 ): IResult[] {
   const screens = repositoryScreens();
-  const perType = new Map<string, number>();
+  const perPlugin = new Map<string, number>();
   const results: IResult[] = [];
 
   for (const repository of repositories) {
-    const kind = repositoryKind(repository.pulp_href);
-    const screen =
-      kind && installed.has(kind.plugin) ? screens[kind.plugin] : null;
-    if (!kind || !screen || typeof repository.name !== 'string') {
+    const plugin = pluginOfHref(repository.pulp_href);
+    const screen = plugin && installed.has(plugin) ? screens[plugin] : null;
+    if (!plugin || !screen || typeof repository.name !== 'string') {
       continue;
     }
-    const key = `${kind.plugin}/${kind.type}`;
-    const count = perType.get(key) ?? 0;
-    if (count >= REPOSITORIES_PER_TYPE) {
+    const count = perPlugin.get(plugin) ?? 0;
+    if (count >= REPOSITORIES_PER_PLUGIN) {
       continue;
     }
-    perType.set(key, count + 1);
+    perPlugin.set(plugin, count + 1);
     results.push({
       id: `repository-${results.length}`,
       name: repository.name,

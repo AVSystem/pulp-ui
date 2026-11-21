@@ -21,12 +21,6 @@ export {
 export { mapNetworkErrors, validateInput } from './map-role-errors';
 export { ModelToApi } from './model-to-api';
 export { ParamHelper, type ParamType } from './param-helper';
-export {
-  parsePulpIDFromPRN,
-  parsePulpIDFromURL,
-  parsePulpResource,
-  translatePulpResourceToURL,
-} from './parse-pulp-id';
 export { plugin2api } from './plugin-repository-base-path';
 export { plugin_versions } from './plugin-version';
 export { repositoryBasePath, repositoryDistro } from './repository-distro';
@@ -34,5 +28,5 @@ export { taskAlert } from './task-alert';
 export { translateLockedRole } from './translate-locked-role';
 export { translateTask } from './translate-task';
 export { validateURLHelper } from './validate-url-helper';
-export { waitForTask, waitForTaskUrl } from './wait-for-task';
+export { waitForTaskUrl } from './wait-for-task';
 export { RouteProps, useQueryParams, withRouter } from './with-router';
