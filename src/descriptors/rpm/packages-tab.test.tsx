@@ -270,8 +270,14 @@ describe(
       const query = lab.queries.at(-1) as URLSearchParams;
       expect(query.get('name__contains')).toBe('bash');
       expect(query.get('arch')).toBe('noarch');
-      expect(screen.getByText('Package name')).toBeVisible();
-      expect(screen.getByText('Arch')).toBeVisible();
+      const applied = (name: string) =>
+        within(screen.getByRole('list', { name })).getAllByRole('listitem');
+      expect(applied('Package name').map((item) => item.textContent)).toEqual([
+        'bash',
+      ]);
+      expect(applied('Arch').map((item) => item.textContent)).toEqual([
+        'noarch',
+      ]);
     });
 
     it('applies a name typed into the filter and goes back to the first page', async () => {
@@ -312,7 +318,9 @@ describe(
       await within(grid).findByText('a');
       expect(lab.queries.at(-1)?.get('ordering')).toBe('name');
 
-      await user.click(within(grid).getByRole('button', { name: 'Name' }));
+      await user.click(
+        grid.querySelector('[data-cy="sort_name"]') as HTMLElement,
+      );
 
       await waitFor(() =>
         expect(lab.queries.at(-1)?.get('ordering')).toBe('-name'),

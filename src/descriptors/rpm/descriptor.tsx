@@ -17,6 +17,7 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
+import { packagesTab } from './packages-tab';
 
 // What the server does about content a remote no longer has. Additive is the
 // server's own default and never removes content: mirroring is opted into,
@@ -76,7 +77,11 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     // A new repository does not publish by itself, which is what the server
     // does when it is told nothing.
     createDefaults: { autopublish: false },
-    tabs: [versionsTab<RpmRepository>(), distributionsTab<RpmRepository>()],
+    tabs: [
+      versionsTab<RpmRepository>(),
+      distributionsTab<RpmRepository>(),
+      packagesTab,
+    ],
     sync: {
       taskName: 'pulp_rpm.app.tasks.synchronizing.synchronize',
       options: [
@@ -115,6 +120,7 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     filters: REMOTE_FILTERS,
     detailRows: [POLICY_ROW],
   },
+  contentTypes: [{ id: 'rpm.package', label: msg`Packages` }],
   distribution: { entity: rpmDistribution },
   publication: { entity: rpmPublication, servesFromPublication: true },
 };
