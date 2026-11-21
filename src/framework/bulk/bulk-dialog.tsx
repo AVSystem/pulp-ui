@@ -108,15 +108,12 @@ export function summaryLine(summary: BulkSummary): string {
   return parts.join(', ');
 }
 
-const taskLink = (task: string) => {
-  const id = taskUrlId(task);
-
-  return id ? (
-    <Link to={formatPath(Paths.core.task.detail, { task: id })}>
+const taskLink = (task: string) =>
+  taskUrlId(task) ? (
+    <Link to={formatPath(Paths.core.task.detail, { task: taskUrlId(task) })}>
       {t`View the task`}
     </Link>
   ) : null;
-};
 
 // The result of one row in words: a label, and the reason or the link.
 function Result({ outcome }: { outcome: BulkOutcome | undefined }) {
