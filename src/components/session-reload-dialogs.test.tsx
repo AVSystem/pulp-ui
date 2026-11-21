@@ -9,8 +9,6 @@ import {
   distribution,
   listOf,
   page,
-  pythonDistribution,
-  remote,
   repository,
   task,
 } from 'src/test-utils/pulp';
@@ -27,7 +25,6 @@ import { ansibleRepositoryCollectionVersionRemoveAction } from '../actions/ansib
 import { ansibleRepositoryCopyAction } from '../actions/ansible-repository-copy';
 import { ansibleRepositorySyncAction } from '../actions/ansible-repository-sync';
 import { ansibleRepositoryVersionRevertAction } from '../actions/ansible-repository-version-revert';
-import { pythonDistributionEditAction } from '../actions/python-distribution-edit';
 import { DeleteRepositoryModal } from './delete-repository-modal';
 import { RolePermissions } from './role-permissions';
 import { SelectGroup } from './select-group';
@@ -643,136 +640,6 @@ describe('DeleteRepositoryModal', () => {
 
     expect(recorded.writes).toEqual([`POST ${API}/login/`]);
     recorded.stop();
-  });
-});
-
-describe('the edit dialog of a Python distribution', () => {
-  const dist = pythonDistribution({ base_path: 'pypi-local' });
-  const REMOTES = `${API}/remotes/python/python/`;
-
-  const serveDistribution = (fields: Record<string, unknown> = {}) =>
-    server.use(
-      http.get(`*${dist.pulp_href}`, () =>
-        HttpResponse.json({ ...dist, ...fields }),
-      ),
-    );
-
-  const serveRemotes = (...names: string[]) => {
-    const served = listOf(
-      REMOTES,
-      names.map((name) => remote({ name })),
-    );
-    server.use(served.handler);
-    return served.queries;
-  };
-
-  function Dialog() {
-    const context = {
-      addAlert: vi.fn(),
-      listQuery: vi.fn(),
-      query: vi.fn(),
-      reloadPage: vi.fn(),
-      setState: vi.fn(),
-      state: {
-        pythonDistributionEditModal: {
-          name: dist.name,
-          pulp_href: dist.pulp_href,
-        },
-      },
-    };
-    return (
-      <>
-        <SignInAgain />
-        {pythonDistributionEditAction.modal(context)}
-      </>
-    );
-  }
-
-  const uploads = () => screen.getByRole('checkbox', { name: /Allow uploads/ });
-
-  it('reads the distribution again and shows the fresh value when the form is untouched', async () => {
-    serveSignIn();
-    serveDistribution({ allow_uploads: true });
-    serveRemotes();
-    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
-    await waitFor(() => expect(uploads()).toBeChecked());
-    await signedIn();
-    serveDistribution({ allow_uploads: false });
-
-    await signInAgain(user);
-
-    await waitFor(() => expect(uploads()).not.toBeChecked());
-  });
-
-  it('keeps what the user changed and sends no write', async () => {
-    serveSignIn();
-    serveDistribution({ allow_uploads: true });
-    const queries = serveRemotes('mirror');
-    const recorded = recordWrites();
-    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
-    await waitFor(() => expect(uploads()).toBeChecked());
-    await signedIn();
-    await user.click(uploads());
-    expect(uploads()).not.toBeChecked();
-    const before = queries.length;
-    serveDistribution({ allow_uploads: true });
-
-    await signInAgain(user);
-    await waitFor(() => expect(queries.length).toBeGreaterThan(before));
-    await reacted();
-
-    expect(uploads()).not.toBeChecked();
-    expect(recorded.writes).toEqual([`POST ${API}/login/`]);
-    recorded.stop();
-  });
-
-  it('keeps the form, with no error, when the read is refused with 401', async () => {
-    serveSignIn();
-    serveDistribution({ allow_uploads: true });
-    serveRemotes();
-    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
-    await waitFor(() => expect(uploads()).toBeChecked());
-    await signedIn();
-    server.use(refused(dist.pulp_href), refused(REMOTES));
-
-    const answers = answeredRequests(dist.pulp_href);
-    await signInAgain(user);
-    await answers.untilAnswered();
-
-    expect(uploads()).toBeChecked();
-    expect(screen.queryByText(/Failed to load/)).toBeNull();
-  });
-
-  it('keeps the spinner, with no error, when the first read is refused, and shows the form after signing in', async () => {
-    serveSignIn();
-    server.use(refused(dist.pulp_href), refused(REMOTES));
-    const answers = answeredRequests(REMOTES);
-    const { user } = renderWithProviders(<Dialog />, { signedIn: true });
-    await signedIn();
-    await answers.untilAnswered();
-    expect(screen.getByRole('progressbar')).toBeVisible();
-    expect(screen.queryByText(/Failed to load/)).toBeNull();
-    serveDistribution({ allow_uploads: true });
-    serveRemotes();
-
-    await signInAgain(user);
-
-    await waitFor(() => expect(uploads()).toBeChecked());
-  });
-
-  it('still shows the failure when the read fails for another reason', async () => {
-    serveSignIn();
-    server.use(
-      http.get(`*${dist.pulp_href}`, () =>
-        HttpResponse.json({ detail: 'broken' }, { status: 500 }),
-      ),
-    );
-    serveRemotes();
-    renderWithProviders(<Dialog />, { signedIn: true });
-
-    expect(
-      await screen.findByText(/Failed to load the distribution/),
-    ).toBeInTheDocument();
   });
 });
 

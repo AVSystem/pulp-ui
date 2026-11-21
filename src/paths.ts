@@ -88,16 +88,6 @@ export const Paths = {
     signedOut: '/signed-out',
   },
   python: {
-    remote: {
-      detail: '/python/remotes/detail/:name',
-      edit: '/python/remotes/edit/:name',
-      list: '/python/remotes',
-    },
-    repository: {
-      detail: '/python/repositories/detail/:name',
-      edit: '/python/repositories/edit/:name',
-      list: '/python/repositories',
-    },
     package: { list: '/python/packages' },
   },
   rpm: {

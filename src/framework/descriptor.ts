@@ -62,11 +62,14 @@ export type SyncBody = { remote?: string } & Record<string, unknown>;
 // number that may be left blank, `decimal` a number with an optional fraction
 // that may be left blank, `labels` the pairs of a key and an optional value,
 // `remote` the address of a remote or none, `secret` a value the server keeps
-// and never returns (a password), and `certificate` a PEM text that is typed,
-// pasted or taken from a file.
+// and never returns (a password), `certificate` a PEM text that is typed,
+// pasted or taken from a file, `lines` a list of texts typed one to a line
+// and `choices` a set of the values of `options`, each with a box of its own.
 export type FieldKind =
   | 'text'
   | 'textarea'
+  | 'lines'
+  | 'choices'
   | 'integer'
   | 'decimal'
   | 'certificate'
@@ -98,7 +101,7 @@ export interface FieldDef {
   // The text beside the box of a `boolean` field, which says what ticking it
   // does; the label above names the setting.
   boxLabel?: MessageDescriptor;
-  // The choices of a select.
+  // The choices of a select, and the values a set of choices offers.
   options?: { value: string; label: MessageDescriptor }[];
   // A sentence under the input that tells what to enter or what happens when
   // it is left empty. A message about the value the server refused replaces it.
@@ -269,9 +272,32 @@ export interface RemoteKind<Row> {
   filters?: FilterDef[];
 }
 
+// An action on one distribution of the Distributions tab, which opens a dialog
+// of the plugin's own. The distributions of a repository are not read one by
+// one for what the user may do with them, so the action is offered only to a
+// user who holds the permission on every distribution of the plugin: hiding it
+// from a user who holds it on one distribution only is the safe direction, and
+// Pulp decides every request.
+export interface DistributionEditDef {
+  // The permission, held on every distribution, that the action needs.
+  permission: string;
+  // The label of the row's action.
+  label: MessageDescriptor;
+  // The dialog that edits one distribution. It closes itself through `onClose`
+  // and puts what happened on the screen through `addAlert`.
+  dialog: (props: {
+    distribution: DistributionBase;
+    onClose: () => void;
+    addAlert: (alert: AlertType) => void;
+  }) => ReactNode;
+}
+
 export interface DistributionKind<Row extends DistributionBase> {
   entity: AnyDistributionEntity<Row>;
   columns?: ColumnDef<Row>[];
+  // The action that changes a distribution, for a plugin whose distributions
+  // have fields worth changing after they are made.
+  edit?: DistributionEditDef;
 }
 
 // A plugin that serves a repository through a publication. Absent for a plugin

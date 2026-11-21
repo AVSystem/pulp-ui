@@ -101,13 +101,13 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
   });
 
   it('refuses a plugin that has no descriptor yet instead of routing it to nothing', () => {
-    const python = {
+    const unknown = {
       ...FILE,
-      plugin: 'python',
+      plugin: 'maven' as never,
       onFramework: true,
     } satisfies PluginManifest;
 
-    expect(() => frameworkRoutes([python])).toThrow(/descriptor/);
+    expect(() => frameworkRoutes([unknown])).toThrow(/descriptor/);
   });
 });
 

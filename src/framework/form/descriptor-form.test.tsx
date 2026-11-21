@@ -85,4 +85,42 @@ describe('Integration: DescriptorForm', { tags: ['integration'] }, () => {
 
     expect(screen.getByText('Too long.')).toBeInTheDocument();
   });
+
+  it('draws a list of lines as one text area and a set of choices as one box for each option, and hands the change on in the form of the kind', async () => {
+    const kinds: FieldDef[] = [
+      { name: 'includes', label: msg`Notes`, kind: 'lines' },
+      {
+        name: 'types',
+        label: msg`Mode`,
+        kind: 'choices',
+        options: [
+          { value: 'fast', label: msg`Fast` },
+          { value: 'slow', label: msg`Streamed` },
+        ],
+      },
+    ];
+    const changes: [string, unknown][] = [];
+    const { user } = renderWithProviders(
+      <DescriptorForm
+        fields={kinds}
+        values={{ includes: 'a\nb', types: ['slow'] }}
+        errors={{}}
+        failureTitle='Not saved'
+        onChange={(name, value) => changes.push([name, value])}
+        onSubmit={() => undefined}
+      />,
+    );
+
+    expect(screen.getByRole('textbox', { name: /Notes/ })).toHaveValue('a\nb');
+    expect(screen.getByRole('checkbox', { name: 'Fast' })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Streamed' })).toBeChecked();
+
+    await user.click(screen.getByRole('checkbox', { name: 'Fast' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Streamed' }));
+
+    expect(changes).toEqual([
+      ['types', ['fast', 'slow']],
+      ['types', []],
+    ]);
+  });
 });

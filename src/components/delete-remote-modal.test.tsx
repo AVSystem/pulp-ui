@@ -6,7 +6,6 @@ import { task as taskBody } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { ansibleRemoteDeleteAction } from '../actions/ansible-remote-delete';
-import { pythonRemoteDeleteAction } from '../actions/python-remote-delete';
 import type * as WaitForTask from '../utilities/wait-for-task';
 
 // The polling of an unfinished task gives up after a few quick attempts, so a
@@ -36,11 +35,6 @@ const PLUGINS = [
     name: 'ansible',
     action: ansibleRemoteDeleteAction,
     path: 'remotes/ansible/collection',
-  },
-  {
-    name: 'python',
-    action: pythonRemoteDeleteAction,
-    path: 'remotes/python/python',
   },
 ];
 

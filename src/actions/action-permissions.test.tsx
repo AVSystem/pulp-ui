@@ -11,7 +11,6 @@ import { listOf, repository, repositoryVersion } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { RepositoryVersionsTab as AnsibleTab } from '../containers/ansible-repository/tab-repository-versions';
-import { RepositoryVersionsTab as PythonTab } from '../containers/python-repository/tab-repository-versions';
 import { ACTION_PERMISSIONS } from '../utilities/action-permissions';
 import { type ActionType } from './action';
 import { ansibleRemoteCreateAction } from './ansible-remote-create';
@@ -24,14 +23,6 @@ import { ansibleRepositoryCreateAction } from './ansible-repository-create';
 import { ansibleRepositoryDeleteAction } from './ansible-repository-delete';
 import { ansibleRepositoryEditAction } from './ansible-repository-edit';
 import { ansibleRepositorySyncAction } from './ansible-repository-sync';
-import { pythonDistributionEditAction } from './python-distribution-edit';
-import { pythonRemoteCreateAction } from './python-remote-create';
-import { pythonRemoteDeleteAction } from './python-remote-delete';
-import { pythonRemoteEditAction } from './python-remote-edit';
-import { pythonRepositoryCreateAction } from './python-repository-create';
-import { pythonRepositoryDeleteAction } from './python-repository-delete';
-import { pythonRepositoryEditAction } from './python-repository-edit';
-import { pythonRepositorySyncAction } from './python-repository-sync';
 import { repositoryVersionRevertAction } from './repository-version-revert';
 
 const API = '/pulp/api/v3';
@@ -164,11 +155,6 @@ const rowsOf = (
   ];
 };
 
-const distributionItem = {
-  name: 'zz-test-distribution',
-  pulp_href: `${API}/distributions/python/pypi/00000000-0000-4000-8000-0000000000e1/`,
-};
-
 const collectionVersionItem = {
   namespace: 'zz',
   name: 'collection',
@@ -177,20 +163,6 @@ const collectionVersionItem = {
 };
 
 const ROWS: Row[] = [
-  ...rowsOf(
-    'python',
-    { repository: 'pythonrepository', remote: 'pythonremote' },
-    { repository: 'python/python', remote: 'python/python' },
-    {
-      repositoryCreate: pythonRepositoryCreateAction,
-      repositoryEdit: pythonRepositoryEditAction,
-      repositorySync: pythonRepositorySyncAction,
-      repositoryDelete: pythonRepositoryDeleteAction,
-      remoteCreate: pythonRemoteCreateAction,
-      remoteEdit: pythonRemoteEditAction,
-      remoteDelete: pythonRemoteDeleteAction,
-    },
-  ),
   ...rowsOf(
     'ansible',
     { repository: 'ansiblerepository', remote: 'collectionremote' },
@@ -215,17 +187,6 @@ const ROWS: Row[] = [
     item: collectionVersionItem,
     listed: collectionVersionItem,
     plugin: 'ansible',
-  },
-  // The distributions of a repository page are not read for their own
-  // permission lists, so only a permission held on every object counts.
-  {
-    label: 'python distribution edit',
-    action: pythonDistributionEditAction,
-    permission: 'python.change_pythondistribution',
-    objectLevel: false,
-    item: distributionItem,
-    listed: distributionItem,
-    plugin: 'python',
   },
 ];
 
@@ -299,12 +260,6 @@ describe.each(ROWS)('the $label action', (row) => {
 
 describe.each([
   [
-    'python',
-    'python',
-    'python.modify_pythonrepository',
-    'python.change_pythonrepository',
-  ],
-  [
     'ansible',
     'ansible',
     'ansible.modify_ansible_repo_content',
@@ -355,7 +310,6 @@ describe.each([
 // on every row; what it may check is the repository the page shows.
 describe('the revert action in the versions tab of a repository page', () => {
   const TABS = [
-    { plugin: 'python', path: 'repositories/python/python', Tab: PythonTab },
     {
       plugin: 'ansible',
       path: 'repositories/ansible/ansible',

@@ -157,6 +157,49 @@ export const FieldInput = ({
           onChange={(_event, next) => onChange(next)}
         />
       );
+    case 'lines':
+      return (
+        <TextArea
+          id={id}
+          value={String(value ?? '')}
+          placeholder={field.placeholder}
+          isDisabled={isDisabled}
+          validated={validated}
+          resizeOrientation='vertical'
+          autoResize
+          onChange={(_event, next) => onChange(next)}
+        />
+      );
+    case 'choices': {
+      const chosen = Array.isArray(value) ? (value as string[]) : [];
+      const options = field.options ?? [];
+      const offered = options.map((each) => each.value);
+
+      return (
+        <div id={id}>
+          {options.map((option) => (
+            <Checkbox
+              key={option.value}
+              id={`${id}_${option.value}`}
+              label={i18n._(option.label)}
+              isChecked={chosen.includes(option.value)}
+              isDisabled={isDisabled}
+              onChange={(_event, checked) =>
+                // the values stay in the order of the options, so choosing and
+                // unchoosing a value leaves the set as it was; a value the
+                // options do not name is kept
+                onChange([
+                  ...offered.filter((each) =>
+                    each === option.value ? checked : chosen.includes(each),
+                  ),
+                  ...chosen.filter((each) => !offered.includes(each)),
+                ])
+              }
+            />
+          ))}
+        </div>
+      );
+    }
     case 'labels':
       return (
         <LabelsField

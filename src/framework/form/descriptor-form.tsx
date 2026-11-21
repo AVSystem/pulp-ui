@@ -102,6 +102,7 @@ export const DescriptorForm = ({
           )
         }
         isRequired={field.required}
+        role={field.kind === 'choices' ? 'group' : undefined}
       >
         <FieldInput
           field={field}

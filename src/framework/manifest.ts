@@ -151,6 +151,6 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
         manageRoles: 'python.manage_roles_pythonremote',
       },
     },
-    onFramework: false,
+    onFramework: true,
   },
 ];

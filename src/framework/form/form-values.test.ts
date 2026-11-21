@@ -8,6 +8,7 @@ import {
   labelProblem,
   missingRequired,
   toCreateBody,
+  toFilledBody,
   toForm,
   toRequest,
 } from './form-values';
@@ -201,6 +202,98 @@ describe('Unit: the body of a create', { tags: ['unit'] }, () => {
           retain: '',
         }),
       ).toEqual([]);
+    });
+  });
+
+  describe('a list of lines', () => {
+    const lines: FieldDef[] = [
+      { name: 'includes', label: msg`Description`, kind: 'lines' },
+    ];
+
+    it('shows the items one to a line, and nothing for a missing list', () => {
+      expect(toForm(lines, { includes: ['django>=4.2', 'requests'] })).toEqual({
+        includes: 'django>=4.2\nrequests',
+      });
+      expect(toForm(lines, { includes: [] })).toEqual({ includes: '' });
+      expect(toForm(lines, { includes: null })).toEqual({ includes: '' });
+      expect(toForm(lines, {})).toEqual({ includes: '' });
+    });
+
+    it('sends one item for each line that holds something, trimmed, and drops blank lines', () => {
+      expect(
+        toRequest(lines, { includes: ' django>=4.2 \n\n  \nrequests\n' }, [
+          'includes',
+        ]),
+      ).toEqual({ includes: ['django>=4.2', 'requests'] });
+      expect(toRequest(lines, { includes: '' }, ['includes'])).toEqual({
+        includes: [],
+      });
+      expect(toRequest(lines, { includes: 'a\r\nb' }, ['includes'])).toEqual({
+        includes: ['a', 'b'],
+      });
+    });
+
+    it('sends an empty list on a create when it is not filled in, and drops it from a body that sends only what was filled in', () => {
+      expect(toCreateBody(lines, { includes: '' })).toEqual({ includes: [] });
+      expect(toFilledBody(lines, { includes: ' \n' })).toEqual({});
+      expect(toFilledBody(lines, { includes: 'a' })).toEqual({
+        includes: ['a'],
+      });
+    });
+
+    it('counts a change of the text as a change and the same text as none', () => {
+      const before = toForm(lines, { includes: ['a'] });
+
+      expect(changedNames(lines, before, { includes: 'a' })).toEqual([]);
+      expect(changedNames(lines, before, { includes: 'a\nb' })).toEqual([
+        'includes',
+      ]);
+    });
+  });
+
+  describe('a set of choices', () => {
+    const choices: FieldDef[] = [
+      {
+        name: 'types',
+        label: msg`Description`,
+        kind: 'choices',
+        options: [
+          { value: 'sdist', label: msg`Mode` },
+          { value: 'bdist_wheel', label: msg`Publish` },
+          { value: 'bdist_egg', label: msg`Retain` },
+        ],
+      },
+    ];
+
+    it('holds the values that are chosen, in the order of the options, and keeps one the options do not name', () => {
+      expect(toForm(choices, { types: ['bdist_egg', 'sdist'] })).toEqual({
+        types: ['sdist', 'bdist_egg'],
+      });
+      expect(toForm(choices, { types: ['future', 'sdist'] })).toEqual({
+        types: ['sdist', 'future'],
+      });
+      expect(toForm(choices, { types: null })).toEqual({ types: [] });
+      expect(toForm(choices, {})).toEqual({ types: [] });
+    });
+
+    it('sends the chosen values, and an empty list when none is chosen', () => {
+      expect(toRequest(choices, { types: ['sdist'] }, ['types'])).toEqual({
+        types: ['sdist'],
+      });
+      expect(toRequest(choices, { types: [] }, ['types'])).toEqual({
+        types: [],
+      });
+      expect(toCreateBody(choices, { types: [] })).toEqual({ types: [] });
+      expect(toFilledBody(choices, { types: [] })).toEqual({});
+    });
+
+    it('counts choosing or clearing a value as a change', () => {
+      const before = toForm(choices, { types: ['sdist'] });
+
+      expect(changedNames(choices, before, { types: ['sdist'] })).toEqual([]);
+      expect(
+        changedNames(choices, before, { types: ['sdist', 'bdist_egg'] }),
+      ).toEqual(['types']);
     });
   });
 

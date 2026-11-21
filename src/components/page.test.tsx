@@ -8,8 +8,6 @@ import { PulpAPI } from '../api/pulp';
 import { AppContextProvider } from '../app-context';
 import AnsibleRemoteEdit from '../containers/ansible-remote/edit';
 import AnsibleRepositoryEdit from '../containers/ansible-repository/edit';
-import PythonRemoteEdit from '../containers/python-remote/edit';
-import PythonRepositoryEdit from '../containers/python-repository/edit';
 import { Paths } from '../paths';
 import { resetSessionEvents, setSignedIn } from '../session/session-events';
 import {
@@ -1049,18 +1047,6 @@ describe('every repository and remote edit page opened by its address', () => {
       Edit: AnsibleRepositoryEdit,
       route: Paths.ansible.repository.edit,
       list: 'repositories/ansible/ansible/',
-    },
-    {
-      name: 'python remote',
-      Edit: PythonRemoteEdit,
-      route: Paths.python.remote.edit,
-      list: 'remotes/python/python/',
-    },
-    {
-      name: 'python repository',
-      Edit: PythonRepositoryEdit,
-      route: Paths.python.repository.edit,
-      list: 'repositories/python/python/',
     },
   ];
 

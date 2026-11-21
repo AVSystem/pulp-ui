@@ -180,6 +180,11 @@ const REBUILT = [
     endpoint: 'rpm/rpm',
     remote: { url: 'https://pulp.example/zz-e2e/' },
   },
+  {
+    plugin: 'python',
+    endpoint: 'python/python',
+    remote: { url: 'https://pulp.example/zz-e2e/' },
+  },
 ] as const;
 
 for (const { plugin, endpoint, remote: remoteBody } of REBUILT) {

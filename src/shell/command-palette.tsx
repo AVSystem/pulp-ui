@@ -101,7 +101,7 @@ function repositoryScreens(): Record<
     rpm: { label: 'RPM', detail: (name) => repositoryPath('rpm', name) },
     python: {
       label: 'Python',
-      detail: legacy(Paths.python.repository.detail),
+      detail: (name) => repositoryPath('python', name),
     },
     ansible: {
       label: 'Ansible',
