@@ -67,14 +67,29 @@ export const selectedText = (count: number): string =>
   plural(count, { one: '# row selected', other: '# rows selected' });
 
 // The count of selected rows and the menu of actions, as items of the list's
-// toolbar. Nothing is drawn when no action is offered.
+// toolbar. Nothing is drawn when no action is offered and no row is selected.
+// When rows are selected but none of them may be acted on, the count stays and
+// says why there is no menu, so the ticked boxes are not left unexplained.
 export function BulkToolbar<Key extends string>({
   actions,
   count,
   onChoose,
 }: ToolbarProps<Key>): ReactNode {
   if (actions.length === 0) {
-    return null;
+    return count > 0 ? (
+      <>
+        <ToolbarItem>
+          <Content component='small' aria-live='polite'>
+            {selectedText(count)}
+          </Content>
+        </ToolbarItem>
+        <ToolbarItem>
+          <Content component='small'>
+            {t`You may not take a bulk action on the selected rows.`}
+          </Content>
+        </ToolbarItem>
+      </>
+    ) : null;
   }
 
   return (
