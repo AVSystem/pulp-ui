@@ -9,6 +9,20 @@ describe('generated versions', () => {
   });
 });
 
+describe('the container plugin', () => {
+  it('is among the generated apps', () => {
+    expect(generatedVersions.container).toMatch(/^\d/);
+  });
+
+  it('is reported as not installed by a server that lacks it, which only informs', () => {
+    const { container, ...withoutContainer } = generatedVersions;
+
+    expect(versionDifferences(withoutContainer)).toEqual([
+      { name: 'container', kind: 'not-installed', generated: container },
+    ]);
+  });
+});
+
 describe('version differences', () => {
   const generated = { core: '3.120.0', rpm: '3.39.0' };
 
@@ -34,10 +48,12 @@ describe('version differences', () => {
   it('report a plugin the server runs that was not generated', () => {
     expect(
       versionDifferences(
-        { core: '3.120.0', rpm: '3.39.0', container: '2.0.0' },
+        { core: '3.120.0', rpm: '3.39.0', hugging_face: '0.1.0' },
         generated,
       ),
-    ).toEqual([{ name: 'container', kind: 'not-generated', running: '2.0.0' }]);
+    ).toEqual([
+      { name: 'hugging_face', kind: 'not-generated', running: '0.1.0' },
+    ]);
   });
 
   it('report a generated plugin the server does not run', () => {
