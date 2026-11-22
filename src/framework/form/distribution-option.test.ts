@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  contentGuardOf,
   type Protection,
+  contentGuardOf,
 } from '../distributions/protection-choice';
 import { contentUrlPrefix, resolveDistribution } from './distribution-option';
 
@@ -41,7 +41,7 @@ describe(
       expect(
         resolveDistribution(
           'a b',
-          { ticked: true, typedBasePath: 'a b' },
+          { ticked: true, typedBasePath: 'a b', protection: 'public' },
           [],
           true,
         ),
@@ -49,7 +49,7 @@ describe(
       expect(
         resolveDistribution(
           'x',
-          { ticked: true, typedBasePath: 'res/x' },
+          { ticked: true, typedBasePath: 'res/x', protection: 'public' },
           ['res/'],
           true,
         ),
@@ -57,7 +57,7 @@ describe(
       expect(
         resolveDistribution(
           'x',
-          { ticked: true, typedBasePath: 'res/x' },
+          { ticked: true, typedBasePath: 'res/x', protection: 'public' },
           null,
           true,
         ),

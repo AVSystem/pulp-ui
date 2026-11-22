@@ -25,7 +25,9 @@ import {
 import { LabelGroup } from 'src/components';
 
 interface IProps {
-  results: { name: string; id: number | string }[];
+  // `description` is shown under the name of an option and is not part of what
+  // is chosen.
+  results: { name: string; id: number | string; description?: string }[];
   loadResults: (filter: string) => void;
   onSelect: (event, selection, isPlaceholder) => void;
 
@@ -73,7 +75,11 @@ export const Typeahead = ({
   const inputValue = typedText ?? (multiple ? '' : (selectedNames[0] ?? ''));
 
   // the entries the keyboard can move through: enabled options, then the link
-  const options = results.map(({ id, name }) => ({ key: String(id), name }));
+  const options = results.map(({ id, name, description }) => ({
+    key: String(id),
+    name,
+    description,
+  }));
   const optionIds = options.map((_, i) => `${listId}-option-${i}`);
   const linkId = `${listId}-end-link`;
   const focusableIds = [...optionIds, ...(endLink ? [linkId] : [])];
@@ -255,11 +261,12 @@ export const Typeahead = ({
             {t`Not found`}
           </SelectOption>
         ) : (
-          options.map(({ key, name }, i) => (
+          options.map(({ key, name, description }, i) => (
             <SelectOption
               key={key}
               id={optionIds[i]}
               value={name}
+              description={description}
               isFocused={focusedIndex === i}
             >
               {name}

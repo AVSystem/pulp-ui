@@ -57,7 +57,72 @@ async function names(
   );
 }
 
-export const ContentGuardClient = { chunks, names };
+// How many guards one search asks for.
+export const GUARD_SEARCH_LIMIT = 20;
+
+// Every type of content guard a distribution can be protected by, as the server
+// names them, in the order of the names. The guard a container registry manages
+// for itself (`core.content_redirect`) is left out: the server attaches it, and
+// choosing it by hand would protect nothing a person can reason about.
+const SEARCHABLE_TYPES = [
+  'certguard.rhsm',
+  'certguard.x509',
+  'core.composite',
+  'core.envvar_header',
+  'core.header',
+  'core.rbac',
+] as const;
+
+// What a search shows of a guard: where it is, what it is called and, from its
+// address, what kind it is.
+const foundSchema = z.looseObject({
+  pulp_href: pulpHrefSchema,
+  prn: z.string().optional(),
+  name: z.string(),
+});
+
+const foundPageSchema = pageSchemaOf(foundSchema);
+
+export interface GuardMatch {
+  pulp_href: string;
+  name: string;
+}
+
+// One page of a search: how many guards match in all, and the first few.
+export interface GuardSearch {
+  count: number;
+  results: GuardMatch[];
+}
+
+// The guards whose name holds the text, by name, one page of at most `limit`
+// and how many match in all. Blank text lists the first guards. The text is
+// sent only as the value of a filter, never in the address of anything else.
+// The server's refusal or failure is thrown for the field to show.
+async function search(
+  text: string,
+  limit: number = GUARD_SEARCH_LIMIT,
+  options?: RequestInit,
+): Promise<GuardSearch> {
+  const typed = text.trim();
+  const data = await contentguardsList(
+    {
+      ...(typed ? { name__icontains: typed } : {}),
+      limit,
+      ordering: ['name'],
+      pulp_type__in: [...SEARCHABLE_TYPES],
+      fields: ['pulp_href', 'prn', 'name'],
+    },
+    options,
+  );
+  const page = parseResponse(foundPageSchema, data);
+
+  return {
+    count: page.count,
+    results: page.results.map(({ pulp_href, name }) => ({ pulp_href, name })),
+  };
+}
+
+export const ContentGuardClient = { chunks, names, search };
 
 // The kind of a content guard, read from its address
 // (`.../contentguards/<app>/<kind>/<id>/`): "rbac", "x509", "header",

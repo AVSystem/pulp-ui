@@ -90,18 +90,14 @@ describe(
   },
 );
 
-describe(
-  'Unit: the kind of a content guard',
-  { tags: ['unit'] },
-  () => {
-    it.each([
-      ['core/rbac', 'rbac'],
-      ['certguard/x509', 'x509'],
-      ['certguard/rhsm', 'rhsm'],
-      ['core/header', 'header'],
-      ['core/composite', 'composite'],
-    ])('reads %s as %s', (path, kind) => {
-      expect(guardKindOf(at(path, 3))).toBe(kind);
-    });
-  },
-);
+describe('Unit: the kind of a content guard', { tags: ['unit'] }, () => {
+  it.each([
+    ['core/rbac', 'rbac'],
+    ['certguard/x509', 'x509'],
+    ['certguard/rhsm', 'rhsm'],
+    ['core/header', 'header'],
+    ['core/composite', 'composite'],
+  ])('reads %s as %s', (path, kind) => {
+    expect(guardKindOf(at(path, 3))).toBe(kind);
+  });
+});

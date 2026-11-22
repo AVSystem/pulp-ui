@@ -648,7 +648,9 @@ describe(
       await user.click(
         await screen.findByRole('combobox', { name: 'Select a content guard' }),
       );
-      await user.click(await screen.findByRole('option', { name: /customers/ }));
+      await user.click(
+        await screen.findByRole('option', { name: /customers/ }),
+      );
 
       expect(save()).toBeEnabled();
       await user.click(save());

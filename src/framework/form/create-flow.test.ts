@@ -668,11 +668,7 @@ describe(
       );
 
       const outcome = created(await create({ basePath: BASE_PATH }));
-      const alerts = createAlerts(
-        NAME,
-        asked(BASE_PATH),
-        outcome.distribution,
-      );
+      const alerts = createAlerts(NAME, asked(BASE_PATH), outcome.distribution);
 
       expect(outcome.repositoryHref).toBe(REPOSITORY_HREF);
       expect(outcome.distribution).toStrictEqual({ state: 'unconfirmed' });

@@ -13,6 +13,10 @@ import {
   requestErrorText,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
+import {
+  type Chosen,
+  contentGuardOf,
+} from '../distributions/protection-choice';
 import { TASK_POLL_MS, readTaskToEnd } from '../task-end';
 
 // Creates a repository and, only when asked, a distribution named after it, on
@@ -22,9 +26,13 @@ import { TASK_POLL_MS, readTaskToEnd } from '../task-end';
 // it is valid on its own, and the outcome tells the user what was not done.
 // Nothing is ever retried, with the same or with another name or base path.
 
-// What the user asked for beside the repository.
+// What the user asked for beside the repository: the base path and how the
+// distribution is protected. The protection is always a decided one; a request
+// without it is never made, because leaving the choice out would make the
+// distribution public.
 export interface DistributionRequest {
   basePath: string;
+  protection: Chosen;
 }
 
 // What became of the distribution that was asked for.
@@ -182,6 +190,11 @@ export async function createRepositoryWithDistribution({
   if (distribution && !distributions) {
     throw new Error('The plugin has no distributions to create');
   }
+  // Checked before anything is written, so a missing choice leaves nothing
+  // behind, the repository included.
+  const contentGuard = distribution
+    ? contentGuardOf(distribution.protection)
+    : null;
   if (distribution) {
     const blocked = await conflictsOf(body.name, distribution.basePath);
     if (blocked) {
@@ -208,6 +221,7 @@ export async function createRepositoryWithDistribution({
       name: body.name,
       base_path: distribution.basePath,
       repository: repositoryHref,
+      content_guard: contentGuard,
     });
     return {
       kind: 'created',
@@ -225,6 +239,13 @@ export async function createRepositoryWithDistribution({
         : { state: 'failed', reason: failureReason(error) },
     };
   }
+}
+
+// What the distribution that was created says about its protection, as chosen.
+function protectionDescription(protection: Chosen): string {
+  return protection === 'public'
+    ? t`It is public: anyone can download from it without signing in.`
+    : t`It is protected by the content guard you chose.`;
 }
 
 // The alerts shown after a create: the repository, and for a requested
@@ -276,10 +297,11 @@ export function createAlerts(
         },
       ];
       if (distribution && outcome.state === 'created') {
-        const { basePath } = distribution;
+        const { basePath, protection } = distribution;
         alerts.push({
           variant: 'success',
           title: t`Created distribution "${name}" at base path ${basePath}.`,
+          description: protectionDescription(protection),
         });
       }
       return alerts;

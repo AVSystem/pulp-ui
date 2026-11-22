@@ -89,7 +89,7 @@ describe(
       expect(publicRadio()).toBeChecked();
       expect(reported).toStrictEqual(['public']);
       expect(screen.queryByRole('combobox')).toBeNull();
-      expect(screen.getByText(/without signing in/i)).toBeInTheDocument();
+      expect(screen.getByText(/no content guard/)).toBeInTheDocument();
     });
 
     it('reports the guard that is picked, and goes back to undecided when the choice is cleared', async () => {
@@ -116,7 +116,9 @@ describe(
 
       await user.click(protectedRadio());
       await user.click(await picker());
-      await user.click(await screen.findByRole('option', { name: /customers/ }));
+      await user.click(
+        await screen.findByRole('option', { name: /customers/ }),
+      );
       await user.click(publicRadio());
 
       expect(reported.at(-1)).toBe('public');
@@ -128,7 +130,10 @@ describe(
       const reported: Protection[] = [];
 
       renderWithProviders(
-        <Harness reported={reported} initial={{ guard: customers.pulp_href }} />,
+        <Harness
+          reported={reported}
+          initial={{ guard: customers.pulp_href }}
+        />,
       );
 
       expect(protectedRadio()).toBeChecked();
@@ -241,10 +246,7 @@ describe(
     it('names a guard the user may not see as such', async () => {
       server.use(contentGuardListHandler([customers]).handler);
       renderWithProviders(
-        <GuardField
-          value={at('core/rbac', 77)}
-          onChange={() => undefined}
-        />,
+        <GuardField value={at('core/rbac', 77)} onChange={() => undefined} />,
       );
 
       expect(
