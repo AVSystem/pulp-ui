@@ -250,6 +250,44 @@ describe(
       expect(screen.queryByText('zz-foreign')).toBeNull();
     });
 
+    it('links each name to the distribution page and marks only a public distribution as Public', async () => {
+      const repository = pluginRepository('file', { name: 'tools' });
+      const guard =
+        '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-000000000001/';
+      serveLab({
+        repository,
+        distributions: () => [
+          pluginDistribution('file', {
+            name: 'open dist/1',
+            repository: repository.pulp_href,
+            content_guard: null,
+          }),
+          pluginDistribution('file', {
+            name: 'guarded-dist',
+            repository: repository.pulp_href,
+            content_guard: guard,
+          }),
+        ],
+        publications: () => [
+          pluginPublication('file', { repository: repository.pulp_href }),
+        ],
+      });
+
+      renderTab();
+
+      const open = within(await rowOf('open dist/1'));
+      expect(open.getByRole('link', { name: 'open dist/1' })).toHaveAttribute(
+        'href',
+        '/file/distributions/open%20dist%2F1/',
+      );
+      expect(open.getByText('Public')).toBeVisible();
+      const guarded = within(await rowOf('guarded-dist'));
+      expect(
+        guarded.getByRole('link', { name: 'guarded-dist' }),
+      ).toHaveAttribute('href', '/file/distributions/guarded-dist/');
+      expect(guarded.queryByText('Public')).toBeNull();
+    });
+
     it('says a distribution without a publication serves nothing, for an administrator', async () => {
       serveLab({
         distributions: (repository) => [

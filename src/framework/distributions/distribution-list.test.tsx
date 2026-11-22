@@ -199,6 +199,39 @@ describe(
       ).not.toBeInTheDocument();
     });
 
+    it('links the name of each row of a plugin to its distribution page, and the guarded-URL note too', async () => {
+      const guard = contentGuard({ name: 'customers-only' });
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'guarded one/1',
+              content_guard: guard.pulp_href,
+            }),
+          ],
+          python: [pluginDistribution('python', { name: 'wheels' })],
+        },
+        guards: [guard],
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      const guarded = rowOf('guarded one/1');
+      expect(
+        within(guarded).getByRole('link', { name: 'guarded one/1' }),
+      ).toHaveAttribute('href', '/file/distributions/guarded%20one%2F1/');
+      expect(
+        within(guarded).getByRole('link', {
+          name: 'The client snippet shows how.',
+        }),
+      ).toHaveAttribute('href', '/file/distributions/guarded%20one%2F1/');
+      expect(
+        within(rowOf('wheels')).getByRole('link', { name: 'wheels' }),
+      ).toHaveAttribute('href', '/python/distributions/wheels/');
+    });
+
     it('reads one page of fifty by name, limited to the types of the installed plugins', async () => {
       reportPlugins(['core', 'file', 'deb', 'python', 'maven']);
       const lab = serveLab({

@@ -257,12 +257,72 @@ describe('Unit: baseUrlsByRepository', { tags: ['unit'] }, () => {
     expect(map.get(a.pulp_href)?.length).toBe(3);
     expect(map.get(a.pulp_href)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('/by-repository/'),
-        expect.stringContaining('/by-version/'),
-        expect.stringContaining('/by-publication/'),
+        expect.objectContaining({
+          url: expect.stringContaining('/by-repository/'),
+        }),
+        expect.objectContaining({
+          url: expect.stringContaining('/by-version/'),
+        }),
+        expect.objectContaining({
+          url: expect.stringContaining('/by-publication/'),
+        }),
       ]),
     );
-    expect(map.get(b.pulp_href)).toEqual([expect.stringContaining('/other/')]);
+    expect(map.get(b.pulp_href)).toEqual([
+      expect.objectContaining({ url: expect.stringContaining('/other/') }),
+    ]);
+  });
+
+  it('names the distribution behind each address and says whether it is public', () => {
+    const repository = pluginRepository('file');
+    const guard =
+      '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-000000000001/';
+    const rows = [
+      pluginDistribution('file', {
+        name: 'open',
+        base_path: 'open',
+        repository: repository.pulp_href,
+        content_guard: null,
+      }),
+      pluginDistribution('file', {
+        name: 'closed',
+        base_path: 'closed',
+        repository: repository.pulp_href,
+        content_guard: guard,
+      }),
+    ];
+
+    const map = baseUrlsByRepository(
+      rows.map((row) => ({ ...row, pulp_labels: {} })),
+      new Map(),
+    );
+
+    expect(map.get(repository.pulp_href)).toEqual([
+      {
+        url: rows[1]?.base_url,
+        name: 'closed',
+        isPublic: false,
+      },
+      { url: rows[0]?.base_url, name: 'open', isPublic: true },
+    ]);
+  });
+
+  it('never takes a row that does not carry the guard field for a public one', () => {
+    const repository = pluginRepository('file');
+    const row = pluginDistribution('file', {
+      name: 'cut',
+      repository: repository.pulp_href,
+    });
+    const { content_guard: _guard, ...cut } = row;
+
+    const map = baseUrlsByRepository(
+      [{ ...cut, pulp_labels: {} } as never],
+      new Map(),
+    );
+
+    expect(map.get(repository.pulp_href)).toEqual([
+      expect.objectContaining({ name: 'cut', isPublic: false }),
+    ]);
   });
 
   it('leaves a publication-bound distribution out when its publication is unknown', () => {
@@ -457,7 +517,7 @@ describe('Unit: useDistributionIndex', { tags: ['unit'] }, () => {
     await waitFor(() => expect(result.current.status).toBe('success'));
     expect(publications.queries).toHaveLength(0);
     expect(result.current.baseUrlsByRepository?.get(f.a.pulp_href)).toEqual([
-      f.byRepository.base_url,
+      expect.objectContaining({ url: f.byRepository.base_url }),
     ]);
   });
 
@@ -571,7 +631,7 @@ describe('Unit: useDistributionIndex', { tags: ['unit'] }, () => {
 
     await waitFor(() => expect(result.current.status).toBe('success'));
     expect(result.current.baseUrlsByRepository?.get(f.a.pulp_href)).toEqual([
-      f.byPublication.base_url,
+      expect.objectContaining({ url: f.byPublication.base_url }),
     ]);
   });
 });
