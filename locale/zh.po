@@ -1039,6 +1039,7 @@ msgstr "返回"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
 msgid "Base path"
@@ -1414,6 +1415,10 @@ msgstr "客户端证书"
 #: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "客户端密钥"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Client URLs could not be read."
+msgstr ""
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
@@ -2588,12 +2593,15 @@ msgstr "分发 {name} 未显示，因此未被删除。"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/menu.tsx
 msgid "Distributions"
 msgstr "分发"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Distributions could not be displayed."
 msgstr "无法显示分发。"
 
@@ -2624,6 +2632,10 @@ msgstr "已删除的分发：{0}"
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distributions removed: {0}."
 msgstr "已删除的分发：{0}。"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Distributions will appear once created."
+msgstr ""
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -3461,6 +3473,7 @@ msgstr "快速"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4588,6 +4601,7 @@ msgstr "我的配置集"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
@@ -4807,9 +4821,9 @@ msgstr "没有分发提供此仓库。仅删除该仓库。"
 msgid "No distributions created"
 msgstr "未创建分发"
 
-#: src/containers/collection-detail/collection-distributions.tsx
-#~ msgid "No distributions yet"
-#~ msgstr "还没有发布"
+#: src/framework/distributions/distribution-list.tsx
+msgid "No distributions yet"
+msgstr "还没有发布"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5043,6 +5057,7 @@ msgstr "还没有用户"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/labels/label-editor.tsx
@@ -5092,6 +5107,7 @@ msgstr "未找到"
 #~ msgid "Not found image"
 #~ msgstr "未找到镜像"
 
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "Not loaded"
@@ -5603,6 +5619,7 @@ msgstr "请使用下面的按钮添加所有者。"
 #~ msgstr "请提供命名空间名称"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "插件"
 
@@ -8181,6 +8198,7 @@ msgid "The password to be used for authentication when syncing. This is not requ
 msgstr "同步时要用于身份验证的密码。在使用令牌时不需要此密码。"
 
 #: src/app-routes.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "无法加载插件列表"
@@ -8862,6 +8880,7 @@ msgstr "上传"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx

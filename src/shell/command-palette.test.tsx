@@ -251,9 +251,9 @@ describe('palette', () => {
       'Repositories - RPM',
       'Repositories - Python',
       'Repositories - Ansible',
+      'Distributions',
       'Packages and artifacts - RPM',
       'Packages and artifacts - Python',
-      'Remotes - File',
     ]);
     expect(screen.getByText('Go to')).toBeVisible();
   });
@@ -279,6 +279,7 @@ describe('palette', () => {
 
     await waitFor(() =>
       expect(optionNames()).toEqual([
+        'Distributions',
         'Workers and status',
         'Users and groups - Users',
         'Users and groups - Groups',

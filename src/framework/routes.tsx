@@ -5,6 +5,7 @@ import type { FrameworkPlugin, PluginManifest } from './manifest';
 import {
   type FrameworkPattern,
   type RepositoryTab,
+  corePatterns,
   patternsOf,
 } from './route-patterns';
 
@@ -165,6 +166,14 @@ const remoteCreateScreen = (plugin: FrameworkPlugin) =>
     ),
   );
 
+// The list of the distributions of every installed plugin. It belongs to no
+// plugin, so it is one screen and not one per descriptor.
+const DistributionListScreen = lazyScreen(() =>
+  import(
+    /* webpackChunkName: "framework" */ 'src/framework/distributions/distribution-list'
+  ).then(({ DistributionList }) => ({ default: DistributionList })),
+);
+
 // The component of a pattern, or null while its screen does not exist yet:
 // such a pattern is not routed.
 function componentOf(
@@ -219,4 +228,19 @@ export function frameworkRoutes(
         return component ? [{ component, path: pattern.pattern, plugin }] : [];
       });
   });
+}
+
+// The route of a screen that belongs to no plugin, in the shape the
+// application's route table has. It passes no plugin gate: the screen itself
+// reads which plugins are installed.
+export type FrameworkCoreRoute = Omit<FrameworkRoute, 'plugin'>;
+
+// The routes of the screens that list the objects of every plugin at once. A
+// pattern whose screen does not exist yet is not routed.
+export function frameworkCoreRoutes(): FrameworkCoreRoute[] {
+  return corePatterns().flatMap(({ pattern, screen }) =>
+    screen === 'distribution-list'
+      ? [{ component: DistributionListScreen, path: pattern }]
+      : [],
+  );
 }

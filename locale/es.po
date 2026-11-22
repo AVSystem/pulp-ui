@@ -1039,6 +1039,7 @@ msgstr "Volver"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
 msgid "Base path"
@@ -1414,6 +1415,10 @@ msgstr "Certificado de cliente"
 #: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "Clave de cliente"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Client URLs could not be read."
+msgstr ""
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
@@ -2588,12 +2593,15 @@ msgstr "La distribución {name} no se mostraba, por lo que no se eliminó."
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/menu.tsx
 msgid "Distributions"
 msgstr "Distribuciones"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Distributions could not be displayed."
 msgstr "No se pudieron mostrar las distribuciones."
 
@@ -2624,6 +2632,10 @@ msgstr "Distribuciones eliminadas: {0}"
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distributions removed: {0}."
 msgstr "Distribuciones eliminadas: {0}."
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Distributions will appear once created."
+msgstr ""
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -3461,6 +3473,7 @@ msgstr "Rápido"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4588,6 +4601,7 @@ msgstr "Mi perfil"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
@@ -4807,9 +4821,9 @@ msgstr "Ninguna distribución sirve este repositorio. Solo se elimina el reposit
 msgid "No distributions created"
 msgstr "No se ha creado ninguna distribución"
 
-#: src/containers/collection-detail/collection-distributions.tsx
-#~ msgid "No distributions yet"
-#~ msgstr "Aún no hay distribuciones"
+#: src/framework/distributions/distribution-list.tsx
+msgid "No distributions yet"
+msgstr "Aún no hay distribuciones"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5043,6 +5057,7 @@ msgstr "No existe ningún usuario"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/labels/label-editor.tsx
@@ -5092,6 +5107,7 @@ msgstr "No encontrado"
 #~ msgid "Not found image"
 #~ msgstr "No encontrado"
 
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "Not loaded"
@@ -5603,6 +5619,7 @@ msgstr "Añada un propietario con los botones de abajo."
 #~ msgstr "Indique el nombre del espacio de nombres"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "Plugin"
 
@@ -8181,6 +8198,7 @@ msgid "The password to be used for authentication when syncing. This is not requ
 msgstr "Contraseña que se utilizará para la autenticación al sincronizar. Esto no es necesario cuando se utiliza un token."
 
 #: src/app-routes.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "No se pudo cargar la lista de plugins"
@@ -8862,6 +8880,7 @@ msgstr "Subidas"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx

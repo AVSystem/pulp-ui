@@ -323,7 +323,6 @@ describe('navigation menu', () => {
     const nav = screen.getByRole('navigation', { name: 'Main' });
     for (const text of [
       'Overview',
-      'Distributions',
       'Content guards',
       'Search',
       'Collections',
@@ -911,6 +910,7 @@ describe('menu model', () => {
     expect(listed).toEqual([
       'Repositories - deb',
       'Repositories - Python',
+      'Distributions',
       'Packages and artifacts - Python',
       'Remotes - deb',
       'Remotes - Python',

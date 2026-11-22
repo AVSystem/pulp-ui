@@ -1,6 +1,7 @@
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { type ZodType, z } from 'zod';
+import { chunkByUrl } from 'src/entities/batch';
 import {
   pulpHrefSchema,
   repositoryOfVersion,
@@ -70,6 +71,11 @@ export const DISTRIBUTION_INDEX_FIELDS = [
   'pulp_created',
   'checkpoint',
 ] as const;
+
+// The fields a read of distributions at known addresses asks for when it needs
+// only where each one is reached: enough for the row to be a distribution, and
+// the base URL.
+const URL_FIELDS = ['pulp_href', 'name', 'base_path', 'base_url'] as const;
 
 // How many distributions one request of the index reads: the most the server
 // answers on one page.
@@ -254,6 +260,13 @@ export interface DistributionEntity<Row, TCreate, TUpdate> {
   // The address a client of the plugin uses to reach the distribution, or null
   // when the row names none.
   clientUrlOf: (row: Row) => string | null;
+  // Splits distribution addresses into groups, each read by one request whose
+  // URL stays under the budget. Every address is kept once, in order.
+  chunks: (hrefs: readonly string[]) => string[][];
+  // The distributions at these addresses, with what is needed to tell where a
+  // client reaches each one, read with one request. The group should come from
+  // `chunks`; an empty group sends nothing.
+  ofHrefs: (hrefs: readonly string[], options?: Options) => Promise<Row[]>;
   // Every distribution of the plugin, read page after page with the fields of
   // DISTRIBUTION_INDEX_FIELDS. It ends when the server names no next page or a
   // page comes back empty (a list that shrank while it was read never loops).
@@ -272,6 +285,7 @@ export function makeDistributionEntity<
   schema,
   api,
   clientUrl = (row) => row.base_url,
+  urlFields = [],
 }: {
   app: string;
   schema: ZodType<Row>;
@@ -279,11 +293,20 @@ export function makeDistributionEntity<
   // Where a client of the plugin reaches a distribution. Defaults to the base
   // URL of the row; a plugin that is reached elsewhere says where.
   clientUrl?: (row: Row) => string | null | undefined;
+  // The fields beyond the base URL that `clientUrl` reads.
+  urlFields?: readonly string[];
 }): DistributionEntity<Row, TCreate, TUpdate> {
   const pageSchema = pageSchemaOf(schema);
 
   const requestOf = (params: DistributionListParams) =>
     asParams<TListParams>(toListRequest(params, TEXT_FILTERS));
+  // The request that reads the distributions at some addresses on one page.
+  const ofHrefsRequest = (hrefs: readonly string[]) =>
+    requestOf({
+      pulp_href__in: [...hrefs],
+      page_size: Math.max(hrefs.length, 1),
+      fields: [...URL_FIELDS, ...urlFields],
+    });
 
   return {
     app,
@@ -313,6 +336,18 @@ export function makeDistributionEntity<
         await api.unsetLabel(href, { key }, options),
       ),
     clientUrlOf: (row) => clientUrl(row) ?? null,
+    chunks: (hrefs) =>
+      chunkByUrl(
+        (group) => api.listUrl(ofHrefsRequest(group)),
+        Array.from(new Set(hrefs)),
+      ),
+    ofHrefs: async (hrefs, options) => {
+      if (hrefs.length === 0) {
+        return [];
+      }
+      const data = await api.list(ofHrefsRequest(hrefs), options);
+      return (parseResponse(pageSchema, data) as Page<Row>).results;
+    },
     index: async (options) => {
       const byHref = new Map<string, Row>();
       let received = 0;

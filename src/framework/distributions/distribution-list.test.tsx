@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -13,6 +13,7 @@ import {
   coreDistributionListHandler,
   coreDistributionRow,
   distributionListHandler,
+  listOf,
   pluginDistribution,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -137,14 +138,14 @@ describe(
         python: [
           pluginDistribution('python', {
             name: 'wheels',
-            base_path: 'wheels',
-            base_url: 'https://pulp.example/pypi/wheels/',
+            base_path: 'index/wheels',
+            base_url: 'https://pulp.example/pypi/index/wheels/',
           }),
         ],
         ansible: [
           pluginDistribution('ansible', {
             name: 'galaxy',
-            base_path: 'galaxy',
+            base_path: 'collections/galaxy',
           }),
         ],
       });
@@ -171,14 +172,16 @@ describe(
       // python is reached through its own index and ansible through its
       // collection source, never through the content path
       expect(
-        within(row('wheels')).getByText('https://pulp.example/pypi/wheels/'),
+        within(row('wheels')).getByText(
+          'https://pulp.example/pypi/index/wheels/',
+        ),
       ).toBeVisible();
       expect(
         within(row('wheels')).queryByText(/pulp\/content/),
       ).not.toBeInTheDocument();
       expect(
         within(row('galaxy')).getByText(
-          'https://pulp.example/pulp_ansible/galaxy/galaxy/',
+          'https://pulp.example/pulp_ansible/galaxy/collections/galaxy/',
         ),
       ).toBeVisible();
       expect(
@@ -245,11 +248,12 @@ describe(
       const strange = coreDistributionRow({
         ...pluginDistribution('file', {
           name: 'strange',
-          base_path: 'strange',
+          base_path: 'odd/path',
         }),
         prn: 'prn:zzz.zzzdistribution:1',
       });
-      server.use(coreDistributionListHandler([strange]).handler);
+      // a server that ignores the type filter answers the row all the same
+      server.use(listOf(`${API}/distributions/`, [strange]).handler);
 
       renderList();
       const table = await tableOf();
@@ -439,7 +443,6 @@ describe(
       const lab = serveLab({ file: named('file', 1) });
 
       renderList();
-      await act(async () => {});
 
       await screen.findByText(
         'The plugin list could not be loaded',

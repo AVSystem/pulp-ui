@@ -9,6 +9,7 @@ import {
 import CloudDownloadAltIcon from '@patternfly/react-icons/dist/esm/icons/cloud-download-alt-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import GlobeIcon from '@patternfly/react-icons/dist/esm/icons/globe-icon';
 import HeartbeatIcon from '@patternfly/react-icons/dist/esm/icons/heartbeat-icon';
 import KeyIcon from '@patternfly/react-icons/dist/esm/icons/key-icon';
 import LayerGroupIcon from '@patternfly/react-icons/dist/esm/icons/layer-group-icon';
@@ -28,7 +29,11 @@ import {
 import { Link, useLocation } from 'react-router';
 import { NavList } from 'src/components';
 import { type FrameworkPlugin, PLUGIN_MANIFESTS } from './framework/manifest';
-import { remoteListPath, repositoryListPath } from './framework/route-patterns';
+import {
+  distributionListPath,
+  remoteListPath,
+  repositoryListPath,
+} from './framework/route-patterns';
 import { Paths, formatPath } from './paths';
 import { usePermissions } from './permissions';
 import { usePlugins } from './plugins';
@@ -170,6 +175,21 @@ function buildGroups(
     icon: HeartbeatIcon,
   };
 
+  // The one list of every plugin's distributions is offered once at least one
+  // plugin that has distributions is installed.
+  const distributions: IMenuEntry[] = PLUGIN_MANIFESTS.some(({ plugin }) =>
+    installed.has(plugin),
+  )
+    ? [
+        {
+          id: 'distributions',
+          label: t`Distributions`,
+          path: formatPath(distributionListPath()),
+          icon: GlobeIcon,
+        },
+      ]
+    : [];
+
   const sections: IMenuEntry[] = [
     {
       id: 'repositories',
@@ -177,6 +197,7 @@ function buildGroups(
       icon: LayerGroupIcon,
       entries: pluginEntries(installed, 'repositories'),
     },
+    ...distributions,
     {
       id: 'packages',
       label: t`Packages and artifacts`,
@@ -189,7 +210,7 @@ function buildGroups(
       icon: CloudDownloadAltIcon,
       entries: pluginEntries(installed, 'remotes'),
     },
-  ].filter((section) => section.entries.length > 0);
+  ].filter((section) => !section.entries || section.entries.length > 0);
 
   const groups: IMenuGroup[] = [
     { id: 'content', title: t`Content`, entries: sections },

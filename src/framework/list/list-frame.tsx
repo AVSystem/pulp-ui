@@ -43,7 +43,7 @@ import {
 // descriptor's columns and filters, so an address can only ask for what the
 // screen offers.
 export function useListAddress(
-  columns: readonly ColumnDef<never>[],
+  columns: readonly Pick<ColumnDef<never>, 'sortField'>[],
   filters: readonly FilterDef[],
 ) {
   const location = useLocation();

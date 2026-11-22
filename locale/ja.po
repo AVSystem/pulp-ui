@@ -1039,6 +1039,7 @@ msgstr "戻る"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
 msgid "Base path"
@@ -1414,6 +1415,10 @@ msgstr "クライアント証明書"
 #: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "クライアントキー"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Client URLs could not be read."
+msgstr ""
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
@@ -2588,12 +2593,15 @@ msgstr "ディストリビューション {name} は表示されていなかっ�
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/menu.tsx
 msgid "Distributions"
 msgstr "ディストリビューション"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Distributions could not be displayed."
 msgstr "ディストリビューションを表示できませんでした。"
 
@@ -2624,6 +2632,10 @@ msgstr "削除されたディストリビューション: {0}"
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distributions removed: {0}."
 msgstr "削除されたディストリビューション: {0}。"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Distributions will appear once created."
+msgstr ""
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -3461,6 +3473,7 @@ msgstr "高速"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4588,6 +4601,7 @@ msgstr "自分のプロファイル"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
@@ -4807,9 +4821,9 @@ msgstr "このリポジトリーを配信するディストリビューション
 msgid "No distributions created"
 msgstr "作成されたディストリビューションはありません"
 
-#: src/containers/collection-detail/collection-distributions.tsx
-#~ msgid "No distributions yet"
-#~ msgstr "ディストリビューションはまだありません"
+#: src/framework/distributions/distribution-list.tsx
+msgid "No distributions yet"
+msgstr "ディストリビューションはまだありません"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5043,6 +5057,7 @@ msgstr "まだユーザーはありません"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/labels/label-editor.tsx
@@ -5092,6 +5107,7 @@ msgstr "見つかりません"
 #~ msgid "Not found image"
 #~ msgstr "イメージが見つかりません"
 
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "Not loaded"
@@ -5603,6 +5619,7 @@ msgstr "下のボタンを使用して所有者を追加してください。"
 #~ msgstr "名前空間名を記入してください"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "プラグイン"
 
@@ -8181,6 +8198,7 @@ msgid "The password to be used for authentication when syncing. This is not requ
 msgstr "同期時に認証に使用するパスワード。トークンを使用する場合は不要です。"
 
 #: src/app-routes.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "プラグイン一覧を読み込めませんでした"
@@ -8862,6 +8880,7 @@ msgstr "アップロード"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx

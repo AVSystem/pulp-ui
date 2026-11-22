@@ -394,14 +394,14 @@ const PULP_TYPE_OF_MODEL: Record<string, string> = {
 // a distribution of any plugin. It names neither the publication nor the
 // plugin's own client address, and its base URL is always the content path.
 export function coreDistributionRow(row: IDistribution): IDistribution {
-  const {
-    publication: _publication,
-    client_url: _clientUrl,
-    ...rest
-  } = row as IDistribution & { client_url?: unknown };
+  const kept = Object.fromEntries(
+    Object.entries(row).filter(
+      ([key]) => key !== 'publication' && key !== 'client_url',
+    ),
+  );
 
   return {
-    ...rest,
+    ...kept,
     base_url: `${CONTENT_HOST}/pulp/content/${row.base_path}/`,
   } as IDistribution;
 }

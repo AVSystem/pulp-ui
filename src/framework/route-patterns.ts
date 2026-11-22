@@ -14,6 +14,7 @@ import type { FrameworkPlugin } from './manifest';
 // registered as a route (see frameworkRoutes); the pattern still stands, so
 // the crawler and the legacy redirects can rely on it.
 export type ScreenKind =
+  | 'distribution-list'
   | 'repository-list'
   | 'repository-detail'
   | 'repository-tab'
@@ -74,6 +75,12 @@ export function patternsOf(plugin: FrameworkPlugin): FrameworkPattern[] {
   ];
 }
 
+// The addresses that belong to no plugin: the screens that list objects of
+// every plugin at once.
+export function corePatterns(): FrameworkPattern[] {
+  return [{ pattern: '/distributions', screen: 'distribution-list' }];
+}
+
 export interface LegacyPattern {
   // The address that existed before the screens moved onto the framework.
   pattern: string;
@@ -95,6 +102,9 @@ export function legacyPatternsOf(plugin: FrameworkPlugin): LegacyPattern[] {
     { pattern: `${remotes}/edit/_`, screen: 'remote-create' },
   ];
 }
+
+// The list of the distributions of every plugin.
+export const distributionListPath = () => fillPath('/distributions');
 
 // The address of one object. A name is encoded into a single segment; a
 // version number is spelled as a string because 0 is a version too, and the

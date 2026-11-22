@@ -5,6 +5,7 @@ import {
   coreDistributionListHandler,
   coreDistributionRow,
   distributionListHandler,
+  listOf,
   pluginDistribution,
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
@@ -59,7 +60,11 @@ describe('Unit: the type of a distribution row', { tags: ['unit'] }, () => {
   );
 
   it('reads the plugin from the address when the row carries no PRN', () => {
-    const { prn: _prn, ...row } = pluginDistribution('python');
+    const row = Object.fromEntries(
+      Object.entries(pluginDistribution('python')).filter(
+        ([key]) => key !== 'prn',
+      ),
+    ) as { pulp_href: string };
 
     expect(pluginOfDistribution(row)).toBe('python');
   });
@@ -206,13 +211,14 @@ describe(
         pluginDistribution('file', { name: 'files', base_path: 'files' }),
       ].map(coreDistributionRow);
       // a server that ignores the type filter answers every row
-      server.use(coreDistributionListHandler(rows).handler);
+      server.use(listOf('/pulp/api/v3/distributions/', rows).handler);
 
       const page = await distributionPage({ plugins: ['file'] });
 
-      expect(page.results.map(({ name }) => name)).toEqual(
-        ['files', 'strange'].sort(),
-      );
+      expect(page.results.map(({ name }) => name)).toEqual([
+        'strange',
+        'files',
+      ]);
       const odd = page.results.find(({ name }) => name === 'strange');
       expect(odd?.plugin).toBeNull();
       expect(odd?.typeName).toBe('zzz.zzzdistribution');

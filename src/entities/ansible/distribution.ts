@@ -38,4 +38,5 @@ export const ansibleDistribution = makeDistributionEntity({
     unsetLabel: distributionsAnsibleAnsibleUnsetLabel,
   },
   clientUrl: (row) => row.client_url,
+  urlFields: ['client_url'],
 });
