@@ -241,12 +241,13 @@ describe(
             new RegExp(`https://pulp.example/served/${name}/PULP_MANIFEST`),
           ),
         ).toBeVisible();
-        expect(within(row).queryByText(/Not served/)).toBeNull();
+        expect(within(row).queryByText(/Serves nothing/)).toBeNull();
+        expect(within(row).queryByText(/Cannot be checked/)).toBeNull();
       }
       expect(screen.queryByText('zz-foreign')).toBeNull();
     });
 
-    it('shows the not served label next to a distribution without a publication', async () => {
+    it('says a distribution without a publication serves nothing, for an administrator', async () => {
       serveLab({
         distributions: (repository) => [
           pluginDistribution('file', { name: 'bare', repository }),
@@ -256,7 +257,95 @@ describe(
       renderTab();
 
       expect(
-        within(await rowOf('bare')).getByText(/Not served: no publication/),
+        within(await rowOf('bare')).getByText(
+          'Serves nothing (404): no publication',
+        ),
+      ).toBeVisible();
+    });
+
+    it('says which version an older publication serves and which is the latest, for an administrator', async () => {
+      const bare = pluginRepository('file', { name: 'tools' });
+      serveLab({
+        repository: {
+          ...bare,
+          latest_version_href: `${bare.pulp_href}versions/2/`,
+        },
+        distributions: (href) => [
+          pluginDistribution('file', { name: 'older', repository: href }),
+        ],
+        publications: (href) => [
+          pluginPublication('file', {
+            repository: href,
+            repository_version: `${href}versions/1/`,
+          }),
+        ],
+      });
+
+      renderTab();
+
+      expect(
+        within(await rowOf('older')).getByText('Serves version 1, latest is 2'),
+      ).toBeVisible();
+    });
+
+    it('says a distribution bound to nothing it can check cannot be checked for a user who may not read publications, and never that it serves nothing', async () => {
+      permissions.stop();
+      permissions = servePermissions({ id: 7, isStaff: false });
+      serveLab({
+        // the viewer's publication list is empty although publications exist
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'bare', repository }),
+        ],
+      });
+
+      renderTab();
+
+      expect(
+        within(await rowOf('bare')).getByText('Cannot be checked'),
+      ).toBeVisible();
+      expect(screen.queryByText(/Serves nothing/)).toBeNull();
+    });
+
+    it('tells a user who holds the publication view permission the truth', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filepublication']],
+      });
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'bare', repository }),
+        ],
+      });
+
+      renderTab();
+
+      expect(
+        within(await rowOf('bare')).getByText(
+          'Serves nothing (404): no publication',
+        ),
+      ).toBeVisible();
+      expect(screen.queryByText(/Cannot be checked/)).toBeNull();
+    });
+
+    it('says why it cannot be checked when the label is focused', async () => {
+      permissions.stop();
+      permissions = servePermissions({ id: 7, isStaff: false });
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'bare', repository }),
+        ],
+      });
+
+      const { user } = renderTab();
+
+      await user.hover(
+        within(await rowOf('bare')).getByText('Cannot be checked'),
+      );
+
+      expect(
+        await screen.findByText(/may not read the publications/),
       ).toBeVisible();
     });
 
