@@ -6,7 +6,7 @@ import { parseResponse } from 'src/entities/response-shape';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useSessionEnded } from 'src/session/session-events';
 import { servedState } from 'src/utilities/distribution-serving';
-import { type Page, pageSchemaOf } from './model';
+import { type Page, labelResponseSchema, pageSchemaOf } from './model';
 import {
   type PublicationBase,
   type PublicationEntity,
@@ -104,7 +104,16 @@ export type BindingField = 'repository' | 'publication' | 'repository_version';
 // be refused or ignored.
 export const DISTRIBUTION_BINDINGS: Readonly<
   Record<string, readonly BindingField[]>
-> = {};
+> = {
+  file: ['repository', 'publication', 'repository_version'],
+  deb: ['repository', 'publication', 'repository_version'],
+  rpm: ['repository', 'publication', 'repository_version'],
+  python: ['repository', 'publication', 'repository_version'],
+  maven: ['repository', 'repository_version'],
+  npm: ['repository', 'repository_version'],
+  ansible: ['repository', 'repository_version'],
+  container: ['repository', 'repository_version'],
+};
 
 // What a distribution serves, as one new binding: exactly one of the fields,
 // the address of the object to serve.
@@ -112,14 +121,36 @@ export type DistributionBinding = Partial<Record<BindingField, string>>;
 
 // The body of a change of what a distribution serves: the new binding and null
 // for every other binding field the plugin's distribution has, so the
-// distribution is never left bound to two things.
+// distribution is never left bound to two things. A binding the plugin has no
+// field for, no binding and more than one binding are refused: each would send
+// a body that does not say what the distribution should serve.
 export function bindingChange(
   plugin: string,
   binding: DistributionBinding,
 ): Record<string, string | null> {
-  void plugin;
-  void binding;
-  return {};
+  const fields = Object.entries(DISTRIBUTION_BINDINGS).find(
+    ([name]) => name === plugin,
+  )?.[1];
+  if (!fields) {
+    throw new Error(`Unknown plugin ${plugin}: it has no distribution`);
+  }
+  const given = Object.entries(binding).filter(
+    (entry): entry is [BindingField, string] => entry[1] !== undefined,
+  );
+  if (given.length !== 1) {
+    throw new Error('A binding change names exactly one thing to serve');
+  }
+  const [[field, address]] = given as [[BindingField, string]];
+  if (!fields.includes(field)) {
+    throw new Error(`A ${plugin} distribution has no ${field} to bind`);
+  }
+  if (address === '') {
+    throw new Error(`The ${field} to serve is empty`);
+  }
+
+  return Object.fromEntries(
+    fields.map((name) => [name, name === field ? address : null]),
+  );
 }
 
 // What a distribution is created with: the name, the path it is served under,
@@ -135,11 +166,19 @@ export interface DistributionCreate extends DistributionBinding {
 }
 
 // The body of a create: the fields of the input that are given, and no other.
+// Labels count as given when there is at least one.
 export function distributionCreateBody(
   input: DistributionCreate,
 ): DistributionCreate {
-  void input;
-  return {} as DistributionCreate;
+  const { pulp_labels: labels, ...rest } = input;
+  const given = Object.entries(rest).filter(([, value]) => value !== undefined);
+
+  return {
+    ...(Object.fromEntries(given) as unknown as DistributionCreate),
+    ...(labels && Object.keys(labels).length > 0
+      ? { pulp_labels: labels }
+      : {}),
+  };
 }
 
 // What a plugin's generated client offers for its distributions.
@@ -235,7 +274,6 @@ export function makeDistributionEntity<
   clientUrl?: (row: Row) => string | null | undefined;
 }): DistributionEntity<Row, TCreate, TUpdate> {
   const pageSchema = pageSchemaOf(schema);
-  void clientUrl;
 
   const requestOf = (params: DistributionListParams) =>
     asParams<TListParams>(toListRequest(params, TEXT_FILTERS));
@@ -257,9 +295,17 @@ export function makeDistributionEntity<
     update: async (href, body, options) =>
       parseUpdate(schema, await api.partialUpdate(href, body, options)),
     remove: async (href, options) => taskOf(await api.remove(href, options)),
-    setLabel: async () => ({ key: '' }),
-    unsetLabel: async () => ({ key: '' }),
-    clientUrlOf: () => null,
+    setLabel: async (href, label, options) =>
+      parseResponse(
+        labelResponseSchema,
+        await api.setLabel(href, label, options),
+      ),
+    unsetLabel: async (href, key, options) =>
+      parseResponse(
+        labelResponseSchema,
+        await api.unsetLabel(href, { key }, options),
+      ),
+    clientUrlOf: (row) => clientUrl(row) ?? null,
     index: async (options) => {
       const byHref = new Map<string, Row>();
       let received = 0;

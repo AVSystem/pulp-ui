@@ -456,9 +456,10 @@ describe('Unit: the address a client uses', { tags: ['unit'] }, () => {
   });
 
   it('is nothing for an ansible distribution that reports no client URL', () => {
-    const { client_url: _unused, ...row } = pluginDistribution('ansible', {
+    const row = pluginDistribution('ansible', {
       base_url: 'https://pulp.example/pulp/content/galaxy/',
     });
+    delete row.client_url;
 
     expect(ansibleDistribution.clientUrlOf(row as DistributionBase)).toBeNull();
   });
