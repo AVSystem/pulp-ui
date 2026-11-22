@@ -145,6 +145,38 @@ async function detailRows() {
   return rows;
 }
 
+const PYTHON: PluginManifest = {
+  ...(PLUGIN_MANIFESTS.find(
+    ({ plugin }) => plugin === 'python',
+  ) as PluginManifest),
+  onFramework: true,
+};
+
+function PythonRouted() {
+  const { pathname } = useLocation();
+
+  return (
+    <>
+      <p data-testid='location'>{pathname}</p>
+      {useRoutes(guardRoutes(frameworkRoutes([PYTHON])))}
+    </>
+  );
+}
+
+function renderPythonDetail(route: string) {
+  return renderWithProviders(
+    <AppContextProvider>
+      <PermissionsKnown>
+        <PythonRouted />
+      </PermissionsKnown>
+    </AppContextProvider>,
+    { route },
+  );
+}
+
+const rowOf = async (name: string) =>
+  (await screen.findByText(name)).closest('tr') as HTMLElement;
+
 const tools = (overrides: Partial<Repository> = {}) =>
   pluginRepository('file', { name: 'tools', ...overrides });
 
@@ -292,10 +324,11 @@ describe(
       expect(within(urls).queryByText(/\/pulp\/content\/first/)).toBeNull();
       // more than one distribution: each is named
       expect(within(urls).getByText('first')).toBeVisible();
-      expect(within(urls).queryByText(/Not served/)).toBeNull();
+      expect(within(urls).queryByText(/Serves nothing/)).toBeNull();
+      expect(within(urls).queryByText(/Cannot be checked/)).toBeNull();
     });
 
-    it('says Not served next to a distribution whose repository has no publication', async () => {
+    it('says a distribution serves nothing when its repository has no publication, to a user who may read publications', async () => {
       const repository = tools();
       serveLab({
         repositories: [repository],
@@ -312,9 +345,97 @@ describe(
       const rows = await detailRows();
       expect(
         await within(rows.get('Repository URL') as HTMLElement).findByText(
-          /Not served/,
+          'Serves nothing (404): no publication',
         ),
       ).toBeVisible();
+    });
+
+    it('says Cannot be checked, never that it serves nothing, to a user who may not read publications', async () => {
+      serveAccount({ isStaff: false });
+      server.use(listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler);
+      const repository = tools();
+      serveLab({
+        repositories: [repository],
+        distributions: [
+          pluginDistribution('file', {
+            name: 'bare',
+            repository: repository.pulp_href,
+          }),
+        ],
+      });
+
+      renderDetail('/file/repositories/tools/');
+
+      const rows = await detailRows();
+      const urls = rows.get('Repository URL') as HTMLElement;
+      expect(await within(urls).findByText('Cannot be checked')).toBeVisible();
+      expect(within(urls).queryByText(/Serves nothing/)).toBeNull();
+    });
+
+    it('says which version an older publication serves, on the Details tab', async () => {
+      const repository = tools({
+        latest_version_href:
+          '/pulp/api/v3/repositories/file/file/x/versions/2/',
+      });
+      serveLab({
+        repositories: [repository],
+        distributions: [
+          pluginDistribution('file', {
+            name: 'older',
+            repository: repository.pulp_href,
+          }),
+        ],
+        publications: [
+          pluginPublication('file', {
+            repository: repository.pulp_href,
+            repository_version: `${repository.pulp_href}versions/1/`,
+          }),
+        ],
+      });
+
+      renderDetail('/file/repositories/tools/');
+
+      const rows = await detailRows();
+      expect(
+        await within(rows.get('Repository URL') as HTMLElement).findByText(
+          'Serves version 1, latest is 2',
+        ),
+      ).toBeVisible();
+    });
+
+    it('gives a python distribution bound to the repository no warning and one bound to a publication the note that publications are deprecated', async () => {
+      const repository = pluginRepository('python', { name: 'wheels' });
+      const published = pluginPublication('python', {
+        repository: repository.pulp_href,
+      });
+      server.use(
+        pluginListHandler('python', 'repository', [repository]).handler,
+        distributionListHandler('python', [
+          pluginDistribution('python', {
+            name: 'by-repository',
+            base_url: 'https://pulp.example/pypi/by-repository/',
+            repository: repository.pulp_href,
+          }),
+          pluginDistribution('python', {
+            name: 'by-publication',
+            base_url: 'https://pulp.example/pypi/by-publication/',
+            publication: published.pulp_href,
+          }),
+        ]).handler,
+        publicationListHandler('python', [published]).handler,
+        listOf(`${API}/remotes/`, [], { pageSize: 1000 }).handler,
+      );
+
+      renderPythonDetail('/python/repositories/wheels/distributions');
+
+      const bound = (await rowOf('by-publication')) as HTMLElement;
+      expect(
+        within(bound).getByText('Bound to a deprecated publication'),
+      ).toBeVisible();
+      const plain = (await rowOf('by-repository')) as HTMLElement;
+      expect(within(plain).queryByText(/deprecated/)).toBeNull();
+      expect(within(plain).queryByText(/Serves nothing/)).toBeNull();
+      expect(within(plain).queryByText(/Cannot be checked/)).toBeNull();
     });
 
     it('says why the distributions are missing when they cannot be read, instead of None, and reads again on Retry', async () => {

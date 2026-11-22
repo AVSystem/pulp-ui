@@ -119,10 +119,17 @@ describe(
   () => {
     const serving = { entity: filePublication, servesFromPublication: true };
 
-    it('marks a repository-bound distribution served only when the repository has a publication, with one read of its publications', async () => {
+    it('hands over the versions of the repository publications and its latest version, with one read of its publications', async () => {
       const repository = pluginRepository('file');
       const publications = publicationListHandler('file', [
-        pluginPublication('file', { repository: repository.pulp_href }),
+        pluginPublication('file', {
+          repository: repository.pulp_href,
+          repository_version: `${repository.pulp_href}versions/1/`,
+        }),
+        pluginPublication('file', {
+          repository: repository.pulp_href,
+          repository_version: `${repository.pulp_href}versions/3/`,
+        }),
       ]);
       server.use(
         distributionListHandler('file', [
@@ -140,26 +147,61 @@ describe(
             fileDistribution,
             serving,
             repository.pulp_href,
+            `${repository.pulp_href}versions/3/`,
           ),
         { wrapper },
       );
 
       await waitFor(() => expect(result.current.status).toBe('success'));
-      expect(result.current.distributions?.map(({ served }) => served)).toEqual(
-        [true],
-      );
+      expect(result.current.distributions?.map(({ name }) => name)).toEqual([
+        'bound',
+      ]);
+      expect(result.current.facts?.latestVersion).toBe(3);
+      expect(result.current.facts?.publishedVersions.sort()).toEqual([1, 3]);
       expect(publications.queries).toHaveLength(1);
       expect(publications.queries[0]?.get('repository')).toBe(
         repository.pulp_href,
       );
     });
 
-    it('marks a version-bound distribution served only when that version has a publication', async () => {
+    it('hands over the version of the publication a distribution is bound to', async () => {
       const repository = pluginRepository('file');
       const published = pluginPublication('file', {
         repository: repository.pulp_href,
-        repository_version: `${repository.pulp_href}versions/2/`,
+        repository_version: `${repository.pulp_href}versions/1/`,
       });
+      server.use(
+        distributionListHandler('file', [
+          pluginDistribution('file', {
+            name: 'pinned',
+            publication: published.pulp_href,
+          }),
+        ]).handler,
+        publicationListHandler('file', [published]).handler,
+      );
+
+      const { result } = renderHook(
+        () =>
+          useRepositoryDistributions(
+            fileDistribution,
+            serving,
+            repository.pulp_href,
+            `${repository.pulp_href}versions/2/`,
+          ),
+        { wrapper },
+      );
+
+      await waitFor(() => expect(result.current.status).toBe('success'));
+      expect(result.current.distributions?.map(({ name }) => name)).toEqual([
+        'pinned',
+      ]);
+      expect(
+        result.current.facts?.publicationVersions.get(published.pulp_href),
+      ).toBe(1);
+    });
+
+    it('lists a version-bound distribution and reads the repository publications for it', async () => {
+      const repository = pluginRepository('file');
       server.use(
         distributionListHandler('file', [
           pluginDistribution('file', {
@@ -167,11 +209,11 @@ describe(
             repository_version: `${repository.pulp_href}versions/2/`,
           }),
           pluginDistribution('file', {
-            name: 'v1',
-            repository_version: `${repository.pulp_href}versions/1/`,
+            name: 'foreign',
+            repository_version: `${pluginRepository('file').pulp_href}versions/2/`,
           }),
         ]).handler,
-        publicationListHandler('file', [published]).handler,
+        publicationListHandler('file', []).handler,
       );
 
       const { result } = renderHook(
@@ -185,14 +227,11 @@ describe(
       );
 
       await waitFor(() => expect(result.current.status).toBe('success'));
-      expect(
-        Object.fromEntries(
-          (result.current.distributions ?? []).map(({ row, served }) => [
-            row.name,
-            served,
-          ]),
-        ),
-      ).toEqual({ v2: true, v1: false });
+      expect(result.current.distributions?.map(({ name }) => name)).toEqual([
+        'v2',
+      ]);
+      expect(result.current.facts?.latestVersion).toBeNull();
+      expect(result.current.facts?.publishedVersions).toEqual([]);
     });
 
     it('reads no publications of the repository when every distribution is bound to a publication or there is none', async () => {

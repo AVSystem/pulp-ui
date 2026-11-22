@@ -271,6 +271,7 @@ const RepositoryDetailScreen = ({
       ) : null}
       {deleting ? (
         <DeleteRepositoryDialog
+          plugin={plugin}
           descriptor={descriptor}
           repository={repository}
           onClose={() => setDeleting(false)}

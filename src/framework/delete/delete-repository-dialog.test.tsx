@@ -11,6 +11,7 @@ import {
   idOf,
   serveDeleteLab,
 } from 'src/test-utils/delete-lab';
+import { servePermissions } from 'src/test-utils/permissions';
 import {
   type IContentGuard,
   type IDistribution,
@@ -114,6 +115,7 @@ function Host({
       <Queued />
       {shown ? (
         <DeleteRepositoryDialog
+          plugin='file'
           descriptor={fileDescriptor}
           repository={repo}
           onClose={onClose}
@@ -176,7 +178,8 @@ describe(
       expect(text.indexOf('aa-first')).toBeLessThan(text.indexOf('zz-second'));
     });
 
-    it('says a distribution with nothing to serve is not served', async () => {
+    it('says a distribution with nothing to serve serves nothing, to a user who may read publications', async () => {
+      const account = servePermissions({ id: 7, isStaff: true });
       const repo = pluginRepository('file', { name: REPO_NAME });
       // the repository has no publication, so the content app answers 404
       serve([boundTo(repo, { base_path: 'unpublished' })]);
@@ -184,7 +187,21 @@ describe(
       renderDialog({ repo });
 
       await screen.findByText('unpublished');
-      expect(screen.getByText(/Not served/)).toBeInTheDocument();
+      expect(
+        await screen.findByText('Serves nothing (404): no publication'),
+      ).toBeInTheDocument();
+      account.stop();
+    });
+
+    it('still lists a distribution it cannot check for a user who may not read publications, and says so instead of saying it serves nothing', async () => {
+      const repo = pluginRepository('file', { name: REPO_NAME });
+      serve([boundTo(repo, { base_path: 'unpublished' })]);
+
+      renderDialog({ repo });
+
+      await screen.findByText('unpublished');
+      expect(screen.getByText('Cannot be checked')).toBeInTheDocument();
+      expect(screen.queryByText(/Serves nothing/)).toBeNull();
     });
 
     it('marks a distribution protected by a content guard as customer-facing and names the guard, with one request for the names', async () => {

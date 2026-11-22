@@ -553,9 +553,10 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
   });
 
   describe('what serves and what is served', () => {
-    it('reads python distributions, declares no publication and offers Edit distribution for the permission held on every distribution', () => {
+    it('reads python distributions, reads publications without serving from them and offers Edit distribution for the permission held on every distribution', () => {
       expect(descriptor.distribution?.entity).toBeTruthy();
-      expect(descriptor.publication).toBeUndefined();
+      expect(descriptor.publication?.entity).toBeTruthy();
+      expect(descriptor.publication?.servesFromPublication).toBe(false);
       expect(descriptor.distribution?.edit?.permission).toBe(
         'python.change_pythondistribution',
       );

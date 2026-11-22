@@ -20,7 +20,7 @@ interface Installation {
   distributions: (Distribution & { served: boolean })[];
 }
 
-const NOT_SERVED = 'Not served: no publication';
+const NOT_SERVED = 'Serves nothing (404): no publication';
 
 // A repository version href belongs to the repository it ends with.
 function repositoryOfVersion(versionHref: string): string {

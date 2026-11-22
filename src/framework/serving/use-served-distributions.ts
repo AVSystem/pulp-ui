@@ -62,7 +62,7 @@ export function useServedDistributions({
     if (!serving.distributions || !facts) {
       return undefined;
     }
-    return serving.distributions.map(({ row }) => ({
+    return serving.distributions.map((row) => ({
       row,
       served: servedState({
         servesFromPublication,

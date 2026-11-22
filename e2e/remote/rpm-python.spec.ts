@@ -78,7 +78,7 @@ const remoteSaved = ({ onFramework }: Plugin) =>
 const repositorySaved = ({ onFramework }: Plugin) =>
   onFramework ? /\/repositories\/[^/]+\/?$/ : /repositories\/detail\//;
 
-const NOT_SERVED = 'Not served: no publication';
+const NOT_SERVED = 'Serves nothing (404): no publication';
 
 // The message of a failed task that comes from the content source being out of
 // reach for the server's own workers, as opposed to a fault of the sync.

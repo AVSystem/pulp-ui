@@ -9,7 +9,6 @@ import {
 import { parseResponse } from 'src/entities/response-shape';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useSessionEnded } from 'src/session/session-events';
-import { servedState } from 'src/utilities/distribution-serving';
 import { type Page, labelResponseSchema, pageSchemaOf } from './model';
 import {
   type PublicationBase,
@@ -589,13 +588,6 @@ export function useDistributionIndex<Row extends DistributionBase>(
   };
 }
 
-// A distribution that serves a repository, and whether the content app answers
-// with content for it.
-export interface ServingDistribution<Row> {
-  row: Row;
-  served: boolean;
-}
-
 // What is known about how a repository is served, as plain facts for the rules
 // that decide the state of each distribution (the entity never decides it).
 export interface ServingFacts {
@@ -615,7 +607,7 @@ export interface RepositoryDistributions<Row> {
   error: unknown;
   // The distributions that serve the repository, in the order of the index;
   // undefined until they are all known.
-  distributions: ServingDistribution<Row>[] | undefined;
+  distributions: Row[] | undefined;
   // The facts the state of each distribution is decided from; undefined until
   // they are all known.
   facts: ServingFacts | undefined;
@@ -627,12 +619,12 @@ export interface RepositoryDistributions<Row> {
 const REPOSITORY_PUBLICATIONS_STALE_MS = 30_000;
 
 // The distributions that serve one repository (bound to it, to one of its
-// publications or to one of its versions), each with whether it serves content.
-// They are cut from the index of the plugin's distributions that every screen
-// shares, so this adds no read of its own for them. Whether a distribution
-// serves content needs the repository's publications: they are read once, and
-// only when the plugin serves from publications and some distribution of the
-// repository is not bound to a publication itself.
+// publications or to one of its versions) and the facts that tell what each one
+// serves. They are cut from the index of the plugin's distributions that every
+// screen shares, so this adds no read of its own for them. The repository's
+// publications are read once, and only when the plugin serves from publications
+// and some distribution of the repository is not bound to a publication itself.
+// What the facts mean is decided elsewhere; this reads and never judges.
 export function useRepositoryDistributions<Row extends DistributionBase>(
   distribution: {
     readonly app: string;
@@ -680,19 +672,7 @@ export function useRepositoryDistributions<Row extends DistributionBase>(
         ? 'pending'
         : 'success';
 
-  const distributions = useMemo(() => {
-    if (status !== 'success' || own === null) {
-      return undefined;
-    }
-    const known = (publications.data ?? []).map((row) => ({
-      pulp_href: row.pulp_href,
-      repository_version: row.repository_version,
-    }));
-    return own.map((row) => ({
-      row,
-      served: servedState(row, serving, known) === 'served',
-    }));
-  }, [status, own, publications.data, serving]);
+  const distributions = status === 'success' && own !== null ? own : undefined;
 
   const { publicationVersions } = index;
   const facts = useMemo<ServingFacts | undefined>(() => {
