@@ -13,7 +13,6 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
-  type AlertType,
   AppliedFilters,
   ClipboardCopy,
   CompoundFilter,

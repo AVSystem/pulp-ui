@@ -79,7 +79,7 @@ export const NameGroup = ({
   readOnly,
 }: {
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   error?: string;
   readOnly?: boolean;
 }) => (
@@ -91,7 +91,7 @@ export const NameGroup = ({
       value={value}
       isDisabled={readOnly}
       validated={error ? 'error' : 'default'}
-      onChange={(_event, next) => onChange(next)}
+      onChange={(_event, next) => onChange?.(next)}
     />
     {error ? <FormFieldHelper variant='error'>{error}</FormFieldHelper> : null}
   </FormGroup>

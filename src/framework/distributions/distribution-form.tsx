@@ -5,7 +5,6 @@ import {
   Content,
   Form,
   FormGroup,
-  TextInput,
 } from '@patternfly/react-core';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -28,11 +27,7 @@ import { isSessionEnd } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
 import { type FieldDef, type PluginDescriptor } from '../descriptor';
 import { protectionDescription } from '../form/create-flow';
-import {
-  BasePathHelp,
-  basePathMessage,
-  reservedPrefixes,
-} from '../form/distribution-option';
+import { basePathMessage, reservedPrefixes } from '../form/distribution-option';
 import {
   type FormValues,
   hasProblems,

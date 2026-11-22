@@ -382,11 +382,7 @@ const DistributionEditScreen = ({
         <Main>
           <section className='pulp-section' data-cy='DistributionEdit'>
             <Form onSubmit={(event) => event.preventDefault()}>
-              <NameGroup
-                value={distributionName}
-                onChange={() => {}}
-                readOnly
-              />
+              <NameGroup value={distributionName} readOnly />
               <BasePathGroup
                 value={basePath}
                 message={message}
