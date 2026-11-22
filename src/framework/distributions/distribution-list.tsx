@@ -5,6 +5,7 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import {
   AlertList,
   BaseHeader,
+  DateComponent,
   EmptyStateFilter,
   EmptyStateNoData,
   InsufficientPermissions,
@@ -30,6 +31,7 @@ import {
   requestErrorDetail,
   requestErrorStatus,
 } from 'src/utilities/request-error';
+import { labelKeysOf } from '../labels/label-select';
 import {
   ColumnFailures,
   ListLayout,
@@ -39,7 +41,6 @@ import {
   useRereadAlert,
   useShownRows,
 } from '../list/list-frame';
-import { PLUGIN_MANIFESTS } from '../manifest';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import {
@@ -48,6 +49,13 @@ import {
   ServesCell,
   UrlCell,
 } from './distribution-columns';
+import {
+  DISTRIBUTION_FILTERS,
+  DistributionFilterChips,
+  DistributionFilters,
+  listedPlugins,
+} from './distribution-filters';
+import { pluginLabel } from './plugin-label';
 import {
   type DistributionCells,
   useDistributionColumns,
@@ -61,23 +69,11 @@ const SORTABLE = [
   { sortField: 'name' },
   { sortField: 'pulp_type' },
   { sortField: 'base_path' },
+  { sortField: 'pulp_created' },
 ];
-const NO_FILTERS: never[] = [];
 const NEEDED_PERMISSIONS = ['delete'] as const;
 
 const PLUGINS = Object.keys(DISTRIBUTION_TYPES) as DistributionPlugin[];
-
-// The name a row's plugin is shown under.
-function pluginLabel(plugin: DistributionPlugin): string {
-  if (plugin === 'file') {
-    return t`File`;
-  }
-
-  return (
-    PLUGIN_MANIFESTS.find((manifest) => manifest.plugin === plugin)?.label ??
-    plugin
-  );
-}
 
 interface RowProps {
   row: ListedDistribution;
@@ -112,6 +108,9 @@ const DistributionRow = memo(function DistributionRow({
         <GuardCell cells={cells} />
       </Td>
       <Td>{owned ? <ServedCell cells={cells} /> : t`None`}</Td>
+      <Td>
+        <DateComponent date={row.pulp_created ?? ''} />
+      </Td>
       <ListItemActions
         kebabItems={
           canDelete
@@ -176,21 +175,49 @@ const DistributionListScreen = ({
 }: {
   installed: readonly DistributionPlugin[];
 }) => {
-  const { params, updateParams } = useListAddress(SORTABLE, NO_FILTERS);
+  const { params, filterIsSet, updateParams } = useListAddress(
+    SORTABLE,
+    DISTRIBUTION_FILTERS,
+  );
 
+  // The filters the server applies come from the address as they are; the
+  // plugins chosen decide which types are asked for.
+  const plugins = useMemo(
+    () => listedPlugins(params, installed),
+    [params, installed],
+  );
+  const { name__icontains, base_path__icontains, pulp_label_select } = params;
   const request = useMemo(
     () => ({
-      plugins: installed,
+      plugins,
       page: params.page,
       page_size: params.page_size,
       sort: params.sort,
+      ...(typeof name__icontains === 'string' ? { name__icontains } : {}),
+      ...(typeof base_path__icontains === 'string'
+        ? { base_path__icontains }
+        : {}),
+      ...(typeof pulp_label_select === 'string' ? { pulp_label_select } : {}),
     }),
-    [installed, params.page, params.page_size, params.sort],
+    [
+      plugins,
+      params.page,
+      params.page_size,
+      params.sort,
+      name__icontains,
+      base_path__icontains,
+      pulp_label_select,
+    ],
   );
   const query = useDistributionPage(request);
 
-  const { data } = useShownRows(query, params);
+  const { data, labelRefusal, lastShown } = useShownRows(query, params);
   const rows = useMemo(() => data?.results ?? [], [data]);
+  // The label keys offered are those of the rows shown.
+  const labelKeys = useMemo(
+    () => labelKeysOf((data ?? lastShown.current)?.results ?? []),
+    [data, lastShown],
+  );
   const pastEnd = useLastPageWhenPastEnd(
     data,
     params,
@@ -276,7 +303,7 @@ const DistributionListScreen = ({
       </>
     );
   }
-  if (!!data && data.count === 0) {
+  if (!!data && data.count === 0 && !filterIsSet) {
     return (
       <>
         {alertList}
@@ -304,6 +331,7 @@ const DistributionListScreen = ({
     { id: 'serves', title: t`Serves`, type: 'none' },
     { id: 'guard', title: t`Content guard`, type: 'none' },
     { id: 'served', title: t`Served state`, type: 'none' },
+    { id: 'pulp_created', title: t`Created date`, type: 'numeric' },
     ...(anyRowAction ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
 
@@ -383,12 +411,26 @@ const DistributionListScreen = ({
         />
       ) : null}
       <ListLayout
-        filters={null}
+        filters={
+          <DistributionFilters
+            params={params}
+            updateParams={updateParams}
+            installed={installed}
+            labelKeys={labelKeys}
+            labelRefusal={labelRefusal}
+          />
+        }
         addButton={undefined}
         params={params}
         updateParams={updateParams}
         count={count}
-        chips={null}
+        chips={
+          <DistributionFilterChips
+            params={params}
+            updateParams={updateParams}
+            installed={installed}
+          />
+        }
         notices={
           <>
             {permissionsFailure ? (

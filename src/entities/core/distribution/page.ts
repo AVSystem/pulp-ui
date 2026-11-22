@@ -193,13 +193,26 @@ const NOT_SHOWN_MODELS = /^core\./;
 
 // What a page of the list is asked for, in the terms of a screen.
 export interface DistributionPageParams {
-  // The installed plugins that have distributions; the list is limited to
+  // The plugins whose distributions are listed: the installed ones that have
+  // distributions, or those of them the user chose. The list is limited to
   // their types. No plugin means no read.
   plugins: readonly DistributionPlugin[];
   page?: number;
   page_size?: number;
   sort?: string;
+  // Text the name, or the base path, contains, ignoring case.
+  name__icontains?: string;
+  base_path__icontains?: string;
+  // The expression the labels must satisfy.
+  pulp_label_select?: string;
 }
+
+// The filters of the list that are single text values.
+const TEXT_FILTERS = [
+  'name__icontains',
+  'base_path__icontains',
+  'pulp_label_select',
+] as const;
 
 const EMPTY: Page<never> = {
   count: 0,
@@ -220,7 +233,10 @@ export async function distributionPage(
 
   const data = await distributionsList(
     {
-      ...toListRequest({ ...params, sort: params.sort ?? 'name' }, []),
+      ...toListRequest(
+        { ...params, sort: params.sort ?? 'name' },
+        TEXT_FILTERS,
+      ),
       pulp_type__in: params.plugins.map(
         (plugin) => DISTRIBUTION_TYPES[plugin].pulpType,
       ),

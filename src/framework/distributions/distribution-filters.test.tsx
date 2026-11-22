@@ -186,8 +186,8 @@ describe(
       await user.click(
         screen.getByRole('button', { name: /filter by plugin/i }),
       );
-      await user.click(await screen.findByRole('option', { name: 'RPM' }));
-      await user.click(screen.getByRole('option', { name: 'deb' }));
+      await user.click(await screen.findByRole('checkbox', { name: 'RPM' }));
+      await user.click(screen.getByRole('checkbox', { name: 'deb' }));
 
       await waitFor(() =>
         expect(lastQuery(lab).get('pulp_type__in')).toBe(
@@ -199,17 +199,16 @@ describe(
 
       // one chip per chosen plugin, each removes that plugin only
       const chips = Array.from(
-        document.querySelectorAll('.pf-v6-c-label__text'),
+        document.querySelectorAll('.pf-v6-c-label-group .pf-v6-c-label__text'),
       ).map((chip) => chip.textContent);
       expect(chips).toEqual(['deb', 'RPM']);
       await user.click(
         screen.getByRole('button', { name: 'Clear all filters' }),
       );
 
+      // every installed type is asked for again: the rows of all three show
       await waitFor(() =>
-        expect(lastQuery(lab).get('pulp_type__in')).toBe(
-          'file.file,deb.apt-distribution,rpm.rpm',
-        ),
+        expect(rowNames()).toEqual(['a-deb', 'a-file', 'a-rpm']),
       );
       expect(location()).toBe('/distributions');
     });
@@ -328,17 +327,13 @@ describe(
       const { user } = renderList();
       await tableOf();
       await user.click(screen.getByRole('button', { name: /^Labels/ }));
-      const panel = await screen.findByRole('dialog', {
-        name: 'Filter by labels',
-      });
-      await user.click(
-        within(panel).getByRole('combobox', { name: 'Label key' }),
-      );
+      await screen.findByRole('dialog', { name: 'Filter by labels' });
 
       expect(
-        await screen.findByRole('option', { name: 'owner' }),
-      ).toBeVisible();
-      expect(screen.getByRole('option', { name: 'team' })).toBeVisible();
+        Array.from(document.querySelectorAll('datalist option')).map((option) =>
+          option.getAttribute('value'),
+        ),
+      ).toEqual(['owner', 'team', 'tier']);
     });
 
     it('keeps the rows and shows the reason of the server at the input when a label expression is refused', async () => {
@@ -410,12 +405,7 @@ describe(
     });
 
     describe('sorting', () => {
-      const SORTS: [string, string][] = [
-        ['name', 'name'],
-        ['pulp_type', 'pulp_type'],
-        ['base_path', 'base_path'],
-        ['pulp_created', 'pulp_created'],
-      ];
+      const SORTS = ['name', 'pulp_type', 'base_path', 'pulp_created'];
 
       it('offers a sort control on the name, plugin, base path and created date only', async () => {
         serveLab({ file: [some('file', 'a')] });
@@ -436,28 +426,41 @@ describe(
       });
 
       it.each(SORTS)(
-        'sends ordering=%s when the column is sorted and keeps it in the address',
+        'sends ordering=%s in both directions when the column is sorted and keeps it in the address',
         async (field) => {
           const lab = serveLab({
             file: [some('file', 'a'), some('file', 'b')],
           });
 
-          const { user } = renderList(
-            field === 'name' ? '/distributions?sort=-name' : '/distributions',
-          );
+          const { user } = renderList();
           await tableOf();
-          await user.click(
-            document.querySelector(`[data-cy="sort_${field}"]`) as HTMLElement,
-          );
+          const sortBy = () =>
+            user.click(
+              document.querySelector(
+                `[data-cy="sort_${field}"]`,
+              ) as HTMLElement,
+            );
 
+          await sortBy();
           await waitFor(() =>
-            expect(lastQuery(lab).get('ordering')).toBe(field),
+            expect(lastQuery(lab).get('ordering')).toBe(`-${field}`),
           );
-          expect(location()).toBe(
-            field === 'name'
-              ? '/distributions'
-              : `/distributions?sort=${field}`,
+          expect(location()).toBe(`/distributions?sort=-${field}`);
+
+          await sortBy();
+          await waitFor(() =>
+            expect(location()).toBe(
+              field === 'name'
+                ? '/distributions'
+                : `/distributions?sort=${field}`,
+            ),
           );
+          // the order of the name was read with the first load already
+          if (field !== 'name') {
+            await waitFor(() =>
+              expect(lastQuery(lab).get('ordering')).toBe(field),
+            );
+          }
         },
       );
 
