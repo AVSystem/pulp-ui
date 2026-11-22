@@ -8,7 +8,7 @@
 import * as zod from 'zod';
 import { StatesEnum } from './states-enum.zod.ts';
 
-export const purgeFinishedBeforeDefault = `2026-10-21`;
+export const purgeFinishedBeforeDefault = `2026-10-23`;
 
 export const Purge = zod.object({
   "finished_before": zod.iso.datetime({"offset":true}).default(purgeFinishedBeforeDefault).describe('Purge tasks completed earlier than this timestamp. Format \'%Y-%m-%d[T%H:%M:%S]\''),
