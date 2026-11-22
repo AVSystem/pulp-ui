@@ -4,6 +4,8 @@ import {
   distributionsFileFileList,
   distributionsFileFilePartialUpdate,
   distributionsFileFileRead,
+  distributionsFileFileSetLabel,
+  distributionsFileFileUnsetLabel,
   getDistributionsFileFileListUrl,
 } from '@pulp-ui/sdk/file/distributions-file';
 import {
@@ -23,5 +25,7 @@ export const fileDistribution = makeDistributionEntity({
     create: distributionsFileFileCreate,
     partialUpdate: distributionsFileFilePartialUpdate,
     remove: distributionsFileFileDelete,
+    setLabel: distributionsFileFileSetLabel,
+    unsetLabel: distributionsFileFileUnsetLabel,
   },
 });

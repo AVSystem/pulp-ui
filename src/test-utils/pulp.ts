@@ -265,33 +265,51 @@ const PLUGINS = {
     segment: 'file/file',
     repository: 'file.filerepository',
     remote: 'file.fileremote',
-    distribution: 'file/file',
     publication: 'file/file',
   },
   deb: {
     segment: 'deb/apt',
     repository: 'deb.aptrepository',
     remote: 'deb.aptremote',
-    distribution: 'deb/apt',
     publication: 'deb/apt',
   },
   rpm: {
     segment: 'rpm/rpm',
     repository: 'rpm.rpmrepository',
     remote: 'rpm.rpmremote',
-    distribution: 'rpm/rpm',
     publication: 'rpm/rpm',
   },
   python: {
     segment: 'python/python',
     repository: 'python.pythonrepository',
     remote: 'python.pythonremote',
-    distribution: 'python/pypi',
     publication: 'python/pypi',
   },
 } as const;
 
 export type TestPlugin = keyof typeof PLUGINS;
+
+// Every plugin that has distributions: the path segment below `distributions/`
+// and the model name its PRNs carry. Plugins with no repository or remote
+// builder here (maven, npm, ansible, container) have distributions only.
+const DISTRIBUTIONS = {
+  file: { segment: 'file/file', model: 'file.filedistribution' },
+  deb: { segment: 'deb/apt', model: 'deb.aptdistribution' },
+  rpm: { segment: 'rpm/rpm', model: 'rpm.rpmdistribution' },
+  python: { segment: 'python/pypi', model: 'python.pythondistribution' },
+  maven: { segment: 'maven/maven', model: 'maven.mavendistribution' },
+  npm: { segment: 'npm/npm', model: 'npm.npmdistribution' },
+  ansible: {
+    segment: 'ansible/ansible',
+    model: 'ansible.ansibledistribution',
+  },
+  container: {
+    segment: 'container/container',
+    model: 'container.containerdistribution',
+  },
+} as const;
+
+export type TestDistributionPlugin = keyof typeof DISTRIBUTIONS;
 
 // The id an address ends in, which a PRN carries too.
 const idOf = (address: string) => address.split('/').filter(Boolean).pop();
@@ -336,16 +354,26 @@ export function pluginRemote(
 }
 
 // A distribution of the given plugin as the server returns it: distribution()
-// with the address and the labels of that plugin.
+// with the address, the PRN and the labels of that plugin. An ansible
+// distribution also carries the address of its collection source.
 export function pluginDistribution(
-  plugin: TestPlugin,
+  plugin: TestDistributionPlugin,
   overrides: Partial<IDistribution> = {},
 ): IDistribution {
-  return distribution({
-    pulp_href: href(`distributions/${PLUGINS[plugin].distribution}`),
+  const { segment, model } = DISTRIBUTIONS[plugin];
+  const id = href(`distributions/${segment}`);
+  const row = distribution({
+    pulp_href: id,
+    prn: `prn:${model}:${idOf(id)}`,
     pulp_labels: {},
     ...overrides,
   });
+  return plugin === 'ansible'
+    ? {
+        client_url: `${CONTENT_HOST}/pulp_ansible/galaxy/${row.base_path}/`,
+        ...row,
+      }
+    : row;
 }
 
 // A publication of the given plugin as the server returns it.
@@ -389,11 +417,11 @@ export function inSetOf(query: URLSearchParams, key: string): string[] | null {
 // `repository` and `pulp_href__in`, the `fields` cut, and the paging of
 // listOf (a page holds at most pageSize rows, 1,000 as on the server).
 export function distributionListHandler<T extends { pulp_href: string }>(
-  plugin: TestPlugin,
+  plugin: TestDistributionPlugin,
   rows: T[],
   { pageSize = 1000 }: { pageSize?: number } = {},
 ) {
-  const path = `/pulp/api/v3/distributions/${PLUGINS[plugin].distribution}/`;
+  const path = `/pulp/api/v3/distributions/${DISTRIBUTIONS[plugin].segment}/`;
   const list = listOf(path, rows, {
     pageSize,
     matching: (row, query) => {

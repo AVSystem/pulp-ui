@@ -24,6 +24,7 @@ export const APPS = [
   'core',
   'ansible',
   'certguard',
+  'container',
   'deb',
   'file',
   'maven',
@@ -42,6 +43,11 @@ export const EXCLUDED_PATHS = [
   {
     path: '/pulp/api/v3/docs/api.yaml',
     reason: 'The schema document itself (YAML), not an API.',
+  },
+  {
+    path: '/token/',
+    reason:
+      'The container registry token endpoint (no response body, answers to registry clients), not a management API.',
   },
   {
     path: '/pulp_ansible/galaxy/{path}/api/v3/artifacts/collections/{path}/{filename}',
@@ -97,6 +103,9 @@ export function classifyPath(path) {
     }
     if (kind === 'pulp_ansible') {
       return 'ansible';
+    }
+    if (kind === 'pulp_container') {
+      return 'container';
     }
     if (
       kind !== undefined &&

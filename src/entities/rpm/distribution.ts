@@ -4,6 +4,8 @@ import {
   distributionsRpmRpmList,
   distributionsRpmRpmPartialUpdate,
   distributionsRpmRpmRead,
+  distributionsRpmRpmSetLabel,
+  distributionsRpmRpmUnsetLabel,
   getDistributionsRpmRpmListUrl,
 } from '@pulp-ui/sdk/rpm/distributions-rpm';
 import {
@@ -23,5 +25,7 @@ export const rpmDistribution = makeDistributionEntity({
     create: distributionsRpmRpmCreate,
     partialUpdate: distributionsRpmRpmPartialUpdate,
     remove: distributionsRpmRpmDelete,
+    setLabel: distributionsRpmRpmSetLabel,
+    unsetLabel: distributionsRpmRpmUnsetLabel,
   },
 });

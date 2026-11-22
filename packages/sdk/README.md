@@ -87,7 +87,7 @@ server reports, to tell an administrator when they differ.
 ## Applications
 
 One generation project per application, one directory each: `core`, `ansible`,
-`certguard`, `deb`, `file`, `maven`, `npm`, `python`, `rpm`. The transformer
+`certguard`, `container`, `deb`, `file`, `maven`, `npm`, `python`, `rpm`. The transformer
 assigns every path to exactly one of them:
 
 - the management API by its URL (`/pulp/api/v3/repositories/rpm/rpm/` is `rpm`;
@@ -121,6 +121,7 @@ code in step.
 |---|---|
 | `/pulp/api/v3/docs/api.json` | The schema document itself (JSON), not an API. |
 | `/pulp/api/v3/docs/api.yaml` | The schema document itself (YAML), not an API. |
+| `/token/` | The container registry token endpoint (no response body, answers to registry clients), not a management API. |
 | `/pulp_ansible/galaxy/{path}/api/v3/artifacts/collections/{path}/{filename}` | Two path parameters are both named path, so no valid client function can take them. |
 
 ## Schema sources

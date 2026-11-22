@@ -6,7 +6,7 @@ import { parseResponse } from 'src/entities/response-shape';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useSessionEnded } from 'src/session/session-events';
 import { servedState } from 'src/utilities/distribution-serving';
-import { type Page, pageSchemaOf } from './model';
+import { type Page, labelResponseSchema, pageSchemaOf } from './model';
 import {
   type PublicationBase,
   type PublicationEntity,
@@ -95,13 +95,90 @@ const TEXT_FILTERS = [
   'repository',
 ] as const;
 
-// What a distribution is created with: the name, the path it is served under
-// and the repository it serves. Nothing else is set at creation, so a new
-// distribution has no content guard.
-export interface DistributionCreate {
+// The three fields a distribution can be bound to what it serves: a
+// repository (its latest version), a publication or one repository version.
+export type BindingField = 'repository' | 'publication' | 'repository_version';
+
+// The binding fields each plugin's distribution has. Plugins that serve
+// versions directly have no publication field, and a body that named one would
+// be refused or ignored.
+export const DISTRIBUTION_BINDINGS: Readonly<
+  Record<string, readonly BindingField[]>
+> = {
+  file: ['repository', 'publication', 'repository_version'],
+  deb: ['repository', 'publication', 'repository_version'],
+  rpm: ['repository', 'publication', 'repository_version'],
+  python: ['repository', 'publication', 'repository_version'],
+  maven: ['repository', 'repository_version'],
+  npm: ['repository', 'repository_version'],
+  ansible: ['repository', 'repository_version'],
+  container: ['repository', 'repository_version'],
+};
+
+// What a distribution serves, as one new binding: exactly one of the fields,
+// the address of the object to serve.
+export type DistributionBinding = Partial<Record<BindingField, string>>;
+
+// The body of a change of what a distribution serves: the new binding and null
+// for every other binding field the plugin's distribution has, so the
+// distribution is never left bound to two things. A binding the plugin has no
+// field for, no binding and more than one binding are refused: each would send
+// a body that does not say what the distribution should serve.
+export function bindingChange(
+  plugin: string,
+  binding: DistributionBinding,
+): Record<string, string | null> {
+  const fields = Object.entries(DISTRIBUTION_BINDINGS).find(
+    ([name]) => name === plugin,
+  )?.[1];
+  if (!fields) {
+    throw new Error(`Unknown plugin ${plugin}: it has no distribution`);
+  }
+  const given = Object.entries(binding).filter(
+    (entry): entry is [BindingField, string] => entry[1] !== undefined,
+  );
+  if (given.length !== 1) {
+    throw new Error('A binding change names exactly one thing to serve');
+  }
+  const [[field, address]] = given as [[BindingField, string]];
+  if (!fields.includes(field)) {
+    throw new Error(`A ${plugin} distribution has no ${field} to bind`);
+  }
+  if (address === '') {
+    throw new Error(`The ${field} to serve is empty`);
+  }
+
+  return Object.fromEntries(
+    fields.map((name) => [name, name === field ? address : null]),
+  );
+}
+
+// What a distribution is created with: the name, the path it is served under,
+// what it serves and, when the caller chose one, a content guard and labels.
+// A field that is not given is not sent.
+export interface DistributionCreate extends DistributionBinding {
   name: string;
   base_path: string;
-  repository: string;
+  // The address of a content guard; null is the explicit choice of no guard,
+  // and leaving the field out leaves the choice to the server.
+  content_guard?: string | null;
+  pulp_labels?: Record<string, string>;
+}
+
+// The body of a create: the fields of the input that are given, and no other.
+// Labels count as given when there is at least one.
+export function distributionCreateBody(
+  input: DistributionCreate,
+): DistributionCreate {
+  const { pulp_labels: labels, ...rest } = input;
+  const given = Object.entries(rest).filter(([, value]) => value !== undefined);
+
+  return {
+    ...(Object.fromEntries(given) as unknown as DistributionCreate),
+    ...(labels && Object.keys(labels).length > 0
+      ? { pulp_labels: labels }
+      : {}),
+  };
 }
 
 // What a plugin's generated client offers for its distributions.
@@ -122,6 +199,16 @@ export interface DistributionApi<TListParams, TCreate, TUpdate> {
     options?: Options,
   ) => Promise<unknown>;
   remove: (href: string, options?: Options) => Promise<unknown>;
+  setLabel: (
+    href: string,
+    body: { key: string; value: string | null },
+    options?: Options,
+  ) => Promise<unknown>;
+  unsetLabel: (
+    href: string,
+    body: { key: string },
+    options?: Options,
+  ) => Promise<unknown>;
 }
 
 export interface DistributionEntity<Row, TCreate, TUpdate> {
@@ -144,6 +231,22 @@ export interface DistributionEntity<Row, TCreate, TUpdate> {
   // Deletes a distribution; resolves with the address of the task that does
   // it.
   remove: (href: string, options?: Options) => Promise<string>;
+  // Sets one label of a distribution; resolves with the label as the server
+  // answers it.
+  setLabel: (
+    href: string,
+    label: { key: string; value: string | null },
+    options?: Options,
+  ) => Promise<{ key: string; value?: string | null }>;
+  // Removes one label of a distribution.
+  unsetLabel: (
+    href: string,
+    key: string,
+    options?: Options,
+  ) => Promise<{ key: string; value?: string | null }>;
+  // The address a client of the plugin uses to reach the distribution, or null
+  // when the row names none.
+  clientUrlOf: (row: Row) => string | null;
   // Every distribution of the plugin, read page after page with the fields of
   // DISTRIBUTION_INDEX_FIELDS. It ends when the server names no next page or a
   // page comes back empty (a list that shrank while it was read never loops).
@@ -161,10 +264,14 @@ export function makeDistributionEntity<
   app,
   schema,
   api,
+  clientUrl = (row) => row.base_url,
 }: {
   app: string;
   schema: ZodType<Row>;
   api: DistributionApi<TListParams, TCreate, TUpdate>;
+  // Where a client of the plugin reaches a distribution. Defaults to the base
+  // URL of the row; a plugin that is reached elsewhere says where.
+  clientUrl?: (row: Row) => string | null | undefined;
 }): DistributionEntity<Row, TCreate, TUpdate> {
   const pageSchema = pageSchemaOf(schema);
 
@@ -188,6 +295,17 @@ export function makeDistributionEntity<
     update: async (href, body, options) =>
       parseUpdate(schema, await api.partialUpdate(href, body, options)),
     remove: async (href, options) => taskOf(await api.remove(href, options)),
+    setLabel: async (href, label, options) =>
+      parseResponse(
+        labelResponseSchema,
+        await api.setLabel(href, label, options),
+      ),
+    unsetLabel: async (href, key, options) =>
+      parseResponse(
+        labelResponseSchema,
+        await api.unsetLabel(href, { key }, options),
+      ),
+    clientUrlOf: (row) => clientUrl(row) ?? null,
     index: async (options) => {
       const byHref = new Map<string, Row>();
       let received = 0;

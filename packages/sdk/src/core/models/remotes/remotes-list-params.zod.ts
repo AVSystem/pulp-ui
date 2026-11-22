@@ -31,8 +31,8 @@ export const RemotesListParams = zod.object({
   "pulp_last_updated__lt": zod.iso.datetime({"offset":true}).optional(),
   "pulp_last_updated__lte": zod.iso.datetime({"offset":true}).optional(),
   "pulp_last_updated__range": zod.array(zod.iso.datetime({"offset":true})).optional(),
-  "pulp_type": zod.enum(['ansible.collection', 'ansible.git', 'ansible.role', 'deb.apt-remote', 'file.file', 'file.git', 'maven.maven', 'npm.npm', 'python.python', 'rpm.rpm', 'rpm.uln']).optional(),
-  "pulp_type__in": zod.array(zod.enum(['ansible.collection', 'ansible.git', 'ansible.role', 'deb.apt-remote', 'file.file', 'file.git', 'maven.maven', 'npm.npm', 'python.python', 'rpm.rpm', 'rpm.uln'])).optional(),
+  "pulp_type": zod.enum(['ansible.collection', 'ansible.git', 'ansible.role', 'container.container', 'container.pull-through', 'deb.apt-remote', 'file.file', 'file.git', 'maven.maven', 'npm.npm', 'python.python', 'rpm.rpm', 'rpm.uln']).optional(),
+  "pulp_type__in": zod.array(zod.enum(['ansible.collection', 'ansible.git', 'ansible.role', 'container.container', 'container.pull-through', 'deb.apt-remote', 'file.file', 'file.git', 'maven.maven', 'npm.npm', 'python.python', 'rpm.rpm', 'rpm.uln'])).optional(),
   "q": zod.string().optional(),
   "fields": zod.array(zod.string()).optional(),
   "exclude_fields": zod.array(zod.string()).optional()

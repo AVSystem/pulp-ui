@@ -4,6 +4,8 @@ import {
   distributionsDebAptList,
   distributionsDebAptPartialUpdate,
   distributionsDebAptRead,
+  distributionsDebAptSetLabel,
+  distributionsDebAptUnsetLabel,
   getDistributionsDebAptListUrl,
 } from '@pulp-ui/sdk/deb/distributions-apt';
 import {
@@ -23,5 +25,7 @@ export const debDistribution = makeDistributionEntity({
     create: distributionsDebAptCreate,
     partialUpdate: distributionsDebAptPartialUpdate,
     remove: distributionsDebAptDelete,
+    setLabel: distributionsDebAptSetLabel,
+    unsetLabel: distributionsDebAptUnsetLabel,
   },
 });

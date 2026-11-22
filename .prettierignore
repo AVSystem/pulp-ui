@@ -11,6 +11,7 @@ locale/
 packages/sdk/schema/
 packages/sdk/src/ansible/
 packages/sdk/src/certguard/
+packages/sdk/src/container/
 packages/sdk/src/core/
 packages/sdk/src/deb/
 packages/sdk/src/file/
