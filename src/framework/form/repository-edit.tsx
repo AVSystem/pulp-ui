@@ -27,8 +27,8 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
-import type { PluginDescriptor } from '../descriptor';
-import type { FrameworkPlugin } from '../manifest';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
+import { type FrameworkPlugin, repositoryPermissions } from '../manifest';
 import { repositoryListPath, repositoryPath } from '../route-patterns';
 import { DescriptorForm } from './descriptor-form';
 import {
@@ -70,7 +70,7 @@ const RepositoryEditScreen = ({
   descriptor,
   name,
 }: Props & { name?: string }) => {
-  const { entity } = descriptor.repository;
+  const { entity } = repositoryOf(descriptor);
   const fields = useMemo(() => repositoryFields(descriptor), [descriptor]);
   const query = useEntityByName(entity, name ?? null);
   const update = useUpdateEntity<RepositoryChanges, RepositoryBase>(entity);
@@ -243,7 +243,7 @@ const RepositoryEditScreen = ({
       <FormPermissionGate
         plugin={plugin}
         repository={repository}
-        permission={(permissions) => permissions.repository.change}
+        permission={(permissions) => repositoryPermissions(permissions).change}
         title={repositoryName}
         keep={edit !== null}
       >

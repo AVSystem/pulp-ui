@@ -45,12 +45,18 @@ import {
 import { SelectCell } from '../bulk/select-cells';
 import { usePageSelection } from '../bulk/selection';
 import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
-import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
+import {
+  type ColumnDef,
+  type FilterDef,
+  type PluginDescriptor,
+  repositoryOf,
+} from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
 import {
   type FrameworkPlugin,
   PLUGIN_MANIFESTS,
   type PluginManifest,
+  repositoryPermissions,
 } from '../manifest';
 import { newRepositoryPath } from '../route-patterns';
 import { SyncDialog } from '../sync/sync-dialog';
@@ -183,11 +189,11 @@ const RepositoryListScreen = ({
     entity,
     columns = NO_COLUMNS,
     filters = NO_FILTERS,
-  } = descriptor.repository;
+  } = repositoryOf(descriptor);
   const manifest = PLUGIN_MANIFESTS.find(
     (candidate) => candidate.plugin === plugin,
   ) as PluginManifest;
-  const names = manifest.permissions.repository;
+  const names = repositoryPermissions(manifest.permissions);
 
   const { params, filterIsSet, updateParams } = useListAddress(
     columns,
@@ -201,11 +207,11 @@ const RepositoryListScreen = ({
       Array.from(
         new Set([
           ...BASE_FIELDS,
-          ...(descriptor.repository.sync?.fields ?? []),
+          ...(repositoryOf(descriptor).sync?.fields ?? []),
           ...columns.flatMap((column) => column.fields ?? []),
         ]),
       ),
-    [columns, descriptor.repository.sync],
+    [columns, repositoryOf(descriptor).sync],
   );
   // The base path is not a field of a repository: it selects repositories
   // through the distributions that serve them, so it is not part of the request.

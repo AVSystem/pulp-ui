@@ -96,6 +96,17 @@ interface IPluginPaths {
   packages?: string;
 }
 
+// The lists of repositories and remotes of the plugins that keep their own
+// screens for them, whose manifest lists distributions only.
+const OWN_SCREENS: Partial<
+  Record<FrameworkPlugin, { repositories: string; remotes: string }>
+> = {
+  ansible: {
+    repositories: Paths.ansible.repository.list,
+    remotes: Paths.ansible.remote.list,
+  },
+};
+
 // The lists of packages the plugins have; they are not part of a manifest
 // because their screens are not described by a descriptor.
 const PACKAGE_LISTS: Partial<Record<FrameworkPlugin, string>> = {
@@ -104,29 +115,22 @@ const PACKAGE_LISTS: Partial<Record<FrameworkPlugin, string>> = {
 };
 
 // The plugins that have screens, in the order the second level lists them: the
-// plugins of the manifests, with an entry for each resource a manifest lists,
-// then ansible, which has no manifest yet. The label is translated here, where
-// it is drawn, because a manifest holds plain strings only.
+// plugins of the manifests, with an entry for each resource a manifest lists
+// and, for a plugin that keeps its own screens, the entry of those. The label is
+// translated here, where it is drawn, because a manifest holds plain strings
+// only.
 function pluginPaths(): IPluginPaths[] {
-  return [
-    ...PLUGIN_MANIFESTS.map(({ plugin, label, resources }) => ({
-      key: plugin,
-      label: plugin === 'file' ? t`File` : label,
-      repositories: resources.includes('repository')
-        ? repositoryListPath(plugin)
-        : undefined,
-      remotes: resources.includes('remote')
-        ? remoteListPath(plugin)
-        : undefined,
-      packages: PACKAGE_LISTS[plugin],
-    })),
-    {
-      key: 'ansible',
-      label: 'Ansible',
-      repositories: Paths.ansible.repository.list,
-      remotes: Paths.ansible.remote.list,
-    },
-  ];
+  return PLUGIN_MANIFESTS.map(({ plugin, label, resources }) => ({
+    key: plugin,
+    label: plugin === 'file' ? t`File` : label,
+    repositories: resources.includes('repository')
+      ? repositoryListPath(plugin)
+      : OWN_SCREENS[plugin]?.repositories,
+    remotes: resources.includes('remote')
+      ? remoteListPath(plugin)
+      : OWN_SCREENS[plugin]?.remotes,
+    packages: PACKAGE_LISTS[plugin],
+  }));
 }
 
 function pluginEntries(
@@ -177,8 +181,9 @@ function buildGroups(
 
   // The one list of every plugin's distributions is offered once at least one
   // plugin that has distributions is installed.
-  const distributions: IMenuEntry[] = PLUGIN_MANIFESTS.some(({ plugin }) =>
-    installed.has(plugin),
+  const distributions: IMenuEntry[] = PLUGIN_MANIFESTS.some(
+    ({ plugin, resources }) =>
+      resources.includes('distribution') && installed.has(plugin),
   )
     ? [
         {

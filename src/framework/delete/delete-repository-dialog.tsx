@@ -20,7 +20,7 @@ import {
   isSessionEnd,
   requestErrorDescription,
 } from 'src/utilities/request-error';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
 import {
   type ServedDistribution,
@@ -197,7 +197,7 @@ const DeleteDialog = ({
   // sent, whatever the delete came to.
   const reread = () => {
     void queryClient.invalidateQueries({
-      queryKey: entityKeys(descriptor.repository.entity).all,
+      queryKey: entityKeys(repositoryOf(descriptor).entity).all,
     });
     if (descriptor.distribution) {
       void queryClient.invalidateQueries({
@@ -217,7 +217,7 @@ const DeleteDialog = ({
 
     try {
       const result = await deleteRepositoryWithDistributions({
-        repository: descriptor.repository.entity,
+        repository: repositoryOf(descriptor).entity,
         distribution: descriptor.distribution?.entity,
         publication: descriptor.publication,
         target: { name, pulp_href },

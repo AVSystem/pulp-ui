@@ -2,7 +2,7 @@ import { t } from '@lingui/core/macro';
 import { DropdownItem } from '@patternfly/react-core';
 import type { ReactElement } from 'react';
 import type { RepositoryBase } from 'src/entities/plugin/model';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { FrameworkPlugin, IPluginPermissions } from '../manifest';
 import { repositoryEditPath } from '../route-patterns';
 
@@ -48,7 +48,7 @@ export const REPOSITORY_ROW_ACTIONS: RowAction<RepositoryBase>[] = [
     permission: 'sync',
     // A repository with no remote has nothing to sync from.
     appliesTo: (row, descriptor) =>
-      descriptor.repository.sync !== undefined && !!row.remote,
+      repositoryOf(descriptor).sync !== undefined && !!row.remote,
     item: (row, { requestSync }) => (
       <DropdownItem key='sync' onClick={() => requestSync(row)}>
         {t`Sync`}

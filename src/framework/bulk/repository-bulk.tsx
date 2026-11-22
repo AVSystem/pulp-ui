@@ -11,7 +11,7 @@ import {
   isSessionEnd,
   requestErrorDescription,
 } from 'src/utilities/request-error';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { RepositoryPermission } from '../list/row-actions';
 import { bulkDelete } from './bulk-actions';
 import type { OnSettled } from './bulk-actions';
@@ -44,7 +44,7 @@ type RepositoryPermits = Permits<RepositoryPermission, RepositoryBase>;
 const ACTIONS = (
   descriptor: PluginDescriptor,
 ): BulkMenuAction<RepositoryPermission>[] => [
-  ...(descriptor.repository.sync
+  ...(repositoryOf(descriptor).sync
     ? [{ id: 'sync', permission: 'sync' as const, label: t`Sync` }]
     : []),
   { id: 'add-label', permission: 'change', label: t`Add label` },
@@ -124,7 +124,7 @@ export const RepositoryBulk = ({
         ) : (
           <LabelBulkDialog
             mode={chosen.id === 'add-label' ? 'add' : 'remove'}
-            entity={descriptor.repository.entity}
+            entity={repositoryOf(descriptor).entity}
             {...common}
           />
         )
@@ -194,7 +194,7 @@ const DeleteBulkDialog = ({
     bulkDelete(
       {
         rows,
-        repository: descriptor.repository.entity,
+        repository: repositoryOf(descriptor).entity,
         distribution: descriptor.distribution?.entity,
         publication: descriptor.publication,
         shownFor: ({ pulp_href }) =>
@@ -210,7 +210,7 @@ const DeleteBulkDialog = ({
   // sent.
   const reread = () => {
     void queryClient.invalidateQueries({
-      queryKey: entityKeys(descriptor.repository.entity).all,
+      queryKey: entityKeys(repositoryOf(descriptor).entity).all,
     });
     if (descriptor.distribution) {
       void queryClient.invalidateQueries({

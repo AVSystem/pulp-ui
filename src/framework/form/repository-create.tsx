@@ -6,9 +6,13 @@ import { useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import { BaseHeader, Breadcrumbs, Main, Spinner } from 'src/components';
 import { entityKeys } from 'src/entities/plugin/queries';
-import type { PluginDescriptor } from '../descriptor';
-import type { FrameworkPlugin } from '../manifest';
-import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
+import {
+  type FrameworkPlugin,
+  PLUGIN_MANIFESTS,
+  type PluginManifest,
+  repositoryPermissions,
+} from '../manifest';
 import { repositoryListPath, repositoryPath } from '../route-patterns';
 import { createAlerts, createRepositoryWithDistribution } from './create-flow';
 import { DescriptorForm } from './descriptor-form';
@@ -41,7 +45,7 @@ interface Props {
 // permission to add a distribution offers the option; Pulp decides every
 // request.
 export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
-  const { entity } = descriptor.repository;
+  const { entity } = repositoryOf(descriptor);
   const distributionEntity = descriptor.distribution?.entity;
   const fields = useMemo(() => repositoryFields(descriptor), [descriptor]);
   const shownNames = useMemo(() => fields.map(({ name }) => name), [fields]);
@@ -49,7 +53,7 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
   // the permissions are read again.
   const [values, setValues] = useState<FormValues>(() => ({
     ...toForm(fields, {}),
-    ...descriptor.repository.createDefaults,
+    ...repositoryOf(descriptor).createDefaults,
   }));
   const [draft, setDraft] = useState<DistributionDraft>(NO_DISTRIBUTION);
   const [failure, setFailure] = useState<SaveFailure | null>(null);
@@ -78,7 +82,7 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
   // plugin and only for a plugin that has distributions.
   const offered =
     distributionEntity !== undefined &&
-    hasPermission(manifest.permissions.repository.addDistribution);
+    hasPermission(repositoryPermissions(manifest.permissions).addDistribution);
   const prefixes = reservedPrefixes();
   const resolved = resolveDistribution(name, draft, prefixes, offered);
 
@@ -154,7 +158,7 @@ export const RepositoryCreate = ({ plugin, descriptor }: Props) => {
   return (
     <CreatePermissionGate
       plugin={plugin}
-      permission={(permissions) => permissions.repository.add}
+      permission={(permissions) => repositoryPermissions(permissions).add}
       title={t`Add new repository`}
     >
       <BaseHeader

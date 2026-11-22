@@ -28,7 +28,7 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { DeleteRemoteDialog } from '../delete/delete-remote-dialog';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import { LabelEditor } from '../labels/label-editor';
 import { UsedBy } from '../list/used-by';
 import type { FrameworkPlugin } from '../manifest';
@@ -94,7 +94,10 @@ const RepositoriesRow = ({
   descriptor,
   remote,
 }: Props & { remote: RemoteBase }) => {
-  const users = useRemoteUsers(descriptor.repository.entity, remote.pulp_href);
+  const users = useRemoteUsers(
+    repositoryOf(descriptor).entity,
+    remote.pulp_href,
+  );
 
   if (users.state === 'error') {
     return (

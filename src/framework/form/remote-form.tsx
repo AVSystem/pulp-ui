@@ -36,7 +36,7 @@ import {
 import { taskAlert } from 'src/utilities/task-alert';
 import type { FieldDef, PluginDescriptor } from '../descriptor';
 import { useRereadAlert } from '../list/list-frame';
-import type { FrameworkPlugin } from '../manifest';
+import { type FrameworkPlugin, remotePermissions } from '../manifest';
 import { remoteListPath, remotePath } from '../route-patterns';
 import { DescriptorForm } from './descriptor-form';
 import {
@@ -286,7 +286,7 @@ const RemoteEditScreen = ({
       <FormPermissionGate
         plugin={plugin}
         repository={remote}
-        permission={(permissions) => permissions.remote.change}
+        permission={(permissions) => remotePermissions(permissions).change}
         title={remoteName}
         keep={edit !== null}
       >
@@ -413,7 +413,7 @@ export const RemoteCreate = ({ plugin, descriptor }: Props) => {
   return (
     <CreatePermissionGate
       plugin={plugin}
-      permission={(permissions) => permissions.remote.add}
+      permission={(permissions) => remotePermissions(permissions).add}
       title={t`Add new remote`}
     >
       <BaseHeader

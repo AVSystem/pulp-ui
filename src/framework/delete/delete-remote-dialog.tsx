@@ -15,7 +15,7 @@ import {
   requestErrorDescription,
   requestErrorStatus,
 } from 'src/utilities/request-error';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import { useRemoteUsers } from '../detail/remote-users';
 import { useDeleteRemote } from './delete-remote';
 
@@ -60,7 +60,7 @@ export const DeleteRemoteDialog = ({
     );
   }
 
-  const users = useRemoteUsers(descriptor.repository.entity, pulp_href);
+  const users = useRemoteUsers(repositoryOf(descriptor).entity, pulp_href);
   const { remove, isPending } = useDeleteRemote(entity);
   const [failure, setFailure] = useState<Failure | null>(null);
 

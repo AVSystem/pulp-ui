@@ -24,7 +24,7 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
 import {
   type RepositoryTab,
@@ -70,7 +70,7 @@ const RepositoryDetailScreen = ({
   name,
   number,
 }: Props & { name?: string; number?: string }) => {
-  const { entity, tabs: pluginTabs = [] } = descriptor.repository;
+  const { entity, tabs: pluginTabs = [] } = repositoryOf(descriptor);
   // The alerts another screen queued for this one (the result of an edit) are
   // taken over once, so they show here and nowhere else, also when they are
   // queued while this screen is already shown.
@@ -98,7 +98,9 @@ const RepositoryDetailScreen = ({
   // to sync from, and the user holds the sync permission.
   const maySync = useRepositoryPermission(plugin, repository, 'sync');
   const canSync =
-    descriptor.repository.sync !== undefined && maySync && !!repository?.remote;
+    repositoryOf(descriptor).sync !== undefined &&
+    maySync &&
+    !!repository?.remote;
   const [syncing, setSyncing] = useState(false);
 
   const status = query.isError ? requestErrorStatus(query.error) : null;

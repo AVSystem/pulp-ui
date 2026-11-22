@@ -5,7 +5,11 @@ import { useMemo, useState } from 'react';
 import type { AlertType } from 'src/components';
 import { taskKeys } from 'src/entities/core/task/queries';
 import type { RepositoryBase } from 'src/entities/plugin/model';
-import type { PluginDescriptor, SyncOptionDef } from '../descriptor';
+import {
+  type PluginDescriptor,
+  type SyncOptionDef,
+  repositoryOf,
+} from '../descriptor';
 import { OptionField } from '../sync/sync-dialog';
 import { useWatchTask } from '../watched-tasks';
 import { bulkSync, watchLimiter } from './bulk-actions';
@@ -51,7 +55,7 @@ export const SyncBulkDialog = ({
 }: Props) => {
   const queryClient = useQueryClient();
   const { watch } = useWatchTask();
-  const { entity, sync } = descriptor.repository;
+  const { entity, sync } = repositoryOf(descriptor);
   const options = sync?.options ?? [];
   const [values, setValues] = useState(() => startingValues(options, rows));
 

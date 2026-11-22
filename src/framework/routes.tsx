@@ -35,6 +35,18 @@ const DESCRIPTORS: Partial<
     import(
       /* webpackChunkName: "python" */ 'src/descriptors/python/descriptor'
     ),
+  maven: () =>
+    import(/* webpackChunkName: "maven" */ 'src/descriptors/maven/descriptor'),
+  npm: () =>
+    import(/* webpackChunkName: "npm" */ 'src/descriptors/npm/descriptor'),
+  ansible: () =>
+    import(
+      /* webpackChunkName: "ansible-framework" */ 'src/descriptors/ansible/descriptor'
+    ),
+  container: () =>
+    import(
+      /* webpackChunkName: "container" */ 'src/descriptors/container/descriptor'
+    ),
 };
 
 // A screen drawn by generic code from a plugin's descriptor: the descriptor
@@ -174,6 +186,15 @@ const DistributionListScreen = lazyScreen(() =>
   ).then(({ DistributionList }) => ({ default: DistributionList })),
 );
 
+// The tabs of a repository that have a screen. The address of any other tab is
+// reserved and answers Not Found without a read, like any address without a
+// route.
+const TABS_WITH_SCREENS: ReadonlySet<RepositoryTab> = new Set<RepositoryTab>([
+  'versions',
+  'distributions',
+  'packages',
+]);
+
 // The component of a pattern, or null while its screen does not exist yet:
 // such a pattern is not routed.
 function componentOf(
@@ -186,7 +207,9 @@ function componentOf(
     case 'repository-detail':
       return repositoryDetailScreen(plugin, null);
     case 'repository-tab':
-      return repositoryDetailScreen(plugin, tab as RepositoryTab);
+      return TABS_WITH_SCREENS.has(tab as RepositoryTab)
+        ? repositoryDetailScreen(plugin, tab as RepositoryTab)
+        : null;
     case 'repository-edit':
       return repositoryEditScreen(plugin);
     case 'repository-create':
@@ -216,17 +239,11 @@ export function frameworkRoutes(
       );
     }
 
-    return patternsOf(plugin)
-      .filter(({ screen }) =>
-        resources.includes(
-          screen.startsWith('remote') ? 'remote' : 'repository',
-        ),
-      )
-      .flatMap((pattern) => {
-        const component = componentOf(plugin, pattern);
+    return patternsOf(plugin, resources).flatMap((pattern) => {
+      const component = componentOf(plugin, pattern);
 
-        return component ? [{ component, path: pattern.pattern, plugin }] : [];
-      });
+      return component ? [{ component, path: pattern.pattern, plugin }] : [];
+    });
   });
 }
 

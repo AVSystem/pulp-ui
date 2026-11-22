@@ -29,7 +29,11 @@ import { ListItemActions } from 'src/components/list-item-actions';
 import type { DistributionBase } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { requestErrorDescription } from 'src/utilities/request-error';
-import type { PluginDescriptor, TabDef } from '../descriptor';
+import {
+  type PluginDescriptor,
+  type TabDef,
+  repositoryOf,
+} from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
 import {
   type ServedDistribution,
@@ -119,7 +123,7 @@ export const DistributionsTab = ({
       'The descriptor declares no distribution, which the Distributions tab needs',
     );
   }
-  const snippet = descriptor.repository.snippet;
+  const snippet = repositoryOf(descriptor).snippet;
   const serving = useServedDistributions({
     plugin,
     distribution: distribution.entity,

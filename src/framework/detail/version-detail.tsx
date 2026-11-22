@@ -16,7 +16,7 @@ import {
   isSessionEnd,
   requestErrorDescription,
 } from 'src/utilities/request-error';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
 import { versionPath } from '../route-patterns';
 
@@ -79,7 +79,7 @@ export const VersionDetail = ({
   number,
 }: Props) => {
   const query = useRepositoryVersion(
-    descriptor.repository.entity,
+    repositoryOf(descriptor).entity,
     repository.pulp_href,
     number,
   );

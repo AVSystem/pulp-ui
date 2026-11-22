@@ -1,6 +1,6 @@
 // @vitest-environment node
-// A plugin whose screens come from its descriptor has no screens of its own:
-// its repositories and remotes are drawn by the generic list, detail and form,
+// A plugin whose repository and remote screens come from its descriptor has no
+// screens of its own for them: its repositories and remotes are drawn by the generic list, detail and form,
 // and a folder of per-plugin containers or a per-plugin action next to them
 // would be a second implementation that can drift from the first. This test
 // reads the source tree and fails when one of the old files of a plugin that is
@@ -71,15 +71,20 @@ describe(
     });
 
     it('has at least one plugin on the framework, so the guard is not empty', () => {
-      expect(PLUGIN_MANIFESTS.some(({ onFramework }) => onFramework)).toBe(
-        true,
-      );
+      expect(
+        PLUGIN_MANIFESTS.some(({ resources }) =>
+          resources.includes('repository'),
+        ),
+      ).toBe(true);
     });
 
+    // A plugin that has only distributions on the framework keeps its own
+    // repository and remote screens, so the guard does not apply to them.
     it.each(
-      PLUGIN_MANIFESTS.filter(({ onFramework }) => onFramework).map(
-        ({ plugin }) => plugin,
-      ),
+      PLUGIN_MANIFESTS.filter(
+        ({ resources }) =>
+          resources.includes('repository') || resources.includes('remote'),
+      ).map(({ plugin }) => plugin),
     )('leaves no container folder and no action of the %s plugin', (plugin) => {
       expect(leftovers(plugin, names('containers'), names('actions'))).toEqual(
         [],
