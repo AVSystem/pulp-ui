@@ -565,6 +565,51 @@ export function publicationListHandler<T extends { pulp_href: string }>(
   return { ...list, path };
 }
 
+// A cross-plugin list of objects of any plugin as the server answers it: the
+// `pulp_href__in` filter, the `fields` cut and the paging of listOf (a page
+// holds at most pageSize rows, 1,000 as on the server). Used for the lists that
+// name repositories, publications and content guards by address.
+function byHrefListHandler<T extends { pulp_href: string }>(
+  path: string,
+  rows: T[],
+  { pageSize = 1000 }: { pageSize?: number } = {},
+) {
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      return hrefs === null || hrefs.includes(row.pulp_href);
+    },
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
+}
+
+// The repositories of every plugin through the one list that holds them all.
+export function coreRepositoryListHandler<T extends { pulp_href: string }>(
+  rows: T[],
+  options?: { pageSize?: number },
+) {
+  return byHrefListHandler('/pulp/api/v3/repositories/', rows, options);
+}
+
+// The publications of every plugin through the one list that holds them all.
+export function corePublicationListHandler<T extends { pulp_href: string }>(
+  rows: T[],
+  options?: { pageSize?: number },
+) {
+  return byHrefListHandler('/pulp/api/v3/publications/', rows, options);
+}
+
+// The content guards of every kind through the one list that holds them all.
+export function contentGuardListHandler<T extends { pulp_href: string }>(
+  rows: T[],
+  options?: { pageSize?: number },
+) {
+  return byHrefListHandler('/pulp/api/v3/contentguards/', rows, options);
+}
+
 // The repository versions list as one of two servers answers it. A patched
 // server selects exactly the versions named by `pulp_href__in` and cuts rows
 // to `fields`. An unpatched server cannot read a version address as a filter
