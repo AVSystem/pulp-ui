@@ -30,11 +30,11 @@ const FILE: PluginManifest = {
 };
 
 function Routed() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   return (
     <>
-      <p data-testid='location'>{pathname}</p>
+      <p data-testid='location'>{`${pathname}${search}`}</p>
       {useRoutes(guardRoutes(frameworkRoutes([FILE])))}
     </>
   );
@@ -589,6 +589,64 @@ describe(
       expect(own.length).toBeLessThanOrEqual(3);
       expect(own.filter((path) => /\/[0-9a-f-]{36}\/$/.test(path))).toEqual([]);
       server.events.removeListener('request:start', record);
+    });
+  },
+);
+
+describe(
+  'Integration: creating a distribution from the Distributions tab',
+  { tags: ['integration'] },
+  () => {
+    it('offers Create beside the rows and opens the form with this repository chosen', async () => {
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'tools-dist', repository }),
+        ],
+        publications: (repository) => [
+          pluginPublication('file', { repository }),
+        ],
+      });
+      const { user } = renderTab();
+
+      await rowOf('tools-dist');
+      await user.click(
+        screen.getByRole('button', { name: 'Create distribution' }),
+      );
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/file/distribution/new/?repository=tools',
+      );
+    });
+
+    it('offers Create on the empty tab, with the name of a hostile repository encoded', async () => {
+      const hostile = 'a b/c&d';
+      serveLab({ name: hostile });
+      const { user } = renderTab(hostile);
+
+      await user.click(
+        await screen.findByRole('button', { name: 'Create distribution' }),
+      );
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        `/file/distribution/new/?repository=${encodeURIComponent(hostile)}`,
+      );
+    });
+
+    it('offers no Create to a user who may not add file distributions', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filedistribution']],
+      });
+      serveLab();
+      renderTab();
+
+      await screen.findByText('No distribution serves this repository');
+
+      expect(
+        screen.queryByRole('button', { name: 'Create distribution' }),
+      ).toBeNull();
     });
   },
 );

@@ -989,3 +989,92 @@ describe(
     });
   },
 );
+
+describe(
+  'Integration: creating a distribution from the list',
+  { tags: ['integration'] },
+  () => {
+    const replaceAccount = (setup: Parameters<typeof servePermissions>[0]) => {
+      permissions.stop();
+      permissions = servePermissions({ id: 7, ...setup });
+    };
+
+    it('asks for the plugin first: every installed plugin the user may add to is offered, and the choice opens that plugin form', async () => {
+      reportPlugins(['core', 'file', 'python', 'maven']);
+      serveLab({ file: named('file', 2) });
+      const { user } = renderList();
+
+      await tableOf();
+      await user.click(
+        screen.getByRole('button', { name: 'Create distribution' }),
+      );
+      expect(
+        screen
+          .getAllByRole('menuitem')
+          .map((item) => item.textContent)
+          .sort(),
+      ).toStrictEqual([
+        'File distribution',
+        'Maven distribution',
+        'Python distribution',
+      ]);
+
+      await user.click(
+        screen.getByRole('menuitem', { name: 'Python distribution' }),
+      );
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/python/distribution/new',
+      );
+    });
+
+    it('offers only the plugins whose add permission the user holds', async () => {
+      replaceAccount({
+        isStaff: false,
+        own: [['python.add_pythondistribution', 'core.view_distribution']],
+      });
+      reportPlugins(['core', 'file', 'python']);
+      serveLab({ file: named('file', 2) });
+      const { user } = renderList();
+
+      await tableOf();
+      await user.click(
+        screen.getByRole('button', { name: 'Create distribution' }),
+      );
+
+      expect(
+        screen.getAllByRole('menuitem').map((item) => item.textContent),
+      ).toStrictEqual(['Python distribution']);
+    });
+
+    it('offers no Create button to a user who may add no distribution of an installed plugin', async () => {
+      replaceAccount({ isStaff: false, own: [['core.view_distribution']] });
+      reportPlugins(['core', 'file']);
+      serveLab({ file: named('file', 2) });
+      renderList();
+
+      await tableOf();
+
+      expect(
+        screen.queryByRole('button', { name: 'Create distribution' }),
+      ).toBeNull();
+    });
+
+    it('offers Create on the empty list too', async () => {
+      reportPlugins(['core', 'file']);
+      serveLab({ file: [] });
+      const { user } = renderList();
+
+      await user.click(
+        await screen.findByRole('button', { name: 'Create distribution' }),
+      );
+      await user.click(
+        screen.getByRole('menuitem', { name: 'File distribution' }),
+      );
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/file/distribution/new',
+      );
+    });
+  },
+);
