@@ -400,7 +400,16 @@ msgstr "A base path cannot start or end with a slash or contain two slashes in a
 #~ msgid "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
 #~ msgstr "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "A content guard limits who can download. A public distribution has no content guard, so anyone who can reach the server can download from it."
+msgstr "A content guard limits who can download. A public distribution has no content guard, so anyone who can reach the server can download from it."
+
+#: src/framework/form/create-flow.ts
+msgid "a content guard you may not see"
+msgstr "a content guard you may not see"
+
 #: src/framework/distributions/distribution-columns.tsx
+#: src/framework/distributions/guard-field.tsx
 msgid "A content guard you may not see"
 msgstr "A content guard you may not see"
 
@@ -1397,6 +1406,10 @@ msgstr "Child tasks"
 #~ msgid "Choices:"
 #~ msgstr "Choices:"
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "Choose how this distribution is protected."
+msgstr "Choose how this distribution is protected."
+
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/typeahead.tsx
@@ -1749,6 +1762,10 @@ msgstr "Completed {when}"
 #: src/descriptors/deb/descriptor.tsx
 msgid "Components"
 msgstr "Components"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "Composite"
+msgstr "Composite"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -3341,6 +3358,11 @@ msgstr "Failed to find repository version"
 #~ msgid "Failed to load collection."
 #~ msgstr "Failed to load collection."
 
+#. placeholder {0}: requestErrorText(found.error)
+#: src/framework/distributions/guard-field.tsx
+msgid "Failed to load content guards: {0}"
+msgstr "Failed to load content guards: {0}"
+
 #: src/components/lazy-distributions.tsx
 msgid "Failed to load distributions: {error}"
 msgstr "Failed to load distributions: {error}"
@@ -3865,6 +3887,10 @@ msgstr "Has no remote, so it is skipped"
 msgid "Has words"
 msgstr "Has words"
 
+#: src/framework/distributions/guard-field.tsx
+msgid "Header"
+msgstr "Header"
+
 #: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
 msgid "Help"
@@ -4191,6 +4217,14 @@ msgstr "It is not known whether distribution {name} was removed."
 #: src/framework/delete/delete-outcome.tsx
 msgid "It is not known whether the repository was removed."
 msgstr "It is not known whether the repository was removed."
+
+#: src/framework/form/create-flow.ts
+msgid "It is protected by the content guard you chose."
+msgstr "It is protected by the content guard you chose."
+
+#: src/framework/form/create-flow.ts
+msgid "It is public: anyone can download from it without signing in."
+msgstr "It is public: anyone can download from it without signing in."
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
@@ -4596,6 +4630,10 @@ msgstr "Mode"
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "More guards match; type more of the name"
+msgstr "More guards match; type more of the name"
 
 #: src/components/help-button.tsx
 msgid "More information"
@@ -5307,6 +5345,10 @@ msgstr "Online content apps"
 msgid "Online workers"
 msgstr "Online workers"
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "Only clients the guard allows can download."
+msgstr "Only clients the guard allows can download."
+
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
@@ -5732,6 +5774,10 @@ msgstr "Projects to skip, one specifier per line, for example \"django<4\". Appl
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 msgstr "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "Protected by a content guard"
+msgstr "Protected by a content guard"
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Protected by a content guard: customer-facing URL"
@@ -5740,6 +5786,10 @@ msgstr "Protected by a content guard: customer-facing URL"
 #: src/actions/ansible-repository-delete.tsx
 #~ msgid "Protected repositories cannot be deleted."
 #~ msgstr "Protected repositories cannot be deleted."
+
+#: src/framework/distributions/protection-choice.tsx
+msgid "Protection"
+msgstr "Protection"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -5795,6 +5845,10 @@ msgstr "Proxy username"
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Public"
 msgstr "Public"
+
+#: src/framework/distributions/protection-choice.tsx
+msgid "Public - anyone can download without signing in"
+msgstr "Public - anyone can download without signing in"
 
 #: src/containers/signature-keys/list.tsx
 msgid "Public key"
@@ -6151,6 +6205,10 @@ msgstr "Rate limit"
 #: src/components/markdown-editor.tsx
 #~ msgid "Raw Markdown"
 #~ msgstr "Raw Markdown"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "RBAC"
+msgstr "RBAC"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Reading every distribution to find the public ones"
@@ -6732,6 +6790,7 @@ msgstr "Retries"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/distributions/guard-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
@@ -6795,6 +6854,10 @@ msgstr "Revert to this version"
 #: src/actions/repository-version-revert.tsx
 msgid "Reverted repository \"{repositoryName}\" to version \"{number}\"."
 msgstr "Reverted repository \"{repositoryName}\" to version \"{number}\"."
+
+#: src/framework/distributions/guard-field.tsx
+msgid "RHSM certificate"
+msgstr "RHSM certificate"
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
@@ -7110,6 +7173,10 @@ msgstr "Select {0}"
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Select a collection"
 msgstr "Select a collection"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "Select a content guard"
+msgstr "Select a content guard"
 
 #: src/components/access-tab.tsx
 msgid "Select a group"
@@ -8187,8 +8254,11 @@ msgstr "The delete stopped with an unexpected error. The distribution may alread
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
 msgstr "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
+msgstr "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
+
 #: src/components/repository-form.tsx
-#: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 
@@ -8427,6 +8497,14 @@ msgstr "The selected roles will be added to this specific Ansible repository."
 #: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
 msgstr "The server could not be reached: {message}"
+
+#: src/framework/form/create-flow.ts
+msgid "The server did not apply the content guard you chose: the distribution has no content guard."
+msgstr "The server did not apply the content guard you chose: the distribution has no content guard."
+
+#: src/framework/form/create-flow.ts
+msgid "The server protected the distribution with {guard}."
+msgstr "The server protected the distribution with {guard}."
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
@@ -9596,6 +9674,10 @@ msgstr "Workers, storage and content settings are shown to administrators."
 #: src/framework/list/label-filter.tsx
 msgid "Write an expression"
 msgstr "Write an expression"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "X.509 certificate"
+msgstr "X.509 certificate"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
