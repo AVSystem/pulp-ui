@@ -145,6 +145,29 @@ describe(
       );
     });
 
+    it('sends the name, base path and label filters as the server names them, and none that is not set', async () => {
+      const { served } = lab();
+
+      await distributionPage({
+        plugins: ['file'],
+        name__icontains: 'fil',
+        base_path__icontains: 'a/b',
+        pulp_label_select: 'team=a,!old',
+        sort: '-pulp_created',
+      });
+      await distributionPage({ plugins: ['file'] });
+
+      const filtered = served.queries[0] as URLSearchParams;
+      expect(filtered.get('name__icontains')).toBe('fil');
+      expect(filtered.get('base_path__icontains')).toBe('a/b');
+      expect(filtered.get('pulp_label_select')).toBe('team=a,!old');
+      expect(filtered.get('ordering')).toBe('-pulp_created');
+      const plain = served.queries[1] as URLSearchParams;
+      expect(plain.has('name__icontains')).toBe(false);
+      expect(plain.has('base_path__icontains')).toBe(false);
+      expect(plain.has('pulp_label_select')).toBe(false);
+    });
+
     it('orders by name from the first page when nothing else is asked', async () => {
       const { served } = lab();
 

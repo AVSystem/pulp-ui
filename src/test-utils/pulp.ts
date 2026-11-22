@@ -448,14 +448,24 @@ export function coreDistributionListHandler(
       const hrefs = inSetOf(query, 'pulp_href__in');
       const text = query.get('name__icontains');
       const basePath = query.get('base_path__icontains');
+      const select = query.get('pulp_label_select');
+      const selected = select === null ? null : labelSelectOf(select);
       return (
         (types === null || types.includes(typeOf(row))) &&
         (hrefs === null || hrefs.includes(row.pulp_href)) &&
         (text === null ||
           row.name.toLowerCase().includes(text.toLowerCase())) &&
         (basePath === null ||
-          row.base_path.toLowerCase().includes(basePath.toLowerCase()))
+          row.base_path.toLowerCase().includes(basePath.toLowerCase())) &&
+        (selected === null ||
+          ('matches' in selected &&
+            selected.matches((row as { pulp_labels?: Labels }).pulp_labels)))
       );
+    },
+    refusing: (query) => {
+      const select = query.get('pulp_label_select');
+      const selected = select === null ? null : labelSelectOf(select);
+      return selected && 'refusal' in selected ? [selected.refusal] : undefined;
     },
     ordered: (selected, query) => {
       const ordering = query.get('ordering');

@@ -380,7 +380,7 @@ describe(
       );
     });
 
-    it('offers a sort control on the name, plugin and base path only, and sends only those orders', async () => {
+    it('offers a sort control on the name, plugin, base path and created date only, and sends only those orders', async () => {
       const lab = serveLab({ file: named('file', 3) });
 
       const { user } = renderList('/distributions?sort=-pulp_labels');
@@ -393,7 +393,12 @@ describe(
         Array.from(table.querySelectorAll('[data-cy^="sort_"]')).map((icon) =>
           icon.getAttribute('data-cy'),
         ),
-      ).toEqual(['sort_name', 'sort_pulp_type', 'sort_base_path']);
+      ).toEqual([
+        'sort_name',
+        'sort_pulp_type',
+        'sort_base_path',
+        'sort_pulp_created',
+      ]);
 
       await user.click(
         document.querySelector('[data-cy="sort_pulp_type"]') as HTMLElement,

@@ -403,6 +403,10 @@ msgstr "Een basispad mag niet beginnen of eindigen met een schuine streep en mag
 msgid "A content guard you may not see"
 msgstr ""
 
+#: src/framework/distributions/distribution-list.tsx
+msgid "A distribution is public when it has no content guard. Only those are listed."
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
@@ -1059,6 +1063,7 @@ msgstr "Terug"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
@@ -2078,6 +2083,7 @@ msgstr "Gemaakt"
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/remote-columns.tsx
 #: src/framework/repository-columns.tsx
 msgid "Created date"
@@ -3514,7 +3520,7 @@ msgstr "Snel"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
-#: src/framework/distributions/distribution-list.tsx
+#: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -3539,13 +3545,17 @@ msgstr "Bestand uploaden"
 msgid "Filter by {0}"
 msgstr "Filteren op {0}"
 
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Filter by base path"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Filter by labels"
 msgstr "Filteren op labels"
 
-#: src/components/collection-dependencies-list/collection-usedby-dependencies-list.tsx
-#~ msgid "Filter by name"
-#~ msgstr "Op naam filteren"
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Filter by name"
+msgstr "Op naam filteren"
 
 #: src/components/repo-selector/repo-selector.tsx
 #~ msgid "Filter by repository"
@@ -4263,6 +4273,7 @@ msgstr "Labelwaarde"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
@@ -4642,6 +4653,7 @@ msgstr "Mijn profiel"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
@@ -5669,6 +5681,7 @@ msgstr "Voeg een eigenaar toe met de onderstaande knoppen."
 #~ msgstr "Geef de naam van de namespace op"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "Plugin"
@@ -5785,6 +5798,10 @@ msgstr ""
 #: src/containers/signature-keys/list.tsx
 msgid "Public key"
 msgstr "Openbare sleutel"
+
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Public only"
+msgstr ""
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
@@ -6133,6 +6150,10 @@ msgstr "Tarieflimiet"
 #: src/components/markdown-editor.tsx
 #~ msgid "Raw Markdown"
 #~ msgstr "Ruwe markdown"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Reading every distribution to find the public ones"
+msgstr ""
 
 #: src/components/table-of-contents.tsx
 #~ msgid "Readme"
@@ -9598,6 +9619,7 @@ msgstr "YAML-vereisten zijn nodig om vanuit Galaxy te synchroniseren. U kunt <0>
 #: src/components/repair-task-modal.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/framework/distributions/distribution-filters.tsx
 msgid "Yes"
 msgstr "Ja"
 
