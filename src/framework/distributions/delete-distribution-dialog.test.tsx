@@ -438,7 +438,7 @@ describe(
         ),
       ).toBeVisible();
       expect(screen.getByRole('dialog')).toBeVisible();
-      expect(screen.getByText('wheels', { selector: 'td' })).toBeVisible();
+      expect(screen.getByText('wheels', { selector: 'a' })).toBeVisible();
     });
 
     it('reads the roles on single distributions only for a user who lacks the permission everywhere, and only for a plugin that has them', async () => {
@@ -498,9 +498,9 @@ describe(
       await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
 
       await waitFor(() =>
-        expect(screen.queryByText('wheels', { selector: 'td' })).toBeNull(),
+        expect(screen.queryByText('wheels', { selector: 'a' })).toBeNull(),
       );
-      expect(screen.getByText('galaxy', { selector: 'td' })).toBeVisible();
+      expect(screen.getByText('galaxy', { selector: 'a' })).toBeVisible();
       expect(screen.queryByRole('dialog')).toBeNull();
     });
   },

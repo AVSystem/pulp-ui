@@ -45,10 +45,12 @@ import {
   useRereadAlert,
   useShownRows,
 } from '../list/list-frame';
+import { distributionPath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import {
   GuardCell,
+  NameCell,
   ServedCell,
   ServesCell,
   UrlCell,
@@ -100,11 +102,19 @@ const DistributionRow = memo(function DistributionRow({
 
   return (
     <Tr data-cy={`DistributionList-row-${row.name}`}>
-      <Td>{row.name}</Td>
+      <Td>
+        <NameCell plugin={row.plugin} name={row.name} />
+      </Td>
       <Td>{row.plugin ? pluginLabel(row.plugin) : row.typeName}</Td>
       <Td>{row.base_path}</Td>
       <Td>
-        <UrlCell cells={cells} ofPlugin={owned} />
+        <UrlCell
+          cells={cells}
+          ofPlugin={owned}
+          detail={
+            row.plugin ? distributionPath(row.plugin, row.name) : undefined
+          }
+        />
       </Td>
       <Td>
         {owned ? <ServesCell cells={cells} plugin={row.plugin} /> : t`None`}

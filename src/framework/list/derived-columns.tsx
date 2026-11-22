@@ -6,7 +6,11 @@ import { DateComponent, StatusIndicator } from 'src/components';
 import { taskUrlId } from 'src/entities/core/task/href';
 import type { Task } from 'src/entities/core/task/model';
 import { versionNumberOf } from 'src/entities/href';
+import type { ServedAt } from 'src/entities/plugin/distribution';
 import { Paths, formatPath } from 'src/paths';
+import type { FrameworkPlugin } from '../manifest';
+import { distributionPath, repositoryPath } from '../route-patterns';
+import { PublicLabel } from '../serving/public-label';
 
 // The cells of the columns a list fills from reads it shares between its rows:
 // where a repository is served, its latest version, how much content that
@@ -25,14 +29,20 @@ const Placeholder = () => <Skeleton width='70%' />;
 
 const NotLoaded = () => <>{t`Not loaded`}</>;
 
-// The base URLs a repository is served at: the first one, and how many more
-// there are.
+// The base URLs a repository is served at: the first one, which leads to the
+// page of the distribution behind it and carries the Public mark when that
+// distribution has no content guard, and how many more there are, which lead
+// to the repository's distributions.
 export const BaseUrlCell = ({
   state,
-  urls,
+  served,
+  plugin,
+  repository,
 }: {
   state: ColumnState;
-  urls: readonly string[] | undefined;
+  served: readonly ServedAt[] | undefined;
+  plugin: FrameworkPlugin;
+  repository: string;
 }) => {
   if (state === 'loading') {
     return <Placeholder />;
@@ -40,16 +50,30 @@ export const BaseUrlCell = ({
   if (state !== 'ready') {
     return <NotLoaded />;
   }
-  if (!urls || urls.length === 0) {
+  if (!served || served.length === 0) {
     return <>{t`Not served`}</>;
   }
 
-  const more = urls.length - 1;
+  const [first] = served as [ServedAt, ...ServedAt[]];
+  const more = served.length - 1;
 
   return (
-    <span title={urls.join('\n')}>
-      {urls[0]}
-      {more > 0 ? ` ${t`+${more} more`}` : ''}
+    <span title={served.map(({ url }) => url).join('\n')}>
+      <Link to={distributionPath(plugin, first.name)}>{first.url}</Link>
+      {first.isPublic ? (
+        <>
+          {' '}
+          <PublicLabel />
+        </>
+      ) : null}
+      {more > 0 ? (
+        <>
+          {' '}
+          <Link to={repositoryPath(plugin, repository, 'distributions')}>
+            {t`+${more} more`}
+          </Link>
+        </>
+      ) : null}
     </span>
   );
 };

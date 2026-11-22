@@ -33,7 +33,7 @@ import type { FrameworkPlugin } from '../manifest';
 import { distributionListPath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
-import { GuardValue, PublicLabel, ServesValue } from './distribution-columns';
+import { GuardValue, ServesValue } from './distribution-columns';
 import { pluginLabel } from './plugin-label';
 import { useDistributionPermission } from './use-distribution-permission';
 import { useDistributionServing } from './use-distribution-serving';
@@ -92,10 +92,9 @@ const DistributionRows = ({ plugin, descriptor, distribution }: RowsProps) => {
                     serving.served.value ??
                     ({ state: 'served', fix: null } as const),
                 }}
+                isPublic={isPublic}
               />
-              {isPublic ? (
-                <PublicLabel />
-              ) : (
+              {isPublic ? null : (
                 <Content component='small'>
                   {t`Downloads need credentials. A browser does not send your session to the content server, so this address cannot be opened there.`}
                 </Content>

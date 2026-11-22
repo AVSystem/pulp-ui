@@ -415,24 +415,41 @@ function repositoryOfDistribution(
   return row.publication ? (publications.get(row.publication) ?? null) : null;
 }
 
+// An address a repository is served at and the distribution behind it: its
+// name, which leads to the distribution's page, and whether it is public.
+export interface ServedAt {
+  url: string;
+  name: string;
+  isPublic: boolean;
+}
+
 // The base URLs that serve each repository, by the repository's address: for
 // every distribution bound to a repository, to one of its versions or to one of
 // its publications. A distribution with no base URL or bound to nothing is
-// left out. The URLs of one repository are in alphabetical order.
+// left out. The addresses of one repository are in alphabetical order. A
+// distribution is public only when the server said it has no content guard: a
+// row that does not carry the field is never taken for a public one.
 export function baseUrlsByRepository(
   rows: readonly DistributionBase[],
   publications: PublicationRepositories,
-): Map<string, string[]> {
-  const urls = new Map<string, string[]>();
+): Map<string, ServedAt[]> {
+  const urls = new Map<string, ServedAt[]>();
 
   for (const row of rows) {
     const repository = repositoryOfDistribution(row, publications);
     if (repository && row.base_url) {
-      urls.set(repository, [...(urls.get(repository) ?? []), row.base_url]);
+      urls.set(repository, [
+        ...(urls.get(repository) ?? []),
+        {
+          url: row.base_url,
+          name: row.name,
+          isPublic: row.content_guard === null,
+        },
+      ]);
     }
   }
   for (const list of Array.from(urls.values())) {
-    list.sort((a, b) => a.localeCompare(b));
+    list.sort((a, b) => a.url.localeCompare(b.url));
   }
 
   return urls;
@@ -492,7 +509,7 @@ export interface DistributionIndex<Row> {
   error: unknown;
   // Every distribution of the plugin; undefined until the index is complete.
   distributions: Row[] | undefined;
-  baseUrlsByRepository: Map<string, string[]> | undefined;
+  baseUrlsByRepository: Map<string, ServedAt[]> | undefined;
   // The version number of each publication that a distribution is bound to and
   // the user can read, by the publication's address; undefined until the index
   // is complete. A publication the user cannot read is not in it.

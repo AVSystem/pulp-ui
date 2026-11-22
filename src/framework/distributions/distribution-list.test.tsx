@@ -626,7 +626,11 @@ describe(
       expect(
         within(row).getByText('A repository you may not see'),
       ).toBeVisible();
-      expect(within(row).queryByRole('link')).not.toBeInTheDocument();
+      // the only links of the row lead to the distribution, never to a
+      // repository
+      for (const link of within(row).queryAllByRole('link')) {
+        expect(link.getAttribute('href')).not.toContain('/repositories/');
+      }
     });
 
     it('shows the guard by name and type, marks a row with none as Public and a row with a guard the user may not see by that', async () => {
