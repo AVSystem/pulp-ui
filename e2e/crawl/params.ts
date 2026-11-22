@@ -37,8 +37,9 @@ function text(value: unknown): string | null {
   return typeof value === 'string' && value ? value : null;
 }
 
-// Repository and remote detail and edit pages are addressed by the object's
-// name; the list to ask depends on the plugin the route belongs to.
+// Repository, remote and distribution detail and edit pages are addressed by
+// the object's name; the list to ask depends on the plugin the route belongs
+// to.
 const NAMED_LISTS: Record<string, string> = {
   '/deb/repositories': 'repositories/deb/apt/',
   '/deb/remotes': 'remotes/deb/apt/',
@@ -50,10 +51,18 @@ const NAMED_LISTS: Record<string, string> = {
   '/rpm/remotes': 'remotes/rpm/rpm/',
   '/python/repositories': 'repositories/python/python/',
   '/python/remotes': 'remotes/python/python/',
+  '/file/distributions': 'distributions/file/file/',
+  '/deb/distributions': 'distributions/deb/apt/',
+  '/rpm/distributions': 'distributions/rpm/rpm/',
+  '/python/distributions': 'distributions/python/pypi/',
+  '/maven/distributions': 'distributions/maven/maven/',
+  '/npm/distributions': 'distributions/npm/npm/',
+  '/ansible/distributions': 'distributions/ansible/ansible/',
+  '/container/distributions': 'distributions/container/container/',
 };
 
 // The list a route's plugin and kind of object name their objects in, or null
-// for a route that is not a repository or remote screen.
+// for a route that is not a repository, remote or distribution screen.
 export function namedListOf(pattern: string): string | null {
   return NAMED_LISTS[pattern.split('/').slice(0, 3).join('/')] ?? null;
 }

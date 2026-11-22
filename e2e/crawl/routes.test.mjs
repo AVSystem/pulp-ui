@@ -124,6 +124,54 @@ describe('the framework route source', () => {
     );
   });
 
+  it("visits the list of every plugin's distributions and the distribution addresses of every plugin that has distributions", () => {
+    const patterns = crawlRoutes().map((r) => r.pattern);
+
+    for (const pattern of [
+      '/distributions',
+      '/file/distributions/:name',
+      '/file/distributions/:name/edit',
+      '/file/distribution/new',
+      '/file/repositories/:name/publications',
+      '/file/repositories/:name/content',
+      '/python/distributions/:name',
+      '/maven/distributions/:name',
+      '/npm/distributions/:name/edit',
+      '/ansible/distributions/:name',
+      '/container/distribution/new',
+    ]) {
+      expect(
+        patterns.filter((p) => p === pattern),
+        pattern,
+      ).toHaveLength(1);
+    }
+  });
+
+  it('reads no repository or remote address of a plugin that has distributions only', () => {
+    const patterns = crawlRoutes().map((r) => r.pattern);
+
+    for (const plugin of ['maven', 'npm']) {
+      expect(
+        patterns.filter((p) => p.startsWith(`/${plugin}/`)),
+        plugin,
+      ).toEqual([
+        `/${plugin}/distributions/:name`,
+        `/${plugin}/distributions/:name/edit`,
+        `/${plugin}/distribution/new`,
+      ]);
+    }
+    // the container screens that are not on the framework come from the routes
+    expect(
+      patterns.filter((p) => p.startsWith('/container/repositor')),
+    ).toEqual([]);
+    expect(patterns).toContain('/container/remotes');
+    expect(patterns).toContain('/container/distribution/new');
+    // the ansible screens that are not on the framework come from the routes
+    expect(patterns).toContain('/ansible/repositories/detail/:name');
+    expect(patterns).not.toContain('/ansible/repositories/:name');
+    expect(patterns).not.toContain('/ansible/remotes/:name');
+  });
+
   it('visits the screens of the plugins the application serves from the framework', () => {
     const patterns = crawlRoutes().map((r) => r.pattern);
 
