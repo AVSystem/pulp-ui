@@ -99,14 +99,14 @@ function servesText(serves: Serves): string {
 // What the distribution serves: its repository, with a link when the plugin has
 // repository screens, the publication with its version, a pinned version, or
 // nothing.
-export const ServesCell = ({
-  cells,
+export const ServesValue = ({
+  serves,
   plugin,
 }: {
-  cells: DistributionCells;
+  serves: DistributionCells['serves'];
   plugin: DistributionPlugin | null;
 }) => {
-  const { state, value } = cells.serves;
+  const { state, value } = serves;
 
   if (state === 'loading') {
     return <Placeholder />;
@@ -129,11 +129,23 @@ export const ServesCell = ({
   );
 };
 
+export const ServesCell = ({
+  cells,
+  plugin,
+}: {
+  cells: DistributionCells;
+  plugin: DistributionPlugin | null;
+}) => <ServesValue serves={cells.serves} plugin={plugin} />;
+
 // The content guard by name and kind, or the mark that there is none. A guard
 // the user may not read shows no name.
-export const GuardCell = ({ cells }: { cells: DistributionCells }) => {
-  const { guard, isPublic } = cells;
-
+export const GuardValue = ({
+  guard,
+  isPublic,
+}: {
+  guard: DistributionCells['guard'];
+  isPublic: boolean;
+}) => {
   if (isPublic) {
     return <PublicLabel />;
   }
@@ -147,6 +159,10 @@ export const GuardCell = ({ cells }: { cells: DistributionCells }) => {
 
   return <>{kind ? `${guard.name} (${kind})` : guard.name}</>;
 };
+
+export const GuardCell = ({ cells }: { cells: DistributionCells }) => (
+  <GuardValue guard={cells.guard} isPublic={cells.isPublic} />
+);
 
 // What the distribution serves, as the rules of the served-state module tell:
 // every state, so a working distribution reads as working and not as a blank

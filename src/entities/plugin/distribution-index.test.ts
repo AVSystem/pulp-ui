@@ -575,3 +575,53 @@ describe('Unit: useDistributionIndex', { tags: ['unit'] }, () => {
     ]);
   });
 });
+
+describe('Unit: reading a distribution by name', { tags: ['unit'] }, () => {
+  it('asks for one row with the name filter and returns it', async () => {
+    const wanted = pluginDistribution('file', { name: 'tools-dist' });
+    const lab = distributionListHandler('file', [
+      pluginDistribution('file', { name: 'other' }),
+      wanted,
+    ]);
+    server.use(lab.handler);
+
+    const found = await fileDistribution.byName('tools-dist');
+
+    expect(found?.pulp_href).toBe(wanted.pulp_href);
+    expect(lab.queries).toHaveLength(1);
+    expect(lab.queries[0]?.get('name')).toBe('tools-dist');
+    expect(lab.queries[0]?.get('limit')).toBe('1');
+  });
+
+  it('answers null for a name no distribution has', async () => {
+    server.use(
+      distributionListHandler('file', [
+        pluginDistribution('file', { name: 'other' }),
+      ]).handler,
+    );
+
+    expect(await fileDistribution.byName('missing')).toBeNull();
+  });
+
+  it('answers null for a row of another name, which means the filter was not applied', async () => {
+    server.use(
+      http.get(`*${DISTRIBUTIONS}`, () =>
+        HttpResponse.json(
+          page([pluginDistribution('file', { name: 'first-of-all' })]),
+        ),
+      ),
+    );
+
+    expect(await fileDistribution.byName('tools-dist')).toBeNull();
+  });
+
+  it('sends no request for an empty name', async () => {
+    const lab = distributionListHandler('file', [
+      pluginDistribution('file', { name: 'first-of-all' }),
+    ]);
+    server.use(lab.handler);
+
+    expect(await fileDistribution.byName('')).toBeNull();
+    expect(lab.queries).toHaveLength(0);
+  });
+});

@@ -538,8 +538,10 @@ export function distributionListHandler<T extends { pulp_href: string }>(
     matching: (row, query) => {
       const hrefs = inSetOf(query, 'pulp_href__in');
       const repository = query.get('repository');
+      const name = query.get('name');
       return (
         (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (name === null || (row as { name?: unknown }).name === name) &&
         (repository === null ||
           (row as { repository?: unknown }).repository === repository)
       );

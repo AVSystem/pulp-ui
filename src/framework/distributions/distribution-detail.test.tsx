@@ -193,7 +193,7 @@ describe(
         ),
       );
       expect(within(row(rows, 'Labels')).getByText('team: docs')).toBeVisible();
-      expect(row(rows, 'Created')).toHaveTextContent(/2024/);
+      expect(row(rows, 'Created')).toHaveTextContent(/ago/);
     });
 
     it('tells a guarded URL cannot be opened in a browser, and marks an unguarded one Public', async () => {

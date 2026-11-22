@@ -239,6 +239,9 @@ export interface DistributionEntity<Row, TCreate, TUpdate> {
   // The address a list of these parameters is requested from.
   urlOf: (params?: DistributionListParams) => string;
   retrieve: (href: string, options?: Options) => Promise<Row>;
+  // The distribution with this exact name, or null. A name that came from the
+  // address bar reaches the server only as the value of the name filter.
+  byName: (name: string, options?: Options) => Promise<Row | null>;
   // Creates a distribution; resolves with the address of the task that does it.
   create: (body: TCreate, options?: Options) => Promise<string>;
   update: (
@@ -326,6 +329,18 @@ export function makeDistributionEntity<
     urlOf: (params = {}) => api.listUrl(requestOf(params)),
     retrieve: async (href, options) =>
       parseResponse(schema, await api.read(href, undefined, options)),
+    byName: async (name, options) => {
+      // An empty filter value is no filter: the server would answer its first
+      // distribution.
+      if (name === '') {
+        return null;
+      }
+      const data = await api.list(requestOf({ name, page_size: 1 }), options);
+      const found = (parseResponse(pageSchema, data) as Page<Row>).results[0];
+      // The name is unique, so a row of another name means the filter was not
+      // applied; it is not this distribution.
+      return found && found.name === name ? found : null;
+    },
     create: async (body, options) => taskOf(await api.create(body, options)),
     update: async (href, body, options) =>
       parseUpdate(schema, await api.partialUpdate(href, body, options)),
