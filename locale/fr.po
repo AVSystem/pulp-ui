@@ -399,7 +399,16 @@ msgstr "Un chemin de base ne peut ni commencer ni se terminer par une barre obli
 #~ msgid "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
 #~ msgstr ""
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "A content guard limits who can download. A public distribution has no content guard, so anyone who can reach the server can download from it."
+msgstr ""
+
+#: src/framework/form/create-flow.ts
+msgid "a content guard you may not see"
+msgstr ""
+
 #: src/framework/distributions/distribution-columns.tsx
+#: src/framework/distributions/guard-field.tsx
 msgid "A content guard you may not see"
 msgstr ""
 
@@ -1396,6 +1405,10 @@ msgstr "Tâches de dépendants"
 #~ msgid "Choices:"
 #~ msgstr ""
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "Choose how this distribution is protected."
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/typeahead.tsx
@@ -1748,6 +1761,10 @@ msgstr "Terminée {when}"
 #: src/descriptors/deb/descriptor.tsx
 msgid "Components"
 msgstr "Composants"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "Composite"
+msgstr ""
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -3340,6 +3357,11 @@ msgstr "Échec de la recherche de la version du référentiel"
 #~ msgid "Failed to load collection."
 #~ msgstr "Failed to load collection."
 
+#. placeholder {0}: requestErrorText(found.error)
+#: src/framework/distributions/guard-field.tsx
+msgid "Failed to load content guards: {0}"
+msgstr ""
+
 #: src/components/lazy-distributions.tsx
 msgid "Failed to load distributions: {error}"
 msgstr "Échec du chargement des distributions : {error}"
@@ -3864,6 +3886,10 @@ msgstr "N'a pas de source distante, il est donc ignoré"
 msgid "Has words"
 msgstr "Contient les mots"
 
+#: src/framework/distributions/guard-field.tsx
+msgid "Header"
+msgstr ""
+
 #: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
 msgid "Help"
@@ -4190,6 +4216,14 @@ msgstr "On ne sait pas si la distribution {name} a été supprimée."
 #: src/framework/delete/delete-outcome.tsx
 msgid "It is not known whether the repository was removed."
 msgstr "On ne sait pas si le référentiel a été supprimé."
+
+#: src/framework/form/create-flow.ts
+msgid "It is protected by the content guard you chose."
+msgstr ""
+
+#: src/framework/form/create-flow.ts
+msgid "It is public: anyone can download from it without signing in."
+msgstr ""
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
@@ -4595,6 +4629,10 @@ msgstr "Mode"
 #: src/constants.tsx
 #~ msgid "Modify Ansible repo content"
 #~ msgstr "Modify Ansible repo content"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "More guards match; type more of the name"
+msgstr ""
 
 #: src/components/help-button.tsx
 msgid "More information"
@@ -5306,6 +5344,10 @@ msgstr "Applications de contenu en ligne"
 msgid "Online workers"
 msgstr "Workers en ligne"
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "Only clients the guard allows can download."
+msgstr ""
+
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
@@ -5731,6 +5773,10 @@ msgstr "Projets à ignorer, un spécificateur par ligne, par exemple \"django<4\
 msgid "Projects to sync, one specifier per line, for example \"django>=4.2\". Leave empty to sync every project the remote offers."
 msgstr "Projets à synchroniser, un spécificateur par ligne, par exemple \"django>=4.2\". Laissez vide pour synchroniser tous les projets proposés par la source distante."
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "Protected by a content guard"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Protected by a content guard: customer-facing URL"
@@ -5739,6 +5785,10 @@ msgstr "Protégé par une protection de contenu : URL destinée aux clients"
 #: src/actions/ansible-repository-delete.tsx
 #~ msgid "Protected repositories cannot be deleted."
 #~ msgstr "Les référentiels protégés ne peuvent pas être supprimés."
+
+#: src/framework/distributions/protection-choice.tsx
+msgid "Protection"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -5793,6 +5843,10 @@ msgstr "Nom d'utilisateur du proxy"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Public"
+msgstr ""
+
+#: src/framework/distributions/protection-choice.tsx
+msgid "Public - anyone can download without signing in"
 msgstr ""
 
 #: src/containers/signature-keys/list.tsx
@@ -6150,6 +6204,10 @@ msgstr "Limite de taux"
 #: src/components/markdown-editor.tsx
 #~ msgid "Raw Markdown"
 #~ msgstr "Markdown brut"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "RBAC"
+msgstr ""
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Reading every distribution to find the public ones"
@@ -6731,6 +6789,7 @@ msgstr "Nouvelles tentatives"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/distributions/guard-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
@@ -6794,6 +6853,10 @@ msgstr "Revenir à cette version"
 #: src/actions/repository-version-revert.tsx
 msgid "Reverted repository \"{repositoryName}\" to version \"{number}\"."
 msgstr "Le référentiel \"{repositoryName}\" a été rétabli à la version \"{number}\"."
+
+#: src/framework/distributions/guard-field.tsx
+msgid "RHSM certificate"
+msgstr ""
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
@@ -7109,6 +7172,10 @@ msgstr "Sélectionner {0}"
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "Select a collection"
 msgstr "Sélectionner une collection"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "Select a content guard"
+msgstr ""
 
 #: src/components/access-tab.tsx
 msgid "Select a group"
@@ -8186,8 +8253,11 @@ msgstr ""
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
 msgstr "La suppression s'est arrêtée sur une erreur inattendue. La source distante a peut-être déjà été supprimée : vérifiez la liste avant de réessayer."
 
+#: src/framework/distributions/protection-choice.tsx
+msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
+msgstr ""
+
 #: src/components/repository-form.tsx
-#: src/framework/form/distribution-option.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
 msgstr "La distribution n'aura pas de protection de contenu : toute personne pouvant accéder à ce serveur peut télécharger le contenu de ce référentiel sans se connecter."
 
@@ -8426,6 +8496,14 @@ msgstr "Les rôles sélectionnés seront ajoutés à ce référentiel Ansible sp
 #: src/utilities/login-error.ts
 msgid "The server could not be reached: {message}"
 msgstr "Le serveur n'a pas pu être joint : {message}"
+
+#: src/framework/form/create-flow.ts
+msgid "The server did not apply the content guard you chose: the distribution has no content guard."
+msgstr ""
+
+#: src/framework/form/create-flow.ts
+msgid "The server protected the distribution with {guard}."
+msgstr ""
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
@@ -9595,6 +9673,10 @@ msgstr "Les workers, le stockage et les paramètres de contenu sont affichés au
 #: src/framework/list/label-filter.tsx
 msgid "Write an expression"
 msgstr "Écrire une expression"
+
+#: src/framework/distributions/guard-field.tsx
+msgid "X.509 certificate"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx

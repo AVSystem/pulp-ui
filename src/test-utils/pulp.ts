@@ -612,12 +612,51 @@ export function corePublicationListHandler<T extends { pulp_href: string }>(
   return byHrefListHandler('/pulp/api/v3/publications/', rows, options);
 }
 
-// The content guards of every kind through the one list that holds them all.
-export function contentGuardListHandler<T extends { pulp_href: string }>(
-  rows: T[],
-  options?: { pageSize?: number },
-) {
-  return byHrefListHandler('/pulp/api/v3/contentguards/', rows, options);
+// The `pulp_type` the server gives a content guard, read from the kind in its
+// address.
+const GUARD_PULP_TYPES: Readonly<Record<string, string>> = {
+  rbac: 'core.rbac',
+  header: 'core.header',
+  envvar_header: 'core.envvar_header',
+  composite: 'core.composite',
+  content_redirect: 'core.content_redirect',
+  x509: 'certguard.x509',
+  rhsm: 'certguard.rhsm',
+};
+
+function guardPulpType(row: { pulp_href: string }): string {
+  const kind = /\/contentguards\/[^/]+\/([^/]+)\//.exec(row.pulp_href)?.[1];
+
+  return (kind && GUARD_PULP_TYPES[kind]) || '';
+}
+
+// The content guards of every kind through the one list that holds them all:
+// the `pulp_href__in`, `name__icontains` and `pulp_type__in` filters, the name
+// ordering, the `fields` cut and the paging of listOf. The query of every
+// request is recorded, in order.
+export function contentGuardListHandler<
+  T extends { pulp_href: string; name?: string },
+>(rows: T[], { pageSize = 1000 }: { pageSize?: number } = {}) {
+  const path = '/pulp/api/v3/contentguards/';
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      const types = inSetOf(query, 'pulp_type__in');
+      const text = query.get('name__icontains');
+
+      return (
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (types === null || types.includes(guardPulpType(row))) &&
+        (text === null ||
+          (row.name ?? '').toLowerCase().includes(text.toLowerCase()))
+      );
+    },
+    ordered: orderedBy,
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
 }
 
 // The repository versions list as one of two servers answers it. A patched

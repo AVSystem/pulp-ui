@@ -7,7 +7,10 @@ import { AppContextProvider, useAppContext } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
+  type IContentGuard,
   type IDistribution,
+  contentGuard,
+  contentGuardListHandler,
   distribution,
   distributionListHandler,
   inSetOf,
@@ -116,6 +119,8 @@ interface Lab {
   distributionAnswer?: () => Response | Promise<Response>;
   taskState?: string;
   contentSettings?: Record<string, unknown> | null;
+  // the content guards the picker can find
+  guards?: IContentGuard[];
 }
 
 // Every list the create page and the detail page it returns to read, answered
@@ -131,6 +136,7 @@ function serveLab({
     content_origin: 'https://pulp.example',
     content_path_prefix: '/pulp/content/',
   },
+  guards = [],
 }: Lab = {}) {
   const repositories: Repository[] = [];
   const remoteLists = pluginListHandler('file', 'remote', remotes);
@@ -140,6 +146,7 @@ function serveLab({
     remoteLists.handler,
     distributionListHandler('file', []).handler,
     publicationListHandler('file', []).handler,
+    contentGuardListHandler(guards).handler,
     listOf(`${API}/remotes/`, remotes, {
       pageSize: 1000,
       matching: (row, query) => {
@@ -256,6 +263,9 @@ const save = () => screen.getByRole('button', { name: /^Save/ });
 const formReady = () => screen.findByRole('textbox', { name: /Name/ });
 const distributionBox = () =>
   screen.queryByRole('checkbox', { name: /Create a distribution/ });
+const publicRadio = () => screen.getByRole('radio', { name: /^Public/ });
+const protectedRadio = () =>
+  screen.getByRole('radio', { name: /Protected by a content guard/ });
 const basePathInput = () => screen.getByRole('textbox', { name: /Base path/ });
 const atDetail = (name: string) =>
   waitFor(() =>
@@ -564,10 +574,15 @@ describe(
   'Integration: the distribution option of the create form',
   { tags: ['integration'] },
   () => {
-    const tick = async (user: ReturnType<typeof renderCreate>['user']) =>
+    const tickOnly = async (user: ReturnType<typeof renderCreate>['user']) =>
       user.click(
         await screen.findByRole('checkbox', { name: /Create a distribution/ }),
       );
+    // Ticks the box and chooses Public, the way a user who wants no guard does.
+    const tick = async (user: ReturnType<typeof renderCreate>['user']) => {
+      await tickOnly(user);
+      await user.click(publicRadio());
+    };
 
     it('offers the box unticked, with no base path field yet and a generic label while Name is empty', async () => {
       serveLab();
@@ -581,15 +596,141 @@ describe(
       expect(screen.queryByRole('textbox', { name: /Base path/ })).toBeNull();
     });
 
-    it('shows the base path and the warning about a missing content guard once the box is ticked', async () => {
+    it('shows the base path and the protection choice, with neither choice made, once the box is ticked', async () => {
+      serveLab();
+      const { user } = renderCreate();
+
+      await formReady();
+      await tickOnly(user);
+
+      expect(basePathInput()).toBeInTheDocument();
+      expect(protectedRadio()).not.toBeChecked();
+      expect(publicRadio()).not.toBeChecked();
+      expect(screen.queryByText(/no content guard/)).toBeNull();
+    });
+
+    it('keeps Save off until the protection is decided: a name and a ticked box are not enough', async () => {
+      serveLab();
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), 'tools');
+      expect(save()).toBeEnabled();
+      await tickOnly(user);
+
+      expect(save()).toBeDisabled();
+
+      await user.click(protectedRadio());
+
+      expect(save()).toBeDisabled();
+      expect(writes()).toStrictEqual([]);
+    });
+
+    it('warns that anyone can download once Public is chosen', async () => {
       serveLab();
       const { user } = renderCreate();
 
       await formReady();
       await tick(user);
 
-      expect(basePathInput()).toBeInTheDocument();
+      expect(save()).toBeDisabled();
       expect(screen.getByText(/no content guard/)).toBeInTheDocument();
+    });
+
+    it('sends the picked guard with the distribution and enables Save only once a guard is picked', async () => {
+      const guard = contentGuard({ name: 'customers' });
+      const lab = serveLab({ guards: [guard] });
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), 'tools');
+      await tickOnly(user);
+      await user.click(protectedRadio());
+      expect(save()).toBeDisabled();
+      await user.click(
+        await screen.findByRole('combobox', { name: 'Select a content guard' }),
+      );
+      await user.click(
+        await screen.findByRole('option', { name: /customers/ }),
+      );
+
+      expect(save()).toBeEnabled();
+      await user.click(save());
+
+      await atDetail('tools');
+      expect(bodiesOf(DISTRIBUTION_PATH)).toStrictEqual([
+        {
+          name: 'tools',
+          base_path: 'tools',
+          repository: lab.repositories[0]?.pulp_href,
+          content_guard: guard.pulp_href,
+        },
+      ]);
+    });
+
+    it('sends a null content guard only after Public was chosen', async () => {
+      serveLab();
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), 'tools');
+      await tick(user);
+      await user.click(save());
+
+      await atDetail('tools');
+      expect(bodiesOf(DISTRIBUTION_PATH)).toMatchObject([
+        { content_guard: null },
+      ]);
+    });
+
+    it('names the guard the server set by itself instead of reporting the distribution as public', async () => {
+      const created = `${API}/distributions/file/file/00000000-0000-4000-8000-0000000000ee/`;
+      const redirect = contentGuard({
+        name: 'content redirect',
+        pulp_href: `${API}/contentguards/core/content_redirect/00000000-0000-4000-8000-0000000000ff/`,
+      });
+      serveLab({ guards: [redirect] });
+      server.use(
+        http.get('*/pulp/api/v3/tasks/:id/', () =>
+          HttpResponse.json({
+            pulp_href: TASK_HREF,
+            name: 'create',
+            state: 'completed',
+            created_resources: [created],
+          }),
+        ),
+        http.get(`*${API}/distributions/`, ({ request }) =>
+          new URL(request.url).searchParams.has('pulp_href__in')
+            ? HttpResponse.json(
+                page([
+                  { pulp_href: created, content_guard: redirect.pulp_href },
+                ]),
+              )
+            : undefined,
+        ),
+      );
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), 'tools');
+      await tick(user);
+      await user.click(save());
+
+      await atDetail('tools');
+      expect(
+        await screen.findByText(
+          'The server protected the distribution with "content redirect".',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/It is public/)).toBeNull();
+    });
+
+    it('sends no distribution, and no content guard, when the box stays unticked', async () => {
+      serveLab();
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), 'tools');
+      await user.click(save());
+
+      await atDetail('tools');
+      expect(bodiesOf(DISTRIBUTION_PATH)).toStrictEqual([]);
+      expect(screen.queryByRole('radio')).toBeNull();
     });
 
     it('follows the name for the base path until the user types one, and previews the server URL', async () => {
@@ -689,6 +830,7 @@ describe(
           name: 'tools',
           base_path: 'tools',
           repository: lab.repositories[0]?.pulp_href,
+          content_guard: null,
         },
       ]);
     });
@@ -710,6 +852,7 @@ describe(
           name: 'tools',
           base_path: 'tools/stable',
           repository: lab.repositories[0]?.pulp_href,
+          content_guard: null,
         },
       ]);
       expect(writes().map((r) => r.path)).toStrictEqual([
@@ -839,6 +982,7 @@ describe(
       await rendered.user.click(
         await screen.findByRole('checkbox', { name: /Create a distribution/ }),
       );
+      await rendered.user.click(publicRadio());
       await rendered.user.clear(basePathInput());
       await rendered.user.type(basePathInput(), path);
       return rendered;
@@ -981,6 +1125,7 @@ describe(
       expect(screen.queryByText(unknownReason)).toBeNull();
 
       await user.click(box);
+      await user.click(publicRadio());
       await user.clear(basePathInput());
       await user.type(basePathInput(), 'any/path');
 

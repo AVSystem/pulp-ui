@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import type { AlertType } from 'src/components';
+import { ContentGuardClient } from 'src/entities/core/content-guard/client';
 import { DistributionClient } from 'src/entities/core/distribution/client';
 import type { DistributionCreate } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
@@ -13,6 +14,10 @@ import {
   requestErrorText,
 } from 'src/utilities/request-error';
 import { taskAlert } from 'src/utilities/task-alert';
+import {
+  type Chosen,
+  contentGuardOf,
+} from '../distributions/protection-choice';
 import { TASK_POLL_MS, readTaskToEnd } from '../task-end';
 
 // Creates a repository and, only when asked, a distribution named after it, on
@@ -22,17 +27,31 @@ import { TASK_POLL_MS, readTaskToEnd } from '../task-end';
 // it is valid on its own, and the outcome tells the user what was not done.
 // Nothing is ever retried, with the same or with another name or base path.
 
-// What the user asked for beside the repository.
+// What the user asked for beside the repository: the base path and how the
+// distribution is protected. The protection is always a decided one; a request
+// without it is never made, because leaving the choice out would make the
+// distribution public.
 export interface DistributionRequest {
   basePath: string;
+  protection: Chosen;
+}
+
+// The content guard a created distribution really has when it is not the one
+// that was asked for: its address, null when it has none, and the guard's name
+// when the user may read it (null otherwise).
+export interface GuardSet {
+  href: string | null;
+  name: string | null;
 }
 
 // What became of the distribution that was asked for.
 export type DistributionOutcome =
   // none was asked for
   | { state: 'none' }
-  // the task that creates it finished
-  | { state: 'created' }
+  // the task that creates it finished; `guardSet` is present only when the
+  // server gave the distribution a guard other than the one asked for (a
+  // domain's default guard, a plugin's own guard) or left out the one asked for
+  | { state: 'created'; guardSet?: GuardSet }
   // the request or its task failed, with the server's reason
   | { state: 'failed'; reason: string }
   // the task had not finished when the screen was left; it may still create
@@ -108,17 +127,65 @@ export function failureReason(error: unknown): string {
   return requestErrorText(error);
 }
 
+// The guard the created distribution has when it differs from the one asked for,
+// or undefined when it is the one asked for or when it cannot be told. The
+// distribution is read once, at the address the task says it made; when the
+// task names none, or the read fails, nothing is claimed beyond the creation.
+// A guard that is not the one asked for is named when the user may read it.
+// The end of the session is rethrown for the caller to report.
+export async function guardActuallySet(
+  created: readonly string[],
+  asked: string | null,
+  options?: RequestInit,
+): Promise<GuardSet | undefined> {
+  const href = created.find((address) => address.includes('/distributions/'));
+  if (!href) {
+    return undefined;
+  }
+
+  let actual: string | null | undefined;
+  try {
+    actual = await DistributionClient.guardOf(href, options);
+  } catch (error) {
+    if (isSessionEnd(error)) {
+      throw error;
+    }
+    return undefined;
+  }
+  if (actual === undefined || actual === asked) {
+    return undefined;
+  }
+  if (actual === null) {
+    return { href: null, name: null };
+  }
+
+  let name: string | null = null;
+  try {
+    const names = await ContentGuardClient.names([actual], options);
+    name = names.get(actual) ?? null;
+  } catch (error) {
+    if (isSessionEnd(error)) {
+      throw error;
+    }
+  }
+
+  return { href: actual, name };
+}
+
 // What became of the distribution's task, in the terms of the outcome.
 async function outcomeOfTask(
   task: string,
+  asked: string | null,
   signal: AbortSignal | undefined,
   pollMs: number,
 ): Promise<DistributionOutcome> {
   const end = await readTaskToEnd(task, { signal, pollMs });
 
   switch (end.state) {
-    case 'completed':
-      return { state: 'created' };
+    case 'completed': {
+      const guardSet = await guardActuallySet(end.created, asked, { signal });
+      return guardSet ? { state: 'created', guardSet } : { state: 'created' };
+    }
     case 'failed':
       return { state: 'failed', reason: end.reason };
     case 'pending':
@@ -182,6 +249,11 @@ export async function createRepositoryWithDistribution({
   if (distribution && !distributions) {
     throw new Error('The plugin has no distributions to create');
   }
+  // Checked before anything is written, so a missing choice leaves nothing
+  // behind, the repository included.
+  const contentGuard = distribution
+    ? contentGuardOf(distribution.protection)
+    : null;
   if (distribution) {
     const blocked = await conflictsOf(body.name, distribution.basePath);
     if (blocked) {
@@ -208,11 +280,12 @@ export async function createRepositoryWithDistribution({
       name: body.name,
       base_path: distribution.basePath,
       repository: repositoryHref,
+      content_guard: contentGuard,
     });
     return {
       kind: 'created',
       repositoryHref,
-      distribution: await outcomeOfTask(task, signal, pollMs),
+      distribution: await outcomeOfTask(task, contentGuard, signal, pollMs),
     };
   } catch (error) {
     return {
@@ -225,6 +298,39 @@ export async function createRepositoryWithDistribution({
         : { state: 'failed', reason: failureReason(error) },
     };
   }
+}
+
+// What the distribution that was created says about its protection: the guard
+// the server really set when it is not the one that was asked for, otherwise
+// the protection that was chosen. The same sentences serve every form that
+// creates a distribution.
+export function protectionDescription(
+  protection: Chosen,
+  guardSet?: GuardSet,
+): { text: string; variant: 'success' | 'warning' } {
+  if (guardSet?.href) {
+    const guard = guardSet.name
+      ? `"${guardSet.name}"`
+      : t`a content guard you may not see`;
+    return {
+      text: t`The server protected the distribution with ${guard}.`,
+      variant: 'warning',
+    };
+  }
+  if (guardSet) {
+    return {
+      text: t`The server did not apply the content guard you chose: the distribution has no content guard.`,
+      variant: 'warning',
+    };
+  }
+
+  return {
+    text:
+      protection === 'public'
+        ? t`It is public: anyone can download from it without signing in.`
+        : t`It is protected by the content guard you chose.`,
+    variant: 'success',
+  };
 }
 
 // The alerts shown after a create: the repository, and for a requested
@@ -276,10 +382,15 @@ export function createAlerts(
         },
       ];
       if (distribution && outcome.state === 'created') {
-        const { basePath } = distribution;
+        const { basePath, protection } = distribution;
+        const { text, variant } = protectionDescription(
+          protection,
+          outcome.guardSet,
+        );
         alerts.push({
-          variant: 'success',
+          variant,
           title: t`Created distribution "${name}" at base path ${basePath}.`,
+          description: text,
         });
       }
       return alerts;

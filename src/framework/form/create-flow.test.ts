@@ -5,13 +5,17 @@ import { fileRepository } from 'src/entities/file/repository';
 import { setSignedIn } from 'src/session/session-events';
 import {
   type IDistribution,
+  contentGuard,
+  contentGuardListHandler,
   distribution,
   listOf,
+  page,
   projectedBy,
 } from 'src/test-utils/pulp';
 import { server } from 'src/test-utils/server';
 import {
   type CreateOutcome,
+  type DistributionRequest,
   createAlerts,
   createRepositoryWithDistribution,
   failureReason,
@@ -21,6 +25,13 @@ const DISTRIBUTIONS = '/pulp/api/v3/distributions/';
 const REPOSITORY_HREF =
   '/pulp/api/v3/repositories/file/file/00000000-0000-4000-8000-0000000000aa/';
 const TASK_HREF = '/pulp/api/v3/tasks/00000000-0000-4000-8000-0000000000bb/';
+const CREATED_HREF =
+  '/pulp/api/v3/distributions/file/file/00000000-0000-4000-8000-0000000000ee/';
+const REDIRECT_HREF =
+  '/pulp/api/v3/contentguards/core/content_redirect/00000000-0000-4000-8000-0000000000ff/';
+
+const GUARD_HREF =
+  '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-0000000000dd/';
 
 const NAME = 'Acme Tools';
 const BASE_PATH = 'acme-tools';
@@ -118,7 +129,11 @@ function serveDistributionCreate(answer: () => Response | Promise<Response>) {
 const acceptedTask = () =>
   HttpResponse.json({ task: TASK_HREF }, { status: 202 });
 
-function serveTask(state: string, error?: { description: string }) {
+function serveTask(
+  state: string,
+  error?: { description: string },
+  created?: string[],
+) {
   server.use(
     http.get('*/pulp/api/v3/tasks/:id/', () =>
       HttpResponse.json({
@@ -126,20 +141,66 @@ function serveTask(state: string, error?: { description: string }) {
         name: 'create',
         state,
         error,
+        ...(created ? { created_resources: created } : {}),
       }),
     ),
   );
 }
 
+// The answers to the read of the created distribution by its address, which
+// the availability lookups before the create never send; every such query is
+// recorded. `guard` is the content guard the server says the distribution has,
+// or 'refused' for a server that refuses the read.
+function serveCreatedDistribution(guard: string | null | 'refused') {
+  const reads: URLSearchParams[] = [];
+  server.use(
+    http.get(`*${DISTRIBUTIONS}`, ({ request }) => {
+      const query = new URL(request.url).searchParams;
+      if (!query.has('pulp_href__in')) {
+        return undefined;
+      }
+      reads.push(new URLSearchParams(query));
+      return guard === 'refused'
+        ? HttpResponse.json({ detail: 'broken' }, { status: 500 })
+        : HttpResponse.json(
+            page([{ pulp_href: CREATED_HREF, content_guard: guard }]),
+          );
+    }),
+  );
+  return reads;
+}
+
+// The content guards the guard name is read from.
+function serveGuards(...names: [string, string][]) {
+  const list = contentGuardListHandler(
+    names.map(([pulp_href, name]) => contentGuard({ pulp_href, name })),
+  );
+  server.use(list.handler);
+  return list.queries;
+}
+
+// The request of a distribution; unless a test says otherwise the user chose
+// Public.
+const asked = (
+  basePath: string,
+  protection: DistributionRequest['protection'] = 'public',
+): DistributionRequest => ({ basePath, protection });
+
 const create = (
-  distributionRequest: { basePath: string } | null,
+  distributionRequest: { basePath: string; protection?: unknown } | null,
   extra: { signal?: AbortSignal; pollMs?: number } = {},
 ) =>
   createRepositoryWithDistribution({
     repository: fileRepository,
     distributions: fileDistribution,
     body: { name: NAME },
-    distribution: distributionRequest,
+    distribution: distributionRequest
+      ? asked(
+          distributionRequest.basePath,
+          (distributionRequest.protection ??
+            'public') as DistributionRequest['protection'],
+        )
+      : null,
     pollMs: 5,
     ...extra,
   });
@@ -306,7 +367,12 @@ describe(
         ]);
         expect(postBodies).toStrictEqual([
           { name: NAME },
-          { name: NAME, base_path: BASE_PATH, repository: REPOSITORY_HREF },
+          {
+            name: NAME,
+            base_path: BASE_PATH,
+            repository: REPOSITORY_HREF,
+            content_guard: null,
+          },
         ]);
 
         // every availability lookup happened before the first write
@@ -568,6 +634,232 @@ describe(
 );
 
 describe(
+  'Integration: the protection of the distribution that is created',
+  { tags: ['integration'] },
+  () => {
+    it('sends the address of the chosen guard as the content guard', async () => {
+      serveExistingDistributions([]);
+      serveRepositoryCreate();
+      serveDistributionCreate(acceptedTask);
+      serveTask('completed');
+
+      await create({ basePath: BASE_PATH, protection: { guard: GUARD_HREF } });
+
+      expect(postBodies[1]).toStrictEqual({
+        name: NAME,
+        base_path: BASE_PATH,
+        repository: REPOSITORY_HREF,
+        content_guard: GUARD_HREF,
+      });
+    });
+
+    it('sends a null content guard when Public was chosen, and for no other choice', async () => {
+      serveExistingDistributions([]);
+      serveRepositoryCreate();
+      serveDistributionCreate(acceptedTask);
+      serveTask('completed');
+
+      await create({ basePath: BASE_PATH, protection: 'public' });
+
+      expect(postBodies[1]).toHaveProperty('content_guard', null);
+    });
+
+    it.each([[null], [undefined]])(
+      'writes nothing, not even the repository, when the protection is %s',
+      async (protection) => {
+        serveExistingDistributions([]);
+        serveRepositoryCreate();
+        serveDistributionCreate(acceptedTask);
+
+        await expect(
+          createRepositoryWithDistribution({
+            repository: fileRepository,
+            distributions: fileDistribution,
+            body: { name: NAME },
+            distribution: { basePath: BASE_PATH, protection } as never,
+            pollMs: 5,
+          }),
+        ).rejects.toThrow(/protection/);
+
+        expect(posts()).toStrictEqual([]);
+        expect(postBodies).toStrictEqual([]);
+      },
+    );
+
+    it('sends no content guard at all when no distribution is asked for', async () => {
+      serveRepositoryCreate();
+
+      await create(null);
+
+      expect(postBodies).toStrictEqual([{ name: NAME }]);
+    });
+  },
+);
+
+describe(
+  'Integration: the protection the server really set',
+  { tags: ['integration'] },
+  () => {
+    // The servers of the create; a test serves its task and the read of the
+    // created distribution after this, so those answers take precedence.
+    beforeEach(() => {
+      serveExistingDistributions([]);
+      serveRepositoryCreate();
+      serveDistributionCreate(acceptedTask);
+    });
+
+    const run = (protection: DistributionRequest['protection'] = 'public') =>
+      create({ basePath: BASE_PATH, protection });
+
+    it('reads the created distribution once, by its address, and asks for nothing but its content guard', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      const reads = serveCreatedDistribution(null);
+
+      await run();
+
+      expect(reads).toHaveLength(1);
+      expect(reads[0]?.get('pulp_href__in')).toBe(CREATED_HREF);
+      expect(reads[0]?.getAll('fields').join(',')).toBe(
+        'pulp_href,content_guard',
+      );
+    });
+
+    it('names the guard the server set when Public was chosen, and does not report Public', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      serveCreatedDistribution(REDIRECT_HREF);
+      serveGuards([REDIRECT_HREF, 'content redirect']);
+
+      const outcome = created(await run('public'));
+
+      expect(outcome.distribution).toStrictEqual({
+        state: 'created',
+        guardSet: { href: REDIRECT_HREF, name: 'content redirect' },
+      });
+      const [, distributionAlert] = createAlerts(
+        NAME,
+        asked(BASE_PATH),
+        outcome.distribution,
+      );
+      expect(distributionAlert).toMatchObject({
+        variant: 'warning',
+        title: `Created distribution "${NAME}" at base path ${BASE_PATH}.`,
+        description:
+          'The server protected the distribution with "content redirect".',
+      });
+      expect(JSON.stringify(distributionAlert)).not.toMatch(/public/i);
+    });
+
+    it('says a content guard the user may not see when the guard cannot be read', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      serveCreatedDistribution(REDIRECT_HREF);
+      server.use(
+        http.get('*/pulp/api/v3/contentguards/', () =>
+          HttpResponse.json({ detail: 'No.' }, { status: 403 }),
+        ),
+      );
+
+      const outcome = created(await run('public'));
+
+      expect(outcome.distribution).toStrictEqual({
+        state: 'created',
+        guardSet: { href: REDIRECT_HREF, name: null },
+      });
+      expect(
+        createAlerts(NAME, asked(BASE_PATH), outcome.distribution)[1],
+      ).toMatchObject({
+        description:
+          'The server protected the distribution with a content guard you may not see.',
+      });
+    });
+
+    it('says when the server left the distribution without the guard that was chosen', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      serveCreatedDistribution(null);
+
+      const outcome = created(await run({ guard: REDIRECT_HREF }));
+
+      expect(outcome.distribution).toStrictEqual({
+        state: 'created',
+        guardSet: { href: null, name: null },
+      });
+      expect(
+        createAlerts(
+          NAME,
+          asked(BASE_PATH, { guard: REDIRECT_HREF }),
+          outcome.distribution,
+        )[1],
+      ).toMatchObject({
+        variant: 'warning',
+        description:
+          'The server did not apply the content guard you chose: the distribution has no content guard.',
+      });
+    });
+
+    it('reports the chosen protection, and reads no guard name, when the server set what was asked', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      serveCreatedDistribution(REDIRECT_HREF);
+      const names = serveGuards([REDIRECT_HREF, 'content redirect']);
+
+      const outcome = created(await run({ guard: REDIRECT_HREF }));
+
+      expect(outcome.distribution).toStrictEqual({ state: 'created' });
+      expect(names).toHaveLength(0);
+      expect(
+        createAlerts(
+          NAME,
+          asked(BASE_PATH, { guard: REDIRECT_HREF }),
+          outcome.distribution,
+        )[1],
+      ).toMatchObject({
+        variant: 'success',
+        description: 'It is protected by the content guard you chose.',
+      });
+    });
+
+    it('reports Public when Public was chosen and the server set no guard', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      serveCreatedDistribution(null);
+
+      const outcome = created(await run('public'));
+
+      expect(outcome.distribution).toStrictEqual({ state: 'created' });
+    });
+
+    it('reads nothing when the task names no distribution it created', async () => {
+      serveTask('completed');
+      const reads = serveCreatedDistribution(REDIRECT_HREF);
+
+      const outcome = created(await run('public'));
+
+      expect(outcome.distribution).toStrictEqual({ state: 'created' });
+      expect(reads).toHaveLength(0);
+    });
+
+    it('reads nothing when the task failed', async () => {
+      serveTask('failed', { description: 'boom' }, [CREATED_HREF]);
+      const reads = serveCreatedDistribution(REDIRECT_HREF);
+
+      const outcome = created(await run('public'));
+
+      expect(outcome.distribution).toStrictEqual({
+        state: 'failed',
+        reason: 'boom',
+      });
+      expect(reads).toHaveLength(0);
+    });
+
+    it('still reports the distribution as created when the read of it fails', async () => {
+      serveTask('completed', undefined, [CREATED_HREF]);
+      serveCreatedDistribution('refused');
+
+      const outcome = created(await run('public'));
+
+      expect(outcome.distribution).toStrictEqual({ state: 'created' });
+    });
+  },
+);
+
+describe(
   'Integration: createRepositoryWithDistribution when the session ends',
   { tags: ['integration'] },
   () => {
@@ -583,11 +875,7 @@ describe(
       );
 
       const outcome = created(await create({ basePath: BASE_PATH }));
-      const alerts = createAlerts(
-        NAME,
-        { basePath: BASE_PATH },
-        outcome.distribution,
-      );
+      const alerts = createAlerts(NAME, asked(BASE_PATH), outcome.distribution);
 
       expect(outcome.repositoryHref).toBe(REPOSITORY_HREF);
       expect(outcome.distribution).toStrictEqual({ state: 'unconfirmed' });
@@ -651,14 +939,31 @@ describe(
 );
 
 describe('Unit: createAlerts', { tags: ['unit'] }, () => {
-  const request = { basePath: BASE_PATH };
+  const request = asked(BASE_PATH);
 
-  it('says the repository and the distribution were created', () => {
+  it('says the repository and the distribution were created, and that the distribution is public', () => {
     expect(createAlerts(NAME, request, { state: 'created' })).toEqual([
       { variant: 'success', title: `Successfully created repository ${NAME}` },
       {
         variant: 'success',
         title: `Created distribution "${NAME}" at base path ${BASE_PATH}.`,
+        description:
+          'It is public: anyone can download from it without signing in.',
+      },
+    ]);
+  });
+
+  it('says the distribution is protected by the content guard that was chosen', () => {
+    expect(
+      createAlerts(NAME, asked(BASE_PATH, { guard: GUARD_HREF }), {
+        state: 'created',
+      }),
+    ).toEqual([
+      { variant: 'success', title: `Successfully created repository ${NAME}` },
+      {
+        variant: 'success',
+        title: `Created distribution "${NAME}" at base path ${BASE_PATH}.`,
+        description: 'It is protected by the content guard you chose.',
       },
     ]);
   });
