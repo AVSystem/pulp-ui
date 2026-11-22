@@ -21,6 +21,13 @@ const distributionRefSchema = z.looseObject({
 
 const refPageSchema = pageSchemaOf(distributionRefSchema);
 
+const guardRowSchema = z.looseObject({
+  pulp_href: pulpHrefSchema,
+  content_guard: z.string().nullish(),
+});
+
+const guardPageSchema = pageSchemaOf(guardRowSchema);
+
 export interface DistributionRef {
   name: string;
   base_path: string;
@@ -112,4 +119,24 @@ async function nestedBelow(
   }
 }
 
-export const DistributionClient = { existsByName, existsByBasePath };
+// The content guard the distribution at this address has, read on its own
+// through the list of every plugin's distributions: the address of the guard,
+// or null when it has none. Undefined when the answer does not say, a row that
+// is not there or one without the field, so a short answer is never taken for
+// "no guard".
+async function guardOf(
+  href: string,
+  options?: RequestInit,
+): Promise<string | null | undefined> {
+  const data = await distributionsList(
+    { pulp_href__in: [href], fields: ['pulp_href', 'content_guard'], limit: 1 },
+    options,
+  );
+  const row = parseResponse(guardPageSchema, data).results.find(
+    (found) => found.pulp_href === href,
+  );
+
+  return row?.content_guard;
+}
+
+export const DistributionClient = { existsByName, existsByBasePath, guardOf };

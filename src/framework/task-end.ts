@@ -5,8 +5,9 @@ import { isSessionEnd, requestErrorStatus } from 'src/utilities/request-error';
 
 // How a task a screen waits for has ended, as far as the screen could tell.
 export type TaskEnd =
-  // the task finished its work
-  | { state: 'completed' }
+  // the task finished its work; `created` holds the addresses of the objects
+  // it made
+  | { state: 'completed'; created: string[] }
   // the task failed, was skipped or was canceled, with the server's reason
   | { state: 'failed'; reason: string }
   // the wait was ended from outside (a screen left on purpose) before the task
@@ -56,7 +57,7 @@ export async function readTaskToEnd(
       if (isFinalState(found.state)) {
         const description = found.error?.['description'];
         return found.state === 'completed'
-          ? { state: 'completed' }
+          ? { state: 'completed', created: found.created_resources ?? [] }
           : {
               state: 'failed',
               reason:
