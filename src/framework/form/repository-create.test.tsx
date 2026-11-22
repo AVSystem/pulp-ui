@@ -680,6 +680,47 @@ describe(
       ]);
     });
 
+    it('names the guard the server set by itself instead of reporting the distribution as public', async () => {
+      const created = `${API}/distributions/file/file/00000000-0000-4000-8000-0000000000ee/`;
+      const redirect = contentGuard({
+        name: 'content redirect',
+        pulp_href: `${API}/contentguards/core/content_redirect/00000000-0000-4000-8000-0000000000ff/`,
+      });
+      serveLab({ guards: [redirect] });
+      server.use(
+        http.get('*/pulp/api/v3/tasks/:id/', () =>
+          HttpResponse.json({
+            pulp_href: TASK_HREF,
+            name: 'create',
+            state: 'completed',
+            created_resources: [created],
+          }),
+        ),
+        http.get(`*${API}/distributions/`, ({ request }) =>
+          new URL(request.url).searchParams.has('pulp_href__in')
+            ? HttpResponse.json(
+                page([
+                  { pulp_href: created, content_guard: redirect.pulp_href },
+                ]),
+              )
+            : undefined,
+        ),
+      );
+      const { user } = renderCreate();
+
+      await user.type(await formReady(), 'tools');
+      await tick(user);
+      await user.click(save());
+
+      await atDetail('tools');
+      expect(
+        await screen.findByText(
+          'The server protected the distribution with "content redirect".',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/It is public/)).toBeNull();
+    });
+
     it('sends no distribution, and no content guard, when the box stays unticked', async () => {
       serveLab();
       const { user } = renderCreate();
