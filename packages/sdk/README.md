@@ -87,7 +87,7 @@ server reports, to tell an administrator when they differ.
 ## Applications
 
 One generation project per application, one directory each: `core`, `ansible`,
-`certguard`, `deb`, `file`, `maven`, `npm`, `python`, `rpm`. The transformer
+`certguard`, `container`, `deb`, `file`, `maven`, `npm`, `python`, `rpm`. The transformer
 assigns every path to exactly one of them:
 
 - the management API by its URL (`/pulp/api/v3/repositories/rpm/rpm/` is `rpm`;
