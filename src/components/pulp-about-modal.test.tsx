@@ -95,7 +95,7 @@ describe('about dialog version note', () => {
 
   it('tells an administrator where the server runs other versions than the interface was generated for', async () => {
     signIn(true);
-    reportVersions({ rpm: different, ansible: null, container: '2.0.0' });
+    reportVersions({ rpm: different, ansible: null, hugging_face: '0.1.0' });
 
     renderModal();
 
@@ -110,7 +110,7 @@ describe('about dialog version note', () => {
       ),
     ).toBeVisible();
     expect(
-      screen.getByText('container: not part of the generated interface'),
+      screen.getByText('hugging_face: not part of the generated interface'),
     ).toBeVisible();
     expect(screen.queryByText(/^core:/)).toBeNull();
   });
