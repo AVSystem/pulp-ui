@@ -1,15 +1,29 @@
 import { t } from '@lingui/core/macro';
 import { Flex, FlexItem, Label } from '@patternfly/react-core';
+import { ServedLabel } from '../framework/serving/served-label';
+import {
+  type ServedState,
+  isNoteworthy,
+} from '../framework/serving/served-state';
 import { type RepositoryDistribution } from '../utilities/repository-distributions';
 import { CopyURL } from './copy-url';
 
+// A distribution as the screens of the framework show it: its URL and what it
+// serves, decided by the framework's rules. The older screens that still have
+// their own two-state answer pass `served` as a flag instead.
+type DistributionShown =
+  | Pick<RepositoryDistribution, 'url' | 'served'>
+  | { url: string | null; state: ServedState };
+
 // The URL a distribution is served at, as the server reports it. A
-// distribution the content app answers 404 for says so next to its URL, so a
-// copied URL that cannot work is not mistaken for a working one.
+// distribution the content app answers 404 for, or one that serves an older
+// version than the latest, says so next to its URL, so a copied URL that cannot
+// work is not mistaken for a working one. A distribution that cannot be checked
+// says that instead, never that it serves nothing.
 export const DistributionURL = ({
   distribution,
 }: {
-  distribution: Pick<RepositoryDistribution, 'url' | 'served'>;
+  distribution: DistributionShown;
 }) => (
   <Flex
     alignItems={{ default: 'alignItemsCenter' }}
@@ -18,7 +32,13 @@ export const DistributionURL = ({
     <FlexItem>
       {distribution.url ? <CopyURL url={distribution.url} /> : t`None`}
     </FlexItem>
-    {distribution.served ? null : (
+    {'state' in distribution ? (
+      isNoteworthy(distribution.state) ? (
+        <FlexItem>
+          <ServedLabel state={distribution.state} />
+        </FlexItem>
+      ) : null
+    ) : distribution.served ? null : (
       <FlexItem>
         <Label color='orange'>{t`Not served: no publication`}</Label>
       </FlexItem>

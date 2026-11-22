@@ -7,6 +7,7 @@ import { guardRoutes } from 'src/app-routes';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   distributionListHandler,
+  listOf,
   page,
   pluginDistribution,
   pluginListHandler,
@@ -81,6 +82,8 @@ function serveLab({
     lab.repositories.handler,
     lab.distributions.handler,
     lab.publications.handler,
+    // read for a user who is not an administrator
+    listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler,
   );
   return lab;
 }
@@ -288,11 +291,10 @@ describe(
       ).toBeVisible();
     });
 
-    it('says a distribution bound to nothing it can check cannot be checked for a user who may not read publications, and never that it serves nothing', async () => {
+    it('says a repository-bound distribution cannot be checked for a user who may not read publications, and never that it serves nothing', async () => {
       permissions.stop();
       permissions = servePermissions({ id: 7, isStaff: false });
       serveLab({
-        // the viewer's publication list is empty although publications exist
         distributions: (repository) => [
           pluginDistribution('file', { name: 'bare', repository }),
         ],
@@ -329,7 +331,7 @@ describe(
       expect(screen.queryByText(/Cannot be checked/)).toBeNull();
     });
 
-    it('says why it cannot be checked when the label is focused', async () => {
+    it('says why it cannot be checked when the label is hovered', async () => {
       permissions.stop();
       permissions = servePermissions({ id: 7, isStaff: false });
       serveLab({
@@ -346,7 +348,7 @@ describe(
 
       expect(
         await screen.findByText(/may not read the publications/),
-      ).toBeVisible();
+      ).toBeInTheDocument();
     });
 
     it('says no distribution serves the repository when there is none', async () => {

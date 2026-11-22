@@ -85,6 +85,7 @@ describe('Unit: the file distribution entity', { tags: ['unit'] }, () => {
       'content_guard',
       'pulp_labels',
       'pulp_created',
+      'checkpoint',
     ]);
   });
 

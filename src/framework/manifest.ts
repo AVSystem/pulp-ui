@@ -25,6 +25,15 @@ export interface IPluginPermissions {
     delete: string;
     manageRoles: string;
   };
+  // The permissions on the plugin's publications, for a plugin whose
+  // distributions serve from publications. Reading publications is a
+  // permission of its own: a user without `view` sees none, which says nothing
+  // about whether a distribution serves content.
+  publication?: {
+    view: string;
+    add: string;
+    delete: string;
+  };
   repository: {
     add: string;
     addDistribution: string;
@@ -60,6 +69,11 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
     resources: ['repository', 'remote'],
     permissions: {
       objectRoles: true,
+      publication: {
+        view: 'file.view_filepublication',
+        add: 'file.add_filepublication',
+        delete: 'file.delete_filepublication',
+      },
       repository: {
         add: 'file.add_filerepository',
         addDistribution: 'file.add_filedistribution',
@@ -87,6 +101,11 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
     // the server would allow rather than showing one it would refuse.
     permissions: {
       objectRoles: false,
+      publication: {
+        view: 'deb.view_aptpublication',
+        add: 'deb.add_aptpublication',
+        delete: 'deb.delete_aptpublication',
+      },
       repository: {
         add: 'deb.add_aptrepository',
         addDistribution: 'deb.add_aptdistribution',
@@ -111,6 +130,11 @@ export const PLUGIN_MANIFESTS: readonly PluginManifest[] = [
     resources: ['repository', 'remote'],
     permissions: {
       objectRoles: true,
+      publication: {
+        view: 'rpm.view_rpmpublication',
+        add: 'rpm.add_rpmpublication',
+        delete: 'rpm.delete_rpmpublication',
+      },
       repository: {
         add: 'rpm.add_rpmrepository',
         addDistribution: 'rpm.add_rpmdistribution',

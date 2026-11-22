@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { type ServingInput, servedState } from './served-state';
+import {
+  type ServedState,
+  type ServingInput,
+  isNoteworthy,
+  servedState,
+} from './served-state';
 
 const REPOSITORY = '/pulp/api/v3/repositories/file/file/0190-a/';
 const PUBLICATION = '/pulp/api/v3/publications/file/file/0190-b/';
@@ -320,3 +325,28 @@ describe(
     });
   },
 );
+
+describe('Unit: which states are worth drawing', { tags: ['unit'] }, () => {
+  const of = (state: ServedState['state'], note?: 'deprecated-publication') =>
+    isNoteworthy({ state, note, fix: null });
+
+  it('draws every warning, an unbound state, and a state that cannot be checked', () => {
+    for (const state of [
+      'stale',
+      'no-publication',
+      'unbound',
+      'cannot-check',
+    ] as const) {
+      expect(of(state)).toBe(true);
+    }
+  });
+
+  it('draws nothing for a served distribution or one the rules do not apply to', () => {
+    expect(of('served')).toBe(false);
+    expect(of('not-applicable')).toBe(false);
+  });
+
+  it('draws the note of a distribution the rules do not apply to', () => {
+    expect(of('not-applicable', 'deprecated-publication')).toBe(true);
+  });
+});

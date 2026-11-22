@@ -67,6 +67,7 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
       const names = [
         ...Object.values(manifest.permissions.repository),
         ...Object.values(manifest.permissions.remote),
+        ...Object.values(manifest.permissions.publication ?? {}),
       ];
       for (const name of names) {
         expect(name.startsWith(`${manifest.plugin}.`)).toBe(true);
