@@ -3,6 +3,7 @@ import { DropdownItem } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   AlertList,
   BaseHeader,
   DateComponent,
@@ -23,7 +24,10 @@ import {
   type DistributionPlugin,
   type ListedDistribution,
 } from 'src/entities/core/distribution/page';
-import { useDistributionPage } from 'src/entities/core/distribution/queries';
+import {
+  useDistributionRows,
+  usePublicDistributions,
+} from 'src/entities/core/distribution/queries';
 import { usePlugins } from 'src/plugins';
 import {
   isSessionEnd,
@@ -54,6 +58,7 @@ import {
   DistributionFilterChips,
   DistributionFilters,
   listedPlugins,
+  publicOnlyOf,
 } from './distribution-filters';
 import { pluginLabel } from './plugin-label';
 import {
@@ -209,7 +214,22 @@ const DistributionListScreen = ({
       pulp_label_select,
     ],
   );
-  const query = useDistributionPage(request);
+  // With the public filter on, the distributions that have no content guard
+  // are found in the indexes of the plugins listed, which read every
+  // distribution of each.
+  const publicOnly = publicOnlyOf(params);
+  const publicIndex = usePublicDistributions(plugins, publicOnly);
+  const selection = useMemo(
+    () => ({
+      enabled: publicOnly,
+      hrefs: publicIndex.hrefs,
+      status: publicIndex.status,
+      error: publicIndex.error,
+      retry: publicIndex.retry,
+    }),
+    [publicOnly, publicIndex],
+  );
+  const query = useDistributionRows(request, selection);
 
   const { data, labelRefusal, lastShown } = useShownRows(query, params);
   const rows = useMemo(() => data?.results ?? [], [data]);
@@ -433,6 +453,16 @@ const DistributionListScreen = ({
         }
         notices={
           <>
+            {publicOnly ? (
+              <Alert
+                isInline
+                variant='info'
+                title={t`Reading every distribution to find the public ones`}
+                style={{ marginBottom: '16px' }}
+              >
+                {t`A distribution is public when it has no content guard. Only those are listed.`}
+              </Alert>
+            ) : null}
             {permissionsFailure ? (
               <PermissionsNotice
                 description={permissionsFailure.description}

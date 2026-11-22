@@ -87,7 +87,7 @@ const BOUND_FIELDS = ['publication', 'checkpoint'] as const;
 const INDEX_PAGE_SIZE = 1000;
 
 // How long the index is taken as current.
-const INDEX_STALE_MS = 60_000;
+export const INDEX_STALE_MS = 60_000;
 
 // What a list of distributions is asked for, in the terms of a screen.
 export interface DistributionListParams {
@@ -455,6 +455,18 @@ export function repositoriesMatchingBasePath(
   return found;
 }
 
+// The addresses of the distributions that have no content guard, so anyone can
+// download what they serve. A row counts only when the server said it has no
+// guard (the field is null); a row that does not carry the field is never
+// taken for a public one.
+export function publicDistributions(
+  rows: readonly DistributionBase[],
+): string[] {
+  return rows
+    .filter((row) => row.content_guard === null)
+    .map((row) => row.pulp_href);
+}
+
 export type DistributionIndexStatus = 'pending' | 'error' | 'success';
 
 // What the index of a plugin's distributions offers once it has been read.
@@ -476,6 +488,9 @@ export interface DistributionIndex<Row> {
   // The repositories a base path filter selects, or null while the index is not
   // complete.
   repositoriesMatchingBasePath: (text: string) => Set<string> | null;
+  // The addresses of the distributions that have no content guard, or null
+  // while the index is not complete.
+  publicDistributions: () => string[] | null;
   // Reads again what failed.
   retry: () => void;
 }
@@ -603,6 +618,10 @@ export function useDistributionIndex<Row extends DistributionBase>(
         : null,
     [ready, rows, publications],
   );
+  const unguarded = useCallback(
+    () => (ready && rows ? publicDistributions(rows) : null),
+    [ready, rows],
+  );
   const { refetch: refetchIndex, status: indexStatus } = index;
   const retry = useCallback(() => {
     if (indexStatus === 'error') {
@@ -624,6 +643,7 @@ export function useDistributionIndex<Row extends DistributionBase>(
     publicationVersions: ready ? reads.versions : undefined,
     distributionsOfRepository: ofRepository,
     repositoriesMatchingBasePath: matchingBasePath,
+    publicDistributions: unguarded,
     retry,
   };
 }

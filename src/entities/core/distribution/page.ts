@@ -1,6 +1,10 @@
-import { distributionsList } from '@pulp-ui/sdk/core/distributions';
+import {
+  distributionsList,
+  getDistributionsListUrl,
+} from '@pulp-ui/sdk/core/distributions';
 import { z } from 'zod';
 import { ansibleDistribution } from 'src/entities/ansible/distribution';
+import { chunkByUrl, runBounded } from 'src/entities/batch';
 import { containerDistribution } from 'src/entities/container/distribution';
 import { debDistribution } from 'src/entities/deb/distribution';
 import { debPublication } from 'src/entities/deb/publication';
@@ -205,6 +209,9 @@ export interface DistributionPageParams {
   base_path__icontains?: string;
   // The expression the labels must satisfy.
   pulp_label_select?: string;
+  // Only the distributions at these addresses. An empty set selects nothing,
+  // and the server is not asked.
+  pulp_href__in?: readonly string[];
 }
 
 // The filters of the list that are single text values.
@@ -221,29 +228,37 @@ const EMPTY: Page<never> = {
   results: [],
 };
 
+// The request a page of the list is read with.
+function requestOf(params: DistributionPageParams) {
+  const { pulp_href__in, ...rest } = params;
+
+  return {
+    ...toListRequest(
+      {
+        ...rest,
+        sort: params.sort ?? 'name',
+        ...(pulp_href__in ? { pulp_href__in: [...pulp_href__in] } : {}),
+      },
+      TEXT_FILTERS,
+    ),
+    pulp_type__in: params.plugins.map(
+      (plugin) => DISTRIBUTION_TYPES[plugin].pulpType,
+    ),
+    fields: PAGE_FIELDS,
+  } as Parameters<typeof distributionsList>[0];
+}
+
 // One page of the distributions of the given plugins, in the order asked for,
 // each row with its plugin.
 export async function distributionPage(
   params: DistributionPageParams,
   options?: Options,
 ): Promise<Page<ListedDistribution>> {
-  if (params.plugins.length === 0) {
+  if (params.plugins.length === 0 || params.pulp_href__in?.length === 0) {
     return EMPTY;
   }
 
-  const data = await distributionsList(
-    {
-      ...toListRequest(
-        { ...params, sort: params.sort ?? 'name' },
-        TEXT_FILTERS,
-      ),
-      pulp_type__in: params.plugins.map(
-        (plugin) => DISTRIBUTION_TYPES[plugin].pulpType,
-      ),
-      fields: PAGE_FIELDS,
-    } as Parameters<typeof distributionsList>[0],
-    options,
-  );
+  const data = await distributionsList(requestOf(params), options);
   const answer = parseResponse(pageSchemaOf(coreDistributionSchema), data);
 
   return {
@@ -262,6 +277,72 @@ export async function distributionPage(
       ];
     }),
   };
+}
+
+// The filters of a page request apart from the ones that cut it into a page
+// and order it, which is what the reads of a set of addresses share.
+export type DistributionFilters = Omit<
+  DistributionPageParams,
+  'page' | 'page_size' | 'sort' | 'pulp_href__in'
+>;
+
+// How many distributions the server answers on one page at most.
+const MOST_ON_A_PAGE = 1000;
+
+// How many groups of addresses are read at once.
+const CHUNK_READS_AT_ONCE = 4;
+
+// Splits addresses into groups, each read by one request with the filters whose
+// URL stays under the budget. Every address is kept once, in order.
+export function distributionChunks(
+  hrefs: readonly string[],
+  filters: DistributionFilters,
+): string[][] {
+  return chunkByUrl(
+    (group) =>
+      getDistributionsListUrl(
+        requestOf({
+          ...filters,
+          page_size: MOST_ON_A_PAGE,
+          pulp_href__in: group,
+        }),
+      ),
+    Array.from(new Set(hrefs)),
+  );
+}
+
+// The distributions of the groups, one request for each (at most four at once)
+// with the filters, each row once. The page, its size and the order are not
+// used: the caller pages and orders what comes back.
+export async function readDistributionChunks(
+  chunks: readonly (readonly string[])[],
+  filters: DistributionFilters,
+  options?: Options,
+): Promise<ListedDistribution[]> {
+  const pages = await runBounded(chunks, CHUNK_READS_AT_ONCE, (chunk) =>
+    distributionPage(
+      {
+        ...filters,
+        page: 1,
+        page_size: Math.max(chunk.length, 1),
+        pulp_href__in: chunk,
+      },
+      options,
+    ),
+  );
+  // A row at an address that was not asked for is dropped, so a server that
+  // ignores the filter cannot put another distribution on screen.
+  const asked = new Set(chunks.flat());
+  const byHref = new Map<string, ListedDistribution>();
+  for (const page of pages) {
+    for (const row of page.results) {
+      if (asked.has(row.pulp_href)) {
+        byHref.set(row.pulp_href, row);
+      }
+    }
+  }
+
+  return Array.from(byHref.values());
 }
 
 // What a plugin's own read of a distribution adds to the row of the core list:
