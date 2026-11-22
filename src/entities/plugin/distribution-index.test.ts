@@ -299,11 +299,10 @@ describe('Unit: publicDistributions', { tags: ['unit'] }, () => {
   });
 
   it('never takes a row that does not carry the field for a public one', () => {
-    const { content_guard: _guard, ...unknown } = pluginDistribution('file', {
-      name: 'unknown',
-    });
+    const row = pluginDistribution('file', { name: 'unknown' });
+    delete (row as { content_guard?: unknown }).content_guard;
 
-    expect(publicDistributions([unknown as never])).toEqual([]);
+    expect(publicDistributions([row])).toEqual([]);
   });
 
   it('names none for no rows', () => {

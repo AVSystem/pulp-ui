@@ -728,7 +728,7 @@ describe(
     it('shows the loading state, and no empty result, while an index is still being read', async () => {
       reportPlugins(['core', 'file']);
       const lab = serveLab({ file: [some('file', 'a'), guarded('file', 'b')] });
-      let release = () => {};
+      let release!: () => void;
       const gate = new Promise<void>((resolve) => {
         release = resolve;
       });
