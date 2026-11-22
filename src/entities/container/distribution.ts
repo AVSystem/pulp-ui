@@ -4,6 +4,8 @@ import {
   distributionsContainerContainerList,
   distributionsContainerContainerPartialUpdate,
   distributionsContainerContainerRead,
+  distributionsContainerContainerSetLabel,
+  distributionsContainerContainerUnsetLabel,
   getDistributionsContainerContainerListUrl,
 } from '@pulp-ui/sdk/container/distributions-container';
 import {
@@ -24,5 +26,7 @@ export const containerDistribution = makeDistributionEntity({
     create: distributionsContainerContainerCreate,
     partialUpdate: distributionsContainerContainerPartialUpdate,
     remove: distributionsContainerContainerDelete,
+    setLabel: distributionsContainerContainerSetLabel,
+    unsetLabel: distributionsContainerContainerUnsetLabel,
   },
 });

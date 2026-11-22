@@ -4,6 +4,8 @@ import {
   distributionsPythonPypiList,
   distributionsPythonPypiPartialUpdate,
   distributionsPythonPypiRead,
+  distributionsPythonPypiSetLabel,
+  distributionsPythonPypiUnsetLabel,
   getDistributionsPythonPypiListUrl,
 } from '@pulp-ui/sdk/python/distributions-pypi';
 import { makeDistributionEntity } from 'src/entities/plugin/distribution';
@@ -29,5 +31,7 @@ export const pythonDistribution = makeDistributionEntity({
       options?: Parameters<typeof distributionsPythonPypiPartialUpdate>[2],
     ) => distributionsPythonPypiPartialUpdate(href, body, options),
     remove: distributionsPythonPypiDelete,
+    setLabel: distributionsPythonPypiSetLabel,
+    unsetLabel: distributionsPythonPypiUnsetLabel,
   },
 });
