@@ -302,7 +302,14 @@ describe(
       expect(served.queries).toHaveLength(1);
       expect(served.queries[0]?.get('pulp_href__in')).toBe(python.pulp_href);
       expect(urls).toEqual([
-        [python.pulp_href, 'https://pulp.example/pypi/pypi/'],
+        [
+          python.pulp_href,
+          {
+            url: 'https://pulp.example/pypi/pypi/',
+            publication: null,
+            checkpoint: false,
+          },
+        ],
       ]);
     });
 
@@ -323,8 +330,39 @@ describe(
         'client_url',
       );
       expect(urls).toEqual([
-        [ansible.pulp_href, 'https://pulp.example/pulp_ansible/galaxy/galaxy/'],
+        [
+          ansible.pulp_href,
+          {
+            url: 'https://pulp.example/pulp_ansible/galaxy/galaxy/',
+            publication: null,
+            checkpoint: false,
+          },
+        ],
       ]);
+    });
+
+    it('reads the publication and the checkpoint flag a row is bound by, which the core list does not hold', async () => {
+      const bound = pluginDistribution('file', {
+        name: 'bound',
+        publication:
+          '/pulp/api/v3/publications/file/file/00000000-0000-4000-8000-0000000000aa/',
+        checkpoint: true,
+      });
+      const served = distributionListHandler('file', [bound]);
+      server.use(served.handler);
+
+      const facts = await readEnrichment({
+        plugin: 'file',
+        hrefs: [bound.pulp_href],
+      });
+
+      expect(fieldsOf(served.queries[0] as URLSearchParams)).toEqual(
+        expect.arrayContaining(['publication', 'checkpoint']),
+      );
+      expect(facts[0]?.[1]).toMatchObject({
+        publication: bound.publication,
+        checkpoint: true,
+      });
     });
 
     it('reads nothing for no addresses', async () => {

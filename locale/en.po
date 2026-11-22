@@ -400,6 +400,10 @@ msgstr "A base path cannot start or end with a slash or contain two slashes in a
 #~ msgid "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
 #~ msgstr "A base path may contain only letters, digits, \"-\", \"_\" and \"/\"."
 
+#: src/framework/distributions/distribution-columns.tsx
+msgid "A content guard you may not see"
+msgstr "A content guard you may not see"
+
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
@@ -435,9 +439,21 @@ msgstr "A PEM encoded client certificate used for authentication."
 msgid "A PEM encoded private key used for authentication."
 msgstr "A PEM encoded private key used for authentication."
 
+#: src/framework/distributions/distribution-columns.tsx
+msgid "A pinned version"
+msgstr "A pinned version"
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "A publication"
+msgstr "A publication"
+
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A repository for which this cannot be turned on is synced with the value that is allowed."
 msgstr "A repository for which this cannot be turned on is synced with the value that is allowed."
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "A repository you may not see"
+msgstr "A repository you may not see"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A sync is started for every selected repository that has a remote, with the options below. Each sync runs as a task of its own."
@@ -936,6 +952,10 @@ msgstr "Arch"
 msgid "Architectures"
 msgstr "Architectures"
 
+#: src/framework/distributions/delete-distribution-dialog.tsx
+msgid "Are you sure you want to delete the distribution <0>{name}</0> with the base path <1>{basePath}</1>?"
+msgstr "Are you sure you want to delete the distribution <0>{name}</0> with the base path <1>{basePath}</1>?"
+
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?"
 msgstr "Are you sure you want to delete the remote <0>{name}</0>?"
@@ -1418,8 +1438,8 @@ msgid "Client key"
 msgstr "Client key"
 
 #: src/framework/distributions/distribution-list.tsx
-msgid "Client URLs could not be read."
-msgstr "Client URLs could not be read."
+#~ msgid "Client URLs could not be read."
+#~ msgstr "Client URLs could not be read."
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
@@ -1845,6 +1865,10 @@ msgstr "Content counts could not be read."
 #~ msgid "Content from roles and collections can be referenced in Ansible PlayBooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
 #~ msgstr "Content from roles and collections can be referenced in Ansible PlayBooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
 
+#: src/framework/distributions/distribution-list.tsx
+msgid "Content guard"
+msgstr "Content guard"
+
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "Content in repositories without a distribution will not be visible to clients for sync, download or search."
@@ -2216,6 +2240,7 @@ msgstr "Debian verbatim publish"
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
 msgid "Delete"
@@ -2276,6 +2301,10 @@ msgstr "Delete"
 #: src/constants.tsx
 #~ msgid "Delete distribution"
 #~ msgstr "Delete distribution"
+
+#: src/framework/distributions/delete-distribution-dialog.tsx
+msgid "Delete distribution?"
+msgstr "Delete distribution?"
 
 #: src/utilities/delete-collection.tsx
 #~ msgid "Delete entire collection"
@@ -2580,6 +2609,10 @@ msgstr "Distribution {name} was not removed: {reason}"
 msgid "Distribution {name} was not shown, so it was not removed."
 msgstr "Distribution {name} was not shown, so it was not removed."
 
+#: src/framework/distributions/use-distribution-columns.ts
+msgid "Distribution details could not be read."
+msgstr "Distribution details could not be read."
+
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Distribution name"
 #~ msgstr "Distribution name"
@@ -2756,6 +2789,10 @@ msgstr "Download requirements YAML"
 #: src/components/collection-info.tsx
 #~ msgid "Download tarball"
 #~ msgstr "Download tarball"
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Downloads need credentials. The client snippet shows how."
+msgstr "Downloads need credentials. The client snippet shows how."
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Drag a file here or browse to upload"
@@ -3239,6 +3276,10 @@ msgstr "Failed {when}"
 #: src/components/role-namespace-modal.tsx
 #~ msgid "Failed to create role namespace"
 #~ msgstr "Failed to create role namespace"
+
+#: src/framework/distributions/delete-distribution-dialog.tsx
+msgid "Failed to delete distribution \"{name}\""
+msgstr "Failed to delete distribution \"{name}\""
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Failed to delete remote \"{name}\""
@@ -5058,6 +5099,7 @@ msgstr "No users yet"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
@@ -5074,6 +5116,10 @@ msgstr "None"
 #: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
 msgstr "Not allowed"
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Not applicable"
+msgstr "Not applicable"
 
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/remote-reference.tsx
@@ -5108,7 +5154,7 @@ msgstr "Not found"
 #~ msgid "Not found image"
 #~ msgstr "Not found image"
 
-#: src/framework/distributions/distribution-list.tsx
+#: src/framework/distributions/distribution-columns.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "Not loaded"
@@ -5174,6 +5220,10 @@ msgstr "Not used"
 #: src/framework/form/descriptor-form.test.tsx
 msgid "Notes"
 msgstr "Notes"
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Nothing"
+msgstr "Nothing"
 
 #: src/descriptors/python/distribution-edit.tsx
 msgid "Nothing changed in distribution {name}."
@@ -5729,9 +5779,21 @@ msgstr "Proxy URL"
 msgid "Proxy username"
 msgstr "Proxy username"
 
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Public"
+msgstr "Public"
+
 #: src/containers/signature-keys/list.tsx
 msgid "Public key"
 msgstr "Public key"
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Publication of version {version}"
+msgstr "Publication of version {version}"
+
+#: src/framework/distributions/use-distribution-columns.ts
+msgid "Publications could not be read."
+msgstr "Publications could not be read."
 
 #: src/framework/form/form-values.test.ts
 msgid "Publish"
@@ -6243,16 +6305,18 @@ msgstr "Remotes will appear once created."
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 
+#: src/framework/distributions/delete-distribution.ts
+msgid "Removal of distribution {name}"
+msgstr "Removal of distribution {name}"
+
 #: src/framework/bulk/remote-bulk.tsx
 #: src/framework/delete/delete-remote.ts
 msgid "Removal of remote {name}"
 msgstr "Removal of remote {name}"
 
-#: src/actions/ansible-repository-delete.tsx
-#: src/actions/deb-repository-delete.tsx
-#: src/actions/file-repository-delete.tsx
-#~ msgid "Removal started for distribution {name}"
-#~ msgstr "Removal started for distribution {name}"
+#: src/framework/distributions/delete-distribution.ts
+msgid "Removal started for distribution {name}"
+msgstr "Removal started for distribution {name}"
 
 #: src/actions/ansible-remote-delete.tsx
 #: src/framework/delete/delete-remote.ts
@@ -6435,6 +6499,10 @@ msgstr "Repositories could not be displayed."
 #: src/framework/detail/remote-detail.tsx
 msgid "Repositories could not be loaded"
 msgstr "Repositories could not be loaded"
+
+#: src/framework/distributions/use-distribution-columns.ts
+msgid "Repositories could not be read."
+msgstr "Repositories could not be read."
 
 #: src/framework/list/remote-list.tsx
 msgid "Repositories using the remotes could not be read."
@@ -7138,6 +7206,14 @@ msgstr "Selected user"
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 msgstr "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Served"
+msgstr "Served"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Served state"
+msgstr "Served state"
+
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
 msgstr "Server error. Please come back later."
@@ -7153,6 +7229,10 @@ msgstr "Server error. Please come back later."
 #: src/components/pulp-about-modal.tsx
 #~ msgid "Server version"
 #~ msgstr "Server version"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Serves"
+msgstr "Serves"
 
 #: src/framework/serving/served-label.tsx
 msgid "Serves nothing (404): no publication"
@@ -8077,6 +8157,10 @@ msgstr "The configuration could not be copied to the clipboard."
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
 msgstr "The delete stopped with an unexpected error. Some distributions or the repository may already have been removed: check the lists before trying again."
+
+#: src/framework/distributions/delete-distribution-dialog.tsx
+msgid "The delete stopped with an unexpected error. The distribution may already have been removed: check the list before trying again."
+msgstr "The delete stopped with an unexpected error. The distribution may already have been removed: check the list before trying again."
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
@@ -9222,6 +9306,10 @@ msgstr "Verify checksums"
 msgid "Version"
 msgstr "Version"
 
+#: src/framework/distributions/distribution-columns.tsx
+msgid "Version {number} (pinned)"
+msgstr "Version {number} (pinned)"
+
 #: src/containers/ansible-repository/detail.tsx
 msgid "Version {repositoryVersion}"
 msgstr "Version {repositoryVersion}"
@@ -9395,6 +9483,10 @@ msgstr "We couldn't find the page you're looking for!"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Welcome to Galaxy"
 #~ msgstr "Welcome to Galaxy"
+
+#: src/framework/distributions/delete-distribution-dialog.tsx
+msgid "What it serves is kept. Clients lose the address it is reached at."
+msgstr "What it serves is kept. Clients lose the address it is reached at."
 
 #: src/session/reauth-dialog.tsx
 msgid "What you have entered on this page is kept."

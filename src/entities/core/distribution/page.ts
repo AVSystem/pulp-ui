@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { ansibleDistribution } from 'src/entities/ansible/distribution';
 import { containerDistribution } from 'src/entities/container/distribution';
 import { debDistribution } from 'src/entities/deb/distribution';
+import { debPublication } from 'src/entities/deb/publication';
 import { fileDistribution } from 'src/entities/file/distribution';
+import { filePublication } from 'src/entities/file/publication';
 import { pulpHrefSchema } from 'src/entities/href';
 import { mavenDistribution } from 'src/entities/maven/distribution';
 import { npmDistribution } from 'src/entities/npm/distribution';
@@ -13,6 +15,7 @@ import { type Options, toListRequest } from 'src/entities/plugin/request';
 import { pythonDistribution } from 'src/entities/python/distribution';
 import { parseResponse } from 'src/entities/response-shape';
 import { rpmDistribution } from 'src/entities/rpm/distribution';
+import { rpmPublication } from 'src/entities/rpm/publication';
 
 // The distributions of every plugin through the one endpoint that lists them
 // all, and what each plugin adds to a row of it.
@@ -75,6 +78,23 @@ export const DISTRIBUTION_TYPES = {
 export type DistributionPlugin = keyof typeof DISTRIBUTION_TYPES;
 
 const PLUGINS = Object.keys(DISTRIBUTION_TYPES) as DistributionPlugin[];
+
+// The plugins whose distributions serve from publications, with the entity that
+// reads their publications. The others serve versions directly and have no
+// publication to wait for.
+export const PUBLICATION_ENTITIES = {
+  file: filePublication,
+  deb: debPublication,
+  rpm: rpmPublication,
+} as const;
+
+export type PublicationPlugin = keyof typeof PUBLICATION_ENTITIES;
+
+export function servesFromPublication(
+  plugin: DistributionPlugin,
+): plugin is PublicationPlugin {
+  return plugin in PUBLICATION_ENTITIES;
+}
 
 // What the page of the list asks for: everything the cells of the list read,
 // and the PRN that tells the type.
@@ -228,32 +248,45 @@ export async function distributionPage(
   };
 }
 
+// What a plugin's own read of a distribution adds to the row of the core list:
+// where a client of the plugin reaches it, the publication it is bound to (the
+// core row names none) and whether it serves by checkpoint.
+export interface DistributionFacts {
+  url: string | null;
+  publication: string | null;
+  checkpoint: boolean;
+}
+
 // How a plugin's own entity is read for the addresses of the rows of a page.
-interface UrlReader {
+interface FactsReader {
   chunks: (hrefs: readonly string[]) => string[][];
-  // Each address with the address a client of the plugin reaches it at.
+  // Each address with what the plugin's own row says of it.
   read: (
     hrefs: readonly string[],
     options?: Options,
-  ) => Promise<[string, string | null][]>;
+  ) => Promise<[string, DistributionFacts][]>;
 }
 
 function readerOf<Row extends DistributionBase>(entity: {
   chunks: (hrefs: readonly string[]) => string[][];
   ofHrefs: (hrefs: readonly string[], options?: Options) => Promise<Row[]>;
   clientUrlOf: (row: Row) => string | null;
-}): UrlReader {
+}): FactsReader {
   return {
     chunks: (hrefs) => entity.chunks(hrefs),
     read: async (hrefs, options) =>
       (await entity.ofHrefs(hrefs, options)).map((row) => [
         row.pulp_href,
-        entity.clientUrlOf(row),
+        {
+          url: entity.clientUrlOf(row),
+          publication: row.publication ?? null,
+          checkpoint: row.checkpoint === true,
+        },
       ]),
   };
 }
 
-const READERS: Record<DistributionPlugin, UrlReader> = {
+const READERS: Record<DistributionPlugin, FactsReader> = {
   file: readerOf(fileDistribution),
   deb: readerOf(debDistribution),
   rpm: readerOf(rpmDistribution),
@@ -264,6 +297,19 @@ const READERS: Record<DistributionPlugin, UrlReader> = {
   container: readerOf(containerDistribution),
 };
 
+// The distribution entity of each plugin, for the writes of a row: a plugin's
+// own entity deletes the distribution at an address of the plugin.
+export const DISTRIBUTION_ENTITIES = {
+  file: fileDistribution,
+  deb: debDistribution,
+  rpm: rpmDistribution,
+  python: pythonDistribution,
+  maven: mavenDistribution,
+  npm: npmDistribution,
+  ansible: ansibleDistribution,
+  container: containerDistribution,
+} as const satisfies Record<DistributionPlugin, unknown>;
+
 // One read of a plugin's own list: the addresses of some rows of one plugin,
 // few enough for one request.
 export interface EnrichmentChunk {
@@ -271,7 +317,8 @@ export interface EnrichmentChunk {
   hrefs: string[];
 }
 
-// The reads that tell where each row of a page is reached: the rows grouped by
+// The reads that tell where each row of a page is reached and what it is bound
+// to: the rows grouped by
 // plugin, each group cut so that no request is longer than the URL budget. A
 // row no plugin owns is left out, and every other row is in exactly one chunk.
 export function enrichmentChunks(
@@ -288,11 +335,12 @@ export function enrichmentChunks(
   });
 }
 
-// Reads one chunk: each address in it with the address a client of the plugin
-// reaches the distribution at, or null when the plugin's row names none.
+// Reads one chunk: each address in it with what the plugin's own row says: the
+// address a client reaches the distribution at (null when the row names none),
+// the publication it is bound to and whether it serves by checkpoint.
 export function readEnrichment(
   { plugin, hrefs }: EnrichmentChunk,
   options?: Options,
-): Promise<[string, string | null][]> {
+): Promise<[string, DistributionFacts][]> {
   return READERS[plugin].read(hrefs, options);
 }

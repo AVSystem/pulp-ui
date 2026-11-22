@@ -4,6 +4,7 @@ import { otherPageOfSameList } from 'src/entities/plugin/queries';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useSessionEnded } from 'src/session/session-events';
 import {
+  type DistributionFacts,
   type DistributionPageParams,
   type EnrichmentChunk,
   type ListedDistribution,
@@ -17,11 +18,11 @@ export const distributionPageKeys = {
   // One page of the cross-plugin list.
   page: (params: DistributionPageParams) =>
     [...distributionPageKeys.all, 'page', params] as const,
-  // The client addresses of one group of rows of one plugin; a plugin's own
-  // reads are keyed by the plugin so a write of that plugin's distributions
-  // reads them again.
-  urls: ({ plugin, hrefs }: EnrichmentChunk) =>
-    ['pulp', plugin, 'distribution', 'urls', hrefs] as const,
+  // What one group of rows of one plugin says of itself; a plugin's own reads
+  // are keyed by the plugin so a write of that plugin's distributions reads
+  // them again.
+  facts: ({ plugin, hrefs }: EnrichmentChunk) =>
+    ['pulp', plugin, 'distribution', 'facts', hrefs] as const,
 };
 
 // How long a page of the list is taken as current.
@@ -51,13 +52,14 @@ export function useDistributionPage(params: DistributionPageParams) {
 
 export type UrlReadStatus = 'pending' | 'error' | 'success';
 
-// Where a client reaches each row of a page: the address by the row's own
-// address, null for a row whose plugin names none. Until every group is read
-// there is no map, so a missing address is never taken for "none".
-export interface DistributionUrls {
+// What each row of a page says of itself beyond the core list: where a client
+// reaches it, the publication it is bound to and whether it serves by
+// checkpoint, by the row's own address. Until every group is read there is no
+// map, so a missing entry is never taken for "none".
+export interface DistributionFactsRead {
   status: UrlReadStatus;
   error: unknown;
-  urls: ReadonlyMap<string, string | null> | undefined;
+  facts: ReadonlyMap<string, DistributionFacts> | undefined;
   // Reads again the groups that failed.
   retry: () => void;
 }
@@ -65,7 +67,7 @@ export interface DistributionUrls {
 interface Reads {
   status: UrlReadStatus;
   error: unknown;
-  urls: Map<string, string | null>;
+  facts: Map<string, DistributionFacts>;
   // the groups that are in error, by their position
   failed: number[];
 }
@@ -75,11 +77,11 @@ interface Reads {
 function fold(
   results: {
     status: UrlReadStatus;
-    data: [string, string | null][] | undefined;
+    data: [string, DistributionFacts][] | undefined;
     error: unknown;
   }[],
 ): Reads {
-  const urls = new Map<string, string | null>();
+  const facts = new Map<string, DistributionFacts>();
   const failed: number[] = [];
   let status: UrlReadStatus = 'success';
   let error: unknown = null;
@@ -92,27 +94,27 @@ function fold(
     } else if (result.status === 'pending' && status !== 'error') {
       status = 'pending';
     }
-    for (const [href, url] of result.data ?? []) {
-      urls.set(href, url);
+    for (const [href, row] of result.data ?? []) {
+      facts.set(href, row);
     }
   });
 
-  return { status, error, urls, failed };
+  return { status, error, facts, failed };
 }
 
-// The client addresses of the rows of a page: one read for each group of rows
-// of one plugin, as many groups as the URL budget makes of the page and never
-// one read for a row.
-export function useDistributionUrls(
+// What the plugins say of the rows of a page: one read for each group of rows of
+// one plugin, as many groups as the URL budget makes of the page and never one
+// read for a row.
+export function useDistributionFacts(
   rows: readonly ListedDistribution[],
-): DistributionUrls {
+): DistributionFactsRead {
   const queryClient = useQueryClient();
   const { ended } = useSessionEnded();
   const chunks = useMemo(() => enrichmentChunks(rows), [rows]);
 
   const reads = useQueries({
     queries: chunks.map((chunk) => ({
-      queryKey: distributionPageKeys.urls(chunk),
+      queryKey: distributionPageKeys.facts(chunk),
       queryFn: ({ signal }: { signal: AbortSignal }) =>
         readEnrichment(chunk, { signal }),
       staleTime: PAGE_STALE_MS,
@@ -127,7 +129,7 @@ export function useDistributionUrls(
       const chunk = chunks[position];
       if (chunk) {
         void queryClient.refetchQueries({
-          queryKey: distributionPageKeys.urls(chunk),
+          queryKey: distributionPageKeys.facts(chunk),
         });
       }
     }
@@ -136,7 +138,7 @@ export function useDistributionUrls(
   return {
     status: reads.status,
     error: reads.error,
-    urls: reads.status === 'success' ? reads.urls : undefined,
+    facts: reads.status === 'success' ? reads.facts : undefined,
     retry,
   };
 }

@@ -58,3 +58,14 @@ async function names(
 }
 
 export const ContentGuardClient = { chunks, names };
+
+// The kind of a content guard, read from its address
+// (`.../contentguards/<app>/<kind>/<id>/`): "rbac", "x509", "header",
+// "content_redirect" and so on. Null for an address that does not name a
+// guard. Reading it costs no request, and the address is what the server
+// builds from the guard's own type.
+export function guardKindOf(href: string | null | undefined): string | null {
+  const match = /\/contentguards\/[^/]+\/([^/]+)\/[^/]+\/?$/.exec(href ?? '');
+
+  return match ? (match[1] as string) : null;
+}

@@ -175,6 +175,26 @@ export function useRereadAlert(
   }, [failed, query.errorUpdatedAt, query.error, title, setAlerts]);
 }
 
+// The notice a failed read of what the user may do is shown as, with the one
+// button that reads it again.
+export const PermissionsNotice = ({
+  description,
+  retry,
+}: {
+  description: ReactNode;
+  retry: () => void;
+}) => (
+  <Alert
+    isInline
+    variant='warning'
+    title={t`Your permissions could not be read`}
+    actionLinks={<AlertActionLink onClick={retry}>{t`Retry`}</AlertActionLink>}
+    style={{ marginBottom: '16px' }}
+  >
+    {description}
+  </Alert>
+);
+
 interface Permits<Key extends string> {
   permits: (permission: Key, row: { pulp_href: string }) => boolean;
   // The notice a failed read of what the user may do is shown as, or null.
@@ -225,19 +245,12 @@ export function useRowPermits<Key extends string>({
       (needsObjectRoles && roles.can(row.pulp_href, names[key])),
     notice:
       permissionsFailed || (needsObjectRoles && roles.state === 'error') ? (
-        <Alert
-          isInline
-          variant='warning'
-          title={t`Your permissions could not be read`}
-          actionLinks={
-            <AlertActionLink
-              onClick={permissionsFailed ? retryPermissions : roles.retry}
-            >{t`Retry`}</AlertActionLink>
+        <PermissionsNotice
+          description={
+            permissionsFailed ? requestErrorDescription(permissionsError) : null
           }
-          style={{ marginBottom: '16px' }}
-        >
-          {permissionsFailed ? requestErrorDescription(permissionsError) : null}
-        </Alert>
+          retry={permissionsFailed ? retryPermissions : roles.retry}
+        />
       ) : null,
   };
 }

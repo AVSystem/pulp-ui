@@ -8,13 +8,23 @@ import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   type IDistribution,
+  type IRepository,
   type TestDistributionPlugin,
+  type TestPlugin,
   artifactDistribution,
+  contentGuard,
+  contentGuardListHandler,
   coreDistributionListHandler,
   coreDistributionRow,
+  corePublicationListHandler,
+  coreRepositoryListHandler,
   distributionListHandler,
   listOf,
+  page,
   pluginDistribution,
+  pluginPublication,
+  pluginRepository,
+  publicationListHandler,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
@@ -330,14 +340,14 @@ describe(
       const { user } = renderList();
       const table = await tableOf();
 
-      await screen.findByText('Client URLs could not be read.');
+      await screen.findByText('Distribution details could not be read.');
       expect(bodyRows(table)).toHaveLength(2);
 
       failing = false;
       await user.click(screen.getByRole('button', { name: 'Retry' }));
       await waitFor(() =>
         expect(
-          screen.queryByText('Client URLs could not be read.'),
+          screen.queryByText('Distribution details could not be read.'),
         ).not.toBeInTheDocument(),
       );
       expect(
@@ -453,5 +463,487 @@ describe(
       );
       expect(lab.core.queries).toHaveLength(0);
     }, 20_000);
+  },
+);
+
+// The lab of the derived columns: the distributions of the plugins and what
+// they point at, answered by the lists that name repositories, publications
+// and guards by address and by each publication plugin's own list.
+function serveBound({
+  rows,
+  repositories = [],
+  publications = {},
+  guards = [],
+  publicationPageSize,
+}: {
+  rows: Partial<Record<TestDistributionPlugin, IDistribution[]>>;
+  repositories?: IRepository[];
+  publications?: Partial<
+    Record<'file' | 'deb' | 'rpm', ReturnType<typeof pluginPublication>[]>
+  >;
+  guards?: ReturnType<typeof contentGuard>[];
+  publicationPageSize?: number;
+}) {
+  const lab = serveLab(rows);
+  const everyPublication = Object.values(publications).flat();
+  const repositoryList = coreRepositoryListHandler(repositories);
+  const publicationList = corePublicationListHandler(everyPublication);
+  const guardList = contentGuardListHandler(guards);
+  const index = Object.entries(publications).map(([plugin, list]) => ({
+    plugin,
+    ...publicationListHandler(plugin as TestPlugin, list ?? [], {
+      ...(publicationPageSize ? { pageSize: publicationPageSize } : {}),
+    }),
+  }));
+  server.use(
+    repositoryList.handler,
+    publicationList.handler,
+    guardList.handler,
+    ...index.map(({ handler }) => handler),
+  );
+
+  return { ...lab, repositoryList, publicationList, guardList, index };
+}
+
+const rowOf = (name: string) =>
+  screen.getByText(name).closest('tr') as HTMLElement;
+
+const settled = async (table: HTMLElement) =>
+  waitFor(() => expect(table).toHaveAttribute('data-columns-loaded', 'true'), {
+    timeout: 20_000,
+  });
+
+describe(
+  'Integration: what each distribution serves, how it is protected and whether it works',
+  { tags: ['integration'] },
+  () => {
+    it('says what each row serves: a repository with a link, a publication with its version, a pinned version or nothing', async () => {
+      const repository = pluginRepository('file', { name: 'manuals-repo' });
+      const other = pluginRepository('file', { name: 'tools-repo' });
+      const published = pluginPublication('file', {
+        repository: other.pulp_href,
+        repository_version: `${other.pulp_href}versions/0/`,
+      });
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'by-repo',
+              repository: repository.pulp_href,
+            }),
+            pluginDistribution('file', {
+              name: 'by-pub',
+              publication: published.pulp_href,
+            }),
+            pluginDistribution('file', {
+              name: 'by-version',
+              repository_version: `${repository.pulp_href}versions/0/`,
+            }),
+            pluginDistribution('file', { name: 'bare' }),
+          ],
+        },
+        repositories: [repository, other],
+        publications: { file: [published] },
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      const link = within(rowOf('by-repo')).getByRole('link', {
+        name: 'manuals-repo',
+      });
+      expect(link.getAttribute('href')).toMatch(
+        /^\/file\/repositories\/manuals-repo\/?$/,
+      );
+      expect(
+        within(rowOf('by-pub')).getByText('Publication of version 0'),
+      ).toBeVisible();
+      expect(
+        within(rowOf('by-version')).getByText('Version 0 (pinned)'),
+      ).toBeVisible();
+      expect(within(rowOf('bare')).getByText('Nothing')).toBeVisible();
+    });
+
+    it('names a repository the user may not read as one the user may not see, and links nothing', async () => {
+      const hidden = pluginRepository('file', { name: 'hidden-repo' });
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'by-repo',
+              repository: hidden.pulp_href,
+            }),
+          ],
+        },
+        repositories: [],
+        publications: { file: [] },
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      const row = rowOf('by-repo');
+      expect(
+        within(row).getByText('A repository you may not see'),
+      ).toBeVisible();
+      expect(within(row).queryByRole('link')).not.toBeInTheDocument();
+    });
+
+    it('shows the guard by name and type, marks a row with none as Public and a row with a guard the user may not see by that', async () => {
+      const readable = contentGuard({ name: 'customers-only' });
+      const unreadable = contentGuard({ name: 'secret' });
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'guarded',
+              content_guard: readable.pulp_href,
+            }),
+            pluginDistribution('file', {
+              name: 'hidden-guard',
+              content_guard: unreadable.pulp_href,
+            }),
+            pluginDistribution('file', { name: 'open' }),
+          ],
+        },
+        guards: [readable],
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      const guarded = rowOf('guarded');
+      expect(within(guarded).getByText('customers-only (rbac)')).toBeVisible();
+      expect(within(guarded).queryByText('Public')).not.toBeInTheDocument();
+      // the URL of a guarded distribution says that downloads need credentials
+      expect(
+        within(guarded).getByText(/Downloads need credentials/),
+      ).toBeVisible();
+
+      const hidden = rowOf('hidden-guard');
+      expect(
+        within(hidden).getByText('A content guard you may not see'),
+      ).toBeVisible();
+      expect(within(hidden).queryByText('secret')).not.toBeInTheDocument();
+      expect(within(hidden).queryByText('Public')).not.toBeInTheDocument();
+
+      // a row with no guard is marked beside the guard and beside the URL
+      const open = rowOf('open');
+      expect(within(open).getAllByText('Public')).toHaveLength(2);
+      expect(
+        within(open).queryByText(/Downloads need credentials/),
+      ).not.toBeInTheDocument();
+    });
+
+    it('tells from the publications whether a row serves, serves an older version or serves nothing', async () => {
+      const fresh = pluginRepository('file', { name: 'fresh-repo' });
+      const stale = pluginRepository('file', { name: 'stale-repo' });
+      const none = pluginRepository('file', { name: 'none-repo' });
+      const at = (repository: IRepository, version: number) => ({
+        ...repository,
+        latest_version_href: `${repository.pulp_href}versions/${version}/`,
+      });
+      const [freshRepo, staleRepo, noneRepo] = [
+        at(fresh, 2),
+        at(stale, 2),
+        at(none, 1),
+      ];
+      const made = (repository: IRepository, version: number) =>
+        pluginPublication('file', {
+          repository: repository.pulp_href,
+          repository_version: `${repository.pulp_href}versions/${version}/`,
+        });
+      const lab = serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'fresh',
+              repository: freshRepo.pulp_href,
+            }),
+            pluginDistribution('file', {
+              name: 'stale',
+              repository: staleRepo.pulp_href,
+            }),
+            pluginDistribution('file', {
+              name: 'nothing-published',
+              repository: noneRepo.pulp_href,
+            }),
+            pluginDistribution('file', { name: 'unbound' }),
+          ],
+        },
+        repositories: [freshRepo, staleRepo, noneRepo],
+        publications: {
+          file: [made(freshRepo, 2), made(staleRepo, 1)],
+        },
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      expect(within(rowOf('fresh')).getByText('Served')).toBeVisible();
+      expect(
+        within(rowOf('stale')).getByText('Serves version 1, latest is 2'),
+      ).toBeVisible();
+      expect(
+        within(rowOf('nothing-published')).getByText(
+          'Serves nothing (404): no publication',
+        ),
+      ).toBeVisible();
+      expect(
+        within(rowOf('unbound')).getByText('Not bound to anything'),
+      ).toBeVisible();
+      // one index of the plugin's publications, whatever the number of rows
+      expect(lab.index[0]?.queries).toHaveLength(1);
+    });
+
+    it('serves a distribution of a plugin that serves versions directly without any warning and reads no publications for it', async () => {
+      const repository = pluginRepository('python', { name: 'wheels-repo' });
+      const lab = serveBound({
+        rows: {
+          python: [
+            pluginDistribution('python', {
+              name: 'wheels',
+              repository: repository.pulp_href,
+            }),
+          ],
+        },
+        repositories: [repository],
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      expect(within(rowOf('wheels')).getByText('Not applicable')).toBeVisible();
+      expect(lab.index).toEqual([]);
+    });
+
+    it('says cannot be checked, and reads no publications, for a user who may not read the publications of the plugin', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filedistribution']],
+      });
+      // the roles the user holds on single distributions are read for a user who
+      // may not delete everywhere; this one holds none
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
+      const repository = pluginRepository('file', { name: 'manuals-repo' });
+      const requests = recordRequests();
+      const lab = serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'by-repo',
+              repository: repository.pulp_href,
+            }),
+          ],
+        },
+        repositories: [repository],
+        publications: { file: [] },
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+      requests.stop();
+
+      expect(
+        within(rowOf('by-repo')).getByText('Cannot be checked'),
+      ).toBeVisible();
+      expect(lab.index[0]?.queries).toHaveLength(0);
+      expect(
+        requests.all.filter((path) => /\/publications\//.test(path)),
+      ).toEqual([]);
+    });
+
+    it('says cannot be checked because there are too many publications when a plugin is above the bound of the index', async () => {
+      const repository = pluginRepository('file', { name: 'manuals-repo' });
+      const rows = Array.from({ length: 12 }, () =>
+        pluginPublication('file', {
+          repository: repository.pulp_href,
+          repository_version: `${repository.pulp_href}versions/0/`,
+        }),
+      );
+      const lab = serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'by-repo',
+              repository: repository.pulp_href,
+            }),
+          ],
+        },
+        repositories: [repository],
+        publications: { file: rows },
+        // a server that answers one publication to a request makes the bound
+        // of ten pages reachable with a few rows
+        publicationPageSize: 1,
+      });
+
+      const { user } = renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      expect(lab.index[0]?.queries).toHaveLength(10);
+      const label = within(rowOf('by-repo')).getByText('Cannot be checked');
+      await user.hover(label);
+      expect(
+        await screen.findByText('Too many publications to check here.'),
+      ).toBeInTheDocument();
+    });
+
+    it('reads the publication index only of a plugin that has a row it is needed for', async () => {
+      const published = pluginPublication('file');
+      const lab = serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'by-pub',
+              publication: published.pulp_href,
+            }),
+            pluginDistribution('file', { name: 'bare' }),
+          ],
+          maven: named('maven', 2),
+        },
+        publications: { file: [published] },
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      expect(lab.index[0]?.queries).toHaveLength(0);
+    });
+
+    it('shows the rows and says which read failed when the publications cannot be read, and reads them again on request', async () => {
+      const repository = pluginRepository('file', { name: 'manuals-repo' });
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'by-repo',
+              repository: repository.pulp_href,
+            }),
+          ],
+        },
+        repositories: [repository],
+        publications: { file: [] },
+      });
+      let failing = true;
+      server.use(
+        http.get(`*${API}/publications/file/file/`, () =>
+          failing
+            ? HttpResponse.json({ detail: 'Broken.' }, { status: 500 })
+            : undefined,
+        ),
+      );
+
+      const { user } = renderList();
+      const table = await tableOf();
+
+      await screen.findByText('Publications could not be read.', undefined, {
+        timeout: 10_000,
+      });
+      expect(bodyRows(table)).toHaveLength(1);
+      expect(within(rowOf('by-repo')).getByText('Not loaded')).toBeVisible();
+
+      failing = false;
+      await user.click(screen.getByRole('button', { name: 'Retry' }));
+      await waitFor(() =>
+        expect(
+          within(rowOf('by-repo')).getByText(
+            'Serves nothing (404): no publication',
+          ),
+        ).toBeVisible(),
+      );
+    }, 30_000);
+
+    describe('the requests of a load', () => {
+      // `count` rows spread over four plugins, each bound to a repository of
+      // its own that has one publication, and all guarded by one guard.
+      function lab(count: number) {
+        const guard = contentGuard({ name: 'shared' });
+        const plugins = ['file', 'deb', 'rpm', 'python'] as const;
+        const rows: Partial<Record<TestDistributionPlugin, IDistribution[]>> =
+          {};
+        const repositories: IRepository[] = [];
+        const publications: Record<
+          'file' | 'deb' | 'rpm',
+          ReturnType<typeof pluginPublication>[]
+        > = { file: [], deb: [], rpm: [] };
+
+        plugins.forEach((plugin) => {
+          rows[plugin] = [];
+        });
+        for (let n = 0; n < count; n++) {
+          const plugin = plugins[
+            n % plugins.length
+          ] as (typeof plugins)[number];
+          const repository = pluginRepository(plugin as TestPlugin);
+          repositories.push(repository);
+          const name = `${plugin}-${String(n).padStart(4, '0')}`;
+          rows[plugin]?.push(
+            pluginDistribution(plugin, {
+              name,
+              base_path: name,
+              repository: repository.pulp_href,
+              content_guard: guard.pulp_href,
+            }),
+          );
+          if (plugin !== 'python') {
+            publications[plugin].push(
+              pluginPublication(plugin, {
+                repository: repository.pulp_href,
+                repository_version: `${repository.pulp_href}versions/0/`,
+              }),
+            );
+          }
+        }
+
+        return serveBound({
+          rows,
+          repositories,
+          publications,
+          guards: [guard],
+        });
+      }
+
+      it('costs at most 16 requests for 50 rows of four plugins and none to a single object or to the permissions of a user', async () => {
+        lab(50);
+        const requests = recordRequests();
+
+        renderList();
+        const table = await tableOf();
+        await settled(table);
+        requests.stop();
+
+        expect(bodyRows(table)).toHaveLength(50);
+        expect(requests.all.length).toBeLessThanOrEqual(16);
+        expect(requests.all.filter((path) => SINGLE_OBJECT.test(path))).toEqual(
+          [],
+        );
+      }, 60_000);
+
+      it('costs at most 48 requests for 500 rows of four plugins and none to a single object or to the permissions of a user', async () => {
+        lab(500);
+        const requests = recordRequests();
+
+        renderList('/distributions?page_size=500');
+        const table = await tableOf();
+        await settled(table);
+        requests.stop();
+
+        expect(bodyRows(table)).toHaveLength(500);
+        expect(requests.all.length).toBeLessThanOrEqual(48);
+        expect(requests.all.filter((path) => SINGLE_OBJECT.test(path))).toEqual(
+          [],
+        );
+      }, 90_000);
+    });
   },
 );

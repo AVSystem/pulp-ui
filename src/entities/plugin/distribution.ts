@@ -77,6 +77,11 @@ export const DISTRIBUTION_INDEX_FIELDS = [
 // the base URL.
 const URL_FIELDS = ['pulp_href', 'name', 'base_path', 'base_url'] as const;
 
+// What a read of distributions at known addresses also asks for: the
+// publication a row is bound to and whether it serves by checkpoint. The list
+// that holds every plugin's distributions names neither.
+const BOUND_FIELDS = ['publication', 'checkpoint'] as const;
+
 // How many distributions one request of the index reads: the most the server
 // answers on one page.
 const INDEX_PAGE_SIZE = 1000;
@@ -264,7 +269,7 @@ export interface DistributionEntity<Row, TCreate, TUpdate> {
   // URL stays under the budget. Every address is kept once, in order.
   chunks: (hrefs: readonly string[]) => string[][];
   // The distributions at these addresses, with what is needed to tell where a
-  // client reaches each one, read with one request. The group should come from
+  // client reaches each one and what each is bound to, read with one request. The group should come from
   // `chunks`; an empty group sends nothing.
   ofHrefs: (hrefs: readonly string[], options?: Options) => Promise<Row[]>;
   // Every distribution of the plugin, read page after page with the fields of
@@ -305,7 +310,7 @@ export function makeDistributionEntity<
     requestOf({
       pulp_href__in: [...hrefs],
       page_size: Math.max(hrefs.length, 1),
-      fields: [...URL_FIELDS, ...urlFields],
+      fields: [...URL_FIELDS, ...BOUND_FIELDS, ...urlFields],
     });
 
   return {

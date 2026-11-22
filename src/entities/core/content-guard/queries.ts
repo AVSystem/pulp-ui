@@ -13,9 +13,12 @@ export const contentGuardKeys = {
 // user may not see has no name: a refused or failed read leaves the names out
 // and the caller shows the guard without one. The end of the session is not
 // that, and is left to the sign-in dialog, which has the read start again.
-// Nothing is asked for no addresses.
+// Nothing is asked for no addresses. `pending` is true until the read has
+// answered, so a guard that is still being read is not shown as one without a
+// name.
 export function useContentGuardNames(hrefs: readonly string[]): {
   names: ReadonlyMap<string, string>;
+  pending: boolean;
 } {
   const sorted = Array.from(new Set(hrefs)).sort();
   const read = useSessionQuery({
@@ -40,5 +43,8 @@ export function useContentGuardNames(hrefs: readonly string[]): {
     retry: false,
   });
 
-  return { names: read.data ?? new Map() };
+  return {
+    names: read.data ?? new Map(),
+    pending: sorted.length > 0 && read.status === 'pending',
+  };
 }
