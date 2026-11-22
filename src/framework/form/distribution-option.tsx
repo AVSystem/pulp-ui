@@ -102,7 +102,7 @@ export function contentUrlPrefix(status: Status | undefined): string | null {
 }
 
 // The reason a base path cannot be used, in words, or null when it can.
-function basePathMessage({
+export function basePathMessage({
   problem,
   reserved,
 }: Pick<ResolvedDistribution, 'problem' | 'reserved'>): string | null {
@@ -138,7 +138,7 @@ interface Props {
 
 // The line under the base path: where the distribution will be served, as far
 // as the server says it.
-const BasePathHelp = ({
+export const BasePathHelp = ({
   basePath,
   message,
 }: {

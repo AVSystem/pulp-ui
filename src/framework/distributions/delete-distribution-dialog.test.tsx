@@ -505,3 +505,98 @@ describe(
     });
   },
 );
+
+describe(
+  'Integration: Edit on a row of the distribution list',
+  { tags: ['integration'] },
+  () => {
+    const CHANGE_PYTHON = 'python.change_pythondistribution';
+
+    function asUserWithoutGlobalChange(own: string[] = []) {
+      account.stop();
+      account = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['python.view_pythondistribution', ...own]],
+      });
+    }
+
+    it('offers Edit on every row to an administrator, for every plugin, and opens the edit form of that distribution', async () => {
+      const manuals = pluginDistribution('file', {
+        name: 'manuals',
+        base_path: 'path-manuals',
+      });
+      const wheels = pluginDistribution('python', {
+        name: 'wheels',
+        base_path: 'path-wheels',
+      });
+      serveLab({ file: [manuals], python: [wheels] });
+
+      const { user } = renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      await waitFor(() => expect(kebabOf(rowOf('wheels'))).not.toBeNull());
+      await user.click(kebabOf(rowOf('wheels')) as HTMLElement);
+      expect(
+        await screen.findByRole('menuitem', { name: 'Edit' }),
+      ).toBeVisible();
+      await user.keyboard('{Escape}');
+      await user.click(kebabOf(rowOf('manuals')) as HTMLElement);
+      await user.click(await screen.findByRole('menuitem', { name: 'Edit' }));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/file/distributions/manuals/edit',
+      );
+    });
+
+    it('offers Edit only on the python rows the user may change through a role on that distribution', async () => {
+      asUserWithoutGlobalChange();
+      const [wheelsA, wheelsB] = ['wheels-a', 'wheels-b'].map((name) =>
+        pluginDistribution('python', { name, base_path: `path-${name}` }),
+      ) as [IDistribution, IDistribution];
+      serveLab({ python: [wheelsA, wheelsB] });
+      serveRolesOnObjects([
+        {
+          role: 'python.pythondistribution_owner',
+          permissions: [CHANGE_PYTHON],
+          on: wheelsA,
+        },
+      ]);
+
+      const { user } = renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      await waitFor(() => expect(kebabOf(rowOf('wheels-a'))).not.toBeNull());
+      expect(kebabOf(rowOf('wheels-b'))).toBeNull();
+      await user.click(kebabOf(rowOf('wheels-a')) as HTMLElement);
+      await user.click(await screen.findByRole('menuitem', { name: 'Edit' }));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/python/distributions/wheels-a/edit',
+      );
+    });
+
+    it('offers Delete without Edit to a user who may delete a row but not change it', async () => {
+      asUserWithoutGlobalChange(['python.delete_pythondistribution']);
+      const wheels = pluginDistribution('python', {
+        name: 'wheels',
+        base_path: 'path-wheels',
+      });
+      serveLab({ python: [wheels] });
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
+
+      const { user } = renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      await waitFor(() => expect(kebabOf(rowOf('wheels'))).not.toBeNull());
+      await user.click(kebabOf(rowOf('wheels')) as HTMLElement);
+      expect(
+        await screen.findByRole('menuitem', { name: 'Delete' }),
+      ).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Edit' })).toBeNull();
+    });
+  },
+);

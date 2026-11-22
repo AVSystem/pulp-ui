@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import { DropdownItem } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import {
   Alert,
   AlertList,
@@ -45,8 +46,12 @@ import {
   useRereadAlert,
   useShownRows,
 } from '../list/list-frame';
-import { distributionPath } from '../route-patterns';
+import { distributionEditPath, distributionPath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
+import {
+  CreateDistributionMenu,
+  useCreatablePlugins,
+} from './create-distribution-menu';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import {
   GuardCell,
@@ -78,13 +83,15 @@ const SORTABLE = [
   { sortField: 'base_path' },
   { sortField: 'pulp_created' },
 ];
-const NEEDED_PERMISSIONS = ['delete'] as const;
+const NEEDED_PERMISSIONS = ['change', 'delete'] as const;
 
 const PLUGINS = Object.keys(DISTRIBUTION_TYPES) as DistributionPlugin[];
 
 interface RowProps {
   row: ListedDistribution;
   cells: DistributionCells;
+  // whether the user may change this distribution
+  canChange: boolean;
   // whether the user may delete this distribution
   canDelete: boolean;
   requestDelete: (row: ListedDistribution) => void;
@@ -95,10 +102,14 @@ interface RowProps {
 const DistributionRow = memo(function DistributionRow({
   row,
   cells,
+  canChange,
   canDelete,
   requestDelete,
 }: RowProps) {
   const owned = row.plugin !== null;
+  const navigate = useNavigate();
+  const editPath =
+    canChange && row.plugin ? distributionEditPath(row.plugin, row.name) : null;
 
   return (
     <Tr data-cy={`DistributionList-row-${row.name}`}>
@@ -127,15 +138,22 @@ const DistributionRow = memo(function DistributionRow({
         <DateComponent date={row.pulp_created ?? ''} />
       </Td>
       <ListItemActions
-        kebabItems={
-          canDelete
+        kebabItems={[
+          ...(editPath
+            ? [
+                <DropdownItem key='edit' onClick={() => navigate(editPath)}>
+                  {t`Edit`}
+                </DropdownItem>,
+              ]
+            : []),
+          ...(canDelete
             ? [
                 <DropdownItem key='delete' onClick={() => requestDelete(row)}>
                   {t`Delete`}
                 </DropdownItem>,
               ]
-            : []
-        }
+            : []),
+        ]}
       />
     </Tr>
   );
@@ -254,6 +272,7 @@ const DistributionListScreen = ({
     !query.isPlaceholderData,
   );
   const columns = useDistributionColumns(rows);
+  const creatable = useCreatablePlugins(installed);
 
   // What the user may do with each row, by the permission of the row's own
   // plugin.
@@ -285,6 +304,10 @@ const DistributionListScreen = ({
   const sessionEnded = query.isError && isSessionEnd(query.error);
 
   const header = <BaseHeader title={t`Distributions`} />;
+  const addButton =
+    creatable.length > 0 ? (
+      <CreateDistributionMenu plugins={creatable} />
+    ) : undefined;
   const alertList = (
     <AlertList
       alerts={alerts}
@@ -341,6 +364,7 @@ const DistributionListScreen = ({
         <EmptyStateNoData
           title={t`No distributions yet`}
           description={t`Distributions will appear once created.`}
+          button={addButton}
         />
       </>
     );
@@ -350,8 +374,9 @@ const DistributionListScreen = ({
 
   // The rows that offer an action. A list in which none does has no actions
   // column.
+  const changeable = rows.map((row) => permits('change', row));
   const deletable = rows.map((row) => permits('delete', row));
-  const anyRowAction = deletable.some(Boolean);
+  const anyRowAction = changeable.some(Boolean) || deletable.some(Boolean);
 
   const headers = [
     { id: 'name', title: t`Name`, type: 'alpha' },
@@ -412,6 +437,7 @@ const DistributionListScreen = ({
                 key={row.pulp_href}
                 row={row}
                 cells={columns.cellsOf(row)}
+                canChange={changeable[position] as boolean}
                 canDelete={deletable[position] as boolean}
                 requestDelete={requestDelete}
               />
@@ -450,7 +476,7 @@ const DistributionListScreen = ({
             labelRefusal={labelRefusal}
           />
         }
-        addButton={undefined}
+        addButton={addButton}
         params={params}
         updateParams={updateParams}
         count={count}

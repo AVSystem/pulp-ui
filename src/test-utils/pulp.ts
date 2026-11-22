@@ -571,6 +571,7 @@ export function publicationListHandler<T extends { pulp_href: string }>(
           (row as { repository?: unknown }).repository === repository)
       );
     },
+    ordered: orderedBy,
     projected: projectedBy,
   });
 
@@ -599,11 +600,43 @@ function byHrefListHandler<T extends { pulp_href: string }>(
 }
 
 // The repositories of every plugin through the one list that holds them all.
-export function coreRepositoryListHandler<T extends { pulp_href: string }>(
-  rows: T[],
-  options?: { pageSize?: number },
-) {
-  return byHrefListHandler('/pulp/api/v3/repositories/', rows, options);
+export function coreRepositoryListHandler<
+  T extends { pulp_href: string; name?: string },
+>(rows: T[], { pageSize = 1000 }: { pageSize?: number } = {}) {
+  const path = '/pulp/api/v3/repositories/';
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      const types = inSetOf(query, 'pulp_type__in');
+      const name = query.get('name');
+      const text = query.get('name__icontains');
+
+      return (
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (types === null || types.includes(repositoryPulpType(row))) &&
+        (name === null || row.name === name) &&
+        (text === null ||
+          (row.name ?? '').toLowerCase().includes(text.toLowerCase()))
+      );
+    },
+    ordered: orderedBy,
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
+}
+
+// The `pulp_type` the server gives a repository, read from the plugin and the
+// type in its address.
+function repositoryPulpType(row: { pulp_href: string }): string {
+  const kind = /\/repositories\/([^/]+)\/([^/]+)\//.exec(row.pulp_href);
+  if (!kind) {
+    return '';
+  }
+  const [, app, type] = kind;
+
+  return app === 'deb' ? 'deb.deb' : `${app}.${type}`;
 }
 
 // The publications of every plugin through the one list that holds them all.

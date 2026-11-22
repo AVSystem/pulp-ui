@@ -43,14 +43,6 @@ const pythonDistributionSchema = distributionSchema.extend({
   allow_uploads: z.boolean().nullish(),
 });
 
-// What a change of a python distribution may carry: the two fields the screens
-// edit and no other, so a name, a base path, a repository or a content guard is
-// never sent by accident.
-interface PythonDistributionChanges {
-  remote?: string | null;
-  allow_uploads?: boolean;
-}
-
 type PythonRepository = z.infer<typeof pythonRepositorySchema>;
 type PythonRemote = z.infer<typeof pythonRemoteSchema>;
 type PythonDistribution = z.infer<typeof pythonDistributionSchema>;
@@ -64,7 +56,6 @@ export {
 };
 export type {
   PythonDistribution,
-  PythonDistributionChanges,
   PythonPackage,
   PythonRemote,
   PythonRepository,

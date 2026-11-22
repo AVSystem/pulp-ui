@@ -1,6 +1,7 @@
 import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import {
+  Button,
   DropdownItem,
   Toolbar,
   ToolbarContent,
@@ -9,10 +10,9 @@ import {
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
-  type AlertType,
   AppliedFilters,
   ClipboardCopy,
   CompoundFilter,
@@ -26,7 +26,10 @@ import {
   Table,
 } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
-import { ListItemActions } from 'src/components/list-item-actions';
+import {
+  ListItemActions,
+  RowActionsColumn,
+} from 'src/components/list-item-actions';
 import type { DistributionBase } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { requestErrorDescription } from 'src/utilities/request-error';
@@ -35,8 +38,14 @@ import {
   type TabDef,
   repositoryOf,
 } from '../descriptor';
-import type { FrameworkPlugin } from '../manifest';
-import { distributionPath } from '../route-patterns';
+import { useDistributionPermits } from '../distributions/use-distribution-permission';
+import { PermissionsNotice } from '../list/list-frame';
+import { type FrameworkPlugin, PLUGIN_MANIFESTS } from '../manifest';
+import {
+  distributionEditPath,
+  distributionPath,
+  newDistributionPath,
+} from '../route-patterns';
 import {
   type ServedDistribution,
   useServedDistributions,
@@ -56,6 +65,8 @@ interface TabParams {
 }
 
 const DEFAULT_PARAMS: TabParams = { page: 1, page_size: 10, sort: 'name' };
+
+const NEEDED_PERMISSIONS = ['change'] as const;
 
 const FILTER_PARAMS = ['name__icontains', 'base_path__icontains'] as const;
 
@@ -103,9 +114,6 @@ interface Props {
   repository: RepositoryBase;
   plugin: FrameworkPlugin;
   descriptor: PluginDescriptor;
-  // Puts an alert on the screen above the tab, for what the plugin's edit
-  // dialog reports.
-  addAlert?: (alert: AlertType) => void;
 }
 
 // Every distribution that serves a repository, bound to it, to one of its
@@ -113,12 +121,7 @@ interface Props {
 // it, what it serves and the plugin's client command for it. The
 // rows come from the index of the plugin's distributions that the other screens
 // share, so the tab sends no request of its own per row.
-export const DistributionsTab = ({
-  repository,
-  plugin,
-  descriptor,
-  addAlert = () => undefined,
-}: Props) => {
+export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
   const { distribution, publication } = descriptor;
   if (!distribution) {
     throw new Error(
@@ -133,11 +136,21 @@ export const DistributionsTab = ({
     repository,
   });
   const { hasPermission } = useAppContext();
-  const edit = distribution.edit;
-  // Offered to a user who holds the permission on every distribution; nothing
-  // is drawn on a guess.
-  const canEdit = edit !== undefined && hasPermission(edit.permission);
-  const [editing, setEditing] = useState<DistributionBase | null>(null);
+  const navigate = useNavigate();
+  // Offered to a user who may add distributions of the plugin; Pulp decides the
+  // request. The form opens with this repository chosen.
+  const addPermission = PLUGIN_MANIFESTS.find(
+    (manifest) => manifest.plugin === plugin,
+  )?.permissions.distribution.add;
+  const createButton =
+    addPermission !== undefined && hasPermission(addPermission) ? (
+      <Button
+        variant='primary'
+        onClick={() => navigate(newDistributionPath(plugin, repository.name))}
+      >
+        {t`Create distribution`}
+      </Button>
+    ) : undefined;
   const [params, setParams] = useState<TabParams>(DEFAULT_PARAMS);
   const [inputText, setInputText] = useState('');
 
@@ -147,6 +160,17 @@ export const DistributionsTab = ({
   );
   const start = (params.page - 1) * params.page_size;
   const pageRows = rows.slice(start, start + params.page_size);
+  // What the user may do with each row: the change permission held on every
+  // distribution of the plugin, or on this one through a role on it.
+  const { permits, failure: permissionsFailure } = useDistributionPermits({
+    rows: pageRows.map(() => ({ plugin })),
+    needed: NEEDED_PERMISSIONS,
+    rowsShown: pageRows.length > 0,
+  });
+  const changeable = pageRows.map(({ row }) =>
+    permits('change', { pulp_href: row.pulp_href, plugin }),
+  );
+  const anyRowAction = changeable.some(Boolean);
 
   if (serving.status === 'error') {
     return (
@@ -165,6 +189,7 @@ export const DistributionsTab = ({
       <EmptyStateNoData
         title={t`No distribution serves this repository`}
         description={t`Clients cannot download its content until a distribution serves it.`}
+        button={createButton}
       />
     );
   }
@@ -182,12 +207,19 @@ export const DistributionsTab = ({
     ...(snippet
       ? [{ id: 'snippet', title: i18n._(snippet.label), type: 'none' }]
       : []),
+    ...(anyRowAction ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
   const updateParams = (next: Partial<TabParams>) =>
     setParams({ ...DEFAULT_PARAMS, ...next } as TabParams);
 
   return (
     <>
+      {permissionsFailure ? (
+        <PermissionsNotice
+          description={permissionsFailure.description}
+          retry={permissionsFailure.retry}
+        />
+      ) : null}
       <div className='pulp-toolbar' data-cy='DistributionsTab'>
         <Toolbar>
           <ToolbarContent>
@@ -202,6 +234,7 @@ export const DistributionsTab = ({
                 />
               </ToolbarItem>
             </ToolbarGroup>
+            {createButton ? <ToolbarItem>{createButton}</ToolbarItem> : null}
           </ToolbarContent>
         </Toolbar>
         <PulpPagination
@@ -238,50 +271,66 @@ export const DistributionsTab = ({
             params={params}
             updateParams={updateParams}
           />
-          <Tbody>
-            {pageRows.map(({ row, served }) => (
-              <Tr key={row.pulp_href}>
-                <Td>
-                  <Link to={distributionPath(plugin, row.name)}>
-                    {row.name}
-                  </Link>
-                </Td>
-                <Td>{row.base_path}</Td>
-                <Td>
-                  <DistributionURL
-                    distribution={{ url: row.base_url ?? null, state: served }}
-                    isPublic={row.content_guard === null}
-                  />
-                </Td>
-                <Td>
-                  <DateComponent date={row.pulp_created ?? ''} />
-                </Td>
-                {snippet ? (
+          <RowActionsColumn.Provider value={anyRowAction}>
+            <Tbody>
+              {pageRows.map(({ row, served }, position) => (
+                <Tr key={row.pulp_href}>
                   <Td>
-                    {row.base_url ? (
-                      <ClipboardCopy isCode isReadOnly variant='inline-compact'>
-                        {snippet.build({
-                          name: repository.name,
-                          url: row.base_url,
-                        })}
-                      </ClipboardCopy>
-                    ) : (
-                      t`None`
-                    )}
+                    <Link to={distributionPath(plugin, row.name)}>
+                      {row.name}
+                    </Link>
                   </Td>
-                ) : null}
-                {edit && canEdit ? (
+                  <Td>{row.base_path}</Td>
+                  <Td>
+                    <DistributionURL
+                      distribution={{
+                        url: row.base_url ?? null,
+                        state: served,
+                      }}
+                      isPublic={row.content_guard === null}
+                    />
+                  </Td>
+                  <Td>
+                    <DateComponent date={row.pulp_created ?? ''} />
+                  </Td>
+                  {snippet ? (
+                    <Td>
+                      {row.base_url ? (
+                        <ClipboardCopy
+                          isCode
+                          isReadOnly
+                          variant='inline-compact'
+                        >
+                          {snippet.build({
+                            name: repository.name,
+                            url: row.base_url,
+                          })}
+                        </ClipboardCopy>
+                      ) : (
+                        t`None`
+                      )}
+                    </Td>
+                  ) : null}
                   <ListItemActions
-                    kebabItems={[
-                      <DropdownItem key='edit' onClick={() => setEditing(row)}>
-                        {i18n._(edit.label)}
-                      </DropdownItem>,
-                    ]}
+                    kebabItems={
+                      changeable[position]
+                        ? [
+                            <DropdownItem
+                              key='edit'
+                              onClick={() =>
+                                navigate(distributionEditPath(plugin, row.name))
+                              }
+                            >
+                              {t`Edit`}
+                            </DropdownItem>,
+                          ]
+                        : []
+                    }
                   />
-                ) : null}
-              </Tr>
-            ))}
-          </Tbody>
+                </Tr>
+              ))}
+            </Tbody>
+          </RowActionsColumn.Provider>
         </Table>
       )}
       {rows.length > 0 ? (
@@ -291,13 +340,6 @@ export const DistributionsTab = ({
           count={rows.length}
         />
       ) : null}
-      {edit && editing
-        ? edit.dialog({
-            distribution: editing,
-            onClose: () => setEditing(null),
-            addAlert,
-          })
-        : null}
     </>
   );
 };
@@ -308,12 +350,11 @@ export const distributionsTab = <
 >(): TabDef<Row> => ({
   id: 'distributions',
   label: msg`Distributions`,
-  render: ({ repository, plugin, descriptor, addAlert }) => (
+  render: ({ repository, plugin, descriptor }) => (
     <DistributionsTab
       repository={repository}
       plugin={plugin}
       descriptor={descriptor}
-      addAlert={addAlert}
     />
   ),
 });

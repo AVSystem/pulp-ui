@@ -30,7 +30,7 @@ import {
 import type { PluginDescriptor } from '../descriptor';
 import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
-import { distributionListPath } from '../route-patterns';
+import { distributionEditPath, distributionListPath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import { GuardValue, ServesValue } from './distribution-columns';
@@ -175,6 +175,7 @@ const DistributionDetailScreen = ({
   });
   const distribution = query.data;
 
+  const mayChange = useDistributionPermission(plugin, distribution, 'change');
   const mayDelete = useDistributionPermission(plugin, distribution, 'delete');
   const [deleting, setDeleting] = useState(false);
 
@@ -279,17 +280,31 @@ const DistributionDetailScreen = ({
           />
         }
         pageControls={
-          mayDelete ? (
+          mayChange || mayDelete ? (
             <Flex spaceItems={{ default: 'spaceItemsSm' }}>
-              <FlexItem>
-                <Button
-                  variant='secondary'
-                  isDanger
-                  onClick={() => setDeleting(true)}
-                >
-                  {t`Delete`}
-                </Button>
-              </FlexItem>
+              {mayChange ? (
+                <FlexItem>
+                  <Button
+                    variant='secondary'
+                    onClick={() =>
+                      navigate(distributionEditPath(plugin, distribution.name))
+                    }
+                  >
+                    {t`Edit`}
+                  </Button>
+                </FlexItem>
+              ) : null}
+              {mayDelete ? (
+                <FlexItem>
+                  <Button
+                    variant='secondary'
+                    isDanger
+                    onClick={() => setDeleting(true)}
+                  >
+                    {t`Delete`}
+                  </Button>
+                </FlexItem>
+              ) : null}
             </Flex>
           ) : undefined
         }

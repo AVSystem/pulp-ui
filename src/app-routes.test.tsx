@@ -1078,12 +1078,14 @@ describe('lazily loaded screens', () => {
       expect(element.type, path).toBe(guard.type);
       expect(element.props.plugin, path).toBe('ansible');
     }
-    // the distribution page is the one ansible screen drawn by the framework
+    // the distribution screens are the ansible screens drawn by the framework
     expect(
       guardedRoutes.filter(
         (route) =>
           route.path?.startsWith('/ansible/') &&
-          route.path !== '/ansible/distributions/:name',
+          route.path !== '/ansible/distributions/:name' &&
+          route.path !== '/ansible/distributions/:name/edit' &&
+          route.path !== '/ansible/distribution/new',
       ),
     ).toHaveLength(legacy.length);
   });
@@ -1091,9 +1093,6 @@ describe('lazily loaded screens', () => {
   it.each([
     '/file/repositories/zz-test-repo/publications',
     '/file/repositories/zz-test-repo/content',
-    '/file/distributions/zz-test-dist/edit',
-    '/file/distribution/new',
-    '/maven/distributions/zz-test-dist/edit',
   ])(
     'shows not found for %s, whose screen does not exist yet, without a read',
     async (route) => {
