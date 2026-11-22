@@ -14,7 +14,7 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { PLUGIN_MANIFESTS, type PluginManifest } from './manifest';
-import { frameworkRoutes } from './routes';
+import { frameworkCoreRoutes, frameworkRoutes } from './routes';
 
 // The descriptor of a plugin is its own chunk: it is evaluated the first time a
 // route of the plugin renders and never before. The counter sees every load.
@@ -100,10 +100,56 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
     expect(frameworkRoutes([])).toEqual([]);
   });
 
+  it('builds no repository or remote route for a plugin whose manifest lists neither, so its own screens keep their addresses', () => {
+    const distributionOnly = PLUGIN_MANIFESTS.filter(
+      ({ resources }) =>
+        !resources.includes('repository') && !resources.includes('remote'),
+    );
+
+    expect(distributionOnly.map(({ plugin }) => plugin)).toEqual([
+      'maven',
+      'npm',
+      'ansible',
+      'container',
+    ]);
+    expect(frameworkRoutes(distributionOnly)).toEqual([]);
+  });
+
+  it('builds the repository routes of a plugin whose manifest lists only the repository', () => {
+    const paths = frameworkRoutes([{ ...FILE, resources: ['repository'] }]).map(
+      ({ path }) => path,
+    );
+
+    expect(paths).toContain('/file/repositories');
+    expect(paths.some((path) => path.startsWith('/file/remote'))).toBe(false);
+  });
+
+  it('builds no route for an address whose screen does not exist yet: the distribution screens of a plugin and the publications and content tabs', () => {
+    const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
+
+    for (const pattern of [
+      '/file/distributions/:name',
+      '/file/distributions/:name/edit',
+      '/file/distribution/new',
+      '/file/repositories/:name/publications',
+      '/file/repositories/:name/content',
+      '/maven/distributions/:name',
+    ]) {
+      expect(paths, pattern).not.toContain(pattern);
+    }
+  });
+
+  it('builds the one route that belongs to no plugin, without a plugin gate', () => {
+    const routes = frameworkCoreRoutes();
+
+    expect(routes.map(({ path }) => path)).toEqual(['/distributions']);
+    expect(routes[0]).not.toHaveProperty('plugin');
+  });
+
   it('refuses a plugin that has no descriptor yet instead of routing it to nothing', () => {
     const unknown = {
       ...FILE,
-      plugin: 'maven' as never,
+      plugin: 'zzz' as never,
       onFramework: true,
     } satisfies PluginManifest;
 

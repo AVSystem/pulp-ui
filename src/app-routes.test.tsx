@@ -1,9 +1,11 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
+import type { ReactElement } from 'react';
 import { useLocation, useNavigate, useRoutes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
+import { Paths } from 'src/paths';
 import RootRoute from 'src/routes/root';
 import { servePermissions } from 'src/test-utils/permissions';
 import {
@@ -1053,6 +1055,63 @@ describe('lazily loaded screens', () => {
       /^\/file\/repositories\/zz-test-repo\/$/,
     );
   });
+
+  it('keeps one route of its own for every legacy ansible repository, remote, namespace and collection address, none of them moved onto the framework', () => {
+    const legacy = [
+      ...Object.values(Paths.ansible.repository),
+      ...Object.values(Paths.ansible.remote),
+      ...Object.values(Paths.ansible.namespace),
+      ...Object.values(Paths.ansible.collection),
+    ];
+    const guard = guardedRoutes.find((route) => route.path === PROTECTED_PATH)
+      ?.element as ReactElement;
+
+    for (const path of legacy) {
+      const matching = guardedRoutes.filter((route) => route.path === path);
+
+      expect(matching, path).toHaveLength(1);
+      const element = matching[0]?.element as ReactElement<{
+        component: { name: string };
+        plugin: string;
+      }>;
+      // a guarded screen of the application, not a redirect to another address
+      expect(element.type, path).toBe(guard.type);
+      expect(element.props.plugin, path).toBe('ansible');
+    }
+    expect(
+      guardedRoutes.filter((route) => route.path?.startsWith('/ansible/')),
+    ).toHaveLength(legacy.length);
+  });
+
+  it.each([
+    '/file/repositories/zz-test-repo/publications',
+    '/file/repositories/zz-test-repo/content',
+    '/file/distributions/zz-test-dist',
+    '/file/distributions/zz-test-dist/edit',
+    '/file/distribution/new',
+    '/maven/distributions/zz-test-dist',
+  ])(
+    'shows not found for %s, whose screen does not exist yet, without a read',
+    async (route) => {
+      signIn();
+      const requests = recordRequests();
+
+      renderWithProviders(
+        <AppContextProvider>
+          <Routed />
+        </AppContextProvider>,
+        { route },
+      );
+
+      expect(await screen.findByText(/Page not found/)).toBeVisible();
+      expect(
+        requests.paths.some((path) =>
+          /\/(repositories|distributions|publications)\//.test(path),
+        ),
+      ).toBe(false);
+      requests.stop();
+    },
+  );
 });
 
 describe('the permission read after a failure', () => {

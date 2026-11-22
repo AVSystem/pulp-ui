@@ -102,6 +102,11 @@ describe('ACTION_PERMISSIONS', () => {
 const LITERAL = {
   file: {
     objectRoles: true,
+    distribution: {
+      add: 'file.add_filedistribution',
+      change: 'file.change_filedistribution',
+      delete: 'file.delete_filedistribution',
+    },
     publication: {
       view: 'file.view_filepublication',
       add: 'file.add_filepublication',
@@ -125,6 +130,11 @@ const LITERAL = {
   },
   deb: {
     objectRoles: false,
+    distribution: {
+      add: 'deb.add_aptdistribution',
+      change: 'deb.change_aptdistribution',
+      delete: 'deb.delete_aptdistribution',
+    },
     publication: {
       view: 'deb.view_aptpublication',
       add: 'deb.add_aptpublication',
@@ -148,6 +158,11 @@ const LITERAL = {
   },
   rpm: {
     objectRoles: true,
+    distribution: {
+      add: 'rpm.add_rpmdistribution',
+      change: 'rpm.change_rpmdistribution',
+      delete: 'rpm.delete_rpmdistribution',
+    },
     publication: {
       view: 'rpm.view_rpmpublication',
       add: 'rpm.add_rpmpublication',
@@ -171,6 +186,11 @@ const LITERAL = {
   },
   python: {
     objectRoles: true,
+    distribution: {
+      add: 'python.add_pythondistribution',
+      change: 'python.change_pythondistribution',
+      delete: 'python.delete_pythondistribution',
+    },
     repository: {
       add: 'python.add_pythonrepository',
       addDistribution: 'python.add_pythondistribution',
@@ -189,6 +209,11 @@ const LITERAL = {
   },
   ansible: {
     objectRoles: true,
+    distribution: {
+      add: 'ansible.add_ansibledistribution',
+      change: 'ansible.change_ansibledistribution',
+      delete: 'ansible.delete_ansibledistribution',
+    },
     repository: {
       add: 'ansible.add_ansiblerepository',
       addDistribution: 'ansible.add_ansibledistribution',
@@ -212,16 +237,28 @@ describe('ACTION_PERMISSIONS built from the manifests', () => {
     expect(ACTION_PERMISSIONS).toEqual(LITERAL);
   });
 
-  it('takes the entry of every framework plugin from its manifest', () => {
-    for (const manifest of PLUGIN_MANIFESTS) {
-      expect(ACTION_PERMISSIONS[manifest.plugin]).toBe(manifest.permissions);
+  it('takes the entry of every plugin that has repository and remote permissions from its manifest', () => {
+    const withBoth = PLUGIN_MANIFESTS.filter(
+      ({ permissions }) => permissions.repository && permissions.remote,
+    );
+
+    expect(withBoth.map(({ plugin }) => plugin)).toEqual([
+      'file',
+      'deb',
+      'rpm',
+      'python',
+      'ansible',
+    ]);
+    for (const manifest of withBoth) {
+      expect(
+        ACTION_PERMISSIONS[manifest.plugin as keyof typeof ACTION_PERMISSIONS],
+      ).toBe(manifest.permissions);
     }
   });
 
-  it('keeps the ansible entry beside them', () => {
-    expect(Object.keys(ACTION_PERMISSIONS)).toContain('ansible');
-    expect(PLUGIN_MANIFESTS.map(({ plugin }) => plugin)).not.toContain(
-      'ansible',
-    );
+  it('has no entry for a plugin that has no repository or remote screens', () => {
+    for (const plugin of ['maven', 'npm', 'container']) {
+      expect(Object.keys(ACTION_PERMISSIONS)).not.toContain(plugin);
+    }
   });
 });

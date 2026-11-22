@@ -207,6 +207,39 @@ describe('navigation menu', () => {
     ).toHaveLength(1);
   });
 
+  it('offers the Distributions entry only for a plugin whose manifest lists distributions', async () => {
+    signIn();
+    reportPlugins(['core', 'file']);
+    const file = PLUGIN_MANIFESTS.find(({ plugin }) => plugin === 'file');
+    const resources = file?.resources;
+    if (!file || !resources) {
+      throw new Error('the file manifest is missing');
+    }
+    file.resources = ['repository', 'remote'];
+
+    try {
+      await menuShown();
+      await screen.findByRole('button', { name: 'Repositories' });
+
+      expect(
+        screen.queryByRole('link', { name: 'Distributions' }),
+      ).not.toBeInTheDocument();
+    } finally {
+      file.resources = resources;
+    }
+  });
+
+  it('offers the Distributions entry for a plugin that has distributions and no repository screens, and no repository or remote entry for it', async () => {
+    signIn();
+    reportPlugins(['core', 'maven']);
+
+    await menuShown();
+
+    await screen.findByRole('link', { name: 'Distributions' });
+    expect(section('repositories')).toBeNull();
+    expect(section('remotes')).toBeNull();
+  });
+
   it('marks the Distributions entry as current on the list', async () => {
     signIn();
     reportPlugins(ALL_PLUGINS);
