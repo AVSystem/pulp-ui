@@ -297,6 +297,19 @@ const READERS: Record<DistributionPlugin, FactsReader> = {
   container: readerOf(containerDistribution),
 };
 
+// The distribution entity of each plugin, for the writes of a row: a plugin's
+// own entity deletes the distribution at an address of the plugin.
+export const DISTRIBUTION_ENTITIES = {
+  file: fileDistribution,
+  deb: debDistribution,
+  rpm: rpmDistribution,
+  python: pythonDistribution,
+  maven: mavenDistribution,
+  npm: npmDistribution,
+  ansible: ansibleDistribution,
+  container: containerDistribution,
+} as const satisfies Record<DistributionPlugin, unknown>;
+
 // One read of a plugin's own list: the addresses of some rows of one plugin,
 // few enough for one request.
 export interface EnrichmentChunk {

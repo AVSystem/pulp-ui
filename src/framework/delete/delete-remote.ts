@@ -46,6 +46,18 @@ interface Entity {
   remove: (href: string, options?: Options) => Promise<string>;
 }
 
+// How a delete is worded for the object it deletes: the label the task is
+// watched under and the alert that says the delete has started.
+export interface DeleteLabels {
+  removal: (name: string) => string;
+  started: (name: string) => string;
+}
+
+const REMOTE_LABELS: DeleteLabels = {
+  removal: (name) => t`Removal of remote ${name}`,
+  started: (name) => t`Removal started for remote ${name}`,
+};
+
 interface RemoveOptions {
   // Called once the server has accepted the delete, with the alert that says
   // so, and only while the screen that asked is still shown. A user who left
@@ -53,11 +65,15 @@ interface RemoveOptions {
   onAccepted?: (alert: AlertType) => void;
 }
 
-// Deletes remotes of one plugin. `remove` sends the request, hands the task to
-// the watcher and calls back; the single-send guard it holds is released when
-// the request has settled, whatever it came to, so a failure never leaves the
+// Deletes remotes of one plugin, or, with other labels, any other object whose
+// entity deletes by a task. `remove` sends the request, hands the task to the
+// watcher and calls back; the single-send guard it holds is released when the
+// request has settled, whatever it came to, so a failure never leaves the
 // button dead.
-export function useDeleteRemote(entity: Entity) {
+export function useDeleteRemote(
+  entity: Entity,
+  labels: DeleteLabels = REMOTE_LABELS,
+) {
   const request = useDeleteEntity(entity);
   const { watch } = useWatchTask();
   const { queueAlert } = useAppContext();
@@ -107,13 +123,10 @@ export function useDeleteRemote(entity: Entity) {
         try {
           watch({
             href: task,
-            label: t`Removal of remote ${name}`,
+            label: labels.removal(name),
             resource: { app, object, href: pulp_href },
           });
-          const alert = taskAlert(
-            task,
-            t`Removal started for remote ${name}`,
-          ) as AlertType;
+          const alert = taskAlert(task, labels.started(name)) as AlertType;
           if (mounted.current) {
             onAccepted?.(alert);
           } else {
@@ -134,7 +147,7 @@ export function useDeleteRemote(entity: Entity) {
         }
       }
     },
-    [mutateAsync, watch, queueAlert, app, object],
+    [mutateAsync, watch, queueAlert, app, object, labels],
   );
 
   return { remove, isPending };

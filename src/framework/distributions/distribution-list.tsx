@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
+import { DropdownItem } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
-import { memo, useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import {
   AlertList,
   BaseHeader,
@@ -8,12 +9,14 @@ import {
   EmptyStateNoData,
   InsufficientPermissions,
   ListErrorState,
+  ListItemActions,
   LoadingSpinner,
   Main,
   SortTable,
   Table,
   closeAlert,
 } from 'src/components';
+import { RowActionsColumn } from 'src/components/list-item-actions';
 import {
   DISTRIBUTION_TYPES,
   type DistributionPlugin,
@@ -30,6 +33,7 @@ import {
 import {
   ColumnFailures,
   ListLayout,
+  PermissionsNotice,
   useLastPageWhenPastEnd,
   useListAddress,
   useRereadAlert,
@@ -37,6 +41,7 @@ import {
 } from '../list/list-frame';
 import { PLUGIN_MANIFESTS } from '../manifest';
 import { useQueuedAlerts } from '../use-queued-alerts';
+import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import {
   GuardCell,
   ServedCell,
@@ -47,6 +52,7 @@ import {
   type DistributionCells,
   useDistributionColumns,
 } from './use-distribution-columns';
+import { useDistributionPermits } from './use-distribution-permission';
 
 // The order and the sorting of the list. The server orders the whole list, so
 // each column that has a field sorts by it. The columns that are read from the
@@ -57,6 +63,7 @@ const SORTABLE = [
   { sortField: 'base_path' },
 ];
 const NO_FILTERS: never[] = [];
+const NEEDED_PERMISSIONS = ['delete'] as const;
 
 const PLUGINS = Object.keys(DISTRIBUTION_TYPES) as DistributionPlugin[];
 
@@ -75,6 +82,9 @@ function pluginLabel(plugin: DistributionPlugin): string {
 interface RowProps {
   row: ListedDistribution;
   cells: DistributionCells;
+  // whether the user may delete this distribution
+  canDelete: boolean;
+  requestDelete: (row: ListedDistribution) => void;
 }
 
 // One row. It is rebuilt only when what it shows changes, so the reads behind
@@ -82,6 +92,8 @@ interface RowProps {
 const DistributionRow = memo(function DistributionRow({
   row,
   cells,
+  canDelete,
+  requestDelete,
 }: RowProps) {
   const owned = row.plugin !== null;
 
@@ -100,6 +112,17 @@ const DistributionRow = memo(function DistributionRow({
         <GuardCell cells={cells} />
       </Td>
       <Td>{owned ? <ServedCell cells={cells} /> : t`None`}</Td>
+      <ListItemActions
+        kebabItems={
+          canDelete
+            ? [
+                <DropdownItem key='delete' onClick={() => requestDelete(row)}>
+                  {t`Delete`}
+                </DropdownItem>,
+              ]
+            : []
+        }
+      />
     </Tr>
   );
 });
@@ -174,6 +197,21 @@ const DistributionListScreen = ({
     !query.isPlaceholderData,
   );
   const columns = useDistributionColumns(rows);
+
+  // What the user may do with each row, by the permission of the row's own
+  // plugin.
+  const rowsShown = rows.length > 0 && !query.isPlaceholderData;
+  const { permits, failure: permissionsFailure } = useDistributionPermits({
+    rows,
+    needed: NEEDED_PERMISSIONS,
+    rowsShown,
+  });
+  // The distribution whose delete dialog is open.
+  const [deleting, setDeleting] = useState<ListedDistribution | null>(null);
+  const requestDelete = useCallback(
+    (row: ListedDistribution) => setDeleting(row),
+    [],
+  );
 
   // The first read fills the whole screen with its state. Once something has
   // been shown, a read for another page shows its state in place of the table
@@ -253,6 +291,11 @@ const DistributionListScreen = ({
 
   const { settled, failures } = columns;
 
+  // The rows that offer an action. A list in which none does has no actions
+  // column.
+  const deletable = rows.map((row) => permits('delete', row));
+  const anyRowAction = deletable.some(Boolean);
+
   const headers = [
     { id: 'name', title: t`Name`, type: 'alpha' },
     { id: 'pulp_type', title: t`Plugin`, type: 'alpha' },
@@ -261,6 +304,7 @@ const DistributionListScreen = ({
     { id: 'serves', title: t`Serves`, type: 'none' },
     { id: 'guard', title: t`Content guard`, type: 'none' },
     { id: 'served', title: t`Served state`, type: 'none' },
+    ...(anyRowAction ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
 
   const count = data?.count ?? 0;
@@ -303,15 +347,19 @@ const DistributionListScreen = ({
           params={params}
           updateParams={updateParams}
         />
-        <Tbody>
-          {rows.map((row) => (
-            <DistributionRow
-              key={row.pulp_href}
-              row={row}
-              cells={columns.cellsOf(row)}
-            />
-          ))}
-        </Tbody>
+        <RowActionsColumn.Provider value={anyRowAction}>
+          <Tbody>
+            {rows.map((row, position) => (
+              <DistributionRow
+                key={row.pulp_href}
+                row={row}
+                cells={columns.cellsOf(row)}
+                canDelete={deletable[position] as boolean}
+                requestDelete={requestDelete}
+              />
+            ))}
+          </Tbody>
+        </RowActionsColumn.Provider>
       </Table>
     );
   }
@@ -320,6 +368,20 @@ const DistributionListScreen = ({
     <>
       {alertList}
       {header}
+      {deleting?.plugin ? (
+        <DeleteDistributionDialog
+          key={deleting.pulp_href}
+          plugin={deleting.plugin}
+          distribution={deleting}
+          onClose={() => setDeleting(null)}
+          onAccepted={(alert) => {
+            // The task is followed from the application root, which reads the
+            // list again when it ends; this screen says that it started.
+            setAlerts((current) => [...current, alert]);
+            setDeleting(null);
+          }}
+        />
+      ) : null}
       <ListLayout
         filters={null}
         addButton={undefined}
@@ -327,7 +389,17 @@ const DistributionListScreen = ({
         updateParams={updateParams}
         count={count}
         chips={null}
-        notices={<ColumnFailures failures={failures} />}
+        notices={
+          <>
+            {permissionsFailure ? (
+              <PermissionsNotice
+                description={permissionsFailure.description}
+                retry={permissionsFailure.retry}
+              />
+            ) : null}
+            <ColumnFailures failures={failures} />
+          </>
+        }
         content={content}
         hasRows={hasRows}
       />

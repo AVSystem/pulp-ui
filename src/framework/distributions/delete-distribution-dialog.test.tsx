@@ -202,7 +202,8 @@ describe(
 
     const confirmButton = () =>
       within(screen.getByRole('dialog')).getByRole('button', {
-        name: 'Delete',
+        // while a delete is on its way the button also names its spinner
+        name: /^Delete/,
       });
 
     it('asks a plain question that names the distribution and its base path', async () => {
@@ -214,9 +215,16 @@ describe(
       expect(within(dialog).getByText('index/wheels')).toBeVisible();
     });
 
-    it('sends one delete to the endpoint of the distribution plugin, however often Delete is pressed, and hands the task on', async () => {
+    it('sends one delete to the endpoint of the distribution plugin, however often Delete is pressed before the server answers, and hands the task on', async () => {
       serveTask();
-      const { deletes } = serveDeletes();
+      let open: () => void = () => undefined;
+      const answered = new Promise<void>((resolve) => {
+        open = resolve;
+      });
+      const { deletes } = serveDeletes(async () => {
+        await answered;
+        return HttpResponse.json({ task: TASK_HREF }, { status: 202 });
+      });
       const accepted: AlertType[] = [];
       const { user, row } = renderDialog({
         plugin: 'ansible',
@@ -226,6 +234,9 @@ describe(
       await screen.findByRole('dialog');
       await user.click(confirmButton());
       await user.click(confirmButton());
+      await user.click(confirmButton());
+      await waitFor(() => expect(deletes).toHaveLength(1));
+      open();
 
       await waitFor(() => expect(accepted).toHaveLength(1));
       expect(deletes).toEqual([row.pulp_href]);
@@ -438,18 +449,20 @@ describe(
       });
       const rolesRead: string[] = [];
       serveLab({ python: [wheels] });
-      server.events.on('request:start', ({ request }) => {
+      const onStart = ({ request }: { request: Request }) => {
         const { pathname } = new URL(request.url);
         if (pathname === `${API}/roles/`) {
           rolesRead.push(pathname);
         }
-      });
+      };
+      server.events.on('request:start', onStart);
 
       renderList();
       const table = await tableOf();
       await settled(table);
 
       await waitFor(() => expect(kebabOf(rowOf('wheels'))).not.toBeNull());
+      server.events.removeListener('request:start', onStart);
       expect(rolesRead).toEqual([]);
     });
 

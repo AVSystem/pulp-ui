@@ -20,6 +20,7 @@ import {
   coreRepositoryListHandler,
   distributionListHandler,
   listOf,
+  page,
   pluginDistribution,
   pluginPublication,
   pluginRepository,
@@ -728,6 +729,9 @@ describe(
         isStaff: false,
         own: [['file.view_filedistribution']],
       });
+      // the roles the user holds on single distributions are read for a user who
+      // may not delete everywhere; this one holds none
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
       const repository = pluginRepository('file', { name: 'manuals-repo' });
       const requests = recordRequests();
       const lab = serveBound({

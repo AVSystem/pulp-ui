@@ -371,6 +371,11 @@ export function WatchedTasksProvider({ children }: { children: ReactNode }) {
           void queryClient.invalidateQueries({
             queryKey: entityKeys({ app, object }).all,
           });
+          // The screens that list this kind of object across plugins read it
+          // under the core app.
+          void queryClient.invalidateQueries({
+            queryKey: entityKeys({ app: 'core', object }).all,
+          });
           void queryClient.invalidateQueries({
             queryKey: taskKeys.activeOf(href),
           });
