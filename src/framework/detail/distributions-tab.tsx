@@ -1,6 +1,7 @@
 import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import {
+  Button,
   DropdownItem,
   Toolbar,
   ToolbarContent,
@@ -9,7 +10,7 @@ import {
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
   type AlertType,
@@ -35,8 +36,8 @@ import {
   type TabDef,
   repositoryOf,
 } from '../descriptor';
-import type { FrameworkPlugin } from '../manifest';
-import { distributionPath } from '../route-patterns';
+import { type FrameworkPlugin, PLUGIN_MANIFESTS } from '../manifest';
+import { distributionPath, newDistributionPath } from '../route-patterns';
 import {
   type ServedDistribution,
   useServedDistributions,
@@ -133,6 +134,21 @@ export const DistributionsTab = ({
     repository,
   });
   const { hasPermission } = useAppContext();
+  const navigate = useNavigate();
+  // Offered to a user who may add distributions of the plugin; Pulp decides the
+  // request. The form opens with this repository chosen.
+  const addPermission = PLUGIN_MANIFESTS.find(
+    (manifest) => manifest.plugin === plugin,
+  )?.permissions.distribution.add;
+  const createButton =
+    addPermission !== undefined && hasPermission(addPermission) ? (
+      <Button
+        variant='primary'
+        onClick={() => navigate(newDistributionPath(plugin, repository.name))}
+      >
+        {t`Create distribution`}
+      </Button>
+    ) : undefined;
   const edit = distribution.edit;
   // Offered to a user who holds the permission on every distribution; nothing
   // is drawn on a guess.
@@ -165,6 +181,7 @@ export const DistributionsTab = ({
       <EmptyStateNoData
         title={t`No distribution serves this repository`}
         description={t`Clients cannot download its content until a distribution serves it.`}
+        button={createButton}
       />
     );
   }
@@ -202,6 +219,7 @@ export const DistributionsTab = ({
                 />
               </ToolbarItem>
             </ToolbarGroup>
+            {createButton ? <ToolbarItem>{createButton}</ToolbarItem> : null}
           </ToolbarContent>
         </Toolbar>
         <PulpPagination

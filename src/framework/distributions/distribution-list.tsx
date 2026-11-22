@@ -47,6 +47,10 @@ import {
 } from '../list/list-frame';
 import { distributionPath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
+import {
+  CreateDistributionMenu,
+  useCreatablePlugins,
+} from './create-distribution-menu';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import {
   GuardCell,
@@ -254,6 +258,7 @@ const DistributionListScreen = ({
     !query.isPlaceholderData,
   );
   const columns = useDistributionColumns(rows);
+  const creatable = useCreatablePlugins(installed);
 
   // What the user may do with each row, by the permission of the row's own
   // plugin.
@@ -285,6 +290,10 @@ const DistributionListScreen = ({
   const sessionEnded = query.isError && isSessionEnd(query.error);
 
   const header = <BaseHeader title={t`Distributions`} />;
+  const addButton =
+    creatable.length > 0 ? (
+      <CreateDistributionMenu plugins={creatable} />
+    ) : undefined;
   const alertList = (
     <AlertList
       alerts={alerts}
@@ -341,6 +350,7 @@ const DistributionListScreen = ({
         <EmptyStateNoData
           title={t`No distributions yet`}
           description={t`Distributions will appear once created.`}
+          button={addButton}
         />
       </>
     );
@@ -450,7 +460,7 @@ const DistributionListScreen = ({
             labelRefusal={labelRefusal}
           />
         }
-        addButton={undefined}
+        addButton={addButton}
         params={params}
         updateParams={updateParams}
         count={count}
