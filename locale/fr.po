@@ -403,6 +403,10 @@ msgstr "Un chemin de base ne peut ni commencer ni se terminer par une barre obli
 msgid "A content guard you may not see"
 msgstr ""
 
+#: src/framework/distributions/distribution-list.tsx
+msgid "A distribution is public when it has no content guard. Only those are listed."
+msgstr ""
+
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
@@ -1059,6 +1063,7 @@ msgstr "Retour"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
@@ -2078,6 +2083,7 @@ msgstr "Créé"
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/remote-columns.tsx
 #: src/framework/repository-columns.tsx
 msgid "Created date"
@@ -3514,7 +3520,7 @@ msgstr "Rapide"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
-#: src/framework/distributions/distribution-list.tsx
+#: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -3539,13 +3545,17 @@ msgstr "Téléversement de fichiers"
 msgid "Filter by {0}"
 msgstr "Filtrer par {0}"
 
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Filter by base path"
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "Filter by labels"
 msgstr "Filtrer par libellés"
 
-#: src/components/collection-dependencies-list/collection-usedby-dependencies-list.tsx
-#~ msgid "Filter by name"
-#~ msgstr "Filtrer par nom"
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Filter by name"
+msgstr "Filtrer par nom"
 
 #: src/components/repo-selector/repo-selector.tsx
 #~ msgid "Filter by repository"
@@ -4263,6 +4273,7 @@ msgstr "Valeur du libellé"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
@@ -4642,6 +4653,7 @@ msgstr "Mon profil"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
@@ -5669,6 +5681,7 @@ msgstr "Ajoutez un propriétaire à l'aide des boutons ci-dessous."
 #~ msgstr "Veuillez fournir le nom de l'espace de nom"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "Plugin"
@@ -5785,6 +5798,10 @@ msgstr ""
 #: src/containers/signature-keys/list.tsx
 msgid "Public key"
 msgstr "Clé publique"
+
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Public only"
+msgstr ""
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
@@ -6133,6 +6150,10 @@ msgstr "Limite de taux"
 #: src/components/markdown-editor.tsx
 #~ msgid "Raw Markdown"
 #~ msgstr "Markdown brut"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Reading every distribution to find the public ones"
+msgstr ""
 
 #: src/components/table-of-contents.tsx
 #~ msgid "Readme"
@@ -9598,6 +9619,7 @@ msgstr "Des exigences YAML sont nécessaires pour synchroniser depuis Galaxy. Vo
 #: src/components/repair-task-modal.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/framework/distributions/distribution-filters.tsx
 msgid "Yes"
 msgstr "Oui"
 

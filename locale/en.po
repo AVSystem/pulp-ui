@@ -404,6 +404,10 @@ msgstr "A base path cannot start or end with a slash or contain two slashes in a
 msgid "A content guard you may not see"
 msgstr "A content guard you may not see"
 
+#: src/framework/distributions/distribution-list.tsx
+msgid "A distribution is public when it has no content guard. Only those are listed."
+msgstr "A distribution is public when it has no content guard. Only those are listed."
+
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
 msgid "A distribution named \"{0}\" already exists."
@@ -1060,6 +1064,7 @@ msgstr "Back"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
@@ -2079,6 +2084,7 @@ msgstr "Created"
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/remote-columns.tsx
 #: src/framework/repository-columns.tsx
 msgid "Created date"
@@ -3515,7 +3521,7 @@ msgstr "Fast"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
-#: src/framework/distributions/distribution-list.tsx
+#: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -3540,13 +3546,17 @@ msgstr "File upload"
 msgid "Filter by {0}"
 msgstr "Filter by {0}"
 
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Filter by base path"
+msgstr "Filter by base path"
+
 #: src/framework/list/label-filter.tsx
 msgid "Filter by labels"
 msgstr "Filter by labels"
 
-#: src/components/collection-dependencies-list/collection-usedby-dependencies-list.tsx
-#~ msgid "Filter by name"
-#~ msgstr "Filter by name"
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Filter by name"
+msgstr "Filter by name"
 
 #: src/components/repo-selector/repo-selector.tsx
 #~ msgid "Filter by repository"
@@ -4264,6 +4274,7 @@ msgstr "Label value"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
@@ -4643,6 +4654,7 @@ msgstr "My profile"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
@@ -5670,6 +5682,7 @@ msgstr "Please add an owner by using the buttons below."
 #~ msgstr "Please, provide the namespace name"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "Plugin"
@@ -5786,6 +5799,10 @@ msgstr "Public"
 #: src/containers/signature-keys/list.tsx
 msgid "Public key"
 msgstr "Public key"
+
+#: src/framework/distributions/distribution-filters.tsx
+msgid "Public only"
+msgstr "Public only"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
@@ -6134,6 +6151,10 @@ msgstr "Rate limit"
 #: src/components/markdown-editor.tsx
 #~ msgid "Raw Markdown"
 #~ msgstr "Raw Markdown"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Reading every distribution to find the public ones"
+msgstr "Reading every distribution to find the public ones"
 
 #: src/components/table-of-contents.tsx
 #~ msgid "Readme"
@@ -9599,6 +9620,7 @@ msgstr "YAML requirements are required to sync from Galaxy. You can <0>edit the 
 #: src/components/repair-task-modal.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/framework/distributions/distribution-filters.tsx
 msgid "Yes"
 msgstr "Yes"
 
