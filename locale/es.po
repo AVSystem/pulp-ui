@@ -186,6 +186,10 @@ msgstr "{figure} de {total}"
 msgid "{label} can no longer be followed."
 msgstr "{label} ya no se puede seguir."
 
+#: src/framework/distributions/create-distribution-menu.tsx
+msgid "{label} distribution"
+msgstr ""
+
 #: src/framework/watched-tasks.tsx
 msgid "{label} failed."
 msgstr "{label} falló."
@@ -265,6 +269,8 @@ msgid "{title} steps"
 msgstr "{title} pasos"
 
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-form.tsx
 msgid "{typeName} distribution"
 msgstr ""
 
@@ -468,6 +474,7 @@ msgid "A repository for which this cannot be turned on is synced with the value 
 msgstr "Un repositorio en el que esto no se puede activar se sincroniza con el valor permitido."
 
 #: src/framework/distributions/distribution-columns.tsx
+#: src/framework/distributions/distribution-edit.tsx
 msgid "A repository you may not see"
 msgstr ""
 
@@ -791,8 +798,8 @@ msgid "Allow same-filename packages with different contents"
 msgstr "Permitir paquetes con el mismo nombre de archivo y distinto contenido"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Allow uploads to this distribution"
-msgstr "Permitir subidas a esta distribución"
+#~ msgid "Allow uploads to this distribution"
+#~ msgstr "Permitir subidas a esta distribución"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Allowed"
@@ -861,6 +868,10 @@ msgstr "Repositorios de Ansible"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
 #~ msgstr ""
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Anyone who can reach this server can download from it without signing in. Choose a content guard, or confirm Public, to save your changes."
+msgstr ""
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -1077,6 +1088,7 @@ msgstr "Volver"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
@@ -1134,6 +1146,7 @@ msgstr "bdist_wheel"
 msgid "bdist_wininst"
 msgstr "bdist_wininst"
 
+#: src/framework/distributions/distribution-edit.tsx
 #: src/framework/serving/served-label.tsx
 msgid "Bound to a deprecated publication"
 msgstr ""
@@ -1207,9 +1220,10 @@ msgstr "Certificado de CA"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
-#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -1410,6 +1424,10 @@ msgstr "Tareas para niños"
 #~ msgid "Choices:"
 #~ msgstr ""
 
+#: src/framework/distributions/serves-field.tsx
+msgid "Choose a publication"
+msgstr ""
+
 #: src/framework/distributions/protection-choice.tsx
 msgid "Choose how this distribution is protected."
 msgstr ""
@@ -1470,6 +1488,10 @@ msgstr ""
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "Los clientes no pueden descargar su contenido hasta que una distribución lo sirva."
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Clients get the latest version of this repository."
+msgstr ""
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -1979,6 +2001,10 @@ msgstr "Campo de texto copiable"
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "No se pudo comprobar si ya hay una sincronización en ejecución. Aun así puede iniciar una; esperará a que termine la que está en ejecución."
 
+#: src/framework/distributions/create-distribution.ts
+msgid "Could not check whether the base path is free: {reason}. Nothing was changed."
+msgstr ""
+
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
@@ -2009,6 +2035,7 @@ msgstr "Recuento"
 #: src/components/group-modal.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/distributions/distribution-form.tsx
 msgid "Create"
 msgstr "Crear"
 
@@ -2074,6 +2101,12 @@ msgstr "Crear y actualizar contenedores en espacios de nombres de contenedores e
 #~ msgid "Create and update execution environments under existing container namespaces."
 #~ msgstr "Cree y actualice los entornos de ejecución bajo los espacios de nombres de los contenedores existentes."
 
+#: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/create-distribution-menu.tsx
+#: src/framework/distributions/distribution-form.tsx
+msgid "Create distribution"
+msgstr ""
+
 #: src/components/collection-header.tsx
 #~ msgid "Create issue"
 #~ msgstr "Create issue"
@@ -2128,6 +2161,10 @@ msgstr "Fecha de creación"
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
 msgstr "Se creó la distribución \"{name}\" en la ruta base {basePath}."
+
+#: src/framework/distributions/distribution-form.tsx
+msgid "Created distribution \"{trimmedName}\""
+msgstr ""
 
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
@@ -2627,9 +2664,13 @@ msgstr "Deshabilitados"
 #~ msgid "Distribution"
 #~ msgstr "Distribución"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Distribution \"{distributionName}\" could not be updated"
+msgstr ""
+
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Distribution \"{name}\" could not be updated"
-msgstr "No se ha podido actualizar la distribución \"{name}\""
+#~ msgid "Distribution \"{name}\" could not be updated"
+#~ msgstr "No se ha podido actualizar la distribución \"{name}\""
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} is still being removed."
@@ -2643,7 +2684,12 @@ msgstr "La distribución {name} no se eliminó: {reason}"
 msgid "Distribution {name} was not shown, so it was not removed."
 msgstr "La distribución {name} no se mostraba, por lo que no se eliminó."
 
+#: src/framework/distributions/distribution-form.tsx
+msgid "Distribution could not be created"
+msgstr ""
+
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
 msgid "Distribution could not be displayed."
 msgstr ""
 
@@ -2666,6 +2712,8 @@ msgstr ""
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/menu.tsx
@@ -2878,8 +2926,12 @@ msgstr "Cada clave de etiqueta solo se puede usar una vez."
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/remote-row-actions.tsx
@@ -2897,8 +2949,8 @@ msgstr "Editar"
 
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Edit distribution"
-msgstr "Editar distribución"
+#~ msgid "Edit distribution"
+#~ msgstr "Editar distribución"
 
 #: src/components/repository-form.tsx
 #~ msgid "Edit execution environment"
@@ -3391,6 +3443,11 @@ msgstr ""
 msgid "Failed to load distributions: {error}"
 msgstr "Error al cargar distribuciones: {error}"
 
+#. placeholder {0}: requestErrorText(read.error)
+#: src/framework/distributions/serves-field.tsx
+msgid "Failed to load publications: {0}"
+msgstr ""
+
 #: src/components/approve-modal/approve-modal.tsx
 #~ msgid "Failed to load pulp_id of collection repository."
 #~ msgstr "Failed to load pulp_id of collection repository."
@@ -3403,6 +3460,11 @@ msgstr "No se han podido cargar los remotos: {0}"
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
 msgstr "Fallo al cargar remotos: {remotesError}"
+
+#. placeholder {0}: requestErrorText(found.error)
+#: src/framework/distributions/serves-field.tsx
+msgid "Failed to load repositories: {0}"
+msgstr ""
 
 #: src/components/lazy-repositories.tsx
 msgid "Failed to load repositories: {error}"
@@ -3443,8 +3505,8 @@ msgstr "Error al cargar el estado"
 #~ msgstr ""
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Failed to load the distribution: {loadError}"
-msgstr "No se pudo cargar la distribución: {loadError}"
+#~ msgid "Failed to load the distribution: {loadError}"
+#~ msgstr "No se pudo cargar la distribución: {loadError}"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Failed to load Wisdom information."
@@ -4198,6 +4260,7 @@ msgstr "Se sincronizarán los paquetes del instalador"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
@@ -4249,6 +4312,10 @@ msgstr ""
 
 #: src/framework/form/create-flow.ts
 msgid "It is public: anyone can download from it without signing in."
+msgstr ""
+
+#: src/framework/distributions/serves-field.tsx
+msgid "It serves that publication until you change it."
 msgstr ""
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
@@ -4335,6 +4402,7 @@ msgstr "Valor de etiqueta"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-filters.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
@@ -4522,6 +4590,10 @@ msgstr "linux"
 #~ msgid "Load token"
 #~ msgstr "Ficha de carga"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Loading"
+msgstr ""
+
 #: src/actions/ansible-repository-copy.tsx
 msgid "Loading distribution..."
 msgstr "Cargando la distribución..."
@@ -4531,6 +4603,10 @@ msgstr "Cargando la distribución..."
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "Cargando distribuciones"
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Loading publications"
+msgstr ""
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Loading repositories"
@@ -4665,6 +4741,10 @@ msgstr ""
 msgid "More information"
 msgstr "Más información"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "More repositories match; type more of the name"
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
 msgstr "Coinciden más de {LARGE_MATCH} repositorios. Añada otro filtro para acotar la lista."
@@ -4718,6 +4798,7 @@ msgstr "Mi perfil"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
@@ -5301,9 +5382,13 @@ msgstr "Notas"
 msgid "Nothing"
 msgstr ""
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Nothing changed in distribution {distributionName}."
+msgstr ""
+
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Nothing changed in distribution {name}."
-msgstr "No cambió nada en la distribución {name}."
+#~ msgid "Nothing changed in distribution {name}."
+#~ msgstr "No cambió nada en la distribución {name}."
 
 #: src/framework/form/remote-form.tsx
 msgid "Nothing changed in remote {remoteName}."
@@ -5359,6 +5444,10 @@ msgstr "Un archivo en la raíz"
 msgid "One file in every directory"
 msgstr "Un archivo en cada directorio"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "One publication"
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
 msgstr "Aplicaciones de API en línea"
@@ -5396,6 +5485,11 @@ msgstr "Realizar la sincronización solo si el servidor remoto informa de cambio
 #: src/actions/ansible-repository-sync.tsx
 #~ msgid "Only perform the sync if no changes are reported by the remote server. To force a sync to happen, deselect this option."
 #~ msgstr ""
+
+#. placeholder {0}: rows.length
+#: src/framework/distributions/serves-field.tsx
+msgid "Only the newest {0} publications are listed."
+msgstr ""
 
 #: src/components/ansible-role/role-import-form.tsx
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
@@ -5546,8 +5640,8 @@ msgid "Packages could not be displayed."
 msgstr "No se pudieron mostrar los paquetes."
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
-msgstr "Los paquetes que faltan en esta distribución se obtienen del remoto. Déjelo vacío para servir solo lo que se subió."
+#~ msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
+#~ msgstr "Los paquetes que faltan en esta distribución se obtienen del remoto. Déjelo vacío para servir solo lo que se subió."
 
 #: src/containers/python/package-list.tsx
 msgid "Packages will appear once a repository is synced or a package is uploaded."
@@ -5813,6 +5907,7 @@ msgstr "Protegido por una protección de contenido: URL para clientes"
 #~ msgid "Protected repositories cannot be deleted."
 #~ msgstr "Los repositorios protegidos no pueden borrarse."
 
+#: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/protection-choice.tsx
 msgid "Protection"
 msgstr ""
@@ -5884,6 +5979,14 @@ msgstr "Clave pública"
 msgid "Public only"
 msgstr ""
 
+#: src/framework/distributions/serves-field.tsx
+msgid "Publication"
+msgstr ""
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Publication made {created}"
+msgstr ""
+
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
 msgstr ""
@@ -5932,8 +6035,8 @@ msgstr "Publicar los campos de versión del origen"
 #~ msgstr "Extraer esta imagen"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Pull-through remote"
-msgstr "Remoto de paso directo"
+#~ msgid "Pull-through remote"
+#~ msgstr "Remoto de paso directo"
 
 #: src/shell/sidebar.tsx
 msgid "Pulp {version}"
@@ -6622,9 +6725,9 @@ msgstr "Los repositorios aparecerán una vez creados."
 #~ msgid "repository"
 #~ msgstr "repository"
 
-#: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Repository"
-#~ msgstr "Repositorio"
+#: src/framework/distributions/serves-field.tsx
+msgid "Repository"
+msgstr "Repositorio"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6708,6 +6811,10 @@ msgstr "Nombre del repositorio"
 #: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "URL del repositorio"
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Repository version {keptVersion}, as it is now"
+msgstr ""
 
 #: src/framework/detail/version-detail.tsx
 msgid "Repository version could not be displayed."
@@ -6809,7 +6916,6 @@ msgstr "Reintentos"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
-#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6818,6 +6924,7 @@ msgstr "Reintentos"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/guard-field.tsx
+#: src/framework/distributions/serves-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
@@ -7080,7 +7187,7 @@ msgstr "Ejecutándose"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
-#: src/descriptors/python/distribution-edit.tsx
+#: src/framework/distributions/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -7218,6 +7325,10 @@ msgstr "Seleccionar un grupo"
 msgid "Select a remote"
 msgstr "Seleccionar un remoto"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "Select a repository"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Select a tag"
 #~ msgstr "Seleccione una etiqueta"
@@ -7321,6 +7432,10 @@ msgstr "Usuario seleccionado"
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 msgstr "Separe los términos con comas y escriba clave=valor, clave o !clave. Escriba {ESCAPED_COMMA} para una coma dentro de un valor."
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Serve the repository instead"
+msgstr ""
+
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Served"
 msgstr ""
@@ -7347,6 +7462,7 @@ msgstr "Error del servidor. Vuelva más tarde."
 
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
+#: src/framework/distributions/serves-field.tsx
 msgid "Serves"
 msgstr ""
 
@@ -8194,6 +8310,7 @@ msgstr "El complemento {plugin} no está instalado en este servidor Pulp."
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 #~ msgstr "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 
+#: src/framework/distributions/create-distribution.ts
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
@@ -8286,6 +8403,10 @@ msgstr ""
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
 msgstr "La eliminación se detuvo con un error inesperado. Es posible que el remoto ya se haya eliminado: compruebe la lista antes de volver a intentarlo."
 
+#: src/framework/distributions/distribution-form.tsx
+msgid "The distribution \"{trimmedName}\" is still being created and is not served yet."
+msgstr ""
+
 #: src/framework/distributions/protection-choice.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
 msgstr ""
@@ -8375,6 +8496,10 @@ msgstr "No se ha podido leer la última sincronización."
 msgid "The login page returned without a signed-in session."
 msgstr "La página de inicio de sesión volvió sin una sesión iniciada."
 
+#: src/framework/distributions/distribution-form.tsx
+msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
 #: src/actions/ansible-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
 msgstr "Se desconoce el resultado de la eliminación del remoto {name}, porque no se pudo leer el estado de la tarea. Compruebe la tarea."
@@ -8432,6 +8557,14 @@ msgstr "Los repositorios que usan este remoto no se pueden enumerar para su cuen
 msgid "The repositories that use this remote could not be listed, so nothing can be deleted."
 msgstr "No se han podido enumerar los repositorios que usan este remoto, por lo que no se puede eliminar nada."
 
+#: src/framework/distributions/serves-field.tsx
+msgid "The repository (serves its latest version)"
+msgstr ""
+
+#: src/framework/distributions/serves-field.tsx
+msgid "The repository (serves its newest publication)"
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
 msgstr "No se pudo leer el contenido del repositorio"
@@ -8455,6 +8588,10 @@ msgstr "El repositorio recibe una nueva última versión con el contenido de esa
 msgid "The repository is still being removed:"
 msgstr "El repositorio aún se está eliminando:"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "The repository version it serves now"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
@@ -8474,9 +8611,14 @@ msgid "The request failed."
 msgstr "La solicitud falló."
 
 #: src/components/repository-form.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
 msgstr "No se pudieron leer las rutas base reservadas de este servidor, por lo que no se puede crear aquí una distribución."
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "The reserved base paths of this server could not be read, so the base path cannot be changed here."
+msgstr ""
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
@@ -8532,6 +8674,14 @@ msgstr "No se pudo contactar con el servidor: {message}"
 
 #: src/framework/form/create-flow.ts
 msgid "The server did not apply the content guard you chose: the distribution has no content guard."
+msgstr ""
+
+#: src/framework/distributions/distribution-fields.tsx
+msgid "The server manages the content guard of this distribution. It cannot be changed here."
+msgstr ""
+
+#: src/framework/distributions/distribution-fields.tsx
+msgid "The server manages the content guard of this distribution. It is set when the distribution is created and cannot be chosen here."
 msgstr ""
 
 #: src/framework/form/create-flow.ts
@@ -8675,6 +8825,11 @@ msgstr "No hay remotos asociadas a este repositorio."
 msgid "There is no progress message."
 msgstr "No hay ningún mensaje de progreso."
 
+#. placeholder {0}: locked.name
+#: src/framework/distributions/serves-field.tsx
+msgid "There is no repository named \"{0}\", or you may not see it."
+msgstr ""
+
 #: src/containers/approvals/approvals.tsx
 #~ msgid "There must be only one repository with pipeline=rejected."
 #~ msgstr ""
@@ -8733,6 +8888,14 @@ msgstr "No se pudieron mostrar los elementos."
 #~ msgid "This collections requires the following collections for use"
 #~ msgstr "Esta colección requiere las siguientes colecciones para su uso"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "This distribution is public now"
+msgstr ""
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "This distribution serves a publication, which this plugin has deprecated. It keeps serving it until you serve the repository instead; the repository's latest version is then served directly."
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "This expression cannot be shown as fields."
 msgstr "Esta expresión no se puede mostrar como campos."
@@ -8776,6 +8939,10 @@ msgstr "Esta página está en construcción y algunas funciones pueden no funcio
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
 msgstr "Este proyecto es un intento de reciclar el código de la interfaz de Ansible Galaxy. La primera versión contiene sobre todo código reaprovechado con pequeñas correcciones. En el futuro se añadirán más tipos de contenido. Agradecemos cualquier contribución."
+
+#: src/framework/distributions/serves-field.tsx
+msgid "This repository has no publication"
+msgstr ""
 
 #: src/framework/detail/version-detail.tsx
 msgid "This repository has no version {number}."
@@ -8977,12 +9144,16 @@ msgstr "Actualizar el remoto de colecciones"
 #~ msgstr "Update container information"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Update of distribution {name}"
-msgstr "Actualización de la distribución {name}"
+#~ msgid "Update of distribution {name}"
+#~ msgstr "Actualización de la distribución {name}"
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Update started for distribution {distributionName}"
+msgstr ""
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Update started for distribution {name}"
-msgstr "Se inició la actualización de la distribución {name}"
+#~ msgid "Update started for distribution {name}"
+#~ msgstr "Se inició la actualización de la distribución {name}"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
@@ -9020,9 +9191,13 @@ msgstr "Se inició la actualización del repositorio {repositoryName}"
 #~ msgid "Updated <0/>"
 #~ msgstr "Actualizado <0/>"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Updated distribution {distributionName}"
+msgstr ""
+
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Updated distribution {name}"
-msgstr "Distribución {name} actualizada"
+#~ msgid "Updated distribution {name}"
+#~ msgstr "Distribución {name} actualizada"
 
 #: src/framework/form/remote-form.tsx
 msgid "Updated remote {remoteName}"
@@ -9084,8 +9259,8 @@ msgstr "Subir commit"
 #~ msgstr "Upload to namespace"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Uploads"
-msgstr "Subidas"
+#~ msgid "Uploads"
+#~ msgstr "Subidas"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Upstream name"
@@ -9444,6 +9619,10 @@ msgstr ""
 #: src/containers/ansible-repository/detail.tsx
 msgid "Version {repositoryVersion}"
 msgstr "Versión {repositoryVersion}"
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Version {version}, made {created}"
+msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx

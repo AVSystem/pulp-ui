@@ -186,6 +186,10 @@ msgstr "{figure} / {total}"
 msgid "{label} can no longer be followed."
 msgstr "{label}: 진행 상황을 더 이상 추적할 수 없습니다."
 
+#: src/framework/distributions/create-distribution-menu.tsx
+msgid "{label} distribution"
+msgstr ""
+
 #: src/framework/watched-tasks.tsx
 msgid "{label} failed."
 msgstr "{label}: 실패했습니다."
@@ -265,6 +269,8 @@ msgid "{title} steps"
 msgstr "{title} 단계"
 
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-form.tsx
 msgid "{typeName} distribution"
 msgstr ""
 
@@ -468,6 +474,7 @@ msgid "A repository for which this cannot be turned on is synced with the value 
 msgstr "이 옵션을 켤 수 없는 리포지토리는 허용되는 값으로 동기화됩니다."
 
 #: src/framework/distributions/distribution-columns.tsx
+#: src/framework/distributions/distribution-edit.tsx
 msgid "A repository you may not see"
 msgstr ""
 
@@ -791,8 +798,8 @@ msgid "Allow same-filename packages with different contents"
 msgstr "파일 이름은 같지만 내용이 다른 패키지 허용"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Allow uploads to this distribution"
-msgstr "이 배포에 대한 업로드 허용"
+#~ msgid "Allow uploads to this distribution"
+#~ msgstr "이 배포에 대한 업로드 허용"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Allowed"
@@ -861,6 +868,10 @@ msgstr "Ansible 리포지토리"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
 #~ msgstr ""
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Anyone who can reach this server can download from it without signing in. Choose a content guard, or confirm Public, to save your changes."
+msgstr ""
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -1077,6 +1088,7 @@ msgstr "뒤로"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
@@ -1134,6 +1146,7 @@ msgstr "bdist_wheel"
 msgid "bdist_wininst"
 msgstr "bdist_wininst"
 
+#: src/framework/distributions/distribution-edit.tsx
 #: src/framework/serving/served-label.tsx
 msgid "Bound to a deprecated publication"
 msgstr ""
@@ -1207,9 +1220,10 @@ msgstr "CA 인증서"
 #: src/components/user-form.tsx
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
-#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/revert-version.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -1410,6 +1424,10 @@ msgstr "하위 작업"
 #~ msgid "Choices:"
 #~ msgstr ""
 
+#: src/framework/distributions/serves-field.tsx
+msgid "Choose a publication"
+msgstr ""
+
 #: src/framework/distributions/protection-choice.tsx
 msgid "Choose how this distribution is protected."
 msgstr ""
@@ -1470,6 +1488,10 @@ msgstr ""
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
 msgstr "배포에서 제공하기 전에는 클라이언트가 해당 콘텐츠를 다운로드할 수 없습니다."
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Clients get the latest version of this repository."
+msgstr ""
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -1979,6 +2001,10 @@ msgstr "복사 가능한 입력"
 msgid "Could not check whether a sync is already running. You can still start one; it will wait for the running one to finish."
 msgstr "동기화가 이미 실행 중인지 확인할 수 없습니다. 동기화를 시작할 수는 있으며, 실행 중인 동기화가 끝날 때까지 대기합니다."
 
+#: src/framework/distributions/create-distribution.ts
+msgid "Could not check whether the base path is free: {reason}. Nothing was changed."
+msgstr ""
+
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "Could not check whether the name and base path are free: {reason}. Nothing was created."
@@ -2009,6 +2035,7 @@ msgstr "수량"
 #: src/components/group-modal.tsx
 #: src/containers/group-management/group-list.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/distributions/distribution-form.tsx
 msgid "Create"
 msgstr "만들기"
 
@@ -2074,6 +2101,12 @@ msgstr "기존 컨테이너 네임스페이스 아래에 컨테이너를 만들�
 #~ msgid "Create and update execution environments under existing container namespaces."
 #~ msgstr "기존 컨테이너 네임스페이스에서 실행 환경을 생성하고 업데이트합니다."
 
+#: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/create-distribution-menu.tsx
+#: src/framework/distributions/distribution-form.tsx
+msgid "Create distribution"
+msgstr ""
+
 #: src/components/collection-header.tsx
 #~ msgid "Create issue"
 #~ msgstr "Create issue"
@@ -2128,6 +2161,10 @@ msgstr "생성된 날짜"
 #: src/utilities/create-repository.ts
 msgid "Created distribution \"{name}\" at base path {basePath}."
 msgstr "기본 경로 {basePath}에 배포 \"{name}\"을/를 만들었습니다."
+
+#: src/framework/distributions/distribution-form.tsx
+msgid "Created distribution \"{trimmedName}\""
+msgstr ""
 
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
@@ -2627,9 +2664,13 @@ msgstr "비활성화됨"
 #~ msgid "Distribution"
 #~ msgstr "배포"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Distribution \"{distributionName}\" could not be updated"
+msgstr ""
+
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Distribution \"{name}\" could not be updated"
-msgstr "배포 \"{name}\"을(를) 업데이트할 수 없습니다"
+#~ msgid "Distribution \"{name}\" could not be updated"
+#~ msgstr "배포 \"{name}\"을(를) 업데이트할 수 없습니다"
 
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distribution {name} is still being removed."
@@ -2643,7 +2684,12 @@ msgstr "배포 {name}이(가) 제거되지 않았습니다: {reason}"
 msgid "Distribution {name} was not shown, so it was not removed."
 msgstr "배포 {name}이(가) 표시되지 않았으므로 제거되지 않았습니다."
 
+#: src/framework/distributions/distribution-form.tsx
+msgid "Distribution could not be created"
+msgstr ""
+
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
 msgid "Distribution could not be displayed."
 msgstr ""
 
@@ -2666,6 +2712,8 @@ msgstr ""
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/menu.tsx
@@ -2878,8 +2926,12 @@ msgstr "각 레이블 키는 한 번만 사용할 수 있습니다."
 #: src/containers/user-management/user-detail.tsx
 #: src/containers/user-management/user-edit.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 #: src/framework/list/remote-row-actions.tsx
@@ -2897,8 +2949,8 @@ msgstr "편집"
 
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Edit distribution"
-msgstr "배포 편집"
+#~ msgid "Edit distribution"
+#~ msgstr "배포 편집"
 
 #: src/components/repository-form.tsx
 #~ msgid "Edit execution environment"
@@ -3391,6 +3443,11 @@ msgstr ""
 msgid "Failed to load distributions: {error}"
 msgstr "배포판을 로드하지 못했습니다: {error}"
 
+#. placeholder {0}: requestErrorText(read.error)
+#: src/framework/distributions/serves-field.tsx
+msgid "Failed to load publications: {0}"
+msgstr ""
+
 #: src/components/approve-modal/approve-modal.tsx
 #~ msgid "Failed to load pulp_id of collection repository."
 #~ msgstr "Failed to load pulp_id of collection repository."
@@ -3403,6 +3460,11 @@ msgstr "원격을 불러오지 못했습니다: {0}"
 #: src/components/repository-form.tsx
 msgid "Failed to load remotes: {remotesError}"
 msgstr "원격을 로드하지 못했습니다: {remotesError}"
+
+#. placeholder {0}: requestErrorText(found.error)
+#: src/framework/distributions/serves-field.tsx
+msgid "Failed to load repositories: {0}"
+msgstr ""
 
 #: src/components/lazy-repositories.tsx
 msgid "Failed to load repositories: {error}"
@@ -3443,8 +3505,8 @@ msgstr "상태를 불러오지 못했습니다"
 #~ msgstr ""
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Failed to load the distribution: {loadError}"
-msgstr "배포를 불러오지 못했습니다: {loadError}"
+#~ msgid "Failed to load the distribution: {loadError}"
+#~ msgstr "배포를 불러오지 못했습니다: {loadError}"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Failed to load Wisdom information."
@@ -4198,6 +4260,7 @@ msgstr "설치 프로그램 패키지가 동기화됩니다"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
+#: src/framework/distributions/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
@@ -4249,6 +4312,10 @@ msgstr ""
 
 #: src/framework/form/create-flow.ts
 msgid "It is public: anyone can download from it without signing in."
+msgstr ""
+
+#: src/framework/distributions/serves-field.tsx
+msgid "It serves that publication until you change it."
 msgstr ""
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
@@ -4335,6 +4402,7 @@ msgstr "레이블 값"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-filters.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
@@ -4522,6 +4590,10 @@ msgstr "linux"
 #~ msgid "Load token"
 #~ msgstr "토큰 로드"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Loading"
+msgstr ""
+
 #: src/actions/ansible-repository-copy.tsx
 msgid "Loading distribution..."
 msgstr "배포를 불러오는 중..."
@@ -4531,6 +4603,10 @@ msgstr "배포를 불러오는 중..."
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Loading distributions"
 msgstr "배포를 불러오는 중"
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Loading publications"
+msgstr ""
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Loading repositories"
@@ -4665,6 +4741,10 @@ msgstr ""
 msgid "More information"
 msgstr "추가 정보"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "More repositories match; type more of the name"
+msgstr ""
+
 #: src/framework/list/repository-list.tsx
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
 msgstr "{LARGE_MATCH}개를 넘는 리포지토리가 일치합니다. 다른 필터를 추가하여 목록을 좁히십시오."
@@ -4718,6 +4798,7 @@ msgstr "내 프로필"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
@@ -5301,9 +5382,13 @@ msgstr "비고"
 msgid "Nothing"
 msgstr ""
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Nothing changed in distribution {distributionName}."
+msgstr ""
+
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Nothing changed in distribution {name}."
-msgstr "배포 {name}에 변경된 내용이 없습니다."
+#~ msgid "Nothing changed in distribution {name}."
+#~ msgstr "배포 {name}에 변경된 내용이 없습니다."
 
 #: src/framework/form/remote-form.tsx
 msgid "Nothing changed in remote {remoteName}."
@@ -5359,6 +5444,10 @@ msgstr "루트에 파일 하나"
 msgid "One file in every directory"
 msgstr "모든 디렉터리에 파일 하나씩"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "One publication"
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
 msgstr "온라인 API 앱"
@@ -5396,6 +5485,11 @@ msgstr "원격 서버에서 변경 사항이 보고된 경우에만 동기화를
 #: src/actions/ansible-repository-sync.tsx
 #~ msgid "Only perform the sync if no changes are reported by the remote server. To force a sync to happen, deselect this option."
 #~ msgstr ""
+
+#. placeholder {0}: rows.length
+#: src/framework/distributions/serves-field.tsx
+msgid "Only the newest {0} publications are listed."
+msgstr ""
 
 #: src/components/ansible-role/role-import-form.tsx
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
@@ -5546,8 +5640,8 @@ msgid "Packages could not be displayed."
 msgstr "패키지를 표시할 수 없습니다."
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
-msgstr "이 배포에 없는 패키지는 원격에서 가져옵니다. 비워 두면 업로드된 항목만 제공합니다."
+#~ msgid "Packages missing from this distribution are fetched from the remote. Leave it empty to serve only what was uploaded."
+#~ msgstr "이 배포에 없는 패키지는 원격에서 가져옵니다. 비워 두면 업로드된 항목만 제공합니다."
 
 #: src/containers/python/package-list.tsx
 msgid "Packages will appear once a repository is synced or a package is uploaded."
@@ -5813,6 +5907,7 @@ msgstr "콘텐츠 가드로 보호됨: 고객용 URL"
 #~ msgid "Protected repositories cannot be deleted."
 #~ msgstr "보호된 리포지토리는 삭제할 수 없습니다."
 
+#: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/protection-choice.tsx
 msgid "Protection"
 msgstr ""
@@ -5884,6 +5979,14 @@ msgstr "공개 키"
 msgid "Public only"
 msgstr ""
 
+#: src/framework/distributions/serves-field.tsx
+msgid "Publication"
+msgstr ""
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Publication made {created}"
+msgstr ""
+
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
 msgstr ""
@@ -5932,8 +6035,8 @@ msgstr "업스트림 릴리스 필드 게시"
 #~ msgstr "이미지 가져오기"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Pull-through remote"
-msgstr "풀스루 원격"
+#~ msgid "Pull-through remote"
+#~ msgstr "풀스루 원격"
 
 #: src/shell/sidebar.tsx
 msgid "Pulp {version}"
@@ -6622,9 +6725,9 @@ msgstr "생성된 리포지토리가 나타납니다."
 #~ msgid "repository"
 #~ msgstr "repository"
 
-#: src/actions/ansible-repository-collection-version-add.tsx
-#~ msgid "Repository"
-#~ msgstr "리포지토리"
+#: src/framework/distributions/serves-field.tsx
+msgid "Repository"
+msgstr "리포지토리"
 
 #. placeholder {0}: data.name
 #. placeholder {1}: data.name
@@ -6708,6 +6811,10 @@ msgstr "리포지터리 이름"
 #: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
 msgstr "리포지토리 URL"
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Repository version {keptVersion}, as it is now"
+msgstr ""
 
 #: src/framework/detail/version-detail.tsx
 msgid "Repository version could not be displayed."
@@ -6809,7 +6916,6 @@ msgstr "재시도 횟수"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
-#: src/descriptors/python/distribution-edit.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6818,6 +6924,7 @@ msgstr "재시도 횟수"
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/guard-field.tsx
+#: src/framework/distributions/serves-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
 #: src/framework/sync/last-sync.tsx
@@ -7080,7 +7187,7 @@ msgstr "실행 중"
 #: src/components/repository-form.tsx
 #: src/components/role-form.tsx
 #: src/components/user-form.tsx
-#: src/descriptors/python/distribution-edit.tsx
+#: src/framework/distributions/distribution-edit.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
@@ -7218,6 +7325,10 @@ msgstr "그룹 선택"
 msgid "Select a remote"
 msgstr "원격 선택"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "Select a repository"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Select a tag"
 #~ msgstr "태그 선택"
@@ -7321,6 +7432,10 @@ msgstr "선택한 사용자"
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 msgstr "조건은 쉼표로 구분하고 키=값, 키 또는 !키 형식으로 입력하십시오. 값에 쉼표를 넣으려면 {ESCAPED_COMMA}를 입력하십시오."
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Serve the repository instead"
+msgstr ""
+
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Served"
 msgstr ""
@@ -7347,6 +7462,7 @@ msgstr "서버 오류. 나중에 다시 시도하십시오."
 
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
+#: src/framework/distributions/serves-field.tsx
 msgid "Serves"
 msgstr ""
 
@@ -8194,6 +8310,7 @@ msgstr "{plugin} 플러그인이 이 Pulp 서버에 설치되어 있지 않습�
 #~ msgid "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 #~ msgstr "The Automation Hub sync toggle is now only supported in AAP 2.0. Previous versions of AAP will continue automatically syncing all collections."
 
+#: src/framework/distributions/create-distribution.ts
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
 msgid "The base path \"{basePath}\" is already used by or overlaps the distribution \"{otherName}\" ({otherPath})."
@@ -8286,6 +8403,10 @@ msgstr ""
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
 msgstr "삭제가 예기치 않은 오류로 중단되었습니다. 원격이 이미 제거되었을 수 있으니 다시 시도하기 전에 목록을 확인하십시오."
 
+#: src/framework/distributions/distribution-form.tsx
+msgid "The distribution \"{trimmedName}\" is still being created and is not served yet."
+msgstr ""
+
 #: src/framework/distributions/protection-choice.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
 msgstr ""
@@ -8375,6 +8496,10 @@ msgstr "마지막 동기화를 읽을 수 없습니다."
 msgid "The login page returned without a signed-in session."
 msgstr "로그인 페이지가 로그인된 세션 없이 돌아왔습니다."
 
+#: src/framework/distributions/distribution-form.tsx
+msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
+msgstr ""
+
 #: src/actions/ansible-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
 msgstr "작업 상태를 읽을 수 없어 원격 {name} 제거 결과를 알 수 없습니다. 작업을 확인하십시오."
@@ -8432,6 +8557,14 @@ msgstr "이 원격을 사용하는 리포지토리는 사용자 계정으로 나
 msgid "The repositories that use this remote could not be listed, so nothing can be deleted."
 msgstr "이 원격을 사용하는 리포지토리를 나열할 수 없으므로 아무것도 삭제할 수 없습니다."
 
+#: src/framework/distributions/serves-field.tsx
+msgid "The repository (serves its latest version)"
+msgstr ""
+
+#: src/framework/distributions/serves-field.tsx
+msgid "The repository (serves its newest publication)"
+msgstr ""
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
 msgstr "리포지토리 콘텐츠를 읽을 수 없습니다"
@@ -8455,6 +8588,10 @@ msgstr "리포지토리에 해당 버전의 콘텐츠를 가진 새 최신 버�
 msgid "The repository is still being removed:"
 msgstr "리포지토리를 아직 제거하는 중입니다:"
 
+#: src/framework/distributions/serves-field.tsx
+msgid "The repository version it serves now"
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "The repository was kept because not every distribution was removed."
@@ -8474,9 +8611,14 @@ msgid "The request failed."
 msgstr "요청에 실패했습니다."
 
 #: src/components/repository-form.tsx
+#: src/framework/distributions/distribution-form.tsx
 #: src/framework/form/distribution-option.tsx
 msgid "The reserved base paths of this server could not be read, so a distribution cannot be created here."
 msgstr "이 서버의 예약된 기본 경로를 읽을 수 없어 여기에서는 배포를 만들 수 없습니다."
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "The reserved base paths of this server could not be read, so the base path cannot be changed here."
+msgstr ""
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
@@ -8532,6 +8674,14 @@ msgstr "서버에 연결할 수 없습니다: {message}"
 
 #: src/framework/form/create-flow.ts
 msgid "The server did not apply the content guard you chose: the distribution has no content guard."
+msgstr ""
+
+#: src/framework/distributions/distribution-fields.tsx
+msgid "The server manages the content guard of this distribution. It cannot be changed here."
+msgstr ""
+
+#: src/framework/distributions/distribution-fields.tsx
+msgid "The server manages the content guard of this distribution. It is set when the distribution is created and cannot be chosen here."
 msgstr ""
 
 #: src/framework/form/create-flow.ts
@@ -8675,6 +8825,11 @@ msgstr "이 리포지토리와 연결된 원격은 없습니다."
 msgid "There is no progress message."
 msgstr "진행 중인 메시지가 없습니다."
 
+#. placeholder {0}: locked.name
+#: src/framework/distributions/serves-field.tsx
+msgid "There is no repository named \"{0}\", or you may not see it."
+msgstr ""
+
 #: src/containers/approvals/approvals.tsx
 #~ msgid "There must be only one repository with pipeline=rejected."
 #~ msgstr ""
@@ -8733,6 +8888,14 @@ msgstr "항목을 표시할 수 없습니다."
 #~ msgid "This collections requires the following collections for use"
 #~ msgstr "이 컬렉션을 사용하려면 다음 컬렉션이 필요합니다"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "This distribution is public now"
+msgstr ""
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "This distribution serves a publication, which this plugin has deprecated. It keeps serving it until you serve the repository instead; the repository's latest version is then served directly."
+msgstr ""
+
 #: src/framework/list/label-filter.tsx
 msgid "This expression cannot be shown as fields."
 msgstr "이 식은 필드로 표시할 수 없습니다."
@@ -8776,6 +8939,10 @@ msgstr "이 페이지는 구축 중이며 일부 기능이 올바르게 작동�
 #: src/containers/about-project.tsx
 msgid "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. The first version contains mostly saved code with minor fixes. In the future more types of content will be added. We welcome kindly any contributions."
 msgstr "이 프로젝트는 Ansible Galaxy UI 코드베이스를 업사이클하려는 시도입니다. 첫 번째 버전은 약간의 수정을 거친 기존 코드가 대부분입니다. 앞으로 더 많은 유형의 콘텐츠가 추가될 예정입니다. 여러분의 기여를 환영합니다."
+
+#: src/framework/distributions/serves-field.tsx
+msgid "This repository has no publication"
+msgstr ""
 
 #: src/framework/detail/version-detail.tsx
 msgid "This repository has no version {number}."
@@ -8977,12 +9144,16 @@ msgstr "컬렉션 원격 업데이트"
 #~ msgstr "Update container information"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Update of distribution {name}"
-msgstr "배포 {name} 업데이트"
+#~ msgid "Update of distribution {name}"
+#~ msgstr "배포 {name} 업데이트"
+
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Update started for distribution {distributionName}"
+msgstr ""
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Update started for distribution {name}"
-msgstr "배포 {name}의 업데이트를 시작했습니다"
+#~ msgid "Update started for distribution {name}"
+#~ msgstr "배포 {name}의 업데이트를 시작했습니다"
 
 #. placeholder {0}: data.name
 #: src/containers/ansible-remote/edit.tsx
@@ -9020,9 +9191,13 @@ msgstr "리포지토리 {repositoryName}의 업데이트를 시작했습니다"
 #~ msgid "Updated <0/>"
 #~ msgstr "업데이트됨 <0/>"
 
+#: src/framework/distributions/distribution-edit.tsx
+msgid "Updated distribution {distributionName}"
+msgstr ""
+
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Updated distribution {name}"
-msgstr "배포 {name}을/를 업데이트했습니다"
+#~ msgid "Updated distribution {name}"
+#~ msgstr "배포 {name}을/를 업데이트했습니다"
 
 #: src/framework/form/remote-form.tsx
 msgid "Updated remote {remoteName}"
@@ -9084,8 +9259,8 @@ msgstr "커밋 업로드"
 #~ msgstr "Upload to namespace"
 
 #: src/descriptors/python/distribution-edit.tsx
-msgid "Uploads"
-msgstr "업로드"
+#~ msgid "Uploads"
+#~ msgstr "업로드"
 
 #: src/components/container-repository-form.tsx
 #~ msgid "Upstream name"
@@ -9444,6 +9619,10 @@ msgstr ""
 #: src/containers/ansible-repository/detail.tsx
 msgid "Version {repositoryVersion}"
 msgstr "버전 {repositoryVersion}"
+
+#: src/framework/distributions/serves-field.tsx
+msgid "Version {version}, made {created}"
+msgstr ""
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
