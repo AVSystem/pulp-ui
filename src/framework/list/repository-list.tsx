@@ -576,6 +576,7 @@ const RepositoryListScreen = ({
       {deleting ? (
         <DeleteRepositoryDialog
           key={deleting.pulp_href}
+          plugin={plugin}
           descriptor={descriptor}
           repository={deleting}
           onClose={() => setDeleting(null)}

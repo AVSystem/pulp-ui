@@ -7,7 +7,7 @@ import { title } from '../support/sign-in';
 // again behind the user's back) and is gone after a reload, from the details
 // and the Distributions tab alike.
 
-const NOT_SERVED = 'Not served: no publication';
+const NOT_SERVED = 'Serves nothing (404): no publication';
 
 let objects: TestObjects;
 

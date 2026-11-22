@@ -1094,6 +1094,10 @@ msgstr "bdist_wheel"
 msgid "bdist_wininst"
 msgstr "bdist_wininst"
 
+#: src/framework/serving/served-label.tsx
+msgid "Bound to a deprecated publication"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
 msgstr "이동 경로"
@@ -1193,6 +1197,10 @@ msgstr "취소됨: {when}"
 #: src/components/progress-reports.tsx
 msgid "Canceling"
 msgstr "취소하는 중"
+
+#: src/framework/serving/served-label.tsx
+msgid "Cannot be checked"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -5059,6 +5067,10 @@ msgstr "허용되지 않음"
 msgid "Not available"
 msgstr "사용할 수 없음"
 
+#: src/framework/serving/served-label.tsx
+msgid "Not bound to anything"
+msgstr ""
+
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
@@ -7124,6 +7136,14 @@ msgstr "서버 오류. 나중에 다시 시도하십시오."
 #~ msgid "Server version"
 #~ msgstr "서버 버전"
 
+#: src/framework/serving/served-label.tsx
+msgid "Serves nothing (404): no publication"
+msgstr ""
+
+#: src/framework/serving/served-label.tsx
+msgid "Serves version {served}, latest is {latest}"
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
 msgid "Setting a remote allows a repository to sync from elsewhere."
@@ -8604,6 +8624,10 @@ msgstr "서버 URL을 인증하는 데 사용되는 토큰입니다."
 #~ msgid "Token management"
 #~ msgstr "Token management"
 
+#: src/framework/serving/served-label.tsx
+msgid "Too many publications to check here."
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Total"
 msgstr "합계"
@@ -9597,6 +9621,10 @@ msgstr "Pulp에서 로그아웃되었습니다."
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "다음 항목에 대해서는 이 작업을 수행할 수 없으므로 해당 항목에는 아무것도 전송되지 않습니다:"
+
+#: src/framework/serving/served-label.tsx
+msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
+msgstr ""
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."

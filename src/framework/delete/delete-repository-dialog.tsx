@@ -14,11 +14,6 @@ import { Alert, type AlertType, Spinner } from 'src/components';
 import { DeleteModal } from 'src/components/delete-modal';
 import { DistributionURL } from 'src/components/distribution-url';
 import { useContentGuardNames } from 'src/entities/core/content-guard/queries';
-import {
-  type ServingDistribution,
-  useRepositoryDistributions,
-} from 'src/entities/plugin/distribution';
-import type { DistributionBase } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { entityKeys } from 'src/entities/plugin/queries';
 import {
@@ -26,6 +21,11 @@ import {
   requestErrorDescription,
 } from 'src/utilities/request-error';
 import type { PluginDescriptor } from '../descriptor';
+import type { FrameworkPlugin } from '../manifest';
+import {
+  type ServedDistribution,
+  useServedDistributions,
+} from '../serving/use-served-distributions';
 import {
   OutcomeReport,
   RepositoryName,
@@ -39,6 +39,7 @@ import {
 } from './delete-repository';
 
 interface Props {
+  plugin: FrameworkPlugin;
   descriptor: PluginDescriptor;
   repository: RepositoryBase;
   onClose: () => void;
@@ -54,12 +55,10 @@ interface Props {
 type Listing =
   | { status: 'loading' }
   | { status: 'error'; message: ReactNode | null; retry: () => void }
-  | { status: 'ready'; distributions: ServingDistribution<DistributionBase>[] };
+  | { status: 'ready'; distributions: ServedDistribution[] };
 
-const byName = (
-  a: ServingDistribution<DistributionBase>,
-  b: ServingDistribution<DistributionBase>,
-) => a.row.name.localeCompare(b.row.name);
+const byName = (a: ServedDistribution, b: ServedDistribution) =>
+  a.row.name.localeCompare(b.row.name);
 
 // The distributions with their URL and, for a distribution protected by a
 // content guard, a warning that its URL is customer-facing, with the guard's
@@ -67,7 +66,7 @@ const byName = (
 const DistributionList = ({
   distributions,
 }: {
-  distributions: ServingDistribution<DistributionBase>[];
+  distributions: ServedDistribution[];
 }) => {
   const { names } = useContentGuardNames(
     distributions.flatMap(({ row }) =>
@@ -85,7 +84,7 @@ const DistributionList = ({
           <ListItem key={row.pulp_href}>
             <strong>{row.name}</strong>
             <DistributionURL
-              distribution={{ url: row.base_url ?? null, served }}
+              distribution={{ url: row.base_url ?? null, state: served }}
             />
             {row.content_guard ? (
               <>
@@ -136,11 +135,12 @@ const WithDistributions = ({
   distribution: NonNullable<PluginDescriptor['distribution']>['entity'];
   publication: PluginDescriptor['publication'];
 }) => {
-  const serving = useRepositoryDistributions(
+  const serving = useServedDistributions({
+    plugin: props.plugin,
     distribution,
     publication,
-    props.repository.pulp_href,
-  );
+    repository: props.repository,
+  });
 
   let listing: Listing;
   if (serving.status === 'error') {

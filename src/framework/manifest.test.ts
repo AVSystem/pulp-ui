@@ -67,11 +67,40 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
       const names = [
         ...Object.values(manifest.permissions.repository),
         ...Object.values(manifest.permissions.remote),
+        ...Object.values(manifest.permissions.publication ?? {}),
       ];
       for (const name of names) {
         expect(name.startsWith(`${manifest.plugin}.`)).toBe(true);
       }
     }
+  });
+
+  it('names the publication permissions of the plugins that serve from publications, and gives none to python', () => {
+    expect(
+      Object.fromEntries(
+        PLUGIN_MANIFESTS.map(({ plugin, permissions }) => [
+          plugin,
+          permissions.publication,
+        ]),
+      ),
+    ).toEqual({
+      file: {
+        view: 'file.view_filepublication',
+        add: 'file.add_filepublication',
+        delete: 'file.delete_filepublication',
+      },
+      deb: {
+        view: 'deb.view_aptpublication',
+        add: 'deb.add_aptpublication',
+        delete: 'deb.delete_aptpublication',
+      },
+      rpm: {
+        view: 'rpm.view_rpmpublication',
+        add: 'rpm.add_rpmpublication',
+        delete: 'rpm.delete_rpmpublication',
+      },
+      python: undefined,
+    });
   });
 
   it('imports nothing but types', () => {

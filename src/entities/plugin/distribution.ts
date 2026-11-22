@@ -1,11 +1,14 @@
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { type ZodType, z } from 'zod';
-import { pulpHrefSchema, repositoryOfVersion } from 'src/entities/href';
+import {
+  pulpHrefSchema,
+  repositoryOfVersion,
+  versionNumberOf,
+} from 'src/entities/href';
 import { parseResponse } from 'src/entities/response-shape';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { useSessionEnded } from 'src/session/session-events';
-import { servedState } from 'src/utilities/distribution-serving';
 import { type Page, labelResponseSchema, pageSchemaOf } from './model';
 import {
   type PublicationBase,
@@ -45,6 +48,9 @@ const distributionSchema = z.looseObject({
   content_guard: pulpHrefSchema.nullish(),
   pulp_labels: z.record(z.string(), z.string().nullable()).nullish(),
   pulp_created: z.string().nullish(),
+  // A distribution that serves the content as of a point in time. Only plugins
+  // with checkpoints have the field.
+  checkpoint: z.boolean().nullish(),
 });
 
 type DistributionBase = z.infer<typeof distributionSchema>;
@@ -62,6 +68,7 @@ export const DISTRIBUTION_INDEX_FIELDS = [
   'content_guard',
   'pulp_labels',
   'pulp_created',
+  'checkpoint',
 ] as const;
 
 // How many distributions one request of the index reads: the most the server
@@ -419,6 +426,10 @@ export interface DistributionIndex<Row> {
   // Every distribution of the plugin; undefined until the index is complete.
   distributions: Row[] | undefined;
   baseUrlsByRepository: Map<string, string[]> | undefined;
+  // The version number of each publication that a distribution is bound to and
+  // the user can read, by the publication's address; undefined until the index
+  // is complete. A publication the user cannot read is not in it.
+  publicationVersions: ReadonlyMap<string, number | null> | undefined;
   // The distributions that serve a repository, or null while the index is not
   // complete.
   distributionsOfRepository: (repository: string) => Row[] | null;
@@ -432,6 +443,8 @@ export interface DistributionIndex<Row> {
 // What the reads of publications settle to.
 interface PublicationReads {
   repositories: Map<string, string | null>;
+  // the version number of each publication, null when the address names none
+  versions: Map<string, number | null>;
   status: DistributionIndexStatus;
   error: unknown;
 }
@@ -447,6 +460,7 @@ function foldPublicationReads(
   }[],
 ): PublicationReads {
   const repositories = new Map<string, string | null>();
+  const versions = new Map<string, number | null>();
   let status: DistributionIndexStatus = 'success';
   let error: unknown = null;
 
@@ -462,10 +476,14 @@ function foldPublicationReads(
         publication.pulp_href,
         repositoryOfPublication(publication),
       );
+      versions.set(
+        publication.pulp_href,
+        versionNumberOf(publication.repository_version),
+      );
     }
   }
 
-  return { repositories, status, error };
+  return { repositories, versions, status, error };
 }
 
 // The index of the distributions of a plugin, shared by every screen that
@@ -563,17 +581,25 @@ export function useDistributionIndex<Row extends DistributionBase>(
     error: index.error ?? reads.error,
     distributions: ready ? rows : undefined,
     baseUrlsByRepository: byRepository,
+    publicationVersions: ready ? reads.versions : undefined,
     distributionsOfRepository: ofRepository,
     repositoriesMatchingBasePath: matchingBasePath,
     retry,
   };
 }
 
-// A distribution that serves a repository, and whether the content app answers
-// with content for it.
-export interface ServingDistribution<Row> {
-  row: Row;
-  served: boolean;
+// What is known about how a repository is served, as plain facts for the rules
+// that decide the state of each distribution (the entity never decides it).
+export interface ServingFacts {
+  // The number of the repository's latest version; null when it has none.
+  latestVersion: number | null;
+  // The version number of each publication of the repository the user can
+  // read, one entry per publication. Empty when none was read, which a user
+  // who may not read publications cannot tell from "there is none".
+  publishedVersions: number[];
+  // The version number of each publication that a distribution of the
+  // repository is bound to, by the publication's address.
+  publicationVersions: ReadonlyMap<string, number | null>;
 }
 
 export interface RepositoryDistributions<Row> {
@@ -581,7 +607,10 @@ export interface RepositoryDistributions<Row> {
   error: unknown;
   // The distributions that serve the repository, in the order of the index;
   // undefined until they are all known.
-  distributions: ServingDistribution<Row>[] | undefined;
+  distributions: Row[] | undefined;
+  // The facts the state of each distribution is decided from; undefined until
+  // they are all known.
+  facts: ServingFacts | undefined;
   // Reads again what failed.
   retry: () => void;
 }
@@ -590,12 +619,12 @@ export interface RepositoryDistributions<Row> {
 const REPOSITORY_PUBLICATIONS_STALE_MS = 30_000;
 
 // The distributions that serve one repository (bound to it, to one of its
-// publications or to one of its versions), each with whether it serves content.
-// They are cut from the index of the plugin's distributions that every screen
-// shares, so this adds no read of its own for them. Whether a distribution
-// serves content needs the repository's publications: they are read once, and
-// only when the plugin serves from publications and some distribution of the
-// repository is not bound to a publication itself.
+// publications or to one of its versions) and the facts that tell what each one
+// serves. They are cut from the index of the plugin's distributions that every
+// screen shares, so this adds no read of its own for them. The repository's
+// publications are read once, and only when the plugin serves from publications
+// and some distribution of the repository is not bound to a publication itself.
+// What the facts mean is decided elsewhere; this reads and never judges.
 export function useRepositoryDistributions<Row extends DistributionBase>(
   distribution: {
     readonly app: string;
@@ -609,6 +638,8 @@ export function useRepositoryDistributions<Row extends DistributionBase>(
       }
     | undefined,
   repository: string,
+  // The address of the repository's latest version, when it has one.
+  latestVersionHref?: string | null,
 ): RepositoryDistributions<Row> {
   const index = useDistributionIndex(distribution, publication?.entity);
   const serving = publication?.servesFromPublication ?? false;
@@ -641,19 +672,22 @@ export function useRepositoryDistributions<Row extends DistributionBase>(
         ? 'pending'
         : 'success';
 
-  const distributions = useMemo(() => {
-    if (status !== 'success' || own === null) {
+  const distributions = status === 'success' && own !== null ? own : undefined;
+
+  const { publicationVersions } = index;
+  const facts = useMemo<ServingFacts | undefined>(() => {
+    if (status !== 'success' || own === null || !publicationVersions) {
       return undefined;
     }
-    const known = (publications.data ?? []).map((row) => ({
-      pulp_href: row.pulp_href,
-      repository_version: row.repository_version,
-    }));
-    return own.map((row) => ({
-      row,
-      served: servedState(row, serving, known) === 'served',
-    }));
-  }, [status, own, publications.data, serving]);
+    return {
+      latestVersion: versionNumberOf(latestVersionHref),
+      publishedVersions: (publications.data ?? []).flatMap((row) => {
+        const version = versionNumberOf(row.repository_version);
+        return version === null ? [] : [version];
+      }),
+      publicationVersions,
+    };
+  }, [status, own, publicationVersions, publications.data, latestVersionHref]);
 
   const { refetch: refetchPublications, status: publicationsStatus } =
     publications;
@@ -669,6 +703,7 @@ export function useRepositoryDistributions<Row extends DistributionBase>(
     status,
     error: index.error ?? publications.error,
     distributions,
+    facts,
     retry,
   };
 }

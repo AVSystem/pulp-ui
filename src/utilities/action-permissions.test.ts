@@ -102,6 +102,11 @@ describe('ACTION_PERMISSIONS', () => {
 const LITERAL = {
   file: {
     objectRoles: true,
+    publication: {
+      view: 'file.view_filepublication',
+      add: 'file.add_filepublication',
+      delete: 'file.delete_filepublication',
+    },
     repository: {
       add: 'file.add_filerepository',
       addDistribution: 'file.add_filedistribution',
@@ -120,6 +125,11 @@ const LITERAL = {
   },
   deb: {
     objectRoles: false,
+    publication: {
+      view: 'deb.view_aptpublication',
+      add: 'deb.add_aptpublication',
+      delete: 'deb.delete_aptpublication',
+    },
     repository: {
       add: 'deb.add_aptrepository',
       addDistribution: 'deb.add_aptdistribution',
@@ -138,6 +148,11 @@ const LITERAL = {
   },
   rpm: {
     objectRoles: true,
+    publication: {
+      view: 'rpm.view_rpmpublication',
+      add: 'rpm.add_rpmpublication',
+      delete: 'rpm.delete_rpmpublication',
+    },
     repository: {
       add: 'rpm.add_rpmrepository',
       addDistribution: 'rpm.add_rpmdistribution',

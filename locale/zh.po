@@ -1094,6 +1094,10 @@ msgstr "bdist_wheel"
 msgid "bdist_wininst"
 msgstr "bdist_wininst"
 
+#: src/framework/serving/served-label.tsx
+msgid "Bound to a deprecated publication"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
 msgstr "面包屑导航"
@@ -1193,6 +1197,10 @@ msgstr "已取消：{when}"
 #: src/components/progress-reports.tsx
 msgid "Canceling"
 msgstr "正在取消"
+
+#: src/framework/serving/served-label.tsx
+msgid "Cannot be checked"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -5059,6 +5067,10 @@ msgstr "不允许"
 msgid "Not available"
 msgstr "不可用"
 
+#: src/framework/serving/served-label.tsx
+msgid "Not bound to anything"
+msgstr ""
+
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
@@ -7124,6 +7136,14 @@ msgstr "服务器错误。请稍后返回。"
 #~ msgid "Server version"
 #~ msgstr "服务器版本"
 
+#: src/framework/serving/served-label.tsx
+msgid "Serves nothing (404): no publication"
+msgstr ""
+
+#: src/framework/serving/served-label.tsx
+msgid "Serves version {served}, latest is {latest}"
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
 msgid "Setting a remote allows a repository to sync from elsewhere."
@@ -8604,6 +8624,10 @@ msgstr "用于向服务器 URL 进行身份验证的令牌。"
 #~ msgid "Token management"
 #~ msgstr "Token management"
 
+#: src/framework/serving/served-label.tsx
+msgid "Too many publications to check here."
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Total"
 msgstr "总计"
@@ -9597,6 +9621,10 @@ msgstr "您已退出 Pulp。"
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "您无权对以下项目执行此操作，因此不会为它们发送任何内容："
+
+#: src/framework/serving/served-label.tsx
+msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
+msgstr ""
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."

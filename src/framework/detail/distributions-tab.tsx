@@ -26,14 +26,15 @@ import {
 } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import { ListItemActions } from 'src/components/list-item-actions';
-import {
-  type ServingDistribution,
-  useRepositoryDistributions,
-} from 'src/entities/plugin/distribution';
 import type { DistributionBase } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { requestErrorDescription } from 'src/utilities/request-error';
 import type { PluginDescriptor, TabDef } from '../descriptor';
+import type { FrameworkPlugin } from '../manifest';
+import {
+  type ServedDistribution,
+  useServedDistributions,
+} from '../serving/use-served-distributions';
 
 // The page, its size, the order and the filters of the tab. They are held here
 // and not in the address: the tab shows the few distributions of one
@@ -71,9 +72,9 @@ const contains = (value: string, text: string) =>
 
 // The rows the filters let through, in the order asked for.
 function shown(
-  rows: readonly ServingDistribution<DistributionBase>[],
+  rows: readonly ServedDistribution[],
   params: TabParams,
-): ServingDistribution<DistributionBase>[] {
+): ServedDistribution[] {
   const descending = params.sort.startsWith('-');
   const field = params.sort.replace(/^-/, '');
   const valueOf = isSortField(field) ? SORT_FIELDS[field] : SORT_FIELDS.name;
@@ -94,6 +95,7 @@ function shown(
 
 interface Props {
   repository: RepositoryBase;
+  plugin: FrameworkPlugin;
   descriptor: PluginDescriptor;
   // Puts an alert on the screen above the tab, for what the plugin's edit
   // dialog reports.
@@ -102,11 +104,12 @@ interface Props {
 
 // Every distribution that serves a repository, bound to it, to one of its
 // publications or to one of its versions, with the URL the server reports for
-// it, whether it serves content and the plugin's client command for it. The
+// it, what it serves and the plugin's client command for it. The
 // rows come from the index of the plugin's distributions that the other screens
 // share, so the tab sends no request of its own per row.
 export const DistributionsTab = ({
   repository,
+  plugin,
   descriptor,
   addAlert = () => undefined,
 }: Props) => {
@@ -117,11 +120,12 @@ export const DistributionsTab = ({
     );
   }
   const snippet = descriptor.repository.snippet;
-  const serving = useRepositoryDistributions(
-    distribution.entity,
+  const serving = useServedDistributions({
+    plugin,
+    distribution: distribution.entity,
     publication,
-    repository.pulp_href,
-  );
+    repository,
+  });
   const { hasPermission } = useAppContext();
   const edit = distribution.edit;
   // Offered to a user who holds the permission on every distribution; nothing
@@ -235,7 +239,7 @@ export const DistributionsTab = ({
                 <Td>{row.base_path}</Td>
                 <Td>
                   <DistributionURL
-                    distribution={{ url: row.base_url ?? null, served }}
+                    distribution={{ url: row.base_url ?? null, state: served }}
                   />
                 </Td>
                 <Td>
@@ -293,9 +297,10 @@ export const distributionsTab = <
 >(): TabDef<Row> => ({
   id: 'distributions',
   label: msg`Distributions`,
-  render: ({ repository, descriptor, addAlert }) => (
+  render: ({ repository, plugin, descriptor, addAlert }) => (
     <DistributionsTab
       repository={repository}
+      plugin={plugin}
       descriptor={descriptor}
       addAlert={addAlert}
     />

@@ -2,6 +2,7 @@ import { msg, t } from '@lingui/core/macro';
 import type { RemoteBase } from 'src/entities/plugin/model';
 import { pythonDistribution } from 'src/entities/python/distribution';
 import type { PythonRemote, PythonRepository } from 'src/entities/python/model';
+import { pythonPublication } from 'src/entities/python/publication';
 import { pythonRemote } from 'src/entities/python/remote';
 import { pythonRepository } from 'src/entities/python/repository';
 import type {
@@ -265,8 +266,10 @@ const descriptor: PluginDescriptor<PythonRepository> = {
     fields: REMOTE_FIELDS,
   },
   contentTypes: [{ id: 'python.package', label: msg`Packages` }],
-  // A python distribution is served without a publication, so the descriptor
-  // declares none. Its pull-through remote and upload permission can be
+  // A python distribution is served from the repository's versions, never
+  // from its publications. Publications are deprecated, but a distribution can
+  // still be bound to one, so they are read to find the repository such a
+  // distribution serves. Its pull-through remote and upload permission can be
   // changed after it is made, by an account that may change distributions.
   distribution: {
     entity: pythonDistribution,
@@ -276,6 +279,7 @@ const descriptor: PluginDescriptor<PythonRepository> = {
       dialog: (props) => <PythonDistributionEdit {...props} />,
     },
   },
+  publication: { entity: pythonPublication, servesFromPublication: false },
 };
 
 export default descriptor;

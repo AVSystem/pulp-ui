@@ -1094,6 +1094,10 @@ msgstr "bdist_wheel"
 msgid "bdist_wininst"
 msgstr "bdist_wininst"
 
+#: src/framework/serving/served-label.tsx
+msgid "Bound to a deprecated publication"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
 msgstr "Kruimelpad"
@@ -1193,6 +1197,10 @@ msgstr "Geannuleerd: {when}"
 #: src/components/progress-reports.tsx
 msgid "Canceling"
 msgstr "Bezig met annuleren"
+
+#: src/framework/serving/served-label.tsx
+msgid "Cannot be checked"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -5059,6 +5067,10 @@ msgstr "Niet toegestaan"
 msgid "Not available"
 msgstr "Niet beschikbaar"
 
+#: src/framework/serving/served-label.tsx
+msgid "Not bound to anything"
+msgstr ""
+
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
@@ -7124,6 +7136,14 @@ msgstr "Fout bij de server. Kom a.u.b. later terug."
 #~ msgid "Server version"
 #~ msgstr "Server-versie"
 
+#: src/framework/serving/served-label.tsx
+msgid "Serves nothing (404): no publication"
+msgstr ""
+
+#: src/framework/serving/served-label.tsx
+msgid "Serves version {served}, latest is {latest}"
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
 msgid "Setting a remote allows a repository to sync from elsewhere."
@@ -8604,6 +8624,10 @@ msgstr "Token voor verificatie naar de server-URL."
 #~ msgid "Token management"
 #~ msgstr "Token management"
 
+#: src/framework/serving/served-label.tsx
+msgid "Too many publications to check here."
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Total"
 msgstr "Totaal"
@@ -9597,6 +9621,10 @@ msgstr "U bent afgemeld bij Pulp."
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "U mag dit niet doen voor het volgende, dus er wordt niets voor verzonden:"
+
+#: src/framework/serving/served-label.tsx
+msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
+msgstr ""
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."

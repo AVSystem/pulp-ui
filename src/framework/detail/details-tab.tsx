@@ -3,11 +3,11 @@ import { t } from '@lingui/core/macro';
 import { Button, Skeleton } from '@patternfly/react-core';
 import { Details } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
-import { useRepositoryDistributions } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import type { PluginDescriptor } from '../descriptor';
 import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
+import { useServedDistributions } from '../serving/use-served-distributions';
 import { LastSync } from '../sync/last-sync';
 import { RemoteReference } from './remote-reference';
 import { useRepositoryPermission } from './use-repository-permission';
@@ -21,10 +21,7 @@ interface Props {
 // Where a repository is served: the URL each distribution that serves it
 // reports, with the state of serving next to it. A read that failed says so and
 // offers to read again, so a missing URL is never mistaken for none.
-const RepositoryUrls = ({
-  descriptor,
-  repository,
-}: Pick<Props, 'descriptor' | 'repository'>) => {
+const RepositoryUrls = ({ plugin, descriptor, repository }: Props) => {
   const { distribution, publication } = descriptor;
   if (!distribution) {
     return <>{t`None`}</>;
@@ -32,7 +29,7 @@ const RepositoryUrls = ({
 
   return (
     <ServedAt
-      descriptor={descriptor}
+      plugin={plugin}
       repository={repository}
       distribution={distribution.entity}
       publication={publication}
@@ -41,18 +38,20 @@ const RepositoryUrls = ({
 };
 
 const ServedAt = ({
+  plugin,
   repository,
   distribution,
   publication,
-}: Pick<Props, 'descriptor' | 'repository'> & {
+}: Pick<Props, 'plugin' | 'repository'> & {
   distribution: NonNullable<PluginDescriptor['distribution']>['entity'];
   publication: PluginDescriptor['publication'];
 }) => {
-  const serving = useRepositoryDistributions(
+  const serving = useServedDistributions({
+    plugin,
     distribution,
     publication,
-    repository.pulp_href,
-  );
+    repository,
+  });
 
   if (serving.status === 'error') {
     return (
@@ -85,7 +84,7 @@ const ServedAt = ({
         <div key={row.pulp_href}>
           {many ? <strong>{row.name}</strong> : null}
           <DistributionURL
-            distribution={{ url: row.base_url ?? null, served }}
+            distribution={{ url: row.base_url ?? null, state: served }}
           />
         </div>
       ))}
@@ -113,7 +112,11 @@ export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
         {
           label: t`Repository URL`,
           value: (
-            <RepositoryUrls descriptor={descriptor} repository={repository} />
+            <RepositoryUrls
+              plugin={plugin}
+              descriptor={descriptor}
+              repository={repository}
+            />
           ),
         },
         {

@@ -1094,6 +1094,10 @@ msgstr "bdist_wheel"
 msgid "bdist_wininst"
 msgstr "bdist_wininst"
 
+#: src/framework/serving/served-label.tsx
+msgid "Bound to a deprecated publication"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
 msgstr "パンくずリスト"
@@ -1193,6 +1197,10 @@ msgstr "取り消し: {when}"
 #: src/components/progress-reports.tsx
 msgid "Canceling"
 msgstr "取り消し中"
+
+#: src/framework/serving/served-label.tsx
+msgid "Cannot be checked"
+msgstr ""
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -5059,6 +5067,10 @@ msgstr "許可されていません"
 msgid "Not available"
 msgstr "利用できません"
 
+#: src/framework/serving/served-label.tsx
+msgid "Not bound to anything"
+msgstr ""
+
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "Not confirmed"
@@ -7124,6 +7136,14 @@ msgstr "サーバーエラー。後でもう一度お試しください。"
 #~ msgid "Server version"
 #~ msgstr "サーバーバージョン"
 
+#: src/framework/serving/served-label.tsx
+msgid "Serves nothing (404): no publication"
+msgstr ""
+
+#: src/framework/serving/served-label.tsx
+msgid "Serves version {served}, latest is {latest}"
+msgstr ""
+
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
 msgid "Setting a remote allows a repository to sync from elsewhere."
@@ -8604,6 +8624,10 @@ msgstr "サーバー URL に対する認証に使用するトークンです。"
 #~ msgid "Token management"
 #~ msgstr "Token management"
 
+#: src/framework/serving/served-label.tsx
+msgid "Too many publications to check here."
+msgstr ""
+
 #: src/containers/pulp-status.tsx
 msgid "Total"
 msgstr "合計"
@@ -9597,6 +9621,10 @@ msgstr "Pulp からログアウトされました。"
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "You may not do this on the following, so nothing is sent for them:"
 msgstr "次の項目に対してはこの操作を行う権限がないため、それらには何も送信されません:"
+
+#: src/framework/serving/served-label.tsx
+msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
+msgstr ""
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."
