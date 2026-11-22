@@ -9,7 +9,7 @@ import { apiGet } from './sdk-request';
 // on screen while the new ones are read) and `data-columns-loaded` is true once
 // every column that comes from a read of its own has settled.
 
-export type ListKind = 'Repositories' | 'Remotes';
+export type ListKind = 'Repositories' | 'Remotes' | 'Distributions';
 
 const tableSelector = (kind: ListKind, attributes: string): string =>
   `table[aria-label="${kind}"]${attributes}`;
@@ -86,9 +86,13 @@ export async function openSidebarGroup(
 // the group the entry sits in first when it is closed. `id` is the entry's id
 // in the menu, for example `file-repositories`.
 export async function clickSidebar(page: Page, id: string): Promise<void> {
-  await openSidebarGroup(
-    page,
-    id.endsWith('-remotes') ? 'Remotes' : 'Repositories',
-  );
+  // the list of every plugin's distributions is an entry of its own, not in a
+  // group
+  if (id !== 'distributions') {
+    await openSidebarGroup(
+      page,
+      id.endsWith('-remotes') ? 'Remotes' : 'Repositories',
+    );
+  }
   await page.locator(`[data-cy=pulp-menu-item-${id}]`).click();
 }

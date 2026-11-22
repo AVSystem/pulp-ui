@@ -1,5 +1,8 @@
 import { type APIRequestContext, request } from '@playwright/test';
+import { getDistributionsAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/distributions-ansible';
 import { getRepositoriesAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/repositories-ansible';
+import { getDistributionsContainerContainerListUrl } from '@pulp-ui/sdk/container/distributions-container';
+import { getRepositoriesContainerContainerListUrl } from '@pulp-ui/sdk/container/repositories-container';
 import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards-rbac';
 import { getGroupsListUrl } from '@pulp-ui/sdk/core/groups';
 import type { AsyncOperationResponse } from '@pulp-ui/sdk/core/models/async-operation-response.zod';
@@ -16,6 +19,10 @@ import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions
 import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
 import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
 import { getRepositoriesFileFileListUrl } from '@pulp-ui/sdk/file/repositories-file';
+import { getDistributionsMavenMavenListUrl } from '@pulp-ui/sdk/maven/distributions-maven';
+import { getRepositoriesMavenMavenListUrl } from '@pulp-ui/sdk/maven/repositories-maven';
+import { getDistributionsNpmNpmListUrl } from '@pulp-ui/sdk/npm/distributions-npm';
+import { getRepositoriesNpmNpmListUrl } from '@pulp-ui/sdk/npm/repositories-npm';
 import { getDistributionsPythonPypiListUrl } from '@pulp-ui/sdk/python/distributions-pypi';
 import { getPublicationsPythonPypiListUrl } from '@pulp-ui/sdk/python/publications-pypi';
 import { getRemotesPythonPythonListUrl } from '@pulp-ui/sdk/python/remotes-python';
@@ -70,6 +77,13 @@ export function apiContext(): Promise<APIRequestContext> {
   });
 }
 
+// Endpoints of plugins a deployment may leave out; a list the server does not
+// know holds nothing to clean up.
+const OPTIONAL_ENDPOINTS: string[] = [
+  getDistributionsContainerContainerListUrl(),
+  getRepositoriesContainerContainerListUrl(),
+];
+
 // Every object of a list endpoint matching the filters, all pages, read with
 // any request context (the one of the account a spec signs in with).
 export async function listAll(
@@ -79,11 +93,15 @@ export async function listAll(
 ): Promise<PulpObject[]> {
   const results: PulpObject[] = [];
   for (let offset = 0; ; offset += 100) {
-    const page = await apiGet<Page>(api, url(path), {
-      ...params,
-      limit: '100',
-      offset: String(offset),
+    const answer = await apiCall<Page>(api, 'GET', url(path), {
+      params: { ...params, limit: '100', offset: String(offset) },
+      accept: OPTIONAL_ENDPOINTS.includes(path) ? [404] : [],
     });
+    // a plugin the deployment does not have answers 404 for its lists
+    if (answer.status === 404) {
+      return results;
+    }
+    const page = answer.body;
     results.push(...page.results);
     if (!page.next) {
       return results;
@@ -119,6 +137,10 @@ const DISTRIBUTIONS = [
   getDistributionsDebAptListUrl(),
   getDistributionsRpmRpmListUrl(),
   getDistributionsPythonPypiListUrl(),
+  getDistributionsMavenMavenListUrl(),
+  getDistributionsNpmNpmListUrl(),
+  getDistributionsAnsibleAnsibleListUrl(),
+  getDistributionsContainerContainerListUrl(),
 ];
 const PUBLICATIONS = [
   getPublicationsFileFileListUrl(),
@@ -132,6 +154,9 @@ const REPOSITORIES = [
   getRepositoriesRpmRpmListUrl(),
   getRepositoriesPythonPythonListUrl(),
   getRepositoriesAnsibleAnsibleListUrl(),
+  getRepositoriesMavenMavenListUrl(),
+  getRepositoriesNpmNpmListUrl(),
+  getRepositoriesContainerContainerListUrl(),
 ];
 const REMOTES = [
   getRemotesFileFileListUrl(),
