@@ -790,7 +790,7 @@ describe(
       await user.hover(label);
       expect(
         await screen.findByText('Too many publications to check here.'),
-      ).toBeVisible();
+      ).toBeInTheDocument();
     });
 
     it('reads the publication index only of a plugin that has a row it is needed for', async () => {

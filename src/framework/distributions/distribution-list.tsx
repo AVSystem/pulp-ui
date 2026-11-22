@@ -1,11 +1,9 @@
 import { t } from '@lingui/core/macro';
-import { Skeleton } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { memo, useMemo, useRef } from 'react';
 import {
   AlertList,
   BaseHeader,
-  CopyURL,
   EmptyStateFilter,
   EmptyStateNoData,
   InsufficientPermissions,
@@ -21,10 +19,7 @@ import {
   type DistributionPlugin,
   type ListedDistribution,
 } from 'src/entities/core/distribution/page';
-import {
-  useDistributionPage,
-  useDistributionUrls,
-} from 'src/entities/core/distribution/queries';
+import { useDistributionPage } from 'src/entities/core/distribution/queries';
 import { usePlugins } from 'src/plugins';
 import {
   isSessionEnd,
@@ -42,10 +37,20 @@ import {
 } from '../list/list-frame';
 import { PLUGIN_MANIFESTS } from '../manifest';
 import { useQueuedAlerts } from '../use-queued-alerts';
+import {
+  GuardCell,
+  ServedCell,
+  ServesCell,
+  UrlCell,
+} from './distribution-columns';
+import {
+  type DistributionCells,
+  useDistributionColumns,
+} from './use-distribution-columns';
 
 // The order and the sorting of the list. The server orders the whole list, so
-// each column that has a field sorts by it. The URL is read from the plugins
-// and never sorts.
+// each column that has a field sorts by it. The columns that are read from the
+// plugins, the repositories, the publications and the guards never sort.
 const SORTABLE = [
   { sortField: 'name' },
   { sortField: 'pulp_type' },
@@ -67,49 +72,34 @@ function pluginLabel(plugin: DistributionPlugin): string {
   );
 }
 
-type UrlState = 'loading' | 'ready' | 'error';
-
-// The address a client of the row's plugin reaches the distribution at. It
-// comes from the plugin's own read of the page, so it says that it is still on
-// its way or could not be read instead of reading as "none".
-const UrlCell = ({
-  state,
-  url,
-}: {
-  state: UrlState;
-  url: string | null | undefined;
-}) => {
-  if (state === 'loading') {
-    return <Skeleton width='70%' />;
-  }
-  if (state === 'error') {
-    return <>{t`Not loaded`}</>;
-  }
-
-  return url ? <CopyURL url={url} /> : <>{t`None`}</>;
-};
-
 interface RowProps {
   row: ListedDistribution;
-  urlState: UrlState;
-  url: string | null | undefined;
+  cells: DistributionCells;
 }
 
-// One row. It is rebuilt only when what it shows changes, so the read of the
-// client addresses settling redraws the rows it has something new for.
+// One row. It is rebuilt only when what it shows changes, so the reads behind
+// the columns settling redraw the rows they have something new for.
 const DistributionRow = memo(function DistributionRow({
   row,
-  urlState,
-  url,
+  cells,
 }: RowProps) {
+  const owned = row.plugin !== null;
+
   return (
     <Tr data-cy={`DistributionList-row-${row.name}`}>
       <Td>{row.name}</Td>
       <Td>{row.plugin ? pluginLabel(row.plugin) : row.typeName}</Td>
       <Td>{row.base_path}</Td>
       <Td>
-        {row.plugin ? <UrlCell state={urlState} url={url} /> : <>{t`None`}</>}
+        <UrlCell cells={cells} ofPlugin={owned} />
       </Td>
+      <Td>
+        {owned ? <ServesCell cells={cells} plugin={row.plugin} /> : t`None`}
+      </Td>
+      <Td>
+        <GuardCell cells={cells} />
+      </Td>
+      <Td>{owned ? <ServedCell cells={cells} /> : t`None`}</Td>
     </Tr>
   );
 });
@@ -183,7 +173,7 @@ const DistributionListScreen = ({
     params,
     !query.isPlaceholderData,
   );
-  const urls = useDistributionUrls(rows);
+  const columns = useDistributionColumns(rows);
 
   // The first read fills the whole screen with its state. Once something has
   // been shown, a read for another page shows its state in place of the table
@@ -261,30 +251,16 @@ const DistributionListScreen = ({
     );
   }
 
-  const urlState: UrlState =
-    urls.status === 'pending'
-      ? 'loading'
-      : urls.status === 'error'
-        ? 'error'
-        : 'ready';
-  const settled = urlState !== 'loading';
-  const failures =
-    urlState === 'error' && !isSessionEnd(urls.error)
-      ? [
-          {
-            id: 'url',
-            title: t`Client URLs could not be read.`,
-            retry: urls.retry,
-            description: requestErrorDescription(urls.error),
-          },
-        ]
-      : [];
+  const { settled, failures } = columns;
 
   const headers = [
     { id: 'name', title: t`Name`, type: 'alpha' },
     { id: 'pulp_type', title: t`Plugin`, type: 'alpha' },
     { id: 'base_path', title: t`Base path`, type: 'alpha' },
     { id: 'url', title: t`URL`, type: 'none' },
+    { id: 'serves', title: t`Serves`, type: 'none' },
+    { id: 'guard', title: t`Content guard`, type: 'none' },
+    { id: 'served', title: t`Served state`, type: 'none' },
   ];
 
   const count = data?.count ?? 0;
@@ -332,8 +308,7 @@ const DistributionListScreen = ({
             <DistributionRow
               key={row.pulp_href}
               row={row}
-              urlState={urlState}
-              url={urls.urls?.get(row.pulp_href)}
+              cells={columns.cellsOf(row)}
             />
           ))}
         </Tbody>

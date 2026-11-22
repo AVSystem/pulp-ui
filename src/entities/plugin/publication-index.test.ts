@@ -11,8 +11,8 @@ import {
 import { createTestQueryClient } from 'src/test-utils/query';
 import { server } from 'src/test-utils/server';
 import {
-  PUBLICATION_INDEX_FIELDS,
   PUBLICATION_INDEX_PAGES,
+  PUBLICATION_INDEX_PAGE_FIELDS,
   usePublicationIndex,
 } from './publication';
 
@@ -36,7 +36,7 @@ function publicationsOf(repository: string, count: number, from = 1) {
 describe('Unit: the publication index of a plugin', { tags: ['unit'] }, () => {
   it('reads pages of 1,000 and stops at the tenth page', () => {
     expect(PUBLICATION_INDEX_PAGES).toBe(10);
-    expect([...PUBLICATION_INDEX_FIELDS]).toEqual([
+    expect([...PUBLICATION_INDEX_PAGE_FIELDS]).toEqual([
       'pulp_href',
       'repository',
       'repository_version',
@@ -60,7 +60,9 @@ describe('Unit: the publication index of a plugin', { tags: ['unit'] }, () => {
     );
     for (const query of list.queries) {
       expect(query.get('limit')).toBe('1000');
-      expect(query.getAll('fields')).toEqual([...PUBLICATION_INDEX_FIELDS]);
+      expect(query.getAll('fields')).toEqual([
+        ...PUBLICATION_INDEX_PAGE_FIELDS,
+      ]);
     }
     expect(index.overBound).toBe(true);
   });

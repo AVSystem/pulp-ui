@@ -1,7 +1,13 @@
+import { useCallback } from 'react';
 import { type ZodType, z } from 'zod';
 import { chunkByUrl } from 'src/entities/batch';
-import { pulpHrefSchema, repositoryOfVersion } from 'src/entities/href';
+import {
+  pulpHrefSchema,
+  repositoryOfVersion,
+  versionNumberOf,
+} from 'src/entities/href';
 import { parseResponse } from 'src/entities/response-shape';
+import { useSessionQuery } from 'src/query/use-session-query';
 import { type Page, pageSchemaOf } from './model';
 import { entityKeys } from './queries';
 import { type Options, asParams, toListRequest } from './request';
@@ -29,6 +35,25 @@ export const PUBLICATION_INDEX_FIELDS = [
   'repository_version',
 ] as const;
 
+// The fields a page of the index asks for: the three above and the creation
+// time.
+export const PUBLICATION_INDEX_PAGE_FIELDS = [
+  ...PUBLICATION_INDEX_FIELDS,
+  'pulp_created',
+] as const;
+
+// How many publications one request of the index reads: the most the server
+// answers on one page.
+const INDEX_PAGE_SIZE = 1000;
+
+// How many pages of the index are read: 10,000 publications of one plugin. A
+// plugin with more has publications the index does not hold, so it cannot say
+// that a repository has none or which is the newest.
+export const PUBLICATION_INDEX_PAGES = 10;
+
+// How long the index is taken as current.
+const INDEX_STALE_MS = 60_000;
+
 // What a list of publications is asked for, in the terms of a screen.
 export interface PublicationListParams {
   page?: number;
@@ -52,6 +77,47 @@ export interface PublicationApi<TListParams> {
   listUrl: (params?: TListParams) => string;
 }
 
+// What the publications of a plugin say about which repository versions are
+// published, for the rules that decide what a distribution serves.
+export interface PublicationIndex {
+  // More publications exist than the index reads, so what it says about a
+  // repository having none, or about its newest published version, may be
+  // wrong.
+  overBound: boolean;
+  // The highest version number of the repository that has a publication, or
+  // null when none is known. The publication that was made last does not
+  // count: a distribution bound to a repository serves the highest version.
+  newestPublishedVersion: (repository: string) => number | null;
+  // Whether this exact repository version has a publication.
+  versionHasPublication: (version: string | null | undefined) => boolean;
+}
+
+// The index of the publications that were read, and whether more exist.
+export function publicationIndexOf(
+  rows: readonly PublicationBase[],
+  overBound: boolean,
+): PublicationIndex {
+  const newest = new Map<string, number>();
+  const versions = new Set<string>();
+
+  for (const row of rows) {
+    if (row.repository_version) {
+      versions.add(row.repository_version);
+    }
+    const repository = repositoryOfPublication(row);
+    const number = versionNumberOf(row.repository_version);
+    if (repository !== null && number !== null) {
+      newest.set(repository, Math.max(newest.get(repository) ?? 0, number));
+    }
+  }
+
+  return {
+    overBound,
+    newestPublishedVersion: (repository) => newest.get(repository) ?? null,
+    versionHasPublication: (version) => !!version && versions.has(version),
+  };
+}
+
 export interface PublicationEntity<Row> {
   readonly app: string;
   readonly object: 'publication';
@@ -72,6 +138,10 @@ export interface PublicationEntity<Row> {
   // filter is not trusted: a publication that names another repository is left
   // out.
   ofRepository: (repository: string, options?: Options) => Promise<Row[]>;
+  // The index of the plugin's publications, read page after page of 1,000 up
+  // to PUBLICATION_INDEX_PAGES pages. Past the bound it stops and says so. A
+  // failed page rejects: part of the publications is never taken for all.
+  index: (options?: Options) => Promise<PublicationIndex>;
 }
 
 export function makePublicationEntity<
@@ -147,6 +217,31 @@ export function makePublicationEntity<
         }
       }
     },
+    index: async (options) => {
+      const byHref = new Map<string, Row>();
+      let received = 0;
+
+      for (let read = 0; read < PUBLICATION_INDEX_PAGES; read++) {
+        const data = await api.list(
+          asParams<TListParams>({
+            offset: received,
+            limit: INDEX_PAGE_SIZE,
+            fields: [...PUBLICATION_INDEX_PAGE_FIELDS],
+          }),
+          options,
+        );
+        const next = parseResponse(pageSchema, data) as Page<Row>;
+        for (const row of next.results) {
+          byHref.set(row.pulp_href, row);
+        }
+        received += next.results.length;
+        if (!next.next || next.results.length === 0) {
+          return publicationIndexOf(Array.from(byHref.values()), false);
+        }
+      }
+
+      return publicationIndexOf(Array.from(byHref.values()), true);
+    },
   };
 }
 
@@ -175,6 +270,53 @@ export function publicationKeys(entity: { app: string; object: string }) {
     // Every publication made from one repository.
     ofRepository: (repository: string) =>
       [...all, 'of-repository', repository] as const,
+  };
+}
+
+export type PublicationIndexStatus = 'idle' | 'pending' | 'ready' | 'error';
+
+export interface PublicationIndexRead {
+  status: PublicationIndexStatus;
+  error: unknown;
+  // Undefined until the index is read.
+  index: PublicationIndex | undefined;
+  // Reads again a read that failed.
+  retry: () => void;
+}
+
+// The index of one plugin's publications, shared by every screen that needs it
+// and read once for all of them, cached for a minute. It sends nothing while
+// `enabled` is false.
+export function usePublicationIndex(
+  entity: {
+    readonly app: string;
+    readonly object: 'publication';
+    index: (options?: Options) => Promise<PublicationIndex>;
+  },
+  { enabled }: { enabled: boolean },
+): PublicationIndexRead {
+  const read = useSessionQuery({
+    queryKey: entityKeys(entity).index,
+    queryFn: ({ signal }) => entity.index({ signal }),
+    staleTime: INDEX_STALE_MS,
+    enabled,
+  });
+  const { refetch } = read;
+  const retry = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  return {
+    status: read.data
+      ? 'ready'
+      : read.status === 'error'
+        ? 'error'
+        : enabled
+          ? 'pending'
+          : 'idle',
+    error: read.error,
+    index: read.data,
+    retry,
   };
 }
 
