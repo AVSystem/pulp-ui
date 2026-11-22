@@ -173,7 +173,7 @@ export async function guardActuallySet(
 }
 
 // What became of the distribution's task, in the terms of the outcome.
-async function outcomeOfTask(
+export async function outcomeOfTask(
   task: string,
   asked: string | null,
   signal: AbortSignal | undefined,
@@ -200,7 +200,7 @@ async function outcomeOfTask(
 // Whether the name and the base path are free. A check that could not run is
 // not a check that passed. The end of the session is rethrown: nothing was
 // written, and the sign-in dialog explains it.
-async function conflictsOf(
+export async function conflictsOf(
   name: string,
   basePath: string,
 ): Promise<Extract<CreateOutcome, { kind: 'blocked' }> | null> {

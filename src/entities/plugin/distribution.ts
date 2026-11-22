@@ -183,6 +183,17 @@ export interface DistributionCreate extends DistributionBinding {
   pulp_labels?: Record<string, string>;
 }
 
+// What an edit of a distribution sends: only the fields that were changed.
+// `content_guard` is null only when the user chose Public.
+export interface DistributionChanges {
+  name?: string;
+  base_path?: string;
+  repository?: string | null;
+  publication?: string | null;
+  repository_version?: string | null;
+  content_guard?: string | null;
+}
+
 // The body of a create: the fields of the input that are given, and no other.
 // Labels count as given when there is at least one.
 export function distributionCreateBody(

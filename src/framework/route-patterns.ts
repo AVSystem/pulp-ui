@@ -170,8 +170,17 @@ export const distributionPath = (plugin: FrameworkPlugin, name: string) =>
 export const distributionEditPath = (plugin: FrameworkPlugin, name: string) =>
   fillPath(`/${plugin}/distributions/:name/edit`, { name });
 
-export const newDistributionPath = (plugin: FrameworkPlugin) =>
-  fillPath(`/${plugin}/distribution/new`);
+// The create form takes the repository to serve as a query parameter, so a form
+// opened from a repository starts with it chosen.
+export const newDistributionPath = (
+  plugin: FrameworkPlugin,
+  repository?: string,
+) =>
+  `${fillPath(`/${plugin}/distribution/new`)}${
+    repository === undefined
+      ? ''
+      : `?repository=${encodeURIComponent(repository)}`
+  }`;
 
 // The address of one object. A name is encoded into a single segment; a
 // version number is spelled as a string because 0 is a version too, and the

@@ -5,7 +5,10 @@ import type { PluginDescriptor } from 'src/framework/descriptor';
 // and what it imports are one chunk that loads when a screen of the plugin's
 // distributions is first shown.
 const descriptor: PluginDescriptor = {
-  distribution: { entity: containerDistribution },
+  distribution: {
+    entity: containerDistribution,
+    guardManagedByServer: true,
+  },
 };
 
 export default descriptor;

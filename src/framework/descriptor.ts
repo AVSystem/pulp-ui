@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { AlertType } from 'src/components';
 import type {
   DistributionBase,
+  DistributionChanges,
   DistributionCreate,
   DistributionEntity,
 } from 'src/entities/plugin/distribution';
@@ -51,7 +52,7 @@ type AnyRemoteEntity<Row> = RemoteEntity<Row, RemoteCreate, RemoteChanges>;
 type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
   Row,
   DistributionCreate,
-  never
+  DistributionChanges
 >;
 
 // What a sync sends: the remote to sync from and the options the plugin's
@@ -295,6 +296,10 @@ export interface DistributionEditDef {
 export interface DistributionKind<Row extends DistributionBase> {
   entity: AnyDistributionEntity<Row>;
   columns?: ColumnDef<Row>[];
+  // The plugin gives each distribution its own content guard and refuses an
+  // explicit choice, so the forms send no `content_guard` and say that the
+  // server manages it instead of asking for a protection.
+  guardManagedByServer?: boolean;
   // The action that changes a distribution, for a plugin whose distributions
   // have fields worth changing after they are made.
   edit?: DistributionEditDef;

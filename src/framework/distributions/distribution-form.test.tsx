@@ -240,7 +240,6 @@ function renderForm(plugin: TestDistributionPlugin, query = '') {
   );
 }
 
-const nameInput = () => screen.getByRole('textbox', { name: /^Name/ });
 const basePathInput = () => screen.getByRole('textbox', { name: /^Base path/ });
 const create = () => screen.getByRole('button', { name: /^Create/ });
 const formReady = () => screen.findByRole('textbox', { name: /^Name/ });

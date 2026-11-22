@@ -191,6 +191,19 @@ const distributionDetailScreen = (plugin: FrameworkPlugin) =>
     ),
   );
 
+// The create form of a distribution.
+const distributionCreateScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/distributions/distribution-form'
+      ),
+    ({ DistributionCreate }, descriptor) => (
+      <DistributionCreate plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
 // The list of the distributions of every installed plugin. It belongs to no
 // plugin, so it is one screen and not one per descriptor.
 const DistributionListScreen = lazyScreen(() =>
@@ -237,6 +250,8 @@ function componentOf(
       return remoteCreateScreen(plugin);
     case 'distribution-detail':
       return distributionDetailScreen(plugin);
+    case 'distribution-create':
+      return distributionCreateScreen(plugin);
     default:
       return null;
   }
