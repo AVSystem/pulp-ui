@@ -309,11 +309,14 @@ describe('Unit: baseUrlsByRepository', { tags: ['unit'] }, () => {
 
   it('never takes a row that does not carry the guard field for a public one', () => {
     const repository = pluginRepository('file');
-    const row = pluginDistribution('file', {
-      name: 'cut',
-      repository: repository.pulp_href,
-    });
-    const { content_guard: _guard, ...cut } = row;
+    const cut = Object.fromEntries(
+      Object.entries(
+        pluginDistribution('file', {
+          name: 'cut',
+          repository: repository.pulp_href,
+        }),
+      ).filter(([key]) => key !== 'content_guard'),
+    );
 
     const map = baseUrlsByRepository(
       [{ ...cut, pulp_labels: {} } as never],
