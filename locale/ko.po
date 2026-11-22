@@ -264,6 +264,10 @@ msgstr "{namespace}.{name} v{version}, 이미 리포지토리에 있음"
 msgid "{title} steps"
 msgstr "{title} 단계"
 
+#: src/framework/distributions/distribution-detail.tsx
+msgid "{typeName} distribution"
+msgstr ""
+
 #: src/shell/notifications.tsx
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 msgstr "{unread, plural, one {알림, 읽지 않은 알림 #개} other {알림, 읽지 않은 알림 #개}}"
@@ -1072,6 +1076,7 @@ msgstr "뒤로"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
@@ -1453,6 +1458,10 @@ msgstr "클라이언트 인증서"
 #: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "클라이언트 키"
+
+#: src/framework/distributions/distribution-detail.tsx
+msgid "Client URL"
+msgstr ""
 
 #: src/framework/distributions/distribution-list.tsx
 #~ msgid "Client URLs could not be read."
@@ -1886,6 +1895,7 @@ msgstr "콘텐츠 수를 읽을 수 없습니다."
 #~ msgid "Content from roles and collections can be referenced in Ansible PlayBooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
 #~ msgstr ""
 
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Content guard"
 msgstr ""
@@ -2093,6 +2103,7 @@ msgstr "컬렉션 네임스페이스를 생성, 삭제 및 변경합니다. 컬�
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-detail.tsx
 msgid "Created"
 msgstr "생성됨"
 
@@ -2262,6 +2273,7 @@ msgstr "Debian 원본 그대로 게시"
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
@@ -2631,6 +2643,10 @@ msgstr "배포 {name}이(가) 제거되지 않았습니다: {reason}"
 msgid "Distribution {name} was not shown, so it was not removed."
 msgstr "배포 {name}이(가) 표시되지 않았으므로 제거되지 않았습니다."
 
+#: src/framework/distributions/distribution-detail.tsx
+msgid "Distribution could not be displayed."
+msgstr ""
+
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Distribution details could not be read."
 msgstr ""
@@ -2649,6 +2665,7 @@ msgstr ""
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/menu.tsx
@@ -2813,8 +2830,16 @@ msgstr "요구 사항 YAML 다운로드"
 #~ msgstr "Tarball 다운로드"
 
 #: src/framework/distributions/distribution-columns.tsx
-msgid "Downloads need credentials. The client snippet shows how."
+msgid "Downloads need credentials."
 msgstr ""
+
+#: src/framework/distributions/distribution-detail.tsx
+msgid "Downloads need credentials. A browser does not send your session to the content server, so this address cannot be opened there."
+msgstr ""
+
+#: src/framework/distributions/distribution-columns.tsx
+#~ msgid "Downloads need credentials. The client snippet shows how."
+#~ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Drag a file here or browse to upload"
@@ -4172,6 +4197,7 @@ msgstr "설치 프로그램 패키지가 동기화됩니다"
 #: src/containers/user-management/user-detail.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
@@ -4307,6 +4333,7 @@ msgstr "레이블 값"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
@@ -5841,7 +5868,7 @@ msgstr "프록시 URL"
 msgid "Proxy username"
 msgstr "프록시 사용자 이름"
 
-#: src/framework/distributions/distribution-columns.tsx
+#: src/framework/serving/public-label.tsx
 msgid "Public"
 msgstr ""
 
@@ -6789,6 +6816,7 @@ msgstr "재시도 횟수"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/guard-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
@@ -7317,6 +7345,7 @@ msgstr "서버 오류. 나중에 다시 시도하십시오."
 #~ msgid "Server version"
 #~ msgstr "서버 버전"
 
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Serves"
 msgstr ""
@@ -8195,6 +8224,10 @@ msgstr "일괄 작업이 예기치 않은 오류로 중단되었습니다. 일�
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "리포지토리 \"{repositoryName}\"의 변경 작업이 아직 실행 중입니다."
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "The client snippet shows how."
+msgstr ""
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
