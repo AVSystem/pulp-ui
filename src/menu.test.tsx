@@ -189,6 +189,45 @@ describe('navigation menu', () => {
     }
   });
 
+  it('offers one Distributions entry in the Content group, above every plugin, when a plugin with distributions is installed', async () => {
+    signIn();
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown();
+    await screen.findByRole('button', { name: 'Repositories' });
+
+    const content = screen.getByRole('region', { name: 'Content' });
+    const link = within(content).getByRole('link', { name: 'Distributions' });
+    expect(link).toHaveAttribute('href', '/distributions/');
+    expect(link).toHaveAttribute('data-cy', 'pulp-menu-item-distributions');
+    expect(
+      Array.from(
+        document.querySelectorAll('[data-cy=pulp-menu-item-distributions]'),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('marks the Distributions entry as current on the list', async () => {
+    signIn();
+    reportPlugins(ALL_PLUGINS);
+
+    await menuShown('/distributions/');
+
+    await waitFor(() => expect(item('distributions')).not.toBeNull());
+    expect(item('distributions')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('offers no Distributions entry when no plugin with distributions is installed', async () => {
+    signIn();
+    reportPlugins(['core', 'certguard']);
+
+    await menuShown();
+
+    expect(
+      screen.queryByRole('link', { name: 'Distributions' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('gives every entry a stable id that does not depend on its text', async () => {
     signIn();
     reportPlugins(ALL_PLUGINS);
