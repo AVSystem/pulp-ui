@@ -1,12 +1,16 @@
+import { t } from '@lingui/core/macro';
+import { DistributionClient } from 'src/entities/core/distribution/client';
 import type {
   DistributionCreate,
   DistributionEntity,
 } from 'src/entities/plugin/distribution';
 import { distributionCreateBody } from 'src/entities/plugin/distribution';
+import { isSessionEnd } from 'src/utilities/request-error';
 import {
   type CreateOutcome,
   type DistributionOutcome,
   conflictsOf,
+  failureReason,
   outcomeOfTask,
 } from '../form/create-flow';
 import { TASK_POLL_MS } from '../task-end';
@@ -54,5 +58,42 @@ export async function createDistribution({
       signal,
       pollMs,
     ),
+  };
+}
+
+// Whether the new base path of an existing distribution is free. The
+// distribution's own path is not a conflict with itself. A check that could not
+// run is not a check that passed; the end of the session is rethrown, since
+// nothing was written and the sign-in dialog explains it.
+export async function basePathConflict(
+  basePath: string,
+  own: string,
+): Promise<Extract<CreateOutcome, { kind: 'blocked' }> | null> {
+  let found;
+  try {
+    found = await DistributionClient.existsByBasePath(basePath);
+  } catch (error) {
+    if (isSessionEnd(error)) {
+      throw error;
+    }
+    const reason = failureReason(error);
+    return {
+      kind: 'blocked',
+      fields: {},
+      general: t`Could not check whether the base path is free: ${reason}. Nothing was changed.`,
+    };
+  }
+  if (!found || found.name === own) {
+    return null;
+  }
+  const otherName = found.name;
+  const otherPath = found.base_path;
+
+  return {
+    kind: 'blocked',
+    fields: {
+      base_path: t`The base path "${basePath}" is already used by or overlaps the distribution "${otherName}" (${otherPath}).`,
+    },
+    general: null,
   };
 }

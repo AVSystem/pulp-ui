@@ -997,6 +997,9 @@ describe(
     const replaceAccount = (setup: Parameters<typeof servePermissions>[0]) => {
       permissions.stop();
       permissions = servePermissions({ id: 7, ...setup });
+      // the roles on single distributions are read for a user without the
+      // permission everywhere
+      server.use(listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler);
     };
 
     it('asks for the plugin first: every installed plugin the user may add to is offered, and the choice opens that plugin form', async () => {

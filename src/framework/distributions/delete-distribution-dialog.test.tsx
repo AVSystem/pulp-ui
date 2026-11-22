@@ -585,7 +585,7 @@ describe(
         base_path: 'path-wheels',
       });
       serveLab({ python: [wheels] });
-      serveRolesOnObjects([]);
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
 
       const { user } = renderList();
       const table = await tableOf();

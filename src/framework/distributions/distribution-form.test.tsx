@@ -1016,7 +1016,7 @@ describe(
 
       await editReady();
       expect(
-        await screen.findByText(/bound to a deprecated publication/),
+        await screen.findByText(/Bound to a deprecated publication/),
       ).toBeVisible();
       expect(screen.queryByRole('radio', { name: /publication/i })).toBeNull();
       await user.click(
@@ -1113,7 +1113,7 @@ describe(
       expect(patched[0]?.body).toStrictEqual({ base_path: 'served/images-2' });
     });
 
-    it('checks only what changed: a taken name and a taken base path are named before anything is sent, and an unchanged pair is not checked', async () => {
+    it('shows the name, which an edit never changes, and names a taken base path before anything is sent', async () => {
       const other = pluginDistribution('python', {
         name: 'taken',
         base_path: 'served/taken',
@@ -1127,17 +1127,16 @@ describe(
       const { user } = renderEdit('file', 'tools-dist');
 
       await editReady();
-      await user.clear(nameInput());
-      await user.type(nameInput(), 'taken');
+      expect(nameInput()).toHaveValue('tools-dist');
+      expect(nameInput()).toBeDisabled();
       await user.clear(basePathInput());
       await user.type(basePathInput(), 'served/taken');
       await user.click(save());
 
       expect(
-        await screen.findByText('A distribution named "taken" already exists.'),
-      ).toBeVisible();
-      expect(
-        screen.getByText(/The base path "served\/taken" is already used/),
+        await screen.findByText(
+          /The base path "served\/taken" is already used/,
+        ),
       ).toBeVisible();
       expect(patched).toHaveLength(0);
     });

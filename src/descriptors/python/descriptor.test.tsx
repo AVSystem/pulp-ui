@@ -553,16 +553,11 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
   });
 
   describe('what serves and what is served', () => {
-    it('reads python distributions, reads publications without serving from them and offers Edit distribution for the permission held on every distribution', () => {
+    it('reads python distributions and reads publications without serving from them, and declares no dialog of its own for editing a distribution', () => {
       expect(descriptor.distribution?.entity).toBeTruthy();
       expect(descriptor.publication?.entity).toBeTruthy();
       expect(descriptor.publication?.servesFromPublication).toBe(false);
-      expect(descriptor.distribution?.edit?.permission).toBe(
-        'python.change_pythondistribution',
-      );
-      expect(
-        text(descriptor.distribution?.edit?.label as MessageDescriptor),
-      ).toBe('Edit distribution');
+      expect(descriptor.distribution).not.toHaveProperty('edit');
     });
 
     it('is the descriptor of a plugin that is on the framework, with the permissions the python viewsets check and object roles as the manifest has them', () => {

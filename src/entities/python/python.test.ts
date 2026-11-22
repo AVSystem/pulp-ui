@@ -246,7 +246,7 @@ describe('Unit: the python entities', { tags: ['unit'] }, () => {
       expect(lab.queries).toHaveLength(1);
     });
 
-    it('changes the pull-through remote and the upload permission with one PATCH of the fields given, and reads the answer as a task or as the object', async () => {
+    it('changes the base path and the binding with one PATCH of the fields given, and reads the answer as a task or as the object', async () => {
       const row = pythonDistribution({ name: 'simple' });
       const calls = recorder();
       let answer: 'task' | 'done' = 'task';
@@ -260,11 +260,12 @@ describe('Unit: the python entities', { tags: ['unit'] }, () => {
       );
 
       const started = await pythonDistributionEntity.update(row.pulp_href, {
-        remote: null,
+        publication: null,
+        repository: '/pulp/api/v3/repositories/python/python/0000/',
       });
       answer = 'done';
       const finished = await pythonDistributionEntity.update(row.pulp_href, {
-        allow_uploads: false,
+        base_path: 'simple/moved',
       });
 
       expect(started).toEqual({ kind: 'task', task: TASK });
@@ -273,8 +274,14 @@ describe('Unit: the python entities', { tags: ['unit'] }, () => {
         object: { name: 'simple' },
       });
       expect(calls.seen.map(({ method, body }) => [method, body])).toEqual([
-        ['PATCH', { remote: null }],
-        ['PATCH', { allow_uploads: false }],
+        [
+          'PATCH',
+          {
+            publication: null,
+            repository: '/pulp/api/v3/repositories/python/python/0000/',
+          },
+        ],
+        ['PATCH', { base_path: 'simple/moved' }],
       ]);
     });
 

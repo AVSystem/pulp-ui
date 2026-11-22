@@ -48,6 +48,13 @@ import {
   repositoryPath,
 } from '../route-patterns';
 import { createDistribution } from './create-distribution';
+import {
+  BasePathGroup,
+  NameGroup,
+  SHOWN_FIELDS,
+  ServerManagedGuard,
+  withoutMessagesOf,
+} from './distribution-fields';
 import { pluginLabel } from './plugin-label';
 import {
   type Protection,
@@ -74,20 +81,6 @@ interface Props {
   plugin: FrameworkPlugin;
   descriptor: PluginDescriptor;
 }
-
-// The fields the server may name in a refusal and the form shows a message
-// under.
-const SHOWN_FIELDS = ['name', 'base_path', 'repository', 'publication'];
-
-// The note that replaces the protection choice where the plugin gives each
-// distribution its own content guard and refuses any other.
-const ServerManagedGuard = () => (
-  <FormGroup label={t`Protection`} fieldId='protection'>
-    <Content component='p'>
-      {t`The server manages the content guard of this distribution. It is set when the distribution is created and cannot be chosen here.`}
-    </Content>
-  </FormGroup>
-);
 
 // The form that makes a new distribution of one plugin: its name, the base path
 // it is served under, what it serves (a repository of the plugin, or one of the
@@ -152,19 +145,7 @@ export const DistributionCreate = ({ plugin, descriptor }: Props) => {
     !hasProblems([LABELS_FIELD], labels);
 
   const clearFailure = (...fields: string[]) =>
-    setFailure((current) => {
-      if (!current || !fields.some((field) => field in current.fields)) {
-        return current;
-      }
-      return {
-        ...current,
-        fields: Object.fromEntries(
-          Object.entries(current.fields).filter(
-            ([key]) => !fields.includes(key),
-          ),
-        ),
-      };
-    });
+    setFailure((current) => withoutMessagesOf(current, fields));
 
   const save = async () => {
     if (sending.current || !complete) {
@@ -297,43 +278,23 @@ export const DistributionCreate = ({ plugin, descriptor }: Props) => {
       <Main>
         <section className='pulp-section' data-cy='DistributionCreate'>
           <Form onSubmit={(event) => event.preventDefault()}>
-            <FormGroup label={t`Name`} fieldId='name' isRequired>
-              <TextInput
-                id='name'
-                isRequired
-                type='text'
-                value={name}
-                validated={failure?.fields['name'] ? 'error' : 'default'}
-                onChange={(_event, next) => {
-                  setName(next);
-                  clearFailure('name');
-                }}
-              />
-              {failure?.fields['name'] ? (
-                <FormFieldHelper variant='error'>
-                  {failure.fields['name']}
-                </FormFieldHelper>
-              ) : null}
-            </FormGroup>
-            <FormGroup label={t`Base path`} fieldId='base_path' isRequired>
-              <TextInput
-                id='base_path'
-                isRequired
-                type='text'
-                value={basePath}
-                validated={
-                  message || failure?.fields['base_path'] ? 'error' : 'default'
-                }
-                onChange={(_event, next) => {
-                  setBasePath(next);
-                  clearFailure('base_path');
-                }}
-              />
-              <BasePathHelp
-                basePath={basePath}
-                message={message ?? failure?.fields['base_path'] ?? null}
-              />
-            </FormGroup>
+            <NameGroup
+              value={name}
+              error={failure?.fields['name']}
+              onChange={(next) => {
+                setName(next);
+                clearFailure('name');
+              }}
+            />
+            <BasePathGroup
+              value={basePath}
+              message={message}
+              error={failure?.fields['base_path']}
+              onChange={(next) => {
+                setBasePath(next);
+                clearFailure('base_path');
+              }}
+            />
             {prefixes === null ? (
               <FormFieldHelper variant='warning'>
                 {t`The reserved base paths of this server could not be read, so a distribution cannot be created here.`}
@@ -360,7 +321,7 @@ export const DistributionCreate = ({ plugin, descriptor }: Props) => {
               }
             />
             {managed ? (
-              <ServerManagedGuard />
+              <ServerManagedGuard created />
             ) : (
               <ProtectionChoice value={protection} onChange={setProtection} />
             )}
@@ -402,3 +363,5 @@ export const DistributionCreate = ({ plugin, descriptor }: Props) => {
     </CreatePermissionGate>
   );
 };
+
+export { DistributionEdit } from './distribution-edit';

@@ -22,7 +22,6 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
-import { PythonDistributionEdit } from './distribution-edit';
 import { packagesTab } from './packages-tab';
 
 // What a python remote holds beyond what every remote has, read from the loose
@@ -269,15 +268,9 @@ const descriptor: PluginDescriptor<PythonRepository> = {
   // A python distribution is served from the repository's versions, never
   // from its publications. Publications are deprecated, but a distribution can
   // still be bound to one, so they are read to find the repository such a
-  // distribution serves. Its pull-through remote and upload permission can be
-  // changed after it is made, by an account that may change distributions.
+  // distribution serves.
   distribution: {
     entity: pythonDistribution,
-    edit: {
-      permission: 'python.change_pythondistribution',
-      label: msg`Edit distribution`,
-      dialog: (props) => <PythonDistributionEdit {...props} />,
-    },
   },
   publication: { entity: pythonPublication, servesFromPublication: false },
 };

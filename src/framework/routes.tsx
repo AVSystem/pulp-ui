@@ -204,6 +204,19 @@ const distributionCreateScreen = (plugin: FrameworkPlugin) =>
     ),
   );
 
+// The edit form of a distribution.
+const distributionEditScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/distributions/distribution-form'
+      ),
+    ({ DistributionEdit }, descriptor) => (
+      <DistributionEdit plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
 // The list of the distributions of every installed plugin. It belongs to no
 // plugin, so it is one screen and not one per descriptor.
 const DistributionListScreen = lazyScreen(() =>
@@ -250,6 +263,8 @@ function componentOf(
       return remoteCreateScreen(plugin);
     case 'distribution-detail':
       return distributionDetailScreen(plugin);
+    case 'distribution-edit':
+      return distributionEditScreen(plugin);
     case 'distribution-create':
       return distributionCreateScreen(plugin);
     default:

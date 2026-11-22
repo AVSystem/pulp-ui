@@ -12,10 +12,7 @@ import {
   type DistributionChanges,
   makeDistributionEntity,
 } from 'src/entities/plugin/distribution';
-import {
-  type PythonDistributionChanges,
-  pythonDistributionSchema,
-} from './model';
+import { pythonDistributionSchema } from './model';
 
 // The python plugin's distributions: its generated functions and its schema
 // are all that differs from any other plugin.
@@ -29,7 +26,7 @@ export const pythonDistribution = makeDistributionEntity({
     create: distributionsPythonPypiCreate,
     partialUpdate: (
       href: string,
-      body: PythonDistributionChanges | DistributionChanges,
+      body: DistributionChanges,
       options?: Parameters<typeof distributionsPythonPypiPartialUpdate>[2],
     ) => distributionsPythonPypiPartialUpdate(href, body, options),
     remove: distributionsPythonPypiDelete,

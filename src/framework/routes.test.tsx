@@ -91,6 +91,7 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
       '/file/remotes/:name/edit',
       '/file/remote/new',
       '/file/distributions/:name',
+      '/file/distributions/:name/edit',
       '/file/distribution/new',
     ]);
     expect(new Set(routes.map(({ plugin }) => plugin))).toEqual(
@@ -116,21 +117,26 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
     ]);
     expect(frameworkRoutes(distributionOnly).map(({ path }) => path)).toEqual([
       '/maven/distributions/:name',
+      '/maven/distributions/:name/edit',
       '/maven/distribution/new',
       '/npm/distributions/:name',
+      '/npm/distributions/:name/edit',
       '/npm/distribution/new',
       '/ansible/distributions/:name',
+      '/ansible/distributions/:name/edit',
       '/ansible/distribution/new',
       '/container/distributions/:name',
+      '/container/distributions/:name/edit',
       '/container/distribution/new',
     ]);
   });
 
-  it('routes the distribution detail and create form of every plugin that has distributions, at their published addresses', () => {
+  it('routes the distribution detail, edit and create form of every plugin that has distributions, at their published addresses', () => {
     const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
 
     for (const { plugin } of PLUGIN_MANIFESTS) {
       expect(paths).toContain(`/${plugin}/distributions/:name`);
+      expect(paths).toContain(`/${plugin}/distributions/:name/edit`);
       expect(paths).toContain(`/${plugin}/distribution/new`);
     }
   });
@@ -144,14 +150,12 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
     expect(paths.some((path) => path.startsWith('/file/remote'))).toBe(false);
   });
 
-  it('builds no route for an address whose screen does not exist yet: the distribution edit screen and the publications and content tabs', () => {
+  it('builds no route for an address whose screen does not exist yet: the publications and content tabs', () => {
     const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
 
     for (const pattern of [
-      '/file/distributions/:name/edit',
       '/file/repositories/:name/publications',
       '/file/repositories/:name/content',
-      '/maven/distributions/:name/edit',
     ]) {
       expect(paths, pattern).not.toContain(pattern);
     }

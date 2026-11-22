@@ -1084,6 +1084,7 @@ describe('lazily loaded screens', () => {
         (route) =>
           route.path?.startsWith('/ansible/') &&
           route.path !== '/ansible/distributions/:name' &&
+          route.path !== '/ansible/distributions/:name/edit' &&
           route.path !== '/ansible/distribution/new',
       ),
     ).toHaveLength(legacy.length);
@@ -1092,8 +1093,6 @@ describe('lazily loaded screens', () => {
   it.each([
     '/file/repositories/zz-test-repo/publications',
     '/file/repositories/zz-test-repo/content',
-    '/file/distributions/zz-test-dist/edit',
-    '/maven/distributions/zz-test-dist/edit',
   ])(
     'shows not found for %s, whose screen does not exist yet, without a read',
     async (route) => {
