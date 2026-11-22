@@ -1039,6 +1039,7 @@ msgstr "뒤로"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/framework/repository-columns.tsx
 msgid "Base path"
@@ -1414,6 +1415,10 @@ msgstr "클라이언트 인증서"
 #: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "클라이언트 키"
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Client URLs could not be read."
+msgstr ""
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "Clients cannot download its content until a distribution serves it."
@@ -2588,12 +2593,15 @@ msgstr "배포 {name}이(가) 표시되지 않았으므로 제거되지 않았�
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
+#: src/menu.tsx
 msgid "Distributions"
 msgstr "배포"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Distributions could not be displayed."
 msgstr "배포를 표시할 수 없습니다."
 
@@ -2624,6 +2632,10 @@ msgstr "제거된 배포: {0}"
 #: src/framework/bulk/bulk-actions.ts
 msgid "Distributions removed: {0}."
 msgstr "제거된 배포: {0}."
+
+#: src/framework/distributions/distribution-list.tsx
+msgid "Distributions will appear once created."
+msgstr ""
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -3461,6 +3473,7 @@ msgstr "빠름"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
 msgid "File"
@@ -4588,6 +4601,7 @@ msgstr "내 프로필"
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/descriptor-form.test.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
@@ -4807,9 +4821,9 @@ msgstr "이 리포지토리를 제공하는 배포가 없습니다. 리포지토
 msgid "No distributions created"
 msgstr "생성된 배포가 없습니다"
 
-#: src/containers/collection-detail/collection-distributions.tsx
-#~ msgid "No distributions yet"
-#~ msgstr "아직 배포되지 않음"
+#: src/framework/distributions/distribution-list.tsx
+msgid "No distributions yet"
+msgstr "아직 배포되지 않음"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5043,6 +5057,7 @@ msgstr "아직 사용자가 없음"
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-chips.tsx
 #: src/framework/labels/label-editor.tsx
@@ -5092,6 +5107,7 @@ msgstr "찾을 수 없음"
 #~ msgid "Not found image"
 #~ msgstr "이미지를 찾을 수 없음"
 
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/derived-columns.tsx
 #: src/framework/list/used-by.tsx
 msgid "Not loaded"
@@ -5603,6 +5619,7 @@ msgstr "아래 버튼을 사용하여 소유자를 추가하세요."
 #~ msgstr "네임 스페이스 이름을 입력하십시오"
 
 #: src/containers/task-management/task-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 msgid "Plugin"
 msgstr "플로그인"
 
@@ -8181,6 +8198,7 @@ msgid "The password to be used for authentication when syncing. This is not requ
 msgstr "동기화 시 인증에 사용할 암호입니다. 토큰을 사용할 때는 필요하지 않습니다."
 
 #: src/app-routes.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/menu.tsx
 msgid "The plugin list could not be loaded"
 msgstr "플러그인 목록을 불러올 수 없습니다"
@@ -8862,6 +8880,7 @@ msgstr "업로드"
 #: src/containers/ansible-remote/tab-details.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/remote-columns.tsx

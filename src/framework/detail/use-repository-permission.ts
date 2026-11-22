@@ -1,9 +1,13 @@
 import type { RepositoryBase } from 'src/entities/plugin/model';
-import type { FrameworkPlugin, IPluginPermissions } from '../manifest';
+import {
+  type FrameworkPlugin,
+  type RepositoryPermissions,
+  repositoryPermissions,
+} from '../manifest';
 import { useResourcePermission } from './use-resource-permission';
 
 // A permission of a repository's actions, by its key in the plugin's manifest.
-type RepositoryPermission = keyof IPluginPermissions['repository'];
+type RepositoryPermission = keyof RepositoryPermissions;
 
 // Whether the user may be confirmed to hold a permission on a repository (see
 // useResourcePermission).
@@ -15,6 +19,6 @@ export function useRepositoryPermission(
   return useResourcePermission(
     plugin,
     repository,
-    (permissions) => permissions.repository[permission],
+    (permissions) => repositoryPermissions(permissions)[permission],
   );
 }

@@ -1,5 +1,5 @@
 import { fillPath } from '../utilities/fill-path';
-import type { FrameworkPlugin } from './manifest';
+import type { FrameworkPlugin, ResourceKind } from './manifest';
 
 // Every address of a plugin's repository and remote screens, as plain data and
 // pure functions. The router, the menu, the crawler and the end-to-end specs
@@ -14,6 +14,7 @@ import type { FrameworkPlugin } from './manifest';
 // registered as a route (see frameworkRoutes); the pattern still stands, so
 // the crawler and the legacy redirects can rely on it.
 export type ScreenKind =
+  | 'distribution-list'
   | 'repository-list'
   | 'repository-detail'
   | 'repository-tab'
@@ -22,11 +23,34 @@ export type ScreenKind =
   | 'remote-list'
   | 'remote-detail'
   | 'remote-edit'
-  | 'remote-create';
+  | 'remote-create'
+  | 'distribution-detail'
+  | 'distribution-edit'
+  | 'distribution-create';
 
 // The tabs a repository can have a sub-path for. Which of them a plugin
 // really has is the descriptor's decision; a tab the plugin lacks is Not Found.
-export type RepositoryTab = 'versions' | 'distributions' | 'packages';
+export type RepositoryTab =
+  'versions' | 'distributions' | 'publications' | 'content' | 'packages';
+
+// The kind of object a screen is about. The list of every plugin's
+// distributions is about none: it belongs to no plugin.
+export function resourceOf(screen: ScreenKind): ResourceKind | null {
+  if (screen === 'distribution-list') {
+    return null;
+  }
+  if (screen.startsWith('remote')) {
+    return 'remote';
+  }
+
+  return screen.startsWith('distribution') ? 'distribution' : 'repository';
+}
+
+const EVERY_KIND: readonly ResourceKind[] = [
+  'repository',
+  'remote',
+  'distribution',
+];
 
 export interface FrameworkPattern {
   // The route path, with :parameters, relative to the application root.
@@ -36,13 +60,19 @@ export interface FrameworkPattern {
   tab?: RepositoryTab;
 }
 
-// Create lives beside the name namespace and not inside it, so no repository or
-// remote name is shadowed by a literal segment.
-export function patternsOf(plugin: FrameworkPlugin): FrameworkPattern[] {
+// The addresses of a plugin's screens for the given kinds of object, all of
+// them when none are given. Create lives beside the name namespace and not
+// inside it, so no repository, remote or distribution name is shadowed by a
+// literal segment.
+export function patternsOf(
+  plugin: FrameworkPlugin,
+  resources: readonly ResourceKind[] = EVERY_KIND,
+): FrameworkPattern[] {
   const repositories = `/${plugin}/repositories`;
   const remotes = `/${plugin}/remotes`;
+  const distributions = `/${plugin}/distributions`;
 
-  return [
+  const all: FrameworkPattern[] = [
     { pattern: repositories, screen: 'repository-list' },
     { pattern: `${repositories}/:name`, screen: 'repository-detail' },
     {
@@ -61,6 +91,16 @@ export function patternsOf(plugin: FrameworkPlugin): FrameworkPattern[] {
       tab: 'distributions',
     },
     {
+      pattern: `${repositories}/:name/publications`,
+      screen: 'repository-tab',
+      tab: 'publications',
+    },
+    {
+      pattern: `${repositories}/:name/content`,
+      screen: 'repository-tab',
+      tab: 'content',
+    },
+    {
       pattern: `${repositories}/:name/packages`,
       screen: 'repository-tab',
       tab: 'packages',
@@ -71,7 +111,20 @@ export function patternsOf(plugin: FrameworkPlugin): FrameworkPattern[] {
     { pattern: `${remotes}/:name`, screen: 'remote-detail' },
     { pattern: `${remotes}/:name/edit`, screen: 'remote-edit' },
     { pattern: `/${plugin}/remote/new`, screen: 'remote-create' },
+    { pattern: `${distributions}/:name`, screen: 'distribution-detail' },
+    { pattern: `${distributions}/:name/edit`, screen: 'distribution-edit' },
+    { pattern: `/${plugin}/distribution/new`, screen: 'distribution-create' },
   ];
+
+  return all.filter(({ screen }) =>
+    resources.includes(resourceOf(screen) as ResourceKind),
+  );
+}
+
+// The addresses that belong to no plugin: the screens that list objects of
+// every plugin at once.
+export function corePatterns(): FrameworkPattern[] {
+  return [{ pattern: '/distributions', screen: 'distribution-list' }];
 }
 
 export interface LegacyPattern {
@@ -81,12 +134,17 @@ export interface LegacyPattern {
 }
 
 // The addresses the screens had before they were named by their object. Each
-// one moves to its new address. `edit/_` was the create address.
-export function legacyPatternsOf(plugin: FrameworkPlugin): LegacyPattern[] {
+// one moves to its new address. `edit/_` was the create address. Only the kinds
+// of object the plugin has screens for on the framework are listed: a plugin
+// that keeps its own screens for the rest keeps their addresses.
+export function legacyPatternsOf(
+  plugin: FrameworkPlugin,
+  resources: readonly ResourceKind[] = ['repository', 'remote'],
+): LegacyPattern[] {
   const repositories = `/${plugin}/repositories`;
   const remotes = `/${plugin}/remotes`;
 
-  return [
+  const all: LegacyPattern[] = [
     { pattern: `${repositories}/detail/:name`, screen: 'repository-detail' },
     { pattern: `${repositories}/edit/:name`, screen: 'repository-edit' },
     { pattern: `${repositories}/edit/_`, screen: 'repository-create' },
@@ -94,7 +152,26 @@ export function legacyPatternsOf(plugin: FrameworkPlugin): LegacyPattern[] {
     { pattern: `${remotes}/edit/:name`, screen: 'remote-edit' },
     { pattern: `${remotes}/edit/_`, screen: 'remote-create' },
   ];
+
+  return all.filter(({ screen }) =>
+    resources.includes(resourceOf(screen) as ResourceKind),
+  );
 }
+
+// The list of the distributions of every plugin.
+export const distributionListPath = () => fillPath('/distributions');
+
+// The address of one distribution of a plugin, its edit form and the form that
+// creates one. A name is encoded into a single segment, and create lives
+// outside the name namespace.
+export const distributionPath = (plugin: FrameworkPlugin, name: string) =>
+  fillPath(`/${plugin}/distributions/:name`, { name });
+
+export const distributionEditPath = (plugin: FrameworkPlugin, name: string) =>
+  fillPath(`/${plugin}/distributions/:name/edit`, { name });
+
+export const newDistributionPath = (plugin: FrameworkPlugin) =>
+  fillPath(`/${plugin}/distribution/new`);
 
 // The address of one object. A name is encoded into a single segment; a
 // version number is spelled as a string because 0 is a version too, and the

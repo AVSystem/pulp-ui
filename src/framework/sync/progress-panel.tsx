@@ -36,7 +36,7 @@ import {
   requestErrorStatus,
 } from 'src/utilities/request-error';
 import { translateTask } from 'src/utilities/translate-task';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 
 // How often the task shown in the panel is read again, until it ends.
 export const PANEL_POLL_MS = 2000;
@@ -98,7 +98,7 @@ export const SyncProgressPanel = ({ repository, descriptor }: Props) => {
   const queryClient = useQueryClient();
   const titleId = useId();
   const active = useActiveTaskOf(repository.pulp_href);
-  const syncTask = descriptor.repository.sync?.taskName;
+  const syncTask = repositoryOf(descriptor).sync?.taskName;
 
   // The task on screen: the active one, kept after it has left the lookup
   // because it ended, until another one is active.

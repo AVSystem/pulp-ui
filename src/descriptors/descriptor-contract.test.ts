@@ -14,6 +14,10 @@ const LOADERS: Record<string, () => Promise<{ default: PluginDescriptor }>> = {
   deb: () => import('./deb/descriptor'),
   rpm: () => import('./rpm/descriptor'),
   python: () => import('./python/descriptor'),
+  maven: () => import('./maven/descriptor'),
+  npm: () => import('./npm/descriptor'),
+  ansible: () => import('./ansible/descriptor'),
+  container: () => import('./container/descriptor'),
 };
 
 function labelled(
@@ -36,7 +40,36 @@ function unique(ids: string[], where: string) {
 // The checks every descriptor, real or declared, must pass.
 function checkDescriptor(name: string, descriptor: PluginDescriptor) {
   const { repository } = descriptor;
+  if (repository) {
+    checkRepository(name, repository);
+  }
 
+  const { distribution } = descriptor;
+  if (distribution) {
+    expect(
+      distribution.entity,
+      `${name} has a distribution entity`,
+    ).toBeTruthy();
+    expect(distribution.entity.object).toBe('distribution');
+    for (const column of distribution.columns ?? []) {
+      labelled(column.label, `${name} distribution column ${column.id}`);
+    }
+  }
+
+  const { remote } = descriptor;
+  if (remote) {
+    checkRemote(name, remote);
+  }
+
+  for (const type of descriptor.contentTypes ?? []) {
+    labelled(type.label, `${name} content type ${type.id}`);
+  }
+}
+
+function checkRepository(
+  name: string,
+  repository: NonNullable<PluginDescriptor['repository']>,
+) {
   expect(repository.entity, `${name} has a repository entity`).toBeTruthy();
   expect(
     repository.detailRows.length,
@@ -83,9 +116,13 @@ function checkDescriptor(name: string, descriptor: PluginDescriptor) {
     (repository.tabs ?? []).map(({ id }) => id),
     `${name} tabs`,
   );
+}
 
-  const { remote } = descriptor;
-  if (remote) {
+function checkRemote(
+  name: string,
+  remote: NonNullable<PluginDescriptor['remote']>,
+) {
+  {
     expect(remote.entity, `${name} has a remote entity`).toBeTruthy();
     for (const row of remote.detailRows ?? []) {
       labelled(row.label, `${name} remote detail row ${row.id}`);
@@ -109,10 +146,6 @@ function checkDescriptor(name: string, descriptor: PluginDescriptor) {
         `${name} remote filter ${filter.id} sets a parameter`,
       ).toBeTruthy();
     }
-  }
-
-  for (const type of descriptor.contentTypes ?? []) {
-    labelled(type.label, `${name} content type ${type.id}`);
   }
 }
 
@@ -142,13 +175,42 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
     }
   });
 
+  it('requires every descriptor to declare the kinds of object its manifest lists', async () => {
+    for (const { plugin, resources } of PLUGIN_MANIFESTS) {
+      const loader = LOADERS[plugin] as NonNullable<(typeof LOADERS)[string]>;
+      const { default: descriptor } = await loader();
+
+      expect(
+        descriptor.distribution !== undefined,
+        `${plugin} distribution`,
+      ).toBe(resources.includes('distribution'));
+      expect(descriptor.repository !== undefined, `${plugin} repository`).toBe(
+        resources.includes('repository'),
+      );
+      expect(descriptor.remote !== undefined, `${plugin} remote`).toBe(
+        resources.includes('remote'),
+      );
+    }
+  });
+
+  it('accepts a descriptor that declares only a distribution', () => {
+    const entity = {
+      app: 'maven',
+      object: 'distribution',
+    } as unknown as NonNullable<PluginDescriptor['distribution']>['entity'];
+    const distributionOnly: PluginDescriptor = { distribution: { entity } };
+
+    expect(distributionOnly.repository).toBeUndefined();
+    expect(() => checkDescriptor('maven', distributionOnly)).not.toThrow();
+  });
+
   it('accepts a plugin with no publication, no sync and no snippet, and its own tabs and content types', () => {
     // The shape of a plugin like maven: nothing is served from a publication,
     // nothing is synced, and its tabs and content types are its own.
     const entity = {
       app: 'maven',
       object: 'repository',
-    } as unknown as PluginDescriptor['repository']['entity'];
+    } as unknown as NonNullable<PluginDescriptor['repository']>['entity'];
     const publicationLess: PluginDescriptor = {
       repository: {
         entity,
@@ -171,13 +233,13 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
     };
 
     expect(publicationLess.publication).toBeUndefined();
-    expect(publicationLess.repository.sync).toBeUndefined();
-    expect(publicationLess.repository.snippet).toBeUndefined();
+    expect(publicationLess.repository?.sync).toBeUndefined();
+    expect(publicationLess.repository?.snippet).toBeUndefined();
     expect(() => checkDescriptor('maven', publicationLess)).not.toThrow();
   });
 
   it('rejects a row without a label and two tabs with one address', () => {
-    const entity = {} as PluginDescriptor['repository']['entity'];
+    const entity = {} as NonNullable<PluginDescriptor['repository']>['entity'];
     const unlabelled = {
       repository: {
         entity,

@@ -3,7 +3,12 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { PLUGIN_MANIFESTS } from './manifest';
 import {
+  corePatterns,
+  distributionEditPath,
+  distributionListPath,
+  distributionPath,
   legacyPatternsOf,
+  newDistributionPath,
   newRemotePath,
   newRepositoryPath,
   patternsOf,
@@ -38,20 +43,25 @@ function importsOf(source: string): { module: string; typeOnly: boolean }[] {
 }
 
 describe('Unit: the manifest', { tags: ['unit'] }, () => {
-  it('lists the plugins that have repository and remote screens in menu order', () => {
-    expect(PLUGIN_MANIFESTS.map((manifest) => manifest.plugin)).toEqual([
-      'file',
-      'deb',
-      'rpm',
-      'python',
+  it('lists the plugins that have screens in menu order, with the kinds of object each has screens for', () => {
+    expect(
+      PLUGIN_MANIFESTS.map(({ plugin, resources }) => [plugin, resources]),
+    ).toEqual([
+      ['file', ['repository', 'remote', 'distribution']],
+      ['deb', ['repository', 'remote', 'distribution']],
+      ['rpm', ['repository', 'remote', 'distribution']],
+      ['python', ['repository', 'remote', 'distribution']],
+      ['maven', ['distribution']],
+      ['npm', ['distribution']],
+      ['ansible', ['distribution']],
+      ['container', ['distribution']],
     ]);
     for (const manifest of PLUGIN_MANIFESTS) {
-      expect(manifest.resources).toEqual(['repository', 'remote']);
       expect(manifest.label).not.toBe('');
     }
   });
 
-  it('puts a plugin on the framework once it is switched over and keeps the others on their own screens', () => {
+  it('puts a plugin on the framework once it has screens of its own from a descriptor', () => {
     expect(
       PLUGIN_MANIFESTS.map(({ plugin, onFramework }) => [plugin, onFramework]),
     ).toEqual([
@@ -59,15 +69,115 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
       ['deb', true],
       ['rpm', true],
       ['python', true],
+      ['maven', true],
+      ['npm', true],
+      ['ansible', true],
+      ['container', true],
     ]);
+  });
+
+  it('lets every plugin have a distribution permission block, and the repository and remote blocks only where the plugin has those screens or the legacy screens need them', () => {
+    for (const { plugin, resources, permissions } of PLUGIN_MANIFESTS) {
+      expect(Object.keys(permissions.distribution).sort(), plugin).toEqual([
+        'add',
+        'change',
+        'delete',
+      ]);
+      if (resources.includes('repository')) {
+        expect(permissions.repository, plugin).toBeDefined();
+      }
+      if (resources.includes('remote')) {
+        expect(permissions.remote, plugin).toBeDefined();
+      }
+    }
+    for (const plugin of ['maven', 'npm', 'container']) {
+      const { permissions } = PLUGIN_MANIFESTS.find(
+        (manifest) => manifest.plugin === plugin,
+      ) as (typeof PLUGIN_MANIFESTS)[number];
+      expect(permissions.repository, plugin).toBeUndefined();
+      expect(permissions.remote, plugin).toBeUndefined();
+    }
+  });
+
+  it('names the distribution permissions of every plugin as its viewsets check them', () => {
+    expect(
+      Object.fromEntries(
+        PLUGIN_MANIFESTS.map(({ plugin, permissions }) => [
+          plugin,
+          permissions.distribution,
+        ]),
+      ),
+    ).toEqual({
+      file: {
+        add: 'file.add_filedistribution',
+        change: 'file.change_filedistribution',
+        delete: 'file.delete_filedistribution',
+      },
+      deb: {
+        add: 'deb.add_aptdistribution',
+        change: 'deb.change_aptdistribution',
+        delete: 'deb.delete_aptdistribution',
+      },
+      rpm: {
+        add: 'rpm.add_rpmdistribution',
+        change: 'rpm.change_rpmdistribution',
+        delete: 'rpm.delete_rpmdistribution',
+      },
+      python: {
+        add: 'python.add_pythondistribution',
+        change: 'python.change_pythondistribution',
+        delete: 'python.delete_pythondistribution',
+      },
+      maven: {
+        add: 'maven.add_mavendistribution',
+        change: 'maven.change_mavendistribution',
+        delete: 'maven.delete_mavendistribution',
+      },
+      npm: {
+        add: 'npm.add_npmdistribution',
+        change: 'npm.change_npmdistribution',
+        delete: 'npm.delete_npmdistribution',
+      },
+      ansible: {
+        add: 'ansible.add_ansibledistribution',
+        change: 'ansible.change_ansibledistribution',
+        delete: 'ansible.delete_ansibledistribution',
+      },
+      container: {
+        add: 'container.add_containerdistribution',
+        change: 'container.change_containerdistribution',
+        delete: 'container.delete_containerdistribution',
+      },
+    });
+  });
+
+  it('lets a role on a single object count for every plugin except deb', () => {
+    expect(
+      Object.fromEntries(
+        PLUGIN_MANIFESTS.map(({ plugin, permissions }) => [
+          plugin,
+          permissions.objectRoles,
+        ]),
+      ),
+    ).toEqual({
+      file: true,
+      deb: false,
+      rpm: true,
+      python: true,
+      maven: true,
+      npm: true,
+      ansible: true,
+      container: true,
+    });
   });
 
   it('names the permissions of each plugin with its own app label', () => {
     for (const manifest of PLUGIN_MANIFESTS) {
       const names = [
-        ...Object.values(manifest.permissions.repository),
-        ...Object.values(manifest.permissions.remote),
+        ...Object.values(manifest.permissions.repository ?? {}),
+        ...Object.values(manifest.permissions.remote ?? {}),
         ...Object.values(manifest.permissions.publication ?? {}),
+        ...Object.values(manifest.permissions.distribution),
       ];
       for (const name of names) {
         expect(name.startsWith(`${manifest.plugin}.`)).toBe(true);
@@ -100,6 +210,10 @@ describe('Unit: the manifest', { tags: ['unit'] }, () => {
         delete: 'rpm.delete_rpmpublication',
       },
       python: undefined,
+      maven: undefined,
+      npm: undefined,
+      ansible: undefined,
+      container: undefined,
     });
   });
 
@@ -117,6 +231,31 @@ describe('Unit: the route patterns module', { tags: ['unit'] }, () => {
       .map(({ module }) => module);
 
     expect(runtime).toEqual(['../utilities/fill-path']);
+  });
+});
+
+describe('Unit: addresses of distributions', { tags: ['unit'] }, () => {
+  it('builds the list, detail, edit and create addresses', () => {
+    expect(distributionListPath()).toBe('/distributions/');
+    expect(distributionPath('file', 'dist-1')).toBe(
+      '/file/distributions/dist-1/',
+    );
+    expect(distributionEditPath('maven', 'dist-1')).toBe(
+      '/maven/distributions/dist-1/edit/',
+    );
+    expect(newDistributionPath('container')).toBe(
+      '/container/distribution/new/',
+    );
+  });
+
+  it('encodes a name into one path segment', () => {
+    expect(distributionPath('file', 'a/b')).toBe('/file/distributions/a%2Fb/');
+    expect(distributionPath('file', 'a b?c#d')).toBe(
+      '/file/distributions/a%20b%3Fc%23d/',
+    );
+    expect(distributionEditPath('npm', '../x')).toBe(
+      '/npm/distributions/..%2Fx/edit/',
+    );
   });
 });
 
@@ -181,6 +320,8 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/file/repositories/:name/versions',
       '/file/repositories/:name/versions/:number',
       '/file/repositories/:name/distributions',
+      '/file/repositories/:name/publications',
+      '/file/repositories/:name/content',
       '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
@@ -188,10 +329,40 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/file/remotes/:name',
       '/file/remotes/:name/edit',
       '/file/remote/new',
+      '/file/distributions/:name',
+      '/file/distributions/:name/edit',
+      '/file/distribution/new',
     ]);
     expect(new Set(patterns.map(({ pattern }) => pattern)).size).toBe(
       patterns.length,
     );
+  });
+
+  it('holds only the addresses of the kinds of object a plugin has screens for', () => {
+    expect(
+      patternsOf('maven', ['distribution']).map(({ pattern }) => pattern),
+    ).toEqual([
+      '/maven/distributions/:name',
+      '/maven/distributions/:name/edit',
+      '/maven/distribution/new',
+    ]);
+    expect(
+      patternsOf('file', ['repository']).map(({ pattern }) => pattern),
+    ).not.toContain('/file/remotes');
+    expect(patternsOf('ansible', [])).toEqual([]);
+  });
+
+  it('puts the create of a distribution outside the name namespace so no distribution name is shadowed', () => {
+    const patterns = patternsOf('python').map(({ pattern }) => pattern);
+
+    expect(patterns).toContain('/python/distribution/new');
+    expect(patterns).not.toContain('/python/distributions/new');
+  });
+
+  it('lists the addresses that belong to no plugin', () => {
+    expect(corePatterns()).toEqual([
+      { pattern: '/distributions', screen: 'distribution-list' },
+    ]);
   });
 
   it('names the screen each pattern leads to', () => {
@@ -210,6 +381,9 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/deb/remotes/:name': 'remote-detail',
       '/deb/remotes/:name/edit': 'remote-edit',
       '/deb/remote/new': 'remote-create',
+      '/deb/distributions/:name': 'distribution-detail',
+      '/deb/distributions/:name/edit': 'distribution-edit',
+      '/deb/distribution/new': 'distribution-create',
     });
   });
 
@@ -222,6 +396,8 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       ['/file/repositories/:name/versions', 'versions'],
       ['/file/repositories/:name/versions/:number', 'versions'],
       ['/file/repositories/:name/distributions', 'distributions'],
+      ['/file/repositories/:name/publications', 'publications'],
+      ['/file/repositories/:name/content', 'content'],
       ['/file/repositories/:name/packages', 'packages'],
     ]);
   });
@@ -234,6 +410,22 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/python/remotes/detail/:name',
       '/python/remotes/edit/:name',
       '/python/remotes/edit/_',
+    ]);
+  });
+});
+
+describe('Unit: the legacy addresses of a plugin', { tags: ['unit'] }, () => {
+  it('lists none for a plugin that has no repository or remote screens on the framework', () => {
+    expect(legacyPatternsOf('ansible', ['distribution'])).toEqual([]);
+  });
+
+  it('lists only the addresses of the kinds of object the plugin has screens for', () => {
+    expect(
+      legacyPatternsOf('file', ['remote']).map(({ pattern }) => pattern),
+    ).toEqual([
+      '/file/remotes/detail/:name',
+      '/file/remotes/edit/:name',
+      '/file/remotes/edit/_',
     ]);
   });
 });

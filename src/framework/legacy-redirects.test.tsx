@@ -348,3 +348,19 @@ describe(
     });
   },
 );
+
+describe(
+  'Unit: the legacy redirects of a plugin without repository or remote screens',
+  { tags: ['unit'] },
+  () => {
+    it('are not built, so the addresses of its own screens keep working', () => {
+      const distributionOnly = PLUGIN_MANIFESTS.filter(
+        ({ resources }) =>
+          !resources.includes('repository') && !resources.includes('remote'),
+      );
+
+      expect(distributionOnly.length).toBeGreaterThan(0);
+      expect(legacyRedirectRoutes(distributionOnly)).toEqual([]);
+    });
+  },
+);

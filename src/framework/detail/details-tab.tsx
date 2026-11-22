@@ -4,7 +4,7 @@ import { Button, Skeleton } from '@patternfly/react-core';
 import { Details } from 'src/components';
 import { DistributionURL } from 'src/components/distribution-url';
 import type { RepositoryBase } from 'src/entities/plugin/model';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
 import { useServedDistributions } from '../serving/use-served-distributions';
@@ -103,7 +103,7 @@ export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
       fields={[
         { label: t`Repository name`, value: repository.name },
         { label: t`Description`, value: repository.description || t`None` },
-        ...(descriptor.repository.detailRows ?? []).map(
+        ...(repositoryOf(descriptor).detailRows ?? []).map(
           ({ label, render }) => ({
             label: i18n._(label),
             value: render(repository),
@@ -124,7 +124,7 @@ export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
           value: (
             <LabelEditor
               object={repository}
-              entity={descriptor.repository.entity}
+              entity={repositoryOf(descriptor).entity}
               canEdit={mayChange}
             />
           ),
@@ -139,7 +139,7 @@ export const DetailsTab = ({ plugin, descriptor, repository }: Props) => {
             />
           ),
         },
-        ...(descriptor.repository.sync
+        ...(repositoryOf(descriptor).sync
           ? [
               {
                 label: t`Last sync`,

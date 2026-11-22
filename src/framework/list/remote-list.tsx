@@ -36,12 +36,18 @@ import {
 import { SelectCell } from '../bulk/select-cells';
 import { usePageSelection } from '../bulk/selection';
 import { DeleteRemoteDialog } from '../delete/delete-remote-dialog';
-import type { ColumnDef, FilterDef, PluginDescriptor } from '../descriptor';
+import {
+  type ColumnDef,
+  type FilterDef,
+  type PluginDescriptor,
+  repositoryOf,
+} from '../descriptor';
 import { labelKeysOf } from '../labels/label-select';
 import {
   type FrameworkPlugin,
   PLUGIN_MANIFESTS,
   type PluginManifest,
+  remotePermissions,
 } from '../manifest';
 import { newRemotePath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
@@ -124,7 +130,7 @@ const RemoteListScreen = ({
   const manifest = PLUGIN_MANIFESTS.find(
     (candidate) => candidate.plugin === plugin,
   ) as PluginManifest;
-  const names = manifest.permissions.remote;
+  const names = remotePermissions(manifest.permissions);
 
   const { params, filterIsSet, updateParams } = useListAddress(
     columns,
@@ -174,7 +180,7 @@ const RemoteListScreen = ({
   }
 
   const rowsShown = rows.length > 0 && !query.isPlaceholderData;
-  const usedBy = useUsedBy(descriptor.repository.entity, {
+  const usedBy = useUsedBy(repositoryOf(descriptor).entity, {
     enabled: rowsShown,
   });
   const { permits, notice: permissionsNotice } = useRowPermits({

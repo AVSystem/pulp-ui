@@ -23,7 +23,12 @@ import { useSyncRepository } from 'src/entities/plugin/queries';
 import { Paths, formatPath } from 'src/paths';
 import { isSessionEnd } from 'src/utilities/request-error';
 import { translateTask } from 'src/utilities/translate-task';
-import type { PluginDescriptor, SyncBody, SyncOptionDef } from '../descriptor';
+import {
+  type PluginDescriptor,
+  type SyncBody,
+  type SyncOptionDef,
+  repositoryOf,
+} from '../descriptor';
 import { saveFailure } from '../form/save-errors';
 import { useWatchTask } from '../watched-tasks';
 
@@ -68,7 +73,7 @@ export const SyncDialog = ({
 }: Props) => {
   const labelId = useId();
   const { name } = repository;
-  const { entity, sync } = descriptor.repository;
+  const { entity, sync } = repositoryOf(descriptor);
   const options = sync?.options ?? [];
   const [values, setValues] = useState(() =>
     initialValues(options, repository),

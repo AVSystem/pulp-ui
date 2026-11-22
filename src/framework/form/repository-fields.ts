@@ -1,5 +1,9 @@
 import { msg } from '@lingui/core/macro';
-import type { FieldDef, PluginDescriptor } from '../descriptor';
+import {
+  type FieldDef,
+  type PluginDescriptor,
+  repositoryOf,
+} from '../descriptor';
 
 // The name of a repository in the form; it is shown on an edit and never sent.
 export const NAME_FIELD = 'name';
@@ -8,7 +12,7 @@ export const NAME_FIELD = 'name';
 // the plugin adds, then the labels and the remote the repository syncs from. A
 // plugin without a remote list has no remote field.
 export function repositoryFields(descriptor: PluginDescriptor): FieldDef[] {
-  const { fields = [] } = descriptor.repository;
+  const { fields = [] } = repositoryOf(descriptor);
 
   return [
     { name: NAME_FIELD, label: msg`Name`, kind: 'text', required: true },

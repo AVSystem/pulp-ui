@@ -112,13 +112,14 @@ export interface LegacyRedirectRoute {
 
 // The routes that move the addresses the screens had before they were
 // described by a descriptor to the addresses they have now. The caller passes
-// the plugins that are on the framework. The redirect itself needs no session:
+// the plugins that are on the framework; a plugin gets redirects only for the
+// kinds of object whose screens are on it. The redirect itself needs no session:
 // the screen it leads to asks for one, and then returns to the new address.
 export function legacyRedirectRoutes(
   manifests: readonly PluginManifest[],
 ): LegacyRedirectRoute[] {
-  return manifests.flatMap(({ plugin }) =>
-    legacyPatternsOf(plugin).map((pattern) => ({
+  return manifests.flatMap(({ plugin, resources }) =>
+    legacyPatternsOf(plugin, resources).map((pattern) => ({
       path: pattern.pattern,
       element: <LegacyRedirect plugin={plugin} pattern={pattern} />,
     })),

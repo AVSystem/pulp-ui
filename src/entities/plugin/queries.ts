@@ -53,7 +53,7 @@ function withoutPage(params: object): string {
 // stand-in for the other while it loads. The same page of the same list is not
 // a stand-in but the same read: when the cache was emptied for another account
 // the previous rows belong to the account that left and are never shown.
-function otherPageOfSameList(
+export function otherPageOfSameList(
   a: { page?: number },
   b: { page?: number },
 ): boolean {

@@ -312,9 +312,24 @@ export interface PublicationKind {
 }
 
 export interface PluginDescriptor<Row extends RepositoryBase = RepositoryBase> {
-  repository: RepositoryKind<Row>;
+  // Absent for a plugin whose repositories have no screens on the framework (it
+  // has distributions only).
+  repository?: RepositoryKind<Row>;
   remote?: RemoteKind<RemoteBase>;
   distribution?: DistributionKind<DistributionBase>;
   publication?: PublicationKind;
   contentTypes?: ContentTypeDef[];
+}
+
+// What a plugin declares about its repositories. Only a screen of a plugin
+// whose manifest lists repositories asks for it, so a plugin without the
+// declaration is a mistake of the caller and never reaches a user.
+export function repositoryOf<Row extends RepositoryBase>(
+  descriptor: PluginDescriptor<Row>,
+): RepositoryKind<Row> {
+  if (!descriptor.repository) {
+    throw new Error('The descriptor declares no repository');
+  }
+
+  return descriptor.repository;
 }

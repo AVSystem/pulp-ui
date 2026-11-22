@@ -17,8 +17,37 @@ describe('namedListOf', () => {
     expect(namedListOf('/deb/remotes/detail/:name')).toBe('remotes/deb/apt/');
   });
 
+  it('finds the list of the plugin a distribution address belongs to, for every plugin that has distributions', () => {
+    expect(namedListOf('/file/distributions/:name')).toBe(
+      'distributions/file/file/',
+    );
+    expect(namedListOf('/deb/distributions/:name/edit')).toBe(
+      'distributions/deb/apt/',
+    );
+    expect(namedListOf('/rpm/distributions/:name')).toBe(
+      'distributions/rpm/rpm/',
+    );
+    expect(namedListOf('/python/distributions/:name')).toBe(
+      'distributions/python/pypi/',
+    );
+    expect(namedListOf('/maven/distributions/:name')).toBe(
+      'distributions/maven/maven/',
+    );
+    expect(namedListOf('/npm/distributions/:name/edit')).toBe(
+      'distributions/npm/npm/',
+    );
+    expect(namedListOf('/ansible/distributions/:name')).toBe(
+      'distributions/ansible/ansible/',
+    );
+    expect(namedListOf('/container/distributions/:name')).toBe(
+      'distributions/container/container/',
+    );
+  });
+
   it('knows no list for anything else', () => {
     expect(namedListOf('/tasks/:task')).toBeNull();
+    // the list of every plugin's distributions has no parameter to resolve
+    expect(namedListOf('/distributions')).toBeNull();
   });
 });
 

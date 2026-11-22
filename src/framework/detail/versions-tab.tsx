@@ -24,7 +24,11 @@ import {
   isSessionEnd,
   requestErrorDescription,
 } from 'src/utilities/request-error';
-import type { PluginDescriptor, TabDef } from '../descriptor';
+import {
+  type PluginDescriptor,
+  type TabDef,
+  repositoryOf,
+} from '../descriptor';
 import { PAGE_SIZES } from '../list/list-params';
 import type { FrameworkPlugin } from '../manifest';
 import { versionPath } from '../route-patterns';
@@ -117,7 +121,7 @@ const VersionList = ({
   repository,
   addAlert,
 }: Omit<Props, 'version'>) => {
-  const { entity } = descriptor.repository;
+  const { entity } = repositoryOf(descriptor);
   const { search } = useLocation();
   const navigate = useNavigate();
   const params = paramsOfSearch(search);

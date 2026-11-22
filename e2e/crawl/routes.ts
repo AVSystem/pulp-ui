@@ -5,7 +5,7 @@ import {
   PLUGIN_MANIFESTS,
   type PluginManifest,
 } from '../../src/framework/manifest';
-import { patternsOf } from '../../src/framework/route-patterns';
+import { corePatterns, patternsOf } from '../../src/framework/route-patterns';
 
 // The screens the crawler visits: every route of the application plus the
 // index and one path no route matches. The routes are read from the source of
@@ -217,14 +217,24 @@ export function parseRoutes(
 export function crawlRoutes(
   manifests: readonly PluginManifest[] = PLUGIN_MANIFESTS,
 ): CrawlRoute[] {
+  const onFramework = manifests.filter(({ onFramework }) => onFramework);
+
   return parseRoutes(
     readFileSync(resolve('src', 'app-routes.tsx'), 'utf8'),
     readFileSync(resolve('src', 'paths.ts'), 'utf8'),
-    manifests
-      .filter(({ onFramework }) => onFramework)
-      .flatMap(({ plugin }) =>
-        patternsOf(plugin).map(({ pattern }) => pattern),
+    [
+      // the addresses of the kinds of object each plugin has screens for on
+      // the framework: a plugin that has only distributions there keeps the
+      // addresses of its own screens, which the application's routes hold
+      ...onFramework.flatMap(({ plugin, resources }) =>
+        patternsOf(plugin, resources).map(({ pattern }) => pattern),
       ),
+      // the screens that list the objects of every plugin; they exist once a
+      // plugin is on the framework
+      ...(onFramework.length > 0
+        ? corePatterns().map(({ pattern }) => pattern)
+        : []),
+    ],
   );
 }
 

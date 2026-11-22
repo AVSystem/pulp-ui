@@ -7,7 +7,7 @@ import { useLastSyncOf } from 'src/entities/core/task/task-index';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { Paths, formatPath } from 'src/paths';
 import { isSessionEnd } from 'src/utilities/request-error';
-import type { PluginDescriptor } from '../descriptor';
+import { type PluginDescriptor, repositoryOf } from '../descriptor';
 
 interface Props {
   repository: RepositoryBase;
@@ -21,7 +21,7 @@ interface Props {
 // Sync button unexplained. A read that failed says so and can be asked again,
 // so a missing line is never mistaken for a repository that was never synced.
 export const LastSync = ({ repository, descriptor }: Props) => {
-  const taskName = descriptor.repository.sync?.taskName ?? null;
+  const taskName = repositoryOf(descriptor).sync?.taskName ?? null;
   const last = useLastSyncOf(repository.pulp_href, taskName);
   const task = last.data;
 

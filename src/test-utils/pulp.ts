@@ -376,6 +376,107 @@ export function pluginDistribution(
     : row;
 }
 
+// The `pulp_type` the server filters the cross-plugin distribution list by,
+// for the model name of each row's PRN. The rows themselves carry no type.
+const PULP_TYPE_OF_MODEL: Record<string, string> = {
+  'file.filedistribution': 'file.file',
+  'deb.aptdistribution': 'deb.apt-distribution',
+  'rpm.rpmdistribution': 'rpm.rpm',
+  'python.pythondistribution': 'python.python',
+  'maven.mavendistribution': 'maven.maven',
+  'npm.npmdistribution': 'npm.npm',
+  'ansible.ansibledistribution': 'ansible.ansible',
+  'container.containerdistribution': 'container.container',
+  'core.artifactdistribution': 'core.artifact',
+};
+
+// A row of the cross-plugin distribution list: what the core list answers for
+// a distribution of any plugin. It names neither the publication nor the
+// plugin's own client address, and its base URL is always the content path.
+export function coreDistributionRow(row: IDistribution): IDistribution {
+  const kept = Object.fromEntries(
+    Object.entries(row).filter(
+      ([key]) => key !== 'publication' && key !== 'client_url',
+    ),
+  );
+
+  return {
+    ...kept,
+    base_url: `${CONTENT_HOST}/pulp/content/${row.base_path}/`,
+  } as IDistribution;
+}
+
+// The row of the distribution a pulpcore server keeps for an artifact, which
+// the cross-plugin list holds although no plugin screen shows it.
+export function artifactDistribution(
+  overrides: Partial<IDistribution> = {},
+): IDistribution {
+  const id = href('distributions/core/artifacts');
+  const digest =
+    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+  return distribution({
+    pulp_href: id,
+    prn: `prn:core.artifactdistribution:${idOf(id)}`,
+    name: digest,
+    base_path: digest,
+    pulp_labels: {},
+    ...overrides,
+  });
+}
+
+// The cross-plugin distribution list as the server answers it: the filters
+// `pulp_type__in` (by the type of each row's PRN), `name__icontains`,
+// `base_path__icontains` and `pulp_href__in`, the orderings by name, base path,
+// type and creation date, the `fields` cut and the paging of listOf. A request
+// with no `pulp_type__in` is answered with every row, artifact rows included,
+// as the server does.
+export function coreDistributionListHandler(
+  rows: IDistribution[],
+  { pageSize = 1000 }: { pageSize?: number } = {},
+) {
+  const path = '/pulp/api/v3/distributions/';
+  const typeOf = (row: IDistribution) =>
+    PULP_TYPE_OF_MODEL[
+      String(row['prn'] ?? '')
+        .split(':')[1]
+        ?.toLowerCase() ?? ''
+    ] ?? 'unknown';
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const types = inSetOf(query, 'pulp_type__in');
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      const text = query.get('name__icontains');
+      const basePath = query.get('base_path__icontains');
+      return (
+        (types === null || types.includes(typeOf(row))) &&
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (text === null ||
+          row.name.toLowerCase().includes(text.toLowerCase())) &&
+        (basePath === null ||
+          row.base_path.toLowerCase().includes(basePath.toLowerCase()))
+      );
+    },
+    ordered: (selected, query) => {
+      const ordering = query.get('ordering');
+      if (!ordering) {
+        return selected;
+      }
+      const down = ordering.startsWith('-');
+      const field = down ? ordering.slice(1) : ordering;
+      const value = (row: IDistribution) =>
+        field === 'pulp_type' ? typeOf(row) : String(row[field] ?? '');
+      return [...selected].sort((a, b) => {
+        const order = value(a).localeCompare(value(b));
+        return down ? -order : order;
+      });
+    },
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
+}
+
 // A publication of the given plugin as the server returns it.
 export function pluginPublication(
   plugin: TestPlugin,

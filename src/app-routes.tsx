@@ -29,7 +29,7 @@ import LoginPage from 'src/containers/login/login';
 import SignedOut from 'src/containers/signed-out';
 import { legacyRedirectRoutes } from 'src/framework/legacy-redirects';
 import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
-import { frameworkRoutes } from 'src/framework/routes';
+import { frameworkCoreRoutes, frameworkRoutes } from 'src/framework/routes';
 import { Paths, formatPath } from 'src/paths';
 import { usePermissions } from 'src/permissions';
 import { usePlugins } from 'src/plugins';
@@ -665,7 +665,11 @@ export const guardRoutes = (configs: IRouteConfig[]) =>
 const onFramework = PLUGIN_MANIFESTS.filter(({ onFramework }) => onFramework);
 
 const appRoutes = () =>
-  guardRoutes([...routes, ...frameworkRoutes(onFramework)]);
+  guardRoutes([
+    ...routes,
+    ...frameworkRoutes(onFramework),
+    ...frameworkCoreRoutes(),
+  ]);
 
 // Task links published before tasks moved to /tasks/<id> (bookmarks, alerts
 // pasted into chats) use /tasks/detail/<id> and must keep working. The user
