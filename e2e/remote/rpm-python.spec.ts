@@ -187,6 +187,8 @@ for (const plugin of [rpm, python]) {
       await page.locator('#name').fill(name);
       await pickRemote(page, remoteName());
       await page.locator('#create_distribution').check();
+      // Save stays off until the protection of the distribution is decided
+      await page.getByRole('radio', { name: /^Public/ }).check();
       await expect(page.locator('#base_path')).toHaveValue(name);
       await page.getByRole('button', { name: 'Save' }).click();
       await page.waitForURL(repositorySaved(plugin));

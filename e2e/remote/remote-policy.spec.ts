@@ -47,8 +47,13 @@ test('a file remote created without touching the policy is stored as on demand',
 // The address of the form that adds a remote: the new address for a plugin on
 // the framework, the plugin's own for the others.
 function addAddress(plugin: string): string {
+  // a plugin whose manifest has no remote screens keeps its own address for
+  // them, whatever else of it is on the framework
   const onFramework = PLUGIN_MANIFESTS.some(
-    (manifest) => manifest.plugin === plugin && manifest.onFramework,
+    (manifest) =>
+      manifest.plugin === plugin &&
+      manifest.onFramework &&
+      manifest.resources.includes('remote'),
   );
   return onFramework ? `${plugin}/remote/new` : `${plugin}/remotes/edit/_`;
 }

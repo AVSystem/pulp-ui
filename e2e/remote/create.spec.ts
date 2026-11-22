@@ -45,9 +45,12 @@ async function openCreateForm(page: Page, name: string) {
   await expect(page.locator('#create_distribution')).not.toBeChecked();
 }
 
-// Ticks the box and types a base path.
+// Ticks the box, makes the explicit protection choice the form asks for (Save
+// stays off until the distribution's protection is decided) and types a base
+// path.
 async function offerDistribution(page: Page, basePath?: string) {
   await page.locator('#create_distribution').check();
+  await page.getByRole('radio', { name: /^Public/ }).check();
   if (basePath !== undefined) {
     await page.locator('#base_path').fill(basePath);
   }
@@ -172,7 +175,11 @@ test('a base path under a prefix the deployment reserves is refused', async ({
     fields: 'base_path',
   });
   await page.locator('#base_path').fill(seeded?.['base_path'] as string);
-  await expect(save(page)).toBeDisabled();
+  await save(page).click();
+  await expect(
+    page.getByText(/is already used by or overlaps the distribution/),
+    'a base path a seeded installation serves',
+  ).toBeVisible();
 
   expect(posts, 'POST requests of the page').toEqual([]);
 });
