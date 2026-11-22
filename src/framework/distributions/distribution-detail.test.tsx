@@ -674,6 +674,60 @@ describe(
       expect(screen.getByRole('button', { name: 'Delete' })).toBeVisible();
     });
 
+    it('offers Edit beside Delete to a user who may change the distribution, and opens its edit form', async () => {
+      serveLab({
+        distributions: [pluginDistribution('file', { name: 'tools-dist' })],
+      });
+
+      const { user } = renderDetail();
+      await rowsOfPage();
+      await user.click(await screen.findByRole('button', { name: 'Edit' }));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/file/distributions/tools-dist/edit',
+      );
+    });
+
+    it('offers Edit to a user who holds the change permission only through an object role', async () => {
+      const distribution = pluginDistribution('file', { name: 'tools-dist' });
+      serveAccount({ isStaff: false, own: [[]] });
+      serveLab({ distributions: [distribution] });
+      server.use(
+        listOf(
+          `${API}/users/7/roles/`,
+          [
+            roleAssignment(
+              'file.filedistribution_owner',
+              distribution.pulp_href,
+            ),
+          ],
+          {
+            pageSize: 1000,
+            matching: (rowOf, query) =>
+              query.get('content_object') !== 'null' ||
+              rowOf.content_object === null,
+            projected: projectedBy,
+          },
+        ).handler,
+        http.get(`*${API}/roles/`, () =>
+          HttpResponse.json(
+            page([
+              role({
+                name: 'file.filedistribution_owner',
+                permissions: [CHANGE],
+              }),
+            ]),
+          ),
+        ),
+      );
+
+      renderDetail();
+      await rowsOfPage();
+
+      expect(await screen.findByRole('button', { name: 'Edit' })).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
+    });
+
     it('shows the labels without an editor and offers no Delete to a user who holds neither permission', async () => {
       holding();
       serveLab({
@@ -695,6 +749,7 @@ describe(
         ).toBeNull(),
       );
       expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
     });
 
     it('opens the delete dialog for an allowed user, deletes, and returns to the distribution list', async () => {

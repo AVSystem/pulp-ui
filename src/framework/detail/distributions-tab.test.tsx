@@ -650,3 +650,56 @@ describe(
     });
   },
 );
+
+describe(
+  'Integration: Edit on a row of the Distributions tab',
+  { tags: ['integration'] },
+  () => {
+    const kebabOf = (row: HTMLElement) =>
+      within(row).queryByRole('button', { name: /actions|kebab/i });
+
+    it('offers Edit on each row to a user who may change distributions and opens that distribution edit form', async () => {
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'tools-dist', repository }),
+          pluginDistribution('file', { name: 'other-dist', repository }),
+        ],
+        publications: (repository) => [
+          pluginPublication('file', { repository }),
+        ],
+      });
+      const { user } = renderTab();
+
+      const row = await rowOf('other-dist');
+      await waitFor(() => expect(kebabOf(row)).not.toBeNull());
+      await user.click(kebabOf(row) as HTMLElement);
+      await user.click(await screen.findByRole('menuitem', { name: 'Edit' }));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        '/file/distributions/other-dist/edit',
+      );
+    });
+
+    it('offers no Edit to a user who may view distributions but not change them', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filedistribution', 'file.view_filerepository']],
+      });
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'tools-dist', repository }),
+        ],
+        publications: (repository) => [
+          pluginPublication('file', { repository }),
+        ],
+      });
+      renderTab();
+
+      const row = await rowOf('tools-dist');
+
+      expect(kebabOf(row)).toBeNull();
+    });
+  },
+);
