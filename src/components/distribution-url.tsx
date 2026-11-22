@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Flex, FlexItem, Label } from '@patternfly/react-core';
+import { PublicLabel } from '../framework/serving/public-label';
 import { ServedLabel } from '../framework/serving/served-label';
 import {
   type ServedState,
@@ -22,8 +23,12 @@ type DistributionShown =
 // says that instead, never that it serves nothing.
 export const DistributionURL = ({
   distribution,
+  isPublic = false,
 }: {
   distribution: DistributionShown;
+  // The distribution has no content guard, so anyone who knows the address may
+  // download from it: the mark says so next to the address.
+  isPublic?: boolean;
 }) => (
   <Flex
     alignItems={{ default: 'alignItemsCenter' }}
@@ -32,6 +37,11 @@ export const DistributionURL = ({
     <FlexItem>
       {distribution.url ? <CopyURL url={distribution.url} /> : t`None`}
     </FlexItem>
+    {isPublic ? (
+      <FlexItem>
+        <PublicLabel />
+      </FlexItem>
+    ) : null}
     {'state' in distribution ? (
       isNoteworthy(distribution.state) ? (
         <FlexItem>

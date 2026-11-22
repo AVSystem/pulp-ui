@@ -24,7 +24,10 @@ import { RowActionsColumn } from 'src/components/list-item-actions';
 import { useVersionSummaries } from 'src/entities/core/repository-version/queries';
 import type { Task } from 'src/entities/core/task/model';
 import { lastTaskOf, useTaskIndex } from 'src/entities/core/task/task-index';
-import { useDistributionIndex } from 'src/entities/plugin/distribution';
+import {
+  type ServedAt,
+  useDistributionIndex,
+} from 'src/entities/plugin/distribution';
 import type {
   RepositoryBase,
   RepositoryListParams,
@@ -537,9 +540,8 @@ const RepositoryListScreen = ({
                 actionIds={rowActionIds[position] as string}
                 actionContext={actionContext}
                 baseUrlState={baseUrlState}
-                baseUrls={distributions.baseUrlsByRepository?.get(
-                  row.pulp_href,
-                )}
+                served={distributions.baseUrlsByRepository?.get(row.pulp_href)}
+                plugin={plugin}
                 contentState={contentState}
                 contentCount={
                   row.latest_version_href
@@ -668,7 +670,8 @@ interface RowProps {
   actionIds: string;
   actionContext: RowActionContext;
   baseUrlState: ColumnState;
-  baseUrls: readonly string[] | undefined;
+  served: readonly ServedAt[] | undefined;
+  plugin: FrameworkPlugin;
   contentState: ColumnState;
   contentCount: number | null | undefined;
   taskState: ColumnState;
@@ -689,7 +692,8 @@ const RepositoryRow = memo(function RepositoryRow({
   actionIds,
   actionContext,
   baseUrlState,
-  baseUrls,
+  served,
+  plugin,
   contentState,
   contentCount,
   taskState,
@@ -709,7 +713,12 @@ const RepositoryRow = memo(function RepositoryRow({
         <Td key={column.id}>{column.render(row)}</Td>
       ))}
       <Td>
-        <BaseUrlCell state={baseUrlState} urls={baseUrls} />
+        <BaseUrlCell
+          state={baseUrlState}
+          served={served}
+          plugin={plugin}
+          repository={row.name}
+        />
       </Td>
       <Td>
         <VersionCell href={row.latest_version_href} />

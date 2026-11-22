@@ -4,7 +4,8 @@ import { Link } from 'react-router';
 import { CopyURL } from 'src/components';
 import type { DistributionPlugin } from 'src/entities/core/distribution/page';
 import { PLUGIN_MANIFESTS } from '../manifest';
-import { repositoryPath } from '../route-patterns';
+import { distributionPath, repositoryPath } from '../route-patterns';
+import { PublicLabel } from '../serving/public-label';
 import { ServedLabel } from '../serving/served-label';
 import type { ServedState } from '../serving/served-state';
 import type { DistributionCells, Serves } from './use-distribution-columns';
@@ -18,12 +19,6 @@ import type { DistributionCells, Serves } from './use-distribution-columns';
 const Placeholder = () => <Skeleton width='70%' />;
 
 const NotLoaded = () => <>{t`Not loaded`}</>;
-
-// The mark of a distribution that has no content guard: anyone who knows its
-// address may download from it.
-export const PublicLabel = () => (
-  <Label color='blue' variant='outline'>{t`Public`}</Label>
-);
 
 // Whether the plugin has repository screens a name can link to.
 function hasRepositoryScreens(plugin: DistributionPlugin): boolean {
@@ -41,9 +36,12 @@ function hasRepositoryScreens(plugin: DistributionPlugin): boolean {
 export const UrlCell = ({
   cells,
   ofPlugin,
+  detail,
 }: {
   cells: DistributionCells;
   ofPlugin: boolean;
+  // The address of the distribution's page, which holds the client snippet.
+  detail?: string;
 }) => {
   const { url, isPublic } = cells;
 
@@ -70,7 +68,12 @@ export const UrlCell = ({
         </>
       ) : (
         <Content component='small'>
-          {t`Downloads need credentials. The client snippet shows how.`}
+          {t`Downloads need credentials.`}{' '}
+          {detail ? (
+            <Link to={detail}>{t`The client snippet shows how.`}</Link>
+          ) : (
+            t`The client snippet shows how.`
+          )}
         </Content>
       )}
     </>
@@ -99,14 +102,14 @@ function servesText(serves: Serves): string {
 // What the distribution serves: its repository, with a link when the plugin has
 // repository screens, the publication with its version, a pinned version, or
 // nothing.
-export const ServesCell = ({
-  cells,
+export const ServesValue = ({
+  serves,
   plugin,
 }: {
-  cells: DistributionCells;
+  serves: DistributionCells['serves'];
   plugin: DistributionPlugin | null;
 }) => {
-  const { state, value } = cells.serves;
+  const { state, value } = serves;
 
   if (state === 'loading') {
     return <Placeholder />;
@@ -129,11 +132,37 @@ export const ServesCell = ({
   );
 };
 
+export const ServesCell = ({
+  cells,
+  plugin,
+}: {
+  cells: DistributionCells;
+  plugin: DistributionPlugin | null;
+}) => <ServesValue serves={cells.serves} plugin={plugin} />;
+
 // The content guard by name and kind, or the mark that there is none. A guard
 // the user may not read shows no name.
-export const GuardCell = ({ cells }: { cells: DistributionCells }) => {
-  const { guard, isPublic } = cells;
+// The name of a distribution of a plugin, which leads to its page.
+export const NameCell = ({
+  plugin,
+  name,
+}: {
+  plugin: DistributionPlugin | null;
+  name: string;
+}) =>
+  plugin === null ? (
+    <>{name}</>
+  ) : (
+    <Link to={distributionPath(plugin, name)}>{name}</Link>
+  );
 
+export const GuardValue = ({
+  guard,
+  isPublic,
+}: {
+  guard: DistributionCells['guard'];
+  isPublic: boolean;
+}) => {
   if (isPublic) {
     return <PublicLabel />;
   }
@@ -147,6 +176,10 @@ export const GuardCell = ({ cells }: { cells: DistributionCells }) => {
 
   return <>{kind ? `${guard.name} (${kind})` : guard.name}</>;
 };
+
+export const GuardCell = ({ cells }: { cells: DistributionCells }) => (
+  <GuardValue guard={cells.guard} isPublic={cells.isPublic} />
+);
 
 // What the distribution serves, as the rules of the served-state module tell:
 // every state, so a working distribution reads as working and not as a blank

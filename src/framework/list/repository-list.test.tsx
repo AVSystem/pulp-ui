@@ -531,6 +531,61 @@ describe('Integration: the repository list', { tags: ['integration'] }, () => {
     expect(lab.versions.queries).toHaveLength(1);
   });
 
+  it('links the base URL to the distribution page and marks a public distribution next to it, with the requests it had before', async () => {
+    const [open, guarded, plain] = named(3) as IRepository[];
+    const guard =
+      '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-000000000001/';
+    const lab = serveLab({
+      repositories: [open, guarded, plain] as IRepository[],
+      distributions: [
+        pluginDistribution('file', {
+          name: 'open dist/1',
+          base_path: 'open',
+          base_url: 'https://pulp.example/pulp/content/open/',
+          repository: open?.pulp_href,
+          content_guard: null,
+        }),
+        pluginDistribution('file', {
+          name: 'guarded-dist',
+          base_path: 'guarded',
+          base_url: 'https://pulp.example/pulp/content/guarded/',
+          repository: guarded?.pulp_href,
+          content_guard: guard,
+        }),
+      ],
+    });
+
+    renderList();
+    const table = await tableOf();
+    await waitFor(() =>
+      expect(table).toHaveAttribute('data-columns-loaded', 'true'),
+    );
+
+    const openRow = within(rowOf(open?.name as string));
+    expect(
+      openRow.getByRole('link', {
+        name: 'https://pulp.example/pulp/content/open/',
+      }),
+    ).toHaveAttribute('href', '/file/distributions/open%20dist%2F1/');
+    expect(openRow.getByText('Public')).toBeVisible();
+
+    const guardedRow = within(rowOf(guarded?.name as string));
+    expect(
+      guardedRow.getByRole('link', {
+        name: 'https://pulp.example/pulp/content/guarded/',
+      }),
+    ).toHaveAttribute('href', '/file/distributions/guarded-dist/');
+    expect(guardedRow.queryByText('Public')).toBeNull();
+
+    const plainRow = within(rowOf(plain?.name as string));
+    expect(plainRow.getByText('Not served')).toBeVisible();
+    expect(plainRow.queryByRole('link', { name: /pulp.example/ })).toBeNull();
+
+    // no read per row: one list of each kind, however many rows
+    expect(lab.repositories.queries).toHaveLength(1);
+    expect(lab.distributions.queries).toHaveLength(1);
+  });
+
   it('links the last task to its own page', async () => {
     const [repository] = named(1) as IRepository[];
     const finished = taskRow({

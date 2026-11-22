@@ -239,6 +239,9 @@ export interface DistributionEntity<Row, TCreate, TUpdate> {
   // The address a list of these parameters is requested from.
   urlOf: (params?: DistributionListParams) => string;
   retrieve: (href: string, options?: Options) => Promise<Row>;
+  // The distribution with this exact name, or null. A name that came from the
+  // address bar reaches the server only as the value of the name filter.
+  byName: (name: string, options?: Options) => Promise<Row | null>;
   // Creates a distribution; resolves with the address of the task that does it.
   create: (body: TCreate, options?: Options) => Promise<string>;
   update: (
@@ -326,6 +329,18 @@ export function makeDistributionEntity<
     urlOf: (params = {}) => api.listUrl(requestOf(params)),
     retrieve: async (href, options) =>
       parseResponse(schema, await api.read(href, undefined, options)),
+    byName: async (name, options) => {
+      // An empty filter value is no filter: the server would answer its first
+      // distribution.
+      if (name === '') {
+        return null;
+      }
+      const data = await api.list(requestOf({ name, page_size: 1 }), options);
+      const found = (parseResponse(pageSchema, data) as Page<Row>).results[0];
+      // The name is unique, so a row of another name means the filter was not
+      // applied; it is not this distribution.
+      return found && found.name === name ? found : null;
+    },
     create: async (body, options) => taskOf(await api.create(body, options)),
     update: async (href, body, options) =>
       parseUpdate(schema, await api.partialUpdate(href, body, options)),
@@ -400,24 +415,41 @@ function repositoryOfDistribution(
   return row.publication ? (publications.get(row.publication) ?? null) : null;
 }
 
+// An address a repository is served at and the distribution behind it: its
+// name, which leads to the distribution's page, and whether it is public.
+export interface ServedAt {
+  url: string;
+  name: string;
+  isPublic: boolean;
+}
+
 // The base URLs that serve each repository, by the repository's address: for
 // every distribution bound to a repository, to one of its versions or to one of
 // its publications. A distribution with no base URL or bound to nothing is
-// left out. The URLs of one repository are in alphabetical order.
+// left out. The addresses of one repository are in alphabetical order. A
+// distribution is public only when the server said it has no content guard: a
+// row that does not carry the field is never taken for a public one.
 export function baseUrlsByRepository(
   rows: readonly DistributionBase[],
   publications: PublicationRepositories,
-): Map<string, string[]> {
-  const urls = new Map<string, string[]>();
+): Map<string, ServedAt[]> {
+  const urls = new Map<string, ServedAt[]>();
 
   for (const row of rows) {
     const repository = repositoryOfDistribution(row, publications);
     if (repository && row.base_url) {
-      urls.set(repository, [...(urls.get(repository) ?? []), row.base_url]);
+      urls.set(repository, [
+        ...(urls.get(repository) ?? []),
+        {
+          url: row.base_url,
+          name: row.name,
+          isPublic: row.content_guard === null,
+        },
+      ]);
     }
   }
   for (const list of Array.from(urls.values())) {
-    list.sort((a, b) => a.localeCompare(b));
+    list.sort((a, b) => a.url.localeCompare(b.url));
   }
 
   return urls;
@@ -477,7 +509,7 @@ export interface DistributionIndex<Row> {
   error: unknown;
   // Every distribution of the plugin; undefined until the index is complete.
   distributions: Row[] | undefined;
-  baseUrlsByRepository: Map<string, string[]> | undefined;
+  baseUrlsByRepository: Map<string, ServedAt[]> | undefined;
   // The version number of each publication that a distribution is bound to and
   // the user can read, by the publication's address; undefined until the index
   // is complete. A publication the user cannot read is not in it.

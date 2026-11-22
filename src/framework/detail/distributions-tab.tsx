@@ -9,6 +9,7 @@ import {
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
   type AlertType,
@@ -35,6 +36,7 @@ import {
   repositoryOf,
 } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
+import { distributionPath } from '../route-patterns';
 import {
   type ServedDistribution,
   useServedDistributions,
@@ -239,11 +241,16 @@ export const DistributionsTab = ({
           <Tbody>
             {pageRows.map(({ row, served }) => (
               <Tr key={row.pulp_href}>
-                <Td>{row.name}</Td>
+                <Td>
+                  <Link to={distributionPath(plugin, row.name)}>
+                    {row.name}
+                  </Link>
+                </Td>
                 <Td>{row.base_path}</Td>
                 <Td>
                   <DistributionURL
                     distribution={{ url: row.base_url ?? null, state: served }}
+                    isPublic={row.content_guard === null}
                   />
                 </Td>
                 <Td>

@@ -264,6 +264,10 @@ msgstr "{namespace}.{name} v{version}、リポジトリーに追加済み"
 msgid "{title} steps"
 msgstr "{title} ステップ"
 
+#: src/framework/distributions/distribution-detail.tsx
+msgid "{typeName} distribution"
+msgstr ""
+
 #: src/shell/notifications.tsx
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
 msgstr "{unread, plural, one {通知、未読 # 件} other {通知、未読 # 件}}"
@@ -1072,6 +1076,7 @@ msgstr "戻る"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
@@ -1453,6 +1458,10 @@ msgstr "クライアント証明書"
 #: src/framework/form/remote-fields.ts
 msgid "Client key"
 msgstr "クライアントキー"
+
+#: src/framework/distributions/distribution-detail.tsx
+msgid "Client URL"
+msgstr ""
 
 #: src/framework/distributions/distribution-list.tsx
 #~ msgid "Client URLs could not be read."
@@ -1886,6 +1895,7 @@ msgstr "コンテンツ数を読み取れませんでした。"
 #~ msgid "Content from roles and collections can be referenced in Ansible PlayBooks and immediately put to work. You'll find content for provisioning infrastructure, deploying applications, and all of the tasks you do everyday."
 #~ msgstr ""
 
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Content guard"
 msgstr ""
@@ -2093,6 +2103,7 @@ msgstr "コレクションの名前空間を作成、削除、および変更し
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-detail.tsx
 msgid "Created"
 msgstr "作成済み"
 
@@ -2262,6 +2273,7 @@ msgstr "Debian そのままパブリッシュ"
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/list/remote-row-actions.tsx
 #: src/framework/list/row-actions.tsx
@@ -2631,6 +2643,10 @@ msgstr "ディストリビューション {name} は削除されませんでし�
 msgid "Distribution {name} was not shown, so it was not removed."
 msgstr "ディストリビューション {name} は表示されていなかったため、削除されませんでした。"
 
+#: src/framework/distributions/distribution-detail.tsx
+msgid "Distribution could not be displayed."
+msgstr ""
+
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Distribution details could not be read."
 msgstr ""
@@ -2649,6 +2665,7 @@ msgstr ""
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/form/distribution-option.tsx
 #: src/menu.tsx
@@ -2813,8 +2830,16 @@ msgstr "要件 YAML のダウンロード"
 #~ msgstr "tarball のダウンロード"
 
 #: src/framework/distributions/distribution-columns.tsx
-msgid "Downloads need credentials. The client snippet shows how."
+msgid "Downloads need credentials."
 msgstr ""
+
+#: src/framework/distributions/distribution-detail.tsx
+msgid "Downloads need credentials. A browser does not send your session to the content server, so this address cannot be opened there."
+msgstr ""
+
+#: src/framework/distributions/distribution-columns.tsx
+#~ msgid "Downloads need credentials. The client snippet shows how."
+#~ msgstr ""
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Drag a file here or browse to upload"
@@ -4172,6 +4197,7 @@ msgstr "インストーラーパッケージが同期されます"
 #: src/containers/user-management/user-detail.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-edit.tsx
 msgid "Insufficient permissions"
@@ -4307,6 +4333,7 @@ msgstr "ラベルの値"
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-filters.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
@@ -5841,7 +5868,7 @@ msgstr "プロキシー URL"
 msgid "Proxy username"
 msgstr "プロキシーユーザー名"
 
-#: src/framework/distributions/distribution-columns.tsx
+#: src/framework/serving/public-label.tsx
 msgid "Public"
 msgstr ""
 
@@ -6789,6 +6816,7 @@ msgstr "再試行回数"
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/guard-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
@@ -7317,6 +7345,7 @@ msgstr "サーバーエラー。後でもう一度お試しください。"
 #~ msgid "Server version"
 #~ msgstr "サーバーバージョン"
 
+#: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Serves"
 msgstr ""
@@ -8195,6 +8224,10 @@ msgstr "一括操作が予期しないエラーで停止しました。一部の
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "リポジトリー \"{repositoryName}\" の変更はまだ実行中です。"
+
+#: src/framework/distributions/distribution-columns.tsx
+msgid "The client snippet shows how."
+msgstr ""
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx

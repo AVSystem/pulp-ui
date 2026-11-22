@@ -199,6 +199,39 @@ describe(
       ).not.toBeInTheDocument();
     });
 
+    it('links the name of each row of a plugin to its distribution page, and the guarded-URL note too', async () => {
+      const guard = contentGuard({ name: 'customers-only' });
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'guarded one/1',
+              content_guard: guard.pulp_href,
+            }),
+          ],
+          python: [pluginDistribution('python', { name: 'wheels' })],
+        },
+        guards: [guard],
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      const guarded = rowOf('guarded one/1');
+      expect(
+        within(guarded).getByRole('link', { name: 'guarded one/1' }),
+      ).toHaveAttribute('href', '/file/distributions/guarded%20one%2F1/');
+      expect(
+        within(guarded).getByRole('link', {
+          name: 'The client snippet shows how.',
+        }),
+      ).toHaveAttribute('href', '/file/distributions/guarded%20one%2F1/');
+      expect(
+        within(rowOf('wheels')).getByRole('link', { name: 'wheels' }),
+      ).toHaveAttribute('href', '/python/distributions/wheels/');
+    });
+
     it('reads one page of fifty by name, limited to the types of the installed plugins', async () => {
       reportPlugins(['core', 'file', 'deb', 'python', 'maven']);
       const lab = serveLab({
@@ -593,7 +626,11 @@ describe(
       expect(
         within(row).getByText('A repository you may not see'),
       ).toBeVisible();
-      expect(within(row).queryByRole('link')).not.toBeInTheDocument();
+      // the only links of the row lead to the distribution, never to a
+      // repository
+      for (const link of within(row).queryAllByRole('link')) {
+        expect(link.getAttribute('href')).not.toContain('/repositories/');
+      }
     });
 
     it('shows the guard by name and type, marks a row with none as Public and a row with a guard the user may not see by that', async () => {

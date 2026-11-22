@@ -178,6 +178,19 @@ const remoteCreateScreen = (plugin: FrameworkPlugin) =>
     ),
   );
 
+// The detail of a distribution.
+const distributionDetailScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/distributions/distribution-detail'
+      ),
+    ({ DistributionDetail }, descriptor) => (
+      <DistributionDetail plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
 // The list of the distributions of every installed plugin. It belongs to no
 // plugin, so it is one screen and not one per descriptor.
 const DistributionListScreen = lazyScreen(() =>
@@ -222,6 +235,8 @@ function componentOf(
       return remoteEditScreen(plugin);
     case 'remote-create':
       return remoteCreateScreen(plugin);
+    case 'distribution-detail':
+      return distributionDetailScreen(plugin);
     default:
       return null;
   }
