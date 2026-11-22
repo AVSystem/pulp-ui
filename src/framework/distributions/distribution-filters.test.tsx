@@ -10,9 +10,11 @@ import {
   type IDistribution,
   type TestDistributionPlugin,
   artifactDistribution,
+  contentGuardListHandler,
   coreDistributionListHandler,
   coreDistributionRow,
   distributionListHandler,
+  page,
   pluginDistribution,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -76,13 +78,25 @@ const reportPlugins = (components: string[] = ALL_PLUGINS) =>
     ),
   );
 
+const EVERY_PLUGIN: TestDistributionPlugin[] = [
+  'file',
+  'deb',
+  'rpm',
+  'python',
+  'maven',
+  'npm',
+  'ansible',
+  'container',
+];
+
 // A lab: the rows of every plugin, answered by the cross-plugin list and by
-// each plugin's own list, the way the server answers them.
+// each plugin's own list, the way the server answers them. A plugin with no
+// rows answers an empty list.
 function serveLab(
   rows: Partial<Record<TestDistributionPlugin, IDistribution[]>>,
 ) {
-  const own = Object.entries(rows).map(([plugin, list]) =>
-    distributionListHandler(plugin as TestDistributionPlugin, list ?? []),
+  const own = EVERY_PLUGIN.map((plugin) =>
+    distributionListHandler(plugin, rows[plugin] ?? []),
   );
   const core = coreDistributionListHandler([
     ...Object.values(rows)
@@ -90,9 +104,19 @@ function serveLab(
       .map(coreDistributionRow),
     artifactDistribution(),
   ]);
-  server.use(core.handler, ...own.map(({ handler }) => handler));
+  server.use(
+    core.handler,
+    ...own.map(({ handler }) => handler),
+    contentGuardListHandler([]).handler,
+  );
 
-  return { core, own };
+  return {
+    core,
+    // the reads of each plugin's own list, by plugin
+    own: Object.fromEntries(
+      EVERY_PLUGIN.map((plugin, at) => [plugin, own[at]]),
+    ) as Record<TestDistributionPlugin, (typeof own)[number]>,
+  };
 }
 
 const some = (
@@ -497,6 +521,308 @@ describe(
           ).not.toBeInTheDocument();
         }
       });
+    });
+  },
+);
+
+const GUARD =
+  '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-0000000000a1/';
+
+const guarded = (
+  plugin: TestDistributionPlugin,
+  name: string,
+  overrides: Partial<IDistribution> = {},
+) => some(plugin, name, { content_guard: GUARD, ...overrides });
+
+const FILE_INDEX = '*/pulp/api/v3/distributions/file/file/';
+
+// The URL of a recorded request to the list of every distribution is what the
+// server is sent: the path and the query.
+const urlLengthOf = (query: URLSearchParams) =>
+  `/pulp/api/v3/distributions/?${query.toString()}`.length;
+
+describe(
+  'Integration: the public only filter',
+  { tags: ['integration'] },
+  () => {
+    const PLUGINS = ['core', 'file', 'rpm', 'deb'];
+
+    it('lists exactly the distributions without a content guard, with one request for the list when their addresses fit', async () => {
+      reportPlugins(PLUGINS);
+      const open = [some('file', 'f-open-1'), some('file', 'f-open-2')];
+      const lab = serveLab({
+        file: [...open, guarded('file', 'f-closed')],
+        rpm: [guarded('rpm', 'r-closed')],
+        deb: [some('deb', 'd-open')],
+      });
+
+      renderList('/distributions?public=true');
+      await tableOf();
+
+      expect(rowNames()).toEqual(['d-open', 'f-open-1', 'f-open-2']);
+      expect(screen.queryByText('f-closed')).not.toBeInTheDocument();
+      expect(screen.queryByText('r-closed')).not.toBeInTheDocument();
+
+      // one read of the list, with the addresses of the three public rows
+      const asked = lab.core.queries.filter((query) =>
+        query.has('pulp_href__in'),
+      );
+      expect(asked).toHaveLength(1);
+      expect(
+        (asked[0] as URLSearchParams).get('pulp_href__in')?.split(','),
+      ).toEqual(expect.arrayContaining([...open.map((row) => row.pulp_href)]));
+      expect(
+        (asked[0] as URLSearchParams).get('pulp_href__in')?.split(','),
+      ).toHaveLength(3);
+      // each plugin's distributions were read once, with the guard named
+      for (const plugin of ['file', 'rpm', 'deb'] as const) {
+        const reads = lab.own[plugin].queries.filter(
+          (query) => query.get('limit') === '1000',
+        );
+        expect(reads).toHaveLength(1);
+        expect((reads[0] as URLSearchParams).getAll('fields')).toContain(
+          'content_guard',
+        );
+      }
+    });
+
+    it('says that it reads every distribution while it is on, and not otherwise', async () => {
+      reportPlugins(PLUGINS);
+      serveLab({ file: [some('file', 'a'), guarded('file', 'b')] });
+
+      const { user } = renderList('/distributions?public=true');
+      await tableOf();
+      expect(
+        screen.getByText('Reading every distribution to find the public ones'),
+      ).toBeVisible();
+
+      await user.click(screen.getByRole('switch', { name: 'Public only' }));
+
+      await waitFor(() => expect(location()).toBe('/distributions'));
+      await waitFor(() =>
+        expect(
+          screen.queryByText(
+            'Reading every distribution to find the public ones',
+          ),
+        ).not.toBeInTheDocument(),
+      );
+      await waitFor(() => expect(rowNames()).toEqual(['a', 'b']));
+    });
+
+    it('is turned on by the switch, held in the address, and shown as a chip that turns it off', async () => {
+      reportPlugins(PLUGINS);
+      serveLab({ file: [some('file', 'a'), guarded('file', 'b')] });
+
+      const { user } = renderList();
+      await tableOf();
+      expect(
+        screen.getByRole('switch', { name: 'Public only' }),
+      ).not.toBeChecked();
+      await user.click(screen.getByRole('switch', { name: 'Public only' }));
+
+      await waitFor(() =>
+        expect(location()).toBe('/distributions?public=true'),
+      );
+      await waitFor(() => expect(rowNames()).toEqual(['a']));
+      expect(screen.getByRole('switch', { name: 'Public only' })).toBeChecked();
+
+      await user.click(
+        document.querySelector(
+          '.pf-v6-c-label-group .pf-v6-c-label button',
+        ) as HTMLElement,
+      );
+      await waitFor(() => expect(location()).toBe('/distributions'));
+    });
+
+    it('combines with the name filter and returns only public rows that match', async () => {
+      reportPlugins(PLUGINS);
+      const lab = serveLab({
+        file: [
+          some('file', 'manual-open'),
+          guarded('file', 'manual-closed'),
+          some('file', 'image-open'),
+        ],
+      });
+
+      renderList('/distributions?public=true&name__icontains=manual');
+      await tableOf();
+
+      expect(rowNames()).toEqual(['manual-open']);
+      const query = lab.core.queries.at(-1) as URLSearchParams;
+      expect(query.get('name__icontains')).toBe('manual');
+      expect(query.has('pulp_href__in')).toBe(true);
+    });
+
+    it('reads only the indexes of the plugins chosen', async () => {
+      reportPlugins(PLUGINS);
+      const lab = serveLab({
+        file: [some('file', 'f-open')],
+        rpm: [some('rpm', 'r-open')],
+      });
+
+      renderList('/distributions?public=true&plugin=rpm');
+      await tableOf();
+
+      expect(rowNames()).toEqual(['r-open']);
+      const indexReads = (plugin: 'file' | 'rpm') =>
+        lab.own[plugin].queries.filter(
+          (query) => query.get('limit') === '1000',
+        );
+      expect(indexReads('file')).toHaveLength(0);
+      expect(indexReads('rpm')).toHaveLength(1);
+    });
+
+    it('reads every group of addresses once when they do not fit one request, and orders and pages in the browser', async () => {
+      reportPlugins(['core', 'file']);
+      const many = Array.from({ length: 150 }, (_, n) =>
+        some('file', `public-${String(n).padStart(3, '0')}`, {
+          base_path: `p/${String(149 - n).padStart(3, '0')}`,
+        }),
+      );
+      const lab = serveLab({
+        file: [
+          ...many,
+          guarded('file', 'closed-1'),
+          guarded('file', 'closed-2'),
+        ],
+      });
+
+      const { user } = renderList('/distributions?public=true&page_size=10');
+      await tableOf();
+
+      const reads = () =>
+        lab.core.queries.filter((query) => query.has('pulp_href__in'));
+      const groups = reads();
+      expect(groups.length).toBeGreaterThan(1);
+      for (const query of groups) {
+        expect(urlLengthOf(query)).toBeLessThanOrEqual(3500);
+      }
+      // together the groups name every public row exactly once
+      const named = groups.flatMap(
+        (query) => query.get('pulp_href__in')?.split(',') ?? [],
+      );
+      expect(new Set(named).size).toBe(150);
+      expect(named).toHaveLength(150);
+
+      expect(rowNames()).toHaveLength(10);
+      expect(rowNames()[0]).toBe('public-000');
+      expect(screen.queryByText('closed-1')).not.toBeInTheDocument();
+      const before = lab.core.queries.length;
+
+      // another page and another order are cut from what is held
+      await user.click(
+        screen.getAllByRole('button', { name: /next page/i })[0] as HTMLElement,
+      );
+      await waitFor(() => expect(rowNames()[0]).toBe('public-010'));
+      await user.click(
+        document.querySelector('[data-cy="sort_base_path"]') as HTMLElement,
+      );
+      await waitFor(() =>
+        expect(location()).toBe(
+          '/distributions?page_size=10&sort=-base_path&public=true',
+        ),
+      );
+      expect(lab.core.queries.length).toBe(before);
+    });
+
+    it('shows the loading state, and no empty result, while an index is still being read', async () => {
+      reportPlugins(['core', 'file']);
+      const lab = serveLab({ file: [some('file', 'a'), guarded('file', 'b')] });
+      let release = () => {};
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      server.use(
+        http.get(FILE_INDEX, async () => {
+          await gate;
+          return HttpResponse.json(
+            page([some('file', 'a', { content_guard: null })]),
+          );
+        }),
+      );
+
+      renderList('/distributions?public=true');
+
+      await screen.findByRole('progressbar');
+      expect(screen.queryByText(/no results found/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('No distributions yet'),
+      ).not.toBeInTheDocument();
+      expect(
+        lab.core.queries.filter((query) => query.has('pulp_href__in')),
+      ).toHaveLength(0);
+
+      release();
+      // the answer names a row that the core list does not hold: the list
+      // is what the core list answers, not the index
+      await screen.findByText(/no results found/i);
+    });
+
+    it('is an error with Retry when an index cannot be read, never an empty list', async () => {
+      reportPlugins(['core', 'file']);
+      const a = some('file', 'a');
+      serveLab({ file: [a] });
+      let healthy = false;
+      server.use(
+        http.get(FILE_INDEX, () =>
+          healthy
+            ? HttpResponse.json(page([{ ...a, content_guard: null }]))
+            : HttpResponse.json({ detail: 'down' }, { status: 500 }),
+        ),
+      );
+
+      const { user } = renderList('/distributions?public=true');
+
+      await screen.findByText('Distributions could not be displayed.');
+      expect(screen.queryByText(/no results found/i)).not.toBeInTheDocument();
+
+      healthy = true;
+      await user.click(screen.getByRole('button', { name: 'Retry' }));
+      await tableOf();
+      expect(rowNames()).toEqual(['a']);
+    });
+
+    it('says nothing matches, offers to clear the filters, and sends no request for the list, when no distribution is public', async () => {
+      reportPlugins(['core', 'file']);
+      const lab = serveLab({
+        file: [guarded('file', 'a'), guarded('file', 'b')],
+      });
+
+      const { user } = renderList('/distributions?public=true');
+
+      await screen.findByText(/no results found/i);
+      expect(
+        lab.core.queries.filter((query) => query.has('pulp_href__in')),
+      ).toHaveLength(0);
+      expect(screen.getByRole('switch', { name: 'Public only' })).toBeChecked();
+
+      await user.click(
+        screen.getAllByRole('button', {
+          name: 'Clear all filters',
+        })[0] as HTMLElement,
+      );
+      await waitFor(() => expect(location()).toBe('/distributions'));
+      await tableOf();
+      expect(rowNames()).toEqual(['a', 'b']);
+    });
+
+    it('never lists a guarded distribution even when the server ignores the address filter', async () => {
+      reportPlugins(['core', 'file']);
+      const open = some('file', 'open');
+      const closed = guarded('file', 'closed');
+      serveLab({ file: [open, closed] });
+      // a server that answers every row whatever the filter
+      server.use(
+        http.get('*/pulp/api/v3/distributions/', () =>
+          HttpResponse.json(page([open, closed].map(coreDistributionRow))),
+        ),
+      );
+
+      renderList('/distributions?public=true');
+      await tableOf();
+
+      expect(rowNames()).toEqual(['open']);
+      expect(screen.queryByText('closed')).not.toBeInTheDocument();
     });
   },
 );

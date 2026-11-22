@@ -19,6 +19,7 @@ import { server } from 'src/test-utils/server';
 import {
   DISTRIBUTION_INDEX_FIELDS,
   baseUrlsByRepository,
+  publicDistributions,
   useDistributionIndex,
 } from './distribution';
 
@@ -280,6 +281,36 @@ describe('Unit: baseUrlsByRepository', { tags: ['unit'] }, () => {
   });
 });
 
+describe('Unit: publicDistributions', { tags: ['unit'] }, () => {
+  const GUARD =
+    '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-000000000001/';
+
+  it('names the distributions the server says have no content guard', () => {
+    const open = pluginDistribution('file', {
+      name: 'open',
+      content_guard: null,
+    });
+    const closed = pluginDistribution('file', {
+      name: 'closed',
+      content_guard: GUARD,
+    });
+
+    expect(publicDistributions([open, closed])).toEqual([open.pulp_href]);
+  });
+
+  it('never takes a row that does not carry the field for a public one', () => {
+    const { content_guard: _guard, ...unknown } = pluginDistribution('file', {
+      name: 'unknown',
+    });
+
+    expect(publicDistributions([unknown as never])).toEqual([]);
+  });
+
+  it('names none for no rows', () => {
+    expect(publicDistributions([])).toEqual([]);
+  });
+});
+
 describe('Unit: useDistributionIndex', { tags: ['unit'] }, () => {
   function fixture() {
     const a = pluginRepository('file', { name: 'a' });
@@ -471,6 +502,31 @@ describe('Unit: useDistributionIndex', { tags: ['unit'] }, () => {
     expect(
       Array.from(result.current.repositoriesMatchingBasePath('stable') ?? []),
     ).toEqual([f.a.pulp_href]);
+  });
+
+  it('offers the public distributions once the index is complete and none before', async () => {
+    const guard =
+      '/pulp/api/v3/contentguards/core/rbac/00000000-0000-4000-8000-000000000002/';
+    const open = pluginDistribution('file', {
+      name: 'open',
+      content_guard: null,
+    });
+    const closed = pluginDistribution('file', {
+      name: 'closed',
+      content_guard: guard,
+    });
+    const list = distributionListHandler('file', [open, closed]);
+    server.use(list.handler);
+
+    const { result } = renderHook(
+      () => useDistributionIndex(fileDistribution),
+      { wrapper: wrapperFor(createTestQueryClient()) },
+    );
+
+    expect(result.current.publicDistributions()).toBeNull();
+    await waitFor(() => expect(result.current.status).toBe('success'));
+    expect(result.current.publicDistributions()).toEqual([open.pulp_href]);
+    expect(list.queries[0]?.getAll('fields')).toContain('content_guard');
   });
 
   it('is an error state and no map when the index read fails', async () => {
