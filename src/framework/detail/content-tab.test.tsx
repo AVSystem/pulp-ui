@@ -130,6 +130,7 @@ function serveLab({
     ],
   ]);
   const modifies: { path: string; body: unknown }[] = [];
+  const labelWrites: { href: string; action: string; body: unknown }[] = [];
   const taskState = { state: 'running', reads: 0 };
 
   const files = listOf(FILES, rows, {
@@ -168,6 +169,23 @@ function serveLab({
       });
       return answer();
     }),
+    http.post(`*${FILES}:id/:action/`, async ({ params, request }) => {
+      const action = String(params.action);
+      if (action !== 'set_label' && action !== 'unset_label') {
+        return HttpResponse.json({}, { status: 404 });
+      }
+      const body = (await request.json()) as { key: string; value?: string };
+      const href = `${FILES}${params.id}/`;
+      labelWrites.push({ href, action, body });
+      const target = rows.find((each) => each.pulp_href === href);
+      if (target && action === 'set_label') {
+        target.pulp_labels[body.key] = body.value ?? null;
+      }
+      if (target && action === 'unset_label') {
+        delete target.pulp_labels[body.key];
+      }
+      return HttpResponse.json(body);
+    }),
     http.get(`*${TASK_HREF}`, () => {
       taskState.reads += 1;
       return HttpResponse.json(
@@ -181,6 +199,7 @@ function serveLab({
     first,
     second,
     modifies,
+    labelWrites,
     queries: files.queries,
     // The task ends and the repository is on its new version.
     finish: async () => {
@@ -234,6 +253,7 @@ describe(
       );
       expect(query.get('ordering')).toBe('relative_path');
       expect(query.getAll('fields')).toContain('relative_path');
+      expect(query.getAll('fields')).toContain('pulp_labels');
       expect(query.getAll('fields')).not.toContain('sha256');
       expect(screen.getByRole('link', { name: 'Content' })).toHaveAttribute(
         'aria-current',
@@ -486,6 +506,143 @@ describe(
       expect(screen.getByText('Not for you.')).toBeVisible();
       expect(screen.queryByRole('dialog')).toBeNull();
       expect(lab.modifies).toHaveLength(1);
+    });
+  },
+);
+
+describe(
+  'Integration: the labels of the content on the Content tab',
+  { tags: ['integration'] },
+  () => {
+    const asHolder = (...granted: string[]) => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filerepository', ...granted]],
+      });
+    };
+
+    it('shows the labels of every row as chips, and none for a unit without labels', async () => {
+      asHolder();
+      serveLab({
+        rows: [row(1, { pulp_labels: { team: 'ops', draft: null } }), row(2)],
+      });
+      render();
+
+      const grid = await table();
+      await within(grid).findByText('docs/file-001.txt');
+
+      const first = bodyRows(grid)[0] as HTMLElement;
+      expect(within(first).getByText('team: ops')).toBeVisible();
+      expect(within(first).getByText('draft')).toBeVisible();
+      expect(
+        within(grid)
+          .getAllByRole('columnheader')
+          .map((header) => header.textContent?.trim()),
+      ).toContain('Labels');
+      expect(
+        within(bodyRows(grid)[1] as HTMLElement).getByText('None'),
+      ).toBeVisible();
+    });
+
+    it('offers no label editor to a user who lacks the permission to manage content labels', async () => {
+      asHolder();
+      serveLab({ rows: [row(1)] });
+      render();
+
+      await within(await table()).findByText('docs/file-001.txt');
+
+      expect(
+        screen.queryByRole('button', {
+          name: 'Edit labels of docs/file-001.txt',
+        }),
+      ).toBeNull();
+    });
+
+    it('offers the label editor to a holder of the permission, and the dialog says a label belongs to the unit everywhere it is used', async () => {
+      asHolder('core.manage_content_labels');
+      serveLab({ rows: [row(1)] });
+      const { user } = render();
+
+      await within(await table()).findByText('docs/file-001.txt');
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Edit labels of docs/file-001.txt',
+        }),
+      );
+
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog.textContent).toContain(
+        'Labels belong to the content unit and show in every repository that holds it.',
+      );
+      expect(within(dialog).getByLabelText('Label key')).toBeVisible();
+    });
+
+    it('sends set_label with the key and the value to the content address, and shows the new label once the server has made it', async () => {
+      const lab = serveLab({ rows: [row(1), row(2)] });
+      const { user } = render();
+
+      await within(await table()).findByText('docs/file-001.txt');
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Edit labels of docs/file-001.txt',
+        }),
+      );
+      const dialog = await screen.findByRole('dialog');
+      await user.type(within(dialog).getByLabelText('Label key'), 'team');
+      await user.type(within(dialog).getByLabelText('Label value'), 'ops');
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Add label' }),
+      );
+
+      await waitFor(() => expect(lab.labelWrites).toHaveLength(1));
+      expect(lab.labelWrites[0]).toEqual({
+        href: row(1).pulp_href,
+        action: 'set_label',
+        body: { key: 'team', value: 'ops' },
+      });
+      expect(await within(dialog).findByText('team: ops')).toBeVisible();
+    });
+
+    it('sends unset_label with the key when a label is removed', async () => {
+      const lab = serveLab({
+        rows: [row(1, { pulp_labels: { team: 'ops' } })],
+      });
+      const { user } = render();
+
+      await within(await table()).findByText('docs/file-001.txt');
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Edit labels of docs/file-001.txt',
+        }),
+      );
+      const dialog = await screen.findByRole('dialog');
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Remove label team' }),
+      );
+
+      await waitFor(() => expect(lab.labelWrites).toHaveLength(1));
+      expect(lab.labelWrites[0]).toEqual({
+        href: row(1).pulp_href,
+        action: 'unset_label',
+        body: { key: 'team' },
+      });
+    });
+
+    it('filters the content by labels with pulp_label_select and says which filter is applied', async () => {
+      const lab = serveLab({ rows: [row(1)] });
+      render('/file/repositories/tools/content?pulp_label_select=team%3Dops');
+
+      await within(await table()).findByText('docs/file-001.txt');
+
+      const query = lab.queries.at(-1) as URLSearchParams;
+      expect(query.get('pulp_label_select')).toBe('team=ops');
+      expect(
+        within(screen.getByRole('list', { name: 'Labels' })).getByText(
+          'team=ops',
+        ),
+      ).toBeVisible();
     });
   },
 );
