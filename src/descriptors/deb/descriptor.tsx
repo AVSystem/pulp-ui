@@ -31,7 +31,7 @@ import {
   REPOSITORY_FILTERS,
   repositoryColumns,
 } from 'src/framework/repository-columns';
-import { shellQuote } from 'src/utilities/shell-quote';
+import { debSnippets } from './snippets';
 
 // What a deb remote holds beyond what every remote has, read from the loose
 // shape of a remote the generic screens pass around.
@@ -228,15 +228,6 @@ const descriptor: PluginDescriptor<DebRepository> = {
         },
       ],
     },
-    // A remote needs the suites to sync, which only the user knows, so the
-    // command leaves them to be filled in. It is pasted into a terminal, so the
-    // name and the URL are quoted as shell words: a repository name is free
-    // text.
-    snippet: {
-      label: msg`CLI configuration`,
-      build: ({ name, url }) =>
-        `pulp deb remote create --name ${shellQuote(name)} --url ${shellQuote(url)} --distributions '<suite>'`,
-    },
     // A package needs no path from the user: the server names it from the package.
     upload: { contentType: 'deb.package', relativePath: 'none' },
     filters: REPOSITORY_FILTERS,
@@ -288,7 +279,7 @@ const descriptor: PluginDescriptor<DebRepository> = {
       emptyDescription: msg`Sync this repository or add packages to it.`,
     }),
   ],
-  distribution: { entity: debDistribution },
+  distribution: { entity: debDistribution, snippets: debSnippets },
   publication: {
     entity: debPublication,
     servesFromPublication: true,

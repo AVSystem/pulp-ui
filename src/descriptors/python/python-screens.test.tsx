@@ -25,6 +25,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { openSnippets } from 'src/test-utils/snippets';
 import { serveSyncLab } from 'src/test-utils/sync-lab';
 import pythonDescriptor from './descriptor';
 
@@ -451,7 +452,8 @@ describe(
           }),
         ],
       });
-      render('/python/repositories/simple/distributions');
+      const { user } = render('/python/repositories/simple/distributions');
+      await openSnippets(user, 'simple-dist', 'Install with pip');
 
       const line = await screen.findByText(/pip install/);
       expect(line.textContent).toBe(

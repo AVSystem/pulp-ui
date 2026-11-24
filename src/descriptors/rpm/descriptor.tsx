@@ -20,7 +20,7 @@ import {
   REPOSITORY_FILTERS,
   repositoryColumns,
 } from 'src/framework/repository-columns';
-import { shellQuote } from 'src/utilities/shell-quote';
+import { rpmSnippets } from './snippets';
 
 // epoch:version-release, with the epoch left out when it is 0, as rpm and dnf
 // show it. The server sends the epoch as text, and a number is taken too.
@@ -154,13 +154,6 @@ const descriptor: PluginDescriptor<RpmRepository> = {
         },
       ],
     },
-    // The command is pasted into a terminal, so the name and the URL are
-    // quoted as shell words: a repository name is free text.
-    snippet: {
-      label: msg`CLI configuration`,
-      build: ({ name, url }) =>
-        `pulp rpm remote create --name ${shellQuote(name)} --url ${shellQuote(url)}`,
-    },
     // A package needs no path from the user: the server names it from the package.
     upload: { contentType: 'rpm.package', relativePath: 'none' },
     filters: REPOSITORY_FILTERS,
@@ -217,7 +210,7 @@ const descriptor: PluginDescriptor<RpmRepository> = {
       emptyDescription: msg`Sync this repository or add packages to it.`,
     }),
   ],
-  distribution: { entity: rpmDistribution },
+  distribution: { entity: rpmDistribution, snippets: rpmSnippets },
   publication: {
     entity: rpmPublication,
     servesFromPublication: true,

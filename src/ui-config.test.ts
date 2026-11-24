@@ -16,6 +16,12 @@ describe('ui config', () => {
     expect(uiConfig.config.RESERVED_BASE_PATH_PREFIXES).toStrictEqual([]);
   });
 
+  it('holds no client entry points in the bundled defaults, which the fallback keeps', async () => {
+    const { configFallback } = await freshModule();
+
+    expect(configFallback().CLIENT_ENTRY_POINTS).toStrictEqual([]);
+  });
+
   it('marks the reserved base path prefixes unknown in the fallback and keeps the other defaults', async () => {
     const { configFallback } = await freshModule();
 

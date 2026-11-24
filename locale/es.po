@@ -1084,6 +1084,14 @@ msgstr "Aprueba, rechaza y sincroniza las colecciones desde los mandos a distanc
 msgid "Apt"
 msgstr ""
 
+#: src/descriptors/deb/snippets.ts
+msgid "APT credentials"
+msgstr ""
+
+#: src/descriptors/deb/snippets.ts
+msgid "APT sources"
+msgstr ""
+
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "Arquitectura"
@@ -1609,9 +1617,9 @@ msgid "Clear all filters"
 msgstr "Borrar todos los filtros"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/file/descriptor.tsx
-#: src/descriptors/rpm/descriptor.tsx
+#: src/descriptors/deb/snippets.ts
+#: src/descriptors/file/snippets.ts
+#: src/descriptors/rpm/snippets.ts
 msgid "CLI configuration"
 msgstr "Configuración CLI"
 
@@ -1629,6 +1637,11 @@ msgstr "Configuración CLI"
 #: src/framework/form/remote-fields.ts
 msgid "Client certificate"
 msgstr "Certificado de cliente"
+
+#: src/framework/distributions/distribution-detail.tsx
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "Client configuration"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -2391,6 +2404,10 @@ msgstr "Ctrl K"
 #~ msgid "Curate synclist repository batch"
 #~ msgstr "Curar el lote de repositorios de listas de sincronización"
 
+#: src/descriptors/file/snippets.ts
+msgid "curl"
+msgstr ""
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 msgid "Current content"
 msgstr "Contenido actual"
@@ -3140,6 +3157,10 @@ msgstr "Cada clave de etiqueta solo se puede usar una vez."
 
 #: src/components/ratings.tsx
 #~ msgid "Ease of use"
+#~ msgstr ""
+
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Echo"
 #~ msgstr ""
 
 #: src/actions/ansible-remote-edit.tsx
@@ -4498,7 +4519,7 @@ msgstr "Información"
 #~ msgid "Install Version"
 #~ msgstr "Install Version"
 
-#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/snippets.ts
 msgid "Install with pip"
 msgstr "Instalar con pip"
 
@@ -5610,7 +5631,6 @@ msgstr "No existe ningún usuario"
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
-#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
@@ -5860,6 +5880,10 @@ msgstr "Workers en línea"
 #: src/framework/distributions/protection-choice.tsx
 msgid "Only clients the guard allows can download."
 msgstr ""
+
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Only guarded"
+#~ msgstr ""
 
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -6174,6 +6198,10 @@ msgstr "Permisos"
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Permissions for group \"{0}\" could not be displayed."
 msgstr "No se pudieron mostrar los permisos para el grupo \"{0}\"."
+
+#: src/descriptors/python/snippets.ts
+msgid "pip.conf"
+msgstr ""
 
 #: src/components/ansible-repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -6878,6 +6906,10 @@ msgstr "Eliminar contenido de forma recursiva"
 msgid "Redis connection"
 msgstr "Conexión a Redis"
 
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Refusing"
+#~ msgstr ""
+
 #: src/components/container-repository-form.tsx
 #~ msgid "Registries list could not be displayed."
 #~ msgstr "No se pudo mostrar la lista de registros."
@@ -7207,6 +7239,10 @@ msgstr "Reparar versión del repositorio"
 msgid "Repair task"
 msgstr "Tarea de reparación"
 
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "Replace <user> and <token> with an account that may read this distribution."
+msgstr ""
+
 #: src/components/collection-header.tsx
 #~ msgid "Repo"
 #~ msgstr "Repo"
@@ -7325,6 +7361,10 @@ msgstr "No se ha podido crear el repositorio"
 #: src/framework/form/repository-edit.tsx
 msgid "Repository could not be displayed."
 msgstr "No se ha podido visualizar el repositorio."
+
+#: src/descriptors/rpm/snippets.ts
+msgid "Repository file"
+msgstr ""
 
 #: src/components/ansible-repository-form.tsx
 #~ msgid "Repository labels can change the context in which a repository is seen.<0><1><2>Hide from search</2> (<3>hide_from_search</3>) - prevent collections in this repository from showing up on the home page</1><4>(<5>pipeline: *</5>) - see Pipeline above</4></0>"
@@ -7831,6 +7871,10 @@ msgstr "Buscar pantallas y repositorios"
 msgid "Searching repositories..."
 msgstr "Buscando repositorios..."
 
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Second"
+#~ msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/framework/form/remote-fields.ts
 msgid "Seconds. Leave empty to use the server default."
@@ -8287,6 +8331,10 @@ msgstr "Sesión cerrada"
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signed version(s)"
 #~ msgstr "Versión(es) firmada(s)"
+
+#: src/descriptors/deb/snippets.ts
+msgid "Signing key"
+msgstr ""
 
 #: src/components/approve-modal.tsx
 #: src/components/copy-collection-to-repository-modal.tsx
@@ -9404,6 +9452,10 @@ msgstr ""
 msgid "The server protected the distribution with {guard}."
 msgstr ""
 
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "The server reports no client URL for this distribution, so there is no client configuration to show."
+msgstr ""
+
 #: src/framework/content/upload-dialog.tsx
 msgid "The server was still working on this file when the wait ended."
 msgstr ""
@@ -9733,6 +9785,11 @@ msgstr "No se pudo cargar esta pantalla"
 msgid "This screen is not available in this UI yet."
 msgstr "Esta pantalla todavía no está disponible en esta interfaz."
 
+#. placeholder {0}: written.refusal
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "This snippet cannot be written safely, because a value of the distribution holds {0}."
+msgstr ""
+
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag already exists on another image. Do you want to move it to this image?"
 #~ msgstr "Esta etiqueta ya existe en otra imagen. ¿Quiere moverla a esta imagen?"
@@ -10058,6 +10115,10 @@ msgstr ""
 #: src/constants.tsx
 #~ msgid "Upload to namespace"
 #~ msgstr "Upload to namespace"
+
+#: src/descriptors/python/snippets.ts
+msgid "Upload with twine"
+msgstr ""
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Uploading"
@@ -10611,6 +10672,10 @@ msgstr "¡No hemos podido encontrar la página que busca!"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Welcome to Galaxy"
 #~ msgstr ""
+
+#: src/descriptors/file/snippets.ts
+msgid "wget"
+msgstr ""
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "What it serves is kept. Clients lose the address it is reached at."

@@ -25,7 +25,7 @@ import {
   REPOSITORY_FILTERS,
   repositoryColumns,
 } from 'src/framework/repository-columns';
-import { shellQuote } from 'src/utilities/shell-quote';
+import { fileSnippets } from './snippets';
 
 // What a publication of a file repository does about SHA256SUMS files, which
 // list the checksum of every published file. The values are the server's.
@@ -124,14 +124,6 @@ const descriptor: PluginDescriptor<FileRepository> = {
         },
       ],
     },
-    // The manifest sits next to the content, at the distribution's URL. The
-    // command is pasted into a terminal, so the name and the URL are quoted as
-    // shell words: a repository name is free text.
-    snippet: {
-      label: msg`CLI configuration`,
-      build: ({ name, url }) =>
-        `pulp file remote create --name ${shellQuote(name)} --url ${shellQuote(`${url}PULP_MANIFEST`)}`,
-    },
     // A file needs a path in the repository, which starts as the file's name.
     upload: { contentType: 'file.file', relativePath: 'required-default-name' },
     filters: REPOSITORY_FILTERS,
@@ -176,7 +168,7 @@ const descriptor: PluginDescriptor<FileRepository> = {
       emptyDescription: msg`Sync this repository or upload files to it.`,
     }),
   ],
-  distribution: { entity: fileDistribution },
+  distribution: { entity: fileDistribution, snippets: fileSnippets },
   publication: {
     entity: filePublication,
     servesFromPublication: true,

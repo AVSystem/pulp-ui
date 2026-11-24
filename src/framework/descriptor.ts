@@ -27,6 +27,7 @@ import type {
 import type { ContentColumn, ContentFilter } from './detail/content-tab';
 import type { FrameworkPlugin } from './manifest';
 import type { RepositoryTab } from './route-patterns';
+import type { ResolvedEntryPoint } from './snippets/entry-points';
 
 // What a plugin declares about its repositories and remotes, in the plugin's
 // own chunk. The generic screens read everything they show and everything they
@@ -235,11 +236,40 @@ export interface SyncDef<Row> {
   fields?: string[];
 }
 
-// The command a distribution's address is turned into for the plugin's own
-// client (for example a pip install line).
+// What a snippet builder reads of the distribution it writes client
+// configuration for.
+export interface SnippetInput {
+  // The distribution's name.
+  name: string;
+  basePath: string;
+  // The address the server reports for clients of the distribution, or the
+  // deployment's read address when the server reports none.
+  url: string;
+  // Whether downloads need credentials. A distribution whose protection was
+  // not answered counts as guarded; "public" is only ever what the server said.
+  guarded: boolean;
+  // The deployment's entry point for the distribution, when it names one.
+  entry: ResolvedEntryPoint | null;
+  // The origin the interface is served from.
+  origin: string;
+  // The repository the distribution serves, when the screen knows it.
+  repositoryName: string | null;
+}
+
+// Client configuration for a distribution, written for the plugin's own client:
+// a command line, a configuration file. A builder never writes a secret (a
+// guarded distribution gets the placeholders `<user>` and `<token>`) and quotes
+// every value for the format it writes; one that is given a value it cannot
+// write safely throws an `UnsafeValueError`.
 export interface SnippetDef {
+  id: string;
   label: MessageDescriptor;
-  build: (input: { name: string; url: string }) => string;
+  // How the text is drawn.
+  language: 'shell' | 'ini' | 'xml' | 'text';
+  // Whether the snippet applies to this distribution; every snippet does when
+  // the function is absent.
+  when?: (input: SnippetInput) => boolean;
+  build: (input: SnippetInput) => string;
 }
 
 // A kind of content a repository of the plugin holds, with what it takes to
@@ -309,7 +339,6 @@ export interface RepositoryKind<Row> {
   filters?: FilterDef[];
   tabs?: TabDef<Row>[];
   sync?: SyncDef<Row>;
-  snippet?: SnippetDef;
   upload?: UploadDef;
 }
 
@@ -332,6 +361,9 @@ export interface DistributionKind<Row extends DistributionBase> {
   // explicit choice, so the forms send no `content_guard` and say that the
   // server manages it instead of asking for a protection.
   guardManagedByServer?: boolean;
+  // The client configuration shown on the distribution's page and on the
+  // repository's Distributions tab, one entry per snippet, in order.
+  snippets?: SnippetDef[];
 }
 
 // A plugin that serves a repository through a publication. Absent for a plugin

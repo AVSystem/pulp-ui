@@ -235,47 +235,6 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
     });
   });
 
-  describe('the command snippet', () => {
-    it('writes the pip command for the distribution, with its simple index as one quoted word and the package left to fill in', () => {
-      expect(
-        repository.snippet?.build({
-          name: 'simple',
-          url: 'https://pulp.example/pypi/simple/',
-        }),
-      ).toBe(
-        "pip install --index-url 'https://pulp.example/pypi/simple/simple/' <package>",
-      );
-    });
-
-    it('adds the slash the server leaves off a distribution address', () => {
-      expect(
-        repository.snippet?.build({
-          name: 'simple',
-          url: 'https://pulp.example/pypi/x',
-        }),
-      ).toBe(
-        "pip install --index-url 'https://pulp.example/pypi/x/simple/' <package>",
-      );
-    });
-
-    it('quotes a hostile address as data', () => {
-      expect(
-        repository.snippet?.build({
-          name: 'simple',
-          url: "https://pulp.example/a'b`id`/",
-        }),
-      ).toBe(
-        "pip install --index-url 'https://pulp.example/a'\\''b`id`/simple/' <package>",
-      );
-    });
-
-    it('is the Install with pip column of the Distributions tab', () => {
-      expect(text(repository.snippet?.label as MessageDescriptor)).toBe(
-        'Install with pip',
-      );
-    });
-  });
-
   describe('the tabs and the content', () => {
     it('adds the Versions, Content and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([

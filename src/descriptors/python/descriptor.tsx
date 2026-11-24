@@ -28,7 +28,7 @@ import {
   REPOSITORY_FILTERS,
   repositoryColumns,
 } from 'src/framework/repository-columns';
-import { shellQuote } from 'src/utilities/shell-quote';
+import { pythonSnippets } from './snippets';
 
 // What a python remote holds beyond what every remote has, read from the loose
 // shape of a remote the generic screens pass around.
@@ -175,12 +175,6 @@ const REMOTE_FIELDS: FieldDef[] = [
   },
 ];
 
-// pip looks for packages in the simple index under the URL the server reports
-// for the distribution. The URL is quoted as a shell word; the package name is
-// left for the reader to fill in.
-const pipInstallCommand = (url: string): string =>
-  `pip install --index-url ${shellQuote(`${url.endsWith('/') ? url : `${url}/`}simple/`)} <package>`;
-
 // The python plugin's repositories and remotes as the framework reads them. The
 // descriptor and what it imports are one chunk that loads when a python screen
 // is first shown.
@@ -252,12 +246,6 @@ const descriptor: PluginDescriptor<PythonRepository> = {
           initial: () => false,
         },
       ],
-    },
-    // The command is pasted into a terminal, so the address is quoted as a
-    // shell word: a repository name is free text.
-    snippet: {
-      label: msg`Install with pip`,
-      build: ({ url }) => pipInstallCommand(url),
     },
     // A python package is always named by the file's own name.
     upload: { contentType: 'python.package', relativePath: 'fixed-name' },
@@ -336,6 +324,7 @@ const descriptor: PluginDescriptor<PythonRepository> = {
   // distribution serves.
   distribution: {
     entity: pythonDistribution,
+    snippets: pythonSnippets,
   },
   publication: { entity: pythonPublication, servesFromPublication: false },
 };

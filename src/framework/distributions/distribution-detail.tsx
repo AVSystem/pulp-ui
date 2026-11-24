@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Button, Content, Flex, FlexItem } from '@patternfly/react-core';
+import { Button, Content, Flex, FlexItem, Title } from '@patternfly/react-core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
@@ -32,6 +32,7 @@ import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
 import { ServingFix } from '../publish/serving-fix';
 import { distributionEditPath, distributionListPath } from '../route-patterns';
+import { DistributionSnippets } from '../snippets/distribution-snippets';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import { GuardValue, ServesValue } from './distribution-columns';
@@ -339,6 +340,21 @@ const DistributionDetailScreen = ({
             distribution={distribution}
           />
         </section>
+        {descriptor.distribution?.snippets?.length ? (
+          <section
+            className='pulp-section'
+            data-cy='DistributionDetail-snippets'
+          >
+            <Title headingLevel='h2' size='lg'>
+              {t`Client configuration`}
+            </Title>
+            <DistributionSnippets
+              plugin={plugin}
+              descriptor={descriptor}
+              distribution={distribution}
+            />
+          </section>
+        ) : null}
       </Main>
     </>
   );

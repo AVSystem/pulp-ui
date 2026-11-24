@@ -221,30 +221,6 @@ describe('Unit: the file descriptor', { tags: ['unit'] }, () => {
     });
   });
 
-  describe('the command snippet', () => {
-    it('writes a remote create command for the manifest next to the content', () => {
-      expect(
-        repository.snippet?.build({
-          name: 'manuals',
-          url: 'https://pulp.example/content/manuals/',
-        }),
-      ).toBe(
-        "pulp file remote create --name 'manuals' --url 'https://pulp.example/content/manuals/PULP_MANIFEST'",
-      );
-    });
-
-    it('quotes a hostile name and URL as data', () => {
-      expect(
-        repository.snippet?.build({
-          name: "a$(id)'b",
-          url: 'https://pulp.example/a`id`/',
-        }),
-      ).toBe(
-        "pulp file remote create --name 'a$(id)'\\''b' --url 'https://pulp.example/a`id`/PULP_MANIFEST'",
-      );
-    });
-  });
-
   describe('the tabs', () => {
     it('adds the Versions, Content, Publications and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([

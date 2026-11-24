@@ -290,7 +290,7 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
 
     expect(publicationLess.publication).toBeUndefined();
     expect(publicationLess.repository?.sync).toBeUndefined();
-    expect(publicationLess.repository?.snippet).toBeUndefined();
+    expect(publicationLess.distribution).toBeUndefined();
     expect(() => checkDescriptor('maven', publicationLess)).not.toThrow();
   });
 
