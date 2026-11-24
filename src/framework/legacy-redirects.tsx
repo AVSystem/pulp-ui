@@ -25,7 +25,7 @@ const VERSION_PARAMETER = 'repositoryVersion';
 const TABS: Record<string, RepositoryTab> = {
   'repository-versions': 'versions',
   distributions: 'distributions',
-  packages: 'packages',
+  packages: 'content',
 };
 
 // A version number is a whole number written in digits only; anything else in
@@ -71,6 +71,11 @@ function targetOf(
         search: rest(),
       };
     }
+    case 'repository-packages':
+      return {
+        pathname: repositoryPath(plugin, name as string, 'content'),
+        search: rest(),
+      };
     case 'repository-edit':
       return {
         pathname: repositoryEditPath(plugin, name as string),

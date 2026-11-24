@@ -18,6 +18,7 @@ import {
   type PluginDescriptor,
   contentType,
 } from 'src/framework/descriptor';
+import { contentTab } from 'src/framework/detail/content-tab';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
@@ -200,6 +201,7 @@ const descriptor: PluginDescriptor<DebRepository> = {
     },
     tabs: [
       versionsTab<DebRepository>(),
+      contentTab<DebRepository>(),
       publicationsTab<DebRepository>(),
       distributionsTab<DebRepository>(),
     ],
@@ -277,6 +279,11 @@ const descriptor: PluginDescriptor<DebRepository> = {
         { param: 'architecture', label: msg`Architecture` },
       ],
       defaultSort: 'package',
+      nameOf: ({ package: name, version, architecture }) =>
+        `${name} ${version} ${architecture || ''}`.trim(),
+      errorTitle: msg`Packages could not be displayed.`,
+      emptyTitle: msg`No packages in the latest version`,
+      emptyDescription: msg`Sync this repository or add packages to it.`,
     }),
   ],
   distribution: { entity: debDistribution },

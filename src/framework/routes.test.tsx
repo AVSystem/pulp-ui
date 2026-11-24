@@ -322,10 +322,21 @@ describe(
     });
 
     it('shows Not Found for a tab the plugin does not have, without reading the repository', async () => {
-      const served = serveRepositories(repository({ name: 'repo-1' }));
+      const python: PluginManifest = {
+        ...(PLUGIN_MANIFESTS.find(
+          ({ plugin }) => plugin === 'python',
+        ) as PluginManifest),
+        onFramework: true,
+      };
+      const served = listOf(
+        `${API}/repositories/python/python/`,
+        [repository({ name: 'repo-1' })],
+        { pageSize: 1000 },
+      );
+      server.use(served.handler);
 
-      renderWithProviders(<Routed />, {
-        route: '/file/repositories/repo-1/packages',
+      renderWithProviders(<Routed manifests={[python]} />, {
+        route: '/python/repositories/repo-1/publications',
       });
 
       await screen.findByRole('heading', { name: '404 - Page not found' });

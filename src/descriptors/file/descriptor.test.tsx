@@ -262,9 +262,9 @@ describe('Unit: the file descriptor', { tags: ['unit'] }, () => {
     });
 
     it('has no packages tab, so that address is Not Found for file', () => {
-      expect((repository.tabs ?? []).some(({ id }) => id === 'packages')).toBe(
-        false,
-      );
+      expect(
+        (repository.tabs ?? []).some(({ id }) => (id as string) === 'packages'),
+      ).toBe(false);
     });
   });
 

@@ -1,5 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
-import { HttpResponse, http } from 'msw';
+import { screen, within } from '@testing-library/react';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
@@ -124,7 +123,6 @@ const bodyRows = (grid: HTMLElement) =>
   within(grid)
     .getAllByRole('row')
     .filter((each) => within(each).queryAllByRole('columnheader').length === 0);
-const location = () => screen.getByTestId('location').textContent;
 
 describe(
   'Integration: the Content tab of a deb repository',
@@ -144,12 +142,16 @@ describe(
 
       const headers = within(grid)
         .getAllByRole('columnheader')
-        .map((header) => header.textContent?.trim());
+        .map((header) => header.textContent?.trim())
+        // the first column holds the check boxes
+        .slice(1);
       expect(headers).toEqual(['Package', 'Version', 'Architecture']);
       const cells = (index: number) =>
         within(bodyRows(grid)[index] as HTMLElement)
           .getAllByRole('cell')
-          .map((cell) => cell.textContent);
+          .map((cell) => cell.textContent)
+          // the first cell holds the check box
+          .slice(1);
       expect(cells(0)).toEqual(['pkg-001', '1.0-1', 'amd64']);
       expect(cells(1)).toEqual(['pkg-002', '1.0-2', 'all']);
 

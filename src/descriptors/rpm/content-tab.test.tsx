@@ -169,12 +169,16 @@ describe(
 
       const headers = within(grid)
         .getAllByRole('columnheader')
-        .map((header) => header.textContent?.trim());
+        .map((header) => header.textContent?.trim())
+        // the first column holds the check boxes
+        .slice(1);
       expect(headers).toEqual(['Name', 'Version', 'Arch', 'Summary']);
       const cells = (index: number) =>
         within(bodyRows(grid)[index] as HTMLElement)
           .getAllByRole('cell')
-          .map((cell) => cell.textContent);
+          .map((cell) => cell.textContent)
+          // the first cell holds the check box
+          .slice(1);
       expect(cells(0)).toEqual([
         'pkg-001',
         '5.2-3.el9',

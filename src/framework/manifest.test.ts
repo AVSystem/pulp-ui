@@ -322,7 +322,6 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/file/repositories/:name/distributions',
       '/file/repositories/:name/publications',
       '/file/repositories/:name/content',
-      '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
       '/file/remotes',

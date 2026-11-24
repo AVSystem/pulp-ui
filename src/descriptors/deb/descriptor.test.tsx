@@ -262,9 +262,9 @@ describe('Unit: the deb descriptor', { tags: ['unit'] }, () => {
         'publications',
         'distributions',
       ]);
-      expect((repository.tabs ?? []).some(({ id }) => id === 'packages')).toBe(
-        false,
-      );
+      expect(
+        (repository.tabs ?? []).some(({ id }) => (id as string) === 'packages'),
+      ).toBe(false);
     });
   });
 
