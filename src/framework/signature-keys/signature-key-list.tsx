@@ -20,7 +20,7 @@ import {
 } from 'src/components';
 import type { SigningService } from 'src/entities/core/signing-service/model';
 import { useSigningServices } from 'src/entities/core/signing-service/queries';
-import { downloadString } from 'src/utilities';
+import { downloadString } from 'src/utilities/download-data';
 import {
   isSessionEnd,
   requestErrorDescription,
