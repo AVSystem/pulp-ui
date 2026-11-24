@@ -12,8 +12,17 @@ const SERVING_PREFIX = 'zz-synth-serving-';
 // The column of the list that holds the served state.
 const SERVED_COLUMN = 6;
 
+// The one-click fix a warning may carry beside it in the same cell, for an
+// account that may apply it.
+const FIX =
+  /(Publish latest version|Publish version \d+|Serve the newest publication|Choose what it serves)?/;
+
+const escape = (text: string): string =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // The list narrowed to the serving objects shows the served state of every
-// row: the cell holds exactly the text the state is drawn with.
+// row: the cell holds the text the state is drawn with, and nothing but the fix
+// that repairs it.
 export async function expectListStates(
   page: Page,
   states: ServingState[],
@@ -31,7 +40,7 @@ export async function expectListStates(
     await expect(
       listRow(page, name).locator('td').nth(SERVED_COLUMN),
       `served state of ${name} on the list`,
-    ).toHaveText(served);
+    ).toHaveText(new RegExp(`^${escape(served)}${FIX.source}$`));
   }
 }
 

@@ -175,7 +175,7 @@ test('a file the server refuses leaves the repository alone, and a second try wi
   ).toHaveLength(3);
 });
 
-test('cancelling a chunked upload leaves no upload object and no version', async ({
+test('cancelling a chunked upload, even before the server has answered, leaves no upload object and no version', async ({
   page,
 }) => {
   test.setTimeout(300_000);
@@ -183,6 +183,18 @@ test('cancelling a chunked upload leaves no upload object and no version', async
     name: objects.name('cancel'),
   });
   const before = await uploadCount(objects);
+  // The server makes the upload as soon as it has the request; its answer is
+  // held back so that the cancel lands while the page does not yet know the
+  // upload's address, the case a cancel must not leave an upload behind.
+  await page.route('**/pulp/api/v3/uploads/', async (route) => {
+    if (route.request().method() !== 'POST') {
+      await route.continue();
+      return;
+    }
+    const response = await route.fetch();
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.fulfill({ response }).catch(() => undefined);
+  });
   const dialog = await openUploadDialog(page, repository['name'] as string);
   await chooseFiles(dialog, [
     {
