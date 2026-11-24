@@ -473,8 +473,59 @@ describe('Unit: the address a client uses', { tags: ['unit'] }, () => {
     expect(ansibleDistribution.clientUrlOf(read)).toBe(row.client_url);
   });
 
+  it('is the registry path a container distribution reports, which it has instead of a base URL', () => {
+    const row = pluginDistribution('container', {
+      registry_path: 'registry.example/stable',
+    });
+
+    expect(row.base_url).toBeUndefined();
+    expect(containerDistribution.clientUrlOf(row as DistributionBase)).toBe(
+      'registry.example/stable',
+    );
+  });
+
+  it('is nothing for a container distribution that reports no registry path', () => {
+    const row = pluginDistribution('container');
+    delete row.registry_path;
+
+    expect(
+      containerDistribution.clientUrlOf(row as DistributionBase),
+    ).toBeNull();
+  });
+
+  it('parses the registry path of a container row and keeps it on the parsed row', async () => {
+    const row = pluginDistribution('container', { name: 'stable' });
+    server.use(http.get(`*${row.pulp_href}`, () => HttpResponse.json(row)));
+
+    const read = await containerDistribution.retrieve(row.pulp_href);
+
+    expect(containerDistribution.clientUrlOf(read)).toBe(row.registry_path);
+  });
+
+  it('asks the server for the registry path of a container distribution it lists by address', async () => {
+    const row = pluginDistribution('container', { name: 'stable' });
+    let asked: string | null = null;
+    server.use(
+      http.get('*/distributions/container/container/', ({ request }) => {
+        asked = new URL(request.url).searchParams.getAll('fields').join(',');
+        return HttpResponse.json({
+          count: 1,
+          next: null,
+          previous: null,
+          results: [row],
+        });
+      }),
+    );
+
+    await containerDistribution.ofHrefs([row.pulp_href]);
+
+    expect(asked).toContain('registry_path');
+  });
+
   it('is the base URL for every other plugin', () => {
-    for (const plugin of PLUGINS.filter((name) => name !== 'ansible')) {
+    for (const plugin of PLUGINS.filter(
+      (name) => name !== 'ansible' && name !== 'container',
+    )) {
       const row = pluginDistribution(plugin, {
         base_url: 'https://pulp.example/pulp/content/stable/',
       });

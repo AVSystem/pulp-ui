@@ -355,7 +355,8 @@ export function pluginRemote(
 
 // A distribution of the given plugin as the server returns it: distribution()
 // with the address, the PRN and the labels of that plugin. An ansible
-// distribution also carries the address of its collection source.
+// distribution also carries the address of its collection source, and a
+// container distribution the registry path in place of the content address.
 export function pluginDistribution(
   plugin: TestDistributionPlugin,
   overrides: Partial<IDistribution> = {},
@@ -368,12 +369,22 @@ export function pluginDistribution(
     pulp_labels: {},
     ...overrides,
   });
-  return plugin === 'ansible'
-    ? {
-        client_url: `${CONTENT_HOST}/pulp_ansible/galaxy/${row.base_path}/`,
-        ...row,
-      }
-    : row;
+  if (plugin === 'ansible') {
+    return {
+      client_url: `${CONTENT_HOST}/pulp_ansible/galaxy/${row.base_path}/`,
+      ...row,
+    };
+  }
+  if (plugin === 'container') {
+    // A registry reports where it is pulled from and has no content address.
+    const registry: Partial<IDistribution> = { ...row };
+    delete registry.base_url;
+    return {
+      registry_path: `pulp.example/${row.base_path}`,
+      ...registry,
+    } as IDistribution;
+  }
+  return row;
 }
 
 // The `pulp_type` the server filters the cross-plugin distribution list by,
