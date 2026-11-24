@@ -14,8 +14,8 @@ import {
   pluginRepository,
   projectedBy,
   publicationListHandler,
-  task,
   taskListHandler,
+  taskRow,
   versionSummaryHandler,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -130,7 +130,7 @@ function serveLab({
     ],
   ]);
   const modifies: { path: string; body: unknown }[] = [];
-  const taskState = { state: 'running' };
+  const taskState = { state: 'running', reads: 0 };
 
   const files = listOf(FILES, rows, {
     pageSize: 1000,
@@ -168,9 +168,12 @@ function serveLab({
       });
       return answer();
     }),
-    http.get(`*${TASK_HREF}`, () =>
-      HttpResponse.json(task({ pulp_href: TASK_HREF, state: taskState.state })),
-    ),
+    http.get(`*${TASK_HREF}`, () => {
+      taskState.reads += 1;
+      return HttpResponse.json(
+        taskRow({ pulp_href: TASK_HREF, state: taskState.state }),
+      );
+    }),
   );
 
   return {
@@ -180,7 +183,8 @@ function serveLab({
     modifies,
     queries: files.queries,
     // The task ends and the repository is on its new version.
-    finish: () => {
+    finish: async () => {
+      await waitFor(() => expect(taskState.reads).toBeGreaterThan(0));
       taskState.state = 'completed';
       repository.latest_version_href = second;
       intervals.run(WATCH_POLL_MS);
@@ -231,9 +235,10 @@ describe(
       expect(query.get('ordering')).toBe('relative_path');
       expect(query.getAll('fields')).toContain('relative_path');
       expect(query.getAll('fields')).not.toContain('sha256');
-      expect(
-        screen.getByRole('tab', { name: 'Content', selected: true }),
-      ).toBeVisible();
+      expect(screen.getByRole('link', { name: 'Content' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
     });
 
     it('shows the empty state and sends no content request for a repository that has no version', async () => {
@@ -409,12 +414,12 @@ describe(
       expect(screen.getByText('docs/file-001.txt')).toBeVisible();
       expect(screen.queryByText('2 rows selected')).toBeNull();
 
-      lab.finish();
+      await lab.finish();
 
       await waitFor(() =>
         expect(screen.queryByText('docs/file-001.txt')).toBeNull(),
       );
-      expect(screen.getByText('docs/file-004.txt')).toBeVisible();
+      expect(await screen.findByText('docs/file-004.txt')).toBeVisible();
       expect(bodyRows(await table())).toHaveLength(2);
       expect(
         lab.queries.some(

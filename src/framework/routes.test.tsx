@@ -84,6 +84,7 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
       '/file/repositories/:name/versions/:number',
       '/file/repositories/:name/distributions',
       '/file/repositories/:name/publications',
+      '/file/repositories/:name/content',
       '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
@@ -151,10 +152,10 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
     expect(paths.some((path) => path.startsWith('/file/remote'))).toBe(false);
   });
 
-  it('builds no route for an address whose screen does not exist yet: the content tab', () => {
+  it('builds the content tab route', () => {
     const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
 
-    expect(paths).not.toContain('/file/repositories/:name/content');
+    expect(paths).toContain('/file/repositories/:name/content');
   });
 
   it('builds the publications tab route', () => {

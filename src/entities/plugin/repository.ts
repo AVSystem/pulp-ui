@@ -198,6 +198,30 @@ export interface RevertBody {
   base_version: string;
 }
 
+// What a change of content sends: the units to add to the latest version's
+// content and the units to take out of it. A base version is not part of it: it
+// makes the new version start from that version's content, so a removal built
+// on the latest content would silently become a revert.
+export interface ModifyBody {
+  add_content_units?: string[];
+  remove_content_units?: string[];
+}
+
+// Every body the content change of a repository takes.
+export type ContentChange = RevertBody | ModifyBody;
+
+// The body that reverts a repository to the version at this address.
+export const revertBody = (version: string): RevertBody => ({
+  base_version: version,
+});
+
+// The body that removes these units from the latest version's content. The
+// addresses are copied, so a selection that changes while the request is on its
+// way cannot reach it.
+export const removeContentBody = (hrefs: readonly string[]): ModifyBody => ({
+  remove_content_units: [...hrefs],
+});
+
 // What an edit sends: the fields that changed, by their names in the request
 // body. A generic screen builds it from the descriptor's fields, so it is not
 // typed by plugin; the server checks every field.
@@ -216,7 +240,7 @@ export function makeRepositoryEntity<
   TUpdate,
   TVersionParams,
   TSync = never,
-  TModify = RevertBody,
+  TModify = ContentChange,
 >({
   app,
   schema,

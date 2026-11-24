@@ -1,6 +1,11 @@
 import { i18n } from '@lingui/core';
 import type { MessageDescriptor } from '@lingui/core';
+import { msg, t } from '@lingui/core/macro';
 import {
+  Button,
+  Content,
+  ToggleGroup,
+  ToggleGroupItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -11,6 +16,7 @@ import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
+  type AlertType,
   AppliedFilters,
   CompoundFilter,
   EmptyStateFilter,
@@ -25,17 +31,30 @@ import type {
   ContentEntity,
   ContentListParams,
 } from 'src/entities/plugin/content';
+import type { RepositoryBase } from 'src/entities/plugin/model';
 import { useEntityList } from 'src/entities/plugin/queries';
 import {
   isSessionEnd,
   requestErrorDescription,
 } from 'src/utilities/request-error';
+import { selectedText } from '../bulk/bulk-menu';
+import { SelectCell } from '../bulk/select-cells';
+import { usePageSelection } from '../bulk/selection';
+import { RemoveContentDialog } from '../content/remove-content-dialog';
+import {
+  type ContentTypeDef,
+  type PluginDescriptor,
+  type TabDef,
+  repositoryOf,
+} from '../descriptor';
 import {
   type ListParams,
   PAGE_SIZES,
   paramsOfAddress,
   searchOf,
 } from '../list/list-params';
+import type { FrameworkPlugin } from '../manifest';
+import { useRepositoryPermission } from './use-repository-permission';
 
 // One column of a content list. A column the server orders by names the field;
 // every other column never sorts.
@@ -73,6 +92,17 @@ export interface ContentListConfig<Row extends { pulp_href: string }> {
   // Filters every request of the list carries whatever the address says: the
   // list of one content type through an endpoint that holds several.
   fixed?: Readonly<Record<string, string>>;
+  // What names a unit to the user, in a check box and in a confirmation: the
+  // path of a file, the name and version of a package. The address of the unit
+  // when a type names nothing.
+  nameOf?: (row: Row) => string;
+}
+
+// What a list does with the rows its user ticks: the toolbar items of the
+// actions that take the ticked rows, in the order of the page. `clear` empties
+// the selection, for an action that has been accepted.
+export interface ContentSelecting<Row> {
+  actions: (picked: readonly Row[], clear: () => void) => ReactNode;
 }
 
 // Which part of a repository version a list shows: the content the version
@@ -105,6 +135,9 @@ interface Props<Row extends { pulp_href: string }> {
   // Where the page, order and filters live; the address of the screen unless
   // said.
   address?: ListAddress;
+  // Gives the rows check boxes, for the page only, and the actions the user may
+  // take on the ticked rows. Rows have none unless said.
+  selecting?: ContentSelecting<Row>;
 }
 
 // The content of one repository version as a page of a table. The page, its
@@ -116,6 +149,7 @@ export function ContentList<Row extends { pulp_href: string }>({
   section = 'present',
   label,
   address,
+  selecting,
 }: Props<Row>) {
   const {
     entity,
@@ -165,6 +199,24 @@ export function ContentList<Row extends { pulp_href: string }>({
     fields: [...fields],
   } as ContentListParams;
   const query = useEntityList(entity, request, { enabled: !!version });
+
+  // The rows ticked for an action: those of this page of this list, and none
+  // once the address, the version or the part changes.
+  const rows = query.data?.results;
+  const shownHrefs = useMemo(
+    () => (rows ?? []).map(({ pulp_href }) => pulp_href),
+    [rows],
+  );
+  const selection = usePageSelection(
+    `${version}|${section}|${search}`,
+    shownHrefs,
+  );
+  const { selected } = selection;
+  const picked = useMemo(
+    () => (rows ?? []).filter(({ pulp_href }) => selected.has(pulp_href)),
+    [rows, selected],
+  );
+  const nameOf = (row: Row) => config.nameOf?.(row) ?? row.pulp_href;
 
   if (!version) {
     return (
@@ -236,6 +288,20 @@ export function ContentList<Row extends { pulp_href: string }>({
                 />
               </ToolbarItem>
             </ToolbarGroup>
+            {selecting ? (
+              <ToolbarGroup>
+                <ToolbarItem>
+                  <Content component='small' aria-live='polite'>
+                    {picked.length > 0
+                      ? selectedText(picked.length)
+                      : t`No rows selected`}
+                  </Content>
+                </ToolbarItem>
+                <ToolbarItem>
+                  {selecting.actions(picked, selection.clear)}
+                </ToolbarItem>
+              </ToolbarGroup>
+            ) : null}
           </ToolbarContent>
         </Toolbar>
         <PulpPagination
@@ -267,10 +333,36 @@ export function ContentList<Row extends { pulp_href: string }>({
             options={{ headers }}
             params={params}
             updateParams={updateParams}
+            selectAll={
+              selecting
+                ? {
+                    isSelected: selection.allSelected
+                      ? true
+                      : selection.count > 0
+                        ? null
+                        : false,
+                    onSelect: selection.toggleAll,
+                    label: t`Select all on this page`,
+                  }
+                : undefined
+            }
           />
           <Tbody>
-            {data.results.map((row) => (
-              <Tr key={row.pulp_href}>
+            {data.results.map((row, position) => (
+              <Tr
+                key={row.pulp_href}
+                isRowSelected={selected.has(row.pulp_href)}
+              >
+                {selecting ? (
+                  <SelectCell
+                    id={`content-select-${position}`}
+                    label={t`Select ${nameOf(row)}`}
+                    checked={selected.has(row.pulp_href)}
+                    onChange={(checked) =>
+                      selection.toggle(row.pulp_href, checked)
+                    }
+                  />
+                ) : null}
                 {columns.map(({ id, render }) => (
                   <Td key={id}>{render(row)}</Td>
                 ))}
@@ -290,3 +382,163 @@ export function ContentList<Row extends { pulp_href: string }>({
     </>
   );
 }
+
+// What a ContentList of a plugin's content type is configured with. The texts
+// are the type's own, with a plain wording for a type that gives none.
+function tabConfig(
+  type: ContentTypeDef,
+): ContentListConfig<{ pulp_href: string }> {
+  return {
+    entity: type.entity,
+    fields: type.fields,
+    columns: type.columns,
+    filters: type.filters ?? [],
+    title: type.label,
+    errorTitle: type.errorTitle ?? msg`Content could not be displayed.`,
+    emptyTitle: type.emptyTitle ?? msg`No content in the latest version`,
+    emptyDescription:
+      type.emptyDescription ?? msg`There is no content of this kind to show.`,
+    defaultPageSize: 20,
+    defaultSort: type.defaultSort,
+    nameOf: type.nameOf,
+  };
+}
+
+// The query parameter that names the content type on a repository whose plugin
+// has several.
+const TYPE_PARAMETER = 'type';
+
+interface TabProps {
+  plugin: FrameworkPlugin;
+  descriptor: PluginDescriptor;
+  repository: RepositoryBase;
+  addAlert: (alert: AlertType) => void;
+}
+
+// The content of a repository's latest version, one kind of content at a time
+// (a choice between them when the plugin declares several). A user who may
+// modify the repository ticks rows of the current page and removes them in one
+// request after a confirmation; the list shows the new version when the task
+// that makes it has ended. A repository without a version holds nothing, and
+// nothing is asked of the server.
+export const ContentTab = ({
+  plugin,
+  descriptor,
+  repository,
+  addAlert,
+}: TabProps) => {
+  const types = descriptor.contentTypes ?? [];
+  if (types.length === 0) {
+    throw new Error(
+      'The descriptor declares no content type, which the Content tab needs',
+    );
+  }
+  const { entity } = repositoryOf(descriptor);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const mayModify = useRepositoryPermission(plugin, repository, 'modify');
+  const [removing, setRemoving] = useState<{
+    rows: { href: string; name: string }[];
+    clear: () => void;
+  } | null>(null);
+
+  const address = new URLSearchParams(location.search);
+  const named = address.get(TYPE_PARAMETER);
+  const type = types.find(({ id }) => id === named) ?? types[0];
+  address.delete(TYPE_PARAMETER);
+
+  // The list keeps its page, order and filters in the address beside the type,
+  // so the type is never lost when the list pages or sorts.
+  const listAddress = {
+    search: address.size > 0 ? `?${address.toString()}` : '',
+    onChange: (search: string) => {
+      const next = new URLSearchParams(search);
+      if (type !== types[0]) {
+        next.set(TYPE_PARAMETER, type.id);
+      }
+      navigate({ search: next.size > 0 ? `?${next.toString()}` : '' });
+    },
+  };
+
+  const config = tabConfig(type);
+  const canRemove = mayModify && entity.modify !== undefined;
+
+  return (
+    <>
+      {types.length > 1 ? (
+        <ToggleGroup aria-label={t`Content type`}>
+          {types.map(({ id, label }) => (
+            <ToggleGroupItem
+              key={id}
+              text={i18n._(label)}
+              buttonId={`content-type-${id}`}
+              isSelected={id === type.id}
+              onChange={() =>
+                navigate({
+                  search:
+                    id === types[0].id
+                      ? ''
+                      : `?${TYPE_PARAMETER}=${encodeURIComponent(id)}`,
+                })
+              }
+            />
+          ))}
+        </ToggleGroup>
+      ) : null}
+      <ContentList
+        key={type.id}
+        config={config}
+        version={repository.latest_version_href}
+        address={listAddress}
+        selecting={
+          canRemove
+            ? {
+                actions: (picked, clear) => (
+                  <Button
+                    variant='secondary'
+                    isDanger
+                    isDisabled={picked.length === 0}
+                    onClick={() =>
+                      setRemoving({
+                        rows: picked.map((row) => ({
+                          href: row.pulp_href,
+                          name: config.nameOf?.(row) ?? row.pulp_href,
+                        })),
+                        clear,
+                      })
+                    }
+                  >
+                    {t`Remove from repository`}
+                  </Button>
+                ),
+              }
+            : undefined
+        }
+      />
+      {removing ? (
+        <RemoveContentDialog
+          repository={repository}
+          entity={entity}
+          items={removing.rows}
+          addAlert={addAlert}
+          onRemoved={removing.clear}
+          onClose={() => setRemoving(null)}
+        />
+      ) : null}
+    </>
+  );
+};
+
+// The Content tab as a plugin declares it among its tabs.
+export const contentTab = <Row extends RepositoryBase>(): TabDef<Row> => ({
+  id: 'content',
+  label: msg`Content`,
+  render: ({ repository, plugin, descriptor, addAlert }) => (
+    <ContentTab
+      plugin={plugin}
+      descriptor={descriptor}
+      repository={repository}
+      addAlert={addAlert}
+    />
+  ),
+});
