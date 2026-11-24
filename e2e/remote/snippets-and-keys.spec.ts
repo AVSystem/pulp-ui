@@ -112,6 +112,16 @@ for (const { plugin, name, tabs } of SEEDED) {
     page,
   }) => {
     await openDistribution(page, plugin, name);
+    // a registry has no content address: the page names where an image is
+    // pulled from, the host and the base path
+    if (plugin === 'container') {
+      await expect(
+        page
+          .locator('[data-cy=DistributionDetail-details]')
+          .locator('.pf-v6-c-clipboard-copy__text')
+          .first(),
+      ).toHaveText(new RegExp(`/${name}$`));
+    }
     const shown = await tabsOf(page);
     for (const tab of tabs) {
       expect(shown, `tabs of the ${plugin} snippet panel`).toContain(tab);
