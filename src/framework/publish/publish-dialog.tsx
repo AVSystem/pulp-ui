@@ -63,7 +63,9 @@ export const PublishDialog = ({
   const start = usePublish<PublishBody>(kind?.entity ?? { create: undefined });
   const { watch } = useWatchTask();
   // Pressing Publish twice before the screen has drawn the first press must
-  // still send one request.
+  // still send one request, and so must a press after the server accepted the
+  // first: the dialog is about to go away, and a second publish would make a
+  // second publication.
   const sent = useRef(false);
 
   if (!kind) {
@@ -115,8 +117,7 @@ export const PublishDialog = ({
       onClose();
     } catch {
       // The failure is on the mutation and shown in the dialog, which stays
-      // open with the options as they were.
-    } finally {
+      // open with the options as they were, so Publish may be pressed again.
       sent.current = false;
     }
   };
