@@ -156,7 +156,9 @@ describe('Integration: the Publications tab', { tags: ['integration'] }, () => {
     expect(newest.querySelector('time')?.getAttribute('datetime')).toBe(
       '2024-01-03T10:00:00.000000Z',
     );
-    await waitFor(() => expect(within(newest).getByText('root')).toBeVisible());
+    await waitFor(() =>
+      expect(within(newest).getByText('One file at the root')).toBeVisible(),
+    );
     expect(within(await rowOf(0)).getByText('INDEX')).toBeVisible();
     const order = screen
       .getAllByRole('row')
@@ -368,9 +370,11 @@ describe('Integration: the Publications tab', { tags: ['integration'] }, () => {
       await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
 
       expect(
-        await within(dialog).findByText(/You do not have permission/),
+        await within(dialog).findByText('You do not have permission.'),
       ).toBeVisible();
-      expect(screen.getByRole('link', { name: '1' })).toBeVisible();
+      expect(
+        screen.getByRole('link', { name: '1', hidden: true }),
+      ).toBeVisible();
     });
 
     it('offers Delete to a user who holds the permission and none to one who does not', async () => {

@@ -246,13 +246,15 @@ describe('Unit: the file descriptor', { tags: ['unit'] }, () => {
   });
 
   describe('the tabs', () => {
-    it('adds the Versions and Distributions tabs, each at its sub-path', () => {
+    it('adds the Versions, Publications and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([
         'versions',
+        'publications',
         'distributions',
       ]);
       expect((repository.tabs ?? []).map(({ label }) => text(label))).toEqual([
         'Versions',
+        'Publications',
         'Distributions',
       ]);
     });

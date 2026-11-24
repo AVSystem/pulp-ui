@@ -172,4 +172,55 @@ function isNoteworthy(state: ServedState): boolean {
   );
 }
 
-export { isNoteworthy, servedState };
+// What the rules need of one publication of a repository.
+export interface PublicationFact {
+  pulp_href: string;
+  // The address of the version it was made from, to match a version binding.
+  repository_version?: string | null;
+  // That version's number, or null when it is not known.
+  version: number | null;
+  // When it was made; of two publications of one version the later wins.
+  created?: string | null;
+}
+
+// The later of two publications by creation time, the first when they tie.
+const newer = (a: PublicationFact, b: PublicationFact) =>
+  (b.created ?? '') > (a.created ?? '') ? b : a;
+
+// The publication a distribution serves, or null when it serves none. The
+// rules are those of `servedState`: a publication binding serves that
+// publication, a version binding the newest publication of exactly that
+// version, a repository binding the newest publication of the highest version
+// that has one. `publications` are the publications of the repository served.
+function servedPublication(
+  binding: ServingBinding,
+  publications: readonly PublicationFact[],
+): PublicationFact | null {
+  const { repository, publication, repository_version } = binding;
+
+  if (publication) {
+    return publications.find((row) => row.pulp_href === publication) ?? null;
+  }
+  if (repository_version) {
+    return publications
+      .filter((row) => row.repository_version === repository_version)
+      .reduce<PublicationFact | null>(
+        (best, row) => (best ? newer(best, row) : row),
+        null,
+      );
+  }
+  if (!repository) {
+    return null;
+  }
+  return publications.reduce<PublicationFact | null>((best, row) => {
+    if (row.version === null) {
+      return best;
+    }
+    if (!best || best.version === null || row.version > best.version) {
+      return row;
+    }
+    return row.version === best.version ? newer(best, row) : best;
+  }, null);
+}
+
+export { isNoteworthy, servedPublication, servedState };

@@ -7,6 +7,7 @@ import { fileRemote } from 'src/entities/file/remote';
 import { fileRepository } from 'src/entities/file/repository';
 import type { FieldDef, PluginDescriptor } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
+import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
 import {
   POLICY_ROW,
@@ -79,7 +80,11 @@ const descriptor: PluginDescriptor<FileRepository> = {
     // A new repository does not publish by itself and writes no SHA256SUMS
     // files, which is what the server does when it is told nothing.
     createDefaults: { autopublish: false, sha256sums: 'disabled' },
-    tabs: [versionsTab<FileRepository>(), distributionsTab<FileRepository>()],
+    tabs: [
+      versionsTab<FileRepository>(),
+      publicationsTab<FileRepository>(),
+      distributionsTab<FileRepository>(),
+    ],
     sync: {
       taskName: 'pulp_file.app.tasks.synchronizing.synchronize',
       fields: ['autopublish'],
@@ -134,6 +139,28 @@ const descriptor: PluginDescriptor<FileRepository> = {
     entity: filePublication,
     servesFromPublication: true,
     taskName: 'pulp_file.app.tasks.publishing.publish',
+    columns: [
+      {
+        id: 'manifest',
+        label: msg`Manifest`,
+        render: ({ manifest }) =>
+          typeof manifest === 'string' && manifest ? manifest : t`None`,
+      },
+      {
+        id: 'sha256sums',
+        label: msg`SHA256SUMS files`,
+        render: ({ sha256sums }) => {
+          const option = SHA256SUMS_OPTIONS.find(
+            ({ value }) => value === sha256sums,
+          );
+
+          if (option) {
+            return i18n._(option.label);
+          }
+          return typeof sha256sums === 'string' ? sha256sums : t`None`;
+        },
+      },
+    ],
     // Both start from the repository's own setting, which is what the server
     // uses when the request names none.
     options: [

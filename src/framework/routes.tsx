@@ -231,6 +231,7 @@ const DistributionListScreen = lazyScreen(() =>
 const TABS_WITH_SCREENS: ReadonlySet<RepositoryTab> = new Set<RepositoryTab>([
   'versions',
   'distributions',
+  'publications',
   'packages',
 ]);
 

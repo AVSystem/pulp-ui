@@ -83,6 +83,7 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
       '/file/repositories/:name/versions',
       '/file/repositories/:name/versions/:number',
       '/file/repositories/:name/distributions',
+      '/file/repositories/:name/publications',
       '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
@@ -150,15 +151,16 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
     expect(paths.some((path) => path.startsWith('/file/remote'))).toBe(false);
   });
 
-  it('builds no route for an address whose screen does not exist yet: the publications and content tabs', () => {
+  it('builds no route for an address whose screen does not exist yet: the content tab', () => {
     const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
 
-    for (const pattern of [
-      '/file/repositories/:name/publications',
-      '/file/repositories/:name/content',
-    ]) {
-      expect(paths, pattern).not.toContain(pattern);
-    }
+    expect(paths).not.toContain('/file/repositories/:name/content');
+  });
+
+  it('builds the publications tab route', () => {
+    const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
+
+    expect(paths).toContain('/file/repositories/:name/publications');
   });
 
   it('builds the one route that belongs to no plugin, without a plugin gate', () => {

@@ -5,7 +5,8 @@ import {
 import { z } from 'zod';
 import { chunkByUrl } from 'src/entities/batch';
 import { pulpHrefSchema } from 'src/entities/href';
-import { pageSchemaOf } from 'src/entities/plugin/model';
+import { type Page, pageSchemaOf } from 'src/entities/plugin/model';
+import { toListRequest } from 'src/entities/plugin/request';
 import { parseResponse } from 'src/entities/response-shape';
 
 // The publications of every plugin through the one endpoint that lists them
@@ -21,6 +22,30 @@ const publicationSchema = z.looseObject({
 const publicationPageSchema = pageSchemaOf(publicationSchema);
 
 export type PublicationRef = z.infer<typeof publicationSchema>;
+
+// A publication as the page of a repository's publications shows it: where it
+// came from and when. What the plugin adds (its options) is read by the plugin.
+const publicationRowSchema = publicationSchema.extend({
+  pulp_created: z.string().nullish(),
+});
+
+const publicationRowPageSchema = pageSchemaOf(publicationRowSchema);
+
+export type PublicationRow = z.infer<typeof publicationRowSchema>;
+
+// What a page of a repository's publications is asked for.
+export interface RepositoryPublicationParams {
+  page?: number;
+  page_size?: number;
+  sort?: string;
+}
+
+const PAGE_FIELDS = [
+  'pulp_href',
+  'repository',
+  'repository_version',
+  'pulp_created',
+];
 
 const FIELDS = ['pulp_href', 'repository', 'repository_version'];
 
@@ -61,4 +86,24 @@ async function byHrefs(
   );
 }
 
-export const PublicationClient = { chunks, byHrefs };
+// One page of the publications made from a repository, of every type at once (a
+// deb repository has two). The filter, the order and the count are the
+// server's.
+async function ofRepositoryPage(
+  repository: string,
+  params: RepositoryPublicationParams,
+  options?: RequestInit,
+): Promise<Page<PublicationRow>> {
+  const data = await publicationsList(
+    {
+      ...toListRequest(params, []),
+      repository,
+      fields: PAGE_FIELDS,
+    } as Parameters<typeof publicationsList>[0],
+    options,
+  );
+
+  return parseResponse(publicationRowPageSchema, data) as Page<PublicationRow>;
+}
+
+export const PublicationClient = { chunks, byHrefs, ofRepositoryPage };
