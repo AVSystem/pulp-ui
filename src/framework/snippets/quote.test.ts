@@ -26,7 +26,7 @@ describe('Unit: quoting for line formats', { tags: ['unit'] }, () => {
   it.each([
     ['a line feed', 'a\nb'],
     ['a carriage return', 'a\rb'],
-    ['a line separator', 'a b'],
+    ['a line separator', 'a\u2028b'],
     ['a null byte', 'a\u0000b'],
   ])('refuses %s, which would start another line of the file', (_, value) => {
     expect(() => iniValue(value)).toThrow(UnsafeValueError);

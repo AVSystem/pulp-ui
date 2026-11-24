@@ -18,6 +18,7 @@ export const PulpCopyButton = ({
         navigator.clipboard.writeText(text);
       }}
       variant='plain'
+      aria-label={t`Copy to clipboard`}
       id='pulp-copy-button'
       exitDelay={copied ? 1500 : 600}
       maxWidth='110px'

@@ -17,6 +17,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { openSnippets } from 'src/test-utils/snippets';
 import { PLUGIN_MANIFESTS, type PluginManifest } from '../manifest';
 import { frameworkRoutes } from '../routes';
 
@@ -110,7 +111,7 @@ describe(
   'Integration: the Distributions tab',
   { tags: ['integration'] },
   () => {
-    it('shows the URL the server reports and a command line that ends with that URL plus PULP_MANIFEST', async () => {
+    it('shows the URL the server reports, and opens to a command line that ends with that URL plus PULP_MANIFEST', async () => {
       serveLab({
         distributions: (repository) => [
           pluginDistribution('file', {
@@ -125,12 +126,14 @@ describe(
         ],
       });
 
-      renderTab();
+      const { user } = renderTab();
 
       const cells = within(await rowOf('tools-dist'));
       expect(cells.getByText(URL_A)).toBeVisible();
       expect(cells.getByText('tools')).toBeVisible();
-      const line = cells.getByText(/PULP_MANIFEST/);
+      expect(screen.queryByText(/PULP_MANIFEST/)).toBeNull();
+      await openSnippets(user, 'tools-dist', 'CLI configuration');
+      const line = await screen.findByText(/PULP_MANIFEST/);
       expect(line.textContent).toBe(
         `pulp file remote create --name 'tools' --url '${URL_A}PULP_MANIFEST'`,
       );
@@ -152,9 +155,10 @@ describe(
         ],
       });
 
-      renderTab(hostile);
+      const { user } = renderTab(hostile);
 
-      const line = within(await rowOf('tools-dist')).getByText(/PULP_MANIFEST/);
+      await openSnippets(user, 'tools-dist', 'CLI configuration');
+      const line = await screen.findByText(/PULP_MANIFEST/);
       expect(line.textContent).toBe(
         `pulp file remote create --name 'a$(id)'\\''b\`id\`' --url '${URL_A}PULP_MANIFEST'`,
       );
@@ -175,15 +179,16 @@ describe(
         ],
       });
 
-      renderTab();
+      const { user } = renderTab();
 
-      const line = within(await rowOf('tools-dist')).getByText(/PULP_MANIFEST/);
+      await openSnippets(user, 'tools-dist', 'CLI configuration');
+      const line = await screen.findByText(/PULP_MANIFEST/);
       expect(line.textContent).toBe(
         `pulp file remote create --name 'tools' --url 'https://pulp.example/x/'\\''; echo hi; '\\''/PULP_MANIFEST'`,
       );
     });
 
-    it('shows no command line for a distribution the server gave no URL', async () => {
+    it('shows no client configuration for a distribution the server gave no URL', async () => {
       serveLab({
         distributions: (repository) => [
           pluginDistribution('file', {
@@ -197,11 +202,13 @@ describe(
         ],
       });
 
-      renderTab();
+      const { user } = renderTab();
 
-      const row = await rowOf('no-url');
-      expect(within(row).queryByText(/PULP_MANIFEST/)).toBeNull();
-      expect(within(row).getAllByText('None').length).toBeGreaterThanOrEqual(2);
+      await openSnippets(user, 'no-url');
+      expect(
+        await screen.findByText(/reports no client URL for this distribution/),
+      ).toBeVisible();
+      expect(screen.queryByText(/PULP_MANIFEST/)).toBeNull();
     });
 
     it('lists the distributions bound to the repository, to one of its publications and to one of its versions, and no other, each with its own URL', async () => {
@@ -240,9 +247,7 @@ describe(
       for (const name of ['zz-bound', 'zz-published', 'zz-versioned']) {
         const row = await rowOf(name);
         expect(
-          within(row).getByText(
-            new RegExp(`https://pulp.example/served/${name}/PULP_MANIFEST`),
-          ),
+          within(row).getByText(`https://pulp.example/served/${name}/`),
         ).toBeVisible();
         expect(within(row).queryByText(/Serves nothing/)).toBeNull();
         expect(within(row).queryByText(/Cannot be checked/)).toBeNull();
@@ -545,8 +550,8 @@ describe(
       const { user } = renderTab();
       await rowOf('a-dist');
       const names = () =>
-        Array.from(document.querySelectorAll('tbody tr')).map(
-          (row) => row.querySelector('td')?.textContent,
+        Array.from(document.querySelectorAll('tbody tr td a')).map(
+          (link) => link.textContent,
         );
       const sortByBasePath = () =>
         user.click(
@@ -577,7 +582,7 @@ describe(
 
       const { user } = renderTab();
       await rowOf('dist-00');
-      expect(document.querySelectorAll('tbody tr')).toHaveLength(10);
+      expect(document.querySelectorAll('tbody tr td a')).toHaveLength(10);
 
       await user.click(
         screen.getAllByRole('button', {

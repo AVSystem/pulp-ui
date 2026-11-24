@@ -1,4 +1,3 @@
-import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import {
   Button,
@@ -14,11 +13,11 @@ import { Link, useNavigate } from 'react-router';
 import { useAppContext } from 'src/app-context';
 import {
   AppliedFilters,
-  ClipboardCopy,
   CompoundFilter,
   DateComponent,
   EmptyStateFilter,
   EmptyStateNoData,
+  ExpandableRow,
   ListErrorState,
   LoadingSpinner,
   PulpPagination,
@@ -33,11 +32,7 @@ import {
 import type { DistributionBase } from 'src/entities/plugin/distribution';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { requestErrorDescription } from 'src/utilities/request-error';
-import {
-  type PluginDescriptor,
-  type TabDef,
-  repositoryOf,
-} from '../descriptor';
+import type { PluginDescriptor, TabDef } from '../descriptor';
 import { useDistributionPermits } from '../distributions/use-distribution-permission';
 import { PermissionsNotice } from '../list/list-frame';
 import { type FrameworkPlugin, PLUGIN_MANIFESTS } from '../manifest';
@@ -51,6 +46,7 @@ import {
   type ServedDistribution,
   useServedDistributions,
 } from '../serving/use-served-distributions';
+import { DistributionSnippets } from '../snippets/distribution-snippets';
 
 // The page, its size, the order and the filters of the tab. They are held here
 // and not in the address: the tab shows the few distributions of one
@@ -129,7 +125,8 @@ export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
       'The descriptor declares no distribution, which the Distributions tab needs',
     );
   }
-  const snippet = repositoryOf(descriptor).snippet;
+  // A row opens to show the client configuration the plugin declares for it.
+  const expandable = (distribution.snippets?.length ?? 0) > 0;
   const serving = useServedDistributions({
     plugin,
     distribution: distribution.entity,
@@ -201,13 +198,11 @@ export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
   ];
   const filterSet = FILTER_PARAMS.some((key) => params[key] !== undefined);
   const headers = [
+    ...(expandable ? [{ id: 'expand', title: '', type: 'none' }] : []),
     { id: 'name', title: t`Name`, type: 'alpha' },
     { id: 'base_path', title: t`Base path`, type: 'alpha' },
     { id: 'url', title: t`URL`, type: 'none' },
     { id: 'pulp_created', title: t`Created`, type: 'numeric' },
-    ...(snippet
-      ? [{ id: 'snippet', title: i18n._(snippet.label), type: 'none' }]
-      : []),
     ...(anyRowAction ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
   const updateParams = (next: Partial<TabParams>) =>
@@ -273,9 +268,9 @@ export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
             updateParams={updateParams}
           />
           <RowActionsColumn.Provider value={anyRowAction}>
-            <Tbody>
-              {pageRows.map(({ row, served }, position) => (
-                <Tr key={row.pulp_href}>
+            {pageRows.map(({ row, served }, position) => {
+              const cells = (
+                <>
                   <Td>
                     <Link to={distributionPath(plugin, row.name)}>
                       {row.name}
@@ -300,24 +295,6 @@ export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
                   <Td>
                     <DateComponent date={row.pulp_created ?? ''} />
                   </Td>
-                  {snippet ? (
-                    <Td>
-                      {row.base_url ? (
-                        <ClipboardCopy
-                          isCode
-                          isReadOnly
-                          variant='inline-compact'
-                        >
-                          {snippet.build({
-                            name: repository.name,
-                            url: row.base_url,
-                          })}
-                        </ClipboardCopy>
-                      ) : (
-                        t`None`
-                      )}
-                    </Td>
-                  ) : null}
                   <ListItemActions
                     kebabItems={
                       changeable[position]
@@ -334,9 +311,31 @@ export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
                         : []
                     }
                   />
-                </Tr>
-              ))}
-            </Tbody>
+                </>
+              );
+
+              return expandable ? (
+                <ExpandableRow
+                  key={row.pulp_href}
+                  rowIndex={position}
+                  colSpan={headers.length}
+                  expandableRowContent={
+                    <DistributionSnippets
+                      plugin={plugin}
+                      descriptor={descriptor}
+                      distribution={row}
+                      repositoryName={repository.name}
+                    />
+                  }
+                >
+                  {cells}
+                </ExpandableRow>
+              ) : (
+                <Tbody key={row.pulp_href}>
+                  <Tr>{cells}</Tr>
+                </Tbody>
+              );
+            })}
           </RowActionsColumn.Provider>
         </Table>
       )}

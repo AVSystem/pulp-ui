@@ -1,3 +1,5 @@
+import { screen, within } from '@testing-library/react';
+import type { UserEvent } from '@testing-library/user-event';
 import { execFileSync } from 'node:child_process';
 import type { SnippetInput } from 'src/framework/descriptor';
 
@@ -30,4 +32,21 @@ export function shellWords(commandLine: string): string[] {
   );
 
   return output.split('\0').slice(0, -1);
+}
+
+// Opens the row of a distribution on the Distributions tab to show its client
+// snippets, and selects the snippet tab when one is named.
+export async function openSnippets(
+  user: UserEvent,
+  distribution: string,
+  tab?: string,
+): Promise<void> {
+  const row = (await screen.findByText(distribution)).closest(
+    'tr',
+  ) as HTMLElement;
+
+  await user.click(within(row).getByRole('button', { name: /details/i }));
+  if (tab !== undefined) {
+    await user.click(await screen.findByRole('tab', { name: tab }));
+  }
 }

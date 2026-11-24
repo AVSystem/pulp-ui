@@ -27,6 +27,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { openSnippets } from 'src/test-utils/snippets';
 import { serveSyncLab } from 'src/test-utils/sync-lab';
 import rpmDescriptor from './descriptor';
 
@@ -407,7 +408,8 @@ describe(
           pluginPublication('rpm', { repository: repository.pulp_href }),
         ],
       });
-      render('/rpm/repositories/baseos/distributions');
+      const { user } = render('/rpm/repositories/baseos/distributions');
+      await openSnippets(user, 'baseos-dist', 'CLI configuration');
 
       const line = await screen.findByText(/pulp rpm remote create/);
       expect(line.textContent).toBe(

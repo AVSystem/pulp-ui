@@ -27,6 +27,7 @@ import {
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import { openSnippets } from 'src/test-utils/snippets';
 import { serveSyncLab } from 'src/test-utils/sync-lab';
 import debDescriptor from './descriptor';
 
@@ -449,7 +450,10 @@ describe(
           pluginPublication('deb', { repository: repository.pulp_href }),
         ],
       });
-      render('/deb/repositories/bookworm-mirror/distributions');
+      const { user } = render(
+        '/deb/repositories/bookworm-mirror/distributions',
+      );
+      await openSnippets(user, 'bookworm-dist', 'CLI configuration');
 
       const line = await screen.findByText(/--distributions/);
       expect(line.textContent).toBe(

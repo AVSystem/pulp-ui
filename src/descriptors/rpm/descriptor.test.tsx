@@ -245,36 +245,6 @@ describe('Unit: the rpm descriptor', { tags: ['unit'] }, () => {
     });
   });
 
-  describe('the command snippet', () => {
-    it('writes a remote create command for the distribution, quoted', () => {
-      expect(
-        repository.snippet?.build({
-          name: 'baseos',
-          url: 'https://pulp.example/content/baseos/',
-        }),
-      ).toBe(
-        "pulp rpm remote create --name 'baseos' --url 'https://pulp.example/content/baseos/'",
-      );
-    });
-
-    it('quotes a hostile name and URL as data', () => {
-      expect(
-        repository.snippet?.build({
-          name: "a$(id)'b",
-          url: 'https://pulp.example/a`id`/',
-        }),
-      ).toBe(
-        "pulp rpm remote create --name 'a$(id)'\\''b' --url 'https://pulp.example/a`id`/'",
-      );
-    });
-
-    it('is the command line of the Distributions tab', () => {
-      expect(text(repository.snippet?.label as MessageDescriptor)).toBe(
-        'CLI configuration',
-      );
-    });
-  });
-
   describe('the tabs and the content', () => {
     it('adds the Versions, Content, Publications and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([

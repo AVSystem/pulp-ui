@@ -218,6 +218,73 @@ describe(
       expect(within(row(rows, 'Client URL')).queryByText('Public')).toBeNull();
     });
 
+    it('shows the client configuration of a public file distribution as curl, wget and the pulp command line, each to copy', async () => {
+      serveLab({
+        distributions: [
+          pluginDistribution('file', {
+            name: 'tools-dist',
+            base_url: URL_A,
+            content_guard: null,
+          }),
+        ],
+      });
+
+      const { user } = renderDetail();
+      await rowsOfPage();
+
+      expect(
+        await screen.findByRole('heading', { name: 'Client configuration' }),
+      ).toBeVisible();
+      expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+        'curl',
+        'wget',
+        'CLI configuration',
+      ]);
+      expect(
+        await screen.findByText(`curl -fSLO '${URL_A}<path>'`),
+      ).toBeVisible();
+      expect(screen.queryByText(/Replace <user> and <token>/)).toBeNull();
+
+      await user.click(screen.getByRole('tab', { name: 'CLI configuration' }));
+      expect(
+        await screen.findByText(
+          `pulp file remote create --name 'tools-dist' --url '${URL_A}PULP_MANIFEST'`,
+        ),
+      ).toBeVisible();
+      await user.click(
+        within(screen.getByRole('tabpanel')).getByRole('button', {
+          name: 'Copy to clipboard',
+        }),
+      );
+      expect(await navigator.clipboard.readText()).toBe(
+        `pulp file remote create --name 'tools-dist' --url '${URL_A}PULP_MANIFEST'`,
+      );
+    });
+
+    it('writes the credential placeholders, and nothing else, into the snippets of a guarded distribution', async () => {
+      const guard = contentGuard({ name: 'customers-only' });
+      serveLab({
+        distributions: [
+          pluginDistribution('file', {
+            name: 'tools-dist',
+            base_url: URL_A,
+            content_guard: guard.pulp_href,
+          }),
+        ],
+        guards: [guard],
+      });
+
+      renderDetail();
+      await rowsOfPage();
+
+      expect(
+        await screen.findByText(
+          `curl -fSLO -u '<user>:<token>' '${URL_A}<path>'`,
+        ),
+      ).toBeVisible();
+      expect(screen.getByText(/Replace <user> and <token>/)).toBeVisible();
+    });
+
     it('marks a distribution without a content guard as Public beside the URL and in the guard row', async () => {
       serveLab({
         distributions: [

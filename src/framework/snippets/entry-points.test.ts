@@ -1,14 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type * as UiConfig from 'src/ui-config';
+import { clientEntryPoints, entryPointFor } from './entry-points';
 
 const holder = vi.hoisted(() => ({ config: null as unknown }));
 
-vi.mock('src/ui-config', () => ({
+vi.mock('src/ui-config', async (importOriginal) => ({
+  ...(await importOriginal<typeof UiConfig>()),
   get config() {
     return holder.config;
   },
 }));
-
-import { clientEntryPoints, entryPointFor } from './entry-points';
 
 const ORIGIN = 'https://pulp.example.org';
 

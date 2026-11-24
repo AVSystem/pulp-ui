@@ -101,10 +101,18 @@ describe('Unit: file client snippets', { tags: ['unit'] }, () => {
 
     it('hands the shell one word for the address of each line', () => {
       expect(
-        shellWords(snippet('curl').build(input).replace(/^curl /, '')),
+        shellWords(
+          snippet('curl')
+            .build(input)
+            .replace(/^curl /, ''),
+        ),
       ).toEqual(['-fSLO', `${withSlash(hostileUrl)}<path>`]);
       expect(
-        shellWords(snippet('wget').build(input).replace(/^wget /, '')),
+        shellWords(
+          snippet('wget')
+            .build(input)
+            .replace(/^wget /, ''),
+        ),
       ).toEqual([`${withSlash(hostileUrl)}<path>`]);
     });
 
@@ -127,7 +135,11 @@ describe('Unit: file client snippets', { tags: ['unit'] }, () => {
       const guarded = { ...input, guarded: true };
 
       expect(
-        shellWords(snippet('curl').build(guarded).replace(/^curl /, '')),
+        shellWords(
+          snippet('curl')
+            .build(guarded)
+            .replace(/^curl /, ''),
+        ),
       ).toEqual([
         '-fSLO',
         '-u',
