@@ -201,10 +201,18 @@ export function useObjectPermissions({
   const ready = enabled && own !== null && record.data !== undefined && !staff;
   const groups = useMemo(() => groupsOf(record.data?.groups), [record.data]);
 
+  // A refusal to read the roles is the answer for this account and stays in
+  // the cache. A reader that mounts later, as the rows of a list do once they
+  // are shown, finds it there and does not ask again: reading the roles again
+  // would only be refused again.
+  const known = queryClient.getQueryState(roleAssignmentKeys.rolePermissions);
+  const knownRefused =
+    known?.status === 'error' && requestErrorStatus(known.error) === 403;
+
   const catalogue = useSessionQuery({
     queryKey: roleAssignmentKeys.rolePermissions,
     queryFn: ({ signal }) => RoleAssignmentClient.rolePermissions({ signal }),
-    enabled: ready,
+    enabled: ready && !knownRefused,
     staleTime: Infinity,
     gcTime: Infinity,
   });
