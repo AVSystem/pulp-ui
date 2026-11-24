@@ -11,7 +11,7 @@ import {
 import { createTestQueryClient } from 'src/test-utils/query';
 import { server } from 'src/test-utils/server';
 import { PublicationClient } from './client';
-import { usePublicationsByHref } from './queries';
+import { usePublicationsByHref, usePublicationsOfRepository } from './queries';
 
 const wrapper = ({ children }: { children: ReactNode }) =>
   createElement(
@@ -78,5 +78,67 @@ describe(
       });
       expect(read.result.current.publications).toBeUndefined();
     }, 20_000);
+  },
+);
+
+describe(
+  'Unit: the publications of one repository, a page at a time',
+  { tags: ['unit'] },
+  () => {
+    const repository = pluginRepository('file');
+    const rows = (count: number) =>
+      Array.from({ length: count }, (_, index) =>
+        pluginPublication('file', {
+          repository: repository.pulp_href,
+          repository_version: `${repository.pulp_href}versions/${index}/`,
+          pulp_created: `2000-01-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
+        }),
+      );
+
+    it('asks the server for one page of the repository, newest first, and says how many there are', async () => {
+      const own = rows(5);
+      const foreign = pluginPublication('rpm');
+      const list = corePublicationListHandler([...own, foreign]);
+      server.use(list.handler);
+
+      const found = await PublicationClient.ofRepositoryPage(
+        repository.pulp_href,
+        { page: 2, page_size: 2, sort: '-pulp_created' },
+      );
+
+      expect(found.count).toBe(5);
+      expect(found.results.map(({ pulp_href }) => pulp_href)).toEqual([
+        own[2]?.pulp_href,
+        own[1]?.pulp_href,
+      ]);
+      expect(list.queries).toHaveLength(1);
+      const query = list.queries[0] as URLSearchParams;
+      expect(query.get('repository')).toBe(repository.pulp_href);
+      expect(query.get('offset')).toBe('2');
+      expect(query.get('limit')).toBe('2');
+      expect(query.getAll('ordering')).toEqual(['-pulp_created']);
+    });
+
+    it('gives a screen the page and reads it once for two screens that ask for it', async () => {
+      const list = corePublicationListHandler(rows(3));
+      server.use(list.handler);
+      const client = createTestQueryClient();
+      const shared = ({ children }: { children: ReactNode }) =>
+        createElement(QueryClientProvider, { client }, children);
+      const params = { page: 1, page_size: 10, sort: '-pulp_created' };
+
+      const first = renderHook(
+        () => usePublicationsOfRepository(repository.pulp_href, params),
+        { wrapper: shared },
+      );
+      const second = renderHook(
+        () => usePublicationsOfRepository(repository.pulp_href, params),
+        { wrapper: shared },
+      );
+
+      await waitFor(() => expect(first.result.current.data?.count).toBe(3));
+      expect(second.result.current.data?.count).toBe(3);
+      expect(list.queries).toHaveLength(1);
+    });
   },
 );

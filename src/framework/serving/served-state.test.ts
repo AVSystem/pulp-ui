@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  type PublicationFact,
   type ServedState,
   type ServingInput,
   isNoteworthy,
+  servedPublication,
   servedState,
 } from './served-state';
 
@@ -350,3 +352,55 @@ describe('Unit: which states are worth drawing', { tags: ['unit'] }, () => {
     expect(of('not-applicable', 'deprecated-publication')).toBe(true);
   });
 });
+
+describe(
+  'Unit: the publication a distribution serves',
+  { tags: ['unit'] },
+  () => {
+    const fact = (
+      id: string,
+      version: number,
+      created: string,
+    ): PublicationFact => ({
+      pulp_href: `${PUBLICATION}${id}/`,
+      repository_version: `${REPOSITORY}versions/${version}/`,
+      version,
+      created,
+    });
+    const v1 = fact('a', 1, '2000-01-03T00:00:00Z');
+    const v2 = fact('b', 2, '2000-01-01T00:00:00Z');
+    const v2later = fact('c', 2, '2000-01-02T00:00:00Z');
+
+    it('is the newest publication of the highest version for a repository-bound distribution, whatever the creation order', () => {
+      expect(
+        servedPublication({ repository: REPOSITORY }, [v1, v2, v2later]),
+      ).toBe(v2later);
+    });
+
+    it('is the publication itself for a publication-bound distribution, and none once it is gone', () => {
+      expect(servedPublication({ publication: v1.pulp_href }, [v1, v2])).toBe(
+        v1,
+      );
+      expect(servedPublication({ publication: v1.pulp_href }, [v2])).toBeNull();
+    });
+
+    it('is the newest publication of the exact version for a version-bound distribution', () => {
+      expect(
+        servedPublication({ repository_version: v2.repository_version }, [
+          v1,
+          v2,
+          v2later,
+        ]),
+      ).toBe(v2later);
+      expect(
+        servedPublication({ repository_version: `${REPOSITORY}versions/3/` }, [
+          v1,
+        ]),
+      ).toBeNull();
+    });
+
+    it('is none for a distribution bound to nothing', () => {
+      expect(servedPublication(NOTHING, [v1, v2])).toBeNull();
+    });
+  },
+);

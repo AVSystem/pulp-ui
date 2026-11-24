@@ -639,12 +639,30 @@ function repositoryPulpType(row: { pulp_href: string }): string {
   return app === 'deb' ? 'deb.deb' : `${app}.${type}`;
 }
 
-// The publications of every plugin through the one list that holds them all.
+// The publications of every plugin through the one list that holds them all:
+// the `pulp_href__in` and `repository` filters, the ordering, the `fields` cut
+// and the paging of listOf. The query of every request is recorded, in order.
 export function corePublicationListHandler<T extends { pulp_href: string }>(
   rows: T[],
-  options?: { pageSize?: number },
+  { pageSize = 1000 }: { pageSize?: number } = {},
 ) {
-  return byHrefListHandler('/pulp/api/v3/publications/', rows, options);
+  const path = '/pulp/api/v3/publications/';
+  const list = listOf(path, rows, {
+    pageSize,
+    matching: (row, query) => {
+      const hrefs = inSetOf(query, 'pulp_href__in');
+      const repository = query.get('repository');
+      return (
+        (hrefs === null || hrefs.includes(row.pulp_href)) &&
+        (repository === null ||
+          (row as { repository?: unknown }).repository === repository)
+      );
+    },
+    ordered: orderedBy,
+    projected: projectedBy,
+  });
+
+  return { ...list, path };
 }
 
 // The `pulp_type` the server gives a content guard, read from the kind in its
