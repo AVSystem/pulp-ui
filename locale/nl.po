@@ -14,7 +14,7 @@ msgstr ""
 
 #: src/descriptors/npm/snippets.ts
 msgid ".npmrc"
-msgstr ""
+msgstr ".npmrc"
 
 #: src/components/darkmode-switcher.tsx
 #~ msgid "(current, default)"
@@ -57,7 +57,7 @@ msgstr "{0, plural, =0 {Geen resultaten} one {# resultaat} other {# resultaten}}
 #. placeholder {0}: picked.length
 #: src/framework/content/add-content-dialog.tsx
 msgid "{0, plural, one {Add # item} other {Add # items}}"
-msgstr ""
+msgstr "{0, plural, one {# item toevoegen} other {# items toevoegen}}"
 
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -93,7 +93,7 @@ msgstr "{0} (beschermd door een contentguard)"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "{added} of {total} files added"
-msgstr ""
+msgstr "{added} van {total} bestanden toegevoegd"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert details"
@@ -141,7 +141,7 @@ msgstr "{count, plural, one {# actieve taak} other {# actieve taken}}"
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "{count, plural, one {Remove # item from repository \"{repositoryName}\"?} other {Remove # items from repository \"{repositoryName}\"?}}"
-msgstr ""
+msgstr "{count, plural, one {# item verwijderen uit repository \"{repositoryName}\"?} other {# items verwijderen uit repository \"{repositoryName}\"?}}"
 
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Role} other {Roles}}"
@@ -149,7 +149,7 @@ msgstr ""
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "{count} distributions now serve the new publication."
-msgstr ""
+msgstr "{count} distributies bieden nu de nieuwe publicatie aan."
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} failed"
@@ -209,7 +209,7 @@ msgstr "{label} kan niet meer worden gevolgd."
 
 #: src/framework/distributions/create-distribution-menu.tsx
 msgid "{label} distribution"
-msgstr ""
+msgstr "{label}-distributie"
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} failed."
@@ -229,7 +229,7 @@ msgstr "{label} is overgeslagen."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "{lost} of {count} distributions could not be moved."
-msgstr ""
+msgstr "{lost} van {count} distributies konden niet worden verplaatst."
 
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
@@ -241,11 +241,11 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 
 #: src/framework/content/global-content-list.tsx
 msgid "{name} content"
-msgstr ""
+msgstr "{name}-inhoud"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} could not be moved."
-msgstr ""
+msgstr "{name} kon niet worden verplaatst."
 
 #: src/components/namespace-card.tsx
 #: src/components/namespace-list-item.tsx
@@ -254,7 +254,7 @@ msgstr ""
 
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} now serves the newest publication."
-msgstr ""
+msgstr "{name} biedt nu de nieuwste publicatie aan."
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "{name} will be cancelled."
@@ -279,7 +279,7 @@ msgstr "{name}: de interface is gegenereerd voor {generated}, deze server draait
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "{named} and {others} more"
-msgstr ""
+msgstr "{named} en {others} meer"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
@@ -293,7 +293,7 @@ msgstr "{namespace}.{name} v{version}, al in de repository"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "{retained, plural, one {This repository keeps only its latest version, so every uploaded file pushes the version before it out.} other {This repository keeps only its latest # versions, so every uploaded file pushes the oldest version out.}}"
-msgstr ""
+msgstr "{retained, plural, one {Deze repository bewaart alleen de nieuwste versie, dus elk geüpload bestand verdringt de vorige versie.} other {Deze repository bewaart alleen de nieuwste # versies, dus elk geüpload bestand verdringt de oudste versie.}}"
 
 #: src/components/role-header.tsx
 #~ msgid "{subTitle}"
@@ -315,25 +315,25 @@ msgstr "Stappen van {title}"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "{total, plural, one {# file added} other {# files added}}"
-msgstr ""
+msgstr "{total, plural, one {# bestand toegevoegd} other {# bestanden toegevoegd}}"
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} added"
-msgstr ""
+msgstr "{type} toegevoegd"
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} present"
-msgstr ""
+msgstr "{type} aanwezig"
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} removed"
-msgstr ""
+msgstr "{type} verwijderd"
 
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
 msgid "{typeName} distribution"
-msgstr ""
+msgstr "{typeName}-distributie"
 
 #: src/shell/notifications.tsx
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
@@ -472,28 +472,28 @@ msgstr "Een basispad mag niet beginnen of eindigen met een schuine streep en mag
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "A content guard limits who can download. A public distribution has no content guard, so anyone who can reach the server can download from it."
-msgstr ""
+msgstr "Een contentguard beperkt wie kan downloaden. Een openbare distributie heeft geen contentguard, dus iedereen die de server kan bereiken, kan ervan downloaden."
 
 #: src/framework/form/create-flow.ts
 msgid "a content guard you may not see"
-msgstr ""
+msgstr "een contentguard die u niet mag zien"
 
 #: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/guard-field.tsx
 msgid "A content guard you may not see"
-msgstr ""
+msgstr "Een contentguard die u niet mag zien"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "A distribution is bound to a publication of this version: {names}."
-msgstr ""
+msgstr "Een distributie is gekoppeld aan een publicatie van deze versie: {names}."
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "A distribution is bound to this version: {names}."
-msgstr ""
+msgstr "Een distributie is gekoppeld aan deze versie: {names}."
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "A distribution is public when it has no content guard. Only those are listed."
-msgstr ""
+msgstr "Een distributie is openbaar als ze geen contentguard heeft. Alleen die worden weergegeven."
 
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
@@ -532,15 +532,15 @@ msgstr "Een PEM-gecodeerde privésleutel die wordt gebruikt voor authentificatie
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "A pinned version"
-msgstr ""
+msgstr "Een vastgezette versie"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "A publication"
-msgstr ""
+msgstr "Een publicatie"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "A publication is made when the repository is published. A distribution serves a repository's content through its publications."
-msgstr ""
+msgstr "Een publicatie wordt gemaakt wanneer de repository wordt gepubliceerd. Een distributie biedt de inhoud van een repository aan via de publicaties ervan."
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A repository for which this cannot be turned on is synced with the value that is allowed."
@@ -549,7 +549,7 @@ msgstr "Een repository waarvoor dit niet kan worden ingeschakeld, wordt gesynchr
 #: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/distribution-edit.tsx
 msgid "A repository you may not see"
-msgstr ""
+msgstr "Een repository die u niet mag zien"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A sync is started for every selected repository that has a remote, with the options below. Each sync runs as a task of its own."
@@ -687,7 +687,7 @@ msgstr "Collectie toevoegen"
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/content-tab.tsx
 msgid "Add content"
-msgstr ""
+msgstr "Inhoud toevoegen"
 
 #: src/components/repository-form.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -796,11 +796,11 @@ msgstr "Item toevoegen"
 #: src/framework/content/upload-dialog.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Added"
-msgstr ""
+msgstr "Toegevoegd"
 
 #: src/framework/detail/version-content.tsx
 msgid "Added since the earlier version"
-msgstr ""
+msgstr "Toegevoegd sinds de eerdere versie"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
@@ -810,7 +810,7 @@ msgstr ""
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Adding several files as one version needs an administrator."
-msgstr ""
+msgstr "Meerdere bestanden als één versie toevoegen vereist een beheerder."
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Adding the label to the selected rows finished"
@@ -818,19 +818,19 @@ msgstr "Het toevoegen van het label aan de geselecteerde rijen is voltooid"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Adding to the repository"
-msgstr ""
+msgstr "Toevoegen aan de repository"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Addition of content to {repositoryName}"
-msgstr ""
+msgstr "Toevoeging van inhoud aan {repositoryName}"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Addition of uploaded files to {repositoryName}"
-msgstr ""
+msgstr "Toevoeging van geüploade bestanden aan {repositoryName}"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Addition started for repository \"{repositoryName}\"."
-msgstr ""
+msgstr "Toevoeging gestart voor repository \"{repositoryName}\"."
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Additional details"
@@ -863,7 +863,7 @@ msgstr "Alle bijbehorende machtigingen van deze rol zijn verwijderd."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "All files are added in one new repository version"
-msgstr ""
+msgstr "Alle bestanden worden toegevoegd in één nieuwe repositoryversie"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "All policies and guidelines"
@@ -937,7 +937,7 @@ msgstr "En nog {0}."
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "and {others} more"
-msgstr ""
+msgstr "en {others} meer"
 
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
@@ -982,7 +982,7 @@ msgstr "Ansible-repository's"
 
 #: src/descriptors/ansible/snippets.ts
 msgid "ansible.cfg"
-msgstr ""
+msgstr "ansible.cfg"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
@@ -990,7 +990,7 @@ msgstr ""
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Anyone who can reach this server can download from it without signing in. Choose a content guard, or confirm Public, to save your changes."
-msgstr ""
+msgstr "Iedereen die deze server kan bereiken, kan er zonder in te loggen van downloaden. Kies een contentguard, of bevestig Openbaar, om uw wijzigingen op te slaan."
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -1090,15 +1090,15 @@ msgstr "Collecties van remotes goedkeuren, afwijzen en synchroniseren."
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Apt"
-msgstr ""
+msgstr "Apt"
 
 #: src/descriptors/deb/snippets.ts
 msgid "APT credentials"
-msgstr ""
+msgstr "APT-inloggegevens"
 
 #: src/descriptors/deb/snippets.ts
 msgid "APT sources"
-msgstr ""
+msgstr "APT-bronnen"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
@@ -1106,7 +1106,7 @@ msgstr "Architectuur"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Architecture"
-msgstr ""
+msgstr "Architectuur"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -1115,11 +1115,11 @@ msgstr "Architecturen"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Are you sure you want to delete the distribution <0>{name}</0> with the base path <1>{basePath}</1>?"
-msgstr ""
+msgstr "Weet u zeker dat u de distributie <0>{name}</0> met het basispad <1>{basePath}</1> wilt verwijderen?"
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "Are you sure you want to delete the publication of version <0>{version}</0>?"
-msgstr ""
+msgstr "Weet u zeker dat u de publicatie van versie <0>{version}</0> wilt verwijderen?"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?"
@@ -1140,7 +1140,7 @@ msgstr "Weet u zeker dat u de repository <0>{name}</0> wilt verwijderen?"
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "Are you sure you want to delete this publication?"
-msgstr ""
+msgstr "Weet u zeker dat u deze publicatie wilt verwijderen?"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Are you sure you want to opt the following legacy namespace in to Wisdom?"
@@ -1291,7 +1291,7 @@ msgstr "bdist_wininst"
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/serving/served-label.tsx
 msgid "Bound to a deprecated publication"
-msgstr ""
+msgstr "Gekoppeld aan een verouderde publicatie"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
@@ -1386,11 +1386,11 @@ msgstr "Taak annuleren"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Cancel the upload?"
-msgstr ""
+msgstr "Upload annuleren?"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Cancel upload"
-msgstr ""
+msgstr "Upload annuleren"
 
 #: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
@@ -1409,7 +1409,7 @@ msgstr "Bezig met annuleren"
 
 #: src/framework/serving/served-label.tsx
 msgid "Cannot be checked"
-msgstr ""
+msgstr "Kan niet worden gecontroleerd"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1569,11 +1569,11 @@ msgstr "Controleren op getroffen gebruikers... <0/>"
 
 #: src/framework/detail/versions-tab.tsx
 msgid "Checking which distributions use this version"
-msgstr ""
+msgstr "Controleren welke distributies deze versie gebruiken"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Checksum type"
-msgstr ""
+msgstr "Checksumtype"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Child tasks"
@@ -1589,23 +1589,23 @@ msgstr "Onderliggende taken"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Choose a publication"
-msgstr ""
+msgstr "Kies een publicatie"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Choose a repository and a version of it, then tick the content to copy into \"{repositoryName}\". The repository gets a new latest version that holds the content it has now and the content you add."
-msgstr ""
+msgstr "Kies een repository en een versie ervan en vink vervolgens de inhoud aan die naar \"{repositoryName}\" moet worden gekopieerd. De repository krijgt een nieuwe nieuwste versie met de inhoud die de repository nu heeft en de inhoud die u toevoegt."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Choose files"
-msgstr ""
+msgstr "Bestanden kiezen"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Choose how this distribution is protected."
-msgstr ""
+msgstr "Kies hoe deze distributie wordt beschermd."
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Choose what it serves"
-msgstr ""
+msgstr "Kies wat ze aanbiedt"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
@@ -1649,7 +1649,7 @@ msgstr "Klantcertificaat"
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "Client configuration"
-msgstr ""
+msgstr "Clientconfiguratie"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -1659,7 +1659,7 @@ msgstr "Klantsleutel"
 
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Client URL"
-msgstr ""
+msgstr "Client-URL"
 
 #: src/framework/distributions/distribution-list.tsx
 #~ msgid "Client URLs could not be read."
@@ -1671,7 +1671,7 @@ msgstr "Clients kunnen de inhoud pas downloaden zodra een distributie deze aanbi
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Clients get the latest version of this repository."
-msgstr ""
+msgstr "Clients krijgen de nieuwste versie van deze repository."
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -1977,11 +1977,11 @@ msgstr "Componenten"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Composite"
-msgstr ""
+msgstr "Samengesteld"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Compression type"
-msgstr ""
+msgstr "Compressietype"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -2090,12 +2090,12 @@ msgstr "Inhoud toegevoegd"
 
 #: src/framework/detail/version-content.tsx
 msgid "Content address"
-msgstr ""
+msgstr "Inhoudsadres"
 
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content could not be displayed."
-msgstr ""
+msgstr "Inhoud kan niet worden weergegeven."
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
@@ -2116,7 +2116,7 @@ msgstr "De aantallen inhoud konden niet worden gelezen."
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Content guard"
-msgstr ""
+msgstr "Contentguard"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -2125,7 +2125,7 @@ msgstr "Inhoud in repository's zonder distributie is niet zichtbaar voor clients
 
 #: src/framework/detail/version-content.tsx
 msgid "Content in this version"
-msgstr ""
+msgstr "Inhoud in deze versie"
 
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -2144,13 +2144,13 @@ msgstr "Inhoudsinstellingen"
 
 #: src/framework/detail/version-content.tsx
 msgid "Content summary"
-msgstr ""
+msgstr "Samenvatting van de inhoud"
 
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content type"
-msgstr ""
+msgstr "Inhoudstype"
 
 #: src/components/collection-header.tsx
 #~ msgid "Contents"
@@ -2212,7 +2212,7 @@ msgstr "Kan niet controleren of er al een synchronisatie wordt uitgevoerd. U kun
 
 #: src/framework/distributions/create-distribution.ts
 msgid "Could not check whether the base path is free: {reason}. Nothing was changed."
-msgstr ""
+msgstr "Er kon niet worden gecontroleerd of het basispad vrij is: {reason}. Er is niets gewijzigd."
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -2313,7 +2313,7 @@ msgstr "Containers aanmaken en bijwerken onder bestaande containernamespaces."
 #: src/framework/distributions/create-distribution-menu.tsx
 #: src/framework/distributions/distribution-form.tsx
 msgid "Create distribution"
-msgstr ""
+msgstr "Distributie aanmaken"
 
 #: src/components/collection-header.tsx
 #~ msgid "Create issue"
@@ -2375,7 +2375,7 @@ msgstr "Distributie \"{name}\" aangemaakt op basispad {basePath}."
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "Created distribution \"{trimmedName}\""
-msgstr ""
+msgstr "Distributie \"{trimmedName}\" aangemaakt"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -2414,7 +2414,7 @@ msgstr "Ctrl K"
 
 #: src/descriptors/file/snippets.ts
 msgid "curl"
-msgstr ""
+msgstr "curl"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 msgid "Current content"
@@ -2590,7 +2590,7 @@ msgstr "Verwijderen"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Delete distribution?"
-msgstr ""
+msgstr "Distributie verwijderen?"
 
 #: src/utilities/delete-collection.tsx
 #~ msgid "Delete entire collection"
@@ -2622,7 +2622,7 @@ msgstr "Groep verwijderen?"
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "Delete publication?"
-msgstr ""
+msgstr "Publicatie verwijderen?"
 
 #: src/constants.tsx
 #~ msgid "Delete remote registry"
@@ -2643,7 +2643,7 @@ msgstr "Repositoryversie verwijderen"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Delete repository version?"
-msgstr ""
+msgstr "Repositoryversie verwijderen?"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -2691,7 +2691,7 @@ msgstr "Gebruiker verwijderen?"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Delete version"
-msgstr ""
+msgstr "Versie verwijderen"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Delete version {0}"
@@ -2699,7 +2699,7 @@ msgstr ""
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Delete version {number} of repository \"{repositoryName}\"?"
-msgstr ""
+msgstr "Versie {number} van repository \"{repositoryName}\" verwijderen?"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Delete version {version}"
@@ -2790,11 +2790,11 @@ msgstr "Jezelf verwijderen is niet toegestaan."
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Deletion of version {number} of {repositoryName}"
-msgstr ""
+msgstr "Verwijdering van versie {number} van {repositoryName}"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Deletion started for version {number} of repository \"{repositoryName}\"."
-msgstr ""
+msgstr "Verwijdering gestart voor versie {number} van repository \"{repositoryName}\"."
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-dependencies.tsx
@@ -2815,11 +2815,11 @@ msgstr ""
 
 #: src/descriptors/maven/snippets.ts
 msgid "Deploy with Gradle"
-msgstr ""
+msgstr "Implementeren met Gradle"
 
 #: src/descriptors/maven/snippets.ts
 msgid "Deploy with Maven"
-msgstr ""
+msgstr "Implementeren met Maven"
 
 #: src/components/collection-dropdown.tsx
 #~ msgid "Deprecate"
@@ -2914,7 +2914,7 @@ msgstr "Uitgeschakeld"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Distribution \"{distributionName}\" could not be updated"
-msgstr ""
+msgstr "Distributie \"{distributionName}\" kon niet worden bijgewerkt"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Distribution \"{name}\" could not be updated"
@@ -2934,16 +2934,16 @@ msgstr "Distributie {name} werd niet getoond en is daarom niet verwijderd."
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "Distribution could not be created"
-msgstr ""
+msgstr "Distributie kon niet worden aangemaakt"
 
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Distribution could not be displayed."
-msgstr ""
+msgstr "Distributie kan niet worden weergegeven."
 
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Distribution details could not be read."
-msgstr ""
+msgstr "Distributiegegevens konden niet worden gelezen."
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Distribution name"
@@ -3005,7 +3005,7 @@ msgstr "Verwijderde distributies: {0}."
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Distributions will appear once created."
-msgstr ""
+msgstr "Distributies verschijnen zodra ze zijn aangemaakt."
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -3129,11 +3129,11 @@ msgstr "YAML-vereisten downloaden"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Downloads need credentials."
-msgstr ""
+msgstr "Downloads hebben inloggegevens nodig."
 
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Downloads need credentials. A browser does not send your session to the content server, so this address cannot be opened there."
-msgstr ""
+msgstr "Downloads hebben inloggegevens nodig. Een browser stuurt uw sessie niet naar de contentserver, dus dit adres kan daar niet worden geopend."
 
 #: src/framework/distributions/distribution-columns.tsx
 #~ msgid "Downloads need credentials. The client snippet shows how."
@@ -3157,7 +3157,7 @@ msgstr "Sleep een bestand hierheen of blader om te uploaden"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Drag and drop files here"
-msgstr ""
+msgstr "Sleep bestanden hierheen"
 
 #: src/components/stateful-dropdown.tsx
 msgid "Dropdown"
@@ -3165,7 +3165,7 @@ msgstr "Dropdown"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Each file creates its own repository version"
-msgstr ""
+msgstr "Elk bestand maakt een eigen repositoryversie"
 
 #: src/framework/form/labels-field.tsx
 msgid "Each label key can be used once."
@@ -3232,7 +3232,7 @@ msgstr "Labels bewerken"
 
 #: src/framework/content/content-labels.tsx
 msgid "Edit labels of {name}"
-msgstr ""
+msgstr "Labels van {name} bewerken"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3314,7 +3314,7 @@ msgstr "Voer een getal in."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Enter a relative path."
-msgstr ""
+msgstr "Voer een relatief pad in."
 
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter a whole number."
@@ -3323,11 +3323,11 @@ msgstr "Voer een geheel getal in."
 #. placeholder {0}: source.name
 #: src/framework/content/add-content-dialog.tsx
 msgid "Enter the number of a version of \"{0}\"."
-msgstr ""
+msgstr "Voer het nummer van een versie van \"{0}\" in."
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Enter the number of a version of \"{name}\"."
-msgstr ""
+msgstr "Voer het nummer van een versie van \"{name}\" in."
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
@@ -3642,7 +3642,7 @@ msgstr "Mislukt: {when}"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Failed to add content to repository \"{repositoryName}\""
-msgstr ""
+msgstr "Inhoud toevoegen aan repository \"{repositoryName}\" is mislukt"
 
 #: src/components/approve-modal.tsx
 #~ msgid "Failed to approve collection."
@@ -3663,7 +3663,7 @@ msgstr ""
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Failed to delete distribution \"{name}\""
-msgstr ""
+msgstr "Distributie \"{name}\" verwijderen is mislukt"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Failed to delete remote \"{name}\""
@@ -3722,7 +3722,7 @@ msgstr "Kan geen repositoryversie vinden"
 #. placeholder {0}: requestErrorText(found.error)
 #: src/framework/distributions/guard-field.tsx
 msgid "Failed to load content guards: {0}"
-msgstr ""
+msgstr "Contentguards laden is mislukt: {0}"
 
 #: src/components/lazy-distributions.tsx
 msgid "Failed to load distributions: {error}"
@@ -3731,7 +3731,7 @@ msgstr "Kan distributies niet laden: {error}"
 #. placeholder {0}: requestErrorText(read.error)
 #: src/framework/distributions/serves-field.tsx
 msgid "Failed to load publications: {0}"
-msgstr ""
+msgstr "Publicaties laden is mislukt: {0}"
 
 #: src/components/approve-modal/approve-modal.tsx
 #~ msgid "Failed to load pulp_id of collection repository."
@@ -3750,7 +3750,7 @@ msgstr "Kan geen remotes laden: {remotesError}"
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Failed to load repositories: {0}"
-msgstr ""
+msgstr "Repository's laden is mislukt: {0}"
 
 #: src/components/lazy-repositories.tsx
 msgid "Failed to load repositories: {error}"
@@ -3816,7 +3816,7 @@ msgstr "Laden van de status mislukt"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Failed to publish repository \"{name}\""
-msgstr ""
+msgstr "Repository \"{name}\" publiceren is mislukt"
 
 #: src/components/multi-repo-modal.tsx
 #~ msgid "Failed to query repositories."
@@ -3828,7 +3828,7 @@ msgstr "Kan {namespace}.{name} v{version} niet uit repository \"{repositoryName}
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Failed to remove content from repository \"{repositoryName}\""
-msgstr ""
+msgstr "Inhoud verwijderen uit repository \"{repositoryName}\" is mislukt"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -3943,19 +3943,19 @@ msgstr "Bestand uploaden"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files"
-msgstr ""
+msgstr "Bestanden"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files could not be displayed."
-msgstr ""
+msgstr "Bestanden kunnen niet worden weergegeven."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Files that have not been sent will not be uploaded. Files that were already added stay in the repository."
-msgstr ""
+msgstr "Bestanden die niet zijn verzonden, worden niet geüpload. Bestanden die al zijn toegevoegd, blijven in de repository."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Files to upload"
-msgstr ""
+msgstr "Te uploaden bestanden"
 
 #. placeholder {0}: selectedFilter.id
 #. placeholder {0}: selectedFilter.id.toLowerCase()
@@ -3966,7 +3966,7 @@ msgstr "Filteren op {0}"
 
 #: src/framework/distributions/distribution-filters.tsx
 msgid "Filter by base path"
-msgstr ""
+msgstr "Filteren op basispad"
 
 #: src/framework/list/label-filter.tsx
 msgid "Filter by labels"
@@ -4156,7 +4156,7 @@ msgstr "GPG-sleutel"
 
 #: src/descriptors/maven/snippets.ts
 msgid "Gradle"
-msgstr ""
+msgstr "Gradle"
 
 #: src/components/access-tab.tsx
 #: src/components/select-group.tsx
@@ -4281,7 +4281,7 @@ msgstr "Contentguard: {guardName}"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "gzip"
-msgstr ""
+msgstr "gzip"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Has no remote, so it is skipped"
@@ -4293,7 +4293,7 @@ msgstr "Heeft woorden"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Header"
-msgstr ""
+msgstr "Header"
 
 #: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
@@ -4342,7 +4342,7 @@ msgstr "Hoeveel versies van elk pakket worden bewaard; oudere worden bij het syn
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "How the metadata files of this publication are compressed."
-msgstr ""
+msgstr "Hoe de metadatabestanden van deze publicatie worden gecomprimeerd."
 
 #: src/components/delete-collection-modal.tsx
 #: src/components/delete-execution-environment-modal.tsx
@@ -4537,7 +4537,7 @@ msgstr "Info"
 
 #: src/descriptors/ansible/snippets.ts
 msgid "Install a collection"
-msgstr ""
+msgstr "Een collectie installeren"
 
 #: src/components/collection-detail/collection-info.tsx
 #~ msgid "Install Version"
@@ -4634,15 +4634,15 @@ msgstr "Het is niet bekend of de repository is verwijderd."
 
 #: src/framework/form/create-flow.ts
 msgid "It is protected by the content guard you chose."
-msgstr ""
+msgstr "Ze wordt beschermd door de contentguard die u hebt gekozen."
 
 #: src/framework/form/create-flow.ts
 msgid "It is public: anyone can download from it without signing in."
-msgstr ""
+msgstr "Ze is openbaar: iedereen kan er zonder in te loggen van downloaden."
 
 #: src/framework/distributions/serves-field.tsx
 msgid "It serves that publication until you change it."
-msgstr ""
+msgstr "Ze biedt die publicatie aan totdat u dit wijzigt."
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
@@ -4682,7 +4682,7 @@ msgstr "De opgeslagen waarde van {label} behouden"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Keep uploading"
-msgstr ""
+msgstr "Doorgaan met uploaden"
 
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
@@ -4753,15 +4753,15 @@ msgstr "Labels zijn paren van een sleutel en een optionele waarde. Filters en sc
 
 #: src/framework/content/content-labels.tsx
 msgid "Labels belong to the content unit and show in every repository that holds it."
-msgstr ""
+msgstr "Labels horen bij de inhoudseenheid en worden getoond in elke repository die deze bevat."
 
 #: src/framework/content/content-labels.tsx
 msgid "Labels of {name}"
-msgstr ""
+msgstr "Labels van {name}"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Large files are sent in one request and may time out"
-msgstr ""
+msgstr "Grote bestanden worden in één verzoek verzonden en kunnen een time-out veroorzaken"
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4937,7 +4937,7 @@ msgstr "linux"
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/publish/serving-fix.tsx
 msgid "Loading"
-msgstr ""
+msgstr "Laden"
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "Loading distribution..."
@@ -4952,7 +4952,7 @@ msgstr "Distributies laden"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Loading publications"
-msgstr ""
+msgstr "Publicaties laden"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Loading repositories"
@@ -4997,7 +4997,7 @@ msgstr "Afmelden"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Looking for distributions that serve an older publication."
-msgstr ""
+msgstr "Zoeken naar distributies die een oudere publicatie aanbieden."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "macos"
@@ -5038,7 +5038,7 @@ msgstr "Beheer collectie-remotes."
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Manifest"
-msgstr ""
+msgstr "Manifest"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
@@ -5058,7 +5058,7 @@ msgstr "Systeeminstelling volgen"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "md5"
-msgstr ""
+msgstr "md5"
 
 #: src/containers/task-management/task-detail.tsx
 #~ msgid "Message"
@@ -5094,7 +5094,7 @@ msgstr "Modus"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "More guards match; type more of the name"
-msgstr ""
+msgstr "Meer contentguards komen overeen; typ meer van de naam"
 
 #: src/components/help-button.tsx
 msgid "More information"
@@ -5102,7 +5102,7 @@ msgstr "Meer informatie"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "More repositories match; type more of the name"
-msgstr ""
+msgstr "Meer repository's komen overeen; typ meer van de naam"
 
 #: src/framework/list/repository-list.tsx
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
@@ -5110,7 +5110,7 @@ msgstr "Meer dan {LARGE_MATCH} repository's komen overeen. Voeg nog een filter t
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Moved"
-msgstr ""
+msgstr "Verplaatst"
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -5126,7 +5126,7 @@ msgstr ""
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Moving the distributions to the new publication."
-msgstr ""
+msgstr "De distributies worden naar de nieuwe publicatie verplaatst."
 
 #: src/components/remote-form.tsx
 msgid "Must be an integer."
@@ -5360,7 +5360,7 @@ msgstr "Nog geen collectieversies"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "No compression"
-msgstr ""
+msgstr "Geen compressie"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "No container repositories yet"
@@ -5368,15 +5368,15 @@ msgstr ""
 
 #: src/framework/detail/version-content.tsx
 msgid "No content"
-msgstr ""
+msgstr "Geen inhoud"
 
 #: src/framework/detail/content-tab.tsx
 msgid "No content in the latest version"
-msgstr ""
+msgstr "Geen inhoud in de nieuwste versie"
 
 #: src/framework/content/global-content-list.tsx
 msgid "No content to show"
-msgstr ""
+msgstr "Geen inhoud om te tonen"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
@@ -5393,7 +5393,7 @@ msgstr ""
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "No distribution serves this publication."
-msgstr ""
+msgstr "Geen enkele distributie biedt deze publicatie aan."
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
@@ -5414,11 +5414,11 @@ msgstr "Nog geen distributies"
 
 #: src/framework/detail/version-content.tsx
 msgid "No earlier version"
-msgstr ""
+msgstr "Geen eerdere versie"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "No files in the latest version"
-msgstr ""
+msgstr "Geen bestanden in de nieuwste versie"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5526,7 +5526,7 @@ msgstr "Nog geen voortgang gemeld."
 
 #: src/framework/detail/publications-tab.tsx
 msgid "No publications yet"
-msgstr ""
+msgstr "Nog geen publicaties"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
@@ -5677,7 +5677,7 @@ msgstr "Geen"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Not added"
-msgstr ""
+msgstr "Niet toegevoegd"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
@@ -5686,7 +5686,7 @@ msgstr "Niet toegestaan"
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Not applicable"
-msgstr ""
+msgstr "Niet van toepassing"
 
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
@@ -5698,7 +5698,7 @@ msgstr "Niet beschikbaar"
 
 #: src/framework/serving/served-label.tsx
 msgid "Not bound to anything"
-msgstr ""
+msgstr "Aan niets gekoppeld"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/content/upload-dialog.tsx
@@ -5717,7 +5717,7 @@ msgstr "Niet ingeschakeld"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Not every file could be made, so none was added. The files that were made stay as content that belongs to no repository."
-msgstr ""
+msgstr "Niet alle bestanden konden worden gemaakt, dus er is niets toegevoegd. De bestanden die zijn gemaakt, blijven bestaan als inhoud die bij geen enkele repository hoort."
 
 #: src/components/typeahead.tsx
 msgid "Not found"
@@ -5798,11 +5798,11 @@ msgstr "Opmerkingen"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Nothing"
-msgstr ""
+msgstr "Niets"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Nothing changed in distribution {distributionName}."
-msgstr ""
+msgstr "Er is niets gewijzigd in distributie {distributionName}."
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Nothing changed in distribution {name}."
@@ -5826,19 +5826,19 @@ msgstr "Niets komt overeen met \"{text}\". Controleer de spelling of probeer een
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Nothing was added to the repository"
-msgstr ""
+msgstr "Er is niets aan de repository toegevoegd"
 
 #: src/framework/detail/version-content.tsx
 msgid "Nothing was added."
-msgstr ""
+msgstr "Er is niets toegevoegd."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Nothing was moved"
-msgstr ""
+msgstr "Er is niets verplaatst"
 
 #: src/framework/detail/version-content.tsx
 msgid "Nothing was removed."
-msgstr ""
+msgstr "Er is niets verwijderd."
 
 #: src/shell/notifications.tsx
 msgid "Notifications"
@@ -5850,7 +5850,7 @@ msgstr "Meldingen konden niet worden geladen."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Now serves the new publication."
-msgstr ""
+msgstr "Biedt nu de nieuwe publicatie aan."
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -5866,7 +5866,7 @@ msgstr "van"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Older versions may be removed"
-msgstr ""
+msgstr "Oudere versies kunnen worden verwijderd"
 
 #: src/components/remote-form.tsx
 #: src/framework/remote-columns.tsx
@@ -5888,7 +5888,7 @@ msgstr "Eén bestand in elke map"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "One publication"
-msgstr ""
+msgstr "Eén publicatie"
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
@@ -5904,7 +5904,7 @@ msgstr "Online workers"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Only clients the guard allows can download."
-msgstr ""
+msgstr "Alleen clients die de guard toestaat, kunnen downloaden."
 
 #: src/framework/snippets/distribution-snippets.test.tsx
 #~ msgid "Only guarded"
@@ -5935,7 +5935,7 @@ msgstr "Voer de synchronisatie alleen uit als de remote server wijzigingen meldt
 #. placeholder {0}: rows.length
 #: src/framework/distributions/serves-field.tsx
 msgid "Only the newest {0} publications are listed."
-msgstr ""
+msgstr "Alleen de nieuwste {0} publicaties worden weergegeven."
 
 #: src/components/ansible-role/role-import-form.tsx
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
@@ -5978,7 +5978,7 @@ msgstr "Opties"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "or"
-msgstr ""
+msgstr "of"
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
@@ -6045,7 +6045,7 @@ msgstr "Resultaat onbekend, controleer de taak"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Package"
-msgstr ""
+msgstr "Pakket"
 
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -6226,7 +6226,7 @@ msgstr "Rechten voor groep \"{0}\" konden niet worden weergegeven."
 
 #: src/descriptors/python/snippets.ts
 msgid "pip.conf"
-msgstr ""
+msgstr "pip.conf"
 
 #: src/components/ansible-repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -6316,7 +6316,7 @@ msgstr "Pre-releases"
 
 #: src/framework/detail/version-content.tsx
 msgid "Present"
-msgstr ""
+msgstr "Aanwezig"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6352,7 +6352,7 @@ msgstr "Te synchroniseren projecten, één specificatie per regel, bijvoorbeeld 
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Protected by a content guard"
-msgstr ""
+msgstr "Beschermd door een contentguard"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6366,7 +6366,7 @@ msgstr "Beveiligd met een contentguard: URL voor klanten"
 #: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/protection-choice.tsx
 msgid "Protection"
-msgstr ""
+msgstr "Bescherming"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -6421,11 +6421,11 @@ msgstr "Proxy-gebruikersnaam"
 
 #: src/framework/serving/public-label.tsx
 msgid "Public"
-msgstr ""
+msgstr "Openbaar"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Public - anyone can download without signing in"
-msgstr ""
+msgstr "Openbaar - iedereen kan downloaden zonder in te loggen"
 
 #: src/framework/signature-keys/signature-key-list.tsx
 msgid "Public key"
@@ -6433,47 +6433,47 @@ msgstr "Openbare sleutel"
 
 #: src/framework/distributions/distribution-filters.tsx
 msgid "Public only"
-msgstr ""
+msgstr "Alleen openbaar"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Publication"
-msgstr ""
+msgstr "Publicatie"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publication deleted"
-msgstr ""
+msgstr "Publicatie verwijderd"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Publication made {created}"
-msgstr ""
+msgstr "Publicatie gemaakt {created}"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publication of version {number} deleted"
-msgstr ""
+msgstr "Publicatie van versie {number} verwijderd"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
-msgstr ""
+msgstr "Publicatie van versie {version}"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publications"
-msgstr ""
+msgstr "Publicaties"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publications cannot be listed"
-msgstr ""
+msgstr "Publicaties kunnen niet worden weergegeven"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publications could not be displayed."
-msgstr ""
+msgstr "Publicaties kunnen niet worden getoond."
 
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Publications could not be read."
-msgstr ""
+msgstr "Publicaties konden niet worden gelezen."
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Publications made from this version are deleted with it. The content of the other versions does not change."
-msgstr ""
+msgstr "Publicaties die van deze versie zijn gemaakt, worden er samen mee verwijderd. De inhoud van de andere versies verandert niet."
 
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -6485,31 +6485,31 @@ msgstr "Publiceren"
 
 #: src/descriptors/ansible/snippets.ts
 msgid "Publish a collection"
-msgstr ""
+msgstr "Een collectie publiceren"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish a flat layout where all packages are in a single release component."
-msgstr ""
+msgstr "Een platte indeling publiceren waarin alle pakketten in één release-component zitten."
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish canceled"
-msgstr ""
+msgstr "Publicatie geannuleerd"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish completed"
-msgstr ""
+msgstr "Publicatie voltooid"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish failed"
-msgstr ""
+msgstr "Publicatie mislukt"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish is being canceled"
-msgstr ""
+msgstr "Publicatie wordt geannuleerd"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publish latest version"
-msgstr ""
+msgstr "Nieuwste versie publiceren"
 
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -6520,31 +6520,31 @@ msgstr "Nieuwe versies automatisch publiceren"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish of {name}"
-msgstr ""
+msgstr "Publicatie van {name}"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish of version {number} of {name}"
-msgstr ""
+msgstr "Publicatie van versie {number} van {name}"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish queued"
-msgstr ""
+msgstr "Publicatie in de wachtrij"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish repository \"{name}\""
-msgstr ""
+msgstr "Repository \"{name}\" publiceren"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish running"
-msgstr ""
+msgstr "Publicatie wordt uitgevoerd"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release components and architectures of the repository"
-msgstr ""
+msgstr "De release-componenten en architecturen van de repository publiceren"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release components and architectures that the packages of the repository declare. At least one of the two modes stays on."
-msgstr ""
+msgstr "De release-componenten en architecturen publiceren die de pakketten van de repository declareren. Minstens een van de twee modi blijft ingeschakeld."
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release fields of the upstream repository"
@@ -6552,7 +6552,7 @@ msgstr "De Release-velden van de upstream-repository publiceren"
 
 #: src/framework/detail/versions-tab.tsx
 msgid "Publish this version"
-msgstr ""
+msgstr "Deze versie publiceren"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
@@ -6560,15 +6560,15 @@ msgstr "Upstream Release-velden publiceren"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publish version {boundVersion}"
-msgstr ""
+msgstr "Versie {boundVersion} publiceren"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish version {number} of \"{name}\""
-msgstr ""
+msgstr "Versie {number} van \"{name}\" publiceren"
 
 #: src/descriptors/npm/snippets.ts
 msgid "Publish with npm"
-msgstr ""
+msgstr "Publiceren met npm"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
@@ -6576,11 +6576,11 @@ msgstr ""
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publishing is not available."
-msgstr ""
+msgstr "Publiceren is niet beschikbaar."
 
 #: src/descriptors/container/snippets.ts
 msgid "Pull"
-msgstr ""
+msgstr "Pull"
 
 #: src/constants.tsx
 #~ msgid "Pull distribution"
@@ -6817,7 +6817,7 @@ msgstr "Taken opschonen gestart"
 
 #: src/descriptors/container/snippets.ts
 msgid "Push"
-msgstr ""
+msgstr "Push"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push and change containers."
@@ -6865,7 +6865,7 @@ msgstr "Containers pushen, verwijderen en wijzigen. Remote registries aanmaken, 
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Put every package in one release component"
-msgstr ""
+msgstr "Alle pakketten in één release-component plaatsen"
 
 #: src/utilities/translate-task.ts
 msgid "Python package group upload"
@@ -6908,11 +6908,11 @@ msgstr "Tarieflimiet"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "RBAC"
-msgstr ""
+msgstr "RBAC"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Reading every distribution to find the public ones"
-msgstr ""
+msgstr "Alle distributies lezen om de openbare te vinden"
 
 #: src/components/table-of-contents.tsx
 #~ msgid "Readme"
@@ -6995,11 +6995,11 @@ msgstr "Registry synchroniseren"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/content/upload-dialog.tsx
 msgid "Relative path"
-msgstr ""
+msgstr "Relatief pad"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Relative path of {name}"
-msgstr ""
+msgstr "Relatief pad van {name}"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "released {0}"
@@ -7099,11 +7099,11 @@ msgstr "Verwijdering van {namespace}.{name} v{version} uit repository \"{reposit
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Removal of content from {repositoryName}"
-msgstr ""
+msgstr "Verwijdering van inhoud uit {repositoryName}"
 
 #: src/framework/distributions/delete-distribution.ts
 msgid "Removal of distribution {name}"
-msgstr ""
+msgstr "Verwijdering van distributie {name}"
 
 #: src/framework/bulk/remote-bulk.tsx
 #: src/framework/delete/delete-remote.ts
@@ -7121,7 +7121,7 @@ msgstr "Verwijdering gestart voor remote {name}"
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Removal started for repository \"{repositoryName}\"."
-msgstr ""
+msgstr "Verwijdering gestart voor repository \"{repositoryName}\"."
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -7139,7 +7139,7 @@ msgstr "Verwijderen"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Remove {name}"
-msgstr ""
+msgstr "{name} verwijderen"
 
 #: src/components/collection-dropdown.tsx
 #~ msgid "Remove collection from repository"
@@ -7151,7 +7151,7 @@ msgstr "Collectieversie verwijderen?"
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Remove content"
-msgstr ""
+msgstr "Inhoud verwijderen"
 
 #: src/utilities/translate-task.ts
 msgid "Remove content from repository"
@@ -7159,7 +7159,7 @@ msgstr "Inhoud verwijderen uit repository"
 
 #: src/framework/detail/content-tab.tsx
 msgid "Remove from repository"
-msgstr ""
+msgstr "Uit repository verwijderen"
 
 #: src/components/access-tab.tsx
 msgid "Remove group"
@@ -7232,7 +7232,7 @@ msgstr "Repository {name} verwijderd"
 
 #: src/framework/detail/version-content.tsx
 msgid "Removed since the earlier version"
-msgstr ""
+msgstr "Verwijderd sinds de eerdere versie"
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
@@ -7282,7 +7282,7 @@ msgstr "Reparatietaak"
 
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "Replace <user> and <token> with an account that may read this distribution."
-msgstr ""
+msgstr "Vervang <user> en <token> door een account dat deze distributie mag lezen."
 
 #: src/components/collection-header.tsx
 #~ msgid "Repo"
@@ -7325,7 +7325,7 @@ msgstr "De repository's konden niet worden geladen"
 
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Repositories could not be read."
-msgstr ""
+msgstr "Repository's konden niet worden gelezen."
 
 #: src/framework/list/remote-list.tsx
 msgid "Repositories using the remotes could not be read."
@@ -7405,7 +7405,7 @@ msgstr "Repository kan niet worden weergegeven."
 
 #: src/descriptors/rpm/snippets.ts
 msgid "Repository file"
-msgstr ""
+msgstr "Repositorybestand"
 
 #: src/components/ansible-repository-form.tsx
 #~ msgid "Repository labels can change the context in which a repository is seen.<0><1><2>Hide from search</2> (<3>hide_from_search</3>) - prevent collections in this repository from showing up on the home page</1><4>(<5>pipeline: *</5>) - see Pipeline above</4></0>"
@@ -7428,7 +7428,7 @@ msgstr "Naam repository"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Repository to take content from"
-msgstr ""
+msgstr "Repository waaruit inhoud wordt genomen"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
@@ -7437,7 +7437,7 @@ msgstr "Repository-URL"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Repository version {keptVersion}, as it is now"
-msgstr ""
+msgstr "Repositoryversie {keptVersion}, zoals die nu is"
 
 #: src/framework/detail/version-detail.tsx
 msgid "Repository version could not be displayed."
@@ -7509,7 +7509,7 @@ msgstr "Resultaat"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Result of each move"
-msgstr ""
+msgstr "Resultaat van elke verplaatsing"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
@@ -7622,7 +7622,7 @@ msgstr "Repository \"{repositoryName}\" teruggezet naar versie \"{number}\"."
 
 #: src/framework/distributions/guard-field.tsx
 msgid "RHSM certificate"
-msgstr ""
+msgstr "RHSM-certificaat"
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
@@ -7947,7 +7947,7 @@ msgstr "Een collectie selecteren"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Select a content guard"
-msgstr ""
+msgstr "Selecteer een contentguard"
 
 #: src/components/access-tab.tsx
 msgid "Select a group"
@@ -7965,7 +7965,7 @@ msgstr "Een remote selecteren"
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Select a repository"
-msgstr ""
+msgstr "Selecteer een repository"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Select a tag"
@@ -7985,7 +7985,7 @@ msgstr "Selecteer een gebruiker"
 
 #: src/framework/detail/content-tab.tsx
 msgid "Select all on this page"
-msgstr ""
+msgstr "Alles op deze pagina selecteren"
 
 #: src/framework/list/remote-list.tsx
 msgid "Select all remotes on this page"
@@ -8076,31 +8076,31 @@ msgstr "Scheid termen met komma's en schrijf sleutel=waarde, sleutel of !sleutel
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Serve it"
-msgstr ""
+msgstr "Aanbieden"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Serve the new publication"
-msgstr ""
+msgstr "De nieuwe publicatie aanbieden"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Serve the newest publication"
-msgstr ""
+msgstr "De nieuwste publicatie aanbieden"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Serve the newest publication (version {version}) from {name}?"
-msgstr ""
+msgstr "De nieuwste publicatie (versie {version}) van {name} aanbieden?"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Serve the repository instead"
-msgstr ""
+msgstr "In plaats daarvan de repository aanbieden"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Served"
-msgstr ""
+msgstr "Aangeboden"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Served state"
-msgstr ""
+msgstr "Status van aanbieden"
 
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
@@ -8122,19 +8122,19 @@ msgstr "Fout bij de server. Kom a.u.b. later terug."
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Serves"
-msgstr ""
+msgstr "Biedt aan"
 
 #: src/framework/serving/served-label.tsx
 msgid "Serves nothing (404): no publication"
-msgstr ""
+msgstr "Biedt niets aan (404): geen publicatie"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Serves the publication of version {bound}"
-msgstr ""
+msgstr "Biedt de publicatie van versie {bound} aan"
 
 #: src/framework/serving/served-label.tsx
 msgid "Serves version {served}, latest is {latest}"
-msgstr ""
+msgstr "Biedt versie {served} aan, de nieuwste is {latest}"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
@@ -8147,19 +8147,19 @@ msgstr "Instellingen"
 
 #: src/descriptors/maven/snippets.ts
 msgid "settings.xml"
-msgstr ""
+msgstr "settings.xml"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha1"
-msgstr ""
+msgstr "sha1"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha224"
-msgstr ""
+msgstr "sha224"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha256"
-msgstr ""
+msgstr "sha256"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "SHA256SUMS files"
@@ -8167,11 +8167,11 @@ msgstr "SHA256SUMS-bestanden"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha384"
-msgstr ""
+msgstr "sha384"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha512"
-msgstr ""
+msgstr "sha512"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -8379,7 +8379,7 @@ msgstr "Afgemeld"
 
 #: src/descriptors/deb/snippets.ts
 msgid "Signing key"
-msgstr ""
+msgstr "Ondertekeningssleutel"
 
 #: src/components/approve-modal.tsx
 #: src/components/copy-collection-to-repository-modal.tsx
@@ -8422,11 +8422,11 @@ msgstr "Ondertekeningsservices"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Simple"
-msgstr ""
+msgstr "Eenvoudig"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Simple publishing"
-msgstr ""
+msgstr "Eenvoudig publiceren"
 
 #: src/components/remote-form.tsx
 msgid "Single sign on URL."
@@ -8561,7 +8561,7 @@ msgstr "Taak stoppen?"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Stop uploading"
-msgstr ""
+msgstr "Stoppen met uploaden"
 
 #: src/containers/pulp-status.tsx
 msgid "Storage"
@@ -8579,11 +8579,11 @@ msgstr "Gestreamd"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Structured"
-msgstr ""
+msgstr "Gestructureerd"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Structured publishing"
-msgstr ""
+msgstr "Gestructureerd publiceren"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Succeeded"
@@ -8842,7 +8842,7 @@ msgstr "Synchroniseer deze repository of voeg er pakketten aan toe."
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Sync this repository or upload files to it."
-msgstr ""
+msgstr "Synchroniseer deze repository of upload er bestanden naar."
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Sync this repository or upload packages to it."
@@ -9056,7 +9056,7 @@ msgstr "De bulkactie is gestopt door een onverwachte fout. Sommige rijen zijn mo
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The change is still running."
-msgstr ""
+msgstr "De wijziging wordt nog uitgevoerd."
 
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
@@ -9064,15 +9064,15 @@ msgstr "De wijziging van repository \"{repositoryName}\" wordt nog uitgevoerd."
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The change was accepted and is still running."
-msgstr ""
+msgstr "De wijziging is geaccepteerd en wordt nog uitgevoerd."
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "The checksum type used in the metadata of this publication."
-msgstr ""
+msgstr "Het checksumtype dat wordt gebruikt in de metadata van deze publicatie."
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "The client snippet shows how."
-msgstr ""
+msgstr "Het clientfragment laat zien hoe."
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -9125,7 +9125,7 @@ msgstr "Het verwijderen is gestopt door een onverwachte fout. Mogelijk zijn somm
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "The delete stopped with an unexpected error. The distribution may already have been removed: check the list before trying again."
-msgstr ""
+msgstr "Het verwijderen is gestopt met een onverwachte fout. De distributie is mogelijk al verwijderd: controleer de lijst voordat u het opnieuw probeert."
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
@@ -9133,15 +9133,15 @@ msgstr "Het verwijderen is gestopt door een onverwachte fout. De remote is mogel
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "The distribution \"{trimmedName}\" is still being created and is not served yet."
-msgstr ""
+msgstr "De distributie \"{trimmedName}\" wordt nog aangemaakt en wordt nog niet aangeboden."
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The distribution {name} serves this repository through its publications, so it serves nothing new until one is made."
-msgstr ""
+msgstr "De distributie {name} biedt deze repository aan via haar publicaties, dus ze biedt niets nieuws aan totdat er een wordt gemaakt."
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
-msgstr ""
+msgstr "De distributie krijgt geen contentguard: iedereen die deze server kan bereiken, kan de inhoud ervan downloaden zonder in te loggen."
 
 #: src/components/repository-form.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
@@ -9167,11 +9167,11 @@ msgstr "De distributies van deze repository konden niet worden opgehaald, dus er
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "The distributions of this repository could not be listed, so the effect of the delete is not known."
-msgstr ""
+msgstr "De distributies van deze repository konden niet worden weergegeven, dus het effect van het verwijderen is niet bekend."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The distributions of this repository could not be read, so none can be moved from here. You can still publish."
-msgstr ""
+msgstr "De distributies van deze repository konden niet worden gelezen, dus er kan er hier geen worden verplaatst. U kunt nog wel publiceren."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -9188,11 +9188,11 @@ msgstr "De distributies zijn verwijderd, maar de repository is behouden."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The file was sent, but its task could not be read."
-msgstr ""
+msgstr "Het bestand is verzonden, maar de bijbehorende taak kon niet worden gelezen."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The file was sent, but the dialog stopped waiting for it. It may still be added."
-msgstr ""
+msgstr "Het bestand is verzonden, maar het dialoogvenster is gestopt met wachten. Het kan nog worden toegevoegd."
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "The following legacy namespace will be opted in to Ansible Lightspeed:"
@@ -9246,15 +9246,15 @@ msgstr "De inlogpagina is teruggekeerd zonder aangemelde sessie."
 
 #: src/descriptors/file/descriptor.tsx
 msgid "The name of the file that lists every published file with its checksum and size."
-msgstr ""
+msgstr "De naam van het bestand dat elk gepubliceerd bestand met checksum en grootte weergeeft."
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "The only version of the repository."
-msgstr ""
+msgstr "De enige versie van de repository."
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "De uitkomst van het aanmaken van de distributie \"{trimmedName}\" is onbekend, omdat de taakstatus niet kon worden gelezen. Controleer de taak."
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
@@ -9288,7 +9288,7 @@ msgstr "Het wachtwoord dat moet worden gebruikt voor authenticatie bij het synch
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The path must not start with a slash."
-msgstr ""
+msgstr "Het pad mag niet met een schuine streep beginnen."
 
 #: src/app-routes.tsx
 #: src/framework/distributions/distribution-list.tsx
@@ -9298,7 +9298,7 @@ msgstr "De pluginlijst kan niet worden geladen"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The progress of the publish could not be followed. No distribution was moved."
-msgstr ""
+msgstr "De voortgang van de publicatie kon niet worden gevolgd. Er is geen distributie verplaatst."
 
 #: src/framework/sync/progress-panel.tsx
 msgid "The progress of this task cannot be shown."
@@ -9306,23 +9306,23 @@ msgstr "De voortgang van deze taak kan niet worden getoond."
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "The publication could not be deleted."
-msgstr ""
+msgstr "De publicatie kon niet worden verwijderd."
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The publications of this repository could not be read."
-msgstr ""
+msgstr "De publicaties van deze repository konden niet worden gelezen."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish failed: {reason} No distribution was moved."
-msgstr ""
+msgstr "De publicatie is mislukt: {reason} Er is geen distributie verplaatst."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish finished, but the new publication could not be found. No distribution was moved."
-msgstr ""
+msgstr "De publicatie is voltooid, maar de nieuwe publicatie kon niet worden gevonden. Er is geen distributie verplaatst."
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish was accepted and is running. The distributions you chose are moved to the new publication when it exists. If you close this window now, they stay where they are."
-msgstr ""
+msgstr "De publicatie is geaccepteerd en wordt uitgevoerd. De distributies die u hebt gekozen, worden naar de nieuwe publicatie verplaatst zodra die bestaat. Als u dit venster nu sluit, blijven ze waar ze zijn."
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -9343,11 +9343,11 @@ msgstr "De repository's die deze remote gebruiken, konden niet worden opgesomd, 
 
 #: src/framework/distributions/serves-field.tsx
 msgid "The repository (serves its latest version)"
-msgstr ""
+msgstr "De repository (biedt de nieuwste versie aan)"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "The repository (serves its newest publication)"
-msgstr ""
+msgstr "De repository (biedt de nieuwste publicatie aan)"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -9355,7 +9355,7 @@ msgstr "De inhoud van de repository kan niet worden gelezen"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository could not be read, so it cannot be published from here."
-msgstr ""
+msgstr "De repository kon niet worden gelezen, dus ze kan hier niet worden gepubliceerd."
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
@@ -9373,11 +9373,11 @@ msgstr "De repository krijgt een nieuwe nieuwste versie met de inhoud van die ve
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "The repository gets a new latest version without them. Earlier versions keep them."
-msgstr ""
+msgstr "De repository krijgt een nieuwe nieuwste versie zonder deze. Eerdere versies behouden ze."
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository has no publication to serve."
-msgstr ""
+msgstr "De repository heeft geen publicatie om aan te bieden."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -9386,7 +9386,7 @@ msgstr "De repository wordt nog verwijderd:"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "The repository version it serves now"
-msgstr ""
+msgstr "De repositoryversie die ze nu aanbiedt"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -9404,7 +9404,7 @@ msgstr "De repository is niet verwijderd."
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "The repository's setting or the server's default"
-msgstr ""
+msgstr "De instelling van de repository of de standaardwaarde van de server"
 
 #: src/utilities/request-error.ts
 msgid "The request failed."
@@ -9418,12 +9418,12 @@ msgstr "De gereserveerde basispaden van deze server konden niet worden gelezen, 
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "The reserved base paths of this server could not be read, so the base path cannot be changed here."
-msgstr ""
+msgstr "De gereserveerde basispaden van deze server konden niet worden gelezen, dus het basispad kan hier niet worden gewijzigd."
 
 #: src/framework/publish/pinned-distributions.ts
 #: src/framework/publish/serving-fix.tsx
 msgid "The result of the change could not be read."
-msgstr ""
+msgstr "Het resultaat van de wijziging kon niet worden gelezen."
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
@@ -9479,31 +9479,31 @@ msgstr "De server kon niet worden bereikt: {message}"
 
 #: src/framework/form/create-flow.ts
 msgid "The server did not apply the content guard you chose: the distribution has no content guard."
-msgstr ""
+msgstr "De server heeft de contentguard die u hebt gekozen niet toegepast: de distributie heeft geen contentguard."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The server did not make any content from this file."
-msgstr ""
+msgstr "De server heeft uit dit bestand geen inhoud gemaakt."
 
 #: src/framework/distributions/distribution-fields.tsx
 msgid "The server manages the content guard of this distribution. It cannot be changed here."
-msgstr ""
+msgstr "De server beheert de contentguard van deze distributie. Die kan hier niet worden gewijzigd."
 
 #: src/framework/distributions/distribution-fields.tsx
 msgid "The server manages the content guard of this distribution. It is set when the distribution is created and cannot be chosen here."
-msgstr ""
+msgstr "De server beheert de contentguard van deze distributie. Die wordt ingesteld wanneer de distributie wordt aangemaakt en kan hier niet worden gekozen."
 
 #: src/framework/form/create-flow.ts
 msgid "The server protected the distribution with {guard}."
-msgstr ""
+msgstr "De server heeft de distributie beschermd met {guard}."
 
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "The server reports no client URL for this distribution, so there is no client configuration to show."
-msgstr ""
+msgstr "De server meldt geen client-URL voor deze distributie, dus er is geen clientconfiguratie om te tonen."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The server was still working on this file when the wait ended."
-msgstr ""
+msgstr "De server was nog bezig met dit bestand toen het wachten eindigde."
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
@@ -9511,7 +9511,7 @@ msgstr "De sessie kan niet worden gecontroleerd"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The session ended before it was sent."
-msgstr ""
+msgstr "De sessie is beëindigd voordat het bestand werd verzonden."
 
 #: src/framework/delete/delete-outcome.tsx
 msgid "The session ended before the delete was finished."
@@ -9524,7 +9524,7 @@ msgstr "De sessie is beëindigd voordat de distributie kon worden gemaakt. Contr
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The session ended before the result was known."
-msgstr ""
+msgstr "De sessie is beëindigd voordat het resultaat bekend was."
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
@@ -9533,7 +9533,7 @@ msgstr "De sessie is beëindigd voordat dit item werd verzonden."
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The session ended while it was on its way."
-msgstr ""
+msgstr "De sessie is beëindigd terwijl het bestand onderweg was."
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
@@ -9593,12 +9593,12 @@ msgstr "De waarde is in minuten. Gewoonlijk is de standaardwaarde een dag (1440)
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "The version could not be deleted."
-msgstr ""
+msgstr "De versie kon niet worden verwijderd."
 
 #. placeholder {0}: requestErrorText(query.error)
 #: src/framework/content/add-content-dialog.tsx
 msgid "The version could not be read: {0}"
-msgstr ""
+msgstr "De versie kon niet worden gelezen: {0}"
 
 #: src/shell/theme-menu.tsx
 msgid "Theme"
@@ -9663,12 +9663,12 @@ msgstr "Er zijn geen remotes verbonden aan deze repository."
 
 #: src/framework/content/global-content-list.tsx
 msgid "There is no content of this kind that you may see."
-msgstr ""
+msgstr "Er is geen inhoud van dit soort die u mag zien."
 
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
-msgstr ""
+msgstr "Er is geen inhoud van dit soort om te tonen."
 
 #: src/containers/task-management/task-detail.tsx
 msgid "There is no progress message."
@@ -9677,7 +9677,7 @@ msgstr "Er is geen voortgangsbericht."
 #. placeholder {0}: locked.name
 #: src/framework/distributions/serves-field.tsx
 msgid "There is no repository named \"{0}\", or you may not see it."
-msgstr ""
+msgstr "Er is geen repository met de naam \"{0}\", of u mag die niet zien."
 
 #: src/containers/approvals/approvals.tsx
 #~ msgid "There must be only one repository with pipeline=rejected."
@@ -9689,7 +9689,7 @@ msgstr "Er is geen bronvermelding"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "These distributions are bound to an older publication and keep serving it. Tick the ones that should serve the new publication."
-msgstr ""
+msgstr "Deze distributies zijn gekoppeld aan een oudere publicatie en blijven die aanbieden. Vink de distributies aan die de nieuwe publicatie moeten aanbieden."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -9698,7 +9698,7 @@ msgstr "Deze distributies bieden de repository aan. Ze worden er samen mee verwi
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "These distributions serve this publication. Deleting it changes what they serve:"
-msgstr ""
+msgstr "Deze distributies bieden deze publicatie aan. Door ze te verwijderen verandert wat ze aanbieden:"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "These repositories use this remote. They are kept, without a remote, and cannot be synced until they have one:"
@@ -9747,11 +9747,11 @@ msgstr "Items kunnen niet worden weergegeven."
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "This distribution is public now"
-msgstr ""
+msgstr "Deze distributie is nu openbaar"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "This distribution serves a publication, which this plugin has deprecated. It keeps serving it until you serve the repository instead; the repository's latest version is then served directly."
-msgstr ""
+msgstr "Deze distributie biedt een publicatie aan die deze plug-in als verouderd heeft aangemerkt. Ze blijft die aanbieden totdat u in plaats daarvan de repository aanbiedt; de nieuwste versie van de repository wordt dan rechtstreeks aangeboden."
 
 #: src/framework/list/label-filter.tsx
 msgid "This expression cannot be shown as fields."
@@ -9783,15 +9783,15 @@ msgstr "Deze groep kan gebruikers bevatten"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "This is the latest version, which a distribution bound to the repository serves: {names}."
-msgstr ""
+msgstr "Dit is de nieuwste versie, die een distributie aanbiedt die aan de repository is gekoppeld: {names}."
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "This is the latest version. The repository goes back to the newest version that is left."
-msgstr ""
+msgstr "Dit is de nieuwste versie. De repository gaat terug naar de nieuwste versie die overblijft."
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "This is the newest published version, which a distribution bound to the repository serves: {names}."
-msgstr ""
+msgstr "Dit is de nieuwste gepubliceerde versie, die een distributie aanbiedt die aan de repository is gekoppeld: {names}."
 
 #: src/components/ratings.tsx
 #~ msgid "This is the rating from old-galaxy.ansible.com. We are working on redoing the rating for the new version of galaxy."
@@ -9811,7 +9811,7 @@ msgstr "Dit project is een poging om de codebase van de Ansible Galaxy UI te upc
 
 #: src/framework/distributions/serves-field.tsx
 msgid "This repository has no publication"
-msgstr ""
+msgstr "Deze repository heeft geen publicatie"
 
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/version-detail.tsx
@@ -9820,7 +9820,7 @@ msgstr "Deze repository heeft geen versie {number}."
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "This repository has no version."
-msgstr ""
+msgstr "Deze repository heeft geen versie."
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
@@ -9833,7 +9833,7 @@ msgstr "Dit scherm is nog niet beschikbaar in deze UI."
 #. placeholder {0}: written.refusal
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "This snippet cannot be written safely, because a value of the distribution holds {0}."
-msgstr ""
+msgstr "Dit fragment kan niet veilig worden geschreven, omdat een waarde van de distributie {0} bevat."
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag already exists on another image. Do you want to move it to this image?"
@@ -9857,11 +9857,11 @@ msgstr "Dit gebruikt dezelfde {docsAnsibleLink}-indeling als de ansible-galaxy C
 
 #: src/framework/detail/version-content.tsx
 msgid "This version holds no content."
-msgstr ""
+msgstr "Deze versie bevat geen inhoud."
 
 #: src/framework/detail/version-content.tsx
 msgid "This version holds none."
-msgstr ""
+msgstr "Deze versie bevat er geen."
 
 #: src/components/delete-collection-modal.tsx
 #~ msgid "This will cause the entire collection to be deleted."
@@ -9914,7 +9914,7 @@ msgstr "Token voor verificatie naar de server-URL."
 
 #: src/framework/serving/served-label.tsx
 msgid "Too many publications to check here."
-msgstr ""
+msgstr "Te veel publicaties om hier te controleren."
 
 #: src/containers/pulp-status.tsx
 msgid "Total"
@@ -10003,7 +10003,7 @@ msgstr "UI-versie"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Unknown"
-msgstr ""
+msgstr "Onbekend"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "unsigned"
@@ -10040,7 +10040,7 @@ msgstr "Collectie-remote bijwerken"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Update started for distribution {distributionName}"
-msgstr ""
+msgstr "Bijwerken gestart voor distributie {distributionName}"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Update started for distribution {name}"
@@ -10084,7 +10084,7 @@ msgstr "Bijwerken gestart voor repository {repositoryName}"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Updated distribution {distributionName}"
-msgstr ""
+msgstr "Distributie {distributionName} bijgewerkt"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Updated distribution {name}"
@@ -10136,7 +10136,7 @@ msgstr "Commit uploaden"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Upload files"
-msgstr ""
+msgstr "Bestanden uploaden"
 
 #: src/components/collection-dropdown.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -10146,11 +10146,11 @@ msgstr ""
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Upload of {name}"
-msgstr ""
+msgstr "Upload van {name}"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Upload of {name} to {repositoryName}"
-msgstr ""
+msgstr "Upload van {name} naar {repositoryName}"
 
 #: src/components/approval-row.tsx
 #: src/components/upload-signature-modal.tsx
@@ -10163,11 +10163,11 @@ msgstr ""
 
 #: src/descriptors/python/snippets.ts
 msgid "Upload with twine"
-msgstr ""
+msgstr "Uploaden met twine"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Uploading"
-msgstr ""
+msgstr "Uploaden"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Uploads"
@@ -10514,7 +10514,7 @@ msgstr "Waarde (optioneel)"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Verbatim"
-msgstr ""
+msgstr "Letterlijk"
 
 #: src/components/repair-task-modal.tsx
 msgid "Verify checksums"
@@ -10530,7 +10530,7 @@ msgstr "Versie"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Version {number} (pinned)"
-msgstr ""
+msgstr "Versie {number} (vastgezet)"
 
 #: src/containers/ansible-repository/detail.tsx
 msgid "Version {repositoryVersion}"
@@ -10538,7 +10538,7 @@ msgstr "Versie {repositoryVersion}"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Version {version}, made {created}"
-msgstr ""
+msgstr "Versie {version}, gemaakt {created}"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -10688,11 +10688,11 @@ msgstr "Wachten tot een worker de taak oppakt."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Waiting for the other files"
-msgstr ""
+msgstr "Wachten op de andere bestanden"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Waiting for the server"
-msgstr ""
+msgstr "Wachten op de server"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Warning"
@@ -10720,11 +10720,11 @@ msgstr "We konden de pagina die u zoekt niet vinden!"
 
 #: src/descriptors/file/snippets.ts
 msgid "wget"
-msgstr ""
+msgstr "wget"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "What it serves is kept. Clients lose the address it is reached at."
-msgstr ""
+msgstr "Wat ze aanbiedt blijft behouden. Clients verliezen het adres waarop ze bereikt wordt."
 
 #: src/session/reauth-dialog.tsx
 msgid "What you have entered on this page is kept."
@@ -10745,7 +10745,7 @@ msgstr "Of de publicaties van deze repository SHA256SUMS-bestanden bevatten, die
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Whether this publication includes SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
-msgstr ""
+msgstr "Of deze publicatie SHA256SUMS-bestanden bevat, die de checksum van elk gepubliceerd bestand weergeven zodat clients een download kunnen controleren."
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -10786,12 +10786,12 @@ msgstr "Door spaties gescheiden lijst van te synchroniseren distributies (ook we
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "will serve nothing (404)"
-msgstr ""
+msgstr "biedt niets aan (404)"
 
 #. placeholder {0}: after.version
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "will serve version {0}"
-msgstr ""
+msgstr "biedt versie {0} aan"
 
 #: src/components/role-sync-form.tsx
 #~ msgid "Will sync <0>{link}</0>"
@@ -10829,7 +10829,7 @@ msgstr "Een expressie schrijven"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "X.509 certificate"
-msgstr ""
+msgstr "X.509-certificaat"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -10993,11 +10993,11 @@ msgstr "U mag dit niet doen voor het volgende, dus er wordt niets voor verzonden
 
 #: src/framework/serving/served-label.tsx
 msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
-msgstr ""
+msgstr "U mag de publicaties van deze plug-in niet lezen, dus hier kan niet worden vastgesteld of deze distributie inhoud aanbiedt."
 
 #: src/framework/detail/publications-tab.tsx
 msgid "You may not read the publications of this plugin, so they cannot be listed here."
-msgstr ""
+msgstr "U mag de publicaties van deze plug-in niet lezen, dus ze kunnen hier niet worden weergegeven."
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."
@@ -11005,7 +11005,7 @@ msgstr "U mag geen bulkactie uitvoeren op de geselecteerde rijen."
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Your account may not create uploads, so a file above {chunkLimit} is not split into parts. A very large file may take longer than the server waits."
-msgstr ""
+msgstr "Uw account mag geen uploads aanmaken, dus een bestand groter dan {chunkLimit} wordt niet in delen gesplitst. Een zeer groot bestand kan langer duren dan de server wacht."
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
@@ -11040,4 +11040,4 @@ msgstr "Uw taken verschijnen hier wanneer ze mislukken, worden voltooid of worde
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "zstd"
-msgstr ""
+msgstr "zstd"
