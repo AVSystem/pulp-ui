@@ -545,3 +545,229 @@ test.describe('content', () => {
     expect(await apiGet(objects.api, scratch.pulp_href)).toBeTruthy();
   });
 });
+
+test.describe('the one-click fixes beside a serving warning', () => {
+  test('a repository-bound distribution with no publication is fixed by publishing the latest version', async ({
+    page,
+  }) => {
+    test.setTimeout(240_000);
+    const repository = await objects.fileRepository('fix-publish', ['q.txt']);
+    const follower = await distribute('fix-publish-dist', {
+      repository: repository.pulp_href,
+    });
+    const name = follower['name'] as string;
+    // nothing is published, so the content app answers 404
+    await expectServed(follower, objects.path('q.txt'), 404);
+
+    await page.goto(`file/distributions/${enc(name)}`);
+    await expect(title(page, name)).toBeVisible();
+    await expect(
+      page.getByText('Serves nothing (404): no publication').first(),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Publish latest version' }).click();
+    const dialog = page.locator('[data-cy=PublishDialog]');
+    await expect(dialog).toContainText(
+      `The distribution ${name} serves this repository through its publications`,
+    );
+    await dialog.getByRole('button', { name: 'Publish', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+
+    // the content app serves the file once the publication exists, and the
+    // warning is gone from the page
+    await expectServed(follower, objects.path('q.txt'), 200);
+    await expect(
+      page.getByText('Serves nothing (404): no publication'),
+    ).toHaveCount(0, { timeout: 60_000 });
+  });
+
+  test('a distribution bound to an older publication is moved to the newest one', async ({
+    page,
+  }) => {
+    test.setTimeout(240_000);
+    const repository = await objects.fileRepository('fix-newest', [
+      'm1.txt',
+      'm2.txt',
+    ]);
+    const older = await objects.create(PUBLICATIONS, {
+      repository_version: versionHref(repository, 1),
+    });
+    const newer = await objects.create(PUBLICATIONS, {
+      repository_version: versionHref(repository, 2),
+    });
+    const bound = await distribute('fix-newest-dist', {
+      publication: older.pulp_href,
+    });
+    const name = bound['name'] as string;
+    await expectServed(bound, objects.path('m2.txt'), 404);
+
+    await page.goto(`file/distributions/${enc(name)}`);
+    await expect(title(page, name)).toBeVisible();
+    await expect(
+      page.getByText('Serves version 1, latest is 2').first(),
+    ).toBeVisible();
+    await page
+      .getByRole('button', { name: 'Serve the newest publication' })
+      .click();
+    const dialog = page.locator('[data-cy=ServingFix]');
+    await expect(dialog).toContainText(
+      `Serve the newest publication (version 2) from ${name}?`,
+    );
+    await dialog.getByRole('button', { name: 'Serve it' }).click();
+    // the move is made and the warning leaves the page with it
+    await expect
+      .poll(async () => (await objects.get(bound.pulp_href))['publication'], {
+        message: 'the publication the distribution is bound to',
+        timeout: 60_000,
+      })
+      .toBe(newer.pulp_href);
+    await expect(page.getByText('Serves version 1, latest is 2')).toHaveCount(
+      0,
+      { timeout: 60_000 },
+    );
+
+    expect((await objects.get(bound.pulp_href))['publication']).toBe(
+      newer.pulp_href,
+    );
+    await expectServed(bound, objects.path('m2.txt'), 200);
+  });
+});
+
+// The page of one version shows a count of present, added and removed content
+// for each kind of content, and a list for each count. The counts must be the
+// server's and every list must hold what its count says (a page of 20 at most),
+// for versions of file, deb and rpm repositories. The versions that the lab
+// already holds are found by what they hold, never by a name.
+type Summary = Record<string, Record<string, { count: number }>>;
+
+interface Found {
+  href: string;
+  name: string;
+  number: number;
+}
+
+async function findVersion(
+  plugin: 'deb' | 'rpm',
+  wanted: (summary: Summary) => boolean,
+): Promise<Found> {
+  const repositories = await objects.list(PLUGINS[plugin].repositories, {
+    fields: 'pulp_href,name,latest_version_href',
+    ordering: 'name',
+  });
+  for (const repository of repositories) {
+    const latest = repository['latest_version_href'];
+    if (typeof latest !== 'string' || latest.endsWith('/versions/0/')) {
+      continue;
+    }
+    const version = await objects.get(latest);
+    if (wanted((version['content_summary'] ?? {}) as Summary)) {
+      return {
+        href: repository.pulp_href,
+        name: String(repository['name']),
+        number: Number(version['number']),
+      };
+    }
+  }
+  throw new Error(
+    `no ${plugin} repository holds a version with those contents`,
+  );
+}
+
+const total = (summary: Summary, part: 'present' | 'added' | 'removed') =>
+  Object.values(summary[part] ?? {}).reduce((sum, { count }) => sum + count, 0);
+
+test.describe('the lists of a version agree with its summary on every plugin', () => {
+  const CASES: {
+    label: string;
+    plugin: 'file' | 'deb' | 'rpm';
+    find: () => Promise<Found>;
+  }[] = [
+    {
+      label: 'a file repository',
+      plugin: 'file',
+      find: async () => {
+        const repository = await objects.fileRepository('lists', [
+          'n1.txt',
+          'n2.txt',
+        ]);
+        return {
+          href: repository.pulp_href,
+          name: repository['name'] as string,
+          number: 2,
+        };
+      },
+    },
+    {
+      label: 'a deb repository with a release component',
+      plugin: 'deb',
+      find: () =>
+        findVersion('deb', (summary) =>
+          Boolean(summary['present']?.['deb.release_component']),
+        ),
+    },
+    {
+      label: 'an rpm repository that removed packages',
+      plugin: 'rpm',
+      find: () =>
+        findVersion('rpm', (summary) =>
+          Boolean(summary['removed']?.['rpm.package']),
+        ),
+    },
+  ];
+
+  for (const { label, plugin, find } of CASES) {
+    test(`${label}: present, added and removed lists hold what the counts say`, async ({
+      page,
+    }) => {
+      test.setTimeout(240_000);
+      const found = await find();
+      const version = await objects.get(
+        `${found.href}versions/${found.number}/`,
+      );
+      const summary = (version['content_summary'] ?? {}) as Summary;
+
+      await page.goto(
+        `${plugin}/repositories/${enc(found.name)}/versions/${found.number}`,
+      );
+      const table = grid(page, 'Content summary');
+      await expect(bodyRows(table).first()).toBeVisible({ timeout: 60_000 });
+      const rows = await bodyRows(table).evaluateAll((trs) =>
+        trs.map((tr) =>
+          Array.from(tr.querySelectorAll('td')).map((td) =>
+            (td.textContent ?? '').trim(),
+          ),
+        ),
+      );
+      expect(rows.length, 'kinds of content in the summary').toBeGreaterThan(0);
+
+      // the counts shown are the server's, summed over the kinds of content
+      for (const [position, part] of (
+        ['present', 'added', 'removed'] as const
+      ).entries()) {
+        const shown = rows.reduce(
+          (sum, cells) => sum + Number(cells[position + 1]),
+          0,
+        );
+        expect(shown, `${part} count of version ${found.number}`).toBe(
+          total(summary, part),
+        );
+      }
+
+      // and each list holds what its count says
+      for (const cells of rows) {
+        const [type, ...counts] = cells as [string, ...string[]];
+        for (const [position, part] of (
+          ['present', 'added', 'removed'] as const
+        ).entries()) {
+          const count = Number(counts[position]);
+          if (count === 0) {
+            continue;
+          }
+          await expect(
+            bodyRows(grid(page, `${type} ${part}`)),
+            `rows of ${type} ${part}`,
+          ).toHaveCount(Math.min(20, count), { timeout: 60_000 });
+        }
+      }
+    });
+  }
+});

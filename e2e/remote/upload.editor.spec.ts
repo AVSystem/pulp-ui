@@ -11,7 +11,7 @@ import { account } from '../support/accounts';
 import { type PulpObject, TestObjects } from '../support/api';
 import { PLUGINS } from '../support/distribution-screens';
 import { apiPost } from '../support/sdk-request';
-import { submitLoginForm } from '../support/sign-in';
+import { submitLoginForm, title } from '../support/sign-in';
 import {
   MiB,
   chooseFiles,
@@ -281,4 +281,36 @@ test('an account that is staff but not a superuser is offered the one-version fl
     await context.close();
   }
   expect(await objects.versionNumbers(repository.pulp_href)).toEqual([0]);
+});
+
+// The distribution list reads its rows' columns in batches, never one object at
+// a time, for an account that is not an administrator and holds roles on single
+// repositories. The count is that of one load of the default page, from the
+// click on the sidebar entry to every column settled.
+test('one load of the distribution list stays within the request budget of a page', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await page.goto('status');
+  await expect(title(page, 'Status')).toBeVisible();
+  const requests = recordRequests(page);
+  await page.locator('[data-cy=pulp-menu-item-distributions]').click();
+  await expect(
+    page.locator(
+      'table[aria-label="Distributions"][data-rows-loaded="true"][data-columns-loaded="true"]',
+    ),
+  ).toBeVisible({ timeout: 60_000 });
+  await page.waitForTimeout(500);
+  test.info().annotations.push({
+    type: 'requests',
+    description: `${requests.length}`,
+  });
+  expect(
+    requests.filter((line) => line.includes('my_permissions')),
+    'requests to my_permissions',
+  ).toEqual([]);
+  expect(
+    requests.length,
+    'API requests of one load of the page',
+  ).toBeLessThanOrEqual(16);
 });
