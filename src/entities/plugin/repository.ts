@@ -96,6 +96,7 @@ export interface RepositoryApi<
     params?: undefined,
     options?: Options,
   ) => Promise<unknown>;
+  versionDelete: (href: string, options?: Options) => Promise<unknown>;
   sync?: (href: string, body: TSync, options?: Options) => Promise<unknown>;
   modify?: (href: string, body: TModify, options?: Options) => Promise<unknown>;
 }
@@ -160,6 +161,10 @@ export interface RepositoryEntity<Row, TCreate, TUpdate, TSync, TModify> {
     options?: Options,
   ) => Promise<Page<RepositoryVersion>>;
   version: (href: string, options?: Options) => Promise<RepositoryVersion>;
+  // Deletes the version at this address; resolves with the address of the task
+  // that does it. The server refuses a version that a distribution serves and
+  // fails the task for the last version that is left.
+  deleteVersion: (href: string, options?: Options) => Promise<string>;
   // The version of the repository at this address that has this number, or null
   // when it has none. The number reaches the server only as the value of the
   // number filter, so no address is ever built from it; a number that cannot be
@@ -395,6 +400,8 @@ export function makeRepositoryEntity<
         versionSchema,
         await api.versionRead(href, undefined, options),
       ),
+    deleteVersion: async (href, options) =>
+      taskOf(await api.versionDelete(href, options)),
     versionByNumber: async (href, number, options) => {
       if (!Number.isSafeInteger(number) || number < 0) {
         return null;

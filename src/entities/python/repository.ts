@@ -11,6 +11,7 @@ import {
   repositoriesPythonPythonUnsetLabel,
 } from '@pulp-ui/sdk/python/repositories-python';
 import {
+  repositoriesPythonPythonVersionsDelete,
   repositoriesPythonPythonVersionsList,
   repositoriesPythonPythonVersionsRead,
 } from '@pulp-ui/sdk/python/repositories-python-versions';
@@ -33,6 +34,7 @@ export const pythonRepository = makeRepositoryEntity({
     unsetLabel: repositoriesPythonPythonUnsetLabel,
     versionsList: repositoriesPythonPythonVersionsList,
     versionRead: repositoriesPythonPythonVersionsRead,
+    versionDelete: repositoriesPythonPythonVersionsDelete,
     sync: repositoriesPythonPythonSync,
     modify: repositoriesPythonPythonModify,
   },

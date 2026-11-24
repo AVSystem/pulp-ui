@@ -45,7 +45,6 @@ const FILE: PluginManifest = {
 };
 
 const DELETE = 'file.delete_filerepository';
-const VIEW_PUBLICATIONS = 'file.view_filepublication';
 
 let permissions: { stop: () => void };
 let intervals: IIntervals;
@@ -207,7 +206,13 @@ async function settledItem(
   number: string,
 ) {
   await openMenu(user, number);
-  return deleteItem();
+  await deleteItem();
+  await waitFor(() =>
+    expect(
+      screen.getByRole('menuitem', { name: /Delete version/ }).textContent,
+    ).not.toContain('Checking'),
+  );
+  return screen.getByRole('menuitem', { name: /Delete version/ });
 }
 
 describe(
@@ -222,12 +227,10 @@ describe(
       });
       const { user } = render();
 
-      await waitFor(async () => {
-        await openMenu(user, '1');
-        const item = await deleteItem();
-        expect(item.getAttribute('aria-disabled')).toBe('true');
-        expect(item.textContent).toContain('"pinned"');
-      });
+      const item1 = await settledItem(user, '1');
+      expect(item1.getAttribute('aria-disabled')).toBe('true');
+      expect(item1.textContent).toContain('"pinned"');
+
       await user.keyboard('{Escape}');
       const other = await settledItem(user, '2');
       expect(other.getAttribute('aria-disabled')).not.toBe('true');
@@ -242,12 +245,9 @@ describe(
       });
       const { user } = render();
 
-      await waitFor(async () => {
-        await openMenu(user, '2');
-        const item = await deleteItem();
-        expect(item.getAttribute('aria-disabled')).toBe('true');
-        expect(item.textContent).toContain('"by-publication"');
-      });
+      const item2 = await settledItem(user, '2');
+      expect(item2.getAttribute('aria-disabled')).toBe('true');
+      expect(item2.textContent).toContain('"by-publication"');
     });
 
     it('disables the highest published version for a repository-bound distribution, and not the latest unpublished one', async () => {
@@ -257,12 +257,10 @@ describe(
       });
       const { user } = render();
 
-      await waitFor(async () => {
-        await openMenu(user, '2');
-        const item = await deleteItem();
-        expect(item.getAttribute('aria-disabled')).toBe('true');
-        expect(item.textContent).toContain('"live"');
-      });
+      const item2 = await settledItem(user, '2');
+      expect(item2.getAttribute('aria-disabled')).toBe('true');
+      expect(item2.textContent).toContain('"live"');
+
       await user.keyboard('{Escape}');
       const latest = await settledItem(user, '3');
       expect(latest.getAttribute('aria-disabled')).not.toBe('true');
@@ -285,24 +283,17 @@ describe(
       const { user } = render();
 
       await rowOf(/^2/);
-      await waitFor(async () => {
-        await openMenu(user, '2');
-        const item = await deleteItem();
-        expect(item.getAttribute('aria-disabled')).not.toBe('true');
-      });
-      expect(VIEW_PUBLICATIONS).toBe('file.view_filepublication');
+      const item2 = await settledItem(user, '2');
+      expect(item2.getAttribute('aria-disabled')).not.toBe('true');
     });
 
     it('disables the only version of a repository', async () => {
       serveLab({ count: 1 });
       const { user } = render();
 
-      await waitFor(async () => {
-        await openMenu(user, '0');
-        const item = await deleteItem();
-        expect(item.getAttribute('aria-disabled')).toBe('true');
-        expect(item.textContent).toContain('The only version');
-      });
+      const item0 = await settledItem(user, '0');
+      expect(item0.getAttribute('aria-disabled')).toBe('true');
+      expect(item0.textContent).toContain('The only version');
     });
 
     it('offers no Delete to a user who may not delete the repository', async () => {
@@ -362,7 +353,7 @@ describe(
       expect(lab.deletes).toEqual([]);
     });
 
-    it('says that deleting the latest version rolls the repository back to the one before', async () => {
+    it('says that deleting the latest version rolls the repository back to the newest version that is left', async () => {
       serveLab({ count: 3 });
       const { user } = render();
 
@@ -370,7 +361,7 @@ describe(
 
       const dialog = await screen.findByRole('dialog');
       expect(dialog.textContent).toContain(
-        'This is the latest version. The repository goes back to version 1.',
+        'This is the latest version. The repository goes back to the newest version that is left.',
       );
     });
 
@@ -448,12 +439,10 @@ describe(
       });
       render('/file/repositories/tools/versions/1');
 
-      await waitFor(() =>
-        expect(
-          screen.getByRole('button', { name: 'Delete version' }),
-        ).toHaveAttribute('aria-disabled', 'true'),
-      );
-      expect(screen.getByText(/"pinned"/)).toBeVisible();
+      expect(await screen.findByText(/"pinned"/)).toBeVisible();
+      expect(
+        screen.getByRole('button', { name: 'Delete version' }),
+      ).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('offers no Delete on the page to a user who may not delete the repository', async () => {

@@ -25,6 +25,14 @@ import {
   requestErrorDescription,
 } from 'src/utilities/request-error';
 import {
+  DeleteVersionDialog,
+  protectionText,
+} from '../content/delete-version-dialog';
+import {
+  type VersionProtection,
+  useVersionProtection,
+} from '../content/use-version-protection';
+import {
   type PluginDescriptor,
   type TabDef,
   repositoryOf,
@@ -115,8 +123,40 @@ export const VersionsTab = ({
       descriptor={descriptor}
       repository={repository}
       number={version}
+      addAlert={addAlert}
     />
   );
+
+// The Delete item of a row: disabled with the reason while the version is
+// known to be protected, and while that is still being found out.
+function deleteItem(
+  row: RepositoryVersion,
+  protection: VersionProtection,
+  onDelete: () => void,
+) {
+  const reasons = protection.reasonsOf(row.number);
+
+  if (reasons.length > 0 || protection.pending) {
+    return (
+      <DropdownItem
+        key='delete'
+        isAriaDisabled
+        description={
+          reasons.length > 0
+            ? protectionText(reasons)
+            : t`Checking which distributions use this version`
+        }
+      >
+        {t`Delete version`}
+      </DropdownItem>
+    );
+  }
+  return (
+    <DropdownItem key='delete' isDanger onClick={onDelete}>
+      {t`Delete version`}
+    </DropdownItem>
+  );
+}
 
 const VersionList = ({
   plugin,
@@ -131,10 +171,20 @@ const VersionList = ({
   const query = useRepositoryVersions(entity, repository.pulp_href, params);
   const [revertTo, setRevertTo] = useState<RepositoryVersion | null>(null);
   const [publishing, setPublishing] = useState<RepositoryVersion | null>(null);
+  const [deleting, setDeleting] = useState<RepositoryVersion | null>(null);
   const mayRevert =
     useRepositoryPermission(plugin, repository, 'modify') && !!entity.modify;
   const mayPublish = useMayPublish(plugin, descriptor);
-  const hasActions = mayRevert || mayPublish;
+  const mayDelete = useRepositoryPermission(plugin, repository, 'delete');
+  const shown = query.data?.results;
+  const protection = useVersionProtection({
+    plugin,
+    descriptor,
+    repository,
+    versions: (shown ?? []).map(({ number }) => number),
+    totalVersions: query.data?.count,
+  });
+  const hasActions = mayRevert || mayPublish || mayDelete;
 
   const updateParams = (next: VersionParams) =>
     navigate({ search: searchOfParams(next) });
@@ -233,6 +283,9 @@ const VersionList = ({
                             ),
                           ]
                         : []),
+                      ...(mayDelete
+                        ? [deleteItem(row, protection, () => setDeleting(row))]
+                        : []),
                     ]}
                   />
                 </Tr>
@@ -253,6 +306,15 @@ const VersionList = ({
           repository={repository}
           version={publishing}
           onClose={() => setPublishing(null)}
+        />
+      ) : null}
+      {deleting ? (
+        <DeleteVersionDialog
+          repository={repository}
+          version={deleting}
+          entity={entity}
+          addAlert={addAlert}
+          onClose={() => setDeleting(null)}
         />
       ) : null}
       {revertTo ? (

@@ -385,6 +385,28 @@ export function useModifyRepository<Body>(
   });
 }
 
+export interface DeleteVersionRequest {
+  // The address of the repository version to delete.
+  href: string;
+}
+
+// Deletes a repository version, which the server does in a task of its own. The
+// answer is the address of that task. Once the call has settled, whatever it
+// answered, the versions read before are read again.
+export function useDeleteVersion(
+  entity: EntityName & {
+    deleteVersion: (href: string, options?: Options) => Promise<string>;
+  },
+) {
+  const invalidate = useInvalidateOnSettle(entity);
+
+  return useMutation({
+    mutationFn: ({ href }: DeleteVersionRequest) => entity.deleteVersion(href),
+    retry: false,
+    onSettled: invalidate,
+  });
+}
+
 export interface SyncRepositoryRequest<Body> {
   // The address of the repository to sync.
   href: string;

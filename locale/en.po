@@ -51,6 +51,11 @@ msgstr "(uploaded)"
 msgid "{0, plural, =0 {No results} one {# result} other {# results}}"
 msgstr "{0, plural, =0 {No results} one {# result} other {# results}}"
 
+#. placeholder {0}: picked.length
+#: src/framework/content/add-content-dialog.tsx
+msgid "{0, plural, one {Add # item} other {Add # items}}"
+msgstr "{0, plural, one {Add # item} other {Add # items}}"
+
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{0, plural, one {Failed to add collection to repository \"{repositoryName}\".} other {Failed to add collections to repository \"{repositoryName}\".}}"
@@ -261,6 +266,10 @@ msgstr "{name}: not part of the generated interface"
 msgid "{name}: the interface was generated for {generated}, this server runs {running}"
 msgstr "{name}: the interface was generated for {generated}, this server runs {running}"
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "{named} and {others} more"
+msgstr "{named} and {others} more"
+
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
 msgstr "{namespace}.{name} v{version}, already in the repository"
@@ -455,6 +464,14 @@ msgstr "a content guard you may not see"
 msgid "A content guard you may not see"
 msgstr "A content guard you may not see"
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "A distribution is bound to a publication of this version: {names}."
+msgstr "A distribution is bound to a publication of this version: {names}."
+
+#: src/framework/content/delete-version-dialog.tsx
+msgid "A distribution is bound to this version: {names}."
+msgstr "A distribution is bound to this version: {names}."
+
 #: src/framework/distributions/distribution-list.tsx
 msgid "A distribution is public when it has no content guard. Only those are listed."
 msgstr "A distribution is public when it has no content guard. Only those are listed."
@@ -648,6 +665,11 @@ msgstr "Add collection"
 #~ msgid "Add container repository"
 #~ msgstr "Add container repository"
 
+#: src/framework/content/add-content-dialog.tsx
+#: src/framework/detail/content-tab.tsx
+msgid "Add content"
+msgstr "Add content"
+
 #: src/components/repository-form.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "Add execution environment"
@@ -769,6 +791,14 @@ msgstr "Added since the earlier version"
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Adding the label to the selected rows finished"
 msgstr "Adding the label to the selected rows finished"
+
+#: src/framework/content/add-content-dialog.tsx
+msgid "Addition of content to {repositoryName}"
+msgstr "Addition of content to {repositoryName}"
+
+#: src/framework/content/add-content-dialog.tsx
+msgid "Addition started for repository \"{repositoryName}\"."
+msgstr "Addition started for repository \"{repositoryName}\"."
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Additional details"
@@ -1286,6 +1316,7 @@ msgstr "CA certificate"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/content/remove-content-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/distributions/distribution-edit.tsx
@@ -1479,6 +1510,10 @@ msgstr "Changes to role \"{name}\" could not be saved."
 msgid "Checking for affected users... <0/>"
 msgstr "Checking for affected users... <0/>"
 
+#: src/framework/detail/versions-tab.tsx
+msgid "Checking which distributions use this version"
+msgstr "Checking which distributions use this version"
+
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Checksum type"
 msgstr "Checksum type"
@@ -1498,6 +1533,10 @@ msgstr "Child tasks"
 #: src/framework/distributions/serves-field.tsx
 msgid "Choose a publication"
 msgstr "Choose a publication"
+
+#: src/framework/content/add-content-dialog.tsx
+msgid "Choose a repository and a version of it, then tick the content to copy into \"{repositoryName}\". The repository gets a new latest version that holds the content it has now and the content you add."
+msgstr "Choose a repository and a version of it, then tick the content to copy into \"{repositoryName}\". The repository gets a new latest version that holds the content it has now and the content you add."
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Choose how this distribution is protected."
@@ -2041,6 +2080,7 @@ msgstr "Content settings"
 msgid "Content summary"
 msgstr "Content summary"
 
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content type"
@@ -2531,6 +2571,10 @@ msgstr "Delete remote?"
 msgid "Delete repository version"
 msgstr "Delete repository version"
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "Delete repository version?"
+msgstr "Delete repository version?"
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "Delete repository?"
@@ -2574,9 +2618,18 @@ msgstr "Delete thing"
 msgid "Delete user?"
 msgstr "Delete user?"
 
+#: src/framework/detail/version-detail.tsx
+#: src/framework/detail/versions-tab.tsx
+msgid "Delete version"
+msgstr "Delete version"
+
 #: src/components/headers/collection-header.tsx
 #~ msgid "Delete version {0}"
 #~ msgstr "Delete version {0}"
+
+#: src/framework/content/delete-version-dialog.tsx
+msgid "Delete version {number} of repository \"{repositoryName}\"?"
+msgstr "Delete version {number} of repository \"{repositoryName}\"?"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Delete version {version}"
@@ -2664,6 +2717,14 @@ msgstr "Deleting this group will affect {count} users."
 #: src/components/delete-user-modal.tsx
 msgid "Deleting yourself is not allowed."
 msgstr "Deleting yourself is not allowed."
+
+#: src/framework/content/delete-version-dialog.tsx
+msgid "Deletion of version {number} of {repositoryName}"
+msgstr "Deletion of version {number} of {repositoryName}"
+
+#: src/framework/content/delete-version-dialog.tsx
+msgid "Deletion started for version {number} of repository \"{repositoryName}\"."
+msgstr "Deletion started for version {number} of repository \"{repositoryName}\"."
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-dependencies.tsx
@@ -3164,6 +3225,15 @@ msgstr "Enter a number."
 msgid "Enter a whole number."
 msgstr "Enter a whole number."
 
+#. placeholder {0}: source.name
+#: src/framework/content/add-content-dialog.tsx
+msgid "Enter the number of a version of \"{0}\"."
+msgstr "Enter the number of a version of \"{0}\"."
+
+#: src/framework/content/add-content-dialog.tsx
+msgid "Enter the number of a version of \"{name}\"."
+msgstr "Enter the number of a version of \"{name}\"."
+
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
 #~ msgstr "env"
@@ -3474,6 +3544,10 @@ msgstr "Failed {when}"
 #~ msgid "Failed to add {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 #~ msgstr "Failed to add {namespace}.{name} v{version} to repository \"{repositoryName}\"."
 
+#: src/framework/content/add-content-dialog.tsx
+msgid "Failed to add content to repository \"{repositoryName}\""
+msgstr "Failed to add content to repository \"{repositoryName}\""
+
 #: src/components/approve-modal.tsx
 #~ msgid "Failed to approve collection."
 #~ msgstr "Failed to approve collection."
@@ -3577,6 +3651,7 @@ msgid "Failed to load remotes: {remotesError}"
 msgstr "Failed to load remotes: {remotesError}"
 
 #. placeholder {0}: requestErrorText(found.error)
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Failed to load repositories: {0}"
 msgstr "Failed to load repositories: {0}"
@@ -6249,6 +6324,10 @@ msgstr "Publications could not be displayed."
 msgid "Publications could not be read."
 msgstr "Publications could not be read."
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "Publications made from this version are deleted with it. The content of the other versions does not change."
+msgstr "Publications made from this version are deleted with it. The content of the other versions does not change."
+
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/publish/publish-dialog.tsx
@@ -7162,6 +7241,10 @@ msgstr "Repository name"
 #~ msgid "Repository name {originRepoName} not found."
 #~ msgstr "Repository name {originRepoName} not found."
 
+#: src/framework/content/add-content-dialog.tsx
+msgid "Repository to take content from"
+msgstr "Repository to take content from"
+
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
 msgid "Repository URL"
@@ -7276,6 +7359,7 @@ msgstr "Retries"
 #: src/actions/ansible-repository-collection-version-add.tsx
 #: src/components/list-error-state.tsx
 #: src/framework/bulk/repository-bulk.tsx
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/delete/delete-remote-dialog.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
 #: src/framework/detail/details-tab.tsx
@@ -7688,6 +7772,7 @@ msgstr "Select a group"
 msgid "Select a remote"
 msgstr "Select a remote"
 
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Select a repository"
 msgstr "Select a repository"
@@ -8953,6 +9038,10 @@ msgstr "The login page returned without a signed-in session."
 msgid "The name of the file that lists every published file with its checksum and size."
 msgstr "The name of the file that lists every published file with its checksum and size."
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "The only version of the repository."
+msgstr "The only version of the repository."
+
 #: src/framework/distributions/distribution-form.tsx
 msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
 msgstr "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
@@ -9272,6 +9361,15 @@ msgstr "The username to be used for authentication when syncing. This is not req
 msgid "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
 msgstr "The value is in minutes. Usually the default is a day (1440). If set to zero it will clean all orphans."
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "The version could not be deleted."
+msgstr "The version could not be deleted."
+
+#. placeholder {0}: requestErrorText(query.error)
+#: src/framework/content/add-content-dialog.tsx
+msgid "The version could not be read: {0}"
+msgstr "The version could not be read: {0}"
+
 #: src/shell/theme-menu.tsx
 msgid "Theme"
 msgstr "Theme"
@@ -9449,6 +9547,18 @@ msgstr "This field must be longer than 2 characters"
 msgid "This group can include users"
 msgstr "This group can include users"
 
+#: src/framework/content/delete-version-dialog.tsx
+msgid "This is the latest version, which a distribution bound to the repository serves: {names}."
+msgstr "This is the latest version, which a distribution bound to the repository serves: {names}."
+
+#: src/framework/content/delete-version-dialog.tsx
+msgid "This is the latest version. The repository goes back to the newest version that is left."
+msgstr "This is the latest version. The repository goes back to the newest version that is left."
+
+#: src/framework/content/delete-version-dialog.tsx
+msgid "This is the newest published version, which a distribution bound to the repository serves: {names}."
+msgstr "This is the newest published version, which a distribution bound to the repository serves: {names}."
+
 #: src/components/ratings.tsx
 #~ msgid "This is the rating from old-galaxy.ansible.com. We are working on redoing the rating for the new version of galaxy."
 #~ msgstr "This is the rating from old-galaxy.ansible.com. We are working on redoing the rating for the new version of galaxy."
@@ -9469,9 +9579,14 @@ msgstr "This project is an attempt to up-cycle the Ansible Galaxy UI codebase. T
 msgid "This repository has no publication"
 msgstr "This repository has no publication"
 
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/version-detail.tsx
 msgid "This repository has no version {number}."
 msgstr "This repository has no version {number}."
+
+#: src/framework/content/add-content-dialog.tsx
+msgid "This repository has no version."
+msgstr "This repository has no version."
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
@@ -10152,6 +10267,7 @@ msgstr "Verify checksums"
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
+#: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/publications-tab.tsx
 msgid "Version"
 msgstr "Version"

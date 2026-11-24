@@ -39,7 +39,7 @@ describe(
         }),
       );
 
-      expect([...result.keys()]).toEqual([1]);
+      expect(Array.from(result.keys())).toEqual([1]);
       expect(result.get(1)).toEqual([
         { kind: 'version-bound', distributions: ['pinned', 'also-pinned'] },
       ]);
@@ -53,7 +53,7 @@ describe(
         }),
       );
 
-      expect([...result.keys()]).toEqual([2]);
+      expect(Array.from(result.keys())).toEqual([2]);
       expect(result.get(2)).toEqual([
         { kind: 'publication-bound', distributions: ['by-publication'] },
       ]);
@@ -87,7 +87,7 @@ describe(
         }),
       );
 
-      expect([...result.keys()]).toEqual([2]);
+      expect(Array.from(result.keys())).toEqual([2]);
       expect(result.get(2)).toEqual([
         { kind: 'serves-published', distributions: ['live'] },
       ]);
@@ -125,7 +125,7 @@ describe(
         }),
       );
 
-      expect([...result.keys()]).toEqual([3]);
+      expect(Array.from(result.keys())).toEqual([3]);
       expect(result.get(3)).toEqual([
         { kind: 'serves-latest', distributions: ['live'] },
       ]);

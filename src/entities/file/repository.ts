@@ -11,6 +11,7 @@ import {
   repositoriesFileFileUnsetLabel,
 } from '@pulp-ui/sdk/file/repositories-file';
 import {
+  repositoriesFileFileVersionsDelete,
   repositoriesFileFileVersionsList,
   repositoriesFileFileVersionsRead,
 } from '@pulp-ui/sdk/file/repositories-file-versions';
@@ -33,6 +34,7 @@ export const fileRepository = makeRepositoryEntity({
     unsetLabel: repositoriesFileFileUnsetLabel,
     versionsList: repositoriesFileFileVersionsList,
     versionRead: repositoriesFileFileVersionsRead,
+    versionDelete: repositoriesFileFileVersionsDelete,
     sync: repositoriesFileFileSync,
     modify: repositoriesFileFileModify,
   },
