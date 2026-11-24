@@ -242,7 +242,7 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
         ],
         tabs: [
           {
-            id: 'packages',
+            id: 'content',
             label: message('Artifacts'),
             render: () => null,
           },
@@ -288,8 +288,8 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
           { id: 'name', label: message('Name'), render: () => null },
         ],
         tabs: [
-          { id: 'packages', label: message('A'), render: () => null },
-          { id: 'packages', label: message('B'), render: () => null },
+          { id: 'content', label: message('A'), render: () => null },
+          { id: 'content', label: message('B'), render: () => null },
         ],
       },
     } as PluginDescriptor;

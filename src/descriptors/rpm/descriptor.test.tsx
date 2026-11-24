@@ -276,18 +276,18 @@ describe('Unit: the rpm descriptor', { tags: ['unit'] }, () => {
   });
 
   describe('the tabs and the content', () => {
-    it('adds the Versions, Publications, Distributions and Packages tabs, each at its sub-path', () => {
+    it('adds the Versions, Content, Publications and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([
         'versions',
+        'content',
         'publications',
         'distributions',
-        'packages',
       ]);
       expect((repository.tabs ?? []).map(({ label }) => text(label))).toEqual([
         'Versions',
+        'Content',
         'Publications',
         'Distributions',
-        'Packages',
       ]);
     });
 

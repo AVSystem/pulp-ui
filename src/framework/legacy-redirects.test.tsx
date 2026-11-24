@@ -277,8 +277,13 @@ describe(
         ['/rpm/repositories/detail/r', '/rpm/repositories/r/'],
         [
           '/rpm/repositories/detail/r?tab=packages&page=2',
-          '/rpm/repositories/r/packages/?page=2',
+          '/rpm/repositories/r/content/?page=2',
         ],
+        [
+          '/rpm/repositories/r/packages?page=2&sort=name',
+          '/rpm/repositories/r/content/?page=2&sort=name',
+        ],
+        ['/rpm/repositories/r/packages', '/rpm/repositories/r/content/'],
         [
           '/rpm/repositories/detail/r?tab=distributions',
           '/rpm/repositories/r/distributions/',
@@ -317,8 +322,13 @@ describe(
         ['/python/repositories/detail/r', '/python/repositories/r/'],
         [
           '/python/repositories/detail/r?tab=packages&page=2',
-          '/python/repositories/r/packages/?page=2',
+          '/python/repositories/r/content/?page=2',
         ],
+        [
+          '/python/repositories/r/packages?page=2&sort=name',
+          '/python/repositories/r/content/?page=2&sort=name',
+        ],
+        ['/python/repositories/r/packages', '/python/repositories/r/content/'],
         [
           '/python/repositories/detail/r?tab=distributions',
           '/python/repositories/r/distributions/',

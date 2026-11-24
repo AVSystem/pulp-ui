@@ -20,7 +20,7 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 
-// The Packages tab of an rpm repository as a user meets it: routed from the
+// The Content tab of an rpm repository as a user meets it: routed from the
 // manifest, drawn from the rpm descriptor, and answered by a server that cuts
 // every row to the fields a request asks for.
 
@@ -143,7 +143,7 @@ const bodyRows = (grid: HTMLElement) =>
 const location = () => screen.getByTestId('location').textContent;
 
 describe(
-  'Integration: the Packages tab of an rpm repository',
+  'Integration: the Content tab of an rpm repository',
   { tags: ['integration'] },
   () => {
     it('lists the packages of the latest version with the name, the version, the architecture and the summary, and asks for nothing else', async () => {
@@ -162,7 +162,7 @@ describe(
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      render('/rpm/repositories/baseos/packages');
+      render('/rpm/repositories/baseos/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-001');
@@ -213,7 +213,7 @@ describe(
         seen.push(new URL(request.url).pathname);
       });
       server.use(lab.handler);
-      render('/rpm/repositories/baseos/packages');
+      render('/rpm/repositories/baseos/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-020');
@@ -230,7 +230,7 @@ describe(
       const rows = Array.from({ length: 45 }, (_, index) => row(index + 1));
       const lab = servePackages(rows, repository.latest_version_href as string);
       server.use(lab.handler);
-      const { user } = render('/rpm/repositories/baseos/packages');
+      const { user } = render('/rpm/repositories/baseos/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-001');
@@ -260,7 +260,7 @@ describe(
       );
       server.use(lab.handler);
       render(
-        '/rpm/repositories/baseos/packages?name__contains=bash&arch=noarch',
+        '/rpm/repositories/baseos/content?name__contains=bash&arch=noarch',
       );
 
       const grid = await table();
@@ -287,7 +287,7 @@ describe(
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      const { user } = render('/rpm/repositories/baseos/packages?page=1');
+      const { user } = render('/rpm/repositories/baseos/content?page=1');
 
       await within(await table()).findByText('zsh');
       await user.type(
@@ -312,7 +312,7 @@ describe(
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      const { user } = render('/rpm/repositories/baseos/packages?sort=summary');
+      const { user } = render('/rpm/repositories/baseos/content?sort=summary');
 
       const grid = await table();
       await within(grid).findByText('a');
@@ -332,7 +332,7 @@ describe(
       server.use(
         servePackages([], repository.latest_version_href as string).handler,
       );
-      render('/rpm/repositories/baseos/packages');
+      render('/rpm/repositories/baseos/content');
 
       expect(
         await screen.findByText('No packages in the latest version'),
@@ -353,7 +353,7 @@ describe(
           HttpResponse.json({ count: 9, results: [] }),
         ),
       );
-      render('/rpm/repositories/baseos/packages');
+      render('/rpm/repositories/baseos/content');
 
       expect(
         await screen.findByText('No packages in the latest version'),
@@ -377,7 +377,7 @@ describe(
         ),
         lab.handler,
       );
-      const { user } = render('/rpm/repositories/baseos/packages');
+      const { user } = render('/rpm/repositories/baseos/content');
 
       expect(
         await screen.findByText('Packages could not be displayed.'),
@@ -394,7 +394,7 @@ describe(
         servePackages([row(1)], repository.latest_version_href as string)
           .handler,
       );
-      render('/rpm/repositories/baseos/packages');
+      render('/rpm/repositories/baseos/content');
 
       await within(await table()).findByText('pkg-001');
       const tabs = screen
@@ -408,7 +408,7 @@ describe(
           'Details',
           'Versions',
           'Distributions',
-          'Packages',
+          'Content',
         ]),
       );
     });

@@ -19,7 +19,7 @@ import {
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 
-// The Packages tab of a python repository as a user meets it: routed from the
+// The Content tab of a python repository as a user meets it: routed from the
 // manifest, drawn from the python descriptor, and answered by a server that
 // cuts every row to the fields a request asks for.
 
@@ -146,7 +146,7 @@ const bodyRows = (grid: HTMLElement) =>
 const location = () => screen.getByTestId('location').textContent;
 
 describe(
-  'Integration: the Packages tab of a python repository',
+  'Integration: the Content tab of a python repository',
   { tags: ['integration'] },
   () => {
     it('lists the packages of the latest version with the name, version, type, file and required Python, and asks for nothing else', async () => {
@@ -159,7 +159,7 @@ describe(
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      render('/python/repositories/simple/packages');
+      render('/python/repositories/simple/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-001');
@@ -215,7 +215,7 @@ describe(
         seen.push(new URL(request.url).pathname);
       });
       server.use(lab.handler);
-      render('/python/repositories/simple/packages');
+      render('/python/repositories/simple/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-020');
@@ -232,7 +232,7 @@ describe(
       const rows = Array.from({ length: 45 }, (_, index) => row(index + 1));
       const lab = servePackages(rows, repository.latest_version_href as string);
       server.use(lab.handler);
-      const { user } = render('/python/repositories/simple/packages');
+      const { user } = render('/python/repositories/simple/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-001');
@@ -266,7 +266,7 @@ describe(
       );
       server.use(lab.handler);
       render(
-        '/python/repositories/simple/packages?name__contains=django&packagetype=bdist_wheel&requires_python__contains=3.10',
+        '/python/repositories/simple/content?name__contains=django&packagetype=bdist_wheel&requires_python__contains=3.10',
       );
 
       const grid = await table();
@@ -297,7 +297,7 @@ describe(
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      const { user } = render('/python/repositories/simple/packages?page=1');
+      const { user } = render('/python/repositories/simple/content?page=1');
 
       await within(await table()).findByText('flask');
       await user.type(
@@ -323,7 +323,7 @@ describe(
       );
       server.use(lab.handler);
       const { user } = render(
-        '/python/repositories/simple/packages?sort=filename',
+        '/python/repositories/simple/content?sort=filename',
       );
 
       const grid = await table();
@@ -344,7 +344,7 @@ describe(
       server.use(
         servePackages([], repository.latest_version_href as string).handler,
       );
-      render('/python/repositories/simple/packages');
+      render('/python/repositories/simple/content');
 
       expect(
         await screen.findByText('No packages in the latest version'),
@@ -365,7 +365,7 @@ describe(
           HttpResponse.json({ count: 9, results: [] }),
         ),
       );
-      render('/python/repositories/simple/packages');
+      render('/python/repositories/simple/content');
 
       expect(
         await screen.findByText('No packages in the latest version'),
@@ -389,7 +389,7 @@ describe(
         ),
         lab.handler,
       );
-      const { user } = render('/python/repositories/simple/packages');
+      const { user } = render('/python/repositories/simple/content');
 
       expect(
         await screen.findByText('Packages could not be displayed.'),
@@ -406,7 +406,7 @@ describe(
         servePackages([row(1)], repository.latest_version_href as string)
           .handler,
       );
-      render('/python/repositories/simple/packages');
+      render('/python/repositories/simple/content');
 
       await within(await table()).findByText('pkg-001');
       const tabs = screen
@@ -422,7 +422,7 @@ describe(
           'Details',
           'Versions',
           'Distributions',
-          'Packages',
+          'Content',
         ]),
       );
     });

@@ -85,7 +85,6 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
       '/file/repositories/:name/distributions',
       '/file/repositories/:name/publications',
       '/file/repositories/:name/content',
-      '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
       '/file/remotes',
