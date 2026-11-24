@@ -1,9 +1,11 @@
 import {
+  contentPythonPackagesCreate,
   contentPythonPackagesList,
   contentPythonPackagesSetLabel,
   contentPythonPackagesUnsetLabel,
   getContentPythonPackagesListUrl,
 } from '@pulp-ui/sdk/python/content-packages';
+import type { PythonPythonPackageContent } from '@pulp-ui/sdk/python/models/content-packages/python-python-package-content.zod';
 import { makeContentEntity } from 'src/entities/plugin/content';
 import { pythonPackageSchema } from './model';
 
@@ -25,5 +27,11 @@ export const pythonPackage = makeContentEntity({
     listUrl: getContentPythonPackagesListUrl,
     setLabel: contentPythonPackagesSetLabel,
     unsetLabel: contentPythonPackagesUnsetLabel,
+  },
+  // A python package is named by its file name.
+  upload: {
+    create: (body, options) =>
+      contentPythonPackagesCreate(body as PythonPythonPackageContent, options),
+    relativePath: 'file-name',
   },
 });
