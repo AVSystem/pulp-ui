@@ -1,5 +1,6 @@
 import {
   getPublicationsFileFileListUrl,
+  publicationsFileFileCreate,
   publicationsFileFileList,
 } from '@pulp-ui/sdk/file/publications-file';
 import {
@@ -13,6 +14,7 @@ export const filePublication = makePublicationEntity({
   app: 'file',
   schema: publicationSchema,
   api: {
+    create: publicationsFileFileCreate,
     list: publicationsFileFileList,
     listUrl: getPublicationsFileFileListUrl,
   },

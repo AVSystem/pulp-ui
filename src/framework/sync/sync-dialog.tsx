@@ -11,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   Switch,
+  TextInput,
 } from '@patternfly/react-core';
 import { useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
@@ -222,9 +223,9 @@ interface OptionFieldProps {
   onChange: (value: unknown) => void;
 }
 
-// One option of the dialog: a switch, or a choice among the plugin's values. An
-// option the server would refuse for this repository shows the value that is
-// allowed, cannot be changed, and says why.
+// One option of the dialog: a switch, a choice among the plugin's values or a
+// line of text. An option the server would refuse for this repository shows the
+// value that is allowed, cannot be changed, and says why.
 export const OptionField = ({
   option,
   repository,
@@ -260,6 +261,13 @@ export const OptionField = ({
             />
           ))}
         </FormSelect>
+      ) : option.kind === 'text' ? (
+        <TextInput
+          id={id}
+          value={String(shown ?? '')}
+          isDisabled={isDisabled || !!fixed}
+          onChange={(_event, typed) => onChange(typed)}
+        />
       ) : (
         <Switch
           id={id}

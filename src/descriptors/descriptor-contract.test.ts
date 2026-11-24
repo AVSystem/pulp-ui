@@ -263,3 +263,77 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
     expect(() => checkDescriptor('x', twice)).toThrow();
   });
 });
+
+const PUBLISHING = ['file', 'deb', 'rpm'];
+const NOT_PUBLISHING = ['python', 'maven', 'npm', 'ansible', 'container'];
+
+async function descriptorOf(plugin: string): Promise<PluginDescriptor> {
+  const loader = LOADERS[plugin] as NonNullable<(typeof LOADERS)[string]>;
+  return (await loader()).default;
+}
+
+describe(
+  'Unit: publishing and autopublish in the descriptors',
+  { tags: ['unit'] },
+  () => {
+    it.each(PUBLISHING)(
+      'the %s descriptor can publish, names the task and labels every option',
+      async (plugin) => {
+        const { publication } = await descriptorOf(plugin);
+
+        expect(publication?.entity.create, `${plugin} creates`).toBeTypeOf(
+          'function',
+        );
+        expect(publication?.taskName).toMatch(/\.publishing\.publish$/);
+        expect(publication?.options?.length).toBeGreaterThan(0);
+        for (const option of publication?.options ?? []) {
+          labelled(option.label, `${plugin} publish option ${option.name}`);
+          expect(typeof option.initial).toBe('function');
+          if (option.kind === 'select') {
+            expect(option.options?.length).toBeGreaterThan(0);
+          }
+        }
+        unique(
+          (publication?.options ?? []).map(({ name }) => name),
+          `${plugin} publish options`,
+        );
+      },
+    );
+
+    it.each(NOT_PUBLISHING)(
+      'the %s descriptor has no Publish',
+      async (plugin) => {
+        const { publication } = await descriptorOf(plugin);
+
+        expect(publication?.entity.create, `${plugin} creates`).toBeUndefined();
+        expect(publication?.options).toBeUndefined();
+        expect(publication?.taskName).toBeUndefined();
+      },
+    );
+
+    it.each(PUBLISHING)(
+      'the %s repository shows Autopublish and its form edits it',
+      async (plugin) => {
+        const { repository } = await descriptorOf(plugin);
+
+        expect(
+          repository?.detailRows.some(({ id }) => id === 'autopublish'),
+        ).toBe(true);
+        expect(
+          repository?.fields?.some(({ name }) => name === 'autopublish'),
+        ).toBe(true);
+      },
+    );
+
+    it('the python repository shows no Autopublish and its form has none', async () => {
+      const { repository } = await descriptorOf('python');
+
+      expect(
+        repository?.detailRows.some(({ id }) => id === 'autopublish'),
+      ).toBe(false);
+      expect(
+        repository?.fields?.some(({ name }) => name === 'autopublish'),
+      ).toBeFalsy();
+    });
+  },
+);

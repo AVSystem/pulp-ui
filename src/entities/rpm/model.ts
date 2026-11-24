@@ -7,6 +7,8 @@ import { remoteSchema, repositorySchema } from 'src/entities/plugin/model';
 // every version.
 const rpmRepositorySchema = repositorySchema.extend({
   autopublish: z.boolean().nullish(),
+  checksum_type: z.string().nullish(),
+  compression_type: z.string().nullish(),
   retain_package_versions: z.number().nullish(),
 });
 

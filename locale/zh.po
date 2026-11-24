@@ -130,6 +130,10 @@ msgstr "{count, plural, one {# 个正在运行的任务} other {# 个正在运�
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "{count} distributions now serve the new publication."
+msgstr ""
+
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} failed"
 msgstr "{count} 个失败"
@@ -205,6 +209,10 @@ msgstr "{label} 已取消。"
 #: src/framework/watched-tasks.tsx
 msgid "{label} was skipped."
 msgstr "{label} 已跳过。"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "{lost} of {count} distributions could not be moved."
+msgstr ""
 
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
@@ -1412,6 +1420,10 @@ msgstr "无法保存对角色 \"{name}\" 的更改。"
 msgid "Checking for affected users... <0/>"
 msgstr "检查受影响的用户... <0/>"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "Checksum type"
+msgstr ""
+
 #: src/containers/task-management/task-detail.tsx
 msgid "Child tasks"
 msgstr "子任务"
@@ -1502,6 +1514,7 @@ msgstr "关闭"
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "关闭"
@@ -1795,6 +1808,10 @@ msgstr "组件"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Composite"
+msgstr ""
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "Compression type"
 msgstr ""
 
 #: src/components/render-plugin-doc.tsx
@@ -3344,6 +3361,7 @@ msgstr "如果有任何软件包被拒绝，则使整个版本失败"
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Failed"
 msgstr "失败"
 
@@ -3527,6 +3545,10 @@ msgstr "加载状态失败"
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Failed to opt out of Wisdom."
 #~ msgstr "Failed to opt out of Wisdom."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Failed to publish repository \"{name}\""
+msgstr ""
 
 #: src/components/multi-repo-modal.tsx
 #~ msgid "Failed to query repositories."
@@ -3965,6 +3987,10 @@ msgstr "组在创建后会出现"
 msgid "Guard: {guardName}"
 msgstr "内容保护：{guardName}"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "gzip"
+msgstr ""
+
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Has no remote, so it is skipped"
 msgstr "没有远程，因此已跳过"
@@ -4021,6 +4047,10 @@ msgstr "同步放弃之前，失败的下载重试的次数。"
 #: src/descriptors/rpm/descriptor.tsx
 msgid "How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions."
 msgstr "每个软件包保留的版本数量；较旧的版本在同步时会被丢弃。留空则保留所有版本。"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "How the metadata files of this publication are compressed."
+msgstr ""
 
 #: src/components/delete-collection-modal.tsx
 #: src/components/delete-execution-environment-modal.tsx
@@ -4648,6 +4678,10 @@ msgstr "登录"
 msgid "Logout"
 msgstr "退出"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Looking for distributions that serve an older publication."
+msgstr ""
+
 #: src/descriptors/python/descriptor.tsx
 msgid "macos"
 msgstr "macos"
@@ -4685,6 +4719,10 @@ msgstr "管理集合远程。"
 #~ msgid "Manage tokens"
 #~ msgstr "Manage tokens"
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Manifest"
+msgstr ""
+
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "此屏幕目前不支持清单列表，请使用 <0>Images</0> 标签页来查看清单列表详细信息。"
@@ -4700,6 +4738,10 @@ msgstr "跟随系统"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
 #~ msgstr ""
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "md5"
+msgstr ""
 
 #: src/containers/task-management/task-detail.tsx
 #~ msgid "Message"
@@ -4749,6 +4791,10 @@ msgstr ""
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
 msgstr "匹配的仓库超过 {LARGE_MATCH} 个。请添加其他过滤器以缩小列表范围。"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Moved"
+msgstr ""
+
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
 #~ msgstr "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4760,6 +4806,10 @@ msgstr "匹配的仓库超过 {LARGE_MATCH} 个。请添加其他过滤器以缩
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Moved to the <0>Owners</0> tab"
 #~ msgstr "Moved to the <0>Owners</0> tab"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Moving the distributions to the new publication."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Must be an integer."
@@ -4989,6 +5039,10 @@ msgstr "还没有集合版本"
 #: src/containers/search/search.tsx
 #~ msgid "No collections yet"
 #~ msgstr "还没有集合"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "No compression"
+msgstr ""
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "No container repositories yet"
@@ -5292,6 +5346,7 @@ msgstr ""
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Not confirmed"
 msgstr "未确认"
 
@@ -5341,6 +5396,7 @@ msgstr "未报告"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Not sent"
 msgstr "未发送"
 
@@ -5406,6 +5462,10 @@ msgstr "仓库 {repositoryName} 没有任何更改。"
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 msgstr "没有与 \"{text}\" 匹配的内容。请检查拼写，或尝试输入仓库名称的一部分。"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Nothing was moved"
+msgstr ""
+
 #: src/shell/notifications.tsx
 msgid "Notifications"
 msgstr "通知"
@@ -5413,6 +5473,10 @@ msgstr "通知"
 #: src/shell/notifications.tsx
 msgid "Notifications could not be loaded."
 msgstr "无法加载通知。"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Now serves the new publication."
+msgstr ""
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -5995,9 +6059,32 @@ msgstr ""
 msgid "Publications could not be read."
 msgstr ""
 
+#: src/framework/detail/repository-detail.tsx
 #: src/framework/form/form-values.test.ts
+#: src/framework/publish/publish-dialog.tsx
+#: src/framework/sync/progress-panel.tsx
 msgid "Publish"
 msgstr "发布"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish a flat layout where all packages are in a single release component."
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish canceled"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish completed"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish failed"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish is being canceled"
+msgstr ""
 
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -6006,13 +6093,49 @@ msgstr "发布"
 msgid "Publish new versions automatically"
 msgstr "自动发布新版本"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish of {name}"
+msgstr ""
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish of version {number} of {name}"
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish queued"
+msgstr ""
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish repository \"{name}\""
+msgstr ""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish running"
+msgstr ""
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release components and architectures of the repository"
+msgstr ""
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release components and architectures that the packages of the repository declare. At least one of the two modes stays on."
+msgstr ""
+
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release fields of the upstream repository"
 msgstr "发布上游仓库的 Release 文件字段"
 
+#: src/framework/detail/versions-tab.tsx
+msgid "Publish this version"
+msgstr ""
+
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
 msgstr "发布上游 Release 字段"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish version {number} of \"{name}\""
+msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
@@ -6295,6 +6418,10 @@ msgstr "推送、删除和更改容器。创建、删除和更改远程注册表
 #: src/constants.tsx
 #~ msgid "Push, delete, and change execution environments. Create, delete and change remote registries."
 #~ msgstr "推送、删除和更改执行环境。创建、删除和更改远程 registry。"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Put every package in one release component"
+msgstr ""
 
 #: src/utilities/translate-task.ts
 msgid "Python package group upload"
@@ -6883,6 +7010,10 @@ msgstr "重置为浏览器默认值"
 msgid "Result"
 msgstr "结果"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Result of each move"
+msgstr ""
+
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
 msgid "Results"
@@ -6927,6 +7058,7 @@ msgstr "重试次数"
 #: src/framework/distributions/serves-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
+#: src/framework/publish/publish-dialog.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7432,6 +7564,10 @@ msgstr "所选用户"
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 msgstr "用逗号分隔各项，并写成 键=值、键 或 !键。如果值中包含逗号，请写成 {ESCAPED_COMMA}。"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Serve the new publication"
+msgstr ""
+
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Serve the repository instead"
 msgstr ""
@@ -7470,6 +7606,10 @@ msgstr ""
 msgid "Serves nothing (404): no publication"
 msgstr ""
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Serves the publication of version {bound}"
+msgstr ""
+
 #: src/framework/serving/served-label.tsx
 msgid "Serves version {served}, latest is {latest}"
 msgstr ""
@@ -7483,9 +7623,29 @@ msgstr "设置远程可让仓库从其他位置进行同步。"
 msgid "Settings"
 msgstr "设置"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha1"
+msgstr ""
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha224"
+msgstr ""
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha256"
+msgstr ""
+
 #: src/descriptors/file/descriptor.tsx
 msgid "SHA256SUMS files"
 msgstr "SHA256SUMS 文件"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha384"
+msgstr ""
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha512"
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -7730,6 +7890,10 @@ msgstr "签名服务"
 #~ msgid "Signing started for container \"{0}\"."
 #~ msgstr "为容器 \"{0}\" 签名已开始。"
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Simple publishing"
+msgstr ""
+
 #: src/components/remote-form.tsx
 msgid "Single sign on URL."
 msgstr "单点登录。"
@@ -7802,6 +7966,7 @@ msgid "Start from scratch"
 msgstr "从头开始"
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Started"
 msgstr "已开始"
 
@@ -7873,6 +8038,10 @@ msgstr "已存储的凭据"
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "流式"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Structured publishing"
+msgstr ""
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Succeeded"
@@ -8338,9 +8507,17 @@ msgstr "批量操作因意外错误而停止。部分行可能已被更改：重
 #~ msgid "The certificate for \"{namespace} {name} v{version}\" could not be saved."
 #~ msgstr "\"{namespace} {name} v{version}\" 的证书不能被保存。"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "The change is still running."
+msgstr ""
+
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "对仓库 \"{repositoryName}\" 的更改仍在运行。"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "The checksum type used in the metadata of this publication."
+msgstr ""
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "The client snippet shows how."
@@ -8433,6 +8610,10 @@ msgstr "无法列出此仓库的分发，因此无法删除任何内容。"
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "无法列出此仓库的分发，因此未删除任何内容。"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "The distributions of this repository could not be read, so none can be moved from here. You can still publish."
+msgstr ""
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "The distributions were removed but the repository was kept."
@@ -8496,6 +8677,10 @@ msgstr "无法读取上次同步。"
 msgid "The login page returned without a signed-in session."
 msgstr "登录页面返回时没有已登录的会话。"
 
+#: src/descriptors/file/descriptor.tsx
+msgid "The name of the file that lists every published file with its checksum and size."
+msgstr ""
+
 #: src/framework/distributions/distribution-form.tsx
 msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
 msgstr ""
@@ -8536,9 +8721,25 @@ msgstr "同步时要用于身份验证的密码。在使用令牌时不需要此
 msgid "The plugin list could not be loaded"
 msgstr "无法加载插件列表"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "The progress of the publish could not be followed. No distribution was moved."
+msgstr ""
+
 #: src/framework/sync/progress-panel.tsx
 msgid "The progress of this task cannot be shown."
 msgstr "无法显示此任务的进度。"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "The publish failed: {reason} No distribution was moved."
+msgstr ""
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "The publish finished, but the new publication could not be found. No distribution was moved."
+msgstr ""
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "The publish was accepted and is running. The distributions you chose are moved to the new publication when it exists. If you close this window now, they stay where they are."
+msgstr ""
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -8606,6 +8807,10 @@ msgstr "仓库已保留。"
 msgid "The repository was not removed."
 msgstr "仓库未被删除。"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "The repository's setting or the server's default"
+msgstr ""
+
 #: src/utilities/request-error.ts
 msgid "The request failed."
 msgstr "请求失败。"
@@ -8618,6 +8823,10 @@ msgstr "无法读取此服务器的保留基本路径，因此无法在此创建
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "The reserved base paths of this server could not be read, so the base path cannot be changed here."
+msgstr ""
+
+#: src/framework/publish/pinned-distributions.ts
+msgid "The result of the change could not be read."
 msgstr ""
 
 #: src/actions/repository-version-revert.tsx
@@ -8702,10 +8911,12 @@ msgid "The session ended before the distribution could be created. After you log
 msgstr "在创建分发之前会话已结束。登录后，请检查分发，如果缺少则创建它。"
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "The session ended before this one was sent."
 msgstr "会话在发送此项之前已结束。"
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "The session ended while this one was on its way."
 msgstr "会话在发送此项的过程中已结束。"
 
@@ -8837,6 +9048,10 @@ msgstr ""
 #: src/containers/task-management/task-detail.tsx
 msgid "There's no resource record"
 msgstr "没有资源记录"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "These distributions are bound to an older publication and keep serving it. Tick the ones that should serve the new publication."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -9815,6 +10030,10 @@ msgstr "软件包被拒绝时"
 msgid "Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
 msgstr "此仓库的发布是否包含 SHA256SUMS 文件。该文件列出每个已发布文件的校验和，以便客户端验证下载。"
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Whether this publication includes SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
+msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
@@ -10087,3 +10306,7 @@ msgstr "您的任务在失败、完成或被取消时会显示在此处。"
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Your token will not expire."
 #~ msgstr ""
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "zstd"
+msgstr ""

@@ -31,6 +31,8 @@ import {
 } from '../descriptor';
 import { PAGE_SIZES } from '../list/list-params';
 import type { FrameworkPlugin } from '../manifest';
+import { PublishDialog } from '../publish/publish-dialog';
+import { useMayPublish } from '../publish/use-may-publish';
 import { versionPath } from '../route-patterns';
 import { RevertVersionDialog } from './revert-version';
 import { useRepositoryPermission } from './use-repository-permission';
@@ -91,7 +93,8 @@ interface Props {
 
 // A repository's versions: the list, newest first, and one version when the
 // address names one. Reverting the repository to a version is offered on a row
-// to a user who may change the repository's content.
+// to a user who may change the repository's content, and publishing that
+// version to a user who may publish.
 export const VersionsTab = ({
   plugin,
   descriptor,
@@ -127,8 +130,11 @@ const VersionList = ({
   const params = paramsOfSearch(search);
   const query = useRepositoryVersions(entity, repository.pulp_href, params);
   const [revertTo, setRevertTo] = useState<RepositoryVersion | null>(null);
+  const [publishing, setPublishing] = useState<RepositoryVersion | null>(null);
   const mayRevert =
     useRepositoryPermission(plugin, repository, 'modify') && !!entity.modify;
+  const mayPublish = useMayPublish(plugin, descriptor);
+  const hasActions = mayRevert || mayPublish;
 
   const updateParams = (next: VersionParams) =>
     navigate({ search: searchOfParams(next) });
@@ -159,7 +165,7 @@ const VersionList = ({
   const headers = [
     { id: 'number', title: t`Version number`, type: 'numeric' },
     { id: 'pulp_created', title: t`Created date`, type: 'numeric' },
-    ...(mayRevert ? [{ id: 'actions', title: '', type: 'none' }] : []),
+    ...(hasActions ? [{ id: 'actions', title: '', type: 'none' }] : []),
   ];
 
   return (
@@ -179,7 +185,7 @@ const VersionList = ({
           params={params}
           updateParams={updateParams}
         />
-        <RowActionsColumn.Provider value={mayRevert}>
+        <RowActionsColumn.Provider value={hasActions}>
           <Tbody>
             {data.results.map((row) => {
               const isLatest = row.pulp_href === repository.latest_version_href;
@@ -196,8 +202,18 @@ const VersionList = ({
                     <DateComponent date={row.pulp_created ?? ''} />
                   </Td>
                   <ListItemActions
-                    kebabItems={
-                      mayRevert
+                    kebabItems={[
+                      ...(mayPublish
+                        ? [
+                            <DropdownItem
+                              key='publish'
+                              onClick={() => setPublishing(row)}
+                            >
+                              {t`Publish this version`}
+                            </DropdownItem>,
+                          ]
+                        : []),
+                      ...(mayRevert
                         ? [
                             isLatest ? (
                               <DropdownItem
@@ -216,8 +232,8 @@ const VersionList = ({
                               </DropdownItem>
                             ),
                           ]
-                        : []
-                    }
+                        : []),
+                    ]}
                   />
                 </Tr>
               );
@@ -231,6 +247,14 @@ const VersionList = ({
         count={data.count}
         perPageOptions={PAGE_SIZES}
       />
+      {publishing ? (
+        <PublishDialog
+          descriptor={descriptor}
+          repository={repository}
+          version={publishing}
+          onClose={() => setPublishing(null)}
+        />
+      ) : null}
       {revertTo ? (
         <RevertVersionDialog
           repository={repository}

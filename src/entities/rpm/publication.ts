@@ -1,5 +1,6 @@
 import {
   getPublicationsRpmRpmListUrl,
+  publicationsRpmRpmCreate,
   publicationsRpmRpmList,
 } from '@pulp-ui/sdk/rpm/publications-rpm';
 import {
@@ -13,6 +14,7 @@ export const rpmPublication = makePublicationEntity({
   app: 'rpm',
   schema: publicationSchema,
   api: {
+    create: publicationsRpmRpmCreate,
     list: publicationsRpmRpmList,
     listUrl: getPublicationsRpmRpmListUrl,
   },

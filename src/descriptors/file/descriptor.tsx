@@ -130,7 +130,30 @@ const descriptor: PluginDescriptor<FileRepository> = {
     detailRows: [POLICY_ROW],
   },
   distribution: { entity: fileDistribution },
-  publication: { entity: filePublication, servesFromPublication: true },
+  publication: {
+    entity: filePublication,
+    servesFromPublication: true,
+    taskName: 'pulp_file.app.tasks.publishing.publish',
+    // Both start from the repository's own setting, which is what the server
+    // uses when the request names none.
+    options: [
+      {
+        name: 'manifest',
+        label: msg`Manifest`,
+        kind: 'text',
+        help: msg`The name of the file that lists every published file with its checksum and size.`,
+        initial: (repository) => repository.manifest || 'PULP_MANIFEST',
+      },
+      {
+        name: 'sha256sums',
+        label: msg`SHA256SUMS files`,
+        kind: 'select',
+        options: SHA256SUMS_OPTIONS,
+        help: msg`Whether this publication includes SHA256SUMS files, which list the checksum of every published file so clients can verify a download.`,
+        initial: (repository) => repository.sha256sums || 'disabled',
+      },
+    ],
+  },
 };
 
 export default descriptor;

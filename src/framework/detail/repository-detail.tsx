@@ -26,6 +26,8 @@ import {
 import { DeleteRepositoryDialog } from '../delete/delete-repository-dialog';
 import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
+import { PublishDialog } from '../publish/publish-dialog';
+import { useMayPublish } from '../publish/use-may-publish';
 import {
   type RepositoryTab,
   repositoryEditPath,
@@ -102,6 +104,10 @@ const RepositoryDetailScreen = ({
     maySync &&
     !!repository?.remote;
   const [syncing, setSyncing] = useState(false);
+  // Whether it may publish it: the plugin publishes from the screens and the
+  // user holds the add publication permission.
+  const mayPublish = useMayPublish(plugin, descriptor);
+  const [publishing, setPublishing] = useState(false);
 
   const status = query.isError ? requestErrorStatus(query.error) : null;
   const sessionEnded = query.isError && isSessionEnd(query.error);
@@ -222,12 +228,22 @@ const RepositoryDetailScreen = ({
           />
         }
         pageControls={
-          canSync || mayEdit || mayDelete ? (
+          canSync || mayPublish || mayEdit || mayDelete ? (
             <Flex spaceItems={{ default: 'spaceItemsSm' }}>
               {canSync ? (
                 <FlexItem>
                   <Button variant='primary' onClick={() => setSyncing(true)}>
                     {t`Sync`}
+                  </Button>
+                </FlexItem>
+              ) : null}
+              {mayPublish ? (
+                <FlexItem>
+                  <Button
+                    variant='secondary'
+                    onClick={() => setPublishing(true)}
+                  >
+                    {t`Publish`}
                   </Button>
                 </FlexItem>
               ) : null}
@@ -269,6 +285,13 @@ const RepositoryDetailScreen = ({
           descriptor={descriptor}
           repository={repository}
           onClose={() => setSyncing(false)}
+        />
+      ) : null}
+      {publishing ? (
+        <PublishDialog
+          descriptor={descriptor}
+          repository={repository}
+          onClose={() => setPublishing(false)}
         />
       ) : null}
       {deleting ? (
