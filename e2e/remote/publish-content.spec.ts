@@ -2,6 +2,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
 import { type PulpObject, TestObjects } from '../support/api';
 import { PLUGINS } from '../support/distribution-screens';
+import { wheel } from '../support/packages';
 import { apiCall, apiGet } from '../support/sdk-request';
 import { title } from '../support/sign-in';
 
@@ -770,4 +771,165 @@ test.describe('the lists of a version agree with its summary on every plugin', (
       }
     });
   }
+});
+
+test.describe('what protects a version from a delete', () => {
+  test('a version a distribution is bound to is protected with the distribution named', async ({
+    page,
+  }) => {
+    test.setTimeout(240_000);
+    const repository = await objects.fileRepository('bound', [
+      'b1.txt',
+      'b2.txt',
+    ]);
+    const bound = await distribute('bound-dist', {
+      repository_version: versionHref(repository, 1),
+    } as never);
+    const name = repository['name'] as string;
+
+    await page.goto(repositoryAddress(name, 'versions'));
+    const table = grid(page, 'Repository versions');
+    const one = bodyRows(table).filter({
+      has: page.getByRole('link', { name: '1', exact: true }),
+    });
+    await kebab(one).click();
+    const item = page.getByRole('menuitem', { name: /Delete version/ });
+    await expect(item).toHaveAttribute('aria-disabled', 'true');
+    await expect(item).toContainText(
+      `A distribution is bound to this version: "${bound['name'] as string}".`,
+    );
+    await page.keyboard.press('Escape');
+
+    // version 2 is bound to by nothing and is the latest: a distribution bound
+    // to a version does not serve the latest, so it may go
+    const two = bodyRows(table).filter({
+      has: page.getByRole('link', { name: '2', exact: true }),
+    });
+    await kebab(two).click();
+    await expect(
+      page.getByRole('menuitem', { name: /Delete version/ }),
+    ).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('the latest version of a python repository a distribution serves is protected', async ({
+    page,
+  }) => {
+    test.setTimeout(240_000);
+    const repository = await objects.create(PLUGINS.python.repositories, {
+      name: objects.name('py-versions'),
+    });
+    // two packages through the generic content create, one version each
+    for (const project of ['one', 'two']) {
+      const generated = wheel(`${objects.prefix}${project}`);
+      const answer = await objects.api.post(
+        '/pulp/api/v3/content/python/packages/',
+        {
+          multipart: {
+            file: {
+              name: generated.fileName,
+              mimeType: 'application/octet-stream',
+              buffer: generated.buffer,
+            },
+            relative_path: generated.fileName,
+            repository: repository.pulp_href,
+          },
+        },
+      );
+      expect(
+        answer.status(),
+        `content create: ${(await answer.text()).slice(0, 300)}`,
+      ).toBe(202);
+      await objects.waitForTask(
+        ((await answer.json()) as { task: string }).task,
+      );
+    }
+    expect(await objects.versionNumbers(repository.pulp_href)).toEqual([
+      2, 1, 0,
+    ]);
+    objects.trackContent(
+      await objects.versionContent(`${repository.pulp_href}versions/2/`),
+    );
+    const name = objects.name('py-versions-dist');
+    await objects.create(PLUGINS.python.distributions, {
+      name,
+      base_path: name,
+      repository: repository.pulp_href,
+    });
+
+    await page.goto(
+      `python/repositories/${enc(repository['name'] as string)}/versions`,
+    );
+    const table = grid(page, 'Repository versions');
+    const latest = bodyRows(table).filter({
+      has: page.getByRole('link', { name: '2', exact: true }),
+    });
+    await kebab(latest).click();
+    const item = page.getByRole('menuitem', { name: /Delete version/ });
+    await expect(item).toHaveAttribute('aria-disabled', 'true');
+    await expect(item).toContainText(
+      `This is the latest version, which a distribution bound to the repository serves: "${name}".`,
+    );
+    await page.keyboard.press('Escape');
+
+    // an earlier version is not served by it
+    const earlier = bodyRows(table).filter({
+      has: page.getByRole('link', { name: '1', exact: true }),
+    });
+    await kebab(earlier).click();
+    await expect(
+      page.getByRole('menuitem', { name: /Delete version/ }),
+    ).not.toHaveAttribute('aria-disabled', 'true');
+  });
+});
+
+test('closing the publish dialog while it waits leaves the ticked distribution where it was', async ({
+  page,
+}) => {
+  test.setTimeout(240_000);
+  const repository = await objects.fileRepository('closed', [
+    'c1.txt',
+    'c2.txt',
+  ]);
+  const older = await objects.create(PUBLICATIONS, {
+    repository_version: versionHref(repository, 1),
+  });
+  const pinned = await distribute('closed-dist', {
+    publication: older.pulp_href,
+  });
+  const name = repository['name'] as string;
+
+  await page.goto(repositoryAddress(name));
+  await expect(title(page, name)).toBeVisible();
+  await page.getByRole('button', { name: 'Publish', exact: true }).click();
+  const dialog = page.locator('[data-cy=PublishDialog]');
+  await dialog
+    .getByRole('checkbox', { name: pinned['name'] as string })
+    .check();
+  await dialog.getByRole('button', { name: 'Publish', exact: true }).click();
+  // the dialog says what closing it now does, and it is closed
+  await expect(dialog).toContainText(
+    'If you close this window now, they stay where they are.',
+  );
+  await dialog
+    .getByRole('contentinfo')
+    .getByRole('button', { name: 'Close' })
+    .click();
+  await expect(dialog).toHaveCount(0);
+
+  // the publish still finishes, and nothing was moved
+  await expect
+    .poll(
+      async () =>
+        (
+          await objects.list(PUBLICATIONS, {
+            repository: repository.pulp_href,
+            fields: 'pulp_href',
+          })
+        ).length,
+      { message: 'publications of the repository', timeout: 120_000 },
+    )
+    .toBe(2);
+  expect((await objects.get(pinned.pulp_href))['publication']).toBe(
+    older.pulp_href,
+  );
 });

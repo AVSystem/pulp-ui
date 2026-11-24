@@ -143,7 +143,7 @@ test('a file above the chunk threshold is sent in one request with a note, becau
   await chooseFiles(dialog, [
     {
       name: 'large.bin',
-      buffer: randomBytes(9 * MiB),
+      buffer: randomBytes(20 * MiB),
       path: objects.path('large.bin'),
     },
   ]);

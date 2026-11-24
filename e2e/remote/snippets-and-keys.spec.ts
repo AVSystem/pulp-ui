@@ -6,6 +6,7 @@ import {
   test,
 } from '@playwright/test';
 import { getContentFileFilesSetLabelUrl } from '@pulp-ui/sdk/file/content-files';
+import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
 import { createHash } from 'node:crypto';
 import { account } from '../support/accounts';
 import { type PulpObject, TestObjects } from '../support/api';
@@ -560,4 +561,56 @@ test('a label set on a unit is found by its selector and the list filters by nam
   await expect(page.locator('table tbody tr')).toHaveCount(2, {
     timeout: 60_000,
   });
+});
+
+test('the Distributions tab of a repository expands a row to the same snippets, and the curl line downloads a published file', async ({
+  page,
+}) => {
+  test.setTimeout(240_000);
+  const repository = await objects.fileRepository('tab', ['served.txt']);
+  const publication = await objects.create(getPublicationsFileFileListUrl(), {
+    repository: repository.pulp_href,
+  });
+  const name = objects.name('tab-dist');
+  await objects.create(PLUGINS.file.distributions, {
+    name,
+    base_path: name,
+    publication: publication.pulp_href,
+  });
+
+  await page.goto(
+    `file/repositories/${enc(repository['name'] as string)}/distributions`,
+  );
+  const table = page.getByRole('grid', { name: 'Distributions' });
+  await expect(table.getByRole('link', { name })).toBeVisible();
+  await table.getByRole('button', { name: 'Details' }).click();
+  await expect(panel(page)).toBeVisible();
+  expect(await tabsOf(page)).toEqual(
+    expect.arrayContaining(['curl', 'wget', 'CLI configuration']),
+  );
+  await expect(
+    panel(page).getByRole('button', { name: 'Copy to clipboard' }),
+  ).toBeVisible();
+
+  // the curl line of a public distribution names an address that serves the
+  // file: its path is the one placeholder left to fill in
+  const curl = await snippetOf(page, 'curl');
+  const address = /'(https?:\/\/[^']+)<path>'/.exec(curl)?.[1] as string;
+  expect(curl).not.toContain('<user>');
+  expect(address, 'the address of the curl line').toMatch(/^https?:\/\//);
+  await expect
+    .poll(
+      async () =>
+        (
+          await objects.api.get(`${address}${objects.path('served.txt')}`, {
+            failOnStatusCode: false,
+          })
+        ).status(),
+      { message: 'status of the address the curl line names', timeout: 60_000 },
+    )
+    .toBe(200);
+  const body = await (
+    await objects.api.get(`${address}${objects.path('served.txt')}`)
+  ).text();
+  expect(body).toBe(`${objects.prefix}served.txt\n`);
 });
