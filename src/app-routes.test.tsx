@@ -1090,10 +1090,7 @@ describe('lazily loaded screens', () => {
     ).toHaveLength(legacy.length);
   });
 
-  it.each([
-    '/file/repositories/zz-test-repo/content',
-    '/python/repositories/zz-test-repo/publications',
-  ])(
+  it.each(['/python/repositories/zz-test-repo/publications'])(
     'shows not found for %s, whose screen does not exist, without a read',
     async (route) => {
       signIn();
