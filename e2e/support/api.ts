@@ -7,6 +7,7 @@ import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards
 import { getGroupsListUrl } from '@pulp-ui/sdk/core/groups';
 import type { AsyncOperationResponse } from '@pulp-ui/sdk/core/models/async-operation-response.zod';
 import type { TaskResponse } from '@pulp-ui/sdk/core/models/tasks/task-response.zod';
+import { getOrphansCleanupCleanupUrl } from '@pulp-ui/sdk/core/orphans-cleanup';
 import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
 import { getTasksReadUrl } from '@pulp-ui/sdk/core/tasks';
 import { getUsersListUrl } from '@pulp-ui/sdk/core/users';
@@ -14,7 +15,10 @@ import { getDistributionsDebAptListUrl } from '@pulp-ui/sdk/deb/distributions-ap
 import { getPublicationsDebAptListUrl } from '@pulp-ui/sdk/deb/publications-apt';
 import { getRemotesDebAptListUrl } from '@pulp-ui/sdk/deb/remotes-apt';
 import { getRepositoriesDebAptListUrl } from '@pulp-ui/sdk/deb/repositories-apt';
-import { getContentFileFilesCreateUrl } from '@pulp-ui/sdk/file/content-files';
+import {
+  getContentFileFilesCreateUrl,
+  getContentFileFilesListUrl,
+} from '@pulp-ui/sdk/file/content-files';
 import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
 import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
 import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
@@ -40,6 +44,7 @@ import {
   apiDelete,
   apiGet,
   apiPatch,
+  apiPost,
   apiPostForm,
   resolveApiUrl,
 } from './sdk-request';
@@ -396,6 +401,75 @@ export class TestObjects {
     return this.waitForTask(answer.task);
   }
 
+  // A file repository of this scope with one generated file per path, each
+  // uploaded on its own so every file makes a version of its own: version n
+  // holds the first n files. The path of a file is the scope's prefix and the
+  // name given, so no unit is shared with an object of another run; the same
+  // name in two repositories of one run is one unit.
+  async fileRepository(
+    suffix: string,
+    names: string[],
+    extra: Record<string, unknown> = {},
+  ): Promise<PulpObject> {
+    const repository = await this.create(getRepositoriesFileFileListUrl(), {
+      name: this.name(suffix),
+      ...extra,
+    });
+    for (const name of names) {
+      await this.upload(repository.pulp_href, this.path(name), name);
+    }
+    return repository;
+  }
+
+  // The relative path a generated file of this scope carries.
+  path(name: string): string {
+    return `${this.prefix}${name}`;
+  }
+
+  // The numbers of the versions a repository holds, newest first.
+  async versionNumbers(repositoryHref: string): Promise<number[]> {
+    const versions = await this.list(`${repositoryHref}versions/`, {
+      fields: 'number',
+    });
+    return versions
+      .map(({ number }) => Number(number))
+      .sort((left, right) => right - left);
+  }
+
+  // The file content units of this scope, found by the prefix of their path.
+  private ownedFileContent(): Promise<PulpObject[]> {
+    return this.list(getContentFileFilesListUrl(), {
+      relative_path__startswith: this.prefix,
+      fields: 'pulp_href,relative_path',
+    });
+  }
+
+  // Removes the file content units of this scope once no repository holds them.
+  // Only the listed units are named to the orphan clean-up, so no content of
+  // another run or of the lab is touched; a unit that is still held stays and
+  // is reported.
+  private async removeFileContent(): Promise<void> {
+    const units = await this.ownedFileContent();
+    if (units.length === 0) {
+      return;
+    }
+    const answer = await apiPost<AsyncOperationResponse>(
+      this.api,
+      getOrphansCleanupCleanupUrl(),
+      {
+        content_hrefs: units.map(({ pulp_href }) => pulp_href),
+        orphan_protection_time: 0,
+      },
+    );
+    await this.waitForTask(answer.task);
+    const left = await this.ownedFileContent();
+    if (left.length > 0) {
+      throw new Error(
+        `file content left on the server after clean-up: ${left.map(({ relative_path }) => String(relative_path)).join(', ')}`,
+      );
+    }
+  }
+
   // Registers an object that something else created, for example the UI.
   track(href: string): void {
     this.registered.push(href);
@@ -426,7 +500,9 @@ export class TestObjects {
   // guards, roles), then
   // anything of the scope that is still listed, for objects created through
   // the UI. Throws when something is left; always closes the API context.
-  async cleanUp(): Promise<void> {
+  // `fileContent` also removes the file content units whose path carries the
+  // scope's prefix, for a spec that uploads files.
+  async cleanUp({ fileContent = false } = {}): Promise<void> {
     try {
       const ordered = [...this.registered].reverse();
       this.registered.length = 0;
@@ -450,6 +526,10 @@ export class TestObjects {
             objects.map(({ pulp_href }) => this.remove(pulp_href)),
           );
         }
+      }
+
+      if (fileContent) {
+        await this.removeFileContent();
       }
 
       const left = await this.leftovers();
