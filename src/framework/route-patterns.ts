@@ -134,6 +134,13 @@ export interface LegacyPattern {
   screen: ScreenKind;
 }
 
+// The last segment of the address the list of every package of a plugin had,
+// for the plugins that had one.
+const LEGACY_PACKAGE_LISTS: Partial<Record<FrameworkPlugin, string>> = {
+  python: 'packages',
+  rpm: 'rpms',
+};
+
 // The addresses the screens had before they were named by their object. Each
 // one moves to its new address. `edit/_` was the create address. Only the kinds
 // of object the plugin has screens for on the framework are listed: a plugin
@@ -144,6 +151,7 @@ export function legacyPatternsOf(
 ): LegacyPattern[] {
   const repositories = `/${plugin}/repositories`;
   const remotes = `/${plugin}/remotes`;
+  const packageList = LEGACY_PACKAGE_LISTS[plugin];
 
   const all: LegacyPattern[] = [
     { pattern: `${repositories}/detail/:name`, screen: 'repository-detail' },
@@ -157,6 +165,15 @@ export function legacyPatternsOf(
       pattern: `${repositories}/:name/packages`,
       screen: 'repository-packages',
     },
+    // The list of every package of a plugin, which is its list of content now.
+    ...(packageList
+      ? [
+          {
+            pattern: `/${plugin}/${packageList}`,
+            screen: 'content-list' as const,
+          },
+        ]
+      : []),
   ];
 
   return all.filter(({ screen }) =>

@@ -235,6 +235,10 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 #~ msgid "{name} ({count})"
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "{name} content"
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} could not be moved."
 msgstr ""
@@ -1080,7 +1084,6 @@ msgstr "从远程批准、拒绝和同步集合。"
 msgid "Apt"
 msgstr ""
 
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "架构"
@@ -3881,7 +3884,6 @@ msgstr "快速"
 #~ msgid "Field is required."
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/framework/content/upload-dialog.tsx
 #: src/framework/distributions/plugin-label.ts
@@ -5326,6 +5328,10 @@ msgstr ""
 msgid "No content in the latest version"
 msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "No content to show"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "没有控制器可用"
@@ -5453,8 +5459,8 @@ msgstr "最新版本中没有软件包"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-msgid "No packages yet"
-msgstr "还没有软件包"
+#~ msgid "No packages yet"
+#~ msgstr "还没有软件包"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No parent task"
@@ -5992,8 +5998,6 @@ msgstr "结果未知，请检查任务"
 msgid "Package"
 msgstr ""
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6004,7 +6008,6 @@ msgstr "软件包名称"
 msgid "Package substitution"
 msgstr "软件包替换"
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "软件包类型"
@@ -6019,8 +6022,6 @@ msgstr "软件包类型"
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "要同步的软件包类型。全部不勾选则同步所有类型。"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6031,8 +6032,6 @@ msgstr "软件包"
 msgid "Packages and artifacts"
 msgstr "软件包和构件"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6044,12 +6043,12 @@ msgstr "无法显示软件包。"
 #~ msgstr "此分发中缺少的软件包会从远程获取。留空则仅提供已上传的内容。"
 
 #: src/containers/python/package-list.tsx
-msgid "Packages will appear once a repository is synced or a package is uploaded."
-msgstr "同步仓库或上传软件包后，软件包将显示在此处。"
+#~ msgid "Packages will appear once a repository is synced or a package is uploaded."
+#~ msgstr "同步仓库或上传软件包后，软件包将显示在此处。"
 
 #: src/containers/rpm/package-list.tsx
-msgid "Packages will appear once created."
-msgstr "软件包在创建后将显示。"
+#~ msgid "Packages will appear once created."
+#~ msgstr "软件包在创建后将显示。"
 
 #: src/components/headers/base-header.tsx
 #~ msgid "Page logo"
@@ -9565,6 +9564,10 @@ msgstr "没有与此仓库关联的远程。"
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "There is no content of this kind that you may see."
+msgstr ""
+
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
@@ -9862,7 +9865,6 @@ msgstr "触发异步任务，删除在指定时间戳之前完成的已完成任
 #~ msgid "Try Red Hat Ansible Automation Platform"
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -10412,8 +10414,6 @@ msgstr ""
 msgid "Verify checksums"
 msgstr "验证校验和"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx

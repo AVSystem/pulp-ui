@@ -151,10 +151,18 @@ test.describe('pages of a signed-in session', () => {
     await expect(page.locator('#policy')).toHaveValue('on_demand');
   });
 
-  test('Python packages', async ({ page }) => {
+  test('Python content', async ({ page }) => {
+    await page.goto('python/content');
+    await expect(title(page, 'Python content')).toBeVisible();
+    await expect(page.getByText('No content to show')).toBeVisible();
+  });
+
+  test('an old Python packages address leads to the content list', async ({
+    page,
+  }) => {
     await page.goto('python/packages');
-    await expect(title(page, 'Packages')).toBeVisible();
-    await expect(page.getByText('No packages yet')).toBeVisible();
+    await expect(title(page, 'Python content')).toBeVisible();
+    await expect(page).toHaveURL(/python\/content\/$/);
   });
 
   test('RPM repositories', async ({ page }) => {
@@ -180,9 +188,17 @@ test.describe('pages of a signed-in session', () => {
     await expect(page.locator('#policy')).toBeVisible();
   });
 
-  test('RPM packages', async ({ page }) => {
+  test('RPM content', async ({ page }) => {
+    await page.goto('rpm/content');
+    await expect(title(page, 'RPM content')).toBeVisible();
+    await expect(page.getByText('No content to show')).toBeVisible();
+  });
+
+  test('an old RPM packages address leads to the content list', async ({
+    page,
+  }) => {
     await page.goto('rpm/rpms');
-    await expect(title(page, 'Packages')).toBeVisible();
-    await expect(page.getByText('No packages yet')).toBeVisible();
+    await expect(title(page, 'RPM content')).toBeVisible();
+    await expect(page).toHaveURL(/rpm\/content\/$/);
   });
 });

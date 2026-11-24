@@ -235,6 +235,10 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 #~ msgid "{name} ({count})"
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "{name} content"
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} could not be moved."
 msgstr ""
@@ -1080,7 +1084,6 @@ msgstr "Collecties van remotes goedkeuren, afwijzen en synchroniseren."
 msgid "Apt"
 msgstr ""
 
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "Architectuur"
@@ -3881,7 +3884,6 @@ msgstr "Snel"
 #~ msgid "Field is required."
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/framework/content/upload-dialog.tsx
 #: src/framework/distributions/plugin-label.ts
@@ -5326,6 +5328,10 @@ msgstr ""
 msgid "No content in the latest version"
 msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "No content to show"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "Geen controllers beschikbaar"
@@ -5453,8 +5459,8 @@ msgstr "Geen pakketten in de nieuwste versie"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-msgid "No packages yet"
-msgstr "Nog geen pakketten"
+#~ msgid "No packages yet"
+#~ msgstr "Nog geen pakketten"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No parent task"
@@ -5992,8 +5998,6 @@ msgstr "Resultaat onbekend, controleer de taak"
 msgid "Package"
 msgstr ""
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6004,7 +6008,6 @@ msgstr "Pakketnaam"
 msgid "Package substitution"
 msgstr "Pakketvervanging"
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "Pakkettype"
@@ -6019,8 +6022,6 @@ msgstr "Pakkettypen"
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "Te synchroniseren pakkettypen. Laat alles uitgevinkt om elk type te synchroniseren."
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6031,8 +6032,6 @@ msgstr "Pakketten"
 msgid "Packages and artifacts"
 msgstr "Pakketten en artefacten"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6044,12 +6043,12 @@ msgstr "Pakketten kunnen niet worden weergegeven."
 #~ msgstr "Pakketten die in deze distributie ontbreken, worden van de remote opgehaald. Laat dit leeg om alleen aan te bieden wat is geüpload."
 
 #: src/containers/python/package-list.tsx
-msgid "Packages will appear once a repository is synced or a package is uploaded."
-msgstr "Pakketten verschijnen zodra een repository is gesynchroniseerd of een pakket is geüpload."
+#~ msgid "Packages will appear once a repository is synced or a package is uploaded."
+#~ msgstr "Pakketten verschijnen zodra een repository is gesynchroniseerd of een pakket is geüpload."
 
 #: src/containers/rpm/package-list.tsx
-msgid "Packages will appear once created."
-msgstr "Pakketten verschijnen zodra ze zijn aangemaakt."
+#~ msgid "Packages will appear once created."
+#~ msgstr "Pakketten verschijnen zodra ze zijn aangemaakt."
 
 #: src/components/headers/base-header.tsx
 #~ msgid "Page logo"
@@ -9565,6 +9564,10 @@ msgstr "Er zijn geen remotes verbonden aan deze repository."
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "There is no content of this kind that you may see."
+msgstr ""
+
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
@@ -9862,7 +9865,6 @@ msgstr "Start een asynchrone taak die voltooide taken verwijdert die vóór een 
 #~ msgid "Try Red Hat Ansible Automation Platform"
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -10412,8 +10414,6 @@ msgstr ""
 msgid "Verify checksums"
 msgstr "Checksums verifiëren"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx

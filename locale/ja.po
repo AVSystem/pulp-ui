@@ -235,6 +235,10 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 #~ msgid "{name} ({count})"
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "{name} content"
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} could not be moved."
 msgstr ""
@@ -1080,7 +1084,6 @@ msgstr "リモートからのコレクションを承認、拒否、同期しま
 msgid "Apt"
 msgstr ""
 
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "アーキテクチャー"
@@ -3881,7 +3884,6 @@ msgstr "高速"
 #~ msgid "Field is required."
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/framework/content/upload-dialog.tsx
 #: src/framework/distributions/plugin-label.ts
@@ -5326,6 +5328,10 @@ msgstr ""
 msgid "No content in the latest version"
 msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "No content to show"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "利用可能なコントローラーがありません"
@@ -5453,8 +5459,8 @@ msgstr "最新バージョンにパッケージはありません"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-msgid "No packages yet"
-msgstr "パッケージはまだありません"
+#~ msgid "No packages yet"
+#~ msgstr "パッケージはまだありません"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No parent task"
@@ -5992,8 +5998,6 @@ msgstr "結果は不明です。タスクを確認してください"
 msgid "Package"
 msgstr ""
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6004,7 +6008,6 @@ msgstr "パッケージ名"
 msgid "Package substitution"
 msgstr "パッケージの置き換え"
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "パッケージタイプ"
@@ -6019,8 +6022,6 @@ msgstr "パッケージタイプ"
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "同期するパッケージタイプ。すべてチェックを外すと、すべてのタイプを同期します。"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6031,8 +6032,6 @@ msgstr "パッケージ"
 msgid "Packages and artifacts"
 msgstr "パッケージとアーティファクト"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6044,12 +6043,12 @@ msgstr "パッケージを表示できませんでした。"
 #~ msgstr "このディストリビューションにないパッケージはリモートから取得されます。空のままにすると、アップロードされたものだけを配信します。"
 
 #: src/containers/python/package-list.tsx
-msgid "Packages will appear once a repository is synced or a package is uploaded."
-msgstr "リポジトリーが同期されるか、パッケージがアップロードされると、パッケージが表示されます。"
+#~ msgid "Packages will appear once a repository is synced or a package is uploaded."
+#~ msgstr "リポジトリーが同期されるか、パッケージがアップロードされると、パッケージが表示されます。"
 
 #: src/containers/rpm/package-list.tsx
-msgid "Packages will appear once created."
-msgstr "パッケージは作成後に表示されます。"
+#~ msgid "Packages will appear once created."
+#~ msgstr "パッケージは作成後に表示されます。"
 
 #: src/components/headers/base-header.tsx
 #~ msgid "Page logo"
@@ -9565,6 +9564,10 @@ msgstr "このリポジトリーに関連付けられたリモートはありま
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "There is no content of this kind that you may see."
+msgstr ""
+
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
@@ -9862,7 +9865,6 @@ msgstr "指定したタイムスタンプより前に終了した完了済みタ
 #~ msgid "Try Red Hat Ansible Automation Platform"
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -10412,8 +10414,6 @@ msgstr ""
 msgid "Verify checksums"
 msgstr "チェックサムの検証"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx

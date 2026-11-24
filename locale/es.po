@@ -235,6 +235,10 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 #~ msgid "{name} ({count})"
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "{name} content"
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} could not be moved."
 msgstr ""
@@ -1080,7 +1084,6 @@ msgstr "Aprueba, rechaza y sincroniza las colecciones desde los mandos a distanc
 msgid "Apt"
 msgstr ""
 
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "Arquitectura"
@@ -3881,7 +3884,6 @@ msgstr "Rápido"
 #~ msgid "Field is required."
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/framework/content/upload-dialog.tsx
 #: src/framework/distributions/plugin-label.ts
@@ -5326,6 +5328,10 @@ msgstr ""
 msgid "No content in the latest version"
 msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "No content to show"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "No hay controladores disponibles"
@@ -5453,8 +5459,8 @@ msgstr "No hay paquetes en la última versión"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-msgid "No packages yet"
-msgstr "Todavía no hay paquetes"
+#~ msgid "No packages yet"
+#~ msgstr "Todavía no hay paquetes"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "No parent task"
@@ -5992,8 +5998,6 @@ msgstr "Resultado desconocido, revise la tarea"
 msgid "Package"
 msgstr ""
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6004,7 +6008,6 @@ msgstr "Nombre del paquete"
 msgid "Package substitution"
 msgstr "Sustitución de paquetes"
 
-#: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "Tipo de paquete"
@@ -6019,8 +6022,6 @@ msgstr "Tipos de paquete"
 msgid "Package types to sync. Leave all unticked to sync every type."
 msgstr "Tipos de paquete que se sincronizan. Deje todos sin marcar para sincronizar todos los tipos."
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6031,8 +6032,6 @@ msgstr "Paquetes"
 msgid "Packages and artifacts"
 msgstr "Paquetes y artefactos"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -6044,12 +6043,12 @@ msgstr "No se pudieron mostrar los paquetes."
 #~ msgstr "Los paquetes que faltan en esta distribución se obtienen del remoto. Déjelo vacío para servir solo lo que se subió."
 
 #: src/containers/python/package-list.tsx
-msgid "Packages will appear once a repository is synced or a package is uploaded."
-msgstr "Los paquetes aparecerán cuando se sincronice un repositorio o se suba un paquete."
+#~ msgid "Packages will appear once a repository is synced or a package is uploaded."
+#~ msgstr "Los paquetes aparecerán cuando se sincronice un repositorio o se suba un paquete."
 
 #: src/containers/rpm/package-list.tsx
-msgid "Packages will appear once created."
-msgstr "Los paquetes aparecerán una vez creados."
+#~ msgid "Packages will appear once created."
+#~ msgstr "Los paquetes aparecerán una vez creados."
 
 #: src/components/headers/base-header.tsx
 #~ msgid "Page logo"
@@ -9565,6 +9564,10 @@ msgstr "No hay remotos asociadas a este repositorio."
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/content/global-content-list.tsx
+msgid "There is no content of this kind that you may see."
+msgstr ""
+
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
@@ -9862,7 +9865,6 @@ msgstr "Inicia una tarea asíncrona que elimina las tareas completadas que termi
 #~ msgid "Try Red Hat Ansible Automation Platform"
 #~ msgstr ""
 
-#: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -10412,8 +10414,6 @@ msgstr ""
 msgid "Verify checksums"
 msgstr "Verificar sumas de comprobación"
 
-#: src/containers/python/package-list.tsx
-#: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx

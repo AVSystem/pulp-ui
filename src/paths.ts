@@ -87,10 +87,4 @@ export const Paths = {
     search: '/search',
     signedOut: '/signed-out',
   },
-  python: {
-    package: { list: '/python/packages' },
-  },
-  rpm: {
-    package: { list: '/rpm/rpms' },
-  },
 };

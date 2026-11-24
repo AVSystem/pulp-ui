@@ -117,15 +117,6 @@ const RoleList = lazyScreen(
       /* webpackChunkName: "roles" */ 'src/containers/role-management/role-list'
     ),
 );
-const PythonPackageList = lazyScreen(
-  () =>
-    import(
-      /* webpackChunkName: "python" */ 'src/containers/python/package-list'
-    ),
-);
-const RPMPackageList = lazyScreen(
-  () => import(/* webpackChunkName: "rpm" */ 'src/containers/rpm/package-list'),
-);
 const UserProfile = lazyScreen(
   () =>
     import(
@@ -401,17 +392,6 @@ const routes: IRouteConfig[] = [
     component: AboutProject,
     path: Paths.meta.about,
     noAuth: true,
-  },
-  {
-    component: PythonPackageList,
-    path: Paths.python.package.list,
-    plugin: 'python',
-  },
-  {
-    component: RPMPackageList,
-    path: Paths.rpm.package.list,
-    plugin: 'rpm',
-    beta: true,
   },
 ];
 

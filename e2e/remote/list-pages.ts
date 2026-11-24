@@ -159,6 +159,12 @@ export const listPages: ListPage[] = [
   },
   { name: 'Deb remotes', path: 'deb/remotes', plugin: 'deb', title: 'Remotes' },
   {
+    name: 'Deb content',
+    path: 'deb/content',
+    plugin: 'deb',
+    title: 'deb content',
+  },
+  {
     name: 'File repositories',
     path: 'file/repositories',
     plugin: 'file',
@@ -169,6 +175,12 @@ export const listPages: ListPage[] = [
     path: 'file/remotes',
     plugin: 'file',
     title: 'Remotes',
+  },
+  {
+    name: 'File content',
+    path: 'file/content',
+    plugin: 'file',
+    title: 'File content',
   },
   {
     name: 'Python repositories',
@@ -183,10 +195,10 @@ export const listPages: ListPage[] = [
     title: 'Remotes',
   },
   {
-    name: 'Python packages',
-    path: 'python/packages',
+    name: 'Python content',
+    path: 'python/content',
     plugin: 'python',
-    title: 'Packages',
+    title: 'Python content',
   },
   {
     name: 'RPM repositories',
@@ -195,7 +207,12 @@ export const listPages: ListPage[] = [
     title: 'Repositories',
   },
   { name: 'RPM remotes', path: 'rpm/remotes', plugin: 'rpm', title: 'Remotes' },
-  { name: 'RPM packages', path: 'rpm/rpms', plugin: 'rpm', title: 'Packages' },
+  {
+    name: 'RPM content',
+    path: 'rpm/content',
+    plugin: 'rpm',
+    title: 'RPM content',
+  },
 ];
 
 // The components the server reports in status/ versions, read once per

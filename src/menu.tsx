@@ -30,6 +30,7 @@ import { Link, useLocation } from 'react-router';
 import { NavList } from 'src/components';
 import { type FrameworkPlugin, PLUGIN_MANIFESTS } from './framework/manifest';
 import {
+  contentListPath,
   distributionListPath,
   remoteListPath,
   repositoryListPath,
@@ -93,7 +94,7 @@ interface IPluginPaths {
   label: string;
   repositories?: string;
   remotes?: string;
-  packages?: string;
+  content?: string;
 }
 
 // The lists of repositories and remotes of the plugins that keep their own
@@ -105,13 +106,6 @@ const OWN_SCREENS: Partial<
     repositories: Paths.ansible.repository.list,
     remotes: Paths.ansible.remote.list,
   },
-};
-
-// The lists of packages the plugins have; they are not part of a manifest
-// because their screens are not described by a descriptor.
-const PACKAGE_LISTS: Partial<Record<FrameworkPlugin, string>> = {
-  rpm: Paths.rpm.package.list,
-  python: Paths.python.package.list,
 };
 
 // The plugins that have screens, in the order the second level lists them: the
@@ -129,13 +123,17 @@ function pluginPaths(): IPluginPaths[] {
     remotes: resources.includes('remote')
       ? remoteListPath(plugin)
       : OWN_SCREENS[plugin]?.remotes,
-    packages: PACKAGE_LISTS[plugin],
+    // The content of a plugin is listed for every plugin whose repositories
+    // are on the framework: its descriptor declares what is listed.
+    content: resources.includes('repository')
+      ? contentListPath(plugin)
+      : undefined,
   }));
 }
 
 function pluginEntries(
   installed: ReadonlySet<string>,
-  kind: 'repositories' | 'remotes' | 'packages',
+  kind: 'repositories' | 'remotes' | 'content',
 ): IMenuEntry[] {
   return pluginPaths()
     .filter((plugin) => installed.has(plugin.key) && plugin[kind])
@@ -207,7 +205,7 @@ function buildGroups(
       id: 'packages',
       label: t`Packages and artifacts`,
       icon: CubeIcon,
-      entries: pluginEntries(installed, 'packages'),
+      entries: pluginEntries(installed, 'content'),
     },
     {
       id: 'remotes',

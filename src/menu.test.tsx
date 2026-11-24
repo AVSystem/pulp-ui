@@ -948,6 +948,7 @@ describe('menu model', () => {
       'Repositories - deb',
       'Repositories - Python',
       'Distributions',
+      'Packages and artifacts - deb',
       'Packages and artifacts - Python',
       'Remotes - deb',
       'Remotes - Python',
