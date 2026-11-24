@@ -1,6 +1,9 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { describe, expect, it } from 'vitest';
-import type { ContentEntity } from 'src/entities/plugin/content';
+import type {
+  ContentEntity,
+  UploadableContent,
+} from 'src/entities/plugin/content';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 
@@ -415,3 +418,48 @@ describe(
     );
   },
 );
+
+// What each plugin asks for as the path of an uploaded file. A plugin that
+// takes uploads is named here; every other plugin declares none.
+const UPLOADS: Record<string, 'required-default-name' | 'fixed-name' | 'none'> =
+  {
+    file: 'required-default-name',
+    deb: 'none',
+    rpm: 'none',
+    python: 'fixed-name',
+  };
+
+describe('Unit: uploads in the descriptors', { tags: ['unit'] }, () => {
+  it.each(Object.keys(UPLOADS))(
+    'the %s descriptor declares an upload that names a content type made from files',
+    async (plugin) => {
+      const { repository, contentTypes } = await descriptorOf(plugin);
+      const upload = repository?.upload;
+
+      expect(upload, `${plugin} declares an upload`).toBeDefined();
+      expect(upload?.relativePath).toBe(UPLOADS[plugin]);
+      const type = (contentTypes ?? []).find(
+        ({ id }) => id === upload?.contentType,
+      );
+      expect(type, `${plugin} upload names a content type`).toBeDefined();
+      const entity = type?.entity as Partial<UploadableContent<unknown>>;
+      expect(entity.create, `${plugin} content creates`).toBeTypeOf('function');
+      expect(entity.fieldsOf, `${plugin} content names a path`).toBeTypeOf(
+        'function',
+      );
+      expect(
+        repository?.entity.modify,
+        `${plugin} repository adds content`,
+      ).toBeTypeOf('function');
+    },
+  );
+
+  it.each(Object.keys(LOADERS).filter((plugin) => !(plugin in UPLOADS)))(
+    'the %s descriptor declares no upload',
+    async (plugin) => {
+      const { repository } = await descriptorOf(plugin);
+
+      expect(repository?.upload).toBeUndefined();
+    },
+  );
+});

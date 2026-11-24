@@ -161,6 +161,8 @@ const descriptor: PluginDescriptor<RpmRepository> = {
       build: ({ name, url }) =>
         `pulp rpm remote create --name ${shellQuote(name)} --url ${shellQuote(url)}`,
     },
+    // A package needs no path from the user: the server names it from the package.
+    upload: { contentType: 'rpm.package', relativePath: 'none' },
     filters: REPOSITORY_FILTERS,
     columns: repositoryColumns<RpmRepository>('rpm'),
   },

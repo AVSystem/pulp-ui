@@ -259,6 +259,8 @@ const descriptor: PluginDescriptor<PythonRepository> = {
       label: msg`Install with pip`,
       build: ({ url }) => pipInstallCommand(url),
     },
+    // A python package is always named by the file's own name.
+    upload: { contentType: 'python.package', relativePath: 'fixed-name' },
     filters: REPOSITORY_FILTERS,
     columns: repositoryColumns<PythonRepository>('python'),
   },

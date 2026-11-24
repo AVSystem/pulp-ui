@@ -237,6 +237,8 @@ const descriptor: PluginDescriptor<DebRepository> = {
       build: ({ name, url }) =>
         `pulp deb remote create --name ${shellQuote(name)} --url ${shellQuote(url)} --distributions '<suite>'`,
     },
+    // A package needs no path from the user: the server names it from the package.
+    upload: { contentType: 'deb.package', relativePath: 'none' },
     filters: REPOSITORY_FILTERS,
     columns: repositoryColumns<DebRepository>('deb'),
   },
