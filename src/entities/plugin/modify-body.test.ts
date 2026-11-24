@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { removeContentBody, revertBody } from './repository';
+import { addContentBody, removeContentBody, revertBody } from './repository';
 
 // What a change of a repository's content sends. A removal names the units to
 // take out and nothing else: a base version would make the server start the new
@@ -31,6 +31,23 @@ describe(
       picked.push('/pulp/api/v3/content/file/files/0003/');
 
       expect(body.remove_content_units).toEqual(UNITS);
+    });
+
+    it('names the units to add and no base version', () => {
+      const body = addContentBody(UNITS);
+
+      expect(body).toStrictEqual({ add_content_units: UNITS });
+      expect(Object.keys(body)).toEqual(['add_content_units']);
+      expect('base_version' in body).toBe(false);
+    });
+
+    it('copies the addresses of an addition too', () => {
+      const picked = [...UNITS];
+      const body = addContentBody(picked);
+
+      picked.push('/pulp/api/v3/content/file/files/0003/');
+
+      expect(body.add_content_units).toEqual(UNITS);
     });
 
     it('keeps the base version for a revert and sends nothing else', () => {

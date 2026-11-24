@@ -90,6 +90,8 @@ function serveLab({
   server.use(
     lab.repositories.handler,
     lab.list.handler,
+    distributionListHandler('file', []).handler,
+    publicationListHandler('file', []).handler,
     listOf(`${API}/content/file/files/`, []).handler,
     listOf(`${API}/content/`, []).handler,
   );
@@ -262,10 +264,13 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
     expect(
       await screen.findByRole('grid', { name: 'Content summary' }),
     ).toBeVisible();
-    const query = lab.list.queries.at(-1) as URLSearchParams;
+    // The page also asks how many versions there are, which is no lookup by
+    // number.
+    const lookups = lab.list.queries.filter((each) => each.has('number'));
+    const query = lookups.at(-1) as URLSearchParams;
     expect(query.get('number')).toBe('2');
     expect(query.get('limit')).toBe('1');
-    expect(lab.list.queries).toHaveLength(1);
+    expect(lookups).toHaveLength(1);
 
     const summary = screen.getByRole('grid', { name: 'Content summary' });
     const files = within(summary).getByRole('row', { name: /Files/ });
@@ -333,7 +338,10 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
     const lab = serveVersions();
     let answers = 0;
     server.use(
-      http.get(`*${lab.list.path}`, () => {
+      http.get(`*${lab.list.path}`, ({ request }) => {
+        if (!new URL(request.url).searchParams.has('number')) {
+          return HttpResponse.json(page(lab.versions.slice().reverse()));
+        }
         answers += 1;
         return answers === 1
           ? HttpResponse.json({ detail: 'broken' }, { status: 500 })
@@ -417,7 +425,9 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
     expect(
       await screen.findByText('Repository version not found'),
     ).toBeVisible();
-    expect(lab.list.queries).toHaveLength(0);
+    expect(lab.list.queries.filter((each) => each.has('number'))).toHaveLength(
+      0,
+    );
   });
 
   it('shows Not Found for an address whose version is not a number', async () => {

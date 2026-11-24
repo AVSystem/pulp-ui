@@ -11,6 +11,7 @@ import {
   repositoriesDebAptUnsetLabel,
 } from '@pulp-ui/sdk/deb/repositories-apt';
 import {
+  repositoriesDebAptVersionsDelete,
   repositoriesDebAptVersionsList,
   repositoriesDebAptVersionsRead,
 } from '@pulp-ui/sdk/deb/repositories-apt-versions';
@@ -33,6 +34,7 @@ export const debRepository = makeRepositoryEntity({
     unsetLabel: repositoriesDebAptUnsetLabel,
     versionsList: repositoriesDebAptVersionsList,
     versionRead: repositoriesDebAptVersionsRead,
+    versionDelete: repositoriesDebAptVersionsDelete,
     sync: repositoriesDebAptSync,
     modify: repositoriesDebAptModify,
   },

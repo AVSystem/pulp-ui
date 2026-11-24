@@ -7,11 +7,13 @@ import { guardRoutes } from 'src/app-routes';
 import { createQueryClient } from 'src/query/client';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
+  distributionListHandler,
   listOf,
   page,
   pluginListHandler,
   pluginRepository,
   projectedBy,
+  publicationListHandler,
   repositoryVersion,
   versionListHandler,
 } from 'src/test-utils/pulp';
@@ -127,6 +129,8 @@ function serveLab({
   });
   server.use(
     pluginListHandler('file', 'repository', [repository]).handler,
+    distributionListHandler('file', []).handler,
+    publicationListHandler('file', []).handler,
     versionListHandler(repository, rows).handler,
     content.handler,
   );
@@ -413,6 +417,8 @@ describe(
       });
       server.use(
         pluginListHandler('deb', 'repository', [repository]).handler,
+        distributionListHandler('deb', []).handler,
+        publicationListHandler('deb', []).handler,
         versionListHandler(repository, rows).handler,
         packages.handler,
         core.handler,
@@ -510,7 +516,12 @@ describe(
       let failing = true;
       server.use(
         pluginListHandler('file', 'repository', [repository]).handler,
-        http.get(`*${versions.path}`, () => {
+        distributionListHandler('file', []).handler,
+        publicationListHandler('file', []).handler,
+        http.get(`*${versions.path}`, ({ request }) => {
+          if (!new URL(request.url).searchParams.has('number')) {
+            return HttpResponse.json(page(rows));
+          }
           answers += 1;
           return failing
             ? HttpResponse.json({ detail: 'broken' }, { status: 500 })

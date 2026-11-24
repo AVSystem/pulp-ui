@@ -11,6 +11,7 @@ import {
   repositoriesRpmRpmUnsetLabel,
 } from '@pulp-ui/sdk/rpm/repositories-rpm';
 import {
+  repositoriesRpmRpmVersionsDelete,
   repositoriesRpmRpmVersionsList,
   repositoriesRpmRpmVersionsRead,
 } from '@pulp-ui/sdk/rpm/repositories-rpm-versions';
@@ -33,6 +34,7 @@ export const rpmRepository = makeRepositoryEntity({
     unsetLabel: repositoriesRpmRpmUnsetLabel,
     versionsList: repositoriesRpmRpmVersionsList,
     versionRead: repositoriesRpmRpmVersionsRead,
+    versionDelete: repositoriesRpmRpmVersionsDelete,
     sync: repositoriesRpmRpmSync,
     modify: repositoriesRpmRpmModify,
   },

@@ -7,8 +7,10 @@ import { guardRoutes } from 'src/app-routes';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
+  distributionListHandler,
   pluginListHandler,
   pluginRepository,
+  publicationListHandler,
   repositoryVersion,
   versionListHandler,
 } from 'src/test-utils/pulp';
@@ -63,6 +65,8 @@ function serveLab(
 
   server.use(
     pluginListHandler('file', 'repository', [repository]).handler,
+    distributionListHandler('file', []).handler,
+    publicationListHandler('file', []).handler,
     versionListHandler(repository, versions).handler,
     http.post(`*${repository.pulp_href}modify/`, async ({ request }) => {
       modifies.push({
