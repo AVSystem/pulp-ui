@@ -1224,6 +1224,9 @@ export interface UploadLabOptions {
   failTask?: (create: LabCreate) => string | undefined;
   // How long a content create waits before it answers.
   createMs?: number;
+  // How long the creation of an upload waits before it answers; the server has
+  // made the upload by then.
+  uploadMs?: number;
   // A content create whose task completes without naming any content.
   emptyTask?: boolean;
   // The reason the server gives when it refuses a modify with a 400.
@@ -1244,6 +1247,7 @@ export function uploadLab({
   refuseCreate,
   failTask,
   createMs = 0,
+  uploadMs = 0,
   emptyTask = false,
   refuseModify,
 }: UploadLabOptions = {}) {
@@ -1274,6 +1278,9 @@ export function uploadLab({
       const upload = href('uploads');
       uploads.push({ href: upload, size: body.size });
       events.push('upload-create');
+      if (uploadMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, uploadMs));
+      }
       return HttpResponse.json({ pulp_href: upload }, { status: 201 });
     }),
     http.put('*/pulp/api/v3/uploads/:id/', async ({ request }) => {
