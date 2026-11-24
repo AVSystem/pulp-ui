@@ -1,11 +1,14 @@
 import { screen, waitFor, within } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import { useLocation, useRoutes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
+import { createQueryClient } from 'src/query/client';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import {
   listOf,
+  page,
   pluginListHandler,
   pluginRepository,
   projectedBy,
@@ -24,12 +27,13 @@ import { frameworkRoutes } from '../routes';
 const API = '/pulp/api/v3';
 const FILES = `${API}/content/file/files/`;
 
-const FILE: PluginManifest = {
-  ...(PLUGIN_MANIFESTS.find(
-    ({ plugin }) => plugin === 'file',
-  ) as PluginManifest),
+const manifestOf = (name: string): PluginManifest => ({
+  ...(PLUGIN_MANIFESTS.find(({ plugin }) => plugin === name) as PluginManifest),
   onFramework: true,
-};
+});
+
+const FILE = manifestOf('file');
+const DEB = manifestOf('deb');
 
 let permissions: { stop: () => void };
 
@@ -47,19 +51,22 @@ function Routed() {
   return (
     <>
       <p data-testid='location'>{`${pathname}${search}`}</p>
-      {useRoutes(guardRoutes(frameworkRoutes([FILE])))}
+      {useRoutes(guardRoutes(frameworkRoutes([FILE, DEB])))}
     </>
   );
 }
 
-function render(route: string) {
+function render(
+  route: string,
+  queryClient?: ReturnType<typeof createQueryClient>,
+) {
   return renderWithProviders(
     <AppContextProvider>
       <PermissionsKnown>
         <Routed />
       </PermissionsKnown>
     </AppContextProvider>,
-    { route },
+    { route, queryClient },
   );
 }
 
@@ -338,6 +345,240 @@ describe(
         moved.has('repository_version') !==
           moved.has('repository_version_added'),
       ).toBe(true);
+    });
+  },
+);
+
+const VERSION_OF_ADDRESS = (repository: string, number: number) =>
+  `${repository}versions/${number}/`;
+
+describe(
+  'Integration: the content types of a plugin and of the core',
+  { tags: ['integration'] },
+  () => {
+    const DEB_PACKAGES = `${API}/content/deb/packages/`;
+    const CORE = `${API}/content/`;
+
+    interface DebRow {
+      pulp_href: string;
+      package: string;
+      version: string;
+      architecture: string;
+    }
+    const debRow = (name: string): DebRow => ({
+      pulp_href: `${DEB_PACKAGES}${name}/`,
+      package: name,
+      version: '1.2-3',
+      architecture: 'amd64',
+    });
+    const component = (name: string) => ({
+      pulp_href: `${CORE}${name}/`,
+      pulp_created: '2024-05-06T07:08:09.000000Z',
+      pulp_labels: {},
+    });
+
+    function serveDeb() {
+      const base = pluginRepository('deb', { name: 'tools' });
+      const rows = [
+        repositoryVersion({ pulp_href: base.pulp_href }, 1, {
+          content_summary: {
+            added: summaryOf('deb.package', 2),
+            removed: {},
+            present: {
+              ...summaryOf('deb.package', 2),
+              ...summaryOf('deb.release_component', 1),
+            },
+          },
+        }),
+        repositoryVersion({ pulp_href: base.pulp_href }, 2, {
+          content_summary: {
+            added: summaryOf('deb.release_component', 1),
+            removed: {},
+            present: {
+              ...summaryOf('deb.package', 2),
+              ...summaryOf('deb.release_component', 1),
+            },
+          },
+        }),
+      ];
+      const repository = {
+        ...base,
+        latest_version_href: rows.at(-1)?.pulp_href ?? null,
+      };
+      const packages = listOf(DEB_PACKAGES, [debRow('curl'), debRow('wget')], {
+        projected: projectedBy,
+      });
+      const core = listOf(CORE, [component('main')], {
+        projected: projectedBy,
+      });
+      server.use(
+        pluginListHandler('deb', 'repository', [repository]).handler,
+        versionListHandler(repository, rows).handler,
+        packages.handler,
+        core.handler,
+      );
+
+      return { repository, packages, core };
+    }
+
+    it("lists the deb packages with the plugin's columns", async () => {
+      const lab = serveDeb();
+
+      render('/deb/repositories/tools/versions/1');
+
+      const present = await screen.findByRole('grid', {
+        name: 'Packages present',
+      });
+      expect(
+        within(present)
+          .getAllByRole('columnheader')
+          .map(({ textContent }) => textContent?.trim()),
+      ).toEqual(['Package', 'Version', 'Architecture']);
+      expect(await within(present).findByText('curl')).toBeVisible();
+      expect(within(present).getAllByText('1.2-3').length).toBe(2);
+      const query = lab.packages.queries[0];
+      expect(query.get('repository_version')).toBe(
+        VERSION_OF_ADDRESS(lab.repository.pulp_href, 1),
+      );
+    });
+
+    it('lists a type no descriptor declares through the core list filtered by its type and the version part, with the address and the creation time', async () => {
+      const lab = serveDeb();
+
+      render('/deb/repositories/tools/versions/2');
+
+      const added = await screen.findByRole('grid', {
+        name: 'deb.release_component added',
+      });
+      expect(
+        within(added)
+          .getAllByRole('columnheader')
+          .map(({ textContent }) => textContent?.trim()),
+      ).toEqual(['Content address', 'Created']);
+      const row = (await within(added).findByText(`${CORE}main/`)).closest(
+        'tr',
+      ) as HTMLElement;
+      expect(row.querySelector('time')?.getAttribute('datetime')).toBe(
+        '2024-05-06T07:08:09.000000Z',
+      );
+
+      await screen.findByRole('grid', {
+        name: 'deb.release_component present',
+      });
+      await waitFor(() => expect(lab.core.queries).toHaveLength(2));
+      const version = VERSION_OF_ADDRESS(lab.repository.pulp_href, 2);
+      expect(
+        lab.core.queries.map((query) => ({
+          type: query.get('pulp_type'),
+          version: query.get('repository_version'),
+          added: query.get('repository_version_added'),
+        })),
+      ).toEqual(
+        expect.arrayContaining([
+          { type: 'deb.release_component', version: null, added: version },
+          { type: 'deb.release_component', version, added: null },
+        ]),
+      );
+      expect(lab.core.queries[0].getAll('fields').sort()).toEqual([
+        'pulp_created',
+        'pulp_href',
+        'pulp_labels',
+      ]);
+      // the declared type is not read through the core list
+      expect(
+        lab.core.queries.some(
+          (query) => query.get('pulp_type') === 'deb.package',
+        ),
+      ).toBe(false);
+    });
+  },
+);
+
+describe(
+  'Integration: a version that cannot be read or listed',
+  { tags: ['integration'] },
+  () => {
+    it('shows an error with Retry, not a spinner, when the version read still answers 500 after the retries', async () => {
+      const base = pluginRepository('file', { name: 'tools' });
+      const repository = {
+        ...base,
+        latest_version_href: `${base.pulp_href}versions/1/`,
+      };
+      const rows = [repositoryVersion(base, 1)];
+      const versions = versionListHandler(repository, rows);
+      let answers = 0;
+      let failing = true;
+      server.use(
+        pluginListHandler('file', 'repository', [repository]).handler,
+        http.get(`*${versions.path}`, () => {
+          answers += 1;
+          return failing
+            ? HttpResponse.json({ detail: 'broken' }, { status: 500 })
+            : HttpResponse.json(page(rows));
+        }),
+      );
+      // the client of the application retries a server error twice
+      const client = createQueryClient();
+      client.setDefaultOptions({
+        queries: { ...client.getDefaultOptions().queries, retryDelay: 1 },
+      });
+
+      const { user } = render('/file/repositories/tools/versions/1', client);
+
+      expect(
+        await screen.findByText('Repository version could not be displayed.'),
+      ).toBeVisible();
+      expect(answers).toBe(3);
+      expect(screen.queryByRole('progressbar')).toBeNull();
+      expect(screen.queryByText('Repository version not found')).toBeNull();
+
+      failing = false;
+      await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+      expect(await screen.findByText('Version number')).toBeVisible();
+    });
+
+    it('shows a failed list as its own error with Retry while the other lists stay', async () => {
+      serveLab({ versions: VERSION_TWO });
+      let failing = true;
+      server.use(
+        http.get(`*${FILES}`, ({ request }) => {
+          const query = new URL(request.url).searchParams;
+          if (failing && query.has('repository_version_added')) {
+            return HttpResponse.json({ detail: 'broken' }, { status: 500 });
+          }
+          return HttpResponse.json(
+            page(
+              query.has('repository_version_removed')
+                ? [fileRow('removed-a')]
+                : [fileRow('present-a')],
+            ),
+          );
+        }),
+      );
+
+      const { user } = render('/file/repositories/tools/versions/2');
+
+      expect(
+        await screen.findByText('Content could not be displayed.'),
+      ).toBeVisible();
+      expect(
+        await screen.findByRole('grid', { name: 'Files present' }),
+      ).toBeVisible();
+      expect(
+        await screen.findByRole('grid', { name: 'Files removed' }),
+      ).toBeVisible();
+      expect(
+        screen.getAllByText('Content could not be displayed.'),
+      ).toHaveLength(1);
+
+      failing = false;
+      await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+      expect(
+        await screen.findByRole('grid', { name: 'Files added' }),
+      ).toBeVisible();
+      expect(screen.queryByText('Content could not be displayed.')).toBeNull();
     });
   },
 );
