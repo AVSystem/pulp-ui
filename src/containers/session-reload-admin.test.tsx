@@ -29,7 +29,7 @@ import RoleCreate from './role-management/role-create';
 import RoleEdit from './role-management/role-edit';
 import RoleList from './role-management/role-list';
 import UserProfile from './settings/user-profile';
-import SignatureKeysList from './signature-keys/list';
+import SignatureKeysList from 'src/framework/signature-keys/signature-key-list';
 import UserDetail from './user-management/user-detail';
 import UserEdit from './user-management/user-edit';
 import UserList from './user-management/user-list';

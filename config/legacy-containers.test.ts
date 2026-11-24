@@ -94,6 +94,17 @@ describe(
       },
     );
 
+    // The signature keys screen is drawn by the framework from the typed
+    // signing service entity. A container of its own, or the old request
+    // module behind it, would be a second implementation that can hide a
+    // failed read as an empty list again.
+    it.each(['containers/signature-keys', 'api/signing-service.ts'])(
+      'leaves no %s in the source tree',
+      (path) => {
+        expect(existsSync(join(SRC, path))).toBe(false);
+      },
+    );
+
     // A plugin that has only distributions on the framework keeps its own
     // repository and remote screens, so the guard does not apply to them.
     it.each(
