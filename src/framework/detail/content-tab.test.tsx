@@ -310,6 +310,51 @@ describe(
       expect(await removeButton()).toBeDisabled();
     });
 
+    it('offers Upload to a holder of the modify permission and opens the upload dialog', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.modify_filerepository']],
+      });
+      serveLab({ rows: [row(1)] });
+      const { user } = render();
+
+      await user.click(await screen.findByRole('button', { name: 'Upload' }));
+
+      expect(
+        await screen.findByRole('heading', { name: 'Upload files' }),
+      ).toBeVisible();
+    });
+
+    it('offers Upload also when the repository holds nothing yet', async () => {
+      serveLab({
+        rows: [],
+        repositoryOverrides: { latest_version_href: null },
+      });
+      render();
+
+      expect(
+        await screen.findByRole('button', { name: 'Upload' }),
+      ).toBeEnabled();
+    });
+
+    it('offers no Upload to a user who may not modify the repository', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filerepository']],
+      });
+      serveLab({ rows: [row(1)] });
+      render();
+
+      const grid = await table();
+      await within(grid).findByText('docs/file-001.txt');
+
+      expect(screen.queryByRole('button', { name: 'Upload' })).toBeNull();
+    });
+
     it('starts every page from an empty selection', async () => {
       serveLab({
         rows: Array.from({ length: 45 }, (_, index) => row(index + 1)),
