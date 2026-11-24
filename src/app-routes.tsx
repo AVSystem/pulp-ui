@@ -126,7 +126,7 @@ const UserProfile = lazyScreen(
 const SignatureKeysList = lazyScreen(
   () =>
     import(
-      /* webpackChunkName: "signature-keys" */ 'src/containers/signature-keys/list'
+      /* webpackChunkName: "signature-keys" */ 'src/framework/signature-keys/signature-key-list'
     ),
 );
 const TaskDetail = lazyScreen(

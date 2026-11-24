@@ -168,8 +168,6 @@
     "RepairAPI": [],
     "RoleAPI": [],
     "RoleType": [],
-    "SigningServiceAPI": [],
-    "SigningServiceType": [],
     "TaskAPI": [],
     "TaskPurgeAPI": [],
     "TaskType": [],
@@ -380,17 +378,6 @@
   "rpm-repository.ts": {
     "RPMRepositoryAPI": ["create", "delete", "list"],
     "RPMRepositoryType": []
-  },
-  "signing-service.ts": {
-    "SigningServiceAPI": ["list"],
-    "SigningServiceType": [
-      "name",
-      "pubkey_fingerprint",
-      "public_key",
-      "pulp_created",
-      "pulp_href",
-      "script"
-    ]
   },
   "task-purge.ts": {
     "TaskPurgeAPI": ["create"]

@@ -68,7 +68,6 @@ export { RPMPackageAPI } from './rpm-package';
 export { RPMDistributionAPI } from './rpm-distribution';
 export { RPMRemoteAPI, type RPMRemoteType } from './rpm-remote';
 export { RPMRepositoryAPI, type RPMRepositoryType } from './rpm-repository';
-export { SigningServiceAPI, type SigningServiceType } from './signing-service';
 export { TaskAPI } from './task';
 export { TaskPurgeAPI } from './task-purge';
 export { UserAPI } from './user';

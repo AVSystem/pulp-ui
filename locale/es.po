@@ -2377,9 +2377,9 @@ msgstr "Se creó la distribución \"{name}\" en la ruta base {basePath}."
 msgid "Created distribution \"{trimmedName}\""
 msgstr ""
 
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3096,7 +3096,7 @@ msgstr "Descargar la concurrencia"
 #~ msgid "Download count is the sum of all versions' download counts"
 #~ msgstr ""
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Download key"
 msgstr "Descargar clave"
 
@@ -4690,7 +4690,7 @@ msgstr ""
 msgid "Key"
 msgstr "Clave"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Key fingerprint"
 msgstr "Huella digital de la clave"
 
@@ -5159,7 +5159,6 @@ msgstr "Mi perfil"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/pulp-status.tsx
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -5172,6 +5171,7 @@ msgstr "Mi perfil"
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Name"
 msgstr "Nombre"
 
@@ -5601,7 +5601,7 @@ msgstr "Ninguna fila seleccionada"
 msgid "No screens or repositories match"
 msgstr "Ninguna pantalla ni repositorio coincide"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "No signature keys yet"
 msgstr "Todavía no hay claves de firma"
 
@@ -6427,7 +6427,7 @@ msgstr ""
 msgid "Public - anyone can download without signing in"
 msgstr ""
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Public key"
 msgstr "Clave pública"
 
@@ -8328,7 +8328,7 @@ msgstr "El cierre de sesión no se completó"
 #~ msgid "Signature"
 #~ msgstr "Firma"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys"
 msgstr "Claves de firma"
 
@@ -8336,11 +8336,11 @@ msgstr "Claves de firma"
 #~ msgid "Signature Keys"
 #~ msgstr "Claves de firma"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys could not be displayed."
 msgstr "No se pudieron mostrar las claves de firma."
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys will appear once created."
 msgstr "Las claves de firma aparecerán una vez creadas."
 

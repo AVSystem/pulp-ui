@@ -2378,9 +2378,9 @@ msgstr "Created distribution \"{name}\" at base path {basePath}."
 msgid "Created distribution \"{trimmedName}\""
 msgstr "Created distribution \"{trimmedName}\""
 
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Created on"
 msgstr "Created on"
 
@@ -3097,7 +3097,7 @@ msgstr "Download concurrency"
 #~ msgid "Download count is the sum of all versions' download counts"
 #~ msgstr "Download count is the sum of all versions' download counts"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Download key"
 msgstr "Download key"
 
@@ -4691,7 +4691,7 @@ msgstr "Keep uploading"
 msgid "Key"
 msgstr "Key"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Key fingerprint"
 msgstr "Key fingerprint"
 
@@ -5160,7 +5160,6 @@ msgstr "My profile"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/pulp-status.tsx
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -5173,6 +5172,7 @@ msgstr "My profile"
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Name"
 msgstr "Name"
 
@@ -5602,7 +5602,7 @@ msgstr "No rows selected"
 msgid "No screens or repositories match"
 msgstr "No screens or repositories match"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "No signature keys yet"
 msgstr "No signature keys yet"
 
@@ -6428,7 +6428,7 @@ msgstr "Public"
 msgid "Public - anyone can download without signing in"
 msgstr "Public - anyone can download without signing in"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Public key"
 msgstr "Public key"
 
@@ -8329,7 +8329,7 @@ msgstr "Sign-out did not complete"
 #~ msgid "Signature"
 #~ msgstr "Signature"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys"
 msgstr "Signature keys"
 
@@ -8337,11 +8337,11 @@ msgstr "Signature keys"
 #~ msgid "Signature Keys"
 #~ msgstr "Signature Keys"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys could not be displayed."
 msgstr "Signature keys could not be displayed."
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys will appear once created."
 msgstr "Signature keys will appear once created."
 

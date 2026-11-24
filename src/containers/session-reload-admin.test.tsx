@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { Link, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
+import SignatureKeysList from 'src/framework/signature-keys/signature-key-list';
 import { resetSessionEvents } from 'src/session/session-events';
 import { PermissionsKnown } from 'src/test-utils/permissions';
 import {
@@ -29,7 +30,6 @@ import RoleCreate from './role-management/role-create';
 import RoleEdit from './role-management/role-edit';
 import RoleList from './role-management/role-list';
 import UserProfile from './settings/user-profile';
-import SignatureKeysList from './signature-keys/list';
 import UserDetail from './user-management/user-detail';
 import UserEdit from './user-management/user-edit';
 import UserList from './user-management/user-list';

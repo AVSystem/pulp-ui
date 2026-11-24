@@ -2377,9 +2377,9 @@ msgstr "기본 경로 {basePath}에 배포 \"{name}\"을/를 만들었습니다.
 msgid "Created distribution \"{trimmedName}\""
 msgstr ""
 
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Created on"
 msgstr "생성된 시간"
 
@@ -3096,7 +3096,7 @@ msgstr "동시 다운로드"
 #~ msgid "Download count is the sum of all versions' download counts"
 #~ msgstr ""
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Download key"
 msgstr "키 다운로드"
 
@@ -4690,7 +4690,7 @@ msgstr ""
 msgid "Key"
 msgstr "키"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Key fingerprint"
 msgstr "키 지문"
 
@@ -5159,7 +5159,6 @@ msgstr "내 프로필"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/pulp-status.tsx
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -5172,6 +5171,7 @@ msgstr "내 프로필"
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Name"
 msgstr "이름"
 
@@ -5601,7 +5601,7 @@ msgstr "선택한 행 없음"
 msgid "No screens or repositories match"
 msgstr "일치하는 화면 또는 리포지토리가 없습니다"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "No signature keys yet"
 msgstr "서명 키가 없음"
 
@@ -6427,7 +6427,7 @@ msgstr ""
 msgid "Public - anyone can download without signing in"
 msgstr ""
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Public key"
 msgstr "공개 키"
 
@@ -8328,7 +8328,7 @@ msgstr "로그아웃이 완료되지 않았습니다"
 #~ msgid "Signature"
 #~ msgstr "서명"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys"
 msgstr "서명 키"
 
@@ -8336,11 +8336,11 @@ msgstr "서명 키"
 #~ msgid "Signature Keys"
 #~ msgstr "서명 키"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys could not be displayed."
 msgstr "서명 키를 표시할 수 없습니다."
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys will appear once created."
 msgstr "서명 키가 생성된 후 표시됩니다."
 

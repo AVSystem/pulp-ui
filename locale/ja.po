@@ -2377,9 +2377,9 @@ msgstr "ベースパス {basePath} にディストリビューション \"{name}
 msgid "Created distribution \"{trimmedName}\""
 msgstr ""
 
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Created on"
 msgstr "作成日時"
 
@@ -3096,7 +3096,7 @@ msgstr "同時実行のダウンロード"
 #~ msgid "Download count is the sum of all versions' download counts"
 #~ msgstr ""
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Download key"
 msgstr "鍵のダウンロード"
 
@@ -4690,7 +4690,7 @@ msgstr ""
 msgid "Key"
 msgstr "キー"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Key fingerprint"
 msgstr "鍵のフィンガープリント"
 
@@ -5159,7 +5159,6 @@ msgstr "自分のプロファイル"
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 #: src/containers/pulp-status.tsx
-#: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
@@ -5172,6 +5171,7 @@ msgstr "自分のプロファイル"
 #: src/framework/form/form-values.test.ts
 #: src/framework/form/remote-fields.ts
 #: src/framework/form/repository-fields.ts
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Name"
 msgstr "名前"
 
@@ -5601,7 +5601,7 @@ msgstr "行が選択されていません"
 msgid "No screens or repositories match"
 msgstr "一致する画面またはリポジトリーはありません"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "No signature keys yet"
 msgstr "署名鍵はまだありません"
 
@@ -6427,7 +6427,7 @@ msgstr ""
 msgid "Public - anyone can download without signing in"
 msgstr ""
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Public key"
 msgstr "公開鍵"
 
@@ -8328,7 +8328,7 @@ msgstr "ログアウトが完了しませんでした"
 #~ msgid "Signature"
 #~ msgstr "署名"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys"
 msgstr "署名鍵"
 
@@ -8336,11 +8336,11 @@ msgstr "署名鍵"
 #~ msgid "Signature Keys"
 #~ msgstr "署名鍵"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys could not be displayed."
 msgstr "署名鍵を表示できませんでした。"
 
-#: src/containers/signature-keys/list.tsx
+#: src/framework/signature-keys/signature-key-list.tsx
 msgid "Signature keys will appear once created."
 msgstr "署名鍵が作成されると表示されます。"
 
