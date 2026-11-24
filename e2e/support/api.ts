@@ -3,6 +3,7 @@ import { getDistributionsAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/dist
 import { getRepositoriesAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/repositories-ansible';
 import { getDistributionsContainerContainerListUrl } from '@pulp-ui/sdk/container/distributions-container';
 import { getRepositoriesContainerContainerListUrl } from '@pulp-ui/sdk/container/repositories-container';
+import { getContentListUrl } from '@pulp-ui/sdk/core/content';
 import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards-rbac';
 import { getGroupsListUrl } from '@pulp-ui/sdk/core/groups';
 import type { AsyncOperationResponse } from '@pulp-ui/sdk/core/models/async-operation-response.zod';
@@ -244,6 +245,7 @@ export async function allSettled<T>(jobs: Promise<T>[]): Promise<T[]> {
 // class, call cleanUp() in afterAll.
 export class TestObjects {
   private readonly registered: string[] = [];
+  private readonly content = new Set<string>();
 
   private constructor(
     readonly api: APIRequestContext,
@@ -436,36 +438,59 @@ export class TestObjects {
       .sort((left, right) => right - left);
   }
 
-  // The file content units of this scope, found by the prefix of their path.
-  private ownedFileContent(): Promise<PulpObject[]> {
-    return this.list(getContentFileFilesListUrl(), {
-      relative_path__startswith: this.prefix,
-      fields: 'pulp_href,relative_path',
+  // The content units of any type a repository version holds.
+  async versionContent(versionHref: string): Promise<string[]> {
+    const units = await this.list(getContentListUrl(), {
+      repository_version: versionHref,
+      fields: 'pulp_href',
     });
+    return units.map(({ pulp_href }) => pulp_href);
   }
 
-  // Removes the file content units of this scope once no repository holds them.
+  // Names content units of this run that clean-up removes once no repository
+  // holds them, for units whose type has no path to find them by.
+  trackContent(hrefs: string[]): void {
+    for (const href of hrefs) {
+      this.content.add(href);
+    }
+  }
+
+  // The content units of this scope: file units found by the prefix of their
+  // path, and the units the spec named.
+  private async ownedContent(): Promise<string[]> {
+    const files = await this.list(getContentFileFilesListUrl(), {
+      relative_path__startswith: this.prefix,
+      fields: 'pulp_href',
+    });
+    return [
+      ...new Set([...files.map(({ pulp_href }) => pulp_href), ...this.content]),
+    ];
+  }
+
+  // Removes the content units of this scope once no repository holds them.
   // Only the listed units are named to the orphan clean-up, so no content of
   // another run or of the lab is touched; a unit that is still held stays and
   // is reported.
-  private async removeFileContent(): Promise<void> {
-    const units = await this.ownedFileContent();
+  private async removeContent(): Promise<void> {
+    const units = await this.ownedContent();
     if (units.length === 0) {
       return;
     }
     const answer = await apiPost<AsyncOperationResponse>(
       this.api,
       getOrphansCleanupCleanupUrl(),
-      {
-        content_hrefs: units.map(({ pulp_href }) => pulp_href),
-        orphan_protection_time: 0,
-      },
+      { content_hrefs: units, orphan_protection_time: 0 },
     );
     await this.waitForTask(answer.task);
-    const left = await this.ownedFileContent();
-    if (left.length > 0) {
+    const left = await Promise.all(
+      units.map((href) =>
+        apiCall<PulpObject>(this.api, 'GET', url(href), { accept: [404] }),
+      ),
+    );
+    const held = units.filter((_, index) => left[index]?.status !== 404);
+    if (held.length > 0) {
       throw new Error(
-        `file content left on the server after clean-up: ${left.map(({ relative_path }) => String(relative_path)).join(', ')}`,
+        `content left on the server after clean-up: ${held.join(', ')}`,
       );
     }
   }
@@ -528,8 +553,8 @@ export class TestObjects {
         }
       }
 
-      if (fileContent) {
-        await this.removeFileContent();
+      if (fileContent || this.content.size > 0) {
+        await this.removeContent();
       }
 
       const left = await this.leftovers();
