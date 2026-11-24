@@ -23,6 +23,7 @@ import {
   role,
   roleAssignment,
 } from 'src/test-utils/pulp';
+import { servePublishLab } from 'src/test-utils/publish-lab';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { SYNC_TASK, report, serveSyncLab } from 'src/test-utils/sync-lab';
@@ -996,6 +997,110 @@ describe(
       await detailRows();
       expect(screen.queryByText('Last sync')).toBeNull();
       expect(screen.queryByRole('button', { name: 'Sync' })).toBeNull();
+    });
+  },
+);
+
+describe(
+  'Integration: publishing from the repository detail',
+  { tags: ['integration'] },
+  () => {
+    const ADD = 'file.add_filepublication';
+    let intervals: IIntervals;
+
+    beforeEach(() => {
+      intervals = trackIntervals();
+    });
+    afterEach(() => {
+      intervals.restore();
+    });
+
+    it('publishes the latest version from the dialog, closes it at once and shows the progress of the task to the end', async () => {
+      const repository = tools();
+      serveLab({ repositories: [repository] });
+      const lab = servePublishLab({ repository });
+      const { user } = renderDetail('/file/repositories/tools/');
+
+      await user.click(await screen.findByRole('button', { name: 'Publish' }));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        within(dialog).getByText('Publish repository "tools"'),
+      ).toBeVisible();
+      await user.click(within(dialog).getByRole('button', { name: 'Publish' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(lab.publishes).toEqual([{ repository: repository.pulp_href }]);
+      expect(await screen.findByText('Publish queued')).toBeVisible();
+
+      lab.change(lab.tasks[0].pulp_href, {
+        state: 'running',
+        progress_reports: [report('Publishing files', 12, 40)],
+      });
+      intervals.run(2000);
+      expect(await screen.findByText('12/40')).toBeVisible();
+      expect(screen.getByText('Publish running')).toBeVisible();
+
+      lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
+      intervals.run(2000);
+      expect(await screen.findByText('Publish completed')).toBeVisible();
+    });
+
+    it('offers Publish to a user who holds the add publication permission', async () => {
+      const repository = tools();
+      serveAccount({ isStaff: false, own: [[ADD]] });
+      serveLab({ repositories: [repository] });
+      servePublishLab({ repository });
+      server.use(listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler);
+
+      renderDetail('/file/repositories/tools/');
+
+      expect(
+        await screen.findByRole('button', { name: 'Publish' }),
+      ).toBeVisible();
+    });
+
+    it('shows no Publish to a user who does not hold it, whatever role the user has on this repository', async () => {
+      const repository = tools();
+      serveAccount({ isStaff: false });
+      serveLab({ repositories: [repository] });
+      servePublishLab({ repository });
+      server.use(
+        listOf(
+          `${API}/users/7/roles/`,
+          [roleAssignment('owner', repository.pulp_href)],
+          {
+            pageSize: 1000,
+            matching: (row, query) =>
+              query.get('content_object') !== 'null' ||
+              row.content_object === null,
+            projected: projectedBy,
+          },
+        ).handler,
+        http.get(`*${API}/roles/`, () =>
+          HttpResponse.json(
+            page([role({ name: 'owner', permissions: [ADD] })]),
+          ),
+        ),
+      );
+
+      renderDetail('/file/repositories/tools/');
+
+      await detailRows();
+      expect(screen.queryByRole('button', { name: 'Publish' })).toBeNull();
+    });
+
+    it('shows no Publish for a plugin that has no publications', async () => {
+      const repository = pluginRepository('python', { name: 'wheels' });
+      server.use(
+        pluginListHandler('python', 'repository', [repository]).handler,
+        distributionListHandler('python', []).handler,
+        listOf(`${API}/remotes/`, [], { pageSize: 1000 }).handler,
+      );
+
+      renderPythonDetail('/python/repositories/wheels/');
+
+      await detailRows();
+      expect(screen.queryByRole('button', { name: 'Publish' })).toBeNull();
     });
   },
 );
