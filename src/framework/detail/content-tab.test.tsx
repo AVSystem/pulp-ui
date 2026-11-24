@@ -234,7 +234,7 @@ describe(
   'Integration: the Content tab of a file repository',
   { tags: ['integration'] },
   () => {
-    it('lists the files of the latest version with their path and creation time, and asks for the fields it shows', async () => {
+    it('lists the files of the latest version with their path, creation time and labels, and asks for the fields it shows', async () => {
       const lab = serveLab({ rows: [row(1), row(2), row(3)] });
       render();
 
@@ -245,7 +245,7 @@ describe(
         .getAllByRole('columnheader')
         .map((header) => header.textContent?.trim())
         .filter(Boolean);
-      expect(headers).toEqual(['Relative path', 'Created']);
+      expect(headers).toEqual(['Relative path', 'Created', 'Labels']);
       expect(bodyRows(grid)).toHaveLength(3);
       const query = lab.queries[0] as URLSearchParams;
       expect(query.get('repository_version')).toBe(

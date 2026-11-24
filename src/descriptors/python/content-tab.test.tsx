@@ -175,6 +175,7 @@ describe(
         'Type',
         'File',
         'Requires Python',
+        'Labels',
       ]);
       const cells = (index: number) =>
         within(bodyRows(grid)[index] as HTMLElement)
@@ -188,6 +189,7 @@ describe(
         'bdist_wheel',
         'a-1.1-py3.whl',
         '>=3.9',
+        'None',
       ]);
       // a package that states no Python requirement shows a dash, not a blank
       expect(cells(1)[4]).toBe('---');
@@ -205,6 +207,7 @@ describe(
         'name',
         'packagetype',
         'pulp_href',
+        'pulp_labels',
         'requires_python',
         'version',
       ]);

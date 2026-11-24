@@ -145,15 +145,15 @@ describe(
         .map((header) => header.textContent?.trim())
         // the first column holds the check boxes
         .slice(1);
-      expect(headers).toEqual(['Package', 'Version', 'Architecture']);
+      expect(headers).toEqual(['Package', 'Version', 'Architecture', 'Labels']);
       const cells = (index: number) =>
         within(bodyRows(grid)[index] as HTMLElement)
           .getAllByRole('cell')
           .map((cell) => cell.textContent)
           // the first cell holds the check box
           .slice(1);
-      expect(cells(0)).toEqual(['pkg-001', '1.0-1', 'amd64']);
-      expect(cells(1)).toEqual(['pkg-002', '1.0-2', 'all']);
+      expect(cells(0)).toEqual(['pkg-001', '1.0-1', 'amd64', 'None']);
+      expect(cells(1)).toEqual(['pkg-002', '1.0-2', 'all', 'None']);
 
       expect(lab.queries).toHaveLength(1);
       const query = lab.queries[0] as URLSearchParams;
@@ -165,6 +165,7 @@ describe(
         'architecture',
         'package',
         'pulp_href',
+        'pulp_labels',
         'version',
       ]);
     });

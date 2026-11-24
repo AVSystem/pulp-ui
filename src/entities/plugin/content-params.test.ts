@@ -106,3 +106,67 @@ describe(
     });
   },
 );
+
+describe('Unit: the labels of a content entity', { tags: ['unit'] }, () => {
+  const UNIT = '/pulp/api/v3/content/file/files/0001/';
+
+  it('has no label calls unless the content type gives them', () => {
+    expect(entity.setLabel).toBeUndefined();
+    expect(entity.unsetLabel).toBeUndefined();
+  });
+
+  it('sends the key and the value of a label to the unit and the key alone to remove it', async () => {
+    const sent: unknown[][] = [];
+    const labelled = makeContentEntity({
+      app: 'file',
+      object: 'content',
+      schema: z.looseObject({ pulp_href: z.string() }),
+      textFilters: ['relative_path__contains', 'pulp_label_select'],
+      api: {
+        list: async () => ({ count: 0, results: [] }),
+        listUrl: () => '/content',
+        setLabel: async (...args) => {
+          sent.push(['set', ...args]);
+          return { key: 'team', value: 'ops' };
+        },
+        unsetLabel: async (...args) => {
+          sent.push(['unset', ...args]);
+          return { key: 'team' };
+        },
+      },
+    });
+
+    await labelled.setLabel?.(UNIT, { key: 'team', value: 'ops' });
+    await labelled.unsetLabel?.(UNIT, 'team');
+
+    expect(sent).toEqual([
+      ['set', UNIT, { key: 'team', value: 'ops' }, undefined],
+      ['unset', UNIT, { key: 'team' }, undefined],
+    ]);
+  });
+
+  it('sends the label selector of a list', () => {
+    const labelled = makeContentEntity({
+      app: 'file',
+      object: 'content',
+      schema: z.looseObject({ pulp_href: z.string() }),
+      textFilters: ['pulp_label_select'],
+      api: {
+        list: async () => ({ count: 0, results: [] }),
+        listUrl: (params) =>
+          `/content?${new URLSearchParams(
+            Object.entries((params ?? {}) as Record<string, string>).map(
+              ([key, value]) => [key, String(value)],
+            ),
+          )}`,
+      },
+    });
+
+    const query = new URL(
+      labelled.urlOf({ pulp_label_select: 'team=ops' }),
+      'http://localhost',
+    ).searchParams;
+
+    expect(query.get('pulp_label_select')).toBe('team=ops');
+  });
+});

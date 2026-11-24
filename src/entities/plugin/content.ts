@@ -1,6 +1,6 @@
 import type { ZodType } from 'zod';
 import { parseResponse } from 'src/entities/response-shape';
-import { type Page, pageSchemaOf } from './model';
+import { type Page, labelResponseSchema, pageSchemaOf } from './model';
 import { type Options, asParams, toListRequest } from './request';
 
 // The content entity of a plugin: one kind of content (files, packages) as a
@@ -75,6 +75,17 @@ export interface ContentApi<TListParams> {
   // The address a list with these parameters is requested from, as the client
   // builds it.
   listUrl: (params?: TListParams) => string;
+  // The label calls of the content type, for a type whose units carry labels.
+  setLabel?: (
+    href: string,
+    body: { key: string; value: string | null },
+    options?: Options,
+  ) => Promise<unknown>;
+  unsetLabel?: (
+    href: string,
+    body: { key: string },
+    options?: Options,
+  ) => Promise<unknown>;
 }
 
 export interface ContentEntity<Row> {
@@ -83,6 +94,19 @@ export interface ContentEntity<Row> {
   list: (params: ContentListParams, options?: Options) => Promise<Page<Row>>;
   // The address a list of these parameters is requested from.
   urlOf: (params: ContentListParams) => string;
+  // Sets and removes one label of a unit of content, for the types whose units
+  // carry labels the screens may change. A label belongs to the unit, so it
+  // shows in every repository that holds the unit.
+  setLabel?: (
+    href: string,
+    label: { key: string; value: string | null },
+    options?: Options,
+  ) => Promise<{ key: string; value?: string | null }>;
+  unsetLabel?: (
+    href: string,
+    key: string,
+    options?: Options,
+  ) => Promise<{ key: string; value?: string | null }>;
 }
 
 // Builds the content entity of a plugin from its generated functions. The
@@ -111,6 +135,8 @@ export function makeContentEntity<Row, TListParams>({
       ...versionFilterOf(params),
     });
 
+  const { setLabel, unsetLabel } = api;
+
   return {
     app,
     object,
@@ -120,5 +146,19 @@ export function makeContentEntity<Row, TListParams>({
         await api.list(requestOf(params), options),
       ) as Page<Row>,
     urlOf: (params) => api.listUrl(requestOf(params)),
+    ...(setLabel && unsetLabel
+      ? {
+          setLabel: async (href, label, options) =>
+            parseResponse(
+              labelResponseSchema,
+              await setLabel(href, label, options),
+            ),
+          unsetLabel: async (href, key, options) =>
+            parseResponse(
+              labelResponseSchema,
+              await unsetLabel(href, { key }, options),
+            ),
+        }
+      : {}),
   };
 }

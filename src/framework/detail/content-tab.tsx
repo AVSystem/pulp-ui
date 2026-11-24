@@ -40,6 +40,7 @@ import {
 import { selectedText } from '../bulk/bulk-menu';
 import { SelectCell } from '../bulk/select-cells';
 import { usePageSelection } from '../bulk/selection';
+import { ContentLabels } from '../content/content-labels';
 import { RemoveContentDialog } from '../content/remove-content-dialog';
 import {
   type ContentTypeDef,
@@ -138,6 +139,10 @@ interface Props<Row extends { pulp_href: string }> {
   // Gives the rows check boxes, for the page only, and the actions the user may
   // take on the ticked rows. Rows have none unless said.
   selecting?: ContentSelecting<Row>;
+  // Shows the labels of each unit, with the editor for a user who may change
+  // them, and filters the list by labels. The list reads the labels with the
+  // rows.
+  labelled?: boolean;
 }
 
 // The content of one repository version as a page of a table. The page, its
@@ -150,16 +155,45 @@ export function ContentList<Row extends { pulp_href: string }>({
   label,
   address,
   selecting,
+  labelled = false,
 }: Props<Row>) {
-  const {
-    entity,
-    fields,
-    columns,
-    filters,
-    defaultPageSize,
-    defaultSort,
-    fixed,
-  } = config;
+  const { entity, defaultPageSize, defaultSort, fixed } = config;
+  // A labelled list adds the labels to what the config declares: the field the
+  // server reads them from, a column that shows them and a filter by selector.
+  const fields = useMemo(
+    () => (labelled ? [...config.fields, 'pulp_labels'] : config.fields),
+    [labelled, config.fields],
+  );
+  const columns = useMemo<readonly ContentColumn<Row>[]>(
+    () =>
+      labelled
+        ? [
+            ...config.columns,
+            {
+              id: 'labels',
+              label: msg`Labels`,
+              render: (row) => (
+                <ContentLabels
+                  row={row}
+                  name={config.nameOf?.(row) ?? row.pulp_href}
+                  entity={entity as ContentEntity<unknown>}
+                />
+              ),
+            },
+          ]
+        : config.columns,
+    [labelled, config.columns, config.nameOf, entity],
+  );
+  const filters = useMemo<readonly ContentFilter[]>(
+    () =>
+      labelled
+        ? [
+            ...config.filters,
+            { param: 'pulp_label_select', label: msg`Labels` },
+          ]
+        : config.filters,
+    [labelled, config.filters],
+  );
   const location = useLocation();
   const navigate = useNavigate();
   const search = address ? address.search : location.search;
@@ -490,6 +524,7 @@ export const ContentTab = ({
         config={config}
         version={repository.latest_version_href}
         address={listAddress}
+        labelled={type.entity.setLabel !== undefined}
         selecting={
           canRemove
             ? {

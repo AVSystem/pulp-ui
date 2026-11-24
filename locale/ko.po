@@ -126,6 +126,10 @@ msgstr "{count, plural, one {실행 중인 작업 #개} other {실행 중인 작
 #~ msgid "{count, plural, one {Plugin} other {Plugins}}"
 #~ msgstr "{count, plural, one {Plugin} other {Plugins}}"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "{count, plural, one {Remove # item from repository \"{repositoryName}\"?} other {Remove # items from repository \"{repositoryName}\"?}}"
+msgstr ""
+
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
@@ -864,6 +868,10 @@ msgstr "ASCII 아머 형식의 공개 키입니다. 설정하면 동기화할 �
 msgid "And {0} more."
 msgstr "외 {0}개."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "and {others} more"
+msgstr ""
+
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
@@ -1014,7 +1022,7 @@ msgid "Apt"
 msgstr ""
 
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "아키텍처"
 
@@ -1277,6 +1285,7 @@ msgstr "CA 인증서"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/remove-content-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -1958,6 +1967,7 @@ msgstr "자세한 내용은 조직 관리자에게 문의하십시오."
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
@@ -1976,6 +1986,7 @@ msgstr "콘텐츠 추가됨"
 msgid "Content address"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content could not be displayed."
 msgstr ""
@@ -2029,6 +2040,7 @@ msgstr "콘텐츠 설정"
 msgid "Content summary"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content type"
 msgstr ""
@@ -3065,6 +3077,10 @@ msgstr "YAML 편집기에서 편집"
 msgid "Edit labels"
 msgstr "레이블 편집"
 
+#: src/framework/content/content-labels.tsx
+msgid "Edit labels of {name}"
+msgstr ""
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
 #~ msgstr "네임스페이스 편집"
@@ -3638,6 +3654,10 @@ msgstr ""
 msgid "Failed to remove {namespace}.{name} v{version} from repository \"{repositoryName}\"."
 msgstr "리포지터리 \"{repositoryName}\"에서 {namespace}.{name} v{version} 를 제거하지 못했습니다."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Failed to remove content from repository \"{repositoryName}\""
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -3730,7 +3750,7 @@ msgstr "빠름"
 #~ msgstr ""
 
 #: src/containers/python/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
@@ -3751,6 +3771,10 @@ msgstr "파일 업로드"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "Files could not be displayed."
 msgstr ""
 
 #. placeholder {0}: selectedFilter.id
@@ -4512,6 +4536,7 @@ msgstr "레이블 값"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
@@ -4533,6 +4558,14 @@ msgstr "레이블은 키와 선택적 값의 쌍입니다. 필터와 스크립�
 #: src/framework/form/repository-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
 msgstr "레이블은 키와 선택적 값의 쌍입니다. 필터와 스크립트는 레이블을 사용해 리포지토리를 찾습니다."
+
+#: src/framework/content/content-labels.tsx
+msgid "Labels belong to the content unit and show in every repository that holds it."
+msgstr ""
+
+#: src/framework/content/content-labels.tsx
+msgid "Labels of {name}"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4931,8 +4964,8 @@ msgstr "내 프로필"
 #: src/containers/pulp-status.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-fields.tsx
@@ -5140,6 +5173,10 @@ msgstr ""
 msgid "No content"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
+msgid "No content in the latest version"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "사용 가능한 컨트롤러 없음"
@@ -5176,6 +5213,10 @@ msgstr "아직 배포되지 않음"
 
 #: src/framework/detail/version-content.tsx
 msgid "No earlier version"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "No files in the latest version"
 msgstr ""
 
 #: src/shell/notifications.tsx
@@ -5255,8 +5296,9 @@ msgstr "아직 그룹 없음"
 #~ msgid "No namespaces yet"
 #~ msgstr "아직 네임스페이스가 없음"
 
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "No packages in the latest version"
 msgstr "최신 버전에 패키지가 없습니다"
 
@@ -5350,6 +5392,7 @@ msgstr "필터 기준과 일치하는 결과가 없습니다. 필터 설정을 �
 #~ msgstr "역할이 없음"
 
 #: src/framework/bulk/bulk-menu.tsx
+#: src/framework/detail/content-tab.tsx
 msgid "No rows selected"
 msgstr "선택한 행 없음"
 
@@ -5781,8 +5824,8 @@ msgstr ""
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Package name"
 msgstr "패키지 이름"
 
@@ -5791,7 +5834,7 @@ msgid "Package substitution"
 msgstr "패키지 대체"
 
 #: src/containers/python/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "패키지 유형"
 
@@ -5808,8 +5851,8 @@ msgstr "동기화할 패키지 유형입니다. 모두 선택하지 않으면 �
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Packages"
 msgstr "패키지"
 
@@ -5819,8 +5862,9 @@ msgstr "패키지 및 아티팩트"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Packages could not be displayed."
 msgstr "패키지를 표시할 수 없습니다."
 
@@ -6801,6 +6845,10 @@ msgstr "생성된 원격이 표시됩니다."
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "리포지터리 \"{repositoryName}\"에서 {namespace}.{name} v{version} 제거가 시작되었습니다."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Removal of content from {repositoryName}"
+msgstr ""
+
 #: src/framework/distributions/delete-distribution.ts
 msgid "Removal of distribution {name}"
 msgstr ""
@@ -6819,6 +6867,10 @@ msgstr "배포 {name} 제거 시작"
 msgid "Removal started for remote {name}"
 msgstr "원격 {name} 제거 시작"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Removal started for repository \"{repositoryName}\"."
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -6828,6 +6880,7 @@ msgstr "원격 {name} 제거 시작"
 #: src/actions/ansible-repository-collection-version-remove.tsx
 #: src/components/delete-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/content/remove-content-dialog.tsx
 msgid "Remove"
 msgstr "제거"
 
@@ -6839,9 +6892,17 @@ msgstr "제거"
 msgid "Remove collection version?"
 msgstr "컬렉션 버전을 삭제하시겠습니까?"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Remove content"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 msgid "Remove content from repository"
 msgstr "리포지토리에서 콘텐츠 제거"
+
+#: src/framework/detail/content-tab.tsx
+msgid "Remove from repository"
+msgstr ""
 
 #: src/components/access-tab.tsx
 msgid "Remove group"
@@ -7148,7 +7209,7 @@ msgstr "리포지토리: {name}"
 #~ msgid "Requires Ansible"
 #~ msgstr "Ansible 필요"
 
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Requires Python"
 msgstr "필요한 Python"
 
@@ -7597,7 +7658,9 @@ msgstr "이 작업의 상태에 대해서는 작업 관리 <0>세부 정보 페�
 msgid "Select"
 msgstr "선택"
 
+#. placeholder {0}: nameOf(row)
 #. placeholder {0}: row.name
+#: src/framework/detail/content-tab.tsx
 #: src/framework/list/remote-list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Select {0}"
@@ -7643,6 +7706,10 @@ msgstr "사용자 선택"
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Select all ({itemsCount} items)"
 #~ msgstr ""
+
+#: src/framework/detail/content-tab.tsx
+msgid "Select all on this page"
+msgstr ""
 
 #: src/framework/list/remote-list.tsx
 msgid "Select all remotes on this page"
@@ -8322,7 +8389,7 @@ msgstr "리포지토리 {name}을/를 만들었습니다"
 #~ msgid "Successfully stopped task."
 #~ msgstr "Successfully stopped task."
 
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Summary"
 msgstr "요약"
 
@@ -8480,11 +8547,16 @@ msgstr "동기화 상태"
 msgid "Sync task is already queued."
 msgstr "동기화 작업이 이미 대기열에 있습니다."
 
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Sync this repository or add packages to it."
 msgstr "이 리포지토리를 동기화하거나 패키지를 추가하세요."
 
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/file/descriptor.tsx
+msgid "Sync this repository or upload files to it."
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
 msgid "Sync this repository or upload packages to it."
 msgstr "이 리포지토리를 동기화하거나 패키지를 업로드하세요."
 
@@ -8995,6 +9067,10 @@ msgstr "리포지토리를 제거할 수 없습니다: {reason}"
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 msgstr "리포지토리에 해당 버전의 콘텐츠를 가진 새 최신 버전이 생성됩니다. 어떤 버전이나 콘텐츠도 삭제되지 않습니다."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "The repository gets a new latest version without them. Earlier versions keep them."
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository has no publication to serve."
 msgstr ""
@@ -9256,6 +9332,7 @@ msgstr "이 리포지토리와 연결된 원격은 없습니다."
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
 msgstr ""
@@ -9538,7 +9615,7 @@ msgstr "지정한 타임스탬프 이전에 완료된 작업을 삭제하는 비
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Type"
 msgstr "유형"
 
@@ -10072,8 +10149,8 @@ msgstr "체크섬 검증"
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
 msgid "Version"
 msgstr "버전"

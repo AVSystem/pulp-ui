@@ -126,6 +126,10 @@ msgstr "{count, plural, one {# 个正在运行的任务} other {# 个正在运�
 #~ msgid "{count, plural, one {Plugin} other {Plugins}}"
 #~ msgstr "{count, plural, one {Plugin} other {Plugins}}"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "{count, plural, one {Remove # item from repository \"{repositoryName}\"?} other {Remove # items from repository \"{repositoryName}\"?}}"
+msgstr ""
+
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
@@ -864,6 +868,10 @@ msgstr "ASCII 封装的公钥。设置后，每次同步都会验证上游 Relea
 msgid "And {0} more."
 msgstr "另有 {0} 个。"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "and {others} more"
+msgstr ""
+
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
@@ -1014,7 +1022,7 @@ msgid "Apt"
 msgstr ""
 
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "架构"
 
@@ -1277,6 +1285,7 @@ msgstr "CA 证书"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/remove-content-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -1958,6 +1967,7 @@ msgstr "如需更多信息，请联系您的机构管理员。"
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
@@ -1976,6 +1986,7 @@ msgstr "内容添加"
 msgid "Content address"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content could not be displayed."
 msgstr ""
@@ -2029,6 +2040,7 @@ msgstr "内容设置"
 msgid "Content summary"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content type"
 msgstr ""
@@ -3065,6 +3077,10 @@ msgstr "在 YAML 编辑器中编辑"
 msgid "Edit labels"
 msgstr "编辑标签"
 
+#: src/framework/content/content-labels.tsx
+msgid "Edit labels of {name}"
+msgstr ""
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
 #~ msgstr "编辑命名空间"
@@ -3638,6 +3654,10 @@ msgstr ""
 msgid "Failed to remove {namespace}.{name} v{version} from repository \"{repositoryName}\"."
 msgstr "从软件仓库 \"{repositoryName}\" 中删除 {namespace}.{name} v{version} 失败。"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Failed to remove content from repository \"{repositoryName}\""
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -3730,7 +3750,7 @@ msgstr "快速"
 #~ msgstr ""
 
 #: src/containers/python/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
@@ -3751,6 +3771,10 @@ msgstr "文件上传"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "Files could not be displayed."
 msgstr ""
 
 #. placeholder {0}: selectedFilter.id
@@ -4512,6 +4536,7 @@ msgstr "标签值"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
@@ -4533,6 +4558,14 @@ msgstr "标签由一个键和一个可选的值组成。过滤器和脚本使用
 #: src/framework/form/repository-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
 msgstr "标签由一个键和一个可选的值组成。过滤器和脚本使用它们来查找仓库。"
+
+#: src/framework/content/content-labels.tsx
+msgid "Labels belong to the content unit and show in every repository that holds it."
+msgstr ""
+
+#: src/framework/content/content-labels.tsx
+msgid "Labels of {name}"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4931,8 +4964,8 @@ msgstr "我的配置集"
 #: src/containers/pulp-status.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-fields.tsx
@@ -5140,6 +5173,10 @@ msgstr ""
 msgid "No content"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
+msgid "No content in the latest version"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "没有控制器可用"
@@ -5176,6 +5213,10 @@ msgstr "还没有发布"
 
 #: src/framework/detail/version-content.tsx
 msgid "No earlier version"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "No files in the latest version"
 msgstr ""
 
 #: src/shell/notifications.tsx
@@ -5255,8 +5296,9 @@ msgstr "还没有组"
 #~ msgid "No namespaces yet"
 #~ msgstr "还没有命名空间"
 
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "No packages in the latest version"
 msgstr "最新版本中没有软件包"
 
@@ -5350,6 +5392,7 @@ msgstr "没有结果与过滤条件匹配。尝试更改过滤器设置。"
 #~ msgstr "还没有角色"
 
 #: src/framework/bulk/bulk-menu.tsx
+#: src/framework/detail/content-tab.tsx
 msgid "No rows selected"
 msgstr "未选择任何行"
 
@@ -5781,8 +5824,8 @@ msgstr ""
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Package name"
 msgstr "软件包名称"
 
@@ -5791,7 +5834,7 @@ msgid "Package substitution"
 msgstr "软件包替换"
 
 #: src/containers/python/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "软件包类型"
 
@@ -5808,8 +5851,8 @@ msgstr "要同步的软件包类型。全部不勾选则同步所有类型。"
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Packages"
 msgstr "软件包"
 
@@ -5819,8 +5862,9 @@ msgstr "软件包和构件"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Packages could not be displayed."
 msgstr "无法显示软件包。"
 
@@ -6801,6 +6845,10 @@ msgstr "远程在创建后将会出现。"
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "从仓库 \"{repositoryName}\" 中删除 {namespace}.{name} v{version} 已开始。"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Removal of content from {repositoryName}"
+msgstr ""
+
 #: src/framework/distributions/delete-distribution.ts
 msgid "Removal of distribution {name}"
 msgstr ""
@@ -6819,6 +6867,10 @@ msgstr "为发布 {name} 删除开始"
 msgid "Removal started for remote {name}"
 msgstr "为远程 {name} 删除开始"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Removal started for repository \"{repositoryName}\"."
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -6828,6 +6880,7 @@ msgstr "为远程 {name} 删除开始"
 #: src/actions/ansible-repository-collection-version-remove.tsx
 #: src/components/delete-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/content/remove-content-dialog.tsx
 msgid "Remove"
 msgstr "删除"
 
@@ -6839,9 +6892,17 @@ msgstr "删除"
 msgid "Remove collection version?"
 msgstr "删除集合版本？"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Remove content"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 msgid "Remove content from repository"
 msgstr "从仓库中删除内容"
+
+#: src/framework/detail/content-tab.tsx
+msgid "Remove from repository"
+msgstr ""
 
 #: src/components/access-tab.tsx
 msgid "Remove group"
@@ -7148,7 +7209,7 @@ msgstr "仓库：{name}"
 #~ msgid "Requires Ansible"
 #~ msgstr "需要 Ansible"
 
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Requires Python"
 msgstr "需要 Python"
 
@@ -7597,7 +7658,9 @@ msgstr "有关此任务的状态，请参阅任务管理<0>详情页</0>。"
 msgid "Select"
 msgstr "选择"
 
+#. placeholder {0}: nameOf(row)
 #. placeholder {0}: row.name
+#: src/framework/detail/content-tab.tsx
 #: src/framework/list/remote-list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Select {0}"
@@ -7643,6 +7706,10 @@ msgstr "选择用户"
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Select all ({itemsCount} items)"
 #~ msgstr ""
+
+#: src/framework/detail/content-tab.tsx
+msgid "Select all on this page"
+msgstr ""
 
 #: src/framework/list/remote-list.tsx
 msgid "Select all remotes on this page"
@@ -8322,7 +8389,7 @@ msgstr "已成功创建仓库 {name}"
 #~ msgid "Successfully stopped task."
 #~ msgstr "Successfully stopped task."
 
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Summary"
 msgstr "摘要"
 
@@ -8480,11 +8547,16 @@ msgstr "同步状态"
 msgid "Sync task is already queued."
 msgstr "同步任务已经排队。"
 
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Sync this repository or add packages to it."
 msgstr "同步此仓库或向其添加软件包。"
 
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/file/descriptor.tsx
+msgid "Sync this repository or upload files to it."
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
 msgid "Sync this repository or upload packages to it."
 msgstr "同步此仓库或向其上传软件包。"
 
@@ -8995,6 +9067,10 @@ msgstr "无法删除仓库：{reason}"
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 msgstr "仓库将获得一个包含该版本内容的新的最新版本。不会删除任何版本和任何内容。"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "The repository gets a new latest version without them. Earlier versions keep them."
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository has no publication to serve."
 msgstr ""
@@ -9256,6 +9332,7 @@ msgstr "没有与此仓库关联的远程。"
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
 msgstr ""
@@ -9538,7 +9615,7 @@ msgstr "触发异步任务，删除在指定时间戳之前完成的已完成任
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Type"
 msgstr "类型"
 
@@ -10072,8 +10149,8 @@ msgstr "验证校验和"
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
 msgid "Version"
 msgstr "版本"

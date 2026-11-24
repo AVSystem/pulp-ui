@@ -1,5 +1,7 @@
 import {
   contentRpmPackagesList,
+  contentRpmPackagesSetLabel,
+  contentRpmPackagesUnsetLabel,
   getContentRpmPackagesListUrl,
 } from '@pulp-ui/sdk/rpm/content-packages';
 import { makeContentEntity } from 'src/entities/plugin/content';
@@ -12,9 +14,11 @@ export const rpmPackage = makeContentEntity({
   app: 'rpm',
   object: 'package',
   schema: rpmPackageSchema,
-  textFilters: ['name__contains', 'arch'],
+  textFilters: ['name__contains', 'arch', 'pulp_label_select'],
   api: {
     list: contentRpmPackagesList,
     listUrl: getContentRpmPackagesListUrl,
+    setLabel: contentRpmPackagesSetLabel,
+    unsetLabel: contentRpmPackagesUnsetLabel,
   },
 });

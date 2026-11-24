@@ -172,7 +172,7 @@ describe(
         .map((header) => header.textContent?.trim())
         // the first column holds the check boxes
         .slice(1);
-      expect(headers).toEqual(['Name', 'Version', 'Arch', 'Summary']);
+      expect(headers).toEqual(['Name', 'Version', 'Arch', 'Summary', 'Labels']);
       const cells = (index: number) =>
         within(bodyRows(grid)[index] as HTMLElement)
           .getAllByRole('cell')
@@ -184,6 +184,7 @@ describe(
         '5.2-3.el9',
         'x86_64',
         'Summary of package 1',
+        'None',
       ]);
       // the epoch is shown only when it is not 0, as a number or as text
       expect(cells(1)[1]).toBe('2:1.1-4.el9');
@@ -202,6 +203,7 @@ describe(
         'epoch',
         'name',
         'pulp_href',
+        'pulp_labels',
         'release',
         'summary',
         'version',

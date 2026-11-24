@@ -1,5 +1,7 @@
 import {
   contentFileFilesList,
+  contentFileFilesSetLabel,
+  contentFileFilesUnsetLabel,
   getContentFileFilesListUrl,
 } from '@pulp-ui/sdk/file/content-files';
 import { makeContentEntity } from 'src/entities/plugin/content';
@@ -12,9 +14,11 @@ export const fileContent = makeContentEntity({
   app: 'file',
   object: 'content',
   schema: fileContentSchema,
-  textFilters: ['relative_path__contains'],
+  textFilters: ['relative_path__contains', 'pulp_label_select'],
   api: {
     list: contentFileFilesList,
     listUrl: getContentFileFilesListUrl,
+    setLabel: contentFileFilesSetLabel,
+    unsetLabel: contentFileFilesUnsetLabel,
   },
 });
