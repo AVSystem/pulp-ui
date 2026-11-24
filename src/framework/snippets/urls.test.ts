@@ -34,6 +34,27 @@ describe('Unit: addresses of snippets', { tags: ['unit'] }, () => {
     ).toBe('https://pulp.example.com/repo/docs/');
   });
 
+  it('never reads from an address that carries credentials', () => {
+    expect(
+      readUrl(
+        snippetInput({ url: 'https://leaked:secret@pulp.example.com/a/' }),
+      ),
+    ).toBe('https://pulp.example.com/a/');
+    expect(
+      readUrl(
+        snippetInput({
+          entry: {
+            read: 'https://leaked@pulp.example.com/b/',
+            write: null,
+            signingKey: null,
+            suite: null,
+            components: null,
+          },
+        }),
+      ),
+    ).toBe('https://pulp.example.com/b/');
+  });
+
   it('writes to the entry point write address when there is one, and to nothing otherwise', () => {
     expect(writeUrl(snippetInput())).toBeNull();
     expect(
