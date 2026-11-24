@@ -16,6 +16,7 @@ import {
 } from '@patternfly/react-core';
 import { useQueryClient } from '@tanstack/react-query';
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useId,
@@ -61,6 +62,9 @@ interface Props {
   // Called once, with the address of the task, when the server has accepted the
   // publish and before the dialog closes.
   onStarted?: (task: string) => void;
+  // A line above the options that says why the dialog was opened, for a caller
+  // that opens it to repair something.
+  intro?: ReactNode;
 }
 
 // What happens after the server accepted a publish for which the user chose
@@ -108,6 +112,7 @@ const PublishDialogScreen = ({
   version = null,
   onClose,
   onStarted,
+  intro,
   kind,
   distribution,
 }: Props & {
@@ -309,6 +314,7 @@ const PublishDialogScreen = ({
                 {failure.general}
               </Alert>
             ) : null}
+            {intro ? <Content component='p'>{intro}</Content> : null}
             <Form
               onSubmit={(event) => {
                 event.preventDefault();

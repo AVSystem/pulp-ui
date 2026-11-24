@@ -13,7 +13,7 @@ import {
 import { useDistributionFacts } from 'src/entities/core/distribution/queries';
 import { usePublicationsByHref } from 'src/entities/core/publication/queries';
 import { useRepositoriesByHref } from 'src/entities/core/repository/queries';
-import { versionNumberOf } from 'src/entities/href';
+import { repositoryOfVersion, versionNumberOf } from 'src/entities/href';
 import {
   type PublicationIndexRead,
   repositoryOfPublication,
@@ -59,6 +59,9 @@ export interface DistributionCells {
   isPublic: boolean;
   // null for a row no plugin owns, and while the state is not known
   served: { state: ColumnState; value: ServedState | null };
+  // the repository the row serves from or that its publication was made from,
+  // when it is known
+  repository: string | null;
 }
 
 export interface DistributionColumns {
@@ -350,6 +353,10 @@ export function useDistributionColumns(
         },
         isPublic: guardHref === null,
         served: { state: servedReadState, value: served },
+        repository:
+          row.repository ??
+          repositoryOfVersion(row.repository_version) ??
+          publicationRepository,
       });
     }
 

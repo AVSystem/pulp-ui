@@ -133,7 +133,13 @@ const DistributionRow = memo(function DistributionRow({
       <Td>
         <GuardCell cells={cells} />
       </Td>
-      <Td>{owned ? <ServedCell cells={cells} /> : t`None`}</Td>
+      <Td>
+        {owned ? (
+          <ServedCell cells={cells} plugin={row.plugin} row={row} />
+        ) : (
+          t`None`
+        )}
+      </Td>
       <Td>
         <DateComponent date={row.pulp_created ?? ''} />
       </Td>

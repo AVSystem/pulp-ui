@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { CopyURL } from 'src/components';
 import type { DistributionPlugin } from 'src/entities/core/distribution/page';
 import { PLUGIN_MANIFESTS } from '../manifest';
+import { ServingFix } from '../publish/serving-fix';
 import { distributionPath, repositoryPath } from '../route-patterns';
 import { PublicLabel } from '../serving/public-label';
 import { ServedLabel } from '../serving/served-label';
@@ -195,7 +196,17 @@ const ServedStateLabel = ({ state }: { state: ServedState }) => {
   return <ServedLabel state={state} />;
 };
 
-export const ServedCell = ({ cells }: { cells: DistributionCells }) => {
+// What the distribution serves and works, with the fix for what does not, for a
+// user who may apply it.
+export const ServedCell = ({
+  cells,
+  plugin,
+  row,
+}: {
+  cells: DistributionCells;
+  plugin: DistributionPlugin | null;
+  row: { pulp_href: string; name: string; repository_version?: string | null };
+}) => {
   const { state, value } = cells.served;
 
   if (state === 'loading') {
@@ -204,6 +215,21 @@ export const ServedCell = ({ cells }: { cells: DistributionCells }) => {
   if (state === 'error') {
     return <NotLoaded />;
   }
+  if (value === null) {
+    return <>{t`None`}</>;
+  }
 
-  return value === null ? <>{t`None`}</> : <ServedStateLabel state={value} />;
+  return (
+    <>
+      <ServedStateLabel state={value} />
+      {plugin ? (
+        <ServingFix
+          plugin={plugin}
+          distribution={row}
+          served={value}
+          repositoryHref={cells.repository}
+        />
+      ) : null}
+    </>
+  );
 };

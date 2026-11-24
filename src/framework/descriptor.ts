@@ -295,6 +295,12 @@ export interface PublicationKind<Row extends RepositoryBase = RepositoryBase> {
   // The name of the task that makes a publication, to show a publish by what it
   // is doing. Absent for a plugin that cannot publish from the screens.
   taskName?: string;
+  // The columns the Publications tab shows after the version and the creation
+  // time. They read what the plugin's own publication read answers with; a
+  // publication that read does not return (a deb verbatim publication, which
+  // has no such options) is drawn from the cross-plugin row alone. Absent for
+  // a plugin whose publications have nothing to show.
+  columns?: ColumnDef<PublicationBase>[];
   // The options the publish dialog offers beyond what is published, in order.
   // The initial value of each is what the server would use when the option is
   // left out; only an option that differs from it is sent.

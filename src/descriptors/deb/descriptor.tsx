@@ -13,6 +13,7 @@ import type {
   PluginDescriptor,
 } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
+import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
 import {
   POLICY_ROW,
@@ -191,7 +192,11 @@ const descriptor: PluginDescriptor<DebRepository> = {
       autopublish: false,
       publish_upstream_release_fields: true,
     },
-    tabs: [versionsTab<DebRepository>(), distributionsTab<DebRepository>()],
+    tabs: [
+      versionsTab<DebRepository>(),
+      publicationsTab<DebRepository>(),
+      distributionsTab<DebRepository>(),
+    ],
     sync: {
       taskName: 'pulp_deb.app.tasks.synchronizing.synchronize',
       options: [
@@ -240,6 +245,39 @@ const descriptor: PluginDescriptor<DebRepository> = {
     entity: debPublication,
     servesFromPublication: true,
     taskName: 'pulp_deb.app.tasks.publishing.publish',
+    // A repository has apt and verbatim publications; the type is told by the
+    // address, and the modes are those of an apt publication, which only the
+    // apt read has.
+    columns: [
+      {
+        id: 'type',
+        label: msg`Type`,
+        render: ({ pulp_href }) =>
+          pulp_href.includes('/publications/deb/verbatim/')
+            ? t`Verbatim`
+            : t`Apt`,
+      },
+      {
+        id: 'simple',
+        label: msg`Simple`,
+        render: ({ simple }) =>
+          typeof simple === 'boolean'
+            ? simple
+              ? t`Yes`
+              : t`No`
+            : t`Not applicable`,
+      },
+      {
+        id: 'structured',
+        label: msg`Structured`,
+        render: ({ structured }) =>
+          typeof structured === 'boolean'
+            ? structured
+              ? t`Yes`
+              : t`No`
+            : t`Not applicable`,
+      },
+    ],
     // The two modes are what the server uses when it is told nothing: it
     // refuses a publication that has neither.
     options: [

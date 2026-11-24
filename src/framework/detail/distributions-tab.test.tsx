@@ -304,6 +304,47 @@ describe(
       ).toBeVisible();
     });
 
+    it('offers the fix beside the warning of a row, to a user who may publish, and none to one who may not', async () => {
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'bare', repository }),
+        ],
+      });
+
+      renderTab();
+
+      expect(
+        within(await rowOf('bare')).getByRole('button', {
+          name: 'Publish latest version',
+        }),
+      ).toBeVisible();
+    });
+
+    it('offers no fix to a user who may not publish', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [['file.view_filepublication', 'file.view_filedistribution']],
+      });
+      serveLab({
+        distributions: (repository) => [
+          pluginDistribution('file', { name: 'bare', repository }),
+        ],
+      });
+
+      renderTab();
+
+      expect(
+        await within(await rowOf('bare')).findByText(
+          'Serves nothing (404): no publication',
+        ),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: 'Publish latest version' }),
+      ).toBeNull();
+    });
+
     it('says which version an older publication serves and which is the latest, for an administrator', async () => {
       const bare = pluginRepository('file', { name: 'tools' });
       serveLab({

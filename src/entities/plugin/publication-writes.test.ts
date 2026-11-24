@@ -79,3 +79,53 @@ describe('Unit: creating publications', { tags: ['unit'] }, () => {
     ).rejects.toMatchObject({ response: { status: 400 } });
   });
 });
+
+describe('Unit: deleting publications', { tags: ['unit'] }, () => {
+  // A delete answers 204 and starts no task.
+  function deletingAt(path: string) {
+    const deleted: string[] = [];
+    server.use(
+      http.delete(`*${API}/publications/${path}/:id/`, ({ request }) => {
+        deleted.push(new URL(request.url).pathname);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    return deleted;
+  }
+  const at = (path: string) =>
+    `${API}/publications/${path}/00000000-0000-4000-8000-0000000000bb/`;
+
+  it('sends one DELETE to the address and resolves with nothing to wait for', async () => {
+    const deleted = deletingAt('file/file');
+
+    await expect(filePublication.remove?.(at('file/file'))).resolves.toBe(
+      undefined,
+    );
+
+    expect(deleted).toEqual([at('file/file')]);
+  });
+
+  it('deletes through the collection of each plugin that publishes', async () => {
+    const deb = deletingAt('deb/apt');
+    const verbatim = deletingAt('deb/verbatim');
+    const rpm = deletingAt('rpm/rpm');
+
+    await debPublication.remove?.(at('deb/apt'));
+    await debPublication.remove?.(at('deb/verbatim'));
+    await rpmPublication.remove?.(at('rpm/rpm'));
+
+    expect(deb).toEqual([at('deb/apt')]);
+    expect(verbatim).toEqual([at('deb/verbatim')]);
+    expect(rpm).toEqual([at('rpm/rpm')]);
+  });
+
+  it('refuses an address outside the plugin before sending anything', async () => {
+    const deleted = deletingAt('file/file');
+
+    await expect(
+      filePublication.remove?.('https://evil.example/pulp/api/v3/x/'),
+    ).rejects.toThrow();
+
+    expect(deleted).toEqual([]);
+  });
+});

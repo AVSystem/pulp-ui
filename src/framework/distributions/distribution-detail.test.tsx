@@ -314,6 +314,74 @@ describe(
       ).toBeVisible();
     });
 
+    it('offers the fix beside a distribution that serves nothing', async () => {
+      const repository = pluginRepository('file', { name: 'tools-repo' });
+      serveLab({
+        distributions: [
+          pluginDistribution('file', {
+            name: 'tools-dist',
+            repository: repository.pulp_href,
+          }),
+        ],
+        repositories: [repository],
+      });
+
+      renderDetail();
+      const rows = await rowsOfPage();
+
+      expect(
+        await within(row(rows, 'Client URL')).findByRole('button', {
+          name: 'Publish latest version',
+        }),
+      ).toBeVisible();
+    });
+
+    it('offers the link to the edit page beside a distribution bound to nothing', async () => {
+      serveLab({
+        distributions: [pluginDistribution('file', { name: 'tools-dist' })],
+      });
+
+      renderDetail();
+      const rows = await rowsOfPage();
+
+      expect(
+        await within(row(rows, 'Client URL')).findByRole('link', {
+          name: 'Choose what it serves',
+        }),
+      ).toHaveAttribute('href', '/file/distributions/tools-dist/edit/');
+    });
+
+    it('offers no fix to a user who may neither publish nor change the distribution', async () => {
+      serveAccount({
+        isStaff: false,
+        own: [['file.view_filedistribution', 'file.view_filepublication']],
+      });
+      const repository = pluginRepository('file', { name: 'tools-repo' });
+      serveLab({
+        distributions: [
+          pluginDistribution('file', {
+            name: 'tools-dist',
+            repository: repository.pulp_href,
+          }),
+        ],
+        repositories: [repository],
+      });
+
+      renderDetail();
+      const rows = await rowsOfPage();
+
+      expect(
+        await within(row(rows, 'Client URL')).findByText(
+          'Serves nothing (404): no publication',
+        ),
+      ).toBeVisible();
+      expect(
+        within(row(rows, 'Client URL')).queryByRole('button', {
+          name: 'Publish latest version',
+        }),
+      ).toBeNull();
+    });
+
     it('says a distribution bound to nothing is not bound to anything', async () => {
       serveLab({
         distributions: [pluginDistribution('file', { name: 'tools-dist' })],
@@ -684,7 +752,7 @@ describe(
       await user.click(await screen.findByRole('button', { name: 'Edit' }));
 
       expect(screen.getByTestId('location')).toHaveTextContent(
-        '/file/distributions/tools-dist/edit',
+        '/file/distributions/tools-dist/edit/',
       );
     });
 

@@ -337,3 +337,46 @@ describe(
     });
   },
 );
+
+describe(
+  'Unit: publications and their tab in the descriptors',
+  { tags: ['unit'] },
+  () => {
+    it.each(PUBLISHING)(
+      'the %s descriptor deletes publications, has a Publications tab and labels its columns',
+      async (plugin) => {
+        const { publication, repository } = await descriptorOf(plugin);
+
+        expect(publication?.entity.remove, `${plugin} deletes`).toBeTypeOf(
+          'function',
+        );
+        expect(
+          (repository?.tabs ?? []).map(({ id }) => id),
+          `${plugin} tabs`,
+        ).toContain('publications');
+        expect(publication?.columns?.length).toBeGreaterThan(0);
+        for (const column of publication?.columns ?? []) {
+          labelled(column.label, `${plugin} publication column ${column.id}`);
+          expect(typeof column.render).toBe('function');
+        }
+        unique(
+          (publication?.columns ?? []).map(({ id }) => id),
+          `${plugin} publication columns`,
+        );
+      },
+    );
+
+    it.each(NOT_PUBLISHING)(
+      'the %s descriptor has no Publications tab and deletes no publication',
+      async (plugin) => {
+        const { publication, repository } = await descriptorOf(plugin);
+
+        expect(
+          (repository?.tabs ?? []).some(({ id }) => id === 'publications'),
+        ).toBe(false);
+        expect(publication?.entity.remove).toBeUndefined();
+        expect(publication?.columns).toBeUndefined();
+      },
+    );
+  },
+);

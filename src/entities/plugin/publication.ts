@@ -82,6 +82,8 @@ export type PublishBody = {
 export interface PublicationApi<TListParams, TCreate = unknown> {
   list: (params?: TListParams, options?: Options) => Promise<unknown>;
   create?: (body: TCreate, options?: Options) => Promise<unknown>;
+  // Deletes a publication; the server answers 204 and starts no task.
+  remove?: (href: string, options?: Options) => Promise<unknown>;
   // The address a list with these parameters is requested from, as the client
   // builds it; chunkByUrl measures requests on it.
   listUrl: (params?: TListParams) => string;
@@ -134,6 +136,10 @@ export interface PublicationEntity<Row> {
   // Starts a publish; resolves with the address of the task that does it. A
   // plugin that cannot publish from the screens has none.
   create?: (body: PublishBody, options?: Options) => Promise<string>;
+  // Deletes a publication at once: the server answers 204 and starts no task,
+  // so there is nothing to wait for. A plugin that cannot delete from the
+  // screens has none.
+  remove?: (href: string, options?: Options) => Promise<void>;
   list: (
     params?: PublicationListParams,
     options?: Options,
@@ -182,7 +188,7 @@ export function makePublicationEntity<
       fields: [...PUBLICATION_INDEX_FIELDS],
     });
 
-  const { create } = api;
+  const { create, remove } = api;
 
   return {
     app,
@@ -191,6 +197,13 @@ export function makePublicationEntity<
       ? {
           create: async (body: PublishBody, options?: Options) =>
             taskOf(await create(body as TCreate, options)),
+        }
+      : {}),
+    ...(remove
+      ? {
+          remove: async (href: string, options?: Options) => {
+            await remove(href, options);
+          },
         }
       : {}),
     list: async (params = {}, options) => {
@@ -223,7 +236,7 @@ export function makePublicationEntity<
             offset: received,
             limit: OF_REPOSITORY_PAGE_SIZE,
             repository,
-            fields: [...PUBLICATION_INDEX_FIELDS],
+            fields: [...PUBLICATION_INDEX_PAGE_FIELDS],
           }),
           options,
         );
@@ -293,6 +306,26 @@ export function publicationKeys(entity: { app: string; object: string }) {
     ofRepository: (repository: string) =>
       [...all, 'of-repository', repository] as const,
   };
+}
+
+// How long the publications of one repository are taken as current.
+const OF_REPOSITORY_STALE_MS = 30_000;
+
+// Every publication made from one repository, read once for every screen that
+// asks and cached. It shares its entry with the screens that find out what the
+// distributions of the repository serve. It sends nothing while `enabled` is
+// false.
+export function useRepositoryPublications<Row extends PublicationBase>(
+  entity: Pick<PublicationEntity<Row>, 'app' | 'object' | 'ofRepository'>,
+  repository: string,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  return useSessionQuery({
+    queryKey: publicationKeys(entity).ofRepository(repository),
+    queryFn: ({ signal }) => entity.ofRepository(repository, { signal }),
+    staleTime: OF_REPOSITORY_STALE_MS,
+    enabled,
+  });
 }
 
 export type PublicationIndexStatus = 'idle' | 'pending' | 'ready' | 'error';

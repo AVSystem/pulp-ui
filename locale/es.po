@@ -222,10 +222,18 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 #~ msgid "{name} ({count})"
 #~ msgstr ""
 
+#: src/framework/publish/serving-fix.tsx
+msgid "{name} could not be moved."
+msgstr ""
+
 #: src/components/namespace-card.tsx
 #: src/components/namespace-list-item.tsx
 #~ msgid "{name} logo"
 #~ msgstr ""
+
+#: src/framework/publish/serving-fix.tsx
+msgid "{name} now serves the newest publication."
+msgstr ""
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "{name} will be cancelled."
@@ -475,6 +483,10 @@ msgstr ""
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "A publication"
+msgstr ""
+
+#: src/framework/detail/publications-tab.tsx
+msgid "A publication is made when the repository is published. A distribution serves a repository's content through its publications."
 msgstr ""
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
@@ -977,6 +989,10 @@ msgstr "Aprueba, rechaza y sincroniza las colecciones desde los mandos a distanc
 #~ msgid "Approved"
 #~ msgstr "Aprobado"
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Apt"
+msgstr ""
+
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Arch"
@@ -989,6 +1005,10 @@ msgstr "Arquitecturas"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Are you sure you want to delete the distribution <0>{name}</0> with the base path <1>{basePath}</1>?"
+msgstr ""
+
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "Are you sure you want to delete the publication of version <0>{version}</0>?"
 msgstr ""
 
 #: src/framework/delete/delete-remote-dialog.tsx
@@ -1007,6 +1027,10 @@ msgstr "¿Está seguro de que desea eliminar el repositorio <0>{name}</0>?"
 #: src/components/delete-repository-modal.tsx
 #~ msgid "Are you sure you want to delete the repository <0>{name}</0>?<1/><2>Note:</2> This will also delete all associated resources under this repository."
 #~ msgstr "¿Está seguro de que quiere borrar el repositorio <0>{name}</0>?<1/><2>Nota:</2> esto también borrará todos los recursos asociados a este repositorio."
+
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "Are you sure you want to delete this publication?"
+msgstr ""
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Are you sure you want to opt the following legacy namespace in to Wisdom?"
@@ -1235,6 +1259,7 @@ msgstr "Certificado de CA"
 #: src/framework/form/remote-form.tsx
 #: src/framework/form/repository-create.tsx
 #: src/framework/form/repository-edit.tsx
+#: src/framework/publish/serving-fix.tsx
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1444,6 +1469,10 @@ msgstr ""
 msgid "Choose how this distribution is protected."
 msgstr ""
 
+#: src/framework/publish/serving-fix.tsx
+msgid "Choose what it serves"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
 #: src/components/typeahead.tsx
@@ -1515,6 +1544,7 @@ msgstr "cerrar"
 #: src/components/wizard-modal.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
+#: src/framework/publish/serving-fix.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "Cerrar"
@@ -2153,6 +2183,7 @@ msgstr "Crear, eliminar y modificar los espacios de nombres de las colecciones. 
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-list.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/publications-tab.tsx
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Created"
 msgstr "Creado"
@@ -2325,6 +2356,7 @@ msgstr "Publicación literal de Debian"
 #: src/containers/user-management/user-list.tsx
 #: src/framework/bulk/remote-bulk.tsx
 #: src/framework/bulk/repository-bulk.tsx
+#: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
@@ -2421,6 +2453,10 @@ msgstr "¿Borrar el grupo?"
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Delete namespace?"
 #~ msgstr "¿Eliminar el espacio de nombres?"
+
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "Delete publication?"
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Delete remote registry"
@@ -2728,6 +2764,7 @@ msgstr ""
 #: src/containers/ansible-repository/tab-distributions.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/publications-tab.tsx
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -4620,7 +4657,9 @@ msgstr "linux"
 #~ msgid "Load token"
 #~ msgstr "Ficha de carga"
 
+#: src/framework/detail/publications-tab.tsx
 #: src/framework/distributions/distribution-edit.tsx
+#: src/framework/publish/serving-fix.tsx
 msgid "Loading"
 msgstr ""
 
@@ -4631,6 +4670,7 @@ msgstr "Cargando la distribución..."
 #: src/components/delete-repository-modal.tsx
 #: src/framework/bulk/repository-bulk.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
+#: src/framework/publish/delete-publication-dialog.tsx
 msgid "Loading distributions"
 msgstr "Cargando distribuciones"
 
@@ -4997,6 +5037,7 @@ msgstr "Siguiente"
 
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 msgid "No"
 msgstr "No"
 
@@ -5060,6 +5101,10 @@ msgstr ""
 #: src/containers/collection-detail/collection-dependencies.tsx
 #~ msgid "No dependencies"
 #~ msgstr "No hay dependencias"
+
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "No distribution serves this publication."
+msgstr ""
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
@@ -5180,6 +5225,10 @@ msgstr "Sin permisos"
 #: src/framework/sync/progress-panel.tsx
 msgid "No progress reported yet."
 msgstr "Todavía no se ha informado de ningún progreso."
+
+#: src/framework/detail/publications-tab.tsx
+msgid "No publications yet"
+msgstr ""
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
@@ -5304,9 +5353,12 @@ msgstr "No existe ningún usuario"
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/containers/pulp-status.tsx
 #: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/file/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/distributions-tab.tsx
+#: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
@@ -5328,11 +5380,13 @@ msgstr "Ninguno"
 msgid "Not allowed"
 msgstr "No permitido"
 
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Not applicable"
 msgstr ""
 
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-reference.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/form/remote-field.tsx
@@ -6047,12 +6101,32 @@ msgstr ""
 msgid "Publication"
 msgstr ""
 
+#: src/framework/detail/publications-tab.tsx
+msgid "Publication deleted"
+msgstr ""
+
 #: src/framework/distributions/serves-field.tsx
 msgid "Publication made {created}"
 msgstr ""
 
+#: src/framework/detail/publications-tab.tsx
+msgid "Publication of version {number} deleted"
+msgstr ""
+
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
+msgstr ""
+
+#: src/framework/detail/publications-tab.tsx
+msgid "Publications"
+msgstr ""
+
+#: src/framework/detail/publications-tab.tsx
+msgid "Publications cannot be listed"
+msgstr ""
+
+#: src/framework/detail/publications-tab.tsx
+msgid "Publications could not be displayed."
 msgstr ""
 
 #: src/framework/distributions/use-distribution-columns.ts
@@ -6062,6 +6136,7 @@ msgstr ""
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/form-values.test.ts
 #: src/framework/publish/publish-dialog.tsx
+#: src/framework/publish/serving-fix.tsx
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish"
 msgstr "Publicar"
@@ -6084,6 +6159,10 @@ msgstr ""
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish is being canceled"
+msgstr ""
+
+#: src/framework/publish/serving-fix.tsx
+msgid "Publish latest version"
 msgstr ""
 
 #: src/components/repository-form.tsx
@@ -6133,6 +6212,10 @@ msgstr ""
 msgid "Publish upstream release fields"
 msgstr "Publicar los campos de versión del origen"
 
+#: src/framework/publish/serving-fix.tsx
+msgid "Publish version {boundVersion}"
+msgstr ""
+
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish version {number} of \"{name}\""
 msgstr ""
@@ -6140,6 +6223,10 @@ msgstr ""
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
 #~ msgstr "Publicado"
+
+#: src/framework/publish/serving-fix.tsx
+msgid "Publishing is not available."
+msgstr ""
 
 #: src/constants.tsx
 #~ msgid "Pull distribution"
@@ -7058,6 +7145,7 @@ msgstr "Reintentos"
 #: src/framework/distributions/serves-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
+#: src/framework/publish/delete-publication-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
@@ -7564,8 +7652,20 @@ msgstr "Usuario seleccionado"
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 msgstr "Separe los términos con comas y escriba clave=valor, clave o !clave. Escriba {ESCAPED_COMMA} para una coma dentro de un valor."
 
+#: src/framework/publish/serving-fix.tsx
+msgid "Serve it"
+msgstr ""
+
 #: src/framework/publish/publish-dialog.tsx
 msgid "Serve the new publication"
+msgstr ""
+
+#: src/framework/publish/serving-fix.tsx
+msgid "Serve the newest publication"
+msgstr ""
+
+#: src/framework/publish/serving-fix.tsx
+msgid "Serve the newest publication (version {version}) from {name}?"
 msgstr ""
 
 #: src/framework/distributions/distribution-edit.tsx
@@ -7891,6 +7991,10 @@ msgstr "Servicios de firma"
 #~ msgstr "Se inició la firma para el contenedor \"{0}\"."
 
 #: src/descriptors/deb/descriptor.tsx
+msgid "Simple"
+msgstr ""
+
+#: src/descriptors/deb/descriptor.tsx
 msgid "Simple publishing"
 msgstr ""
 
@@ -8038,6 +8142,10 @@ msgstr "Credenciales almacenadas"
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "Transmitida"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Structured"
+msgstr ""
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Structured publishing"
@@ -8515,6 +8623,10 @@ msgstr ""
 msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "El cambio en el repositorio \"{repositoryName}\" sigue en ejecución."
 
+#: src/framework/publish/serving-fix.tsx
+msgid "The change was accepted and is still running."
+msgstr ""
+
 #: src/descriptors/rpm/descriptor.tsx
 msgid "The checksum type used in the metadata of this publication."
 msgstr ""
@@ -8584,6 +8696,10 @@ msgstr "La eliminación se detuvo con un error inesperado. Es posible que el rem
 msgid "The distribution \"{trimmedName}\" is still being created and is not served yet."
 msgstr ""
 
+#: src/framework/publish/serving-fix.tsx
+msgid "The distribution {name} serves this repository through its publications, so it serves nothing new until one is made."
+msgstr ""
+
 #: src/framework/distributions/protection-choice.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
 msgstr ""
@@ -8609,6 +8725,10 @@ msgstr "No se pudieron listar las distribuciones de este repositorio, por lo que
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "No se pudieron listar las distribuciones de este repositorio, por lo que no se eliminó nada."
+
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "The distributions of this repository could not be listed, so the effect of the delete is not known."
+msgstr ""
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The distributions of this repository could not be read, so none can be moved from here. You can still publish."
@@ -8729,6 +8849,14 @@ msgstr ""
 msgid "The progress of this task cannot be shown."
 msgstr "No se puede mostrar el progreso de esta tarea."
 
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "The publication could not be deleted."
+msgstr ""
+
+#: src/framework/publish/serving-fix.tsx
+msgid "The publications of this repository could not be read."
+msgstr ""
+
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish failed: {reason} No distribution was moved."
 msgstr ""
@@ -8770,6 +8898,10 @@ msgstr ""
 msgid "The repository content could not be read"
 msgstr "No se pudo leer el contenido del repositorio"
 
+#: src/framework/publish/serving-fix.tsx
+msgid "The repository could not be read, so it cannot be published from here."
+msgstr ""
+
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8783,6 +8915,10 @@ msgstr "No se ha podido eliminar el repositorio: {reason}"
 #: src/framework/detail/revert-version.tsx
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 msgstr "El repositorio recibe una nueva última versión con el contenido de esa versión. No se elimina ninguna versión ni ningún contenido."
+
+#: src/framework/publish/serving-fix.tsx
+msgid "The repository has no publication to serve."
+msgstr ""
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -8826,6 +8962,7 @@ msgid "The reserved base paths of this server could not be read, so the base pat
 msgstr ""
 
 #: src/framework/publish/pinned-distributions.ts
+#: src/framework/publish/serving-fix.tsx
 msgid "The result of the change could not be read."
 msgstr ""
 
@@ -8901,6 +9038,10 @@ msgstr ""
 msgid "The session could not be checked"
 msgstr "No se pudo comprobar la sesión"
 
+#: src/framework/publish/serving-fix.tsx
+msgid "The session ended before it was sent."
+msgstr ""
+
 #: src/framework/delete/delete-outcome.tsx
 msgid "The session ended before the delete was finished."
 msgstr "La sesión finalizó antes de que terminara la eliminación."
@@ -8914,6 +9055,10 @@ msgstr "La sesión finalizó antes de que se pudiera crear la distribución. Des
 #: src/framework/publish/publish-dialog.tsx
 msgid "The session ended before this one was sent."
 msgstr "La sesión finalizó antes de que se enviara este."
+
+#: src/framework/publish/serving-fix.tsx
+msgid "The session ended while it was on its way."
+msgstr ""
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
@@ -9057,6 +9202,10 @@ msgstr ""
 #: src/framework/delete/delete-repository-dialog.tsx
 msgid "These distributions serve the repository. They are deleted with it, and their URLs stop working:"
 msgstr "Estas distribuciones sirven el repositorio. Se eliminan con él y sus URL dejan de funcionar:"
+
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "These distributions serve this publication. Deleting it changes what they serve:"
+msgstr ""
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "These repositories use this remote. They are kept, without a remote, and cannot be synced until they have one:"
@@ -9297,6 +9446,7 @@ msgstr "Inicia una tarea asíncrona que elimina las tareas completadas que termi
 
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
 msgid "Type"
 msgstr "Tipo"
@@ -9328,6 +9478,10 @@ msgstr "Versión de la interfaz"
 #: src/components/import-modal.tsx
 #~ msgid "unknown"
 #~ msgstr ""
+
+#: src/framework/detail/publications-tab.tsx
+msgid "Unknown"
+msgstr ""
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "unsigned"
@@ -9816,6 +9970,10 @@ msgstr "Valor (opcional)"
 #~ msgid "var"
 #~ msgstr ""
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Verbatim"
+msgstr ""
+
 #: src/components/repair-task-modal.tsx
 msgid "Verify checksums"
 msgstr "Verificar sumas de comprobación"
@@ -9824,6 +9982,7 @@ msgstr "Verificar sumas de comprobación"
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
+#: src/framework/detail/publications-tab.tsx
 msgid "Version"
 msgstr "Versión"
 
@@ -10071,6 +10230,15 @@ msgstr "Lista de distribuciones (también llamadas suites) que se sincronizan, s
 #~ msgid "Will clone <0>{link}</0>"
 #~ msgstr ""
 
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "will serve nothing (404)"
+msgstr ""
+
+#. placeholder {0}: after.version
+#: src/framework/publish/delete-publication-dialog.tsx
+msgid "will serve version {0}"
+msgstr ""
+
 #: src/components/role-sync-form.tsx
 #~ msgid "Will sync <0>{link}</0>"
 #~ msgstr ""
@@ -10132,6 +10300,7 @@ msgstr "Se necesitan requisitos YAML para sincronizar desde Galaxy. Puede <0>edi
 #: src/components/repair-task-modal.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/framework/distributions/distribution-filters.tsx
 msgid "Yes"
 msgstr "SÍ"
@@ -10270,6 +10439,10 @@ msgstr "No tiene permiso para hacerlo en lo siguiente, por lo que no se envía n
 
 #: src/framework/serving/served-label.tsx
 msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
+msgstr ""
+
+#: src/framework/detail/publications-tab.tsx
+msgid "You may not read the publications of this plugin, so they cannot be listed here."
 msgstr ""
 
 #: src/framework/bulk/bulk-menu.tsx

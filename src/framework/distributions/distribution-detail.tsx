@@ -30,6 +30,7 @@ import {
 import type { PluginDescriptor } from '../descriptor';
 import { LabelEditor } from '../labels/label-editor';
 import type { FrameworkPlugin } from '../manifest';
+import { ServingFix } from '../publish/serving-fix';
 import { distributionEditPath, distributionListPath } from '../route-patterns';
 import { useQueuedAlerts } from '../use-queued-alerts';
 import { DeleteDistributionDialog } from './delete-distribution-dialog';
@@ -94,6 +95,14 @@ const DistributionRows = ({ plugin, descriptor, distribution }: RowsProps) => {
                 }}
                 isPublic={isPublic}
               />
+              {serving.served.value ? (
+                <ServingFix
+                  plugin={plugin}
+                  distribution={distribution}
+                  served={serving.served.value}
+                  repositoryHref={serving.repository}
+                />
+              ) : null}
               {isPublic ? null : (
                 <Content component='small'>
                   {t`Downloads need credentials. A browser does not send your session to the content server, so this address cannot be opened there.`}
