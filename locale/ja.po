@@ -14,7 +14,7 @@ msgstr ""
 
 #: src/descriptors/npm/snippets.ts
 msgid ".npmrc"
-msgstr ""
+msgstr ".npmrc"
 
 #: src/components/darkmode-switcher.tsx
 #~ msgid "(current, default)"
@@ -57,7 +57,7 @@ msgstr "{0, plural, =0 {結果なし} one {# 件の結果} other {# 件の結果
 #. placeholder {0}: picked.length
 #: src/framework/content/add-content-dialog.tsx
 msgid "{0, plural, one {Add # item} other {Add # items}}"
-msgstr ""
+msgstr "{0, plural, one {# 件の項目を追加} other {# 件の項目を追加}}"
 
 #. placeholder {0}: collections.length
 #: src/actions/ansible-repository-collection-version-add.tsx
@@ -93,7 +93,7 @@ msgstr "{0} (コンテンツガードで保護)"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "{added} of {total} files added"
-msgstr ""
+msgstr "{total} 件中 {added} 件のファイルを追加しました"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert details"
@@ -141,7 +141,7 @@ msgstr "{count, plural, one {実行中のタスク: # 件} other {実行中の�
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "{count, plural, one {Remove # item from repository \"{repositoryName}\"?} other {Remove # items from repository \"{repositoryName}\"?}}"
-msgstr ""
+msgstr "{count, plural, one {リポジトリー \"{repositoryName}\" から # 件の項目を削除しますか?} other {リポジトリー \"{repositoryName}\" から # 件の項目を削除しますか?}}"
 
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Role} other {Roles}}"
@@ -149,7 +149,7 @@ msgstr ""
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "{count} distributions now serve the new publication."
-msgstr ""
+msgstr "{count} 件のディストリビューションが新しいパブリケーションを配信するようになりました。"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} failed"
@@ -209,7 +209,7 @@ msgstr "{label} を追跡できなくなりました。"
 
 #: src/framework/distributions/create-distribution-menu.tsx
 msgid "{label} distribution"
-msgstr ""
+msgstr "{label} ディストリビューション"
 
 #: src/framework/watched-tasks.tsx
 msgid "{label} failed."
@@ -229,7 +229,7 @@ msgstr "{label} はスキップされました。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "{lost} of {count} distributions could not be moved."
-msgstr ""
+msgstr "{count} 件中 {lost} 件のディストリビューションを移動できませんでした。"
 
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
@@ -241,11 +241,11 @@ msgstr "{n, plural, one {# byte} other {# bytes}}"
 
 #: src/framework/content/global-content-list.tsx
 msgid "{name} content"
-msgstr ""
+msgstr "{name} コンテンツ"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} could not be moved."
-msgstr ""
+msgstr "{name} を移動できませんでした。"
 
 #: src/components/namespace-card.tsx
 #: src/components/namespace-list-item.tsx
@@ -254,7 +254,7 @@ msgstr ""
 
 #: src/framework/publish/serving-fix.tsx
 msgid "{name} now serves the newest publication."
-msgstr ""
+msgstr "{name} が最新のパブリケーションを配信するようになりました。"
 
 #: src/containers/task-management/task-list-view.tsx
 msgid "{name} will be cancelled."
@@ -279,7 +279,7 @@ msgstr "{name}: インターフェースは {generated} 向けに生成されま
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "{named} and {others} more"
-msgstr ""
+msgstr "{named} ほか {others} 件"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "{namespace}.{name} v{version}, already in the repository"
@@ -293,7 +293,7 @@ msgstr "{namespace}.{name} v{version}、リポジトリーに追加済み"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "{retained, plural, one {This repository keeps only its latest version, so every uploaded file pushes the version before it out.} other {This repository keeps only its latest # versions, so every uploaded file pushes the oldest version out.}}"
-msgstr ""
+msgstr "{retained, plural, one {このリポジトリーは最新のバージョンのみを保持するため、ファイルをアップロードするたびに、その前のバージョンが押し出されます。} other {このリポジトリーは最新の # 個のバージョンのみを保持するため、ファイルをアップロードするたびに、最も古いバージョンが押し出されます。}}"
 
 #: src/components/role-header.tsx
 #~ msgid "{subTitle}"
@@ -315,25 +315,25 @@ msgstr "{title} ステップ"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "{total, plural, one {# file added} other {# files added}}"
-msgstr ""
+msgstr "{total, plural, one {# 件のファイルを追加しました} other {# 件のファイルを追加しました}}"
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} added"
-msgstr ""
+msgstr "{type} (追加)"
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} present"
-msgstr ""
+msgstr "{type} (既存)"
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} removed"
-msgstr ""
+msgstr "{type} (削除)"
 
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
 msgid "{typeName} distribution"
-msgstr ""
+msgstr "{typeName} ディストリビューション"
 
 #: src/shell/notifications.tsx
 msgid "{unread, plural, one {Notifications, # unread notification} other {Notifications, # unread notifications}}"
@@ -472,28 +472,28 @@ msgstr "ベースパスの先頭または末尾にスラッシュを置いたり
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "A content guard limits who can download. A public distribution has no content guard, so anyone who can reach the server can download from it."
-msgstr ""
+msgstr "コンテンツガードは、ダウンロードできるユーザーを制限します。パブリックなディストリビューションにはコンテンツガードがないため、サーバーに接続できる人なら誰でもダウンロードできます。"
 
 #: src/framework/form/create-flow.ts
 msgid "a content guard you may not see"
-msgstr ""
+msgstr "表示する権限のないコンテンツガード"
 
 #: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/guard-field.tsx
 msgid "A content guard you may not see"
-msgstr ""
+msgstr "表示する権限のないコンテンツガード"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "A distribution is bound to a publication of this version: {names}."
-msgstr ""
+msgstr "ディストリビューションがこのバージョンのパブリケーションにバインドされています: {names}。"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "A distribution is bound to this version: {names}."
-msgstr ""
+msgstr "ディストリビューションがこのバージョンにバインドされています: {names}。"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "A distribution is public when it has no content guard. Only those are listed."
-msgstr ""
+msgstr "コンテンツガードがないディストリビューションはパブリックです。該当するものだけが表示されます。"
 
 #. placeholder {0}: data.name
 #: src/utilities/create-repository.ts
@@ -532,15 +532,15 @@ msgstr "認証に使用する PEM でエンコードされた秘密鍵。"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "A pinned version"
-msgstr ""
+msgstr "固定されたバージョン"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "A publication"
-msgstr ""
+msgstr "パブリケーション"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "A publication is made when the repository is published. A distribution serves a repository's content through its publications."
-msgstr ""
+msgstr "パブリケーションは、リポジトリーをパブリッシュすると作成されます。ディストリビューションは、リポジトリーのコンテンツをそのパブリケーションを通じて配信します。"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A repository for which this cannot be turned on is synced with the value that is allowed."
@@ -549,7 +549,7 @@ msgstr "これをオンにできないリポジトリーは、許可されてい
 #: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/distribution-edit.tsx
 msgid "A repository you may not see"
-msgstr ""
+msgstr "表示する権限のないリポジトリー"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "A sync is started for every selected repository that has a remote, with the options below. Each sync runs as a task of its own."
@@ -687,7 +687,7 @@ msgstr "コレクションの追加"
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/content-tab.tsx
 msgid "Add content"
-msgstr ""
+msgstr "コンテンツを追加"
 
 #: src/components/repository-form.tsx
 #: src/containers/execution-environment-list/execution-environment-list.tsx
@@ -796,11 +796,11 @@ msgstr "項目を追加"
 #: src/framework/content/upload-dialog.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Added"
-msgstr ""
+msgstr "追加済み"
 
 #: src/framework/detail/version-content.tsx
 msgid "Added since the earlier version"
-msgstr ""
+msgstr "以前のバージョンからの追加分"
 
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
@@ -810,7 +810,7 @@ msgstr ""
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Adding several files as one version needs an administrator."
-msgstr ""
+msgstr "複数のファイルを 1 つのバージョンとして追加するには、管理者権限が必要です。"
 
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Adding the label to the selected rows finished"
@@ -818,19 +818,19 @@ msgstr "選択した行へのラベルの追加が完了しました"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Adding to the repository"
-msgstr ""
+msgstr "リポジトリーに追加中"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Addition of content to {repositoryName}"
-msgstr ""
+msgstr "{repositoryName} へのコンテンツの追加"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Addition of uploaded files to {repositoryName}"
-msgstr ""
+msgstr "{repositoryName} へのアップロード済みファイルの追加"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Addition started for repository \"{repositoryName}\"."
-msgstr ""
+msgstr "リポジトリー \"{repositoryName}\" への追加を開始しました。"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "Additional details"
@@ -863,7 +863,7 @@ msgstr "このロールに関連付けられているすべてのパーミッシ
 
 #: src/framework/content/upload-dialog.tsx
 msgid "All files are added in one new repository version"
-msgstr ""
+msgstr "すべてのファイルが 1 つの新しいリポジトリーバージョンに追加されます"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "All policies and guidelines"
@@ -937,7 +937,7 @@ msgstr "ほか {0} 件。"
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "and {others} more"
-msgstr ""
+msgstr "ほか {others} 件"
 
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
@@ -982,7 +982,7 @@ msgstr "Ansible リポジトリー"
 
 #: src/descriptors/ansible/snippets.ts
 msgid "ansible.cfg"
-msgstr ""
+msgstr "ansible.cfg"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
@@ -990,7 +990,7 @@ msgstr ""
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Anyone who can reach this server can download from it without signing in. Choose a content guard, or confirm Public, to save your changes."
-msgstr ""
+msgstr "このサーバーに接続できる人なら誰でも、サインインせずにダウンロードできます。変更を保存するには、コンテンツガードを選択するか、パブリックを確認してください。"
 
 #: src/containers/certification-dashboard/certification-dashboard.tsx
 #: src/containers/edit-namespace/edit-namespace.tsx
@@ -1090,15 +1090,15 @@ msgstr "リモートからのコレクションを承認、拒否、同期しま
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Apt"
-msgstr ""
+msgstr "Apt"
 
 #: src/descriptors/deb/snippets.ts
 msgid "APT credentials"
-msgstr ""
+msgstr "APT 認証情報"
 
 #: src/descriptors/deb/snippets.ts
 msgid "APT sources"
-msgstr ""
+msgstr "APT ソース"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
@@ -1106,7 +1106,7 @@ msgstr "アーキテクチャー"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Architecture"
-msgstr ""
+msgstr "アーキテクチャー"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -1115,11 +1115,11 @@ msgstr "アーキテクチャー"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Are you sure you want to delete the distribution <0>{name}</0> with the base path <1>{basePath}</1>?"
-msgstr ""
+msgstr "ベースパス <1>{basePath}</1> のディストリビューション <0>{name}</0> を削除してもよろしいですか?"
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "Are you sure you want to delete the publication of version <0>{version}</0>?"
-msgstr ""
+msgstr "バージョン <0>{version}</0> のパブリケーションを削除してもよろしいですか?"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Are you sure you want to delete the remote <0>{name}</0>?"
@@ -1140,7 +1140,7 @@ msgstr "リポジトリー <0>{name}</0> を削除してもよろしいですか
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "Are you sure you want to delete this publication?"
-msgstr ""
+msgstr "このパブリケーションを削除してもよろしいですか?"
 
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Are you sure you want to opt the following legacy namespace in to Wisdom?"
@@ -1291,7 +1291,7 @@ msgstr "bdist_wininst"
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/serving/served-label.tsx
 msgid "Bound to a deprecated publication"
-msgstr ""
+msgstr "非推奨のパブリケーションにバインドされています"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Breadcrumb"
@@ -1386,11 +1386,11 @@ msgstr "タスクの取り消し"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Cancel the upload?"
-msgstr ""
+msgstr "アップロードを取り消しますか?"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Cancel upload"
-msgstr ""
+msgstr "アップロードを取り消す"
 
 #: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
@@ -1409,7 +1409,7 @@ msgstr "取り消し中"
 
 #: src/framework/serving/served-label.tsx
 msgid "Cannot be checked"
-msgstr ""
+msgstr "確認できません"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Cannot delete namespace until <0/>collections' dependencies have <1/>been deleted"
@@ -1569,11 +1569,11 @@ msgstr "影響を受けるユーザーを確認中... <0/>"
 
 #: src/framework/detail/versions-tab.tsx
 msgid "Checking which distributions use this version"
-msgstr ""
+msgstr "このバージョンを使用しているディストリビューションを確認しています"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Checksum type"
-msgstr ""
+msgstr "チェックサムの種類"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "Child tasks"
@@ -1589,23 +1589,23 @@ msgstr "子タスク"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Choose a publication"
-msgstr ""
+msgstr "パブリケーションを選択"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Choose a repository and a version of it, then tick the content to copy into \"{repositoryName}\". The repository gets a new latest version that holds the content it has now and the content you add."
-msgstr ""
+msgstr "リポジトリーとそのバージョンを選択し、\"{repositoryName}\" にコピーするコンテンツにチェックを入れてください。リポジトリーには、現在のコンテンツと追加するコンテンツを含む新しい最新バージョンが作成されます。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Choose files"
-msgstr ""
+msgstr "ファイルを選択"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Choose how this distribution is protected."
-msgstr ""
+msgstr "このディストリビューションの保護方法を選択してください。"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Choose what it serves"
-msgstr ""
+msgstr "配信する内容を選択"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #: src/components/remote-form.tsx
@@ -1649,7 +1649,7 @@ msgstr "クライアント証明書"
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "Client configuration"
-msgstr ""
+msgstr "クライアント設定"
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -1659,7 +1659,7 @@ msgstr "クライアントキー"
 
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Client URL"
-msgstr ""
+msgstr "クライアント URL"
 
 #: src/framework/distributions/distribution-list.tsx
 #~ msgid "Client URLs could not be read."
@@ -1671,7 +1671,7 @@ msgstr "ディストリビューションが配信するまで、クライアン
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Clients get the latest version of this repository."
-msgstr ""
+msgstr "クライアントはこのリポジトリーの最新バージョンを取得します。"
 
 #: src/components/applied-filters.tsx
 #: src/components/patternfly-wrappers/l10n.tsx
@@ -1977,11 +1977,11 @@ msgstr "コンポーネント"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Composite"
-msgstr ""
+msgstr "複合"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Compression type"
-msgstr ""
+msgstr "圧縮の種類"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -2090,12 +2090,12 @@ msgstr "追加されたコンテンツ"
 
 #: src/framework/detail/version-content.tsx
 msgid "Content address"
-msgstr ""
+msgstr "コンテンツのアドレス"
 
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content could not be displayed."
-msgstr ""
+msgstr "コンテンツを表示できませんでした。"
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
@@ -2116,7 +2116,7 @@ msgstr "コンテンツ数を読み取れませんでした。"
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-list.tsx
 msgid "Content guard"
-msgstr ""
+msgstr "コンテンツガード"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -2125,7 +2125,7 @@ msgstr "ディストリビューションのないリポジトリーのコンテ
 
 #: src/framework/detail/version-content.tsx
 msgid "Content in this version"
-msgstr ""
+msgstr "このバージョンのコンテンツ"
 
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -2144,13 +2144,13 @@ msgstr "コンテンツ設定"
 
 #: src/framework/detail/version-content.tsx
 msgid "Content summary"
-msgstr ""
+msgstr "コンテンツの概要"
 
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content type"
-msgstr ""
+msgstr "コンテンツの種類"
 
 #: src/components/collection-header.tsx
 #~ msgid "Contents"
@@ -2212,7 +2212,7 @@ msgstr "同期がすでに実行中かどうかを確認できませんでした
 
 #: src/framework/distributions/create-distribution.ts
 msgid "Could not check whether the base path is free: {reason}. Nothing was changed."
-msgstr ""
+msgstr "ベースパスが空いているかどうかを確認できませんでした: {reason}。何も変更されていません。"
 
 #: src/framework/form/create-flow.ts
 #: src/utilities/create-repository.ts
@@ -2313,7 +2313,7 @@ msgstr "既存のコンテナー名前空間の下にコンテナーを作成お
 #: src/framework/distributions/create-distribution-menu.tsx
 #: src/framework/distributions/distribution-form.tsx
 msgid "Create distribution"
-msgstr ""
+msgstr "ディストリビューションを作成"
 
 #: src/components/collection-header.tsx
 #~ msgid "Create issue"
@@ -2375,7 +2375,7 @@ msgstr "ベースパス {basePath} にディストリビューション \"{name}
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "Created distribution \"{trimmedName}\""
-msgstr ""
+msgstr "ディストリビューション \"{trimmedName}\" を作成しました"
 
 #: src/containers/task-management/task-detail.tsx
 #: src/containers/task-management/task-list-view.tsx
@@ -2414,7 +2414,7 @@ msgstr "Ctrl K"
 
 #: src/descriptors/file/snippets.ts
 msgid "curl"
-msgstr ""
+msgstr "curl"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 msgid "Current content"
@@ -2590,7 +2590,7 @@ msgstr "削除"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Delete distribution?"
-msgstr ""
+msgstr "ディストリビューションを削除しますか?"
 
 #: src/utilities/delete-collection.tsx
 #~ msgid "Delete entire collection"
@@ -2622,7 +2622,7 @@ msgstr "グループを削除しますか?"
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "Delete publication?"
-msgstr ""
+msgstr "パブリケーションを削除しますか?"
 
 #: src/constants.tsx
 #~ msgid "Delete remote registry"
@@ -2643,7 +2643,7 @@ msgstr "リポジトリーバージョンの削除"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Delete repository version?"
-msgstr ""
+msgstr "リポジトリーバージョンを削除しますか?"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -2691,7 +2691,7 @@ msgstr "ユーザーを削除しますか?"
 #: src/framework/detail/version-detail.tsx
 #: src/framework/detail/versions-tab.tsx
 msgid "Delete version"
-msgstr ""
+msgstr "バージョンを削除"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Delete version {0}"
@@ -2699,7 +2699,7 @@ msgstr ""
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Delete version {number} of repository \"{repositoryName}\"?"
-msgstr ""
+msgstr "リポジトリー \"{repositoryName}\" のバージョン {number} を削除しますか?"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "Delete version {version}"
@@ -2790,11 +2790,11 @@ msgstr "自分自身は削除できません。"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Deletion of version {number} of {repositoryName}"
-msgstr ""
+msgstr "{repositoryName} のバージョン {number} の削除"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Deletion started for version {number} of repository \"{repositoryName}\"."
-msgstr ""
+msgstr "リポジトリー \"{repositoryName}\" のバージョン {number} の削除を開始しました。"
 
 #: src/components/collection-header.tsx
 #: src/containers/collection-detail/collection-dependencies.tsx
@@ -2815,11 +2815,11 @@ msgstr ""
 
 #: src/descriptors/maven/snippets.ts
 msgid "Deploy with Gradle"
-msgstr ""
+msgstr "Gradle でデプロイ"
 
 #: src/descriptors/maven/snippets.ts
 msgid "Deploy with Maven"
-msgstr ""
+msgstr "Maven でデプロイ"
 
 #: src/components/collection-dropdown.tsx
 #~ msgid "Deprecate"
@@ -2914,7 +2914,7 @@ msgstr "無効化"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Distribution \"{distributionName}\" could not be updated"
-msgstr ""
+msgstr "ディストリビューション \"{distributionName}\" を更新できませんでした"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Distribution \"{name}\" could not be updated"
@@ -2934,16 +2934,16 @@ msgstr "ディストリビューション {name} は表示されていなかっ�
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "Distribution could not be created"
-msgstr ""
+msgstr "ディストリビューションを作成できませんでした"
 
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Distribution could not be displayed."
-msgstr ""
+msgstr "ディストリビューションを表示できませんでした。"
 
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Distribution details could not be read."
-msgstr ""
+msgstr "ディストリビューションの詳細を読み取れませんでした。"
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Distribution name"
@@ -3005,7 +3005,7 @@ msgstr "削除されたディストリビューション: {0}。"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Distributions will appear once created."
-msgstr ""
+msgstr "ディストリビューションは作成されるとここに表示されます。"
 
 #: src/shell/shell.tsx
 #~ msgid "Docs dropdown"
@@ -3129,11 +3129,11 @@ msgstr "要件 YAML のダウンロード"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Downloads need credentials."
-msgstr ""
+msgstr "ダウンロードには認証情報が必要です。"
 
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Downloads need credentials. A browser does not send your session to the content server, so this address cannot be opened there."
-msgstr ""
+msgstr "ダウンロードには認証情報が必要です。ブラウザーはセッションをコンテンツサーバーに送信しないため、このアドレスはブラウザーでは開けません。"
 
 #: src/framework/distributions/distribution-columns.tsx
 #~ msgid "Downloads need credentials. The client snippet shows how."
@@ -3157,7 +3157,7 @@ msgstr "ここにファイルをドラッグするか、参照してアップロ
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Drag and drop files here"
-msgstr ""
+msgstr "ここにファイルをドラッグ アンド ドロップ"
 
 #: src/components/stateful-dropdown.tsx
 msgid "Dropdown"
@@ -3165,7 +3165,7 @@ msgstr "ドロップダウン"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Each file creates its own repository version"
-msgstr ""
+msgstr "各ファイルがそれぞれ独自のリポジトリーバージョンを作成します"
 
 #: src/framework/form/labels-field.tsx
 msgid "Each label key can be used once."
@@ -3232,7 +3232,7 @@ msgstr "ラベルの編集"
 
 #: src/framework/content/content-labels.tsx
 msgid "Edit labels of {name}"
-msgstr ""
+msgstr "{name} のラベルを編集"
 
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
@@ -3314,7 +3314,7 @@ msgstr "数値を入力してください。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Enter a relative path."
-msgstr ""
+msgstr "相対パスを入力してください。"
 
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter a whole number."
@@ -3323,11 +3323,11 @@ msgstr "整数を入力してください。"
 #. placeholder {0}: source.name
 #: src/framework/content/add-content-dialog.tsx
 msgid "Enter the number of a version of \"{0}\"."
-msgstr ""
+msgstr "\"{0}\" のバージョン番号を入力してください。"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Enter the number of a version of \"{name}\"."
-msgstr ""
+msgstr "\"{name}\" のバージョン番号を入力してください。"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "env"
@@ -3642,7 +3642,7 @@ msgstr "失敗: {when}"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Failed to add content to repository \"{repositoryName}\""
-msgstr ""
+msgstr "リポジトリー \"{repositoryName}\" へのコンテンツの追加に失敗しました"
 
 #: src/components/approve-modal.tsx
 #~ msgid "Failed to approve collection."
@@ -3663,7 +3663,7 @@ msgstr ""
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "Failed to delete distribution \"{name}\""
-msgstr ""
+msgstr "ディストリビューション \"{name}\" の削除に失敗しました"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Failed to delete remote \"{name}\""
@@ -3722,7 +3722,7 @@ msgstr "リポジトリーのバージョンが見つかりませんでした"
 #. placeholder {0}: requestErrorText(found.error)
 #: src/framework/distributions/guard-field.tsx
 msgid "Failed to load content guards: {0}"
-msgstr ""
+msgstr "コンテンツガードの読み込みに失敗しました: {0}"
 
 #: src/components/lazy-distributions.tsx
 msgid "Failed to load distributions: {error}"
@@ -3731,7 +3731,7 @@ msgstr "ディストリビューションの読み込みに失敗しました: {
 #. placeholder {0}: requestErrorText(read.error)
 #: src/framework/distributions/serves-field.tsx
 msgid "Failed to load publications: {0}"
-msgstr ""
+msgstr "パブリケーションの読み込みに失敗しました: {0}"
 
 #: src/components/approve-modal/approve-modal.tsx
 #~ msgid "Failed to load pulp_id of collection repository."
@@ -3750,7 +3750,7 @@ msgstr "リモートの読み込みに失敗しました: {remotesError}"
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Failed to load repositories: {0}"
-msgstr ""
+msgstr "リポジトリーの読み込みに失敗しました: {0}"
 
 #: src/components/lazy-repositories.tsx
 msgid "Failed to load repositories: {error}"
@@ -3816,7 +3816,7 @@ msgstr "ステータスの読み込みに失敗しました"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Failed to publish repository \"{name}\""
-msgstr ""
+msgstr "リポジトリー \"{name}\" のパブリッシュに失敗しました"
 
 #: src/components/multi-repo-modal.tsx
 #~ msgid "Failed to query repositories."
@@ -3828,7 +3828,7 @@ msgstr "リポジトリー \"{repositoryName}\" から {namespace}.{name} v{vers
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Failed to remove content from repository \"{repositoryName}\""
-msgstr ""
+msgstr "リポジトリー \"{repositoryName}\" からのコンテンツの削除に失敗しました"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -3943,19 +3943,19 @@ msgstr "ファイルのアップロード"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files"
-msgstr ""
+msgstr "ファイル"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files could not be displayed."
-msgstr ""
+msgstr "ファイルを表示できませんでした。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Files that have not been sent will not be uploaded. Files that were already added stay in the repository."
-msgstr ""
+msgstr "送信されていないファイルはアップロードされません。すでに追加されたファイルはリポジトリーに残ります。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Files to upload"
-msgstr ""
+msgstr "アップロードするファイル"
 
 #. placeholder {0}: selectedFilter.id
 #. placeholder {0}: selectedFilter.id.toLowerCase()
@@ -3966,7 +3966,7 @@ msgstr "{0} 別にフィルター"
 
 #: src/framework/distributions/distribution-filters.tsx
 msgid "Filter by base path"
-msgstr ""
+msgstr "ベースパスで絞り込む"
 
 #: src/framework/list/label-filter.tsx
 msgid "Filter by labels"
@@ -4156,7 +4156,7 @@ msgstr "GPG 鍵"
 
 #: src/descriptors/maven/snippets.ts
 msgid "Gradle"
-msgstr ""
+msgstr "Gradle"
 
 #: src/components/access-tab.tsx
 #: src/components/select-group.tsx
@@ -4281,7 +4281,7 @@ msgstr "コンテンツガード: {guardName}"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "gzip"
-msgstr ""
+msgstr "gzip"
 
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Has no remote, so it is skipped"
@@ -4293,7 +4293,7 @@ msgstr "語を含む"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Header"
-msgstr ""
+msgstr "ヘッダー"
 
 #: src/shell/account-menu.tsx
 #: src/shell/help-menu.tsx
@@ -4342,7 +4342,7 @@ msgstr "各パッケージについて保持するバージョンの数。古い
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "How the metadata files of this publication are compressed."
-msgstr ""
+msgstr "このパブリケーションのメタデータファイルの圧縮方法です。"
 
 #: src/components/delete-collection-modal.tsx
 #: src/components/delete-execution-environment-modal.tsx
@@ -4537,7 +4537,7 @@ msgstr "情報"
 
 #: src/descriptors/ansible/snippets.ts
 msgid "Install a collection"
-msgstr ""
+msgstr "コレクションをインストール"
 
 #: src/components/collection-detail/collection-info.tsx
 #~ msgid "Install Version"
@@ -4634,15 +4634,15 @@ msgstr "リポジトリーが削除されたかどうかは不明です。"
 
 #: src/framework/form/create-flow.ts
 msgid "It is protected by the content guard you chose."
-msgstr ""
+msgstr "選択したコンテンツガードで保護されています。"
 
 #: src/framework/form/create-flow.ts
 msgid "It is public: anyone can download from it without signing in."
-msgstr ""
+msgstr "パブリックです。サインインせずに誰でもダウンロードできます。"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "It serves that publication until you change it."
-msgstr ""
+msgstr "変更するまで、そのパブリケーションを配信します。"
 
 #: src/containers/execution-environment-detail/tag-manifest-modal.tsx
 #~ msgid "It's safe to close this window. These tasks will finish in the"
@@ -4682,7 +4682,7 @@ msgstr "保存済みの {label} を保持"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Keep uploading"
-msgstr ""
+msgstr "アップロードを続ける"
 
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
@@ -4753,15 +4753,15 @@ msgstr "ラベルは、キーと任意の値の組です。フィルターやス
 
 #: src/framework/content/content-labels.tsx
 msgid "Labels belong to the content unit and show in every repository that holds it."
-msgstr ""
+msgstr "ラベルはコンテンツユニットに属し、それを保持するすべてのリポジトリーに表示されます。"
 
 #: src/framework/content/content-labels.tsx
 msgid "Labels of {name}"
-msgstr ""
+msgstr "{name} のラベル"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Large files are sent in one request and may time out"
-msgstr ""
+msgstr "大きなファイルは 1 回のリクエストで送信されるため、タイムアウトする可能性があります"
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4937,7 +4937,7 @@ msgstr "linux"
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/publish/serving-fix.tsx
 msgid "Loading"
-msgstr ""
+msgstr "読み込み中"
 
 #: src/actions/ansible-repository-copy.tsx
 msgid "Loading distribution..."
@@ -4952,7 +4952,7 @@ msgstr "ディストリビューションを読み込んでいます"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Loading publications"
-msgstr ""
+msgstr "パブリケーションを読み込み中"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "Loading repositories"
@@ -4997,7 +4997,7 @@ msgstr "ログアウト"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Looking for distributions that serve an older publication."
-msgstr ""
+msgstr "古いパブリケーションを配信しているディストリビューションを検索しています。"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "macos"
@@ -5038,7 +5038,7 @@ msgstr "コレクションリモートを管理します。"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Manifest"
-msgstr ""
+msgstr "マニフェスト"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
@@ -5058,7 +5058,7 @@ msgstr "システムに合わせる"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "md5"
-msgstr ""
+msgstr "md5"
 
 #: src/containers/task-management/task-detail.tsx
 #~ msgid "Message"
@@ -5094,7 +5094,7 @@ msgstr "モード"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "More guards match; type more of the name"
-msgstr ""
+msgstr "一致するガードがほかにもあります。名前をさらに入力してください"
 
 #: src/components/help-button.tsx
 msgid "More information"
@@ -5102,7 +5102,7 @@ msgstr "詳細情報"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "More repositories match; type more of the name"
-msgstr ""
+msgstr "一致するリポジトリーがほかにもあります。名前をさらに入力してください"
 
 #: src/framework/list/repository-list.tsx
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
@@ -5110,7 +5110,7 @@ msgstr "{LARGE_MATCH} を超えるリポジトリーが一致しています。�
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Moved"
-msgstr ""
+msgstr "移動済み"
 
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -5126,7 +5126,7 @@ msgstr ""
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Moving the distributions to the new publication."
-msgstr ""
+msgstr "ディストリビューションを新しいパブリケーションに移動しています。"
 
 #: src/components/remote-form.tsx
 msgid "Must be an integer."
@@ -5360,7 +5360,7 @@ msgstr "コレクションバージョンはまだありません"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "No compression"
-msgstr ""
+msgstr "圧縮なし"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "No container repositories yet"
@@ -5368,15 +5368,15 @@ msgstr ""
 
 #: src/framework/detail/version-content.tsx
 msgid "No content"
-msgstr ""
+msgstr "コンテンツなし"
 
 #: src/framework/detail/content-tab.tsx
 msgid "No content in the latest version"
-msgstr ""
+msgstr "最新バージョンにコンテンツはありません"
 
 #: src/framework/content/global-content-list.tsx
 msgid "No content to show"
-msgstr ""
+msgstr "表示するコンテンツがありません"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
@@ -5393,7 +5393,7 @@ msgstr ""
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "No distribution serves this publication."
-msgstr ""
+msgstr "このパブリケーションを配信しているディストリビューションはありません。"
 
 #: src/framework/detail/distributions-tab.tsx
 msgid "No distribution serves this repository"
@@ -5414,11 +5414,11 @@ msgstr "ディストリビューションはまだありません"
 
 #: src/framework/detail/version-content.tsx
 msgid "No earlier version"
-msgstr ""
+msgstr "以前のバージョンはありません"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "No files in the latest version"
-msgstr ""
+msgstr "最新バージョンにファイルはありません"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5526,7 +5526,7 @@ msgstr "進捗はまだ報告されていません。"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "No publications yet"
-msgstr ""
+msgstr "パブリケーションはまだありません"
 
 #: src/containers/execution-environment-detail/execution-environment-detail.tsx
 #~ msgid "No README"
@@ -5677,7 +5677,7 @@ msgstr "なし"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Not added"
-msgstr ""
+msgstr "未追加"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
@@ -5686,7 +5686,7 @@ msgstr "許可されていません"
 #: src/descriptors/deb/descriptor.tsx
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Not applicable"
-msgstr ""
+msgstr "該当なし"
 
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
@@ -5698,7 +5698,7 @@ msgstr "利用できません"
 
 #: src/framework/serving/served-label.tsx
 msgid "Not bound to anything"
-msgstr ""
+msgstr "何にもバインドされていません"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/content/upload-dialog.tsx
@@ -5717,7 +5717,7 @@ msgstr "有効ではありません"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Not every file could be made, so none was added. The files that were made stay as content that belongs to no repository."
-msgstr ""
+msgstr "すべてのファイルを作成できなかったため、何も追加されませんでした。作成されたファイルは、どのリポジトリーにも属さないコンテンツとして残ります。"
 
 #: src/components/typeahead.tsx
 msgid "Not found"
@@ -5798,11 +5798,11 @@ msgstr "備考"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Nothing"
-msgstr ""
+msgstr "なし"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Nothing changed in distribution {distributionName}."
-msgstr ""
+msgstr "ディストリビューション {distributionName} では何も変更されませんでした。"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Nothing changed in distribution {name}."
@@ -5826,19 +5826,19 @@ msgstr "\"{text}\" に一致するものはありません。スペルを確認�
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Nothing was added to the repository"
-msgstr ""
+msgstr "リポジトリーには何も追加されませんでした"
 
 #: src/framework/detail/version-content.tsx
 msgid "Nothing was added."
-msgstr ""
+msgstr "何も追加されませんでした。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Nothing was moved"
-msgstr ""
+msgstr "何も移動されませんでした"
 
 #: src/framework/detail/version-content.tsx
 msgid "Nothing was removed."
-msgstr ""
+msgstr "何も削除されませんでした。"
 
 #: src/shell/notifications.tsx
 msgid "Notifications"
@@ -5850,7 +5850,7 @@ msgstr "通知を読み込めませんでした。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Now serves the new publication."
-msgstr ""
+msgstr "新しいパブリケーションを配信するようになりました。"
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -5866,7 +5866,7 @@ msgstr "/"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Older versions may be removed"
-msgstr ""
+msgstr "古いバージョンは削除される場合があります"
 
 #: src/components/remote-form.tsx
 #: src/framework/remote-columns.tsx
@@ -5888,7 +5888,7 @@ msgstr "すべてのディレクトリーに 1 つずつファイル"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "One publication"
-msgstr ""
+msgstr "1 件のパブリケーション"
 
 #: src/containers/pulp-status.tsx
 msgid "Online api apps"
@@ -5904,7 +5904,7 @@ msgstr "オンラインのワーカー"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Only clients the guard allows can download."
-msgstr ""
+msgstr "ガードが許可したクライアントのみがダウンロードできます。"
 
 #: src/framework/snippets/distribution-snippets.test.tsx
 #~ msgid "Only guarded"
@@ -5935,7 +5935,7 @@ msgstr "リモートサーバーから変更が報告された場合にのみ同
 #. placeholder {0}: rows.length
 #: src/framework/distributions/serves-field.tsx
 msgid "Only the newest {0} publications are listed."
-msgstr ""
+msgstr "最新の {0} 件のパブリケーションのみが表示されます。"
 
 #: src/components/ansible-role/role-import-form.tsx
 #~ msgid "Only used when a role doesn't have galaxy_info.role_name metadata, and doesn't follow the ansible-role-$name naming convention."
@@ -5978,7 +5978,7 @@ msgstr "オプション"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "or"
-msgstr ""
+msgstr "または"
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
@@ -6045,7 +6045,7 @@ msgstr "結果は不明です。タスクを確認してください"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Package"
-msgstr ""
+msgstr "パッケージ"
 
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -6226,7 +6226,7 @@ msgstr "グループ \"{0}\" のパーミッションを表示できませんで
 
 #: src/descriptors/python/snippets.ts
 msgid "pip.conf"
-msgstr ""
+msgstr "pip.conf"
 
 #: src/components/ansible-repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -6316,7 +6316,7 @@ msgstr "プレリリース"
 
 #: src/framework/detail/version-content.tsx
 msgid "Present"
-msgstr ""
+msgstr "既存"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6352,7 +6352,7 @@ msgstr "同期するプロジェクト。1 行に 1 つ指定子を記述しま�
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Protected by a content guard"
-msgstr ""
+msgstr "コンテンツガードで保護"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -6366,7 +6366,7 @@ msgstr "コンテンツガードで保護されています: 顧客向け URL"
 #: src/framework/distributions/distribution-fields.tsx
 #: src/framework/distributions/protection-choice.tsx
 msgid "Protection"
-msgstr ""
+msgstr "保護"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -6421,11 +6421,11 @@ msgstr "プロキシーユーザー名"
 
 #: src/framework/serving/public-label.tsx
 msgid "Public"
-msgstr ""
+msgstr "パブリック"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "Public - anyone can download without signing in"
-msgstr ""
+msgstr "パブリック - サインインせずに誰でもダウンロードできます"
 
 #: src/framework/signature-keys/signature-key-list.tsx
 msgid "Public key"
@@ -6433,47 +6433,47 @@ msgstr "公開鍵"
 
 #: src/framework/distributions/distribution-filters.tsx
 msgid "Public only"
-msgstr ""
+msgstr "パブリックのみ"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Publication"
-msgstr ""
+msgstr "パブリケーション"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publication deleted"
-msgstr ""
+msgstr "パブリケーションを削除しました"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Publication made {created}"
-msgstr ""
+msgstr "パブリケーションの作成日時: {created}"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publication of version {number} deleted"
-msgstr ""
+msgstr "バージョン {number} のパブリケーションを削除しました"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Publication of version {version}"
-msgstr ""
+msgstr "バージョン {version} のパブリケーション"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publications"
-msgstr ""
+msgstr "パブリケーション"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publications cannot be listed"
-msgstr ""
+msgstr "パブリケーションを一覧表示できません"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Publications could not be displayed."
-msgstr ""
+msgstr "パブリケーションを表示できませんでした。"
 
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Publications could not be read."
-msgstr ""
+msgstr "パブリケーションを読み取れませんでした。"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "Publications made from this version are deleted with it. The content of the other versions does not change."
-msgstr ""
+msgstr "このバージョンから作成されたパブリケーションは、バージョンと一緒に削除されます。ほかのバージョンのコンテンツは変更されません。"
 
 #: src/framework/detail/repository-detail.tsx
 #: src/framework/form/form-values.test.ts
@@ -6485,31 +6485,31 @@ msgstr "パブリッシュ"
 
 #: src/descriptors/ansible/snippets.ts
 msgid "Publish a collection"
-msgstr ""
+msgstr "コレクションをパブリッシュ"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish a flat layout where all packages are in a single release component."
-msgstr ""
+msgstr "すべてのパッケージを 1 つのリリースコンポーネントに含むフラットなレイアウトをパブリッシュします。"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish canceled"
-msgstr ""
+msgstr "パブリッシュを取り消しました"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish completed"
-msgstr ""
+msgstr "パブリッシュが完了しました"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish failed"
-msgstr ""
+msgstr "パブリッシュに失敗しました"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish is being canceled"
-msgstr ""
+msgstr "パブリッシュを取り消しています"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publish latest version"
-msgstr ""
+msgstr "最新バージョンをパブリッシュ"
 
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -6520,31 +6520,31 @@ msgstr "新しいバージョンを自動的にパブリッシュ"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish of {name}"
-msgstr ""
+msgstr "{name} のパブリッシュ"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish of version {number} of {name}"
-msgstr ""
+msgstr "{name} のバージョン {number} のパブリッシュ"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish queued"
-msgstr ""
+msgstr "パブリッシュはキューに入っています"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish repository \"{name}\""
-msgstr ""
+msgstr "リポジトリー \"{name}\" をパブリッシュ"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "Publish running"
-msgstr ""
+msgstr "パブリッシュを実行中"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release components and architectures of the repository"
-msgstr ""
+msgstr "リポジトリーのリリースコンポーネントとアーキテクチャーをパブリッシュ"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release components and architectures that the packages of the repository declare. At least one of the two modes stays on."
-msgstr ""
+msgstr "リポジトリーのパッケージが宣言しているリリースコンポーネントとアーキテクチャーをパブリッシュします。2 つのモードのうち少なくとも 1 つはオンのままです。"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release fields of the upstream repository"
@@ -6552,7 +6552,7 @@ msgstr "上流リポジトリーの Release ファイルのフィールドをパ
 
 #: src/framework/detail/versions-tab.tsx
 msgid "Publish this version"
-msgstr ""
+msgstr "このバージョンをパブリッシュ"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
@@ -6560,15 +6560,15 @@ msgstr "上流のリリースフィールドをパブリッシュ"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publish version {boundVersion}"
-msgstr ""
+msgstr "バージョン {boundVersion} をパブリッシュ"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Publish version {number} of \"{name}\""
-msgstr ""
+msgstr "\"{name}\" のバージョン {number} をパブリッシュ"
 
 #: src/descriptors/npm/snippets.ts
 msgid "Publish with npm"
-msgstr ""
+msgstr "npm でパブリッシュ"
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
@@ -6576,11 +6576,11 @@ msgstr ""
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publishing is not available."
-msgstr ""
+msgstr "パブリッシュは利用できません。"
 
 #: src/descriptors/container/snippets.ts
 msgid "Pull"
-msgstr ""
+msgstr "Pull"
 
 #: src/constants.tsx
 #~ msgid "Pull distribution"
@@ -6817,7 +6817,7 @@ msgstr "タスクのパージを開始しました"
 
 #: src/descriptors/container/snippets.ts
 msgid "Push"
-msgstr ""
+msgstr "Push"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push and change containers."
@@ -6865,7 +6865,7 @@ msgstr "コンテナーのプッシュ、削除、変更を行います。リモ
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Put every package in one release component"
-msgstr ""
+msgstr "すべてのパッケージを 1 つのリリースコンポーネントに含める"
 
 #: src/utilities/translate-task.ts
 msgid "Python package group upload"
@@ -6908,11 +6908,11 @@ msgstr "レート制限"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "RBAC"
-msgstr ""
+msgstr "RBAC"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Reading every distribution to find the public ones"
-msgstr ""
+msgstr "パブリックなものを見つけるため、すべてのディストリビューションを読み取っています"
 
 #: src/components/table-of-contents.tsx
 #~ msgid "Readme"
@@ -6995,11 +6995,11 @@ msgstr "レジストリーの同期"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/content/upload-dialog.tsx
 msgid "Relative path"
-msgstr ""
+msgstr "相対パス"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Relative path of {name}"
-msgstr ""
+msgstr "{name} の相対パス"
 
 #: src/components/headers/collection-header.tsx
 #~ msgid "released {0}"
@@ -7099,11 +7099,11 @@ msgstr "リポジトリー \"{repositoryName} からの {namespace}.{name} v{ver
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Removal of content from {repositoryName}"
-msgstr ""
+msgstr "{repositoryName} からのコンテンツの削除"
 
 #: src/framework/distributions/delete-distribution.ts
 msgid "Removal of distribution {name}"
-msgstr ""
+msgstr "ディストリビューション {name} の削除"
 
 #: src/framework/bulk/remote-bulk.tsx
 #: src/framework/delete/delete-remote.ts
@@ -7121,7 +7121,7 @@ msgstr "リモート {name} の削除を開始しました"
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Removal started for repository \"{repositoryName}\"."
-msgstr ""
+msgstr "リポジトリー \"{repositoryName}\" からの削除を開始しました。"
 
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
@@ -7139,7 +7139,7 @@ msgstr "削除"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Remove {name}"
-msgstr ""
+msgstr "{name} を削除"
 
 #: src/components/collection-dropdown.tsx
 #~ msgid "Remove collection from repository"
@@ -7151,7 +7151,7 @@ msgstr "コレクションのバージョンを削除しますか?"
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "Remove content"
-msgstr ""
+msgstr "コンテンツを削除"
 
 #: src/utilities/translate-task.ts
 msgid "Remove content from repository"
@@ -7159,7 +7159,7 @@ msgstr "リポジトリーからのコンテンツ削除"
 
 #: src/framework/detail/content-tab.tsx
 msgid "Remove from repository"
-msgstr ""
+msgstr "リポジトリーから削除"
 
 #: src/components/access-tab.tsx
 msgid "Remove group"
@@ -7232,7 +7232,7 @@ msgstr "リポジトリー {name} を削除しました"
 
 #: src/framework/detail/version-content.tsx
 msgid "Removed since the earlier version"
-msgstr ""
+msgstr "以前のバージョンからの削除分"
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
@@ -7282,7 +7282,7 @@ msgstr "修復タスク"
 
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "Replace <user> and <token> with an account that may read this distribution."
-msgstr ""
+msgstr "<user> と <token> を、このディストリビューションを読み取れるアカウントに置き換えてください。"
 
 #: src/components/collection-header.tsx
 #~ msgid "Repo"
@@ -7325,7 +7325,7 @@ msgstr "リポジトリーを読み込めませんでした"
 
 #: src/framework/distributions/use-distribution-columns.ts
 msgid "Repositories could not be read."
-msgstr ""
+msgstr "リポジトリーを読み取れませんでした。"
 
 #: src/framework/list/remote-list.tsx
 msgid "Repositories using the remotes could not be read."
@@ -7405,7 +7405,7 @@ msgstr "リポジトリーを表示できませんでした。"
 
 #: src/descriptors/rpm/snippets.ts
 msgid "Repository file"
-msgstr ""
+msgstr "リポジトリーファイル"
 
 #: src/components/ansible-repository-form.tsx
 #~ msgid "Repository labels can change the context in which a repository is seen.<0><1><2>Hide from search</2> (<3>hide_from_search</3>) - prevent collections in this repository from showing up on the home page</1><4>(<5>pipeline: *</5>) - see Pipeline above</4></0>"
@@ -7428,7 +7428,7 @@ msgstr "リポジトリー名"
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Repository to take content from"
-msgstr ""
+msgstr "コンテンツの取得元リポジトリー"
 
 #: src/containers/ansible-repository/tab-details.tsx
 #: src/framework/detail/details-tab.tsx
@@ -7437,7 +7437,7 @@ msgstr "リポジトリー URL"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Repository version {keptVersion}, as it is now"
-msgstr ""
+msgstr "リポジトリーバージョン {keptVersion} (現在の状態)"
 
 #: src/framework/detail/version-detail.tsx
 msgid "Repository version could not be displayed."
@@ -7509,7 +7509,7 @@ msgstr "結果"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Result of each move"
-msgstr ""
+msgstr "各移動の結果"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
@@ -7622,7 +7622,7 @@ msgstr "リポジトリー \"{repositoryName}\" をバージョン \"{number}\" 
 
 #: src/framework/distributions/guard-field.tsx
 msgid "RHSM certificate"
-msgstr ""
+msgstr "RHSM 証明書"
 
 #: src/components/access-tab.tsx
 #: src/components/role-list-table.tsx
@@ -7947,7 +7947,7 @@ msgstr "コレクションの選択"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "Select a content guard"
-msgstr ""
+msgstr "コンテンツガードを選択"
 
 #: src/components/access-tab.tsx
 msgid "Select a group"
@@ -7965,7 +7965,7 @@ msgstr "リモートの選択"
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Select a repository"
-msgstr ""
+msgstr "リポジトリーを選択"
 
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "Select a tag"
@@ -7985,7 +7985,7 @@ msgstr "ユーザーの選択"
 
 #: src/framework/detail/content-tab.tsx
 msgid "Select all on this page"
-msgstr ""
+msgstr "このページのすべてを選択"
 
 #: src/framework/list/remote-list.tsx
 msgid "Select all remotes on this page"
@@ -8076,31 +8076,31 @@ msgstr "条件はカンマで区切り、キー=値、キー、または !キー
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Serve it"
-msgstr ""
+msgstr "配信する"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Serve the new publication"
-msgstr ""
+msgstr "新しいパブリケーションを配信"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Serve the newest publication"
-msgstr ""
+msgstr "最新のパブリケーションを配信"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Serve the newest publication (version {version}) from {name}?"
-msgstr ""
+msgstr "{name} の最新のパブリケーション (バージョン {version}) を配信しますか?"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Serve the repository instead"
-msgstr ""
+msgstr "代わりにリポジトリーを配信"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Served"
-msgstr ""
+msgstr "配信中"
 
 #: src/framework/distributions/distribution-list.tsx
 msgid "Served state"
-msgstr ""
+msgstr "配信状態"
 
 #: src/utilities/login-error.ts
 msgid "Server error. Please come back later."
@@ -8122,19 +8122,19 @@ msgstr "サーバーエラー。後でもう一度お試しください。"
 #: src/framework/distributions/distribution-list.tsx
 #: src/framework/distributions/serves-field.tsx
 msgid "Serves"
-msgstr ""
+msgstr "配信対象"
 
 #: src/framework/serving/served-label.tsx
 msgid "Serves nothing (404): no publication"
-msgstr ""
+msgstr "何も配信しません (404): パブリケーションなし"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "Serves the publication of version {bound}"
-msgstr ""
+msgstr "バージョン {bound} のパブリケーションを配信"
 
 #: src/framework/serving/served-label.tsx
 msgid "Serves version {served}, latest is {latest}"
-msgstr ""
+msgstr "バージョン {served} を配信中、最新は {latest}"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/repository-fields.ts
@@ -8147,19 +8147,19 @@ msgstr "設定"
 
 #: src/descriptors/maven/snippets.ts
 msgid "settings.xml"
-msgstr ""
+msgstr "settings.xml"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha1"
-msgstr ""
+msgstr "sha1"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha224"
-msgstr ""
+msgstr "sha224"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha256"
-msgstr ""
+msgstr "sha256"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "SHA256SUMS files"
@@ -8167,11 +8167,11 @@ msgstr "SHA256SUMS ファイル"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha384"
-msgstr ""
+msgstr "sha384"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha512"
-msgstr ""
+msgstr "sha512"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -8379,7 +8379,7 @@ msgstr "ログアウトしました"
 
 #: src/descriptors/deb/snippets.ts
 msgid "Signing key"
-msgstr ""
+msgstr "署名キー"
 
 #: src/components/approve-modal.tsx
 #: src/components/copy-collection-to-repository-modal.tsx
@@ -8422,11 +8422,11 @@ msgstr "署名サービス"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Simple"
-msgstr ""
+msgstr "シンプル"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Simple publishing"
-msgstr ""
+msgstr "シンプルなパブリッシュ"
 
 #: src/components/remote-form.tsx
 msgid "Single sign on URL."
@@ -8561,7 +8561,7 @@ msgstr "タスクを停止しますか?"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Stop uploading"
-msgstr ""
+msgstr "アップロードを停止"
 
 #: src/containers/pulp-status.tsx
 msgid "Storage"
@@ -8579,11 +8579,11 @@ msgstr "ストリーミング"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Structured"
-msgstr ""
+msgstr "構造化"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Structured publishing"
-msgstr ""
+msgstr "構造化パブリッシュ"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Succeeded"
@@ -8842,7 +8842,7 @@ msgstr "このリポジトリーを同期するか、パッケージを追加し
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Sync this repository or upload files to it."
-msgstr ""
+msgstr "このリポジトリーを同期するか、ファイルをアップロードしてください。"
 
 #: src/descriptors/python/descriptor.tsx
 msgid "Sync this repository or upload packages to it."
@@ -9056,7 +9056,7 @@ msgstr "一括操作が予期しないエラーで停止しました。一部の
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The change is still running."
-msgstr ""
+msgstr "変更はまだ実行中です。"
 
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
@@ -9064,15 +9064,15 @@ msgstr "リポジトリー \"{repositoryName}\" の変更はまだ実行中で�
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The change was accepted and is still running."
-msgstr ""
+msgstr "変更は受け付けられ、まだ実行中です。"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "The checksum type used in the metadata of this publication."
-msgstr ""
+msgstr "このパブリケーションのメタデータで使用されるチェックサムの種類です。"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "The client snippet shows how."
-msgstr ""
+msgstr "クライアントスニペットに方法が示されています。"
 
 #: src/components/repository-form.tsx
 #: src/framework/form/distribution-option.tsx
@@ -9125,7 +9125,7 @@ msgstr "予期しないエラーで削除が停止しました。一部のディ
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "The delete stopped with an unexpected error. The distribution may already have been removed: check the list before trying again."
-msgstr ""
+msgstr "削除が予期しないエラーで停止しました。ディストリビューションはすでに削除されている可能性があります。再試行する前に一覧を確認してください。"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "The delete stopped with an unexpected error. The remote may already have been removed: check the list before trying again."
@@ -9133,15 +9133,15 @@ msgstr "削除が予期しないエラーで停止しました。リモートは
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "The distribution \"{trimmedName}\" is still being created and is not served yet."
-msgstr ""
+msgstr "ディストリビューション \"{trimmedName}\" はまだ作成中で、まだ配信されていません。"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The distribution {name} serves this repository through its publications, so it serves nothing new until one is made."
-msgstr ""
+msgstr "ディストリビューション {name} はパブリケーションを通じてこのリポジトリーを配信するため、パブリケーションが作成されるまで新しいものは何も配信しません。"
 
 #: src/framework/distributions/protection-choice.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download its content without signing in."
-msgstr ""
+msgstr "このディストリビューションにはコンテンツガードがなくなります。このサーバーに接続できる人なら誰でも、サインインせずにそのコンテンツをダウンロードできます。"
 
 #: src/components/repository-form.tsx
 msgid "The distribution will have no content guard: anyone who can reach this server can download this repository's content without signing in."
@@ -9167,11 +9167,11 @@ msgstr "このリポジトリーのディストリビューションを一覧表
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "The distributions of this repository could not be listed, so the effect of the delete is not known."
-msgstr ""
+msgstr "このリポジトリーのディストリビューションを一覧表示できなかったため、削除の影響は不明です。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The distributions of this repository could not be read, so none can be moved from here. You can still publish."
-msgstr ""
+msgstr "このリポジトリーのディストリビューションを読み取れなかったため、ここからは移動できません。パブリッシュは引き続き可能です。"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -9188,11 +9188,11 @@ msgstr "ディストリビューションは削除されましたが、リポジ
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The file was sent, but its task could not be read."
-msgstr ""
+msgstr "ファイルは送信されましたが、そのタスクを読み取れませんでした。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The file was sent, but the dialog stopped waiting for it. It may still be added."
-msgstr ""
+msgstr "ファイルは送信されましたが、ダイアログが待機を停止しました。追加されている可能性があります。"
 
 #: src/components/lightspeed-modal.tsx
 #~ msgid "The following legacy namespace will be opted in to Ansible Lightspeed:"
@@ -9246,15 +9246,15 @@ msgstr "ログインページはログイン済みのセッションなしで戻
 
 #: src/descriptors/file/descriptor.tsx
 msgid "The name of the file that lists every published file with its checksum and size."
-msgstr ""
+msgstr "公開されているすべてのファイルを、チェックサムとサイズとともに一覧にするファイルの名前です。"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "The only version of the repository."
-msgstr ""
+msgstr "リポジトリーの唯一のバージョンです。"
 
 #: src/framework/distributions/distribution-form.tsx
 msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
-msgstr ""
+msgstr "タスクの状態を読み取れなかったため、ディストリビューション \"{trimmedName}\" の作成結果は不明です。タスクを確認してください。"
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The outcome of removing remote {name} is unknown, because the task status could not be read. Check the task."
@@ -9288,7 +9288,7 @@ msgstr "同期時に認証に使用するパスワード。トークンを使用
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The path must not start with a slash."
-msgstr ""
+msgstr "パスはスラッシュで始めることはできません。"
 
 #: src/app-routes.tsx
 #: src/framework/distributions/distribution-list.tsx
@@ -9298,7 +9298,7 @@ msgstr "プラグイン一覧を読み込めませんでした"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The progress of the publish could not be followed. No distribution was moved."
-msgstr ""
+msgstr "パブリッシュの進行状況を追跡できませんでした。ディストリビューションは移動されていません。"
 
 #: src/framework/sync/progress-panel.tsx
 msgid "The progress of this task cannot be shown."
@@ -9306,23 +9306,23 @@ msgstr "このタスクの進捗は表示できません。"
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "The publication could not be deleted."
-msgstr ""
+msgstr "パブリケーションを削除できませんでした。"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The publications of this repository could not be read."
-msgstr ""
+msgstr "このリポジトリーのパブリケーションを読み取れませんでした。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish failed: {reason} No distribution was moved."
-msgstr ""
+msgstr "パブリッシュに失敗しました: {reason} ディストリビューションは移動されていません。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish finished, but the new publication could not be found. No distribution was moved."
-msgstr ""
+msgstr "パブリッシュは完了しましたが、新しいパブリケーションが見つかりませんでした。ディストリビューションは移動されていません。"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "The publish was accepted and is running. The distributions you chose are moved to the new publication when it exists. If you close this window now, they stay where they are."
-msgstr ""
+msgstr "パブリッシュは受け付けられ、実行中です。選択したディストリビューションは、新しいパブリケーションができた時点でそこに移動されます。今このウィンドウを閉じると、ディストリビューションは現在の場所のままになります。"
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -9343,11 +9343,11 @@ msgstr "このリモートを使用しているリポジトリーを一覧表示
 
 #: src/framework/distributions/serves-field.tsx
 msgid "The repository (serves its latest version)"
-msgstr ""
+msgstr "リポジトリー (最新バージョンを配信)"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "The repository (serves its newest publication)"
-msgstr ""
+msgstr "リポジトリー (最新のパブリケーションを配信)"
 
 #: src/actions/ansible-repository-collection-version-add.tsx
 msgid "The repository content could not be read"
@@ -9355,7 +9355,7 @@ msgstr "リポジトリーのコンテンツを読み取れませんでした"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository could not be read, so it cannot be published from here."
-msgstr ""
+msgstr "リポジトリーを読み取れなかったため、ここからはパブリッシュできません。"
 
 #. placeholder {0}: result.repositoryError
 #: src/components/delete-repository-modal.tsx
@@ -9373,11 +9373,11 @@ msgstr "リポジトリーには、そのバージョンのコンテンツを持
 
 #: src/framework/content/remove-content-dialog.tsx
 msgid "The repository gets a new latest version without them. Earlier versions keep them."
-msgstr ""
+msgstr "リポジトリーには、それらを含まない新しい最新バージョンが作成されます。以前のバージョンにはそれらが残ります。"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository has no publication to serve."
-msgstr ""
+msgstr "このリポジトリーには配信するパブリケーションがありません。"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -9386,7 +9386,7 @@ msgstr "リポジトリーはまだ削除中です:"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "The repository version it serves now"
-msgstr ""
+msgstr "現在配信しているリポジトリーバージョン"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
@@ -9404,7 +9404,7 @@ msgstr "リポジトリーは削除されませんでした。"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "The repository's setting or the server's default"
-msgstr ""
+msgstr "リポジトリーの設定またはサーバーのデフォルト"
 
 #: src/utilities/request-error.ts
 msgid "The request failed."
@@ -9418,12 +9418,12 @@ msgstr "このサーバーの予約済みベースパスを読み取れなかっ
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "The reserved base paths of this server could not be read, so the base path cannot be changed here."
-msgstr ""
+msgstr "このサーバーの予約済みベースパスを読み取れなかったため、ここではベースパスを変更できません。"
 
 #: src/framework/publish/pinned-distributions.ts
 #: src/framework/publish/serving-fix.tsx
 msgid "The result of the change could not be read."
-msgstr ""
+msgstr "変更の結果を読み取れませんでした。"
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
@@ -9479,31 +9479,31 @@ msgstr "サーバーに接続できませんでした: {message}"
 
 #: src/framework/form/create-flow.ts
 msgid "The server did not apply the content guard you chose: the distribution has no content guard."
-msgstr ""
+msgstr "サーバーは選択したコンテンツガードを適用しませんでした。ディストリビューションにコンテンツガードがありません。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The server did not make any content from this file."
-msgstr ""
+msgstr "サーバーはこのファイルからコンテンツを作成しませんでした。"
 
 #: src/framework/distributions/distribution-fields.tsx
 msgid "The server manages the content guard of this distribution. It cannot be changed here."
-msgstr ""
+msgstr "このディストリビューションのコンテンツガードはサーバーが管理しています。ここでは変更できません。"
 
 #: src/framework/distributions/distribution-fields.tsx
 msgid "The server manages the content guard of this distribution. It is set when the distribution is created and cannot be chosen here."
-msgstr ""
+msgstr "このディストリビューションのコンテンツガードはサーバーが管理しています。ディストリビューションの作成時に設定され、ここでは選択できません。"
 
 #: src/framework/form/create-flow.ts
 msgid "The server protected the distribution with {guard}."
-msgstr ""
+msgstr "サーバーはディストリビューションを {guard} で保護しました。"
 
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "The server reports no client URL for this distribution, so there is no client configuration to show."
-msgstr ""
+msgstr "サーバーがこのディストリビューションのクライアント URL を報告していないため、表示するクライアント設定がありません。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The server was still working on this file when the wait ended."
-msgstr ""
+msgstr "待機が終了したとき、サーバーはまだこのファイルを処理中でした。"
 
 #: src/app-routes.tsx
 msgid "The session could not be checked"
@@ -9511,7 +9511,7 @@ msgstr "セッションを確認できませんでした"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The session ended before it was sent."
-msgstr ""
+msgstr "送信される前にセッションが終了しました。"
 
 #: src/framework/delete/delete-outcome.tsx
 msgid "The session ended before the delete was finished."
@@ -9524,7 +9524,7 @@ msgstr "ディストリビューションを作成する前にセッションが
 
 #: src/framework/content/upload-dialog.tsx
 msgid "The session ended before the result was known."
-msgstr ""
+msgstr "結果がわかる前にセッションが終了しました。"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
@@ -9533,7 +9533,7 @@ msgstr "これが送信される前にセッションが終了しました。"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "The session ended while it was on its way."
-msgstr ""
+msgstr "送信中にセッションが終了しました。"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
@@ -9593,12 +9593,12 @@ msgstr "値は分単位です。通常、既定値は 1 日 (1440) です。0 �
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "The version could not be deleted."
-msgstr ""
+msgstr "バージョンを削除できませんでした。"
 
 #. placeholder {0}: requestErrorText(query.error)
 #: src/framework/content/add-content-dialog.tsx
 msgid "The version could not be read: {0}"
-msgstr ""
+msgstr "バージョンを読み取れませんでした: {0}"
 
 #: src/shell/theme-menu.tsx
 msgid "Theme"
@@ -9663,12 +9663,12 @@ msgstr "このリポジトリーに関連付けられたリモートはありま
 
 #: src/framework/content/global-content-list.tsx
 msgid "There is no content of this kind that you may see."
-msgstr ""
+msgstr "表示できる権限のあるこの種類のコンテンツはありません。"
 
 #: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
-msgstr ""
+msgstr "表示するこの種類のコンテンツはありません。"
 
 #: src/containers/task-management/task-detail.tsx
 msgid "There is no progress message."
@@ -9677,7 +9677,7 @@ msgstr "進捗メッセージはありません。"
 #. placeholder {0}: locked.name
 #: src/framework/distributions/serves-field.tsx
 msgid "There is no repository named \"{0}\", or you may not see it."
-msgstr ""
+msgstr "\"{0}\" という名前のリポジトリーがないか、表示する権限がありません。"
 
 #: src/containers/approvals/approvals.tsx
 #~ msgid "There must be only one repository with pipeline=rejected."
@@ -9689,7 +9689,7 @@ msgstr "リソースレコードがありません"
 
 #: src/framework/publish/publish-dialog.tsx
 msgid "These distributions are bound to an older publication and keep serving it. Tick the ones that should serve the new publication."
-msgstr ""
+msgstr "これらのディストリビューションは古いパブリケーションにバインドされており、引き続きそれを配信します。新しいパブリケーションを配信するものにチェックを入れてください。"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -9698,7 +9698,7 @@ msgstr "これらのディストリビューションはリポジトリーを配
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "These distributions serve this publication. Deleting it changes what they serve:"
-msgstr ""
+msgstr "これらのディストリビューションはこのパブリケーションを配信しています。削除すると、配信内容が変わります:"
 
 #: src/framework/delete/delete-remote-dialog.tsx
 msgid "These repositories use this remote. They are kept, without a remote, and cannot be synced until they have one:"
@@ -9747,11 +9747,11 @@ msgstr "項目を表示できませんでした。"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "This distribution is public now"
-msgstr ""
+msgstr "このディストリビューションはパブリックになりました"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "This distribution serves a publication, which this plugin has deprecated. It keeps serving it until you serve the repository instead; the repository's latest version is then served directly."
-msgstr ""
+msgstr "このディストリビューションは、このプラグインで非推奨になったパブリケーションを配信しています。代わりにリポジトリーを配信するまで、それを配信し続けます。その後は、リポジトリーの最新バージョンが直接配信されます。"
 
 #: src/framework/list/label-filter.tsx
 msgid "This expression cannot be shown as fields."
@@ -9783,15 +9783,15 @@ msgstr "このグループにはユーザーを含めることができます"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "This is the latest version, which a distribution bound to the repository serves: {names}."
-msgstr ""
+msgstr "これは最新バージョンで、リポジトリーにバインドされたディストリビューションが配信しています: {names}。"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "This is the latest version. The repository goes back to the newest version that is left."
-msgstr ""
+msgstr "これは最新バージョンです。リポジトリーは、残っている最新のバージョンに戻ります。"
 
 #: src/framework/content/delete-version-dialog.tsx
 msgid "This is the newest published version, which a distribution bound to the repository serves: {names}."
-msgstr ""
+msgstr "これは公開済みの最新バージョンで、リポジトリーにバインドされたディストリビューションが配信しています: {names}。"
 
 #: src/components/ratings.tsx
 #~ msgid "This is the rating from old-galaxy.ansible.com. We are working on redoing the rating for the new version of galaxy."
@@ -9811,7 +9811,7 @@ msgstr "このプロジェクトは、Ansible Galaxy UI のコードベースを
 
 #: src/framework/distributions/serves-field.tsx
 msgid "This repository has no publication"
-msgstr ""
+msgstr "このリポジトリーにはパブリケーションがありません"
 
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/detail/version-detail.tsx
@@ -9820,7 +9820,7 @@ msgstr "このリポジトリーにはバージョン {number} がありませ�
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "This repository has no version."
-msgstr ""
+msgstr "このリポジトリーにはバージョンがありません。"
 
 #: src/components/lazy-screen.tsx
 msgid "This screen could not be loaded"
@@ -9833,7 +9833,7 @@ msgstr "この画面は、この UI ではまだ利用できません。"
 #. placeholder {0}: written.refusal
 #: src/framework/snippets/distribution-snippets.tsx
 msgid "This snippet cannot be written safely, because a value of the distribution holds {0}."
-msgstr ""
+msgstr "ディストリビューションの値に {0} が含まれているため、このスニペットを安全に書き出せません。"
 
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag already exists on another image. Do you want to move it to this image?"
@@ -9857,11 +9857,11 @@ msgstr "これは、ansible-galaxy CLI と同じ {docsAnsibleLink} 形式を使�
 
 #: src/framework/detail/version-content.tsx
 msgid "This version holds no content."
-msgstr ""
+msgstr "このバージョンにはコンテンツがありません。"
 
 #: src/framework/detail/version-content.tsx
 msgid "This version holds none."
-msgstr ""
+msgstr "このバージョンには該当するものがありません。"
 
 #: src/components/delete-collection-modal.tsx
 #~ msgid "This will cause the entire collection to be deleted."
@@ -9914,7 +9914,7 @@ msgstr "サーバー URL に対する認証に使用するトークンです。"
 
 #: src/framework/serving/served-label.tsx
 msgid "Too many publications to check here."
-msgstr ""
+msgstr "パブリケーションが多すぎて、ここでは確認できません。"
 
 #: src/containers/pulp-status.tsx
 msgid "Total"
@@ -10003,7 +10003,7 @@ msgstr "UI バージョン"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "Unknown"
-msgstr ""
+msgstr "不明"
 
 #: src/components/collection-list/collection-filter.tsx
 #~ msgid "unsigned"
@@ -10040,7 +10040,7 @@ msgstr "コレクションリモートの更新"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Update started for distribution {distributionName}"
-msgstr ""
+msgstr "ディストリビューション {distributionName} の更新を開始しました"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Update started for distribution {name}"
@@ -10084,7 +10084,7 @@ msgstr "リポジトリー {repositoryName} の更新を開始しました"
 
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Updated distribution {distributionName}"
-msgstr ""
+msgstr "ディストリビューション {distributionName} を更新しました"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Updated distribution {name}"
@@ -10136,7 +10136,7 @@ msgstr "コミットのアップロード"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Upload files"
-msgstr ""
+msgstr "ファイルをアップロード"
 
 #: src/components/collection-dropdown.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
@@ -10146,11 +10146,11 @@ msgstr ""
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Upload of {name}"
-msgstr ""
+msgstr "{name} のアップロード"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Upload of {name} to {repositoryName}"
-msgstr ""
+msgstr "{name} の {repositoryName} へのアップロード"
 
 #: src/components/approval-row.tsx
 #: src/components/upload-signature-modal.tsx
@@ -10163,11 +10163,11 @@ msgstr ""
 
 #: src/descriptors/python/snippets.ts
 msgid "Upload with twine"
-msgstr ""
+msgstr "twine でアップロード"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Uploading"
-msgstr ""
+msgstr "アップロード中"
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Uploads"
@@ -10514,7 +10514,7 @@ msgstr "値 (任意)"
 
 #: src/descriptors/deb/descriptor.tsx
 msgid "Verbatim"
-msgstr ""
+msgstr "そのまま"
 
 #: src/components/repair-task-modal.tsx
 msgid "Verify checksums"
@@ -10530,7 +10530,7 @@ msgstr "バージョン"
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "Version {number} (pinned)"
-msgstr ""
+msgstr "バージョン {number} (固定)"
 
 #: src/containers/ansible-repository/detail.tsx
 msgid "Version {repositoryVersion}"
@@ -10538,7 +10538,7 @@ msgstr "バージョン {repositoryVersion}"
 
 #: src/framework/distributions/serves-field.tsx
 msgid "Version {version}, made {created}"
-msgstr ""
+msgstr "バージョン {version}、作成日時: {created}"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 #: src/framework/detail/version-detail.tsx
@@ -10688,11 +10688,11 @@ msgstr "ワーカーがタスクを取得するのを待機しています。"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Waiting for the other files"
-msgstr ""
+msgstr "ほかのファイルを待機中"
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Waiting for the server"
-msgstr ""
+msgstr "サーバーを待機中"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Warning"
@@ -10720,11 +10720,11 @@ msgstr "お探しのページは見つかりませんでした!"
 
 #: src/descriptors/file/snippets.ts
 msgid "wget"
-msgstr ""
+msgstr "wget"
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "What it serves is kept. Clients lose the address it is reached at."
-msgstr ""
+msgstr "配信内容は保持されます。クライアントは、アクセスに使用するアドレスを失います。"
 
 #: src/session/reauth-dialog.tsx
 msgid "What you have entered on this page is kept."
@@ -10745,7 +10745,7 @@ msgstr "このリポジトリーのパブリケーションに SHA256SUMS ファ
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Whether this publication includes SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
-msgstr ""
+msgstr "このパブリケーションに SHA256SUMS ファイルを含めるかどうかです。このファイルには、クライアントがダウンロードを検証できるよう、公開されているすべてのファイルのチェックサムが一覧で記載されます。"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
@@ -10786,12 +10786,12 @@ msgstr "同期するディストリビューション (スイートとも呼ば�
 
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "will serve nothing (404)"
-msgstr ""
+msgstr "何も配信されなくなります (404)"
 
 #. placeholder {0}: after.version
 #: src/framework/publish/delete-publication-dialog.tsx
 msgid "will serve version {0}"
-msgstr ""
+msgstr "バージョン {0} を配信するようになります"
 
 #: src/components/role-sync-form.tsx
 #~ msgid "Will sync <0>{link}</0>"
@@ -10829,7 +10829,7 @@ msgstr "式を記述"
 
 #: src/framework/distributions/guard-field.tsx
 msgid "X.509 certificate"
-msgstr ""
+msgstr "X.509 証明書"
 
 #: src/components/remote-form.tsx
 #: src/containers/ansible-remote/tab-details.tsx
@@ -10993,11 +10993,11 @@ msgstr "次の項目に対してはこの操作を行う権限がないため、
 
 #: src/framework/serving/served-label.tsx
 msgid "You may not read the publications of this plugin, so it cannot be told here whether this distribution serves content."
-msgstr ""
+msgstr "このプラグインのパブリケーションを読み取る権限がないため、このディストリビューションがコンテンツを配信しているかどうかはここではわかりません。"
 
 #: src/framework/detail/publications-tab.tsx
 msgid "You may not read the publications of this plugin, so they cannot be listed here."
-msgstr ""
+msgstr "このプラグインのパブリケーションを読み取る権限がないため、ここには一覧表示できません。"
 
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."
@@ -11005,7 +11005,7 @@ msgstr "選択した行に対して一括操作を行う権限がありません
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Your account may not create uploads, so a file above {chunkLimit} is not split into parts. A very large file may take longer than the server waits."
-msgstr ""
+msgstr "アカウントにはアップロードを作成する権限がないため、{chunkLimit} を超えるファイルは分割されません。非常に大きなファイルは、サーバーが待機する時間より長くかかる場合があります。"
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
@@ -11040,4 +11040,4 @@ msgstr "タスクが失敗、完了、または取り消されると、ここに
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "zstd"
-msgstr ""
+msgstr "zstd"
