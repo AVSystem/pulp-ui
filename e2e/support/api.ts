@@ -3,10 +3,12 @@ import { getDistributionsAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/dist
 import { getRepositoriesAnsibleAnsibleListUrl } from '@pulp-ui/sdk/ansible/repositories-ansible';
 import { getDistributionsContainerContainerListUrl } from '@pulp-ui/sdk/container/distributions-container';
 import { getRepositoriesContainerContainerListUrl } from '@pulp-ui/sdk/container/repositories-container';
+import { getContentListUrl } from '@pulp-ui/sdk/core/content';
 import { getContentguardsCoreRbacListUrl } from '@pulp-ui/sdk/core/contentguards-rbac';
 import { getGroupsListUrl } from '@pulp-ui/sdk/core/groups';
 import type { AsyncOperationResponse } from '@pulp-ui/sdk/core/models/async-operation-response.zod';
 import type { TaskResponse } from '@pulp-ui/sdk/core/models/tasks/task-response.zod';
+import { getOrphansCleanupCleanupUrl } from '@pulp-ui/sdk/core/orphans-cleanup';
 import { getRolesListUrl } from '@pulp-ui/sdk/core/roles';
 import { getTasksReadUrl } from '@pulp-ui/sdk/core/tasks';
 import { getUsersListUrl } from '@pulp-ui/sdk/core/users';
@@ -14,7 +16,10 @@ import { getDistributionsDebAptListUrl } from '@pulp-ui/sdk/deb/distributions-ap
 import { getPublicationsDebAptListUrl } from '@pulp-ui/sdk/deb/publications-apt';
 import { getRemotesDebAptListUrl } from '@pulp-ui/sdk/deb/remotes-apt';
 import { getRepositoriesDebAptListUrl } from '@pulp-ui/sdk/deb/repositories-apt';
-import { getContentFileFilesCreateUrl } from '@pulp-ui/sdk/file/content-files';
+import {
+  getContentFileFilesCreateUrl,
+  getContentFileFilesListUrl,
+} from '@pulp-ui/sdk/file/content-files';
 import { getDistributionsFileFileListUrl } from '@pulp-ui/sdk/file/distributions-file';
 import { getPublicationsFileFileListUrl } from '@pulp-ui/sdk/file/publications-file';
 import { getRemotesFileFileListUrl } from '@pulp-ui/sdk/file/remotes-file';
@@ -40,6 +45,7 @@ import {
   apiDelete,
   apiGet,
   apiPatch,
+  apiPost,
   apiPostForm,
   resolveApiUrl,
 } from './sdk-request';
@@ -239,6 +245,7 @@ export async function allSettled<T>(jobs: Promise<T>[]): Promise<T[]> {
 // class, call cleanUp() in afterAll.
 export class TestObjects {
   private readonly registered: string[] = [];
+  private readonly content = new Set<string>();
 
   private constructor(
     readonly api: APIRequestContext,
@@ -396,6 +403,98 @@ export class TestObjects {
     return this.waitForTask(answer.task);
   }
 
+  // A file repository of this scope with one generated file per path, each
+  // uploaded on its own so every file makes a version of its own: version n
+  // holds the first n files. The path of a file is the scope's prefix and the
+  // name given, so no unit is shared with an object of another run; the same
+  // name in two repositories of one run is one unit.
+  async fileRepository(
+    suffix: string,
+    names: string[],
+    extra: Record<string, unknown> = {},
+  ): Promise<PulpObject> {
+    const repository = await this.create(getRepositoriesFileFileListUrl(), {
+      name: this.name(suffix),
+      ...extra,
+    });
+    for (const name of names) {
+      await this.upload(repository.pulp_href, this.path(name), name);
+    }
+    return repository;
+  }
+
+  // The relative path a generated file of this scope carries.
+  path(name: string): string {
+    return `${this.prefix}${name}`;
+  }
+
+  // The numbers of the versions a repository holds, newest first.
+  async versionNumbers(repositoryHref: string): Promise<number[]> {
+    const versions = await this.list(`${repositoryHref}versions/`, {
+      fields: 'number',
+    });
+    return versions
+      .map(({ number }) => Number(number))
+      .sort((left, right) => right - left);
+  }
+
+  // The content units of any type a repository version holds.
+  async versionContent(versionHref: string): Promise<string[]> {
+    const units = await this.list(getContentListUrl(), {
+      repository_version: versionHref,
+      fields: 'pulp_href',
+    });
+    return units.map(({ pulp_href }) => pulp_href);
+  }
+
+  // Names content units of this run that clean-up removes once no repository
+  // holds them, for units whose type has no path to find them by.
+  trackContent(hrefs: string[]): void {
+    for (const href of hrefs) {
+      this.content.add(href);
+    }
+  }
+
+  // The content units of this scope: file units found by the prefix of their
+  // path, and the units the spec named.
+  private async ownedContent(): Promise<string[]> {
+    const files = await this.list(getContentFileFilesListUrl(), {
+      relative_path__startswith: this.prefix,
+      fields: 'pulp_href',
+    });
+    return [
+      ...new Set([...files.map(({ pulp_href }) => pulp_href), ...this.content]),
+    ];
+  }
+
+  // Removes the content units of this scope once no repository holds them.
+  // Only the listed units are named to the orphan clean-up, so no content of
+  // another run or of the lab is touched; a unit that is still held stays and
+  // is reported.
+  private async removeContent(): Promise<void> {
+    const units = await this.ownedContent();
+    if (units.length === 0) {
+      return;
+    }
+    const answer = await apiPost<AsyncOperationResponse>(
+      this.api,
+      getOrphansCleanupCleanupUrl(),
+      { content_hrefs: units, orphan_protection_time: 0 },
+    );
+    await this.waitForTask(answer.task);
+    const left = await Promise.all(
+      units.map((href) =>
+        apiCall<PulpObject>(this.api, 'GET', url(href), { accept: [404] }),
+      ),
+    );
+    const held = units.filter((_, index) => left[index]?.status !== 404);
+    if (held.length > 0) {
+      throw new Error(
+        `content left on the server after clean-up: ${held.join(', ')}`,
+      );
+    }
+  }
+
   // Registers an object that something else created, for example the UI.
   track(href: string): void {
     this.registered.push(href);
@@ -426,7 +525,9 @@ export class TestObjects {
   // guards, roles), then
   // anything of the scope that is still listed, for objects created through
   // the UI. Throws when something is left; always closes the API context.
-  async cleanUp(): Promise<void> {
+  // `fileContent` also removes the file content units whose path carries the
+  // scope's prefix, for a spec that uploads files.
+  async cleanUp({ fileContent = false } = {}): Promise<void> {
     try {
       const ordered = [...this.registered].reverse();
       this.registered.length = 0;
@@ -450,6 +551,10 @@ export class TestObjects {
             objects.map(({ pulp_href }) => this.remove(pulp_href)),
           );
         }
+      }
+
+      if (fileContent || this.content.size > 0) {
+        await this.removeContent();
       }
 
       const left = await this.leftovers();
