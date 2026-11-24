@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { debPackage } from 'src/entities/deb/package';
 import { fileContent } from 'src/entities/file/content';
 import { fileRepository } from 'src/entities/file/repository';
@@ -232,6 +232,30 @@ describe(
       expect(lab.removed).toStrictEqual([lab.uploads[0].href]);
       expect(lab.creates).toHaveLength(0);
       expect(lab.chunks.length).toBeLessThan(5);
+    });
+
+    it('deletes the upload the server made when the caller cancels while it is being made', async () => {
+      const lab = uploadLab({ uploadMs: 60 });
+      server.use(...lab.handlers);
+      const controller = new AbortController();
+      const sending = uploadFile({
+        file: fileOf(20 * MIB),
+        contentEntity: fileContent,
+        fields: { relative_path: 'big.bin' },
+        mayChunk: true,
+        signal: controller.signal,
+      });
+      // the server has the request and has made the upload; its answer is on
+      // the way
+      await vi.waitFor(() => expect(lab.uploads).toHaveLength(1));
+      controller.abort();
+
+      await expect(sending).rejects.toBeDefined();
+
+      // an upload nobody knows the address of would keep its storage for good
+      expect(lab.removed).toStrictEqual([lab.uploads[0].href]);
+      expect(lab.chunks).toHaveLength(0);
+      expect(lab.creates).toHaveLength(0);
     });
 
     it('sends nothing when the caller cancelled before the start', async () => {
