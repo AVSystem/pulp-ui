@@ -225,6 +225,19 @@ const DistributionListScreen = lazyScreen(() =>
   ).then(({ DistributionList }) => ({ default: DistributionList })),
 );
 
+// The list of all the content of a plugin the user may see.
+const contentListScreen = (plugin: FrameworkPlugin) =>
+  descriptorScreen(
+    plugin,
+    () =>
+      import(
+        /* webpackChunkName: "framework" */ 'src/framework/content/global-content-list'
+      ),
+    ({ GlobalContentList }, descriptor) => (
+      <GlobalContentList plugin={plugin} descriptor={descriptor} />
+    ),
+  );
+
 // The tabs of a repository that have a screen. The address of any other tab is
 // reserved and answers Not Found without a read, like any address without a
 // route.
@@ -250,6 +263,8 @@ function componentOf(
       return TABS_WITH_SCREENS.has(tab as RepositoryTab)
         ? repositoryDetailScreen(plugin, tab as RepositoryTab)
         : null;
+    case 'content-list':
+      return contentListScreen(plugin);
     case 'repository-edit':
       return repositoryEditScreen(plugin);
     case 'repository-create':

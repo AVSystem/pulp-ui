@@ -252,8 +252,8 @@ describe('palette', () => {
       'Repositories - Python',
       'Repositories - Ansible',
       'Distributions',
-      'Packages and artifacts - RPM',
-      'Packages and artifacts - Python',
+      'Packages and artifacts - File',
+      'Packages and artifacts - deb',
     ]);
     expect(screen.getByText('Go to')).toBeVisible();
   });

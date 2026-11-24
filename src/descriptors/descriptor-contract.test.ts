@@ -215,6 +215,24 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
     }
   });
 
+  // The menu leads to the list of a plugin's content for every plugin whose
+  // manifest lists repositories, without loading the descriptor, so the
+  // descriptor has to have a type to list.
+  it('requires every plugin with repository screens to declare a content type', async () => {
+    for (const { plugin, resources } of PLUGIN_MANIFESTS) {
+      if (!resources.includes('repository')) {
+        continue;
+      }
+      const loader = LOADERS[plugin] as NonNullable<(typeof LOADERS)[string]>;
+      const { default: descriptor } = await loader();
+
+      expect(
+        descriptor.contentTypes?.length ?? 0,
+        `${plugin} content types`,
+      ).toBeGreaterThan(0);
+    }
+  });
+
   it('accepts a descriptor that declares only a distribution', () => {
     const entity = {
       app: 'maven',

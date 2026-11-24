@@ -285,6 +285,12 @@ describe(
           '/rpm/repositories/r/content/?page=2&sort=name',
         ],
         ['/rpm/repositories/r/packages', '/rpm/repositories/r/content/'],
+        ['/rpm/rpms', '/rpm/content/'],
+        ['/rpm/rpms?name__contains=bash', '/rpm/content/?name__contains=bash'],
+        [
+          '/rpm/rpms?page=2&page_size=100&sort=-name',
+          '/rpm/content/?page=2&page_size=100&sort=-name',
+        ],
         [
           '/rpm/repositories/detail/r?tab=distributions',
           '/rpm/repositories/r/distributions/',
@@ -330,6 +336,12 @@ describe(
           '/python/repositories/r/content/?page=2&sort=name',
         ],
         ['/python/repositories/r/packages', '/python/repositories/r/content/'],
+        ['/python/packages', '/python/content/'],
+        ['/python/packages?name=x', '/python/content/?name=x'],
+        [
+          '/python/packages?page=3&sort=name',
+          '/python/content/?page=3&sort=name',
+        ],
         [
           '/python/repositories/detail/r?tab=distributions',
           '/python/repositories/r/distributions/',

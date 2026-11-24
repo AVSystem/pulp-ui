@@ -5,7 +5,7 @@
 // would be a second implementation that can drift from the first. This test
 // reads the source tree and fails when one of the old files of a plugin that is
 // on the framework is there again.
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { PLUGIN_MANIFESTS } from '../src/framework/manifest';
@@ -77,6 +77,22 @@ describe(
         ),
       ).toBe(true);
     });
+
+    // The lists of all the content of a plugin are one generic screen. A list of
+    // packages of one plugin next to it would read a row at a time again.
+    it.each(['python', 'rpm'])(
+      'leaves no list of packages in the %s container folder',
+      (plugin) => {
+        expect(
+          (existsSync(join(SRC, 'containers', plugin))
+            ? names(join('containers', plugin))
+            : []
+          )
+            .filter((name) => name.startsWith('package-list'))
+            .map((name) => `src/containers/${plugin}/${name}`),
+        ).toEqual([]);
+      },
+    );
 
     // A plugin that has only distributions on the framework keeps its own
     // repository and remote screens, so the guard does not apply to them.

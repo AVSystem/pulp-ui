@@ -4,6 +4,7 @@ import type { FrameworkPlugin, PluginManifest } from './manifest';
 import {
   type LegacyPattern,
   type RepositoryTab,
+  contentListPath,
   legacyPatternsOf,
   newRemotePath,
   newRepositoryPath,
@@ -76,6 +77,8 @@ function targetOf(
         pathname: repositoryPath(plugin, name as string, 'content'),
         search: rest(),
       };
+    case 'content-list':
+      return { pathname: contentListPath(plugin), search: rest() };
     case 'repository-edit':
       return {
         pathname: repositoryEditPath(plugin, name as string),

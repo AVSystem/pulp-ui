@@ -19,6 +19,7 @@ export type ScreenKind =
   | 'repository-detail'
   | 'repository-tab'
   | 'repository-packages'
+  | 'content-list'
   | 'repository-edit'
   | 'repository-create'
   | 'remote-list'
@@ -103,6 +104,10 @@ export function patternsOf(
     },
     { pattern: `${repositories}/:name/edit`, screen: 'repository-edit' },
     { pattern: `/${plugin}/repository/new`, screen: 'repository-create' },
+    // Every unit of the plugin's content the user may see, whatever repository
+    // holds it. It belongs to the repository side of a plugin: a plugin without
+    // repository screens has no content of its own to list.
+    { pattern: `/${plugin}/content`, screen: 'content-list' },
     { pattern: remotes, screen: 'remote-list' },
     { pattern: `${remotes}/:name`, screen: 'remote-detail' },
     { pattern: `${remotes}/:name/edit`, screen: 'remote-edit' },
@@ -129,6 +134,13 @@ export interface LegacyPattern {
   screen: ScreenKind;
 }
 
+// The last segment of the address the list of every package of a plugin had,
+// for the plugins that had one.
+const LEGACY_PACKAGE_LISTS: Partial<Record<FrameworkPlugin, string>> = {
+  python: 'packages',
+  rpm: 'rpms',
+};
+
 // The addresses the screens had before they were named by their object. Each
 // one moves to its new address. `edit/_` was the create address. Only the kinds
 // of object the plugin has screens for on the framework are listed: a plugin
@@ -139,6 +151,7 @@ export function legacyPatternsOf(
 ): LegacyPattern[] {
   const repositories = `/${plugin}/repositories`;
   const remotes = `/${plugin}/remotes`;
+  const packageList = LEGACY_PACKAGE_LISTS[plugin];
 
   const all: LegacyPattern[] = [
     { pattern: `${repositories}/detail/:name`, screen: 'repository-detail' },
@@ -152,6 +165,15 @@ export function legacyPatternsOf(
       pattern: `${repositories}/:name/packages`,
       screen: 'repository-packages',
     },
+    // The list of every package of a plugin, which is its list of content now.
+    ...(packageList
+      ? [
+          {
+            pattern: `/${plugin}/${packageList}`,
+            screen: 'content-list' as const,
+          },
+        ]
+      : []),
   ];
 
   return all.filter(({ screen }) =>
@@ -182,6 +204,10 @@ export const newDistributionPath = (
       ? ''
       : `?repository=${encodeURIComponent(repository)}`
   }`;
+
+// The list of all the content of a plugin the user may see.
+export const contentListPath = (plugin: FrameworkPlugin) =>
+  fillPath(`/${plugin}/content`);
 
 // The address of one object. A name is encoded into a single segment; a
 // version number is spelled as a string because 0 is a version too, and the
