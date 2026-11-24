@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { PLUGIN_MANIFESTS } from './manifest';
 import {
+  contentListPath,
   corePatterns,
   distributionEditPath,
   distributionListPath,
@@ -324,6 +325,7 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/file/repositories/:name/content',
       '/file/repositories/:name/edit',
       '/file/repository/new',
+      '/file/content',
       '/file/remotes',
       '/file/remotes/:name',
       '/file/remotes/:name/edit',
@@ -376,6 +378,7 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/deb/repositories/:name/versions/:number': 'repository-tab',
       '/deb/repositories/:name/edit': 'repository-edit',
       '/deb/repository/new': 'repository-create',
+      '/deb/content': 'content-list',
       '/deb/remotes': 'remote-list',
       '/deb/remotes/:name': 'remote-detail',
       '/deb/remotes/:name/edit': 'remote-edit',
@@ -410,6 +413,18 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/python/remotes/edit/_',
       '/python/repositories/:name/packages',
     ]);
+  });
+
+  it('names the global content list of every plugin with repository screens, and of none other', () => {
+    expect(contentListPath('rpm')).toBe('/rpm/content/');
+    for (const { plugin, resources } of PLUGIN_MANIFESTS) {
+      expect(
+        patternsOf(plugin, resources).some(
+          ({ pattern, screen }) =>
+            pattern === `/${plugin}/content` && screen === 'content-list',
+        ),
+      ).toBe(resources.includes('repository'));
+    }
   });
 });
 
