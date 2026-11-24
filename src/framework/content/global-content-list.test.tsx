@@ -281,18 +281,22 @@ describe(
       ).toBeVisible();
     });
 
-    it('sorts by a column the server orders by, from the address', async () => {
-      const lab = servePackages([row(1), row(2)]);
-      const { user } = render('/rpm/content');
+    it('sorts by a column the server orders by and ignores a sort it is not asked for', async () => {
+      const lab = servePackages([row(1, { name: 'a' }), row(2, { name: 'b' })]);
+      const { user } = render('/rpm/content?sort=summary');
 
       const grid = await table();
-      await within(grid).findByText('pkg-001');
-      await user.click(within(grid).getByRole('button', { name: 'Name' }));
+      await within(grid).findByText('a');
+      expect(lab.queries.at(-1)?.get('ordering')).toBe('name');
 
-      await waitFor(() => expect(location()).toMatch(/sort=-name/));
+      await user.click(
+        grid.querySelector('[data-cy="sort_name"]') as HTMLElement,
+      );
+
       await waitFor(() =>
         expect(lab.queries.at(-1)?.get('ordering')).toBe('-name'),
       );
+      expect(location()).toMatch(/sort=-name/);
     });
 
     it('offers the label editor to a holder of core.manage_content_labels and sends set_label to the unit', async () => {

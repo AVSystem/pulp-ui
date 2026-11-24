@@ -145,6 +145,10 @@ interface Props<Row extends { pulp_href: string }> {
   // a repository that has no version yet. Without one nothing is read: the
   // server would list the content of every repository.
   version: string | null | undefined;
+  // Lists every unit of the type the user may see, whatever repository holds
+  // it, and ignores the version. No filter is added that would claim more or
+  // less than the server returns for the user.
+  unscoped?: boolean;
   // What of the version is listed; the content it holds unless said.
   section?: VersionSection;
   // The name of the table for assistive technology, in place of the config's.
@@ -167,6 +171,7 @@ interface Props<Row extends { pulp_href: string }> {
 export function ContentList<Row extends { pulp_href: string }>({
   config,
   version,
+  unscoped = false,
   section = 'present',
   label,
   address,
@@ -245,10 +250,12 @@ export function ContentList<Row extends { pulp_href: string }>({
   const request = {
     ...params,
     ...fixed,
-    [FILTER_OF_SECTION[section]]: version ?? '',
+    ...(unscoped ? {} : { [FILTER_OF_SECTION[section]]: version ?? '' }),
     fields: [...fields],
   } as ContentListParams;
-  const query = useEntityList(entity, request, { enabled: !!version });
+  const query = useEntityList(entity, request, {
+    enabled: unscoped || !!version,
+  });
 
   // The rows ticked for an action: those of this page of this list, and none
   // once the address, the version or the part changes.
@@ -268,7 +275,7 @@ export function ContentList<Row extends { pulp_href: string }>({
   );
   const nameOf = (row: Row) => config.nameOf?.(row) ?? row.pulp_href;
 
-  if (!version) {
+  if (!unscoped && !version) {
     return (
       <EmptyStateNoData
         title={i18n._(config.emptyTitle)}
@@ -454,9 +461,69 @@ export function tabConfig(
   };
 }
 
-// The query parameter that names the content type on a repository whose plugin
-// has several.
+// The query parameter that names the content type on a screen whose plugin
+// declares several.
 const TYPE_PARAMETER = 'type';
+
+// The content type a screen shows and the address its list keeps its page,
+// order and filters in. The type is named in the address beside them, so it is
+// never lost when the list pages or sorts; the first type is the default and
+// leaves the address clean.
+export function useContentType(types: readonly ContentTypeDef[]) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const address = new URLSearchParams(location.search);
+  const named = address.get(TYPE_PARAMETER);
+  const type = types.find(({ id }) => id === named) ?? types[0];
+  address.delete(TYPE_PARAMETER);
+
+  const listAddress: ListAddress = {
+    search: address.size > 0 ? `?${address.toString()}` : '',
+    onChange: (search) => {
+      const next = new URLSearchParams(search);
+      if (type !== types[0]) {
+        next.set(TYPE_PARAMETER, type.id);
+      }
+      navigate({ search: next.size > 0 ? `?${next.toString()}` : '' });
+    },
+  };
+
+  return { type, listAddress };
+}
+
+// The choice between the content types a plugin declares. Choosing one starts
+// its list afresh: nothing of the other's page and filters is carried over.
+export const ContentTypeChoice = ({
+  types,
+  type,
+}: {
+  types: readonly ContentTypeDef[];
+  type: ContentTypeDef;
+}) => {
+  const navigate = useNavigate();
+
+  return (
+    <ToggleGroup aria-label={t`Content type`}>
+      {types.map(({ id, label }) => (
+        <ToggleGroupItem
+          key={id}
+          text={i18n._(label)}
+          buttonId={`content-type-${id}`}
+          isSelected={id === type.id}
+          onChange={() =>
+            navigate({
+              search:
+                id === types[0].id
+                  ? ''
+                  : `?${TYPE_PARAMETER}=${encodeURIComponent(id)}`,
+            })
+          }
+        />
+      ))}
+    </ToggleGroup>
+  );
+};
 
 interface TabProps {
   plugin: FrameworkPlugin;
@@ -484,8 +551,6 @@ export const ContentTab = ({
     );
   }
   const { entity } = repositoryOf(descriptor);
-  const location = useLocation();
-  const navigate = useNavigate();
   const mayModify = useRepositoryPermission(plugin, repository, 'modify');
   const [adding, setAdding] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -494,23 +559,7 @@ export const ContentTab = ({
     clear: () => void;
   } | null>(null);
 
-  const address = new URLSearchParams(location.search);
-  const named = address.get(TYPE_PARAMETER);
-  const type = types.find(({ id }) => id === named) ?? types[0];
-  address.delete(TYPE_PARAMETER);
-
-  // The list keeps its page, order and filters in the address beside the type,
-  // so the type is never lost when the list pages or sorts.
-  const listAddress = {
-    search: address.size > 0 ? `?${address.toString()}` : '',
-    onChange: (search: string) => {
-      const next = new URLSearchParams(search);
-      if (type !== types[0]) {
-        next.set(TYPE_PARAMETER, type.id);
-      }
-      navigate({ search: next.size > 0 ? `?${next.toString()}` : '' });
-    },
-  };
+  const { type, listAddress } = useContentType(types);
 
   const config = tabConfig(type);
   const canRemove = mayModify && entity.modify !== undefined;
@@ -524,24 +573,7 @@ export const ContentTab = ({
           <ToolbarContent>
             {types.length > 1 ? (
               <ToolbarItem>
-                <ToggleGroup aria-label={t`Content type`}>
-                  {types.map(({ id, label }) => (
-                    <ToggleGroupItem
-                      key={id}
-                      text={i18n._(label)}
-                      buttonId={`content-type-${id}`}
-                      isSelected={id === type.id}
-                      onChange={() =>
-                        navigate({
-                          search:
-                            id === types[0].id
-                              ? ''
-                              : `?${TYPE_PARAMETER}=${encodeURIComponent(id)}`,
-                        })
-                      }
-                    />
-                  ))}
-                </ToggleGroup>
+                <ContentTypeChoice types={types} type={type} />
               </ToolbarItem>
             ) : null}
             {canRemove ? (
