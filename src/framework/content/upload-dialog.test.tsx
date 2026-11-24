@@ -1,7 +1,10 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
-import descriptor from 'src/descriptors/file/descriptor';
+import debDescriptor from 'src/descriptors/deb/descriptor';
+import fileDescriptor from 'src/descriptors/file/descriptor';
+import pythonDescriptor from 'src/descriptors/python/descriptor';
+import rpmDescriptor from 'src/descriptors/rpm/descriptor';
 import { fileRepository } from 'src/entities/file/repository';
 import { entityKeys } from 'src/entities/plugin/queries';
 import { resetSessionEvents } from 'src/session/session-events';
@@ -14,10 +17,11 @@ import { pluginRepository, uploadLab } from 'src/test-utils/pulp';
 import { createTestQueryClient } from 'src/test-utils/query';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
+import type { PluginDescriptor } from '../descriptor';
 import { WatchedTasksProvider } from '../watched-tasks';
 import { UploadDialog } from './upload-dialog';
 
-// The upload dialog of a file repository as a user meets it: files are chosen,
+// The upload dialog of a repository as a user meets it: files are chosen,
 // each gets a relative path, the dialog says how many repository versions the
 // upload makes, shows the progress of every file and then what became of it.
 // The server is the upload lab: it records everything it was sent and starts a
@@ -32,6 +36,29 @@ const EDITOR: IPermissionSetup = {
   id: 8,
   isStaff: false,
   own: [['file.modify_filerepository', 'core.add_upload']],
+};
+// A user who may modify the repository and may not create uploads.
+const WRITER: IPermissionSetup = {
+  id: 9,
+  isStaff: false,
+  own: [['file.modify_filerepository']],
+};
+
+type Plugin = 'file' | 'deb' | 'rpm' | 'python';
+
+const DESCRIPTORS: Record<Plugin, PluginDescriptor> = {
+  file: fileDescriptor as PluginDescriptor,
+  deb: debDescriptor as PluginDescriptor,
+  rpm: rpmDescriptor as PluginDescriptor,
+  python: pythonDescriptor as PluginDescriptor,
+};
+
+// Where each plugin's server takes content creates.
+const CONTENT_PATH: Record<Plugin, string> = {
+  file: '/pulp/api/v3/content/file/files/',
+  deb: '/pulp/api/v3/content/deb/packages/',
+  rpm: '/pulp/api/v3/content/rpm/packages/',
+  python: '/pulp/api/v3/content/python/packages/',
 };
 
 let permissions: { stop: () => void };
@@ -49,25 +76,27 @@ const fileOf = (name: string, bytes = 10) =>
   new File([new Uint8Array(bytes)], name);
 
 interface Setup {
+  plugin?: Plugin;
   user?: IPermissionSetup;
   retain?: number | null;
 }
 
-function render({ user = ADMIN, retain = null }: Setup = {}) {
+function render({ plugin = 'file', user = ADMIN, retain = null }: Setup = {}) {
   permissions.stop();
   permissions = servePermissions(user);
 
-  const repository = pluginRepository('file', {
+  const repository = pluginRepository(plugin, {
     name: 'tools',
     retain_repo_versions: retain,
   });
   const onClose = vi.fn();
   const queryClient = createTestQueryClient();
   const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+  const descriptor = DESCRIPTORS[plugin];
   const types = descriptor.contentTypes ?? [];
   const upload = descriptor.repository?.upload;
-  if (!upload) {
-    throw new Error('The file descriptor declares no upload');
+  if (!descriptor.repository || !upload) {
+    throw new Error(`The ${plugin} descriptor declares no upload`);
   }
 
   const rendered = renderWithProviders(
@@ -76,7 +105,7 @@ function render({ user = ADMIN, retain = null }: Setup = {}) {
         <WatchedTasksProvider>
           <UploadDialog
             repository={repository}
-            entity={fileRepository}
+            entity={descriptor.repository.entity}
             types={types}
             upload={upload}
             onClose={onClose}
@@ -114,7 +143,7 @@ const upload = (dialog: HTMLElement) =>
   within(dialog).getByRole('button', { name: 'Upload' });
 
 describe(
-  'Integration: uploading files into a file repository',
+  'Integration: uploading files into a repository',
   { tags: ['integration'] },
   () => {
     it('lists the chosen files with a relative path each, which is the file name until the user types another', async () => {
@@ -544,6 +573,135 @@ describe(
           await within(dialog).findByText('Cancel the upload?'),
         ).toBeVisible();
         expect(onClose).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('the plugins that upload besides file', () => {
+      it.each(['deb', 'rpm'] as const)(
+        'asks for no path for %s and sends none, the server finds it in the package',
+        async (plugin) => {
+          const lab = uploadLab({ contentPath: CONTENT_PATH[plugin] });
+          server.use(...lab.handlers);
+          const { user, repository } = render({ plugin, user: EDITOR });
+          const dialog = await choose(user, fileOf('tool_1.0_all.pkg'));
+
+          expect(within(dialog).queryByText('Relative path')).toBeNull();
+          expect(within(dialog).queryByRole('textbox')).toBeNull();
+
+          await user.click(upload(dialog));
+
+          expect(
+            await within(rowOf(dialog, 'tool_1.0_all.pkg')).findByText('Added'),
+          ).toBeVisible();
+          expect(lab.creates.map(({ fields }) => fields)).toStrictEqual([
+            { repository: repository.pulp_href },
+          ]);
+        },
+      );
+
+      it('shows the file name as the fixed path for python and sends it', async () => {
+        const lab = uploadLab({ contentPath: CONTENT_PATH.python });
+        server.use(...lab.handlers);
+        const { user, repository } = render({
+          plugin: 'python',
+          user: EDITOR,
+        });
+        const dialog = await choose(user, fileOf('tool-1.0.tar.gz'));
+
+        expect(within(dialog).getByText('Relative path')).toBeVisible();
+        expect(within(dialog).queryByRole('textbox')).toBeNull();
+        expect(
+          within(rowOf(dialog, 'tool-1.0.tar.gz')).getAllByText(
+            'tool-1.0.tar.gz',
+          ),
+        ).toHaveLength(2);
+        expect(upload(dialog)).toBeEnabled();
+
+        await user.click(upload(dialog));
+
+        expect(
+          await within(rowOf(dialog, 'tool-1.0.tar.gz')).findByText('Added'),
+        ).toBeVisible();
+        expect(lab.creates.map(({ fields }) => fields)).toStrictEqual([
+          {
+            relative_path: 'tool-1.0.tar.gz',
+            repository: repository.pulp_href,
+          },
+        ]);
+      });
+
+      it.each(['deb', 'rpm', 'python'] as const)(
+        'says for %s that every file makes a version of its own when the user is no administrator',
+        async (plugin) => {
+          const { user } = render({ plugin, user: EDITOR });
+          const dialog = await choose(user, fileOf('a.pkg'), fileOf('b.pkg'));
+
+          expect(
+            within(dialog).getByText(
+              'Each file creates its own repository version',
+            ),
+          ).toBeVisible();
+        },
+      );
+
+      it('adds the files of an administrator in one version for rpm as well', async () => {
+        const lab = uploadLab({ contentPath: CONTENT_PATH.rpm });
+        server.use(...lab.handlers);
+        const { user, repository } = render({ plugin: 'rpm' });
+        const dialog = await choose(user, fileOf('a.rpm'), fileOf('b.rpm'));
+
+        await user.click(upload(dialog));
+
+        expect(
+          await within(rowOf(dialog, 'b.rpm')).findByText('Added'),
+        ).toBeVisible();
+        expect(lab.modifies).toHaveLength(1);
+        expect(lab.modifies[0]?.href).toBe(`${repository.pulp_href}modify/`);
+      });
+    });
+
+    describe('large files for a user who may not create uploads', () => {
+      const NOTE = 'Large files are sent in one request and may time out';
+
+      it('says before the upload that a file above the chunk threshold is sent in one request and may time out', async () => {
+        const { user } = render({ user: WRITER });
+        const dialog = await choose(user, fileOf('big.bin', 9 * MIB));
+
+        expect(within(dialog).getByText(NOTE)).toBeVisible();
+      });
+
+      it('says nothing of it for small files', async () => {
+        const { user } = render({ user: WRITER });
+        const dialog = await choose(user, fileOf('small.bin', 8 * MIB));
+
+        expect(within(dialog).queryByText(NOTE)).toBeNull();
+      });
+
+      it('says nothing of it to a user who may create uploads', async () => {
+        const { user } = render({ user: EDITOR });
+        const dialog = await choose(user, fileOf('big.bin', 9 * MIB));
+
+        expect(within(dialog).queryByText(NOTE)).toBeNull();
+      });
+
+      it('says nothing of it to an administrator', async () => {
+        const { user } = render();
+        const dialog = await choose(user, fileOf('big.bin', 9 * MIB));
+
+        expect(within(dialog).queryByText(NOTE)).toBeNull();
+      });
+
+      it('sends such a file in one request', async () => {
+        const lab = uploadLab();
+        server.use(...lab.handlers);
+        const { user } = render({ user: WRITER });
+        const dialog = await choose(user, fileOf('big.bin', 9 * MIB));
+
+        await user.click(upload(dialog));
+        await within(rowOf(dialog, 'big.bin')).findByText('Added');
+
+        expect(lab.uploads).toHaveLength(0);
+        expect(lab.creates[0]?.fileBytes).toBe(9 * MIB);
       });
     });
   },
