@@ -78,7 +78,9 @@ describe(
         'tr',
       ) as HTMLElement;
       expect(within(row).getByText('AB12CD34')).toBeVisible();
-      expect(within(row).getByText(/2024/)).toBeVisible();
+      expect(row.querySelector('time')?.getAttribute('datetime')).toBe(
+        '2024-03-05T10:00:00.000000Z',
+      );
       expect(list.queries).toHaveLength(1);
       const query = list.queries[0] as URLSearchParams;
       expect(query.get('offset')).toBe('0');
@@ -149,12 +151,12 @@ describe(
 
       renderList('/signature-keys?name=zz-b&page_size=20');
 
-      await screen.findByText('zz-b');
+      await screen.findAllByText('zz-b');
 
       const query = list.queries[0] as URLSearchParams;
       expect(query.get('name')).toBe('zz-b');
       expect(query.get('limit')).toBe('20');
-      expect(screen.getAllByText('zz-b').length).toBeGreaterThan(1);
+      expect(screen.getAllByText('zz-b')).toHaveLength(2);
     });
 
     it('shows the way out of a filter that matches nothing and never says there are no keys', async () => {
@@ -168,7 +170,7 @@ describe(
 
       renderList('/signature-keys?name=nothing');
 
-      expect(await screen.findByText(/clear all filters/i)).toBeVisible();
+      expect(await screen.findByText('No results found')).toBeVisible();
       expect(screen.queryByText('No signature keys yet')).toBeNull();
     });
 
