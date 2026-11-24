@@ -10,7 +10,7 @@ import { parseResponse } from 'src/entities/response-shape';
 import { useSessionQuery } from 'src/query/use-session-query';
 import { type Page, pageSchemaOf } from './model';
 import { entityKeys } from './queries';
-import { type Options, asParams, toListRequest } from './request';
+import { type Options, asParams, taskOf, toListRequest } from './request';
 
 // The publication entity of a plugin that serves content from publications
 // (file, deb, rpm). A plugin whose distributions serve a repository directly
@@ -69,9 +69,19 @@ export interface PublicationListParams {
 // most the server answers on one page.
 const OF_REPOSITORY_PAGE_SIZE = 1000;
 
-// What a plugin's generated client offers for its publications.
-export interface PublicationApi<TListParams> {
+// What a publish request sends: exactly one of the repository (its latest
+// version is published) or one repository version, and the options the plugin's
+// descriptor declares under the names the plugin's own request uses.
+export type PublishBody = {
+  repository?: string;
+  repository_version?: string;
+} & Record<string, unknown>;
+
+// What a plugin's generated client offers for its publications. A plugin that
+// cannot publish from the screens has no `create`.
+export interface PublicationApi<TListParams, TCreate = unknown> {
   list: (params?: TListParams, options?: Options) => Promise<unknown>;
+  create?: (body: TCreate, options?: Options) => Promise<unknown>;
   // The address a list with these parameters is requested from, as the client
   // builds it; chunkByUrl measures requests on it.
   listUrl: (params?: TListParams) => string;
@@ -121,6 +131,9 @@ export function publicationIndexOf(
 export interface PublicationEntity<Row> {
   readonly app: string;
   readonly object: 'publication';
+  // Starts a publish; resolves with the address of the task that does it. A
+  // plugin that cannot publish from the screens has none.
+  create?: (body: PublishBody, options?: Options) => Promise<string>;
   list: (
     params?: PublicationListParams,
     options?: Options,
@@ -147,6 +160,7 @@ export interface PublicationEntity<Row> {
 export function makePublicationEntity<
   Row extends PublicationBase,
   TListParams,
+  TCreate = unknown,
 >({
   app,
   schema,
@@ -154,7 +168,7 @@ export function makePublicationEntity<
 }: {
   app: string;
   schema: ZodType<Row>;
-  api: PublicationApi<TListParams>;
+  api: PublicationApi<TListParams, TCreate>;
 }): PublicationEntity<Row> {
   const pageSchema = pageSchemaOf(schema);
 
@@ -168,9 +182,17 @@ export function makePublicationEntity<
       fields: [...PUBLICATION_INDEX_FIELDS],
     });
 
+  const { create } = api;
+
   return {
     app,
     object: 'publication',
+    ...(create
+      ? {
+          create: async (body: PublishBody, options?: Options) =>
+            taskOf(await create(body as TCreate, options)),
+        }
+      : {}),
     list: async (params = {}, options) => {
       if (params.pulp_href__in?.length === 0) {
         return { count: 0, next: null, previous: null, results: [] };

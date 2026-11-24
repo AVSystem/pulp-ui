@@ -201,8 +201,9 @@ export interface TabDef<Row> {
 export interface SyncOptionDef<Row> {
   name: string;
   label: MessageDescriptor;
-  // `boolean` is a switch, `select` a choice among `options`.
-  kind: 'boolean' | 'select';
+  // `boolean` is a switch, `select` a choice among `options`, `text` a line of
+  // text.
+  kind: 'boolean' | 'select' | 'text';
   help?: MessageDescriptor;
   // The text beside the switch of a `boolean` option, which says what turning
   // it on does; the label above names the option.
@@ -284,13 +285,27 @@ export interface DistributionKind<Row extends DistributionBase> {
 
 // A plugin that serves a repository through a publication. Absent for a plugin
 // that has no publication endpoint.
-export interface PublicationKind {
+export interface PublicationKind<Row extends RepositoryBase = RepositoryBase> {
   // Reads the publications that publication-bound distributions point at, to
   // find the repository each one serves.
   entity: PublicationEntity<PublicationBase>;
   // Whether a distribution serves the publication of its repository and not
   // the repository's latest version directly.
   servesFromPublication: boolean;
+  // The name of the task that makes a publication, to show a publish by what it
+  // is doing. Absent for a plugin that cannot publish from the screens.
+  taskName?: string;
+  // The options the publish dialog offers beyond what is published, in order.
+  // The initial value of each is what the server would use when the option is
+  // left out; only an option that differs from it is sent.
+  options?: SyncOptionDef<Row>[];
+  // Keeps the options in a combination the server accepts: called with the
+  // values after the user changed the option named, it answers the values to
+  // hold.
+  adjust?: (
+    values: Record<string, unknown>,
+    changed: string,
+  ) => Record<string, unknown>;
 }
 
 export interface PluginDescriptor<Row extends RepositoryBase = RepositoryBase> {
@@ -299,7 +314,7 @@ export interface PluginDescriptor<Row extends RepositoryBase = RepositoryBase> {
   repository?: RepositoryKind<Row>;
   remote?: RemoteKind<RemoteBase>;
   distribution?: DistributionKind<DistributionBase>;
-  publication?: PublicationKind;
+  publication?: PublicationKind<Row>;
   contentTypes?: ContentTypeDef[];
 }
 

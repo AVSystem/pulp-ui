@@ -107,18 +107,33 @@ describe(
     it('names a task that is not a sync by the task, and links to it', async () => {
       const lab = serveSyncLab({
         tasks: [
-          { state: 'running', name: 'pulp_file.app.tasks.publishing.publish' },
+          {
+            state: 'running',
+            name: 'pulpcore.app.tasks.repository.add_and_remove',
+          },
         ],
       });
       renderPanel(lab);
 
-      expect(await screen.findByText('File content publish')).toBeVisible();
+      expect(await screen.findByText('Add and remove content')).toBeVisible();
       expect(
         screen.getByRole('link', { name: 'View the task' }),
       ).toHaveAttribute(
         'href',
         expect.stringMatching(/^\/tasks\/[0-9a-f-]{36}\/?$/),
       );
+    });
+
+    it('names a publish by what it is doing, whoever started it', async () => {
+      const lab = serveSyncLab({
+        tasks: [
+          { state: 'running', name: 'pulp_file.app.tasks.publishing.publish' },
+        ],
+      });
+      renderPanel(lab);
+
+      expect(await screen.findByText('Publish running')).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Cancel task' })).toBeVisible();
     });
 
     it('reads the task every two seconds past 300 seconds and stops at a final state, which stays on screen with the link to the task', async () => {

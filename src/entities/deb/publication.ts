@@ -1,5 +1,6 @@
 import {
   getPublicationsDebAptListUrl,
+  publicationsDebAptCreate,
   publicationsDebAptList,
 } from '@pulp-ui/sdk/deb/publications-apt';
 import {
@@ -13,6 +14,7 @@ export const debPublication = makePublicationEntity({
   app: 'deb',
   schema: publicationSchema,
   api: {
+    create: publicationsDebAptCreate,
     list: publicationsDebAptList,
     listUrl: getPublicationsDebAptListUrl,
   },

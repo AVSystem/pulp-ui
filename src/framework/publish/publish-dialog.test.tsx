@@ -167,7 +167,9 @@ describe(
         lab.change(lab.tasks[0].pulp_href, { state: 'completed' });
         intervals.run(WATCH_POLL_MS);
 
-        expect(await screen.findByText('Publish of tools finished.')).toBeVisible();
+        expect(
+          await screen.findByText('Publish of tools finished.'),
+        ).toBeVisible();
       });
 
       it('is announced as a failure when the task fails', async () => {
@@ -188,7 +190,9 @@ describe(
         lab.change(lab.tasks[0].pulp_href, { state: 'failed' });
         intervals.run(WATCH_POLL_MS);
 
-        expect(await screen.findByText('Publish of tools failed.')).toBeVisible();
+        expect(
+          await screen.findByText('Publish of tools failed.'),
+        ).toBeVisible();
       });
     });
 
@@ -205,7 +209,9 @@ describe(
         await user.click(publishButton());
 
         await waitFor(() => expect(lab.publishes).toHaveLength(1));
-        expect(lab.publishes[0]).toEqual({ repository_version: version.pulp_href });
+        expect(lab.publishes[0]).toEqual({
+          repository_version: version.pulp_href,
+        });
       });
     });
 

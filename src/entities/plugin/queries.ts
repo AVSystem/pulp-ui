@@ -420,3 +420,40 @@ export function useSyncRepository<Body>(
     },
   });
 }
+
+export interface PublishRequest<Body> {
+  // The address of the repository the publication is made from; the tasks the
+  // repository holds are read again once the request has settled.
+  repository: string;
+  // What is published: the repository (its latest version) or one version, and
+  // the options of the plugin.
+  body: Body;
+}
+
+// Starts a publish, which the server runs in a task of its own. The answer is
+// the address of that task. The call is never repeated by itself: a repeated
+// publish would make a second publication. Once it has settled, whatever it
+// answered, the task the repository now holds and the tasks every list shows
+// are read again, so a publish that has just started shows without waiting for
+// the next scheduled read.
+export function usePublish<Body>(entity: {
+  create?: (body: Body, options?: Options) => Promise<string>;
+}) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ body }: PublishRequest<Body>) => {
+      if (!entity.create) {
+        throw new Error('The plugin has no way to publish a repository');
+      }
+      return entity.create(body);
+    },
+    retry: false,
+    onSettled: (_task, _error, { repository }) => {
+      void queryClient.invalidateQueries({ queryKey: taskKeys.index });
+      void queryClient.invalidateQueries({
+        queryKey: taskKeys.activeOf(repository),
+      });
+    },
+  });
+}

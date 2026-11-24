@@ -61,10 +61,33 @@ interface Notice {
   description?: ReactNode;
 }
 
-// The heading of the panel. A sync is named by what it is doing; any other task
-// that holds the repository is named by the task.
-function headingOf(task: Task, isSync: boolean): string {
-  if (!isSync) {
+// What a task of the repository is to the panel: a sync or a publish is named
+// by what it is doing, any other task by its name.
+type Kind = 'sync' | 'publish' | 'other';
+
+// The heading of the panel. A sync or a publish is named by what it is doing;
+// any other task that holds the repository is named by the task.
+function headingOf(task: Task, kind: Kind): string {
+  if (kind === 'publish') {
+    switch (task.state) {
+      case 'waiting':
+        return t`Publish queued`;
+      case 'running':
+        return t`Publish running`;
+      case 'completed':
+        return t`Publish completed`;
+      case 'failed':
+        return t`Publish failed`;
+      case 'canceled':
+      case 'skipped':
+        return t`Publish canceled`;
+      case 'canceling':
+        return t`Publish is being canceled`;
+      default:
+        return t`Publish`;
+    }
+  }
+  if (kind !== 'sync') {
     return translateTask(task.name);
   }
   switch (task.state) {
@@ -99,6 +122,7 @@ export const SyncProgressPanel = ({ repository, descriptor }: Props) => {
   const titleId = useId();
   const active = useActiveTaskOf(repository.pulp_href);
   const syncTask = repositoryOf(descriptor).sync?.taskName;
+  const publishTask = descriptor.publication?.taskName;
 
   // The task on screen: the active one, kept after it has left the lookup
   // because it ended, until another one is active.
@@ -150,7 +174,12 @@ export const SyncProgressPanel = ({ repository, descriptor }: Props) => {
   }
 
   const isSync = syncTask !== undefined && task.name === syncTask;
-  const heading = headingOf(task, isSync);
+  const kind: Kind = isSync
+    ? 'sync'
+    : publishTask !== undefined && task.name === publishTask
+      ? 'publish'
+      : 'other';
+  const heading = headingOf(task, kind);
   const id = taskUrlId(task.pulp_href);
   const reports = task.progress_reports ?? [];
   const failure = task.error?.['description'];

@@ -8,6 +8,7 @@ import { guardRoutes } from 'src/app-routes';
 import fileDescriptor from 'src/descriptors/file/descriptor';
 import { type IIntervals, trackIntervals } from 'src/test-utils/intervals';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
+import { servePublishLab } from 'src/test-utils/publish-lab';
 import {
   distributionListHandler,
   inSetOf,
@@ -23,7 +24,6 @@ import {
   role,
   roleAssignment,
 } from 'src/test-utils/pulp';
-import { servePublishLab } from 'src/test-utils/publish-lab';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 import { SYNC_TASK, report, serveSyncLab } from 'src/test-utils/sync-lab';
