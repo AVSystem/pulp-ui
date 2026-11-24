@@ -57,6 +57,13 @@ import {
 import type { FrameworkPlugin } from '../manifest';
 import { useRepositoryPermission } from './use-repository-permission';
 
+// The upload dialog is loaded when it is first opened.
+const UploadDialog = lazy(() =>
+  import('../content/upload-dialog').then((module) => ({
+    default: module.UploadDialog,
+  })),
+);
+
 // The dialog browses another repository's content through the list below, so it
 // is loaded when it is first opened and the two modules never need each other
 // at load time.
@@ -481,6 +488,7 @@ export const ContentTab = ({
   const navigate = useNavigate();
   const mayModify = useRepositoryPermission(plugin, repository, 'modify');
   const [adding, setAdding] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [removing, setRemoving] = useState<{
     rows: { href: string; name: string }[];
     clear: () => void;
@@ -506,6 +514,8 @@ export const ContentTab = ({
 
   const config = tabConfig(type);
   const canRemove = mayModify && entity.modify !== undefined;
+  const upload = descriptor.repository?.upload;
+  const canUpload = canRemove && upload !== undefined;
 
   return (
     <>
@@ -538,6 +548,13 @@ export const ContentTab = ({
               <ToolbarItem align={{ default: 'alignEnd' }}>
                 <Button variant='primary' onClick={() => setAdding(true)}>
                   {t`Add content`}
+                </Button>
+              </ToolbarItem>
+            ) : null}
+            {canUpload ? (
+              <ToolbarItem>
+                <Button variant='secondary' onClick={() => setUploading(true)}>
+                  {t`Upload`}
                 </Button>
               </ToolbarItem>
             ) : null}
@@ -583,6 +600,17 @@ export const ContentTab = ({
             types={types}
             addAlert={addAlert}
             onClose={() => setAdding(false)}
+          />
+        </Suspense>
+      ) : null}
+      {uploading && upload ? (
+        <Suspense fallback={null}>
+          <UploadDialog
+            repository={repository}
+            entity={entity}
+            types={types}
+            upload={upload}
+            onClose={() => setUploading(false)}
           />
         </Suspense>
       ) : null}

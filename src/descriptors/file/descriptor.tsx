@@ -132,6 +132,8 @@ const descriptor: PluginDescriptor<FileRepository> = {
       build: ({ name, url }) =>
         `pulp file remote create --name ${shellQuote(name)} --url ${shellQuote(`${url}PULP_MANIFEST`)}`,
     },
+    // A file needs a path in the repository, which starts as the file's name.
+    upload: { contentType: 'file.file', relativePath: 'required-default-name' },
     filters: REPOSITORY_FILTERS,
     columns: repositoryColumns<FileRepository>('file'),
   },

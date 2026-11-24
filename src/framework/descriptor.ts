@@ -282,6 +282,20 @@ export function contentType<Row extends { pulp_href: string }>(
   return type as unknown as ContentTypeDef;
 }
 
+// How a plugin's repositories take uploaded files. The Content tab offers an
+// Upload action to a user who may modify the repository when the plugin
+// declares one.
+export interface UploadDef {
+  // The id of the content type whose entity creates the units from files.
+  contentType: string;
+  // What the dialog asks for as the path of a file inside the repository:
+  // `required-default-name` a path the user may change, which starts as the
+  // file's name and may not be empty; `fixed-name` the file's name, shown and
+  // not changeable; `none` nothing, because the server finds the path in the
+  // file.
+  relativePath: 'required-default-name' | 'fixed-name' | 'none';
+}
+
 export interface RepositoryKind<Row> {
   entity: AnyRepositoryEntity<Row>;
   // The rows of the Details tab, in order.
@@ -296,6 +310,7 @@ export interface RepositoryKind<Row> {
   tabs?: TabDef<Row>[];
   sync?: SyncDef<Row>;
   snippet?: SnippetDef;
+  upload?: UploadDef;
 }
 
 export interface RemoteKind<Row> {

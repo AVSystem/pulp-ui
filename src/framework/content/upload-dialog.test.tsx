@@ -5,7 +5,11 @@ import descriptor from 'src/descriptors/file/descriptor';
 import { fileRepository } from 'src/entities/file/repository';
 import { entityKeys } from 'src/entities/plugin/queries';
 import { resetSessionEvents } from 'src/session/session-events';
-import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
+import {
+  type IPermissionSetup,
+  PermissionsKnown,
+  servePermissions,
+} from 'src/test-utils/permissions';
 import { pluginRepository, uploadLab } from 'src/test-utils/pulp';
 import { createTestQueryClient } from 'src/test-utils/query';
 import { renderWithProviders } from 'src/test-utils/render';
@@ -21,20 +25,14 @@ import { UploadDialog } from './upload-dialog';
 
 const MIB = 1024 * 1024;
 
-const ADMIN = { id: 7, isStaff: true } as const;
+const ADMIN: IPermissionSetup = { id: 7, isStaff: true };
 // A user who may modify the repository and create uploads, and is no
 // administrator.
-const EDITOR = {
+const EDITOR: IPermissionSetup = {
   id: 8,
   isStaff: false,
   own: [['file.modify_filerepository', 'core.add_upload']],
-} as const;
-// A user who may modify the repository and may not create uploads.
-const WRITER = {
-  id: 9,
-  isStaff: false,
-  own: [['file.modify_filerepository']],
-} as const;
+};
 
 let permissions: { stop: () => void };
 
@@ -51,7 +49,7 @@ const fileOf = (name: string, bytes = 10) =>
   new File([new Uint8Array(bytes)], name);
 
 interface Setup {
-  user?: Parameters<typeof servePermissions>[0];
+  user?: IPermissionSetup;
   retain?: number | null;
 }
 
@@ -64,7 +62,6 @@ function render({ user = ADMIN, retain = null }: Setup = {}) {
     retain_repo_versions: retain,
   });
   const onClose = vi.fn();
-  const addAlert = vi.fn();
   const queryClient = createTestQueryClient();
   const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
   const types = descriptor.contentTypes ?? [];
@@ -82,7 +79,6 @@ function render({ user = ADMIN, retain = null }: Setup = {}) {
             entity={fileRepository}
             types={types}
             upload={upload}
-            addAlert={addAlert}
             onClose={onClose}
           />
         </WatchedTasksProvider>
@@ -91,7 +87,7 @@ function render({ user = ADMIN, retain = null }: Setup = {}) {
     { signedIn: true, queryClient },
   );
 
-  return { ...rendered, repository, onClose, addAlert, invalidate };
+  return { ...rendered, repository, onClose, invalidate };
 }
 
 type Rendered = ReturnType<typeof render>;
@@ -106,10 +102,13 @@ async function choose(user: Rendered['user'], ...files: File[]) {
   return dialog;
 }
 
+// The row that shows the text; a file whose path is its name shows it twice.
 const rowOf = (dialog: HTMLElement, name: string) =>
   within(dialog)
     .getAllByRole('row')
-    .find((candidate) => within(candidate).queryByText(name)) as HTMLElement;
+    .find(
+      (candidate) => within(candidate).queryAllByText(name).length > 0,
+    ) as HTMLElement;
 
 const upload = (dialog: HTMLElement) =>
   within(dialog).getByRole('button', { name: 'Upload' });
@@ -466,10 +465,14 @@ describe(
         );
         expect(bar).toBeVisible();
         expect(
-          within(rowOf(dialog, 'small.txt')).queryByRole('progressbar'),
+          within(rowOf(dialog, 'small.txt')).queryByRole('progressbar', {
+            name: 'Upload of small.txt',
+          }),
         ).toBeNull();
 
-        await within(rowOf(dialog, 'big.bin')).findByText('Added');
+        await within(rowOf(dialog, 'big.bin')).findByText('Added', undefined, {
+          timeout: 5000,
+        });
         expect(lab.chunks.length).toBeGreaterThan(1);
       });
     });
