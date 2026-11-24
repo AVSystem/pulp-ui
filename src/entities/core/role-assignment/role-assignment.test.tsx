@@ -501,6 +501,38 @@ describe('Integration: useObjectPermissions', { tags: ['integration'] }, () => {
     expect(latest.can(repositoryHref(1), SYNC)).toBe(false);
   });
 
+  it('does not ask again for the roles it was refused when a second screen starts reading later', async () => {
+    serveAccount({
+      own: [
+        roleAssignment(OWNER, repositoryHref(1), {
+          permissions: [VIEW, SYNC, DELETE],
+        }),
+      ],
+    });
+    server.use(
+      http.get(`*${API}/roles/`, () =>
+        HttpResponse.json({ detail: 'no' }, { status: 403 }),
+      ),
+    );
+    const queryClient = createTestQueryClient();
+
+    renderWithProviders(<Probe />, { signedIn: true, queryClient });
+    await state('ready');
+
+    // a screen that mounts after the refusal, as the rows of a list do once
+    // they are shown, finds the refusal and reads nothing more
+    renderWithProviders(<Probe />, { signedIn: true, queryClient });
+    await waitFor(() =>
+      expect(screen.getAllByText('state: ready')).toHaveLength(2),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const roles = recorder.reads.filter((read) =>
+      read.startsWith(`${API}/roles/`),
+    );
+    expect(roles).toHaveLength(1);
+  });
+
   it('reads nothing while the screen has not asked for it', async () => {
     serveAccount({ own: [roleAssignment(OWNER, repositoryHref(1))] });
 
