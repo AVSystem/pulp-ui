@@ -92,7 +92,7 @@ export function clientEntryPoints(): ClientEntryPoint[] {
 
 // A base path as it is written into an address: each segment encoded, the
 // slashes kept.
-const encodeBasePath = (basePath: string): string =>
+export const encodeBasePath = (basePath: string): string =>
   basePath.split('/').map(encodeURIComponent).join('/');
 
 // An address made absolute against the origin. Only http and https addresses

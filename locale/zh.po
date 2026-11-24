@@ -12,6 +12,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/descriptors/npm/snippets.ts
+msgid ".npmrc"
+msgstr ""
+
 #: src/components/darkmode-switcher.tsx
 #~ msgid "(current, default)"
 #~ msgstr ""
@@ -975,6 +979,10 @@ msgstr "Ansible 复制内容"
 #: src/containers/coming-soon-screens.tsx
 msgid "Ansible repositories"
 msgstr "Ansible 仓库"
+
+#: src/descriptors/ansible/snippets.ts
+msgid "ansible.cfg"
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
@@ -2805,6 +2813,14 @@ msgstr ""
 #~ msgid "Dependent collections could not be displayed."
 #~ msgstr "无法显示依赖集合。"
 
+#: src/descriptors/maven/snippets.ts
+msgid "Deploy with Gradle"
+msgstr ""
+
+#: src/descriptors/maven/snippets.ts
+msgid "Deploy with Maven"
+msgstr ""
+
 #: src/components/collection-dropdown.tsx
 #~ msgid "Deprecate"
 #~ msgstr "弃用"
@@ -4138,6 +4154,10 @@ msgstr "转到起始页"
 msgid "GPG key"
 msgstr "GPG 密钥"
 
+#: src/descriptors/maven/snippets.ts
+msgid "Gradle"
+msgstr ""
+
 #: src/components/access-tab.tsx
 #: src/components/select-group.tsx
 msgid "Group"
@@ -4514,6 +4534,10 @@ msgstr "信息"
 #: src/components/collection-info.tsx
 #~ msgid "Install"
 #~ msgstr "安装"
+
+#: src/descriptors/ansible/snippets.ts
+msgid "Install a collection"
+msgstr ""
 
 #: src/components/collection-detail/collection-info.tsx
 #~ msgid "Install Version"
@@ -4944,6 +4968,7 @@ msgstr "加载中..."
 #~ msgstr "本地"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/descriptors/container/snippets.ts
 #: src/session/reauth-dialog.tsx
 msgid "Log in"
 msgstr "登录"
@@ -6458,6 +6483,10 @@ msgstr ""
 msgid "Publish"
 msgstr "发布"
 
+#: src/descriptors/ansible/snippets.ts
+msgid "Publish a collection"
+msgstr ""
+
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish a flat layout where all packages are in a single release component."
 msgstr ""
@@ -6537,12 +6566,20 @@ msgstr ""
 msgid "Publish version {number} of \"{name}\""
 msgstr ""
 
+#: src/descriptors/npm/snippets.ts
+msgid "Publish with npm"
+msgstr ""
+
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
 #~ msgstr "已发布"
 
 #: src/framework/publish/serving-fix.tsx
 msgid "Publishing is not available."
+msgstr ""
+
+#: src/descriptors/container/snippets.ts
+msgid "Pull"
 msgstr ""
 
 #: src/constants.tsx
@@ -6777,6 +6814,10 @@ msgstr "清除任务已启动"
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Purge Tasks started"
 #~ msgstr ""
+
+#: src/descriptors/container/snippets.ts
+msgid "Push"
+msgstr ""
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push and change containers."
@@ -8103,6 +8144,10 @@ msgstr "设置远程可让仓库从其他位置进行同步。"
 #: src/containers/settings/user-profile.tsx
 msgid "Settings"
 msgstr "设置"
+
+#: src/descriptors/maven/snippets.ts
+msgid "settings.xml"
+msgstr ""
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha1"

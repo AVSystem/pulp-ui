@@ -159,8 +159,11 @@ describe('Unit: addresses in an npmrc file', { tags: ['unit'] }, () => {
     );
   });
 
-  it('refuses a line break, which would add a line to the file', () => {
-    expect(() => npmrcUrl('https://pulp.example.com/a\nb/')).toThrow(
+  it('encodes a line break, so the address stays on its line, and refuses a control character', () => {
+    expect(npmrcUrl('https://pulp.example.com/a\nb/')).toBe(
+      'https://pulp.example.com/a%0Ab/',
+    );
+    expect(() => npmrcUrl('https://pulp.example.com/a\u0001b/')).toThrow(
       UnsafeValueError,
     );
   });

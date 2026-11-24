@@ -885,7 +885,7 @@ describe('Unit: npm client snippets', { tags: ['unit'] }, () => {
       );
     });
 
-    it('publishes to the read address when the entry names no write address', () => {
+    it('publishes to the publish endpoint of the page when the entry names no write address', () => {
       expect(
         find(npmSnippets, 'publish').build(
           npm({
@@ -893,7 +893,7 @@ describe('Unit: npm client snippets', { tags: ['unit'] }, () => {
           }),
         ),
       ).toBe(
-        "npm publish --registry 'https://packages.example.org/npm/npm-local/'",
+        "npm publish --registry 'https://pulp.example.com/npm/npm-local/'",
       );
     });
   });
@@ -909,12 +909,21 @@ describe('Unit: npm client snippets', { tags: ['unit'] }, () => {
       );
     });
 
-    it('refuses an address with a line break, which would add a line to the file', () => {
+    it('keeps an address with a line break on one line, which would otherwise add a line to the file', () => {
+      const text = find(npmSnippets, 'npmrc').build(
+        npm({
+          url: 'https://pulp.example.com/a\nregistry=https://other.example.org/',
+        }),
+      );
+
+      expect(
+        text.split('\n').filter((line) => line.startsWith('registry=')),
+      ).toEqual([
+        'registry=https://pulp.example.com/a%0Aregistry=https://other.example.org/',
+      ]);
       expect(() =>
         find(npmSnippets, 'npmrc').build(
-          npm({
-            url: 'https://pulp.example.com/a\nregistry=https://other.example.org/',
-          }),
+          npm({ url: 'https://pulp.example.com/a\u0001b/' }),
         ),
       ).toThrow(UnsafeValueError);
     });
@@ -1015,10 +1024,15 @@ describe('Unit: ansible client snippets', { tags: ['unit'] }, () => {
       expect(text.match(/^\[/gm)).toHaveLength(2);
     });
 
-    it('refuses an address with a line break', () => {
-      expect(() =>
+    it('keeps an address with a line break on one line, and refuses a control character', () => {
+      expect(
         find(ansibleSnippets, 'ansible-cfg').build(
           ansible({ url: 'https://pulp.example.com/a\nusername = root' }),
+        ),
+      ).toContain('url = https://pulp.example.com/a%0Ausername%20=%20root/\n');
+      expect(() =>
+        find(ansibleSnippets, 'ansible-cfg').build(
+          ansible({ url: 'https://pulp.example.com/a\u0001b/' }),
         ),
       ).toThrow(UnsafeValueError);
     });
