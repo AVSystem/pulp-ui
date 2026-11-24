@@ -37,6 +37,7 @@ describe('Unit: quoting for line formats', { tags: ['unit'] }, () => {
     expect(safeIdentifier('deb/cust 1')).toBe('deb-cust-1');
     expect(safeIdentifier('x]\n[evil]')).toBe('x-evil');
     expect(safeIdentifier('../../etc/passwd')).toBe('etc-passwd');
+    expect(safeIdentifier('a; rm -rf ~')).toBe('a-rm-rf');
     expect(safeIdentifier('')).toBe('pulp');
     expect(safeIdentifier('///')).toBe('pulp');
   });

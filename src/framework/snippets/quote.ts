@@ -39,6 +39,7 @@ export function iniValue(value: string): string {
 export function safeIdentifier(value: string): string {
   const reduced = value
     .replace(/[^A-Za-z0-9_.-]+/g, '-')
+    .replace(/-{2,}/g, '-')
     .replace(/^[^A-Za-z0-9]+/, '')
     .replace(/-+$/, '');
 

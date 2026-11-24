@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import type { MessageDescriptor } from '@lingui/core';
 import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PluginDescriptor, SnippetDef } from 'src/framework/descriptor';
@@ -10,6 +10,9 @@ const entryPointFor = vi.hoisted(() => vi.fn());
 
 vi.mock('./entry-points', () => ({ entryPointFor }));
 
+// A label that needs no catalog entry: the message id is its own text.
+const message = (id: string): MessageDescriptor => ({ id });
+
 const ENTRY = {
   read: 'https://files.example.org/docs/',
   write: null,
@@ -20,7 +23,7 @@ const ENTRY = {
 
 const echo: SnippetDef = {
   id: 'echo',
-  label: msg`Echo`,
+  label: message('Echo'),
   language: 'shell',
   build: ({ name, url, guarded, entry, basePath, repositoryName }) =>
     JSON.stringify({
@@ -35,7 +38,7 @@ const echo: SnippetDef = {
 
 const second: SnippetDef = {
   id: 'second',
-  label: msg`Second`,
+  label: message('Second'),
   language: 'ini',
   build: ({ name }) => `[${name}]`,
 };
@@ -230,7 +233,7 @@ describe(
       const onlyGuarded: SnippetDef = {
         ...second,
         id: 'only-guarded',
-        label: msg`Only guarded`,
+        label: message('Only guarded'),
         when: ({ guarded }) => guarded,
       };
 
@@ -261,7 +264,7 @@ describe(
     it('says a snippet cannot be written when a value would break its format, and keeps the others', async () => {
       const refusing: SnippetDef = {
         id: 'refusing',
-        label: msg`Refusing`,
+        label: message('Refusing'),
         language: 'ini',
         build: () => {
           throw new UnsafeValueError('a line break');

@@ -404,9 +404,10 @@ describe('Unit: python client snippets', { tags: ['unit'] }, () => {
         shellWords(
           find(pythonSnippets, 'pip')
             .build(python({ url: hostile }))
-            .replace(/^pip install /, ''),
+            .replace(/^pip install /, '')
+            .replace('<package>', 'pkg'),
         ),
-      ).toEqual(['--index-url', `${hostile}simple/`, '<package>']);
+      ).toEqual(['--index-url', `${hostile}simple/`, 'pkg']);
     });
 
     it('hands the shell one word for the upload address and keeps the glob unquoted', () => {
@@ -484,13 +485,21 @@ describe('Unit: credentials in snippets', { tags: ['unit'] }, () => {
   it.each(PLUGINS)(
     'holds only the placeholders in the credential positions of every guarded %s snippet',
     (_plugin, snippets, input) => {
+      const found: string[] = [];
+
       for (const snippet of shown(snippets, input())) {
         const text = snippet.build(input());
         for (const position of CREDENTIAL_POSITIONS) {
-          for (const match of text.matchAll(position)) {
-            expect(['<user>', '<token>', '<user>:<token>']).toContain(match[1]);
+          for (const match of Array.from(text.matchAll(position))) {
+            found.push(match[1] as string);
           }
         }
+      }
+
+      // The positions are really found, so the check is not vacuous.
+      expect(found.length).toBeGreaterThan(0);
+      for (const value of found) {
+        expect(['<user>', '<token>', '<user>:<token>']).toContain(value);
       }
     },
   );
@@ -505,7 +514,9 @@ describe('Unit: credentials in snippets', { tags: ['unit'] }, () => {
 
       for (const snippet of shown(snippets, leaky)) {
         const text = snippet.build(leaky);
-        for (const match of text.matchAll(/https?:\/\/([^/@\s']*)@/g)) {
+        for (const match of Array.from(
+          text.matchAll(/https?:\/\/([^/@\s']*)@/g),
+        )) {
           expect(match[1]).toBe('<user>:<token>');
         }
       }

@@ -1,6 +1,9 @@
 import { screen, within } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { SnippetInput } from 'src/framework/descriptor';
 
 // A distribution as the snippet builders read it, with the reserved example
@@ -20,15 +23,22 @@ export function snippetInput(
   };
 }
 
+let empty: string | undefined;
+
+const emptyDirectory = (): string =>
+  (empty ??= mkdtempSync(join(tmpdir(), 'snippet-words-')));
+
 // The words a POSIX shell reads out of the arguments part of a command line:
 // what it does with quotes, substitutions and separators, so a test can prove
 // that a hostile value arrives as one word of data. The line is never run as a
 // command; it is only handed to printf as arguments.
 export function shellWords(commandLine: string): string[] {
+  // An empty directory, so a glob in the line matches nothing and stays as
+  // typed.
   const output = execFileSync(
     '/bin/sh',
     ['-c', `printf '%s\\0' ${commandLine}`],
-    { encoding: 'utf8' },
+    { encoding: 'utf8', cwd: emptyDirectory() },
   );
 
   return output.split('\0').slice(0, -1);

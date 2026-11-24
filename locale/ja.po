@@ -1084,6 +1084,14 @@ msgstr "リモートからのコレクションを承認、拒否、同期しま
 msgid "Apt"
 msgstr ""
 
+#: src/descriptors/deb/snippets.ts
+msgid "APT credentials"
+msgstr ""
+
+#: src/descriptors/deb/snippets.ts
+msgid "APT sources"
+msgstr ""
+
 #: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "アーキテクチャー"
@@ -1609,9 +1617,9 @@ msgid "Clear all filters"
 msgstr "すべてのフィルターの解除"
 
 #: src/containers/ansible-repository/tab-distributions.tsx
-#: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/file/descriptor.tsx
-#: src/descriptors/rpm/descriptor.tsx
+#: src/descriptors/deb/snippets.ts
+#: src/descriptors/file/snippets.ts
+#: src/descriptors/rpm/snippets.ts
 msgid "CLI configuration"
 msgstr "CLI 設定"
 
@@ -1629,6 +1637,11 @@ msgstr "CLI 設定"
 #: src/framework/form/remote-fields.ts
 msgid "Client certificate"
 msgstr "クライアント証明書"
+
+#: src/framework/distributions/distribution-detail.tsx
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "Client configuration"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/framework/detail/remote-detail.tsx
@@ -2391,6 +2404,10 @@ msgstr "Ctrl K"
 #~ msgid "Curate synclist repository batch"
 #~ msgstr "同期リストリポジトリーのバッチのキュレート"
 
+#: src/descriptors/file/snippets.ts
+msgid "curl"
+msgstr ""
+
 #: src/containers/ansible-repository/tab-repository-versions.tsx
 msgid "Current content"
 msgstr "現在のコンテンツ"
@@ -3140,6 +3157,10 @@ msgstr "各ラベルのキーは 1 回だけ使用できます。"
 
 #: src/components/ratings.tsx
 #~ msgid "Ease of use"
+#~ msgstr ""
+
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Echo"
 #~ msgstr ""
 
 #: src/actions/ansible-remote-edit.tsx
@@ -4498,7 +4519,7 @@ msgstr "情報"
 #~ msgid "Install Version"
 #~ msgstr "Install Version"
 
-#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/python/snippets.ts
 msgid "Install with pip"
 msgstr "pip でインストール"
 
@@ -5610,7 +5631,6 @@ msgstr "まだユーザーはありません"
 #: src/descriptors/python/descriptor.tsx
 #: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/details-tab.tsx
-#: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
@@ -5860,6 +5880,10 @@ msgstr "オンラインのワーカー"
 #: src/framework/distributions/protection-choice.tsx
 msgid "Only clients the guard allows can download."
 msgstr ""
+
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Only guarded"
+#~ msgstr ""
 
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -6174,6 +6198,10 @@ msgstr "パーミッション"
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "Permissions for group \"{0}\" could not be displayed."
 msgstr "グループ \"{0}\" のパーミッションを表示できませんでした。"
+
+#: src/descriptors/python/snippets.ts
+msgid "pip.conf"
+msgstr ""
 
 #: src/components/ansible-repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
@@ -6878,6 +6906,10 @@ msgstr "コンテンツの再帰的な削除"
 msgid "Redis connection"
 msgstr "Redis 接続"
 
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Refusing"
+#~ msgstr ""
+
 #: src/components/container-repository-form.tsx
 #~ msgid "Registries list could not be displayed."
 #~ msgstr "レジストリーリストを表示できませんでした。"
@@ -7207,6 +7239,10 @@ msgstr "リポジトリーバージョンの修復"
 msgid "Repair task"
 msgstr "修復タスク"
 
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "Replace <user> and <token> with an account that may read this distribution."
+msgstr ""
+
 #: src/components/collection-header.tsx
 #~ msgid "Repo"
 #~ msgstr "リポジトリー"
@@ -7325,6 +7361,10 @@ msgstr "リポジトリーを作成できませんでした"
 #: src/framework/form/repository-edit.tsx
 msgid "Repository could not be displayed."
 msgstr "リポジトリーを表示できませんでした。"
+
+#: src/descriptors/rpm/snippets.ts
+msgid "Repository file"
+msgstr ""
 
 #: src/components/ansible-repository-form.tsx
 #~ msgid "Repository labels can change the context in which a repository is seen.<0><1><2>Hide from search</2> (<3>hide_from_search</3>) - prevent collections in this repository from showing up on the home page</1><4>(<5>pipeline: *</5>) - see Pipeline above</4></0>"
@@ -7831,6 +7871,10 @@ msgstr "画面とリポジトリーを検索"
 msgid "Searching repositories..."
 msgstr "リポジトリーを検索しています..."
 
+#: src/framework/snippets/distribution-snippets.test.tsx
+#~ msgid "Second"
+#~ msgstr ""
+
 #: src/components/remote-form.tsx
 #: src/framework/form/remote-fields.ts
 msgid "Seconds. Leave empty to use the server default."
@@ -8287,6 +8331,10 @@ msgstr "ログアウトしました"
 #: src/components/sign-all-certificates-modal.tsx
 #~ msgid "Signed version(s)"
 #~ msgstr "署名済みバージョン"
+
+#: src/descriptors/deb/snippets.ts
+msgid "Signing key"
+msgstr ""
 
 #: src/components/approve-modal.tsx
 #: src/components/copy-collection-to-repository-modal.tsx
@@ -9404,6 +9452,10 @@ msgstr ""
 msgid "The server protected the distribution with {guard}."
 msgstr ""
 
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "The server reports no client URL for this distribution, so there is no client configuration to show."
+msgstr ""
+
 #: src/framework/content/upload-dialog.tsx
 msgid "The server was still working on this file when the wait ended."
 msgstr ""
@@ -9733,6 +9785,11 @@ msgstr "この画面を読み込めませんでした"
 msgid "This screen is not available in this UI yet."
 msgstr "この画面は、この UI ではまだ利用できません。"
 
+#. placeholder {0}: written.refusal
+#: src/framework/snippets/distribution-snippets.tsx
+msgid "This snippet cannot be written safely, because a value of the distribution holds {0}."
+msgstr ""
+
 #: src/components/tag-manifest-modal.tsx
 #~ msgid "This tag already exists on another image. Do you want to move it to this image?"
 #~ msgstr "このタグは別のイメージにすでに存在します。このイメージに移動してもよろしいですか?"
@@ -10058,6 +10115,10 @@ msgstr ""
 #: src/constants.tsx
 #~ msgid "Upload to namespace"
 #~ msgstr "Upload to namespace"
+
+#: src/descriptors/python/snippets.ts
+msgid "Upload with twine"
+msgstr ""
 
 #: src/framework/content/upload-dialog.tsx
 msgid "Uploading"
@@ -10611,6 +10672,10 @@ msgstr "お探しのページは見つかりませんでした!"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Welcome to Galaxy"
 #~ msgstr ""
+
+#: src/descriptors/file/snippets.ts
+msgid "wget"
+msgstr ""
 
 #: src/framework/distributions/delete-distribution-dialog.tsx
 msgid "What it serves is kept. Clients lose the address it is reached at."
