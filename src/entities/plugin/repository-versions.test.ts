@@ -1,6 +1,9 @@
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { debRepository } from 'src/entities/deb/repository';
 import { fileRepository } from 'src/entities/file/repository';
+import { pythonRepository } from 'src/entities/python/repository';
+import { rpmRepository } from 'src/entities/rpm/repository';
 import {
   page,
   pluginRepository,
@@ -101,3 +104,36 @@ describe(
     });
   },
 );
+
+describe('Unit: deleting a version of a repository', { tags: ['unit'] }, () => {
+  it.each([
+    ['file', fileRepository, 'repositories/file/file'],
+    ['deb', debRepository, 'repositories/deb/apt'],
+    ['rpm', rpmRepository, 'repositories/rpm/rpm'],
+    ['python', pythonRepository, 'repositories/python/python'],
+  ] as const)(
+    'sends one DELETE to the address of the %s version and resolves with the task',
+    async (plugin, entity, segment) => {
+      const requests: { method: string; path: string }[] = [];
+      const version = `/pulp/api/v3/${segment}/0192/versions/3/`;
+      server.use(
+        http.delete(`*${version}`, ({ request }) => {
+          requests.push({
+            method: request.method,
+            path: new URL(request.url).pathname,
+          });
+          return HttpResponse.json(
+            { task: '/pulp/api/v3/tasks/0192/' },
+            { status: 202 },
+          );
+        }),
+      );
+
+      expect(plugin).toBeTruthy();
+      expect(await entity.deleteVersion(version)).toBe(
+        '/pulp/api/v3/tasks/0192/',
+      );
+      expect(requests).toEqual([{ method: 'DELETE', path: version }]);
+    },
+  );
+});
