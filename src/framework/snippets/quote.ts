@@ -96,3 +96,34 @@ export function tomlString(value: string): string {
 
   return `"${escaped}"`;
 }
+
+// A Kotlin string literal (Gradle build scripts): wrapped in double quotes,
+// with the quote and the backslash escaped, and the dollar sign too, which
+// starts a template. Line breaks and other control characters are written as
+// escapes, so the literal always stays on one line.
+export function kotlinString(value: string): string {
+  const escaped = value.replace(
+    // eslint-disable-next-line no-control-regex
+    /["\\$\u0000-\u001f\u007f\u0085\u2028\u2029]/g,
+    (character) =>
+      character === '$'
+        ? '\\$'
+        : (SHORT_ESCAPES[character] ??
+          `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`),
+  );
+
+  return `"${escaped}"`;
+}
+
+// An address written into an npmrc file. The reader of that file takes a
+// semicolon or a hash sign for the start of a comment, a backslash for an
+// escape and `${...}` for a variable, so those are percent-encoded, as are
+// whitespace and the other characters `urlValue` encodes. A line break is
+// refused.
+export function npmrcUrl(value: string): string {
+  return urlValue(value).replace(
+    /[;#\\]/g,
+    (character) =>
+      `%${character.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`,
+  );
+}

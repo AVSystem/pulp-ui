@@ -261,6 +261,37 @@ describe(
       );
     });
 
+    it('names the repository the distribution serves in its snippets, once it is read', async () => {
+      const repository = at(
+        pluginRepository('file', { name: 'tools-repo' }),
+        1,
+      );
+      serveLab({
+        distributions: [
+          pluginDistribution('file', {
+            name: 'tools-dist',
+            base_url: URL_A,
+            content_guard: null,
+            repository: repository.pulp_href,
+          }),
+        ],
+        repositories: [repository],
+        publications: [made(repository, 1)],
+      });
+
+      const { user } = renderDetail();
+      await rowsOfPage();
+
+      await user.click(
+        await screen.findByRole('tab', { name: 'CLI configuration' }),
+      );
+      expect(
+        await screen.findByText(
+          `pulp file remote create --name 'tools-repo' --url '${URL_A}PULP_MANIFEST'`,
+        ),
+      ).toBeVisible();
+    });
+
     it('writes the credential placeholders, and nothing else, into the snippets of a guarded distribution', async () => {
       const guard = contentGuard({ name: 'customers-only' });
       serveLab({

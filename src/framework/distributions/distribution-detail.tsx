@@ -38,7 +38,10 @@ import { DeleteDistributionDialog } from './delete-distribution-dialog';
 import { GuardValue, ServesValue } from './distribution-columns';
 import { pluginLabel } from './plugin-label';
 import { useDistributionPermission } from './use-distribution-permission';
-import { useDistributionServing } from './use-distribution-serving';
+import {
+  type DistributionServing,
+  useDistributionServing,
+} from './use-distribution-serving';
 
 interface Props {
   plugin: FrameworkPlugin;
@@ -57,20 +60,25 @@ export const DistributionDetail = (props: Props) => {
 
 interface RowsProps extends Props {
   distribution: DistributionBase;
+  serving: DistributionServing;
 }
 
 // The rows of the page: where clients reach the distribution and whether that
 // works, what it serves, how it is protected, its labels, which a user who may
 // change the distribution can edit, and when it was made. What a read has not
 // settled is said so and never reads as "nothing".
-const DistributionRows = ({ plugin, descriptor, distribution }: RowsProps) => {
+const DistributionRows = ({
+  plugin,
+  descriptor,
+  distribution,
+  serving,
+}: RowsProps) => {
   const kind = descriptor.distribution;
   if (!kind) {
     throw new Error(
       `The ${plugin} descriptor declares no distributions, which their detail needs`,
     );
   }
-  const serving = useDistributionServing({ plugin, descriptor, distribution });
   const mayChange = useDistributionPermission(plugin, distribution, 'change');
   const guardHref = distribution.content_guard ?? null;
   const guards = useContentGuardNames(guardHref ? [guardHref] : []);
@@ -159,6 +167,45 @@ const DistributionRows = ({ plugin, descriptor, distribution }: RowsProps) => {
         },
       ]}
     />
+  );
+};
+
+// The sections of the page: the rows, and the client configuration of the
+// plugin's clients, which names the repository the distribution serves once
+// the read of what it serves has answered. Both read the one serving state.
+const DistributionBody = ({
+  plugin,
+  descriptor,
+  distribution,
+}: Omit<RowsProps, 'serving'>) => {
+  const serving = useDistributionServing({ plugin, descriptor, distribution });
+  const served = serving.serves.value;
+  const repositoryName = served?.kind === 'repository' ? served.name : null;
+
+  return (
+    <>
+      <section className='pulp-section' data-cy='DistributionDetail-details'>
+        <DistributionRows
+          plugin={plugin}
+          descriptor={descriptor}
+          distribution={distribution}
+          serving={serving}
+        />
+      </section>
+      {descriptor.distribution?.snippets?.length ? (
+        <section className='pulp-section' data-cy='DistributionDetail-snippets'>
+          <Title headingLevel='h2' size='lg'>
+            {t`Client configuration`}
+          </Title>
+          <DistributionSnippets
+            plugin={plugin}
+            descriptor={descriptor}
+            distribution={distribution}
+            repositoryName={repositoryName}
+          />
+        </section>
+      ) : null}
+    </>
   );
 };
 
@@ -333,28 +380,11 @@ const DistributionDetailScreen = ({
         />
       ) : null}
       <Main>
-        <section className='pulp-section' data-cy='DistributionDetail-details'>
-          <DistributionRows
-            plugin={plugin}
-            descriptor={descriptor}
-            distribution={distribution}
-          />
-        </section>
-        {descriptor.distribution?.snippets?.length ? (
-          <section
-            className='pulp-section'
-            data-cy='DistributionDetail-snippets'
-          >
-            <Title headingLevel='h2' size='lg'>
-              {t`Client configuration`}
-            </Title>
-            <DistributionSnippets
-              plugin={plugin}
-              descriptor={descriptor}
-              distribution={distribution}
-            />
-          </section>
-        ) : null}
+        <DistributionBody
+          plugin={plugin}
+          descriptor={descriptor}
+          distribution={distribution}
+        />
       </Main>
     </>
   );

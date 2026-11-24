@@ -10,7 +10,7 @@ import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 // What every descriptor must hold so the generic screens can draw it: a label
 // on every row, field and column, unique ids, tabs that are unique within the
 // plugin, and nothing required of the parts a plugin may lack (sync,
-// publication, a snippet), because maven, npm and ansible have no publication
+// publication), because maven, npm and ansible have no publication
 // endpoint and need none of them.
 
 const LOADERS: Record<string, () => Promise<{ default: PluginDescriptor }>> = {
@@ -58,6 +58,18 @@ function checkDescriptor(name: string, descriptor: PluginDescriptor) {
     for (const column of distribution.columns ?? []) {
       labelled(column.label, `${name} distribution column ${column.id}`);
     }
+    for (const snippet of distribution.snippets ?? []) {
+      labelled(snippet.label, `${name} snippet ${snippet.id}`);
+      expect(
+        ['shell', 'ini', 'xml', 'text'],
+        `${name} snippet ${snippet.id} has a language`,
+      ).toContain(snippet.language);
+      expect(typeof snippet.build).toBe('function');
+    }
+    unique(
+      (distribution.snippets ?? []).map(({ id }) => id),
+      `${name} snippets`,
+    );
   }
 
   const { remote } = descriptor;
@@ -229,6 +241,22 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
       expect(
         descriptor.contentTypes?.length ?? 0,
         `${plugin} content types`,
+      ).toBeGreaterThan(0);
+    }
+  });
+
+  // Every distribution of every installed plugin shows how a client uses it.
+  it('requires every plugin with distributions to declare at least one client snippet', async () => {
+    for (const { plugin, resources } of PLUGIN_MANIFESTS) {
+      if (!resources.includes('distribution')) {
+        continue;
+      }
+      const loader = LOADERS[plugin] as NonNullable<(typeof LOADERS)[string]>;
+      const { default: descriptor } = await loader();
+
+      expect(
+        descriptor.distribution?.snippets?.length ?? 0,
+        `${plugin} client snippets`,
       ).toBeGreaterThan(0);
     }
   });

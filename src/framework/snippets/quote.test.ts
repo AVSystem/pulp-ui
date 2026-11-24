@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   UnsafeValueError,
   iniValue,
+  kotlinString,
+  npmrcUrl,
   safeIdentifier,
   tomlString,
   urlValue,
@@ -97,5 +99,72 @@ describe('Unit: quoting for TOML and JSON strings', { tags: ['unit'] }, () => {
 
   it.each(HOSTILE)('reads %j back as the same string', (value) => {
     expect(JSON.parse(tomlString(value))).toBe(value);
+  });
+});
+
+// Reads a Kotlin string literal back: the escapes the language defines.
+function readKotlin(literal: string): string {
+  return literal
+    .slice(1, -1)
+    .replace(
+      /\\(?:u([0-9a-fA-F]{4})|(.))/g,
+      (_, hex: string | undefined, escaped: string | undefined) => {
+        if (hex !== undefined) {
+          return String.fromCharCode(Number.parseInt(hex, 16));
+        }
+        const named: Record<string, string> = {
+          n: '\n',
+          r: '\r',
+          t: '\t',
+          b: '\b',
+        };
+        return named[escaped as string] ?? (escaped as string);
+      },
+    );
+}
+
+describe('Unit: quoting for Kotlin strings', { tags: ['unit'] }, () => {
+  it('wraps the value in double quotes', () => {
+    expect(kotlinString('plain')).toBe('"plain"');
+  });
+
+  it('escapes quotes and backslashes, and the dollar sign that starts a template', () => {
+    expect(kotlinString('a"b\\c$d${e}')).toBe('"a\\"b\\\\c\\$d\\${e}"');
+  });
+
+  it('writes line breaks as escapes and other control characters as unicode escapes', () => {
+    expect(kotlinString('a\nb\rc\u0001d\u2028e')).toBe(
+      '"a\\nb\\rc\\u0001d\\u2028e"',
+    );
+  });
+
+  it.each(HOSTILE)('reads %j back as the same string', (value) => {
+    const literal = kotlinString(value);
+
+    expect(literal).not.toMatch(/\n|\r/);
+    expect(readKotlin(literal)).toBe(value);
+  });
+});
+
+describe('Unit: addresses in an npmrc file', { tags: ['unit'] }, () => {
+  it('keeps a plain address', () => {
+    expect(npmrcUrl('https://pulp.example.com/repo/npm/')).toBe(
+      'https://pulp.example.com/repo/npm/',
+    );
+  });
+
+  it('encodes what the npmrc reader would take for a comment, an escape or a variable', () => {
+    expect(npmrcUrl('https://pulp.example.com/a;b#c\\d$e f/')).toBe(
+      'https://pulp.example.com/a%3Bb%23c%5Cd%24e%20f/',
+    );
+  });
+
+  it('encodes a line break, so the address stays on its line, and refuses a control character', () => {
+    expect(npmrcUrl('https://pulp.example.com/a\nb/')).toBe(
+      'https://pulp.example.com/a%0Ab/',
+    );
+    expect(() => npmrcUrl('https://pulp.example.com/a\u0001b/')).toThrow(
+      UnsafeValueError,
+    );
   });
 });

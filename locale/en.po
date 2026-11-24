@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/descriptors/npm/snippets.ts
+msgid ".npmrc"
+msgstr ".npmrc"
+
 #: src/components/darkmode-switcher.tsx
 #~ msgid "(current, default)"
 #~ msgstr "(current, default)"
@@ -976,6 +980,10 @@ msgstr "Ansible copy content"
 #: src/containers/coming-soon-screens.tsx
 msgid "Ansible repositories"
 msgstr "Ansible repositories"
+
+#: src/descriptors/ansible/snippets.ts
+msgid "ansible.cfg"
+msgstr "ansible.cfg"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "AnsibleFest"
@@ -2806,6 +2814,14 @@ msgstr "Deletion started for version {number} of repository \"{repositoryName}\"
 #~ msgid "Dependent collections could not be displayed."
 #~ msgstr "Dependent collections could not be displayed."
 
+#: src/descriptors/maven/snippets.ts
+msgid "Deploy with Gradle"
+msgstr "Deploy with Gradle"
+
+#: src/descriptors/maven/snippets.ts
+msgid "Deploy with Maven"
+msgstr "Deploy with Maven"
+
 #: src/components/collection-dropdown.tsx
 #~ msgid "Deprecate"
 #~ msgstr "Deprecate"
@@ -4139,6 +4155,10 @@ msgstr "Go to the start page"
 msgid "GPG key"
 msgstr "GPG key"
 
+#: src/descriptors/maven/snippets.ts
+msgid "Gradle"
+msgstr "Gradle"
+
 #: src/components/access-tab.tsx
 #: src/components/select-group.tsx
 msgid "Group"
@@ -4515,6 +4535,10 @@ msgstr "Info"
 #: src/components/collection-info.tsx
 #~ msgid "Install"
 #~ msgstr "Install"
+
+#: src/descriptors/ansible/snippets.ts
+msgid "Install a collection"
+msgstr "Install a collection"
 
 #: src/components/collection-detail/collection-info.tsx
 #~ msgid "Install Version"
@@ -4945,6 +4969,7 @@ msgstr "Loading..."
 #~ msgstr "Local"
 
 #: src/components/patternfly-wrappers/l10n.tsx
+#: src/descriptors/container/snippets.ts
 #: src/session/reauth-dialog.tsx
 msgid "Log in"
 msgstr "Log in"
@@ -6459,6 +6484,10 @@ msgstr "Publications made from this version are deleted with it. The content of 
 msgid "Publish"
 msgstr "Publish"
 
+#: src/descriptors/ansible/snippets.ts
+msgid "Publish a collection"
+msgstr "Publish a collection"
+
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish a flat layout where all packages are in a single release component."
 msgstr "Publish a flat layout where all packages are in a single release component."
@@ -6538,6 +6567,10 @@ msgstr "Publish version {boundVersion}"
 msgid "Publish version {number} of \"{name}\""
 msgstr "Publish version {number} of \"{name}\""
 
+#: src/descriptors/npm/snippets.ts
+msgid "Publish with npm"
+msgstr "Publish with npm"
+
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
 #~ msgstr "Published"
@@ -6545,6 +6578,10 @@ msgstr "Publish version {number} of \"{name}\""
 #: src/framework/publish/serving-fix.tsx
 msgid "Publishing is not available."
 msgstr "Publishing is not available."
+
+#: src/descriptors/container/snippets.ts
+msgid "Pull"
+msgstr "Pull"
 
 #: src/constants.tsx
 #~ msgid "Pull distribution"
@@ -6778,6 +6815,10 @@ msgstr "Purge tasks started"
 #: src/containers/task-management/task-list-view.tsx
 #~ msgid "Purge Tasks started"
 #~ msgstr "Purge Tasks started"
+
+#: src/descriptors/container/snippets.ts
+msgid "Push"
+msgstr "Push"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Push and change containers."
@@ -8104,6 +8145,10 @@ msgstr "Setting a remote allows a repository to sync from elsewhere."
 #: src/containers/settings/user-profile.tsx
 msgid "Settings"
 msgstr "Settings"
+
+#: src/descriptors/maven/snippets.ts
+msgid "settings.xml"
+msgstr "settings.xml"
 
 #: src/descriptors/rpm/descriptor.tsx
 msgid "sha1"
