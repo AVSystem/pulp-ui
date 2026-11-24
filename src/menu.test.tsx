@@ -133,7 +133,7 @@ describe('navigation menu', () => {
     ).toEqual(['Roles']);
   });
 
-  it('opens Repositories and Remotes onto every installed plugin and Packages and artifacts onto RPM and Python', async () => {
+  it('opens Repositories and Remotes onto every installed plugin and Packages and artifacts onto the content lists of File, deb, RPM and Python', async () => {
     signIn();
     reportPlugins(ALL_PLUGINS);
 
@@ -156,7 +156,7 @@ describe('navigation menu', () => {
       'Python',
       'Ansible',
     ]);
-    expect(second('packages')).toEqual(['RPM', 'Python']);
+    expect(second('packages')).toEqual(['File', 'deb', 'RPM', 'Python']);
     expect(second('users-and-groups')).toEqual(['Users', 'Groups']);
   });
 
@@ -282,8 +282,10 @@ describe('navigation menu', () => {
       'pulp-menu-item-ansible-repositories': '/ansible/repositories/',
       'pulp-menu-item-file-remotes': '/file/remotes/',
       'pulp-menu-item-ansible-remotes': '/ansible/remotes/',
-      'pulp-menu-item-rpm-packages': '/rpm/rpms/',
-      'pulp-menu-item-python-packages': '/python/packages/',
+      'pulp-menu-item-file-content': '/file/content/',
+      'pulp-menu-item-deb-content': '/deb/content/',
+      'pulp-menu-item-rpm-content': '/rpm/content/',
+      'pulp-menu-item-python-content': '/python/content/',
     };
     for (const [hook, path] of Object.entries(expected)) {
       expect(document.querySelector(`[data-cy=${hook}]`), hook).toHaveAttribute(
@@ -314,13 +316,15 @@ describe('navigation menu', () => {
     expect(item('deb-repositories')).toBeNull();
     expect(item('python-repositories')).toBeNull();
     expect(item('ansible-repositories')).toBeNull();
-    expect(item('python-packages')).toBeNull();
-    expect(item('rpm-packages')).not.toBeNull();
+    expect(item('python-content')).toBeNull();
+    expect(item('deb-content')).toBeNull();
+    expect(item('file-content')).not.toBeNull();
+    expect(item('rpm-content')).not.toBeNull();
   });
 
-  it('drops Packages and artifacts when neither RPM nor Python is installed', async () => {
+  it('drops Packages and artifacts when no plugin that has content lists is installed', async () => {
     signIn();
-    reportPlugins(['core', 'file', 'deb']);
+    reportPlugins(['core', 'ansible']);
 
     await menuShown();
     await screen.findByRole('button', { name: 'Repositories' });

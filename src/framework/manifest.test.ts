@@ -412,6 +412,17 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/python/remotes/edit/:name',
       '/python/remotes/edit/_',
       '/python/repositories/:name/packages',
+      '/python/packages',
+    ]);
+    expect(legacyPatternsOf('rpm').map(({ pattern }) => pattern)).toEqual([
+      '/rpm/repositories/detail/:name',
+      '/rpm/repositories/edit/:name',
+      '/rpm/repositories/edit/_',
+      '/rpm/remotes/detail/:name',
+      '/rpm/remotes/edit/:name',
+      '/rpm/remotes/edit/_',
+      '/rpm/repositories/:name/packages',
+      '/rpm/rpms',
     ]);
   });
 
