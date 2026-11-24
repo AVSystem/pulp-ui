@@ -131,6 +131,10 @@ msgstr "{count, plural, one {# running task} other {# running tasks}}"
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "{count} distributions now serve the new publication."
+msgstr "{count} distributions now serve the new publication."
+
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "{count} failed"
 msgstr "{count} failed"
@@ -206,6 +210,10 @@ msgstr "{label} was canceled."
 #: src/framework/watched-tasks.tsx
 msgid "{label} was skipped."
 msgstr "{label} was skipped."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "{lost} of {count} distributions could not be moved."
+msgstr "{lost} of {count} distributions could not be moved."
 
 #: src/utilities/get-human-size.ts
 msgid "{n, plural, one {# byte} other {# bytes}}"
@@ -1413,6 +1421,10 @@ msgstr "Changes to role \"{name}\" could not be saved."
 msgid "Checking for affected users... <0/>"
 msgstr "Checking for affected users... <0/>"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "Checksum type"
+msgstr "Checksum type"
+
 #: src/containers/task-management/task-detail.tsx
 msgid "Child tasks"
 msgstr "Child tasks"
@@ -1503,6 +1515,7 @@ msgstr "close"
 #: src/components/sync-modal.tsx
 #: src/components/wizard-modal.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 #: src/framework/sync/sync-dialog.tsx
 msgid "Close"
 msgstr "Close"
@@ -1797,6 +1810,10 @@ msgstr "Components"
 #: src/framework/distributions/guard-field.tsx
 msgid "Composite"
 msgstr "Composite"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "Compression type"
+msgstr "Compression type"
 
 #: src/components/render-plugin-doc.tsx
 #~ msgid "Configuration"
@@ -3345,6 +3362,7 @@ msgstr "Fail the whole version if any package is rejected"
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Failed"
 msgstr "Failed"
 
@@ -3528,6 +3546,10 @@ msgstr "Failed to load status"
 #: src/components/wisdom-modal/wisdom-modal.tsx
 #~ msgid "Failed to opt out of Wisdom."
 #~ msgstr "Failed to opt out of Wisdom."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Failed to publish repository \"{name}\""
+msgstr "Failed to publish repository \"{name}\""
 
 #: src/components/multi-repo-modal.tsx
 #~ msgid "Failed to query repositories."
@@ -3966,6 +3988,10 @@ msgstr "Groups will appear once created"
 msgid "Guard: {guardName}"
 msgstr "Guard: {guardName}"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "gzip"
+msgstr "gzip"
+
 #: src/framework/bulk/sync-bulk-dialog.tsx
 msgid "Has no remote, so it is skipped"
 msgstr "Has no remote, so it is skipped"
@@ -4022,6 +4048,10 @@ msgstr "How many times a failed download is tried again before the sync gives up
 #: src/descriptors/rpm/descriptor.tsx
 msgid "How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions."
 msgstr "How many versions of each package to keep; older ones are dropped on sync. Leave blank to keep all versions."
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "How the metadata files of this publication are compressed."
+msgstr "How the metadata files of this publication are compressed."
 
 #: src/components/delete-collection-modal.tsx
 #: src/components/delete-execution-environment-modal.tsx
@@ -4649,6 +4679,10 @@ msgstr "Login"
 msgid "Logout"
 msgstr "Logout"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Looking for distributions that serve an older publication."
+msgstr "Looking for distributions that serve an older publication."
+
 #: src/descriptors/python/descriptor.tsx
 msgid "macos"
 msgstr "macos"
@@ -4686,6 +4720,10 @@ msgstr "Manage collection remotes."
 #~ msgid "Manage tokens"
 #~ msgstr "Manage tokens"
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Manifest"
+msgstr "Manifest"
+
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
 #~ msgstr "Manifest lists are not currently supported on this screen, please use the <0>Images</0> tab to see manifest list details."
@@ -4701,6 +4739,10 @@ msgstr "Match system"
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
 #~ msgstr "Maybe you have automation for installing and configuring a popular software package, or for deploying software built by your company. Whatever it is, use Galaxy to share it with the community."
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "md5"
+msgstr "md5"
 
 #: src/containers/task-management/task-detail.tsx
 #~ msgid "Message"
@@ -4750,6 +4792,10 @@ msgstr "More repositories match; type more of the name"
 msgid "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
 msgstr "More than {LARGE_MATCH} repositories match. Add another filter to narrow the list."
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Moved"
+msgstr "Moved"
+
 #: src/components/namespace-form/namespace-form.tsx
 #~ msgid "Moved to the <0>Namespace owners</0> <1/> tab"
 #~ msgstr "Moved to the <0>Namespace owners</0> <1/> tab"
@@ -4761,6 +4807,10 @@ msgstr "More than {LARGE_MATCH} repositories match. Add another filter to narrow
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Moved to the <0>Owners</0> tab"
 #~ msgstr "Moved to the <0>Owners</0> tab"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Moving the distributions to the new publication."
+msgstr "Moving the distributions to the new publication."
 
 #: src/components/remote-form.tsx
 msgid "Must be an integer."
@@ -4990,6 +5040,10 @@ msgstr "No collection versions yet"
 #: src/containers/search/search.tsx
 #~ msgid "No collections yet"
 #~ msgstr "No collections yet"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "No compression"
+msgstr "No compression"
 
 #: src/containers/execution-environment-list/execution-environment-list.tsx
 #~ msgid "No container repositories yet"
@@ -5293,6 +5347,7 @@ msgstr "Not bound to anything"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Not confirmed"
 msgstr "Not confirmed"
 
@@ -5342,6 +5397,7 @@ msgstr "Not reported"
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Not sent"
 msgstr "Not sent"
 
@@ -5407,6 +5463,10 @@ msgstr "Nothing changed in repository {repositoryName}."
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 msgstr "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Nothing was moved"
+msgstr "Nothing was moved"
+
 #: src/shell/notifications.tsx
 msgid "Notifications"
 msgstr "Notifications"
@@ -5414,6 +5474,10 @@ msgstr "Notifications"
 #: src/shell/notifications.tsx
 msgid "Notifications could not be loaded."
 msgstr "Notifications could not be loaded."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Now serves the new publication."
+msgstr "Now serves the new publication."
 
 #: src/components/remote-form.tsx
 msgid "Number must be greater than 0"
@@ -5996,9 +6060,32 @@ msgstr "Publication of version {version}"
 msgid "Publications could not be read."
 msgstr "Publications could not be read."
 
+#: src/framework/detail/repository-detail.tsx
 #: src/framework/form/form-values.test.ts
+#: src/framework/publish/publish-dialog.tsx
+#: src/framework/sync/progress-panel.tsx
 msgid "Publish"
 msgstr "Publish"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish a flat layout where all packages are in a single release component."
+msgstr "Publish a flat layout where all packages are in a single release component."
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish canceled"
+msgstr "Publish canceled"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish completed"
+msgstr "Publish completed"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish failed"
+msgstr "Publish failed"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish is being canceled"
+msgstr "Publish is being canceled"
 
 #: src/components/repository-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -6007,13 +6094,49 @@ msgstr "Publish"
 msgid "Publish new versions automatically"
 msgstr "Publish new versions automatically"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish of {name}"
+msgstr "Publish of {name}"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish of version {number} of {name}"
+msgstr "Publish of version {number} of {name}"
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish queued"
+msgstr "Publish queued"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish repository \"{name}\""
+msgstr "Publish repository \"{name}\""
+
+#: src/framework/sync/progress-panel.tsx
+msgid "Publish running"
+msgstr "Publish running"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release components and architectures of the repository"
+msgstr "Publish the release components and architectures of the repository"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Publish the release components and architectures that the packages of the repository declare. At least one of the two modes stays on."
+msgstr "Publish the release components and architectures that the packages of the repository declare. At least one of the two modes stays on."
+
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish the release fields of the upstream repository"
 msgstr "Publish the release fields of the upstream repository"
 
+#: src/framework/detail/versions-tab.tsx
+msgid "Publish this version"
+msgstr "Publish this version"
+
 #: src/descriptors/deb/descriptor.tsx
 msgid "Publish upstream release fields"
 msgstr "Publish upstream release fields"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "Publish version {number} of \"{name}\""
+msgstr "Publish version {number} of \"{name}\""
 
 #: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
 #~ msgid "Published"
@@ -6296,6 +6419,10 @@ msgstr "Push, delete and change containers. Create, delete and change remote reg
 #: src/constants.tsx
 #~ msgid "Push, delete, and change execution environments. Create, delete and change remote registries."
 #~ msgstr "Push, delete, and change execution environments. Create, delete and change remote registries."
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Put every package in one release component"
+msgstr "Put every package in one release component"
 
 #: src/utilities/translate-task.ts
 msgid "Python package group upload"
@@ -6884,6 +7011,10 @@ msgstr "Reset to browser defaults"
 msgid "Result"
 msgstr "Result"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Result of each move"
+msgstr "Result of each move"
+
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/shell/command-palette.tsx
 msgid "Results"
@@ -6928,6 +7059,7 @@ msgstr "Retries"
 #: src/framework/distributions/serves-field.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/list-frame.tsx
+#: src/framework/publish/publish-dialog.tsx
 #: src/framework/sync/last-sync.tsx
 #: src/framework/sync/progress-panel.tsx
 #: src/menu.tsx
@@ -7433,6 +7565,10 @@ msgstr "Selected user"
 msgid "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 msgstr "Separate terms with commas and write key=value, key or !key. Write {ESCAPED_COMMA} for a comma in a value."
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Serve the new publication"
+msgstr "Serve the new publication"
+
 #: src/framework/distributions/distribution-edit.tsx
 msgid "Serve the repository instead"
 msgstr "Serve the repository instead"
@@ -7471,6 +7607,10 @@ msgstr "Serves"
 msgid "Serves nothing (404): no publication"
 msgstr "Serves nothing (404): no publication"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "Serves the publication of version {bound}"
+msgstr "Serves the publication of version {bound}"
+
 #: src/framework/serving/served-label.tsx
 msgid "Serves version {served}, latest is {latest}"
 msgstr "Serves version {served}, latest is {latest}"
@@ -7484,9 +7624,29 @@ msgstr "Setting a remote allows a repository to sync from elsewhere."
 msgid "Settings"
 msgstr "Settings"
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha1"
+msgstr "sha1"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha224"
+msgstr "sha224"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha256"
+msgstr "sha256"
+
 #: src/descriptors/file/descriptor.tsx
 msgid "SHA256SUMS files"
 msgstr "SHA256SUMS files"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha384"
+msgstr "sha384"
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "sha512"
+msgstr "sha512"
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "Share"
@@ -7731,6 +7891,10 @@ msgstr "Signing services"
 #~ msgid "Signing started for container \"{0}\"."
 #~ msgstr "Signing started for container \"{0}\"."
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Simple publishing"
+msgstr "Simple publishing"
+
 #: src/components/remote-form.tsx
 msgid "Single sign on URL."
 msgstr "Single sign on URL."
@@ -7803,6 +7967,7 @@ msgid "Start from scratch"
 msgstr "Start from scratch"
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "Started"
 msgstr "Started"
 
@@ -7874,6 +8039,10 @@ msgstr "Stored credentials"
 #: src/framework/remote-columns.tsx
 msgid "Streamed"
 msgstr "Streamed"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Structured publishing"
+msgstr "Structured publishing"
 
 #: src/framework/bulk/bulk-dialog.tsx
 msgid "Succeeded"
@@ -8339,9 +8508,17 @@ msgstr "The bulk action stopped with an unexpected error. Some rows may already 
 #~ msgid "The certificate for \"{namespace} {name} v{version}\" could not be saved."
 #~ msgstr "The certificate for \"{namespace} {name} v{version}\" could not be saved."
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "The change is still running."
+msgstr "The change is still running."
+
 #: src/actions/repository-content-task.ts
 msgid "The change to repository \"{repositoryName}\" is still running."
 msgstr "The change to repository \"{repositoryName}\" is still running."
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "The checksum type used in the metadata of this publication."
+msgstr "The checksum type used in the metadata of this publication."
 
 #: src/framework/distributions/distribution-columns.tsx
 msgid "The client snippet shows how."
@@ -8434,6 +8611,10 @@ msgstr "The distributions of this repository could not be listed, so nothing can
 msgid "The distributions of this repository could not be listed, so nothing was deleted."
 msgstr "The distributions of this repository could not be listed, so nothing was deleted."
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "The distributions of this repository could not be read, so none can be moved from here. You can still publish."
+msgstr "The distributions of this repository could not be read, so none can be moved from here. You can still publish."
+
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
 msgid "The distributions were removed but the repository was kept."
@@ -8497,6 +8678,10 @@ msgstr "The last sync could not be read."
 msgid "The login page returned without a signed-in session."
 msgstr "The login page returned without a signed-in session."
 
+#: src/descriptors/file/descriptor.tsx
+msgid "The name of the file that lists every published file with its checksum and size."
+msgstr "The name of the file that lists every published file with its checksum and size."
+
 #: src/framework/distributions/distribution-form.tsx
 msgid "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
 msgstr "The outcome of creating the distribution \"{trimmedName}\" is unknown, because the task status could not be read. Check the task."
@@ -8537,9 +8722,25 @@ msgstr "The password to be used for authentication when syncing. This is not req
 msgid "The plugin list could not be loaded"
 msgstr "The plugin list could not be loaded"
 
+#: src/framework/publish/publish-dialog.tsx
+msgid "The progress of the publish could not be followed. No distribution was moved."
+msgstr "The progress of the publish could not be followed. No distribution was moved."
+
 #: src/framework/sync/progress-panel.tsx
 msgid "The progress of this task cannot be shown."
 msgstr "The progress of this task cannot be shown."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "The publish failed: {reason} No distribution was moved."
+msgstr "The publish failed: {reason} No distribution was moved."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "The publish finished, but the new publication could not be found. No distribution was moved."
+msgstr "The publish finished, but the new publication could not be found. No distribution was moved."
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "The publish was accepted and is running. The distributions you chose are moved to the new publication when it exists. If you close this window now, they stay where they are."
+msgstr "The publish was accepted and is running. The distributions you chose are moved to the new publication when it exists. If you close this window now, they stay where they are."
 
 #: src/actions/ansible-remote-delete.tsx
 msgid "The removal of remote {name} is still running."
@@ -8607,6 +8808,10 @@ msgstr "The repository was kept."
 msgid "The repository was not removed."
 msgstr "The repository was not removed."
 
+#: src/descriptors/rpm/descriptor.tsx
+msgid "The repository's setting or the server's default"
+msgstr "The repository's setting or the server's default"
+
 #: src/utilities/request-error.ts
 msgid "The request failed."
 msgstr "The request failed."
@@ -8620,6 +8825,10 @@ msgstr "The reserved base paths of this server could not be read, so a distribut
 #: src/framework/distributions/distribution-edit.tsx
 msgid "The reserved base paths of this server could not be read, so the base path cannot be changed here."
 msgstr "The reserved base paths of this server could not be read, so the base path cannot be changed here."
+
+#: src/framework/publish/pinned-distributions.ts
+msgid "The result of the change could not be read."
+msgstr "The result of the change could not be read."
 
 #: src/actions/repository-version-revert.tsx
 msgid "The revert of repository \"{repositoryName}\" is still running."
@@ -8703,10 +8912,12 @@ msgid "The session ended before the distribution could be created. After you log
 msgstr "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "The session ended before this one was sent."
 msgstr "The session ended before this one was sent."
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/publish/publish-dialog.tsx
 msgid "The session ended while this one was on its way."
 msgstr "The session ended while this one was on its way."
 
@@ -8838,6 +9049,10 @@ msgstr "There is no repository named \"{0}\", or you may not see it."
 #: src/containers/task-management/task-detail.tsx
 msgid "There's no resource record"
 msgstr "There's no resource record"
+
+#: src/framework/publish/publish-dialog.tsx
+msgid "These distributions are bound to an older publication and keep serving it. Tick the ones that should serve the new publication."
+msgstr "These distributions are bound to an older publication and keep serving it. Tick the ones that should serve the new publication."
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-repository-dialog.tsx
@@ -9816,6 +10031,10 @@ msgstr "When packages are rejected"
 msgid "Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
 msgstr "Whether the publications of this repository include SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Whether this publication includes SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
+msgstr "Whether this publication includes SHA256SUMS files, which list the checksum of every published file so clients can verify a download."
+
 #: src/components/remote-form.tsx
 #: src/descriptors/python/descriptor.tsx
 msgid "Whether to also sync the provenance attestations published for packages."
@@ -10088,3 +10307,7 @@ msgstr "Your tasks appear here when they fail, complete or are canceled."
 #: src/containers/token/token-standalone.tsx
 #~ msgid "Your token will not expire."
 #~ msgstr "Your token will not expire."
+
+#: src/descriptors/rpm/descriptor.tsx
+msgid "zstd"
+msgstr "zstd"

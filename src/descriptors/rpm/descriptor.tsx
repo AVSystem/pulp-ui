@@ -31,6 +31,31 @@ const SYNC_POLICIES = [
   },
 ];
 
+// The choice that leaves the type to the server, which takes the repository's
+// own setting, or its own default when the repository sets none.
+const FROM_REPOSITORY = {
+  value: '',
+  label: msg`The repository's setting or the server's default`,
+};
+
+// The checksums a publication can use for the metadata it generates, and the
+// compressions it can apply to that metadata. The values are the server's.
+const CHECKSUM_TYPES = [
+  FROM_REPOSITORY,
+  { value: 'md5', label: msg`md5` },
+  { value: 'sha1', label: msg`sha1` },
+  { value: 'sha224', label: msg`sha224` },
+  { value: 'sha256', label: msg`sha256` },
+  { value: 'sha384', label: msg`sha384` },
+  { value: 'sha512', label: msg`sha512` },
+];
+const COMPRESSION_TYPES = [
+  FROM_REPOSITORY,
+  { value: 'zstd', label: msg`zstd` },
+  { value: 'gz', label: msg`gzip` },
+  { value: 'none', label: msg`No compression` },
+];
+
 // The rpm plugin's repositories and remotes as the framework reads them. The
 // descriptor and what it imports are one chunk that loads when an rpm screen is
 // first shown.
@@ -122,7 +147,29 @@ const descriptor: PluginDescriptor<RpmRepository> = {
   },
   contentTypes: [{ id: 'rpm.package', label: msg`Packages` }],
   distribution: { entity: rpmDistribution },
-  publication: { entity: rpmPublication, servesFromPublication: true },
+  publication: {
+    entity: rpmPublication,
+    servesFromPublication: true,
+    taskName: 'pulp_rpm.app.tasks.publishing.publish',
+    options: [
+      {
+        name: 'checksum_type',
+        label: msg`Checksum type`,
+        kind: 'select',
+        options: CHECKSUM_TYPES,
+        help: msg`The checksum type used in the metadata of this publication.`,
+        initial: (repository) => repository.checksum_type ?? '',
+      },
+      {
+        name: 'compression_type',
+        label: msg`Compression type`,
+        kind: 'select',
+        options: COMPRESSION_TYPES,
+        help: msg`How the metadata files of this publication are compressed.`,
+        initial: (repository) => repository.compression_type ?? '',
+      },
+    ],
+  },
 };
 
 export default descriptor;

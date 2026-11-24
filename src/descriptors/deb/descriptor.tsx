@@ -236,7 +236,37 @@ const descriptor: PluginDescriptor<DebRepository> = {
     fields: REMOTE_FIELDS,
   },
   distribution: { entity: debDistribution },
-  publication: { entity: debPublication, servesFromPublication: true },
+  publication: {
+    entity: debPublication,
+    servesFromPublication: true,
+    taskName: 'pulp_deb.app.tasks.publishing.publish',
+    // The two modes are what the server uses when it is told nothing: it
+    // refuses a publication that has neither.
+    options: [
+      {
+        name: 'simple',
+        label: msg`Simple publishing`,
+        kind: 'boolean',
+        boxLabel: msg`Put every package in one release component`,
+        help: msg`Publish a flat layout where all packages are in a single release component.`,
+        initial: () => false,
+      },
+      {
+        name: 'structured',
+        label: msg`Structured publishing`,
+        kind: 'boolean',
+        boxLabel: msg`Publish the release components and architectures of the repository`,
+        help: msg`Publish the release components and architectures that the packages of the repository declare. At least one of the two modes stays on.`,
+        initial: () => true,
+      },
+    ],
+    // Turning one mode off while the other is off turns the other on, so the
+    // server is never sent a publication with neither.
+    adjust: (values, changed) =>
+      values.simple === false && values.structured === false
+        ? { ...values, [changed === 'simple' ? 'structured' : 'simple']: true }
+        : values,
+  },
 };
 
 export default descriptor;
