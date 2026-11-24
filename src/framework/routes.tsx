@@ -232,7 +232,7 @@ const TABS_WITH_SCREENS: ReadonlySet<RepositoryTab> = new Set<RepositoryTab>([
   'versions',
   'distributions',
   'publications',
-  'packages',
+  'content',
 ]);
 
 // The component of a pattern, or null while its screen does not exist yet:

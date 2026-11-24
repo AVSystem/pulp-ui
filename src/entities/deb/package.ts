@@ -1,5 +1,7 @@
 import {
   contentDebPackagesList,
+  contentDebPackagesSetLabel,
+  contentDebPackagesUnsetLabel,
   getContentDebPackagesListUrl,
 } from '@pulp-ui/sdk/deb/content-packages';
 import { makeContentEntity } from 'src/entities/plugin/content';
@@ -12,9 +14,11 @@ export const debPackage = makeContentEntity({
   app: 'deb',
   object: 'package',
   schema: debPackageSchema,
-  textFilters: ['package__contains', 'architecture'],
+  textFilters: ['package__contains', 'architecture', 'pulp_label_select'],
   api: {
     list: contentDebPackagesList,
     listUrl: getContentDebPackagesListUrl,
+    setLabel: contentDebPackagesSetLabel,
+    unsetLabel: contentDebPackagesUnsetLabel,
   },
 });

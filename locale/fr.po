@@ -126,6 +126,10 @@ msgstr "{count, plural, one {# tâche en cours} other {# tâches en cours}}"
 #~ msgid "{count, plural, one {Plugin} other {Plugins}}"
 #~ msgstr "{count, plural, one {Plugin} other {Plugins}}"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "{count, plural, one {Remove # item from repository \"{repositoryName}\"?} other {Remove # items from repository \"{repositoryName}\"?}}"
+msgstr ""
+
 #: src/components/numeric-label.tsx
 #~ msgid "{count, plural, one {Role} other {Roles}}"
 #~ msgstr "{count, plural, one {Role} other {Roles}}"
@@ -864,6 +868,10 @@ msgstr "Une clé publique au format ASCII armuré. Si elle est définie, la sign
 msgid "And {0} more."
 msgstr "Et {0} de plus."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "and {others} more"
+msgstr ""
+
 #. placeholder {0}: shown.name
 #. placeholder {0}: task.name
 #: src/components/sync-modal.tsx
@@ -1014,7 +1022,7 @@ msgid "Apt"
 msgstr ""
 
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Arch"
 msgstr "Architecture"
 
@@ -1277,6 +1285,7 @@ msgstr "Certificat CA"
 #: src/components/wizard-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/remove-content-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -1958,6 +1967,7 @@ msgstr "Contactez l'administrateur de votre organisation pour plus d'information
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
@@ -1976,6 +1986,7 @@ msgstr "Contenu ajouté"
 msgid "Content address"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content could not be displayed."
 msgstr ""
@@ -2029,6 +2040,7 @@ msgstr "Paramètres du contenu"
 msgid "Content summary"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Content type"
 msgstr ""
@@ -3065,6 +3077,10 @@ msgstr "Modifier dans l'éditeur YAML"
 msgid "Edit labels"
 msgstr "Modifier les libellés"
 
+#: src/framework/content/content-labels.tsx
+msgid "Edit labels of {name}"
+msgstr ""
+
 #: src/containers/namespace-detail/namespace-detail.tsx
 #~ msgid "Edit namespace"
 #~ msgstr "Modifier l'espace de nom"
@@ -3638,6 +3654,10 @@ msgstr ""
 msgid "Failed to remove {namespace}.{name} v{version} from repository \"{repositoryName}\"."
 msgstr "Échec de la suppression de {namespace}.{name} v{version} du référentiel \"{repositoryName}\"."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Failed to remove content from repository \"{repositoryName}\""
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -3730,7 +3750,7 @@ msgstr "Rapide"
 #~ msgstr ""
 
 #: src/containers/python/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 #: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
@@ -3751,6 +3771,10 @@ msgstr "Téléversement de fichiers"
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "Files could not be displayed."
 msgstr ""
 
 #. placeholder {0}: selectedFilter.id
@@ -4512,6 +4536,7 @@ msgstr "Valeur du libellé"
 #: src/components/repository-form.tsx
 #: src/containers/ansible-repository/list.tsx
 #: src/containers/ansible-repository/tab-details.tsx
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/details-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/distributions/distribution-detail.tsx
@@ -4533,6 +4558,14 @@ msgstr "Les libellés sont des paires composées d'une clé et d'une valeur facu
 #: src/framework/form/repository-fields.ts
 msgid "Labels are pairs of a key and an optional value. Filters and scripts use them to find repositories."
 msgstr "Les libellés sont des paires composées d'une clé et d'une valeur facultative. Les filtres et les scripts les utilisent pour retrouver des référentiels."
+
+#: src/framework/content/content-labels.tsx
+msgid "Labels belong to the content unit and show in every repository that holds it."
+msgstr ""
+
+#: src/framework/content/content-labels.tsx
+msgid "Labels of {name}"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Last heartbeat"
@@ -4931,8 +4964,8 @@ msgstr "Mon profil"
 #: src/containers/pulp-status.tsx
 #: src/containers/signature-keys/list.tsx
 #: src/containers/task-management/task-detail.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/distributions/distribution-fields.tsx
@@ -5140,6 +5173,10 @@ msgstr ""
 msgid "No content"
 msgstr ""
 
+#: src/framework/detail/content-tab.tsx
+msgid "No content in the latest version"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "Aucun contrôleur disponible"
@@ -5176,6 +5213,10 @@ msgstr "Pas encore de distribution"
 
 #: src/framework/detail/version-content.tsx
 msgid "No earlier version"
+msgstr ""
+
+#: src/descriptors/file/descriptor.tsx
+msgid "No files in the latest version"
 msgstr ""
 
 #: src/shell/notifications.tsx
@@ -5255,8 +5296,9 @@ msgstr "Aucun groupe à ajouter"
 #~ msgid "No namespaces yet"
 #~ msgstr "Pas encore d'espace de noms"
 
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "No packages in the latest version"
 msgstr "Aucun paquet dans la dernière version"
 
@@ -5350,6 +5392,7 @@ msgstr "Aucun résultat ne correspond aux critères de filtrage. Essayez de modi
 #~ msgstr "Aucun rôle pour l'instant"
 
 #: src/framework/bulk/bulk-menu.tsx
+#: src/framework/detail/content-tab.tsx
 msgid "No rows selected"
 msgstr "Aucune ligne sélectionnée"
 
@@ -5781,8 +5824,8 @@ msgstr ""
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Package name"
 msgstr "Nom du paquet"
 
@@ -5791,7 +5834,7 @@ msgid "Package substitution"
 msgstr "Substitution de paquets"
 
 #: src/containers/python/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Package type"
 msgstr "Type de paquet"
 
@@ -5808,8 +5851,8 @@ msgstr "Types de paquet à synchroniser. Laissez tout décoché pour synchronise
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Packages"
 msgstr "Paquets"
 
@@ -5819,8 +5862,9 @@ msgstr "Paquets et artefacts"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Packages could not be displayed."
 msgstr "Les paquets n'ont pas pu être affichés."
 
@@ -6801,6 +6845,10 @@ msgstr "Les sources distantes apparaîtront une fois créées."
 msgid "Removal of {namespace}.{name} v{version} from repository \"{repositoryName}\" started."
 msgstr "Suppression de {namespace}.{name} v{version} du référentiel \"{repositoryName}\" a commencé."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Removal of content from {repositoryName}"
+msgstr ""
+
 #: src/framework/distributions/delete-distribution.ts
 msgid "Removal of distribution {name}"
 msgstr ""
@@ -6819,6 +6867,10 @@ msgstr "Début de la suppression en vue de la distribution {name}"
 msgid "Removal started for remote {name}"
 msgstr "Début de la suppression de la source distante {name}"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Removal started for repository \"{repositoryName}\"."
+msgstr ""
+
 #: src/actions/ansible-repository-delete.tsx
 #: src/actions/deb-repository-delete.tsx
 #: src/actions/file-repository-delete.tsx
@@ -6828,6 +6880,7 @@ msgstr "Début de la suppression de la source distante {name}"
 #: src/actions/ansible-repository-collection-version-remove.tsx
 #: src/components/delete-modal.tsx
 #: src/containers/group-management/group-detail.tsx
+#: src/framework/content/remove-content-dialog.tsx
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -6839,9 +6892,17 @@ msgstr "Supprimer"
 msgid "Remove collection version?"
 msgstr "Supprimer la version de la collection ?"
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "Remove content"
+msgstr ""
+
 #: src/utilities/translate-task.ts
 msgid "Remove content from repository"
 msgstr "Supprimer le contenu du référentiel"
+
+#: src/framework/detail/content-tab.tsx
+msgid "Remove from repository"
+msgstr ""
 
 #: src/components/access-tab.tsx
 msgid "Remove group"
@@ -7148,7 +7209,7 @@ msgstr "Référentiel : {name}"
 #~ msgid "Requires Ansible"
 #~ msgstr "Nécessite Ansible"
 
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Requires Python"
 msgstr "Nécessite Python"
 
@@ -7597,7 +7658,9 @@ msgstr "Voir la <0>page de détails </0> de gestion des tâches pour voir le sta
 msgid "Select"
 msgstr "Sélectionner"
 
+#. placeholder {0}: nameOf(row)
 #. placeholder {0}: row.name
+#: src/framework/detail/content-tab.tsx
 #: src/framework/list/remote-list.tsx
 #: src/framework/list/repository-list.tsx
 msgid "Select {0}"
@@ -7643,6 +7706,10 @@ msgstr "Sélectionner un utilisateur"
 #: src/components/copy-collection-to-repository-modal/copy-collection-to-repository-modal.tsx
 #~ msgid "Select all ({itemsCount} items)"
 #~ msgstr ""
+
+#: src/framework/detail/content-tab.tsx
+msgid "Select all on this page"
+msgstr ""
 
 #: src/framework/list/remote-list.tsx
 msgid "Select all remotes on this page"
@@ -8322,7 +8389,7 @@ msgstr "Référentiel {name} créé avec succès"
 #~ msgid "Successfully stopped task."
 #~ msgstr "Successfully stopped task."
 
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Summary"
 msgstr "Résumé"
 
@@ -8480,11 +8547,16 @@ msgstr "Statut Sync"
 msgid "Sync task is already queued."
 msgstr "La tâche de synchronisation est déjà en file d'attente."
 
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/deb/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 msgid "Sync this repository or add packages to it."
 msgstr "Synchronisez ce référentiel ou ajoutez-y des paquets."
 
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/file/descriptor.tsx
+msgid "Sync this repository or upload files to it."
+msgstr ""
+
+#: src/descriptors/python/descriptor.tsx
 msgid "Sync this repository or upload packages to it."
 msgstr "Synchronisez ce référentiel ou téléversez-y des paquets."
 
@@ -8995,6 +9067,10 @@ msgstr "Le référentiel n'a pas pu être supprimé : {reason}"
 msgid "The repository gets a new latest version with the content of that version. No version and no content is deleted."
 msgstr "Le référentiel reçoit une nouvelle dernière version avec le contenu de cette version. Aucune version et aucun contenu ne sont supprimés."
 
+#: src/framework/content/remove-content-dialog.tsx
+msgid "The repository gets a new latest version without them. Earlier versions keep them."
+msgstr ""
+
 #: src/framework/publish/serving-fix.tsx
 msgid "The repository has no publication to serve."
 msgstr ""
@@ -9256,6 +9332,7 @@ msgstr "Il n'y a aucune source distante associée à ce référentiel."
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/detail/content-tab.tsx
 #: src/framework/detail/version-content.tsx
 msgid "There is no content of this kind to show."
 msgstr ""
@@ -9538,7 +9615,7 @@ msgstr "Déclenche une tâche asynchrone qui supprime les tâches terminées ava
 #: src/containers/python/package-list.tsx
 #: src/containers/task-management/task-detail.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
 msgid "Type"
 msgstr "Type"
 
@@ -10072,8 +10149,8 @@ msgstr "Vérifier les sommes de contrôle"
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
 #: src/descriptors/deb/descriptor.tsx
-#: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/packages-tab.tsx
+#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/rpm/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
 msgid "Version"
 msgstr "Version"

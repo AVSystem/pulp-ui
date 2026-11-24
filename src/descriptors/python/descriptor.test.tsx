@@ -277,16 +277,16 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
   });
 
   describe('the tabs and the content', () => {
-    it('adds the Versions, Distributions and Packages tabs, each at its sub-path', () => {
+    it('adds the Versions, Content and Distributions tabs, each at its sub-path', () => {
       expect((repository.tabs ?? []).map(({ id }) => id)).toEqual([
         'versions',
+        'content',
         'distributions',
-        'packages',
       ]);
       expect((repository.tabs ?? []).map(({ label }) => text(label))).toEqual([
         'Versions',
+        'Content',
         'Distributions',
-        'Packages',
       ]);
     });
 

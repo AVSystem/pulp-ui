@@ -1,5 +1,7 @@
 import {
   contentPythonPackagesList,
+  contentPythonPackagesSetLabel,
+  contentPythonPackagesUnsetLabel,
   getContentPythonPackagesListUrl,
 } from '@pulp-ui/sdk/python/content-packages';
 import { makeContentEntity } from 'src/entities/plugin/content';
@@ -12,9 +14,16 @@ export const pythonPackage = makeContentEntity({
   app: 'python',
   object: 'package',
   schema: pythonPackageSchema,
-  textFilters: ['name__contains', 'packagetype', 'requires_python__contains'],
+  textFilters: [
+    'name__contains',
+    'packagetype',
+    'requires_python__contains',
+    'pulp_label_select',
+  ],
   api: {
     list: contentPythonPackagesList,
     listUrl: getContentPythonPackagesListUrl,
+    setLabel: contentPythonPackagesSetLabel,
+    unsetLabel: contentPythonPackagesUnsetLabel,
   },
 });

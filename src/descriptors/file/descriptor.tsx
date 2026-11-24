@@ -12,6 +12,7 @@ import {
   type PluginDescriptor,
   contentType,
 } from 'src/framework/descriptor';
+import { contentTab } from 'src/framework/detail/content-tab';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
@@ -88,6 +89,7 @@ const descriptor: PluginDescriptor<FileRepository> = {
     createDefaults: { autopublish: false, sha256sums: 'disabled' },
     tabs: [
       versionsTab<FileRepository>(),
+      contentTab<FileRepository>(),
       publicationsTab<FileRepository>(),
       distributionsTab<FileRepository>(),
     ],
@@ -166,6 +168,10 @@ const descriptor: PluginDescriptor<FileRepository> = {
         { param: 'relative_path__contains', label: msg`Relative path` },
       ],
       defaultSort: 'relative_path',
+      nameOf: ({ relative_path }) => relative_path,
+      errorTitle: msg`Files could not be displayed.`,
+      emptyTitle: msg`No files in the latest version`,
+      emptyDescription: msg`Sync this repository or upload files to it.`,
     }),
   ],
   distribution: { entity: fileDistribution },

@@ -18,6 +18,7 @@ export type ScreenKind =
   | 'repository-list'
   | 'repository-detail'
   | 'repository-tab'
+  | 'repository-packages'
   | 'repository-edit'
   | 'repository-create'
   | 'remote-list'
@@ -31,7 +32,7 @@ export type ScreenKind =
 // The tabs a repository can have a sub-path for. Which of them a plugin
 // really has is the descriptor's decision; a tab the plugin lacks is Not Found.
 export type RepositoryTab =
-  'versions' | 'distributions' | 'publications' | 'content' | 'packages';
+  'versions' | 'distributions' | 'publications' | 'content';
 
 // The kind of object a screen is about. The list of every plugin's
 // distributions is about none: it belongs to no plugin.
@@ -100,11 +101,6 @@ export function patternsOf(
       screen: 'repository-tab',
       tab: 'content',
     },
-    {
-      pattern: `${repositories}/:name/packages`,
-      screen: 'repository-tab',
-      tab: 'packages',
-    },
     { pattern: `${repositories}/:name/edit`, screen: 'repository-edit' },
     { pattern: `/${plugin}/repository/new`, screen: 'repository-create' },
     { pattern: remotes, screen: 'remote-list' },
@@ -151,6 +147,11 @@ export function legacyPatternsOf(
     { pattern: `${remotes}/detail/:name`, screen: 'remote-detail' },
     { pattern: `${remotes}/edit/:name`, screen: 'remote-edit' },
     { pattern: `${remotes}/edit/_`, screen: 'remote-create' },
+    // The packages of rpm and python repositories are the repository's content.
+    {
+      pattern: `${repositories}/:name/packages`,
+      screen: 'repository-packages',
+    },
   ];
 
   return all.filter(({ screen }) =>

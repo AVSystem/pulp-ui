@@ -1,15 +1,22 @@
 import { msg, t } from '@lingui/core/macro';
 import type { RemoteBase } from 'src/entities/plugin/model';
 import { pythonDistribution } from 'src/entities/python/distribution';
-import type { PythonRemote, PythonRepository } from 'src/entities/python/model';
+import type {
+  PythonPackage,
+  PythonRemote,
+  PythonRepository,
+} from 'src/entities/python/model';
+import { pythonPackage } from 'src/entities/python/package';
 import { pythonPublication } from 'src/entities/python/publication';
 import { pythonRemote } from 'src/entities/python/remote';
 import { pythonRepository } from 'src/entities/python/repository';
-import type {
-  DetailRow,
-  FieldDef,
-  PluginDescriptor,
+import {
+  type DetailRow,
+  type FieldDef,
+  type PluginDescriptor,
+  contentType,
 } from 'src/framework/descriptor';
+import { contentTab } from 'src/framework/detail/content-tab';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
 import {
@@ -22,7 +29,6 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
-import { packageContentType, packagesTab } from './packages-tab';
 
 // What a python remote holds beyond what every remote has, read from the loose
 // shape of a remote the generic screens pass around.
@@ -228,8 +234,8 @@ const descriptor: PluginDescriptor<PythonRepository> = {
     },
     tabs: [
       versionsTab<PythonRepository>(),
+      contentTab<PythonRepository>(),
       distributionsTab<PythonRepository>(),
-      packagesTab,
     ],
     sync: {
       taskName: 'pulp_python.app.tasks.sync.sync',
@@ -264,7 +270,64 @@ const descriptor: PluginDescriptor<PythonRepository> = {
     detailRows: REMOTE_ROWS,
     fields: REMOTE_FIELDS,
   },
-  contentTypes: [packageContentType],
+  // The packages of a repository: the Content tab and the version pages list
+  // them. One release usually has several files (an sdist and per-platform
+  // wheels), so the file name is what tells the rows apart. The server orders by
+  // the name; the other columns do not sort.
+  contentTypes: [
+    contentType<PythonPackage>({
+      id: 'python.package',
+      label: msg`Packages`,
+      pulpType: 'python.python',
+      entity: pythonPackage,
+      fields: [
+        'name',
+        'version',
+        'packagetype',
+        'filename',
+        'requires_python',
+        'pulp_href',
+      ],
+      columns: [
+        {
+          id: 'name',
+          label: msg`Name`,
+          sortField: 'name',
+          render: ({ name }) => name,
+        },
+        {
+          id: 'version',
+          label: msg`Version`,
+          render: ({ version }) => version,
+        },
+        {
+          id: 'packagetype',
+          label: msg`Type`,
+          render: ({ packagetype }) => packagetype,
+        },
+        {
+          id: 'filename',
+          label: msg`File`,
+          render: ({ filename }) => filename,
+        },
+        {
+          id: 'requires-python',
+          label: msg`Requires Python`,
+          render: ({ requires_python }) => requires_python || '---',
+        },
+      ],
+      filters: [
+        { param: 'name__contains', label: msg`Package name` },
+        { param: 'packagetype', label: msg`Package type` },
+        { param: 'requires_python__contains', label: msg`Requires Python` },
+      ],
+      defaultSort: 'name',
+      nameOf: ({ filename }) => filename,
+      errorTitle: msg`Packages could not be displayed.`,
+      emptyTitle: msg`No packages in the latest version`,
+      emptyDescription: msg`Sync this repository or upload packages to it.`,
+    }),
+  ],
   // A python distribution is served from the repository's versions, never
   // from its publications. Publications are deprecated, but a distribution can
   // still be bound to one, so they are read to find the repository such a

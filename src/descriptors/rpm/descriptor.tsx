@@ -1,11 +1,13 @@
 import { type MessageDescriptor, i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import { rpmDistribution } from 'src/entities/rpm/distribution';
-import type { RpmRepository } from 'src/entities/rpm/model';
+import type { RpmPackage, RpmRepository } from 'src/entities/rpm/model';
+import { rpmPackage } from 'src/entities/rpm/package';
 import { rpmPublication } from 'src/entities/rpm/publication';
 import { rpmRemote } from 'src/entities/rpm/remote';
 import { rpmRepository } from 'src/entities/rpm/repository';
-import type { PluginDescriptor } from 'src/framework/descriptor';
+import { type PluginDescriptor, contentType } from 'src/framework/descriptor';
+import { contentTab } from 'src/framework/detail/content-tab';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
@@ -19,7 +21,14 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
-import { packageContentType, packagesTab } from './packages-tab';
+
+// epoch:version-release, with the epoch left out when it is 0, as rpm and dnf
+// show it. The server sends the epoch as text, and a number is taken too.
+const evr = ({ epoch, version, release }: RpmPackage): string => {
+  const prefix = epoch != null && String(epoch) !== '0' ? `${epoch}:` : '';
+
+  return `${prefix}${version}${release ? `-${release}` : ''}`;
+};
 
 // What the server does about content a remote no longer has. Additive is the
 // server's own default and never removes content: mirroring is opted into,
@@ -120,9 +129,9 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     createDefaults: { autopublish: false },
     tabs: [
       versionsTab<RpmRepository>(),
+      contentTab<RpmRepository>(),
       publicationsTab<RpmRepository>(),
       distributionsTab<RpmRepository>(),
-      packagesTab,
     ],
     sync: {
       taskName: 'pulp_rpm.app.tasks.synchronizing.synchronize',
@@ -162,7 +171,50 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     filters: REMOTE_FILTERS,
     detailRows: [POLICY_ROW],
   },
-  contentTypes: [packageContentType],
+  // The packages of a repository: the Content tab and the version pages list
+  // them. The server orders by the name; the version is not ordered on its own,
+  // because a version is compared by epoch, version and release together.
+  contentTypes: [
+    contentType<RpmPackage>({
+      id: 'rpm.package',
+      label: msg`Packages`,
+      pulpType: 'rpm.package',
+      entity: rpmPackage,
+      fields: [
+        'name',
+        'epoch',
+        'version',
+        'release',
+        'arch',
+        'summary',
+        'pulp_href',
+      ],
+      columns: [
+        {
+          id: 'name',
+          label: msg`Name`,
+          sortField: 'name',
+          render: ({ name }) => name,
+        },
+        { id: 'version', label: msg`Version`, render: evr },
+        { id: 'arch', label: msg`Arch`, render: ({ arch }) => arch },
+        {
+          id: 'summary',
+          label: msg`Summary`,
+          render: ({ summary }) => summary,
+        },
+      ],
+      filters: [
+        { param: 'name__contains', label: msg`Package name` },
+        { param: 'arch', label: msg`Arch` },
+      ],
+      defaultSort: 'name',
+      nameOf: (row) => `${row.name}-${evr(row)}.${row.arch}`,
+      errorTitle: msg`Packages could not be displayed.`,
+      emptyTitle: msg`No packages in the latest version`,
+      emptyDescription: msg`Sync this repository or add packages to it.`,
+    }),
+  ],
   distribution: { entity: rpmDistribution },
   publication: {
     entity: rpmPublication,

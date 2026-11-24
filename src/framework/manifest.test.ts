@@ -322,7 +322,6 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/file/repositories/:name/distributions',
       '/file/repositories/:name/publications',
       '/file/repositories/:name/content',
-      '/file/repositories/:name/packages',
       '/file/repositories/:name/edit',
       '/file/repository/new',
       '/file/remotes',
@@ -398,7 +397,6 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       ['/file/repositories/:name/distributions', 'distributions'],
       ['/file/repositories/:name/publications', 'publications'],
       ['/file/repositories/:name/content', 'content'],
-      ['/file/repositories/:name/packages', 'packages'],
     ]);
   });
 
@@ -410,6 +408,7 @@ describe('Unit: the pattern set of a plugin', { tags: ['unit'] }, () => {
       '/python/remotes/detail/:name',
       '/python/remotes/edit/:name',
       '/python/remotes/edit/_',
+      '/python/repositories/:name/packages',
     ]);
   });
 });

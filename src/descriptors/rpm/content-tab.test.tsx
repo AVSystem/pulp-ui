@@ -13,22 +13,23 @@ import {
   pluginListHandler,
   pluginRepository,
   projectedBy,
+  publicationListHandler,
   taskListHandler,
   versionSummaryHandler,
 } from 'src/test-utils/pulp';
 import { renderWithProviders } from 'src/test-utils/render';
 import { server } from 'src/test-utils/server';
 
-// The Packages tab of a python repository as a user meets it: routed from the
-// manifest, drawn from the python descriptor, and answered by a server that
-// cuts every row to the fields a request asks for.
+// The Content tab of an rpm repository as a user meets it: routed from the
+// manifest, drawn from the rpm descriptor, and answered by a server that cuts
+// every row to the fields a request asks for.
 
 const API = '/pulp/api/v3';
-const PACKAGES = `${API}/content/python/packages/`;
+const PACKAGES = `${API}/content/rpm/packages/`;
 
-const PYTHON: PluginManifest = {
+const RPM: PluginManifest = {
   ...(PLUGIN_MANIFESTS.find(
-    ({ plugin }) => plugin === 'python',
+    ({ plugin }) => plugin === 'rpm',
   ) as PluginManifest),
   onFramework: true,
 };
@@ -49,7 +50,7 @@ function Routed() {
   return (
     <>
       <p data-testid='location'>{`${pathname}${search}`}</p>
-      {useRoutes(guardRoutes(frameworkRoutes([PYTHON])))}
+      {useRoutes(guardRoutes(frameworkRoutes([RPM])))}
     </>
   );
 }
@@ -68,10 +69,11 @@ function render(route: string) {
 interface Row {
   pulp_href: string;
   name: string;
+  epoch: string | number;
   version: string;
-  packagetype: string;
-  filename: string;
-  requires_python: string | null;
+  release: string;
+  arch: string;
+  summary: string;
   // a field the tab never asks for
   description: string;
 }
@@ -79,17 +81,17 @@ interface Row {
 const row = (n: number, overrides: Partial<Row> = {}): Row => ({
   pulp_href: `${PACKAGES}00000000-0000-4000-8000-${String(n).padStart(12, '0')}/`,
   name: `pkg-${String(n).padStart(3, '0')}`,
-  version: `1.${n}`,
-  packagetype: 'sdist',
-  filename: `pkg-${String(n).padStart(3, '0')}-1.${n}.tar.gz`,
-  requires_python: '>=3.9',
+  epoch: '0',
+  version: '1.0',
+  release: `${n}.el9`,
+  arch: 'x86_64',
+  summary: `Summary of package ${n}`,
   description: 'a long description the tab does not read',
   ...overrides,
 });
 
 // The package list of a server: only the rows of the version asked for, the
-// `name__contains`, `packagetype` and `requires_python__contains` filters, the
-// ordering and the fields cut.
+// `name__contains` and `arch` filters, the ordering and the fields cut.
 function servePackages(rows: Row[], version: string) {
   return listOf(PACKAGES, rows, {
     pageSize: 1000,
@@ -97,12 +99,7 @@ function servePackages(rows: Row[], version: string) {
       query.get('repository_version') === version &&
       (query.get('name__contains') === null ||
         each.name.includes(query.get('name__contains') as string)) &&
-      (query.get('packagetype') === null ||
-        each.packagetype === query.get('packagetype')) &&
-      (query.get('requires_python__contains') === null ||
-        (each.requires_python ?? '').includes(
-          query.get('requires_python__contains') as string,
-        )),
+      (query.get('arch') === null || each.arch === query.get('arch')),
     ordered: (selected, query) => {
       const ordering = query.get('ordering');
       if (!ordering) {
@@ -121,16 +118,16 @@ function servePackages(rows: Row[], version: string) {
 function serveRepository(
   overrides: Partial<ReturnType<typeof pluginRepository>> = {},
 ) {
-  const repository = pluginRepository('python', {
-    name: 'simple',
+  const repository = pluginRepository('rpm', {
+    name: 'baseos',
     ...overrides,
   });
   server.use(
-    pluginListHandler('python', 'repository', [repository], {
-      pageSize: 1000,
-    }).handler,
-    pluginListHandler('python', 'remote', [], { pageSize: 1000 }).handler,
-    distributionListHandler('python', []).handler,
+    pluginListHandler('rpm', 'repository', [repository], { pageSize: 1000 })
+      .handler,
+    pluginListHandler('rpm', 'remote', [], { pageSize: 1000 }).handler,
+    distributionListHandler('rpm', []).handler,
+    publicationListHandler('rpm', []).handler,
     versionSummaryHandler({ patched: true, versions: [] }).handler,
     taskListHandler([]).handler,
     listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler,
@@ -146,47 +143,52 @@ const bodyRows = (grid: HTMLElement) =>
 const location = () => screen.getByTestId('location').textContent;
 
 describe(
-  'Integration: the Packages tab of a python repository',
+  'Integration: the Content tab of an rpm repository',
   { tags: ['integration'] },
   () => {
-    it('lists the packages of the latest version with the name, version, type, file and required Python, and asks for nothing else', async () => {
+    it('lists the packages of the latest version with the name, the version, the architecture and the summary, and asks for nothing else', async () => {
       const repository = serveRepository();
       const lab = servePackages(
         [
-          row(1, { packagetype: 'bdist_wheel', filename: 'a-1.1-py3.whl' }),
-          row(2, { requires_python: null }),
+          row(1, { epoch: '0', version: '5.2', release: '3.el9' }),
+          row(2, {
+            epoch: '2',
+            version: '1.1',
+            release: '4.el9',
+            arch: 'noarch',
+          }),
+          row(3, { epoch: 1 }),
         ],
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      render('/python/repositories/simple/packages');
+      render('/rpm/repositories/baseos/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-001');
 
       const headers = within(grid)
         .getAllByRole('columnheader')
-        .map((header) => header.textContent?.trim());
-      expect(headers).toEqual([
-        'Name',
-        'Version',
-        'Type',
-        'File',
-        'Requires Python',
-      ]);
+        .map((header) => header.textContent?.trim())
+        // the first column holds the check boxes
+        .slice(1);
+      expect(headers).toEqual(['Name', 'Version', 'Arch', 'Summary', 'Labels']);
       const cells = (index: number) =>
         within(bodyRows(grid)[index] as HTMLElement)
           .getAllByRole('cell')
-          .map((cell) => cell.textContent);
+          .map((cell) => cell.textContent)
+          // the first cell holds the check box
+          .slice(1);
       expect(cells(0)).toEqual([
         'pkg-001',
-        '1.1',
-        'bdist_wheel',
-        'a-1.1-py3.whl',
-        '>=3.9',
+        '5.2-3.el9',
+        'x86_64',
+        'Summary of package 1',
+        'None',
       ]);
-      // a package that states no Python requirement shows a dash, not a blank
-      expect(cells(1)[4]).toBe('---');
+      // the epoch is shown only when it is not 0, as a number or as text
+      expect(cells(1)[1]).toBe('2:1.1-4.el9');
+      expect(cells(2)[1]).toBe('1:1.0-3.el9');
 
       expect(lab.queries).toHaveLength(1);
       const query = lab.queries[0] as URLSearchParams;
@@ -197,11 +199,13 @@ describe(
       expect(query.get('offset')).toBe('0');
       expect(query.get('ordering')).toBe('name');
       expect(query.getAll('fields').sort()).toEqual([
-        'filename',
+        'arch',
+        'epoch',
         'name',
-        'packagetype',
         'pulp_href',
-        'requires_python',
+        'pulp_labels',
+        'release',
+        'summary',
         'version',
       ]);
     });
@@ -215,14 +219,14 @@ describe(
         seen.push(new URL(request.url).pathname);
       });
       server.use(lab.handler);
-      render('/python/repositories/simple/packages');
+      render('/rpm/repositories/baseos/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-020');
 
       expect(bodyRows(grid)).toHaveLength(20);
       expect(seen.filter((path) => path.includes('/content/'))).toEqual([
-        '/pulp/api/v3/content/python/packages/',
+        '/pulp/api/v3/content/rpm/packages/',
       ]);
       server.events.removeAllListeners();
     });
@@ -232,7 +236,7 @@ describe(
       const rows = Array.from({ length: 45 }, (_, index) => row(index + 1));
       const lab = servePackages(rows, repository.latest_version_href as string);
       server.use(lab.handler);
-      const { user } = render('/python/repositories/simple/packages');
+      const { user } = render('/rpm/repositories/baseos/content');
 
       const grid = await table();
       await within(grid).findByText('pkg-001');
@@ -250,69 +254,61 @@ describe(
       expect(lab.queries.at(-1)?.get('limit')).toBe('20');
     });
 
-    it('filters by name, package type and required Python, each by the parameter the server takes, and shows what is applied', async () => {
+    it('filters by name and by architecture, each by the parameter the server takes, and shows what is applied', async () => {
       const repository = serveRepository();
       const lab = servePackages(
         [
-          row(1, { name: 'django' }),
-          row(2, {
-            name: 'django-extras',
-            packagetype: 'bdist_wheel',
-            requires_python: '>=3.10',
-          }),
-          row(3, { name: 'flask', packagetype: 'bdist_wheel' }),
+          row(1, { name: 'bash' }),
+          row(2, { name: 'bash-completion', arch: 'noarch' }),
+          row(3, { name: 'zsh' }),
         ],
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
       render(
-        '/python/repositories/simple/packages?name__contains=django&packagetype=bdist_wheel&requires_python__contains=3.10',
+        '/rpm/repositories/baseos/content?name__contains=bash&arch=noarch',
       );
 
       const grid = await table();
-      await within(grid).findByText('django-extras');
+      await within(grid).findByText('bash-completion');
 
       expect(bodyRows(grid)).toHaveLength(1);
       const query = lab.queries.at(-1) as URLSearchParams;
-      expect(query.get('name__contains')).toBe('django');
-      expect(query.get('packagetype')).toBe('bdist_wheel');
-      expect(query.get('requires_python__contains')).toBe('3.10');
+      expect(query.get('name__contains')).toBe('bash');
+      expect(query.get('arch')).toBe('noarch');
       const applied = (name: string) =>
         within(screen.getByRole('list', { name })).getAllByRole('listitem');
       expect(applied('Package name').map((item) => item.textContent)).toEqual([
-        'django',
+        'bash',
       ]);
-      expect(applied('Package type').map((item) => item.textContent)).toEqual([
-        'bdist_wheel',
+      expect(applied('Arch').map((item) => item.textContent)).toEqual([
+        'noarch',
       ]);
-      expect(
-        applied('Requires Python').map((item) => item.textContent),
-      ).toEqual(['3.10']);
     });
 
     it('applies a name typed into the filter and goes back to the first page', async () => {
       const repository = serveRepository();
       const lab = servePackages(
-        [row(1, { name: 'django' }), row(2, { name: 'flask' })],
+        [row(1, { name: 'bash' }), row(2, { name: 'zsh' })],
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      const { user } = render('/python/repositories/simple/packages?page=1');
+      const { user } = render('/rpm/repositories/baseos/content?page=1');
 
-      await within(await table()).findByText('flask');
+      await within(await table()).findByText('zsh');
       await user.type(
         screen.getByRole('textbox', { name: 'name__contains' }),
-        'fl',
+        'zs',
       );
       await user.click(screen.getByRole('button', { name: 'Search' }));
 
-      await waitFor(() => expect(location()).toMatch(/name__contains=fl/));
+      await waitFor(() => expect(location()).toMatch(/name__contains=zs/));
       await waitFor(() =>
-        expect(lab.queries.at(-1)?.get('name__contains')).toBe('fl'),
+        expect(lab.queries.at(-1)?.get('name__contains')).toBe('zs'),
       );
       const grid = await table();
       await waitFor(() => expect(bodyRows(grid)).toHaveLength(1));
-      expect(within(grid).queryByText('django')).toBeNull();
+      expect(within(grid).queryByText('bash')).toBeNull();
     });
 
     it('sorts by name from the header and ignores a sort the server is not asked for', async () => {
@@ -322,9 +318,7 @@ describe(
         repository.latest_version_href as string,
       );
       server.use(lab.handler);
-      const { user } = render(
-        '/python/repositories/simple/packages?sort=filename',
-      );
+      const { user } = render('/rpm/repositories/baseos/content?sort=summary');
 
       const grid = await table();
       await within(grid).findByText('a');
@@ -344,13 +338,13 @@ describe(
       server.use(
         servePackages([], repository.latest_version_href as string).handler,
       );
-      render('/python/repositories/simple/packages');
+      render('/rpm/repositories/baseos/content');
 
       expect(
         await screen.findByText('No packages in the latest version'),
       ).toBeVisible();
       expect(
-        screen.getByText('Sync this repository or upload packages to it.'),
+        screen.getByText('Sync this repository or add packages to it.'),
       ).toBeVisible();
     });
 
@@ -365,7 +359,7 @@ describe(
           HttpResponse.json({ count: 9, results: [] }),
         ),
       );
-      render('/python/repositories/simple/packages');
+      render('/rpm/repositories/baseos/content');
 
       expect(
         await screen.findByText('No packages in the latest version'),
@@ -389,7 +383,7 @@ describe(
         ),
         lab.handler,
       );
-      const { user } = render('/python/repositories/simple/packages');
+      const { user } = render('/rpm/repositories/baseos/content');
 
       expect(
         await screen.findByText('Packages could not be displayed.'),
@@ -406,15 +400,13 @@ describe(
         servePackages([row(1)], repository.latest_version_href as string)
           .handler,
       );
-      render('/python/repositories/simple/packages');
+      render('/rpm/repositories/baseos/content');
 
       await within(await table()).findByText('pkg-001');
       const tabs = screen
         .getAllByRole('link')
         .filter((link) =>
-          /\/python\/repositories\/simple\//.test(
-            link.getAttribute('href') ?? '',
-          ),
+          /\/rpm\/repositories\/baseos\//.test(link.getAttribute('href') ?? ''),
         )
         .map((link) => link.textContent);
       expect(tabs).toEqual(
@@ -422,7 +414,7 @@ describe(
           'Details',
           'Versions',
           'Distributions',
-          'Packages',
+          'Content',
         ]),
       );
     });

@@ -84,7 +84,7 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
       '/file/repositories/:name/versions/:number',
       '/file/repositories/:name/distributions',
       '/file/repositories/:name/publications',
-      '/file/repositories/:name/packages',
+      '/file/repositories/:name/content',
       '/file/repositories/:name/edit',
       '/file/repository/new',
       '/file/remotes',
@@ -151,10 +151,10 @@ describe('Unit: frameworkRoutes', { tags: ['unit'] }, () => {
     expect(paths.some((path) => path.startsWith('/file/remote'))).toBe(false);
   });
 
-  it('builds no route for an address whose screen does not exist yet: the content tab', () => {
+  it('builds the content tab route', () => {
     const paths = frameworkRoutes(PLUGIN_MANIFESTS).map(({ path }) => path);
 
-    expect(paths).not.toContain('/file/repositories/:name/content');
+    expect(paths).toContain('/file/repositories/:name/content');
   });
 
   it('builds the publications tab route', () => {
@@ -322,10 +322,21 @@ describe(
     });
 
     it('shows Not Found for a tab the plugin does not have, without reading the repository', async () => {
-      const served = serveRepositories(repository({ name: 'repo-1' }));
+      const python: PluginManifest = {
+        ...(PLUGIN_MANIFESTS.find(
+          ({ plugin }) => plugin === 'python',
+        ) as PluginManifest),
+        onFramework: true,
+      };
+      const served = listOf(
+        `${API}/repositories/python/python/`,
+        [repository({ name: 'repo-1' })],
+        { pageSize: 1000 },
+      );
+      server.use(served.handler);
 
-      renderWithProviders(<Routed />, {
-        route: '/file/repositories/repo-1/packages',
+      renderWithProviders(<Routed manifests={[python]} />, {
+        route: '/python/repositories/repo-1/publications',
       });
 
       await screen.findByRole('heading', { name: '404 - Page not found' });

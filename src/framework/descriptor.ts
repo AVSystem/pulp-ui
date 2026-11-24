@@ -19,10 +19,10 @@ import type {
   RemoteEntity,
 } from 'src/entities/plugin/remote';
 import type {
+  ContentChange,
   RepositoryChanges,
   RepositoryCreate,
   RepositoryEntity,
-  RevertBody,
 } from 'src/entities/plugin/repository';
 import type { ContentColumn, ContentFilter } from './detail/content-tab';
 import type { FrameworkPlugin } from './manifest';
@@ -41,14 +41,14 @@ import type { RepositoryTab } from './route-patterns';
 
 // The entities are typed by what a screen reads from them. A create and an edit
 // send the fields of the descriptor's form, a sync the remote and the options
-// of the descriptor and a content change a revert to a version, so those bodies
+// of the descriptor and a content change a revert or units to remove, so those bodies
 // are typed.
 type AnyRepositoryEntity<Row> = RepositoryEntity<
   Row,
   RepositoryCreate,
   RepositoryChanges,
   SyncBody,
-  RevertBody
+  ContentChange
 >;
 type AnyRemoteEntity<Row> = RemoteEntity<Row, RemoteCreate, RemoteChanges>;
 type AnyDistributionEntity<Row extends DistributionBase> = DistributionEntity<
@@ -262,6 +262,15 @@ export interface ContentTypeDef<
   filters?: readonly ContentFilter[];
   // The field a list is ordered by when the address names none.
   defaultSort: string;
+  // What names a unit to the user, in a check box and in a confirmation: the
+  // path of a file, the name and version of a package. The address of the unit
+  // when the type names nothing.
+  nameOf?: (row: Row) => string;
+  // What the Content tab says when it cannot list the type and when the latest
+  // version holds none, in place of a plain wording.
+  errorTitle?: MessageDescriptor;
+  emptyTitle?: MessageDescriptor;
+  emptyDescription?: MessageDescriptor;
 }
 
 // Declares a content type of one row shape as the descriptor holds it, with

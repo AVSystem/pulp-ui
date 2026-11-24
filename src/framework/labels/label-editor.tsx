@@ -44,6 +44,12 @@ interface Props {
   // Whether the user may change the object's labels. The decision is taken by
   // the screen; without it the labels are chips and nothing more.
   canEdit: boolean;
+  // Opens with the inputs shown, for an editor that is the whole content of a
+  // dialog.
+  initiallyEditing?: boolean;
+  // Called when the user is done instead of folding the editor back into the
+  // chips, for the screen that closes the dialog it sits in.
+  onDone?: () => void;
 }
 
 // The labels of an object, and for a user who may change them an editor: each
@@ -57,8 +63,14 @@ interface Props {
 // A refusal or failure is shown in the editor, which stays open with what was
 // typed. The end of the session is not shown (the sign-in dialog explains it)
 // and loses nothing.
-export const LabelEditor = ({ object, entity, canEdit }: Props) => {
-  const [editing, setEditing] = useState(false);
+export const LabelEditor = ({
+  object,
+  entity,
+  canEdit,
+  initiallyEditing = false,
+  onDone,
+}: Props) => {
+  const [editing, setEditing] = useState(initiallyEditing);
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [failure, setFailure] = useState<SaveFailure | null>(null);
@@ -221,6 +233,7 @@ export const LabelEditor = ({ object, entity, canEdit }: Props) => {
             onClick={() => {
               setEditing(false);
               setFailure(null);
+              onDone?.();
             }}
           >
             {t`Done`}

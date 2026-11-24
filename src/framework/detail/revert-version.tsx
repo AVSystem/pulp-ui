@@ -10,7 +10,7 @@ import { useId, useRef } from 'react';
 import { type AlertType, Spinner } from 'src/components';
 import type { RepositoryBase } from 'src/entities/plugin/model';
 import { useModifyRepository } from 'src/entities/plugin/queries';
-import type { RevertBody } from 'src/entities/plugin/repository';
+import { type RevertBody, revertBody } from 'src/entities/plugin/repository';
 import { handleDialogWriteError } from 'src/utilities/fail-alerts';
 import { taskAlert } from 'src/utilities/task-alert';
 import type { PluginDescriptor } from '../descriptor';
@@ -57,7 +57,7 @@ export const RevertVersionDialog = ({
     try {
       const task = await modify.mutateAsync({
         href: repository.pulp_href,
-        body: { base_version: version.pulp_href },
+        body: revertBody(version.pulp_href),
       });
       // The root follows the task to its end wherever the user is by then.
       watch({
