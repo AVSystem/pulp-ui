@@ -13,7 +13,7 @@ import {
 } from '@patternfly/react-core';
 import { Tbody, Td, Tr } from '@patternfly/react-table';
 import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { Suspense, lazy, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   type AlertType,
@@ -56,6 +56,15 @@ import {
 } from '../list/list-params';
 import type { FrameworkPlugin } from '../manifest';
 import { useRepositoryPermission } from './use-repository-permission';
+
+// The dialog browses another repository's content through the list below, so it
+// is loaded when it is first opened and the two modules never need each other
+// at load time.
+const AddContentDialog = lazy(() =>
+  import('../content/add-content-dialog').then((module) => ({
+    default: module.AddContentDialog,
+  })),
+);
 
 // One column of a content list. A column the server orders by names the field;
 // every other column never sorts.
@@ -419,7 +428,7 @@ export function ContentList<Row extends { pulp_href: string }>({
 
 // What a ContentList of a plugin's content type is configured with. The texts
 // are the type's own, with a plain wording for a type that gives none.
-function tabConfig(
+export function tabConfig(
   type: ContentTypeDef,
 ): ContentListConfig<{ pulp_href: string }> {
   return {
@@ -471,6 +480,7 @@ export const ContentTab = ({
   const location = useLocation();
   const navigate = useNavigate();
   const mayModify = useRepositoryPermission(plugin, repository, 'modify');
+  const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<{
     rows: { href: string; name: string }[];
     clear: () => void;
@@ -499,25 +509,40 @@ export const ContentTab = ({
 
   return (
     <>
-      {types.length > 1 ? (
-        <ToggleGroup aria-label={t`Content type`}>
-          {types.map(({ id, label }) => (
-            <ToggleGroupItem
-              key={id}
-              text={i18n._(label)}
-              buttonId={`content-type-${id}`}
-              isSelected={id === type.id}
-              onChange={() =>
-                navigate({
-                  search:
-                    id === types[0].id
-                      ? ''
-                      : `?${TYPE_PARAMETER}=${encodeURIComponent(id)}`,
-                })
-              }
-            />
-          ))}
-        </ToggleGroup>
+      {types.length > 1 || canRemove ? (
+        <Toolbar>
+          <ToolbarContent>
+            {types.length > 1 ? (
+              <ToolbarItem>
+                <ToggleGroup aria-label={t`Content type`}>
+                  {types.map(({ id, label }) => (
+                    <ToggleGroupItem
+                      key={id}
+                      text={i18n._(label)}
+                      buttonId={`content-type-${id}`}
+                      isSelected={id === type.id}
+                      onChange={() =>
+                        navigate({
+                          search:
+                            id === types[0].id
+                              ? ''
+                              : `?${TYPE_PARAMETER}=${encodeURIComponent(id)}`,
+                        })
+                      }
+                    />
+                  ))}
+                </ToggleGroup>
+              </ToolbarItem>
+            ) : null}
+            {canRemove ? (
+              <ToolbarItem align={{ default: 'alignEnd' }}>
+                <Button variant='primary' onClick={() => setAdding(true)}>
+                  {t`Add content`}
+                </Button>
+              </ToolbarItem>
+            ) : null}
+          </ToolbarContent>
+        </Toolbar>
       ) : null}
       <ContentList
         key={type.id}
@@ -550,6 +575,17 @@ export const ContentTab = ({
             : undefined
         }
       />
+      {adding ? (
+        <Suspense fallback={null}>
+          <AddContentDialog
+            repository={repository}
+            entity={entity}
+            types={types}
+            addAlert={addAlert}
+            onClose={() => setAdding(false)}
+          />
+        </Suspense>
+      ) : null}
       {removing ? (
         <RemoveContentDialog
           repository={repository}

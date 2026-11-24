@@ -215,6 +215,13 @@ export const revertBody = (version: string): RevertBody => ({
   base_version: version,
 });
 
+// The body that adds these units to the latest version's content. The addresses
+// are copied, so a selection that changes while the request is on its way
+// cannot reach it.
+export const addContentBody = (hrefs: readonly string[]): ModifyBody => ({
+  add_content_units: [...hrefs],
+});
+
 // The body that removes these units from the latest version's content. The
 // addresses are copied, so a selection that changes while the request is on its
 // way cannot reach it.

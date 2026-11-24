@@ -303,7 +303,13 @@ describe(
       expect(
         await within(dialog).findByText('This repository has no version.'),
       ).toBeVisible();
-      expect(lab.contentQueries).toHaveLength(0);
+      // Only the list behind the dialog, the current repository's, is read.
+      expect(
+        lab.contentQueries.every(
+          (query) =>
+            query.get('repository_version') === lab.tools.latest_version_href,
+        ),
+      ).toBe(true);
     });
 
     it('lists another version when its number is typed, and says when the repository has none such', async () => {
