@@ -1185,3 +1185,188 @@ export function signingService(
     ...overrides,
   };
 }
+
+// What an upload lab saw of one content create: the text fields of the
+// multipart body and the size of the file it carried, if any.
+export interface LabCreate {
+  fields: Record<string, string>;
+  fileBytes: number | null;
+}
+
+// What an upload lab saw of one chunk of a chunked upload.
+export interface LabChunk {
+  upload: string;
+  range: string | null;
+  bytes: number;
+}
+
+export interface UploadLabOptions {
+  // The address content creates are posted to.
+  contentPath?: string;
+  // How long a chunk request stays in flight, so overlapping chunks are seen.
+  chunkMs?: number;
+  // A chunk the server refuses at once with a 400, chosen by its first byte.
+  refuseChunk?: (start: number) => string | undefined;
+  // A content create the server refuses with a 400, chosen by its fields.
+  refuseCreate?: (create: LabCreate) => string | undefined;
+  // A content create whose task fails, chosen by its fields.
+  failTask?: (create: LabCreate) => string | undefined;
+  // How long a content create waits before it answers.
+  createMs?: number;
+  // A content create whose task completes without naming any content.
+  emptyTask?: boolean;
+  // The reason the server gives when it refuses a modify with a 400.
+  refuseModify?: string;
+}
+
+// The upload endpoints of a server, the content create of one plugin, the
+// tasks the creates start and the modify of any repository, for a test to pass
+// to server.use. Everything the server saw is recorded in the order it came in
+// `events`, and in more detail in the other lists. A content create answers
+// with a task that is already completed and names the new content (and, when
+// the create named a repository, the new repository version too, as the server
+// does).
+export function uploadLab({
+  contentPath = '/pulp/api/v3/content/file/files/',
+  chunkMs = 0,
+  refuseChunk,
+  refuseCreate,
+  failTask,
+  createMs = 0,
+  emptyTask = false,
+  refuseModify,
+}: UploadLabOptions = {}) {
+  const events: string[] = [];
+  const uploads: { href: string; size: number }[] = [];
+  const chunks: LabChunk[] = [];
+  const creates: LabCreate[] = [];
+  const removed: string[] = [];
+  const contentHrefs: string[] = [];
+  const modifies: { href: string; body: unknown }[] = [];
+  const tasks = new Map<string, ITaskRow>();
+  const state = {
+    inFlight: 0,
+    maxInFlight: 0,
+    createsInFlight: 0,
+    maxCreates: 0,
+  };
+
+  const startTask = (overrides: Partial<ITaskRow>) => {
+    const row = taskRow(overrides);
+    tasks.set(row.pulp_href, row);
+    return row;
+  };
+
+  const handlers = [
+    http.post('*/pulp/api/v3/uploads/', async ({ request }) => {
+      const body = (await request.json()) as { size: number };
+      const upload = href('uploads');
+      uploads.push({ href: upload, size: body.size });
+      events.push('upload-create');
+      return HttpResponse.json({ pulp_href: upload }, { status: 201 });
+    }),
+    http.put('*/pulp/api/v3/uploads/:id/', async ({ request }) => {
+      const range = request.headers.get('Content-Range');
+      const form = await request.formData();
+      const part = form.get('file');
+      const bytes = part instanceof Blob ? part.size : 0;
+      chunks.push({ upload: new URL(request.url).pathname, range, bytes });
+      events.push(`chunk ${range}`);
+      const start = Number(/bytes (\d+)-/.exec(range ?? '')?.[1] ?? 0);
+      const refusal = refuseChunk?.(start);
+      if (refusal !== undefined) {
+        return HttpResponse.json({ detail: refusal }, { status: 400 });
+      }
+      state.inFlight += 1;
+      state.maxInFlight = Math.max(state.maxInFlight, state.inFlight);
+      if (chunkMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, chunkMs));
+      }
+      state.inFlight -= 1;
+      return HttpResponse.json(
+        { pulp_href: new URL(request.url).pathname },
+        { status: 200 },
+      );
+    }),
+    http.delete('*/pulp/api/v3/uploads/:id/', ({ request }) => {
+      removed.push(new URL(request.url).pathname);
+      events.push('upload-delete');
+      return new HttpResponse(null, { status: 204 });
+    }),
+    http.post(`*${contentPath}`, async ({ request }) => {
+      const form = await request.formData();
+      const fields: Record<string, string> = {};
+      let fileBytes: number | null = null;
+      form.forEach((value, name) => {
+        if (value instanceof Blob) {
+          fileBytes = value.size;
+        } else {
+          fields[name] = String(value);
+        }
+      });
+      const create: LabCreate = { fields, fileBytes };
+      creates.push(create);
+      events.push(`content-create ${fields['relative_path'] ?? '(no path)'}`);
+      state.createsInFlight += 1;
+      state.maxCreates = Math.max(state.maxCreates, state.createsInFlight);
+      if (createMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, createMs));
+      }
+      state.createsInFlight -= 1;
+      const refusal = refuseCreate?.(create);
+      if (refusal !== undefined) {
+        return HttpResponse.json({ detail: refusal }, { status: 400 });
+      }
+      const failure = failTask?.(create);
+      const content = href(
+        contentPath.replace(/^\/pulp\/api\/v3\//, '').replace(/\/$/, ''),
+      );
+      if (failure === undefined && !emptyTask) {
+        contentHrefs.push(content);
+      }
+      const row = startTask(
+        failure !== undefined
+          ? { state: 'failed', error: { description: failure } }
+          : emptyTask
+            ? { created_resources: [] }
+            : {
+                created_resources: [
+                  content,
+                  ...(fields['repository']
+                    ? [`${fields['repository']}versions/1/`]
+                    : []),
+                ],
+              },
+      );
+      return HttpResponse.json({ task: row.pulp_href }, { status: 202 });
+    }),
+    http.post('*/modify/', async ({ request }) => {
+      const url = new URL(request.url).pathname;
+      modifies.push({ href: url, body: await request.json() });
+      events.push('modify');
+      if (refuseModify !== undefined) {
+        return HttpResponse.json({ detail: refuseModify }, { status: 400 });
+      }
+      const row = startTask({ created_resources: [`${url}versions/9/`] });
+      return HttpResponse.json({ task: row.pulp_href }, { status: 202 });
+    }),
+    http.get('*/pulp/api/v3/tasks/:id/', ({ request }) => {
+      const row = tasks.get(new URL(request.url).pathname);
+      return row
+        ? HttpResponse.json(row)
+        : HttpResponse.json({ detail: 'Not found.' }, { status: 404 });
+    }),
+  ];
+
+  return {
+    handlers,
+    events,
+    uploads,
+    chunks,
+    creates,
+    removed,
+    contentHrefs,
+    modifies,
+    state,
+  };
+}

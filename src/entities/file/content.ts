@@ -1,9 +1,11 @@
 import {
+  contentFileFilesCreate,
   contentFileFilesList,
   contentFileFilesSetLabel,
   contentFileFilesUnsetLabel,
   getContentFileFilesListUrl,
 } from '@pulp-ui/sdk/file/content-files';
+import type { FileFileContent } from '@pulp-ui/sdk/file/models/content-files/file-file-content.zod';
 import { makeContentEntity } from 'src/entities/plugin/content';
 import { fileContentSchema } from './model';
 
@@ -20,5 +22,12 @@ export const fileContent = makeContentEntity({
     listUrl: getContentFileFilesListUrl,
     setLabel: contentFileFilesSetLabel,
     unsetLabel: contentFileFilesUnsetLabel,
+  },
+  // A file unit needs a path in the repository: the file's name unless the
+  // user chose another.
+  upload: {
+    create: (body, options) =>
+      contentFileFilesCreate(body as FileFileContent, options),
+    relativePath: 'given-or-file-name',
   },
 });

@@ -1,9 +1,11 @@
 import {
+  contentDebPackagesCreate,
   contentDebPackagesList,
   contentDebPackagesSetLabel,
   contentDebPackagesUnsetLabel,
   getContentDebPackagesListUrl,
 } from '@pulp-ui/sdk/deb/content-packages';
+import type { DebPackage } from '@pulp-ui/sdk/deb/models/content-packages/deb-package.zod';
 import { makeContentEntity } from 'src/entities/plugin/content';
 import { debPackageSchema } from './model';
 
@@ -20,5 +22,11 @@ export const debPackage = makeContentEntity({
     listUrl: getContentDebPackagesListUrl,
     setLabel: contentDebPackagesSetLabel,
     unsetLabel: contentDebPackagesUnsetLabel,
+  },
+  // A deb package carries its own path; one is sent only when the user gave it.
+  upload: {
+    create: (body, options) =>
+      contentDebPackagesCreate(body as DebPackage, options),
+    relativePath: 'given',
   },
 });

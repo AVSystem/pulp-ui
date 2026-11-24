@@ -1,9 +1,11 @@
 import {
+  contentRpmPackagesCreate,
   contentRpmPackagesList,
   contentRpmPackagesSetLabel,
   contentRpmPackagesUnsetLabel,
   getContentRpmPackagesListUrl,
 } from '@pulp-ui/sdk/rpm/content-packages';
+import type { RpmPackage } from '@pulp-ui/sdk/rpm/models/content-packages/rpm-package.zod';
 import { makeContentEntity } from 'src/entities/plugin/content';
 import { rpmPackageSchema } from './model';
 
@@ -20,5 +22,11 @@ export const rpmPackage = makeContentEntity({
     listUrl: getContentRpmPackagesListUrl,
     setLabel: contentRpmPackagesSetLabel,
     unsetLabel: contentRpmPackagesUnsetLabel,
+  },
+  // An rpm package carries its own path; one is sent only when the user gave it.
+  upload: {
+    create: (body, options) =>
+      contentRpmPackagesCreate(body as RpmPackage, options),
+    relativePath: 'given',
   },
 });

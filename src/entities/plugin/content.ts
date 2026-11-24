@@ -1,7 +1,7 @@
 import type { ZodType } from 'zod';
 import { parseResponse } from 'src/entities/response-shape';
 import { type Page, labelResponseSchema, pageSchemaOf } from './model';
-import { type Options, asParams, toListRequest } from './request';
+import { type Options, asParams, taskOf, toListRequest } from './request';
 
 // The content entity of a plugin: one kind of content (files, packages) as a
 // repository screen reads it. A list is cut to one repository version, to what
@@ -88,6 +88,53 @@ export interface ContentApi<TListParams> {
   ) => Promise<unknown>;
 }
 
+// What a screen gives the content create of a plugin. The bytes come either as
+// a file in the request or as an upload that was sent in chunks beforehand;
+// `repository` is the repository the new content is added to in the same step.
+export interface ContentCreateBody {
+  file?: Blob;
+  upload?: string;
+  repository?: string;
+  relative_path?: string;
+}
+
+// The fields of a content create that name the unit, apart from its bytes and
+// its repository.
+export interface ContentFields {
+  relative_path?: string;
+}
+
+// How a plugin takes the path of a unit that is uploaded: a python package is
+// always named by its file name; a file unit needs a path, which is the file
+// name unless the user gave one; deb and rpm packages carry their own path and
+// take one only when the user gave one.
+export type RelativePathRule = 'file-name' | 'given-or-file-name' | 'given';
+
+// The fields a create of this plugin sends for a file, from the name of the
+// file and the path the user gave, if any.
+export function contentFieldsOf(
+  rule: RelativePathRule,
+  fileName: string,
+  given?: string,
+): ContentFields {
+  const typed = given?.trim();
+
+  if (rule === 'file-name') {
+    return { relative_path: fileName };
+  }
+  if (rule === 'given-or-file-name') {
+    return { relative_path: typed || fileName };
+  }
+  return typed ? { relative_path: typed } : {};
+}
+
+// What a plugin's generated client offers for creating content, and how the
+// plugin names an uploaded unit.
+interface ContentUploadApi {
+  create: (body: ContentCreateBody, options?: Options) => Promise<unknown>;
+  relativePath: RelativePathRule;
+}
+
 export interface ContentEntity<Row> {
   readonly app: string;
   readonly object: string;
@@ -109,16 +156,20 @@ export interface ContentEntity<Row> {
   ) => Promise<{ key: string; value?: string | null }>;
 }
 
-// Builds the content entity of a plugin from its generated functions. The
-// parameters a screen names are turned into what the server takes: an offset
-// and a limit, an ordering and the text filters named here.
-export function makeContentEntity<Row, TListParams>({
-  app,
-  object,
-  schema,
-  textFilters,
-  api,
-}: {
+// A content entity whose units can be created from a file: the screens that
+// upload read and write through it.
+export interface UploadableContent<Row> extends ContentEntity<Row> {
+  // Creates content from a file or from a finished upload with one multipart
+  // request and answers the address of the task that does it. With a
+  // repository in the body the task also adds the content to it as a new
+  // version.
+  create: (body: ContentCreateBody, options?: Options) => Promise<string>;
+  // The fields that name a file's unit for this plugin: its path, from the
+  // file name and the path the user gave.
+  fieldsOf: (fileName: string, relativePath?: string) => ContentFields;
+}
+
+interface ContentEntityOptions<Row, TListParams> {
   app: string;
   // The name of the content type in the cache: 'package'.
   object: string;
@@ -126,7 +177,30 @@ export function makeContentEntity<Row, TListParams>({
   // The single-value filters the content type has besides the version.
   textFilters: readonly string[];
   api: ContentApi<TListParams>;
-}): ContentEntity<Row> {
+}
+
+// Builds the content entity of a plugin from its generated functions. The
+// parameters a screen names are turned into what the server takes: an offset
+// and a limit, an ordering and the text filters named here. A plugin whose
+// units can be created from a file names the create too.
+export function makeContentEntity<Row, TListParams>(
+  options: ContentEntityOptions<Row, TListParams> & {
+    upload: ContentUploadApi;
+  },
+): UploadableContent<Row>;
+export function makeContentEntity<Row, TListParams>(
+  options: ContentEntityOptions<Row, TListParams>,
+): ContentEntity<Row>;
+export function makeContentEntity<Row, TListParams>({
+  app,
+  object,
+  schema,
+  textFilters,
+  api,
+  upload,
+}: ContentEntityOptions<Row, TListParams> & {
+  upload?: ContentUploadApi;
+}): ContentEntity<Row> | UploadableContent<Row> {
   const pageSchema = pageSchemaOf(schema);
 
   const requestOf = (params: ContentListParams) =>
@@ -137,7 +211,7 @@ export function makeContentEntity<Row, TListParams>({
 
   const { setLabel, unsetLabel } = api;
 
-  return {
+  const entity: ContentEntity<Row> = {
     app,
     object,
     list: async (params, options) =>
@@ -160,5 +234,18 @@ export function makeContentEntity<Row, TListParams>({
             ),
         }
       : {}),
+  };
+
+  if (!upload) {
+    return entity;
+  }
+
+  const { create, relativePath } = upload;
+
+  return {
+    ...entity,
+    create: async (body, options) => taskOf(await create(body, options)),
+    fieldsOf: (fileName, given) =>
+      contentFieldsOf(relativePath, fileName, given),
   };
 }
