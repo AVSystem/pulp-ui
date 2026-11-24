@@ -1091,10 +1091,10 @@ describe('lazily loaded screens', () => {
   });
 
   it.each([
-    '/file/repositories/zz-test-repo/publications',
     '/file/repositories/zz-test-repo/content',
+    '/python/repositories/zz-test-repo/publications',
   ])(
-    'shows not found for %s, whose screen does not exist yet, without a read',
+    'shows not found for %s, whose screen does not exist, without a read',
     async (route) => {
       signIn();
       const requests = recordRequests();
