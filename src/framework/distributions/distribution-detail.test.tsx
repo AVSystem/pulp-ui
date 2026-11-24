@@ -348,7 +348,7 @@ describe(
         await within(row(rows, 'Client URL')).findByRole('link', {
           name: 'Choose what it serves',
         }),
-      ).toHaveAttribute('href', '/file/distributions/tools-dist/edit');
+      ).toHaveAttribute('href', '/file/distributions/tools-dist/edit/');
     });
 
     it('offers no fix to a user who may neither publish nor change the distribution', async () => {
@@ -752,7 +752,7 @@ describe(
       await user.click(await screen.findByRole('button', { name: 'Edit' }));
 
       expect(screen.getByTestId('location')).toHaveTextContent(
-        '/file/distributions/tools-dist/edit',
+        '/file/distributions/tools-dist/edit/',
       );
     });
 

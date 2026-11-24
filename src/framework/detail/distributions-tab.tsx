@@ -41,6 +41,7 @@ import {
 import { useDistributionPermits } from '../distributions/use-distribution-permission';
 import { PermissionsNotice } from '../list/list-frame';
 import { type FrameworkPlugin, PLUGIN_MANIFESTS } from '../manifest';
+import { ServingFix } from '../publish/serving-fix';
 import {
   distributionEditPath,
   distributionPath,
@@ -288,6 +289,12 @@ export const DistributionsTab = ({ repository, plugin, descriptor }: Props) => {
                         state: served,
                       }}
                       isPublic={row.content_guard === null}
+                    />
+                    <ServingFix
+                      plugin={plugin}
+                      distribution={row}
+                      served={served}
+                      repositoryHref={repository.pulp_href}
                     />
                   </Td>
                   <Td>

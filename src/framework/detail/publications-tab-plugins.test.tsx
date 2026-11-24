@@ -95,14 +95,14 @@ describe(
 
       renderTab('deb', 'dists');
 
+      // the options of the rows are read after the rows
+      expect(await screen.findByText('Apt')).toBeVisible();
       const newest = await rowOf(2);
-      expect(within(newest).getByText('Apt')).toBeVisible();
-      await waitFor(() =>
-        expect(within(newest).getByText('Yes')).toBeVisible(),
-      );
+      expect(within(newest).getByText('Yes')).toBeVisible();
       expect(within(newest).getByText('No')).toBeVisible();
       const older = await rowOf(1);
       expect(within(older).getByText('Verbatim')).toBeVisible();
+      expect(within(older).getAllByText('Not applicable')).toHaveLength(2);
     });
 
     it('deletes a verbatim publication through its own collection', async () => {

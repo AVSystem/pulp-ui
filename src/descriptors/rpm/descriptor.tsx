@@ -1,3 +1,4 @@
+import { type MessageDescriptor, i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
 import { rpmDistribution } from 'src/entities/rpm/distribution';
 import type { RpmRepository } from 'src/entities/rpm/model';
@@ -6,6 +7,7 @@ import { rpmRemote } from 'src/entities/rpm/remote';
 import { rpmRepository } from 'src/entities/rpm/repository';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
+import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
 import {
   POLICY_ROW,
@@ -56,6 +58,20 @@ const COMPRESSION_TYPES = [
   { value: 'none', label: msg`No compression` },
 ];
 
+// The label of the option that holds a value the server answered with, or the
+// value itself when it is not one the form offers.
+function optionLabel(
+  options: { value: string; label: MessageDescriptor }[],
+  value: unknown,
+): string {
+  if (typeof value !== 'string' || value === '') {
+    return t`None`;
+  }
+  const option = options.find((candidate) => candidate.value === value);
+
+  return option ? i18n._(option.label) : value;
+}
+
 // The rpm plugin's repositories and remotes as the framework reads them. The
 // descriptor and what it imports are one chunk that loads when an rpm screen is
 // first shown.
@@ -104,6 +120,7 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     createDefaults: { autopublish: false },
     tabs: [
       versionsTab<RpmRepository>(),
+      publicationsTab<RpmRepository>(),
       distributionsTab<RpmRepository>(),
       packagesTab,
     ],
@@ -151,6 +168,20 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     entity: rpmPublication,
     servesFromPublication: true,
     taskName: 'pulp_rpm.app.tasks.publishing.publish',
+    columns: [
+      {
+        id: 'checksum_type',
+        label: msg`Checksum type`,
+        render: ({ checksum_type }) =>
+          optionLabel(CHECKSUM_TYPES, checksum_type),
+      },
+      {
+        id: 'compression_type',
+        label: msg`Compression type`,
+        render: ({ compression_type }) =>
+          optionLabel(COMPRESSION_TYPES, compression_type),
+      },
+    ],
     options: [
       {
         name: 'checksum_type',

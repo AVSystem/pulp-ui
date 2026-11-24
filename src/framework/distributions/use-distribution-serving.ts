@@ -24,6 +24,9 @@ import type { Serves } from './use-distribution-columns';
 export interface DistributionServing {
   serves: { state: ColumnState; value: Serves | null };
   served: { state: ColumnState; value: ServedState | null };
+  // The repository the distribution serves from, or the one its publication was
+  // made from; null while it is not known or when nothing is bound.
+  repository: string | null;
   // The reason of the first read that failed, when one did.
   error: unknown;
   // Reads again what failed.
@@ -248,6 +251,7 @@ export function useDistributionServing({
   return {
     serves: serving,
     served,
+    repository: repositoryHref ?? null,
     error: repositories.error ?? publications.error ?? published.error,
     retry,
   };

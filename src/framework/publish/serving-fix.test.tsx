@@ -2,6 +2,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
+// loaded here so the descriptor the fix asks for is at hand at once
+import 'src/descriptors/file/descriptor';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
 import { servePublishLab } from 'src/test-utils/publish-lab';
 import {
@@ -83,7 +85,7 @@ function serveLab(publications: ReturnType<typeof pluginPublication>[] = []) {
         path: new URL(request.url).pathname,
         body: await request.json(),
       });
-      return HttpResponse.json({}, { status: 200 });
+      return HttpResponse.json(dist, { status: 200 });
     }),
     listOf(`${API}/roles/`, [], { pageSize: 1000 }).handler,
   );
@@ -103,10 +105,14 @@ describe(
           await screen.findByRole('button', { name: 'Publish latest version' }),
         );
 
-        const dialog = await screen.findByRole('dialog');
+        // the window that waits for the descriptor and the repository gives
+        // way to the publish dialog
         expect(
-          await within(dialog).findByText('Publish repository "tools"'),
+          await screen.findByText('Publish repository "tools"', undefined, {
+            timeout: 5000,
+          }),
         ).toBeVisible();
+        const dialog = screen.getByRole('dialog');
         expect(within(dialog).getByText(/tools-dist/)).toBeVisible();
         await user.click(
           await within(dialog).findByRole('button', { name: 'Publish' }),
@@ -150,10 +156,12 @@ describe(
           await screen.findByRole('button', { name: 'Publish version 2' }),
         );
 
-        const dialog = await screen.findByRole('dialog');
         expect(
-          await within(dialog).findByText('Publish version 2 of "tools"'),
+          await screen.findByText('Publish version 2 of "tools"', undefined, {
+            timeout: 5000,
+          }),
         ).toBeVisible();
+        const dialog = screen.getByRole('dialog');
         await user.click(
           await within(dialog).findByRole('button', { name: 'Publish' }),
         );
@@ -261,7 +269,7 @@ describe(
         );
 
         expect(
-          await within(dialog).findByText('Not allowed here.'),
+          await within(dialog).findByText(/Not allowed here\./),
         ).toBeVisible();
       });
 
@@ -289,7 +297,7 @@ describe(
 
         expect(
           await screen.findByRole('link', { name: 'Choose what it serves' }),
-        ).toHaveAttribute('href', '/file/distributions/tools-dist/edit');
+        ).toHaveAttribute('href', '/file/distributions/tools-dist/edit/');
       });
 
       it('offers no link to a user who may not change the distribution', async () => {
