@@ -23,6 +23,7 @@ import { useAppContext } from 'src/app-context';
 import { Alert, Spinner, Table } from 'src/components';
 import { taskKeys } from 'src/entities/core/task/queries';
 import {
+  UPLOAD_LIMITS,
   type UploadProgress,
   isChunked,
 } from 'src/entities/core/upload/upload-file';
@@ -258,6 +259,7 @@ export const UploadDialog = ({
   const superuser = isStaff;
   const mayChunk = hasPermission('core.add_upload');
   const retained = repository.retain_repo_versions;
+  const chunkLimit = getHumanSize(UPLOAD_LIMITS.chunkAbove);
 
   const [entries, setEntries] = useState<Entry[]>([]);
   const [phase, setPhase] = useState<'choose' | 'running' | 'done'>('choose');
@@ -569,6 +571,16 @@ export const UploadDialog = ({
                 {t`Adding several files as one version needs an administrator.`}
               </Alert>
             )}
+            {!mayChunk &&
+            entries.some(({ file }) => file.size > UPLOAD_LIMITS.chunkAbove) ? (
+              <Alert
+                isInline
+                variant='warning'
+                title={t`Large files are sent in one request and may time out`}
+              >
+                {t`Your account may not create uploads, so a file above ${chunkLimit} is not split into parts. A very large file may take longer than the server waits.`}
+              </Alert>
+            ) : null}
             {!superuser && typeof retained === 'number' && retained >= 1 ? (
               <Alert
                 isInline

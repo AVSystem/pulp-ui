@@ -87,6 +87,10 @@ msgstr "{0} (beschermd door een contentguard)"
 #~ msgid "{0} will be deleted."
 #~ msgstr "{0} will be deleted."
 
+#: src/framework/content/upload-dialog.tsx
+msgid "{added} of {total} files added"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "{alertType} alert details"
 msgstr "Details van {alertType}-melding"
@@ -279,6 +283,10 @@ msgstr "{namespace}.{name} v{version}, al in de repository"
 #~ msgid "{nsTitle} logo"
 #~ msgstr ""
 
+#: src/framework/content/upload-dialog.tsx
+msgid "{retained, plural, one {This repository keeps only its latest version, so every uploaded file pushes the version before it out.} other {This repository keeps only its latest # versions, so every uploaded file pushes the oldest version out.}}"
+msgstr ""
+
 #: src/components/role-header.tsx
 #~ msgid "{subTitle}"
 #~ msgstr "{subTitle}"
@@ -296,6 +304,10 @@ msgstr "{namespace}.{name} v{version}, al in de repository"
 #: src/components/wizard-modal.tsx
 msgid "{title} steps"
 msgstr "Stappen van {title}"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "{total, plural, one {# file added} other {# files added}}"
+msgstr ""
 
 #: src/framework/detail/version-content.tsx
 msgid "{type} added"
@@ -773,6 +785,7 @@ msgstr "Item toevoegen"
 #~ msgid "add-user-modal"
 #~ msgstr "add-user-modal"
 
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/detail/version-content.tsx
 msgid "Added"
 msgstr ""
@@ -787,12 +800,24 @@ msgstr ""
 #~ msgstr "Adding groups provides access to all repositories in the\n"
 #~ "\"{namespace}\" container namespace."
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Adding several files as one version needs an administrator."
+msgstr ""
+
 #: src/framework/bulk/label-bulk-dialog.tsx
 msgid "Adding the label to the selected rows finished"
 msgstr "Het toevoegen van het label aan de geselecteerde rijen is voltooid"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Adding to the repository"
+msgstr ""
+
 #: src/framework/content/add-content-dialog.tsx
 msgid "Addition of content to {repositoryName}"
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Addition of uploaded files to {repositoryName}"
 msgstr ""
 
 #: src/framework/content/add-content-dialog.tsx
@@ -827,6 +852,10 @@ msgstr "Alle"
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
 msgid "All associated permissions under this role were removed."
 msgstr "Alle bijbehorende machtigingen van deze rol zijn verwijderd."
+
+#: src/framework/content/upload-dialog.tsx
+msgid "All files are added in one new repository version"
+msgstr ""
 
 #: src/containers/landing/landing-page.tsx
 #~ msgid "All policies and guidelines"
@@ -1317,6 +1346,7 @@ msgstr "CA-certificaat"
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/content/add-content-dialog.tsx
 #: src/framework/content/remove-content-dialog.tsx
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/detail/revert-version.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -1335,9 +1365,18 @@ msgstr "Synchronisatie annuleren"
 msgid "Cancel task"
 msgstr "Taak annuleren"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Cancel the upload?"
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Cancel upload"
+msgstr ""
+
 #: src/components/progress-reports.tsx
 #: src/components/purge-task-modal.tsx
 #: src/components/status-indicator.tsx
+#: src/framework/content/upload-dialog.tsx
 msgid "Canceled"
 msgstr "Geannuleerd"
 
@@ -1535,6 +1574,10 @@ msgstr ""
 
 #: src/framework/content/add-content-dialog.tsx
 msgid "Choose a repository and a version of it, then tick the content to copy into \"{repositoryName}\". The repository gets a new latest version that holds the content it has now and the content you add."
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Choose files"
 msgstr ""
 
 #: src/framework/distributions/protection-choice.tsx
@@ -2960,6 +3003,7 @@ msgstr "Heeft dit label niet en wordt daarom overgeslagen"
 msgid "Domain enabled"
 msgstr "Domein ingeschakeld"
 
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/labels/label-editor.tsx
 msgid "Done"
 msgstr "Gereed"
@@ -3075,9 +3119,17 @@ msgstr "Sleep een bestand hierheen of blader om te uploaden"
 #~ msgid "Drag and drop a file or upload one'"
 #~ msgstr "Drag and drop a file or upload one'"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Drag and drop files here"
+msgstr ""
+
 #: src/components/stateful-dropdown.tsx
 msgid "Dropdown"
 msgstr "Dropdown"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Each file creates its own repository version"
+msgstr ""
 
 #: src/framework/form/labels-field.tsx
 msgid "Each label key can be used once."
@@ -3219,6 +3271,10 @@ msgstr "Voer een labelsleutel in."
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter a number."
 msgstr "Voer een getal in."
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Enter a relative path."
+msgstr ""
 
 #: src/framework/form/descriptor-form.tsx
 msgid "Enter a whole number."
@@ -3527,6 +3583,7 @@ msgstr "De hele versie laten mislukken als een pakket wordt geweigerd"
 #: src/components/status-indicator.tsx
 #: src/containers/task-management/task-list-view.tsx
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
 msgid "Failed"
 msgstr "Mislukt"
@@ -3826,6 +3883,7 @@ msgstr "Snel"
 
 #: src/containers/python/package-list.tsx
 #: src/descriptors/python/descriptor.tsx
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/distributions/plugin-label.ts
 #: src/menu.tsx
 #: src/shell/command-palette.tsx
@@ -3850,6 +3908,14 @@ msgstr ""
 
 #: src/descriptors/file/descriptor.tsx
 msgid "Files could not be displayed."
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Files that have not been sent will not be uploaded. Files that were already added stay in the repository."
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Files to upload"
 msgstr ""
 
 #. placeholder {0}: selectedFilter.id
@@ -4567,6 +4633,10 @@ msgstr "Laten doorlopen"
 msgid "Keep the stored {label}"
 msgstr "De opgeslagen waarde van {label} behouden"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Keep uploading"
+msgstr ""
+
 #: src/framework/form/labels-field.tsx
 #: src/framework/labels/label-editor.tsx
 #: src/framework/list/label-filter.tsx
@@ -4640,6 +4710,10 @@ msgstr ""
 
 #: src/framework/content/content-labels.tsx
 msgid "Labels of {name}"
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Large files are sent in one request and may time out"
 msgstr ""
 
 #: src/containers/pulp-status.tsx
@@ -5550,6 +5624,10 @@ msgstr "Geen"
 #~ msgid "Not a super user"
 #~ msgstr "Geen supergebruiker"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Not added"
+msgstr ""
+
 #: src/descriptors/python/descriptor.tsx
 msgid "Not allowed"
 msgstr "Niet toegestaan"
@@ -5572,6 +5650,7 @@ msgid "Not bound to anything"
 msgstr ""
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 #: src/framework/publish/publish-dialog.tsx
 msgid "Not confirmed"
@@ -5584,6 +5663,10 @@ msgstr "Niet verbonden"
 #: src/containers/pulp-status.tsx
 msgid "Not enabled"
 msgstr "Niet ingeschakeld"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Not every file could be made, so none was added. The files that were made stay as content that belongs to no repository."
+msgstr ""
 
 #: src/components/typeahead.tsx
 msgid "Not found"
@@ -5622,6 +5705,7 @@ msgstr "Niet gerapporteerd"
 #~ msgstr "Niet vereist voor gebruik door andere collecties"
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/upload-dialog.tsx
 #: src/framework/delete/delete-outcome.tsx
 #: src/framework/publish/publish-dialog.tsx
 msgid "Not sent"
@@ -5689,6 +5773,10 @@ msgstr "Er is niets gewijzigd in repository {repositoryName}."
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 msgstr "Niets komt overeen met \"{text}\". Controleer de spelling of probeer een deel van een repositorynaam."
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Nothing was added to the repository"
+msgstr ""
+
 #: src/framework/detail/version-content.tsx
 msgid "Nothing was added."
 msgstr ""
@@ -5724,6 +5812,10 @@ msgstr "van"
 #: src/containers/token/token-insights.tsx
 #~ msgid "Offline token"
 #~ msgstr "Offline token"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Older versions may be removed"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/framework/remote-columns.tsx
@@ -5828,6 +5920,10 @@ msgstr "Optimaliseren"
 #: src/components/typeahead.tsx
 msgid "Options"
 msgstr "Opties"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "or"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Origin"
@@ -6825,7 +6921,12 @@ msgstr "Registry synchroniseren"
 #~ msgstr "Rejection summary."
 
 #: src/descriptors/file/descriptor.tsx
+#: src/framework/content/upload-dialog.tsx
 msgid "Relative path"
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Relative path of {name}"
 msgstr ""
 
 #: src/components/headers/collection-header.tsx
@@ -6960,8 +7061,13 @@ msgstr ""
 #: src/components/delete-modal.tsx
 #: src/containers/group-management/group-detail.tsx
 #: src/framework/content/remove-content-dialog.tsx
+#: src/framework/content/upload-dialog.tsx
 msgid "Remove"
 msgstr "Verwijderen"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Remove {name}"
+msgstr ""
 
 #: src/components/collection-dropdown.tsx
 #~ msgid "Remove collection from repository"
@@ -7317,6 +7423,7 @@ msgstr "Herstellen naar browserstandaarden"
 #~ msgstr "Hulpbronnen"
 
 #: src/framework/bulk/bulk-dialog.tsx
+#: src/framework/content/upload-dialog.tsx
 msgid "Result"
 msgstr "Resultaat"
 
@@ -8233,9 +8340,9 @@ msgstr ""
 msgid "Single sign on URL."
 msgstr "Enkele URL voor aanmelden."
 
-#: src/containers/execution-environment-detail/execution-environment-detail-images.tsx
-#~ msgid "Size"
-#~ msgstr "Maat"
+#: src/framework/content/upload-dialog.tsx
+msgid "Size"
+msgstr "Maat"
 
 #: src/containers/execution-environment-manifest/execution-environment-manifest.tsx
 #~ msgid "Size: {size}"
@@ -8359,6 +8466,10 @@ msgstr "Taak stoppen"
 #: src/containers/task-management/task-list-view.tsx
 msgid "Stop task?"
 msgstr "Taak stoppen?"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Stop uploading"
+msgstr ""
 
 #: src/containers/pulp-status.tsx
 msgid "Storage"
@@ -8983,6 +9094,14 @@ msgstr "De distributies zijn verwijderd, maar de repository is behouden."
 #~ msgid "The file is not available for this version of {collectionName}"
 #~ msgstr "Het bestand is niet beschikbaar voor deze versie van {collectionName}"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "The file was sent, but its task could not be read."
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "The file was sent, but the dialog stopped waiting for it. It may still be added."
+msgstr ""
+
 #: src/components/lightspeed-modal.tsx
 #~ msgid "The following legacy namespace will be opted in to Ansible Lightspeed:"
 #~ msgstr "De volgende verouderde namespace wordt opgenomen in Ansible Lightspeed:"
@@ -9074,6 +9193,10 @@ msgstr "Het wachtwoord dat moet worden gebruikt voor authenticatie bij het synch
 #: src/components/remote-form.tsx
 msgid "The password to be used for authentication when syncing. This is not required when using a token."
 msgstr "Het wachtwoord dat moet worden gebruikt voor authenticatie bij het synchroniseren. Dit is niet nodig bij gebruik van een token."
+
+#: src/framework/content/upload-dialog.tsx
+msgid "The path must not start with a slash."
+msgstr ""
 
 #: src/app-routes.tsx
 #: src/framework/distributions/distribution-list.tsx
@@ -9266,6 +9389,10 @@ msgstr "De server kon niet worden bereikt: {message}"
 msgid "The server did not apply the content guard you chose: the distribution has no content guard."
 msgstr ""
 
+#: src/framework/content/upload-dialog.tsx
+msgid "The server did not make any content from this file."
+msgstr ""
+
 #: src/framework/distributions/distribution-fields.tsx
 msgid "The server manages the content guard of this distribution. It cannot be changed here."
 msgstr ""
@@ -9276,6 +9403,10 @@ msgstr ""
 
 #: src/framework/form/create-flow.ts
 msgid "The server protected the distribution with {guard}."
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "The server was still working on this file when the wait ended."
 msgstr ""
 
 #: src/app-routes.tsx
@@ -9294,6 +9425,10 @@ msgstr "De sessie is beëindigd voordat het verwijderen klaar was."
 #: src/utilities/create-repository.ts
 msgid "The session ended before the distribution could be created. After you log in, check the distributions and create it if it is missing."
 msgstr "De sessie is beëindigd voordat de distributie kon worden gemaakt. Controleer na het inloggen de distributies en maak de distributie aan als deze ontbreekt."
+
+#: src/framework/content/upload-dialog.tsx
+msgid "The session ended before the result was known."
+msgstr ""
 
 #: src/framework/bulk/bulk-dialog.tsx
 #: src/framework/publish/publish-dialog.tsx
@@ -9870,10 +10005,10 @@ msgstr "Repository {name} bijgewerkt"
 msgid "Updated repository {repositoryName}"
 msgstr "Repository {repositoryName} bijgewerkt"
 
-#: src/components/import-modal.tsx
-#: src/components/upload-signature-modal.tsx
-#~ msgid "Upload"
-#~ msgstr "Uploaden"
+#: src/framework/content/upload-dialog.tsx
+#: src/framework/detail/content-tab.tsx
+msgid "Upload"
+msgstr "Uploaden"
 
 #: src/utilities/translate-locked-role.ts
 msgid "Upload and modify collections."
@@ -9895,11 +10030,23 @@ msgstr "Collecties uploaden en wijzigen."
 msgid "Upload commit"
 msgstr "Commit uploaden"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Upload files"
+msgstr ""
+
 #: src/components/collection-dropdown.tsx
 #: src/containers/namespace-detail/namespace-detail.tsx
 #: src/containers/search/search.tsx
 #~ msgid "Upload new version"
 #~ msgstr "Nieuwe versie uploaden"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Upload of {name}"
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Upload of {name} to {repositoryName}"
+msgstr ""
 
 #: src/components/approval-row.tsx
 #: src/components/upload-signature-modal.tsx
@@ -9909,6 +10056,10 @@ msgstr "Commit uploaden"
 #: src/constants.tsx
 #~ msgid "Upload to namespace"
 #~ msgstr "Upload to namespace"
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Uploading"
+msgstr ""
 
 #: src/descriptors/python/distribution-edit.tsx
 #~ msgid "Uploads"
@@ -10429,6 +10580,14 @@ msgstr "Wachten tot een worker de taak oppakt."
 #~ msgid "waiting for import to finish"
 #~ msgstr "wacht tot importeren is voltooid"
 
+#: src/framework/content/upload-dialog.tsx
+msgid "Waiting for the other files"
+msgstr ""
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Waiting for the server"
+msgstr ""
+
 #: src/components/patternfly-wrappers/l10n.tsx
 msgid "Warning"
 msgstr "Waarschuwing"
@@ -10733,6 +10892,10 @@ msgstr ""
 #: src/framework/bulk/bulk-menu.tsx
 msgid "You may not take a bulk action on the selected rows."
 msgstr "U mag geen bulkactie uitvoeren op de geselecteerde rijen."
+
+#: src/framework/content/upload-dialog.tsx
+msgid "Your account may not create uploads, so a file above {chunkLimit} is not split into parts. A very large file may take longer than the server waits."
+msgstr ""
 
 #: src/containers/login/login.tsx
 msgid "Your password was changed. Sign in with the new password."
