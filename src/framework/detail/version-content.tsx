@@ -3,7 +3,9 @@ import { msg, t } from '@lingui/core/macro';
 import { Title } from '@patternfly/react-core';
 import { Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useMemo, useState } from 'react';
-import { Table } from 'src/components';
+import { DateComponent, Table } from 'src/components';
+import { coreContent } from 'src/entities/core/content/client';
+import type { CoreContent } from 'src/entities/core/content/client';
 import type { RepositoryVersion } from 'src/entities/plugin/model';
 import type { ContentTypeDef, PluginDescriptor } from '../descriptor';
 import {
@@ -103,6 +105,37 @@ function listConfig(type: ContentTypeDef): ContentListConfig<{
   };
 }
 
+// What a type no plugin declares is listed with: the content address and the
+// creation time, which every unit of content has, through the core list
+// filtered by the type.
+function coreListConfig(pulpType: string): ContentListConfig<CoreContent> {
+  return {
+    entity: coreContent,
+    fields: ['pulp_href', 'pulp_created', 'pulp_labels'],
+    columns: [
+      {
+        id: 'address',
+        label: msg`Content address`,
+        render: ({ pulp_href }) => pulp_href,
+      },
+      {
+        id: 'created',
+        label: msg`Created`,
+        render: ({ pulp_created }) =>
+          pulp_created ? <DateComponent date={pulp_created} /> : t`None`,
+      },
+    ],
+    filters: [],
+    title: msg`Content`,
+    errorTitle: msg`Content could not be displayed.`,
+    emptyTitle: msg`No content`,
+    emptyDescription: msg`There is no content of this kind to show.`,
+    defaultPageSize: 20,
+    defaultSort: 'pk',
+    fixed: { pulp_type: pulpType },
+  };
+}
+
 interface SectionListProps {
   summaryType: SummaryType;
   section: VersionSection;
@@ -113,15 +146,11 @@ interface SectionListProps {
 // filters are its own, so paging one list leaves the others where they are.
 const SectionList = ({ summaryType, section, version }: SectionListProps) => {
   const [search, setSearch] = useState('');
-  const { declared } = summaryType;
+  const { declared, pulpType } = summaryType;
   const config = useMemo(
-    () => (declared ? listConfig(declared) : null),
-    [declared],
+    () => (declared ? listConfig(declared) : coreListConfig(pulpType)),
+    [declared, pulpType],
   );
-
-  if (!config) {
-    return null;
-  }
 
   return (
     <ContentList

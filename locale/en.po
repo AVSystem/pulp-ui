@@ -285,6 +285,18 @@ msgstr "{namespace}.{name} v{version}, already in the repository"
 msgid "{title} steps"
 msgstr "{title} steps"
 
+#: src/framework/detail/version-content.tsx
+msgid "{type} added"
+msgstr "{type} added"
+
+#: src/framework/detail/version-content.tsx
+msgid "{type} present"
+msgstr "{type} present"
+
+#: src/framework/detail/version-content.tsx
+msgid "{type} removed"
+msgstr "{type} removed"
+
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -736,6 +748,14 @@ msgstr "Add thing"
 #~ msgid "add-user-modal"
 #~ msgstr "add-user-modal"
 
+#: src/framework/detail/version-content.tsx
+msgid "Added"
+msgstr "Added"
+
+#: src/framework/detail/version-content.tsx
+msgid "Added since the earlier version"
+msgstr "Added since the earlier version"
+
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
 #~ "\"{namespace}\" container namespace."
@@ -998,6 +1018,10 @@ msgstr "Apt"
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Arch"
 msgstr "Arch"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Architecture"
+msgstr "Architecture"
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -1935,19 +1959,27 @@ msgstr "Contact your organization administrator for more information."
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/detail/version-content.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Content"
 msgstr "Content"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Content added"
 msgstr "Content added"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Content added to clipboard"
 #~ msgstr "Content added to clipboard"
+
+#: src/framework/detail/version-content.tsx
+msgid "Content address"
+msgstr "Content address"
+
+#: src/framework/detail/version-content.tsx
+msgid "Content could not be displayed."
+msgstr "Content could not be displayed."
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
@@ -1975,6 +2007,10 @@ msgstr "Content guard"
 msgid "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 msgstr "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 
+#: src/framework/detail/version-content.tsx
+msgid "Content in this version"
+msgstr "Content in this version"
+
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
@@ -1983,13 +2019,20 @@ msgid "Content not present in remote repository will be removed from the local r
 msgstr "Content not present in remote repository will be removed from the local repository"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Content removed"
 msgstr "Content removed"
 
 #: src/containers/pulp-status.tsx
 msgid "Content settings"
 msgstr "Content settings"
+
+#: src/framework/detail/version-content.tsx
+msgid "Content summary"
+msgstr "Content summary"
+
+#: src/framework/detail/version-content.tsx
+msgid "Content type"
+msgstr "Content type"
 
 #: src/components/collection-header.tsx
 #~ msgid "Contents"
@@ -2072,7 +2115,6 @@ msgstr "Could not check whether the name and base path are free: {reason}. Nothi
 #~ msgstr "Could not update the certification status for {0}.{1}.{2}."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Count"
 msgstr "Count"
 
@@ -2183,8 +2225,10 @@ msgstr "Create, delete and change collection namespaces. Upload and delete colle
 #: src/containers/pulp-status.tsx
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/publications-tab.tsx
+#: src/framework/detail/version-content.tsx
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Created"
 msgstr "Created"
@@ -2251,7 +2295,6 @@ msgstr "Ctrl K"
 #~ msgstr "Curate synclist repository batch"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Current content"
 msgstr "Current content"
 
@@ -3707,6 +3750,10 @@ msgstr "File content sync"
 msgid "File upload"
 msgstr "File upload"
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Files"
+msgstr "Files"
+
 #. placeholder {0}: selectedFilter.id
 #. placeholder {0}: selectedFilter.id.toLowerCase()
 #. placeholder {0}: selectedFilter.title.toLowerCase()
@@ -5090,6 +5137,10 @@ msgstr "No compression"
 #~ msgid "No container repositories yet"
 #~ msgstr "No container repositories yet"
 
+#: src/framework/detail/version-content.tsx
+msgid "No content"
+msgstr "No content"
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "No Controllers available"
@@ -5123,6 +5174,10 @@ msgstr "No distributions created"
 #: src/framework/distributions/distribution-list.tsx
 msgid "No distributions yet"
 msgstr "No distributions yet"
+
+#: src/framework/detail/version-content.tsx
+msgid "No earlier version"
+msgstr "No earlier version"
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5362,6 +5417,7 @@ msgstr "No users yet"
 #: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/detail/version-content.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/distribution-list.tsx
@@ -5389,7 +5445,6 @@ msgstr "Not applicable"
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-reference.tsx
-#: src/framework/detail/version-detail.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
@@ -5517,9 +5572,17 @@ msgstr "Nothing changed in repository {repositoryName}."
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 msgstr "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 
+#: src/framework/detail/version-content.tsx
+msgid "Nothing was added."
+msgstr "Nothing was added."
+
 #: src/framework/publish/publish-dialog.tsx
 msgid "Nothing was moved"
 msgstr "Nothing was moved"
+
+#: src/framework/detail/version-content.tsx
+msgid "Nothing was removed."
+msgstr "Nothing was removed."
 
 #: src/shell/notifications.tsx
 msgid "Notifications"
@@ -5712,8 +5775,13 @@ msgstr "Outcome unknown, check the task"
 #~ msgid "Owners"
 #~ msgstr "Owners"
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Package"
+msgstr "Package"
+
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Package name"
@@ -5740,9 +5808,8 @@ msgstr "Package types to sync. Leave all unticked to sync every type."
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/descriptor.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages"
 msgstr "Packages"
@@ -5980,6 +6047,10 @@ msgstr "Plugin not installed"
 #: src/descriptors/python/descriptor.tsx
 msgid "Pre-releases"
 msgstr "Pre-releases"
+
+#: src/framework/detail/version-content.tsx
+msgid "Present"
+msgstr "Present"
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6371,7 +6442,6 @@ msgid "Pulp refused this request."
 msgstr "Pulp refused this request."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Pulp type"
 msgstr "Pulp type"
 
@@ -6632,6 +6702,10 @@ msgstr "Registry sync"
 #~ msgid "Rejection summary."
 #~ msgstr "Rejection summary."
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Relative path"
+msgstr "Relative path"
+
 #: src/components/headers/collection-header.tsx
 #~ msgid "released {0}"
 #~ msgstr "released {0}"
@@ -6824,6 +6898,7 @@ msgstr "Remove user from group?"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
+#: src/framework/detail/version-content.tsx
 msgid "Removed"
 msgstr "Removed"
 
@@ -6837,6 +6912,10 @@ msgstr "Removed distributions: {0}"
 #: src/framework/delete/delete-outcome.tsx
 msgid "Removed repository {name}"
 msgstr "Removed repository {name}"
+
+#: src/framework/detail/version-content.tsx
+msgid "Removed since the earlier version"
+msgstr "Removed since the earlier version"
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
@@ -9178,6 +9257,10 @@ msgstr "There are no remotes associated with this repository."
 #~ msgid "There have not been any imports."
 #~ msgstr "There have not been any imports."
 
+#: src/framework/detail/version-content.tsx
+msgid "There is no content of this kind to show."
+msgstr "There is no content of this kind to show."
+
 #: src/containers/task-management/task-detail.tsx
 msgid "There is no progress message."
 msgstr "There is no progress message."
@@ -9340,6 +9423,14 @@ msgstr "This task no longer exists."
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
 msgstr "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
+
+#: src/framework/detail/version-content.tsx
+msgid "This version holds no content."
+msgstr "This version holds no content."
+
+#: src/framework/detail/version-content.tsx
+msgid "This version holds none."
+msgstr "This version holds none."
 
 #: src/components/delete-collection-modal.tsx
 #~ msgid "This will cause the entire collection to be deleted."
@@ -9981,6 +10072,7 @@ msgstr "Verify checksums"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/detail/publications-tab.tsx

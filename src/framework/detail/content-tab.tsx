@@ -70,6 +70,9 @@ export interface ContentListConfig<Row extends { pulp_href: string }> {
   defaultPageSize: number;
   // The field the list is ordered by when the address names none.
   defaultSort: string;
+  // Filters every request of the list carries whatever the address says: the
+  // list of one content type through an endpoint that holds several.
+  fixed?: Readonly<Record<string, string>>;
 }
 
 // Which part of a repository version a list shows: the content the version
@@ -114,8 +117,15 @@ export function ContentList<Row extends { pulp_href: string }>({
   label,
   address,
 }: Props<Row>) {
-  const { entity, fields, columns, filters, defaultPageSize, defaultSort } =
-    config;
+  const {
+    entity,
+    fields,
+    columns,
+    filters,
+    defaultPageSize,
+    defaultSort,
+    fixed,
+  } = config;
   const location = useLocation();
   const navigate = useNavigate();
   const search = address ? address.search : location.search;
@@ -150,6 +160,7 @@ export function ContentList<Row extends { pulp_href: string }>({
 
   const request = {
     ...params,
+    ...fixed,
     [FILTER_OF_SECTION[section]]: version ?? '',
     fields: [...fields],
   } as ContentListParams;

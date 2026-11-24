@@ -22,8 +22,18 @@ const debRemoteSchema = remoteSchema.extend({
   sync_installer: z.boolean().nullish(),
 });
 
+// One deb package of a repository version, as far as the version page reads
+// it: the package name, its version and the architecture it is built for.
+const debPackageSchema = z.looseObject({
+  pulp_href: z.string(),
+  package: z.string(),
+  version: z.string(),
+  architecture: z.string().nullish(),
+});
+
 type DebRepository = z.infer<typeof debRepositorySchema>;
 type DebRemote = z.infer<typeof debRemoteSchema>;
+type DebPackage = z.infer<typeof debPackageSchema>;
 
-export { debRemoteSchema, debRepositorySchema };
-export type { DebRemote, DebRepository };
+export { debPackageSchema, debRemoteSchema, debRepositorySchema };
+export type { DebPackage, DebRemote, DebRepository };

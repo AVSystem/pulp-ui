@@ -284,6 +284,18 @@ msgstr "{namespace}.{name} v{version}, 이미 리포지토리에 있음"
 msgid "{title} steps"
 msgstr "{title} 단계"
 
+#: src/framework/detail/version-content.tsx
+msgid "{type} added"
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "{type} present"
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "{type} removed"
+msgstr ""
+
 #: src/framework/distributions/distribution-detail.tsx
 #: src/framework/distributions/distribution-edit.tsx
 #: src/framework/distributions/distribution-form.tsx
@@ -735,6 +747,14 @@ msgstr "항목 추가"
 #~ msgid "add-user-modal"
 #~ msgstr "add-user-modal"
 
+#: src/framework/detail/version-content.tsx
+msgid "Added"
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "Added since the earlier version"
+msgstr ""
+
 #: src/components/execution-environment/repository-form.tsx
 #~ msgid "Adding groups provides access to all repositories in the\n"
 #~ "\"{namespace}\" container namespace."
@@ -997,6 +1017,10 @@ msgstr ""
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Arch"
 msgstr "아키텍처"
+
+#: src/descriptors/deb/descriptor.tsx
+msgid "Architecture"
+msgstr ""
 
 #: src/components/remote-form.tsx
 #: src/descriptors/deb/descriptor.tsx
@@ -1934,19 +1958,27 @@ msgstr "자세한 내용은 조직 관리자에게 문의하십시오."
 msgid "Containers"
 msgstr "Containers"
 
+#: src/framework/detail/version-content.tsx
 #: src/framework/list/repository-list.tsx
 #: src/menu.tsx
 msgid "Content"
 msgstr "콘텐츠"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Content added"
 msgstr "콘텐츠 추가됨"
 
 #: src/components/patternfly-wrappers/l10n.tsx
 #~ msgid "Content added to clipboard"
 #~ msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "Content address"
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "Content could not be displayed."
+msgstr ""
 
 #: src/components/repositories/local-repository-table.tsx
 #~ msgid "Content count"
@@ -1974,6 +2006,10 @@ msgstr ""
 msgid "Content in repositories without a distribution will not be visible to clients for sync, download or search."
 msgstr "배포판이 없는 리포지토리의 콘텐츠는 동기화, 다운로드 또는 검색을 위해 클라이언트에 표시되지 않습니다."
 
+#: src/framework/detail/version-content.tsx
+msgid "Content in this version"
+msgstr ""
+
 #: src/components/sync-modal.tsx
 #: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/file/descriptor.tsx
@@ -1982,13 +2018,20 @@ msgid "Content not present in remote repository will be removed from the local r
 msgstr "원격 리포지토리에 없는 콘텐츠는 로컬 리포지토리에서 제거됩니다"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Content removed"
 msgstr "삭제된 콘텐츠"
 
 #: src/containers/pulp-status.tsx
 msgid "Content settings"
 msgstr "콘텐츠 설정"
+
+#: src/framework/detail/version-content.tsx
+msgid "Content summary"
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "Content type"
+msgstr ""
 
 #: src/components/collection-header.tsx
 #~ msgid "Contents"
@@ -2071,7 +2114,6 @@ msgstr "이름과 기본 경로를 사용할 수 있는지 확인할 수 없습�
 #~ msgstr "Could not update the certification status for {0}.{1}.{2}."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Count"
 msgstr "수량"
 
@@ -2182,8 +2224,10 @@ msgstr "컬렉션 네임스페이스를 생성, 삭제 및 변경합니다. 컬�
 #: src/containers/pulp-status.tsx
 #: src/containers/role-management/role-list.tsx
 #: src/containers/user-management/user-list.tsx
+#: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/distributions-tab.tsx
 #: src/framework/detail/publications-tab.tsx
+#: src/framework/detail/version-content.tsx
 #: src/framework/distributions/distribution-detail.tsx
 msgid "Created"
 msgstr "생성됨"
@@ -2250,7 +2294,6 @@ msgstr "Ctrl K"
 #~ msgstr "동기화 목록 리포지토리 배치 관리"
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Current content"
 msgstr "현재 콘텐츠"
 
@@ -3706,6 +3749,10 @@ msgstr "파일 콘텐츠 동기화"
 msgid "File upload"
 msgstr "파일 업로드"
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Files"
+msgstr ""
+
 #. placeholder {0}: selectedFilter.id
 #. placeholder {0}: selectedFilter.id.toLowerCase()
 #. placeholder {0}: selectedFilter.title.toLowerCase()
@@ -5089,6 +5136,10 @@ msgstr ""
 #~ msgid "No container repositories yet"
 #~ msgstr "아직 컨테이너 리포지토리가 없음"
 
+#: src/framework/detail/version-content.tsx
+msgid "No content"
+msgstr ""
+
 #: src/components/publish-to-controller-modal.tsx
 #~ msgid "No Controllers available"
 #~ msgstr "사용 가능한 컨트롤러 없음"
@@ -5122,6 +5173,10 @@ msgstr "생성된 배포가 없습니다"
 #: src/framework/distributions/distribution-list.tsx
 msgid "No distributions yet"
 msgstr "아직 배포되지 않음"
+
+#: src/framework/detail/version-content.tsx
+msgid "No earlier version"
+msgstr ""
 
 #: src/shell/notifications.tsx
 msgid "No finished tasks yet"
@@ -5361,6 +5416,7 @@ msgstr "아직 사용자가 없음"
 #: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-detail.tsx
 #: src/framework/detail/remote-reference.tsx
+#: src/framework/detail/version-content.tsx
 #: src/framework/detail/version-detail.tsx
 #: src/framework/distributions/distribution-columns.tsx
 #: src/framework/distributions/distribution-list.tsx
@@ -5388,7 +5444,6 @@ msgstr ""
 #: src/descriptors/file/descriptor.tsx
 #: src/framework/detail/publications-tab.tsx
 #: src/framework/detail/remote-reference.tsx
-#: src/framework/detail/version-detail.tsx
 #: src/framework/form/remote-field.tsx
 #: src/framework/list/derived-columns.tsx
 msgid "Not available"
@@ -5516,8 +5571,16 @@ msgstr "리포지토리 {repositoryName}에서 변경된 내용이 없습니다.
 msgid "Nothing matches \"{text}\". Check the spelling or try part of a repository name."
 msgstr "\"{text}\"와 일치하는 항목이 없습니다. 철자를 확인하거나 리포지토리 이름의 일부로 시도해 보세요."
 
+#: src/framework/detail/version-content.tsx
+msgid "Nothing was added."
+msgstr ""
+
 #: src/framework/publish/publish-dialog.tsx
 msgid "Nothing was moved"
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "Nothing was removed."
 msgstr ""
 
 #: src/shell/notifications.tsx
@@ -5711,8 +5774,13 @@ msgstr "결과를 알 수 없습니다. 작업을 확인하세요"
 #~ msgid "Owners"
 #~ msgstr "Owners"
 
+#: src/descriptors/deb/descriptor.tsx
+msgid "Package"
+msgstr ""
+
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Package name"
@@ -5739,9 +5807,8 @@ msgstr "동기화할 패키지 유형입니다. 모두 선택하지 않으면 �
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
-#: src/descriptors/python/descriptor.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
-#: src/descriptors/rpm/descriptor.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 msgid "Packages"
 msgstr "패키지"
@@ -5979,6 +6046,10 @@ msgstr "플러그인이 설치되지 않음"
 #: src/descriptors/python/descriptor.tsx
 msgid "Pre-releases"
 msgstr "프리릴리스"
+
+#: src/framework/detail/version-content.tsx
+msgid "Present"
+msgstr ""
 
 #: src/components/access-tab.tsx
 #: src/containers/group-management/group-detail-role-management/group-detail-role-management.tsx
@@ -6370,7 +6441,6 @@ msgid "Pulp refused this request."
 msgstr "Pulp에서 이 요청을 거부했습니다."
 
 #: src/containers/ansible-repository/tab-repository-versions.tsx
-#: src/framework/detail/version-detail.tsx
 msgid "Pulp type"
 msgstr "Pulp 유형"
 
@@ -6631,6 +6701,10 @@ msgstr "레지스트리 동기화"
 #~ msgid "Rejection summary."
 #~ msgstr "Rejection summary."
 
+#: src/descriptors/file/descriptor.tsx
+msgid "Relative path"
+msgstr ""
+
 #: src/components/headers/collection-header.tsx
 #~ msgid "released {0}"
 #~ msgstr "released {0}"
@@ -6823,6 +6897,7 @@ msgstr "그룹에서 사용자를 제거하시겠습니까?"
 
 #: src/components/delete-repository-modal.tsx
 #: src/framework/delete/delete-outcome.tsx
+#: src/framework/detail/version-content.tsx
 msgid "Removed"
 msgstr "제거됨"
 
@@ -6836,6 +6911,10 @@ msgstr "제거된 배포: {0}"
 #: src/framework/delete/delete-outcome.tsx
 msgid "Removed repository {name}"
 msgstr "리포지토리 {name}을/를 제거했습니다"
+
+#: src/framework/detail/version-content.tsx
+msgid "Removed since the earlier version"
+msgstr ""
 
 #. placeholder {0}: deleteCollection.collection_version.name
 #: src/components/delete-collection-modal.tsx
@@ -9177,6 +9256,10 @@ msgstr "이 리포지토리와 연결된 원격은 없습니다."
 #~ msgid "There have not been any imports."
 #~ msgstr ""
 
+#: src/framework/detail/version-content.tsx
+msgid "There is no content of this kind to show."
+msgstr ""
+
 #: src/containers/task-management/task-detail.tsx
 msgid "There is no progress message."
 msgstr "진행 중인 메시지가 없습니다."
@@ -9339,6 +9422,14 @@ msgstr "이 작업은 더 이상 존재하지 않습니다."
 #: src/components/remote-form.tsx
 msgid "This uses the same {docsAnsibleLink} format as the ansible-galaxy CLI with the caveat that roles aren't supported and the source parameter is not supported."
 msgstr "이는 역할이 지원되지 않고 소스 매개변수가 지원되지 않는다는 경고와 함께 ansible-ax CLI와 동일한 {docsAnsibleLink} 형식을 사용합니다."
+
+#: src/framework/detail/version-content.tsx
+msgid "This version holds no content."
+msgstr ""
+
+#: src/framework/detail/version-content.tsx
+msgid "This version holds none."
+msgstr ""
 
 #: src/components/delete-collection-modal.tsx
 #~ msgid "This will cause the entire collection to be deleted."
@@ -9980,6 +10071,7 @@ msgstr "체크섬 검증"
 
 #: src/containers/python/package-list.tsx
 #: src/containers/rpm/package-list.tsx
+#: src/descriptors/deb/descriptor.tsx
 #: src/descriptors/python/packages-tab.tsx
 #: src/descriptors/rpm/packages-tab.tsx
 #: src/framework/detail/publications-tab.tsx

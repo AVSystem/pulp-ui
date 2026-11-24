@@ -91,6 +91,7 @@ function serveLab({
     lab.repositories.handler,
     lab.list.handler,
     listOf(`${API}/content/file/files/`, []).handler,
+    listOf(`${API}/content/`, []).handler,
   );
   return lab;
 }
