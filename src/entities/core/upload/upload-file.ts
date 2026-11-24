@@ -136,8 +136,14 @@ export async function uploadFile({
     return contentEntity.create({ ...fields, file, ...target }, { signal });
   }
 
-  const upload = await UploadClient.create(file.size, { signal });
+  // The request that makes the upload is never cancelled: the server makes the
+  // upload as soon as it has the request, and one whose address is not known
+  // here could never be deleted. A cancel is acted on once the address is known.
+  const upload = await UploadClient.create(file.size);
   try {
+    if (signal?.aborted) {
+      throw canceled(signal);
+    }
     await sendChunks(upload, file, signal, onProgress);
     return await contentEntity.create(
       { ...fields, upload, ...target },
