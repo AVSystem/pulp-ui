@@ -742,6 +742,64 @@ describe(
       expect(lab.index[0]?.queries).toHaveLength(1);
     });
 
+    it('offers the fix beside each warning, and none beside a row that is served', async () => {
+      const stale = pluginRepository('file', { name: 'stale-repo' });
+      const none = pluginRepository('file', { name: 'none-repo' });
+      const staleRepo = {
+        ...stale,
+        latest_version_href: `${stale.pulp_href}versions/2/`,
+      };
+      serveBound({
+        rows: {
+          file: [
+            pluginDistribution('file', {
+              name: 'stale',
+              repository: staleRepo.pulp_href,
+            }),
+            pluginDistribution('file', {
+              name: 'nothing-published',
+              repository: none.pulp_href,
+            }),
+            pluginDistribution('file', { name: 'unbound' }),
+            pluginDistribution('file', {
+              name: 'fresh',
+              repository: pluginRepository('file', { name: 'fresh-repo' })
+                .pulp_href,
+            }),
+          ],
+        },
+        repositories: [staleRepo, none],
+        publications: {
+          file: [
+            pluginPublication('file', {
+              repository: staleRepo.pulp_href,
+              repository_version: `${staleRepo.pulp_href}versions/1/`,
+            }),
+          ],
+        },
+      });
+
+      renderList();
+      const table = await tableOf();
+      await settled(table);
+
+      expect(
+        within(rowOf('stale')).getByRole('button', {
+          name: 'Publish latest version',
+        }),
+      ).toBeVisible();
+      expect(
+        within(rowOf('nothing-published')).getByRole('button', {
+          name: 'Publish latest version',
+        }),
+      ).toBeVisible();
+      expect(
+        within(rowOf('unbound')).getByRole('link', {
+          name: 'Choose what it serves',
+        }),
+      ).toBeVisible();
+    });
+
     it('serves a distribution of a plugin that serves versions directly without any warning and reads no publications for it', async () => {
       const repository = pluginRepository('python', { name: 'wheels-repo' });
       const lab = serveBound({
