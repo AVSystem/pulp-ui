@@ -1290,13 +1290,13 @@ export function uploadLab({
       const form = await request.formData();
       const fields: Record<string, string> = {};
       let fileBytes: number | null = null;
-      for (const [name, value] of form.entries()) {
+      form.forEach((value, name) => {
         if (value instanceof Blob) {
           fileBytes = value.size;
         } else {
           fields[name] = String(value);
         }
-      }
+      });
       const create: LabCreate = { fields, fileBytes };
       creates.push(create);
       events.push(`content-create ${fields['relative_path'] ?? '(no path)'}`);
