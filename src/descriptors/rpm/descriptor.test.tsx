@@ -299,6 +299,18 @@ describe('Unit: the rpm descriptor', { tags: ['unit'] }, () => {
         ]),
       ).toEqual([['rpm.package', 'Packages']]);
     });
+
+    it('names the type the server gives its packages and lists name, version, arch and summary', () => {
+      const [type] = descriptor.contentTypes ?? [];
+
+      expect(type.pulpType).toBe('rpm.package');
+      expect(type.columns.map(({ label }) => text(label))).toEqual([
+        'Name',
+        'Version',
+        'Arch',
+        'Summary',
+      ]);
+    });
   });
 
   describe('the remote form', () => {

@@ -54,6 +54,19 @@ const rowOf = (
 };
 
 describe('Unit: the deb descriptor', { tags: ['unit'] }, () => {
+  describe('the content types', () => {
+    it('declares the packages under the type the server gives them, with package, version and architecture', () => {
+      const types = descriptor.contentTypes ?? [];
+
+      expect(types.map(({ pulpType }) => pulpType)).toEqual(['deb.package']);
+      expect(types[0].columns.map(({ label }) => text(label))).toEqual([
+        'Package',
+        'Version',
+        'Architecture',
+      ]);
+    });
+  });
+
   describe('the repository form', () => {
     it('adds the autopublish and the upstream release fields switches to the fields every repository has', () => {
       expect(

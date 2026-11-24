@@ -1,16 +1,22 @@
 import { msg, t } from '@lingui/core/macro';
 import { PulpCodeBlock } from 'src/components';
 import { debDistribution } from 'src/entities/deb/distribution';
-import type { DebRemote, DebRepository } from 'src/entities/deb/model';
+import type {
+  DebPackage,
+  DebRemote,
+  DebRepository,
+} from 'src/entities/deb/model';
+import { debPackage } from 'src/entities/deb/package';
 import { debPublication } from 'src/entities/deb/publication';
 import { debRemote } from 'src/entities/deb/remote';
 import { debRepository } from 'src/entities/deb/repository';
 import type { RemoteBase } from 'src/entities/plugin/model';
-import type {
-  ColumnDef,
-  DetailRow,
-  FieldDef,
-  PluginDescriptor,
+import {
+  type ColumnDef,
+  type DetailRow,
+  type FieldDef,
+  type PluginDescriptor,
+  contentType,
 } from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { publicationsTab } from 'src/framework/detail/publications-tab';
@@ -240,6 +246,39 @@ const descriptor: PluginDescriptor<DebRepository> = {
     detailRows: REMOTE_ROWS,
     fields: REMOTE_FIELDS,
   },
+  contentTypes: [
+    contentType<DebPackage>({
+      id: 'deb.package',
+      label: msg`Packages`,
+      pulpType: 'deb.package',
+      entity: debPackage,
+      fields: ['package', 'version', 'architecture', 'pulp_href'],
+      columns: [
+        {
+          id: 'package',
+          label: msg`Package`,
+          sortField: 'package',
+          render: ({ package: name }) => name,
+        },
+        {
+          id: 'version',
+          label: msg`Version`,
+          render: ({ version }) => version,
+        },
+        {
+          id: 'architecture',
+          label: msg`Architecture`,
+          sortField: 'architecture',
+          render: ({ architecture }) => architecture || '---',
+        },
+      ],
+      filters: [
+        { param: 'package__contains', label: msg`Package name` },
+        { param: 'architecture', label: msg`Architecture` },
+      ],
+      defaultSort: 'package',
+    }),
+  ],
   distribution: { entity: debDistribution },
   publication: {
     entity: debPublication,

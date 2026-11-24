@@ -19,7 +19,7 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
-import { packagesTab } from './packages-tab';
+import { packageContentType, packagesTab } from './packages-tab';
 
 // What the server does about content a remote no longer has. Additive is the
 // server's own default and never removes content: mirroring is opted into,
@@ -162,7 +162,7 @@ const descriptor: PluginDescriptor<RpmRepository> = {
     filters: REMOTE_FILTERS,
     detailRows: [POLICY_ROW],
   },
-  contentTypes: [{ id: 'rpm.package', label: msg`Packages` }],
+  contentTypes: [packageContentType],
   distribution: { entity: rpmDistribution },
   publication: {
     entity: rpmPublication,

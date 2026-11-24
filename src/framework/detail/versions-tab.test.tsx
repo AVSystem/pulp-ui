@@ -87,7 +87,12 @@ function serveLab({
     repositories: pluginListHandler('file', 'repository', [repository]),
     list: versionListHandler(repository, rows),
   };
-  server.use(lab.repositories.handler, lab.list.handler);
+  server.use(
+    lab.repositories.handler,
+    lab.list.handler,
+    listOf(`${API}/content/file/files/`, []).handler,
+    listOf(`${API}/content/`, []).handler,
+  );
   return lab;
 }
 
@@ -254,20 +259,27 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
 
     renderTab('/file/repositories/tools/versions/2');
 
-    expect(await screen.findByText('Content added')).toBeVisible();
+    expect(
+      await screen.findByRole('grid', { name: 'Content summary' }),
+    ).toBeVisible();
     const query = lab.list.queries.at(-1) as URLSearchParams;
     expect(query.get('number')).toBe('2');
     expect(query.get('limit')).toBe('1');
     expect(lab.list.queries).toHaveLength(1);
 
-    const added = screen.getByRole('grid', { name: 'Content added' });
-    expect(within(added).getByText('file.file')).toBeVisible();
-    expect(within(added).getByText('2')).toBeVisible();
-    const removed = screen.getByRole('grid', { name: 'Content removed' });
-    expect(within(removed).getByText('1')).toBeVisible();
-    const present = screen.getByRole('grid', { name: 'Current content' });
-    expect(within(present).getByText('file.other')).toBeVisible();
-    expect(within(present).getByText('3')).toBeVisible();
+    const summary = screen.getByRole('grid', { name: 'Content summary' });
+    const files = within(summary).getByRole('row', { name: /Files/ });
+    expect(
+      within(files)
+        .getAllByRole('cell')
+        .map(({ textContent }) => textContent),
+    ).toEqual(['Files', '5', '2', '1']);
+    const other = within(summary).getByRole('row', { name: /file\.other/ });
+    expect(
+      within(other)
+        .getAllByRole('cell')
+        .map(({ textContent }) => textContent),
+    ).toEqual(['file.other', '3', '0', '0']);
     expect(document.querySelector('time')?.getAttribute('datetime')).toBe(
       '2024-03-05T10:00:00.000000Z',
     );
@@ -286,7 +298,7 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
 
     renderTab('/file/repositories/tools/versions/1');
 
-    await screen.findByText('Content added');
+    await screen.findByText('Version number');
     const term = screen.getByText('Base version');
     expect(term.closest('div')?.querySelector('dd')?.textContent).toBe('None');
   });
@@ -300,9 +312,10 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
 
     renderTab('/file/repositories/tools/versions/1');
 
-    await screen.findByText('Content added');
-    expect(screen.queryByRole('grid', { name: 'Content added' })).toBeNull();
-    expect(screen.getAllByText('None').length).toBeGreaterThanOrEqual(3);
+    expect(
+      await screen.findByText('This version holds no content.'),
+    ).toBeVisible();
+    expect(screen.queryByRole('grid', { name: 'Content summary' })).toBeNull();
   });
 
   it('says a number that names no version is not found, never an endless spinner', async () => {
@@ -337,7 +350,7 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
 
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
-    expect(await screen.findByText('Content added')).toBeVisible();
+    expect(await screen.findByText('Version number')).toBeVisible();
     expect(answers).toBe(2);
   });
 
@@ -386,12 +399,14 @@ describe('Integration: a version', { tags: ['integration'] }, () => {
     );
 
     await user.click(screen.getByRole('link', { name: 'go to four' }));
-    expect(await screen.findByText('zz.current')).toBeVisible();
+    const summaryOf = async () =>
+      within(await screen.findByRole('grid', { name: 'Content summary' }));
+    expect((await summaryOf()).getByText('zz.current')).toBeVisible();
 
     release.three();
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(screen.queryByText('zz.late')).toBeNull();
-    expect(screen.getByText('zz.current')).toBeVisible();
+    expect((await summaryOf()).getByText('zz.current')).toBeVisible();
   });
 
   it('sends no request for a number that is too large to be a version number', async () => {

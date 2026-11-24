@@ -1,5 +1,4 @@
 import { t } from '@lingui/core/macro';
-import { Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { Link } from 'react-router';
 import {
   DateComponent,
@@ -7,7 +6,6 @@ import {
   EmptyStateCustom,
   ListErrorState,
   LoadingSpinner,
-  Table,
 } from 'src/components';
 import { versionNumberOf } from 'src/entities/href';
 import type { RepositoryBase } from 'src/entities/plugin/model';
@@ -19,47 +17,7 @@ import {
 import { type PluginDescriptor, repositoryOf } from '../descriptor';
 import type { FrameworkPlugin } from '../manifest';
 import { versionPath } from '../route-patterns';
-
-interface SummaryEntry {
-  count?: number | null;
-}
-
-// The content of one kind of change of a version, a row per kind of content
-// with how many units of it there are. A version that changed nothing of that
-// kind says None.
-const ContentSummary = ({
-  label,
-  data,
-}: {
-  label: string;
-  data: Record<string, SummaryEntry> | null | undefined;
-}) => {
-  const entries = Object.entries(data ?? {}).sort(([a], [b]) =>
-    a < b ? -1 : 1,
-  );
-  if (entries.length === 0) {
-    return <>{t`None`}</>;
-  }
-
-  return (
-    <Table aria-label={label} variant='compact'>
-      <Thead>
-        <Tr>
-          <Th>{t`Count`}</Th>
-          <Th>{t`Pulp type`}</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {entries.map(([type, { count }]) => (
-          <Tr key={type}>
-            <Td>{count ?? t`Not available`}</Td>
-            <Td>{type}</Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
-  );
-};
+import { VersionContent } from './version-content';
 
 interface Props {
   plugin: FrameworkPlugin;
@@ -108,7 +66,6 @@ export const VersionDetail = ({
   }
 
   const base = versionNumberOf(version.base_version);
-  const summary = version.content_summary;
 
   return (
     <div data-cy='VersionDetail'>
@@ -118,30 +75,6 @@ export const VersionDetail = ({
           {
             label: t`Created date`,
             value: <DateComponent date={version.pulp_created ?? ''} />,
-          },
-          {
-            label: t`Content added`,
-            value: (
-              <ContentSummary label={t`Content added`} data={summary?.added} />
-            ),
-          },
-          {
-            label: t`Content removed`,
-            value: (
-              <ContentSummary
-                label={t`Content removed`}
-                data={summary?.removed}
-              />
-            ),
-          },
-          {
-            label: t`Current content`,
-            value: (
-              <ContentSummary
-                label={t`Current content`}
-                data={summary?.present}
-              />
-            ),
           },
           {
             label: t`Base version`,
@@ -156,6 +89,7 @@ export const VersionDetail = ({
           },
         ]}
       />
+      <VersionContent descriptor={descriptor} version={version} />
     </div>
   );
 };

@@ -3,23 +3,70 @@ import { parseResponse } from 'src/entities/response-shape';
 import { type Page, pageSchemaOf } from './model';
 import { type Options, asParams, toListRequest } from './request';
 
-// The content entity of a plugin: one kind of content (rpm packages, python
-// packages) as the Packages tab of a repository reads it. It lists the content
-// of one repository version and nothing else: the list of a content type
-// without a version filter would be every package on the server.
+// The content entity of a plugin: one kind of content (files, packages) as a
+// repository screen reads it. A list is cut to one repository version, to what
+// a version added or to what it removed; a list with none of the three is every
+// unit of the type the user may see.
 
-// What a list of content is asked for, in the terms of a screen. The version is
-// required, because that is what keeps a list to one repository; the other
-// filters are the plugin's own text filters.
-export interface ContentListParams {
+// What a list of content is asked for apart from the version: the page, its
+// size and order and the plugin's own text filters.
+interface ContentListBase {
   page?: number;
   page_size?: number;
   sort?: string;
-  // the address of the repository version whose content is listed
-  repository_version: string;
   // the fields the answer is cut to
   fields?: string[];
   [filter: string]: string | number | string[] | undefined;
+}
+
+// Which part of a repository the list is cut to. Exactly one of the three
+// version filters, each the address of a repository version, or none. The
+// three exclude each other: the server would apply all of them and answer the
+// intersection, which no screen means. A list with none is not scoped to a
+// repository at all: it holds all content of the type that the user may see.
+type VersionScope =
+  | {
+      repository_version: string;
+      repository_version_added?: never;
+      repository_version_removed?: never;
+    }
+  | {
+      repository_version?: never;
+      repository_version_added: string;
+      repository_version_removed?: never;
+    }
+  | {
+      repository_version?: never;
+      repository_version_added?: never;
+      repository_version_removed: string;
+    }
+  | {
+      repository_version?: never;
+      repository_version_added?: never;
+      repository_version_removed?: never;
+    };
+
+export type ContentListParams = ContentListBase & VersionScope;
+
+const VERSION_FILTERS = [
+  'repository_version',
+  'repository_version_added',
+  'repository_version_removed',
+] as const;
+
+// The version filter a list carries, as the one query parameter it is sent
+// under. Two filters at once are refused: it is a mistake of the caller.
+function versionFilterOf(params: ContentListParams): Record<string, string> {
+  const given = VERSION_FILTERS.flatMap((key) => {
+    const value = (params as Record<string, unknown>)[key];
+
+    return typeof value === 'string' && value !== '' ? [[key, value]] : [];
+  });
+  if (given.length > 1) {
+    throw new Error('A content list takes one version filter at most');
+  }
+
+  return Object.fromEntries(given);
 }
 
 // What a plugin's generated client offers for one kind of content.
@@ -61,7 +108,7 @@ export function makeContentEntity<Row, TListParams>({
   const requestOf = (params: ContentListParams) =>
     asParams<TListParams>({
       ...toListRequest(params, textFilters),
-      repository_version: params.repository_version,
+      ...versionFilterOf(params),
     });
 
   return {

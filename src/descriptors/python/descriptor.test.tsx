@@ -298,6 +298,16 @@ describe('Unit: the python descriptor', { tags: ['unit'] }, () => {
         ]),
       ).toEqual([['python.package', 'Packages']]);
     });
+
+    it('names the type the server gives its packages and lists their files, versions and package types', () => {
+      const [type] = descriptor.contentTypes ?? [];
+
+      expect(type.pulpType).toBe('python.python');
+      const headings = type.columns.map(({ label }) => text(label));
+      expect(headings).toEqual(
+        expect.arrayContaining(['File', 'Version', 'Type']),
+      );
+    });
   });
 
   describe('the remote form', () => {

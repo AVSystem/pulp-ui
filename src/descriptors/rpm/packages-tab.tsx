@@ -1,7 +1,7 @@
 import { msg } from '@lingui/core/macro';
 import type { RpmPackage, RpmRepository } from 'src/entities/rpm/model';
 import { rpmPackage } from 'src/entities/rpm/package';
-import type { TabDef } from 'src/framework/descriptor';
+import { type TabDef, contentType } from 'src/framework/descriptor';
 import {
   ContentList,
   type ContentListConfig,
@@ -52,6 +52,19 @@ const PACKAGES: ContentListConfig<RpmPackage> = {
   defaultPageSize: 20,
   defaultSort: 'name',
 };
+
+// The packages as a kind of content of the plugin: the lists of a repository
+// version's page show the same columns and filters as the Packages tab.
+export const packageContentType = contentType<RpmPackage>({
+  id: 'rpm.package',
+  label: msg`Packages`,
+  pulpType: 'rpm.package',
+  entity: PACKAGES.entity,
+  fields: PACKAGES.fields,
+  columns: PACKAGES.columns,
+  filters: PACKAGES.filters,
+  defaultSort: PACKAGES.defaultSort,
+});
 
 interface Props {
   repository: RpmRepository;

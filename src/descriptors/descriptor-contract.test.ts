@@ -1,5 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { describe, expect, it } from 'vitest';
+import type { ContentEntity } from 'src/entities/plugin/content';
 import type { PluginDescriptor } from 'src/framework/descriptor';
 import { PLUGIN_MANIFESTS } from 'src/framework/manifest';
 
@@ -63,7 +64,25 @@ function checkDescriptor(name: string, descriptor: PluginDescriptor) {
 
   for (const type of descriptor.contentTypes ?? []) {
     labelled(type.label, `${name} content type ${type.id}`);
+    expect(type.pulpType, `${name} content type ${type.id} has a type`).toMatch(
+      /^[a-z]+\.[a-z_-]+$/,
+    );
+    expect(
+      type.entity,
+      `${name} content type ${type.id} has an entity`,
+    ).toBeTruthy();
+    expect(
+      type.columns.length,
+      `${name} content type ${type.id} has a column`,
+    ).toBeGreaterThan(0);
+    for (const column of type.columns) {
+      labelled(column.label, `${name} content type ${type.id} column`);
+    }
   }
+  unique(
+    (descriptor.contentTypes ?? []).map(({ pulpType }) => pulpType),
+    `${name} content types`,
+  );
 }
 
 function checkRepository(
@@ -229,7 +248,23 @@ describe('Unit: plugin descriptors', { tags: ['unit'] }, () => {
           },
         ],
       },
-      contentTypes: [{ id: 'artifact', label: message('Artifacts') }],
+      contentTypes: [
+        {
+          id: 'artifact',
+          label: message('Artifacts'),
+          pulpType: 'maven.artifact',
+          entity: {} as ContentEntity<{ pulp_href: string }>,
+          fields: ['pulp_href'],
+          columns: [
+            {
+              id: 'path',
+              label: message('Path'),
+              render: ({ pulp_href }) => pulp_href,
+            },
+          ],
+          defaultSort: 'pulp_href',
+        },
+      ],
     };
 
     expect(publicationLess.publication).toBeUndefined();
