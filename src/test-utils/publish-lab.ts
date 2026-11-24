@@ -18,8 +18,9 @@ export interface PublishLab extends Lab {
   // Makes the next publish request answer with this status and body; null
   // answers as before.
   refuse: (status: number | null, body?: unknown) => void;
-  // The state a started publish task is made in.
-  publishAs: (state: string) => void;
+  // The state a started publish task is made in, and the objects it reports
+  // to have created once it has completed.
+  publishAs: (state: string, created?: string[]) => void;
 }
 
 // `segment` is the plugin's publication collection, for example `file/file`.
@@ -34,6 +35,7 @@ export function servePublishLab(
   const publishes: PublishLab['publishes'] = [];
   let refusal: { status: number; body: unknown } | null = null;
   let state = 'waiting';
+  let created: string[] = [];
 
   server.use(
     http.post(`*${API}/publications/${segment}/`, async ({ request }) => {
@@ -41,7 +43,11 @@ export function servePublishLab(
       if (refusal) {
         return HttpResponse.json(refusal.body, { status: refusal.status });
       }
-      const row = lab.add({ name: taskName, state });
+      const row = lab.add({
+        name: taskName,
+        state,
+        created_resources: created,
+      });
       return HttpResponse.json(
         { task: taskHref(row.pulp_href.split('/').filter(Boolean).pop()) },
         { status: 202 },
@@ -55,8 +61,9 @@ export function servePublishLab(
     refuse: (status, body = { detail: 'no' }) => {
       refusal = status === null ? null : { status, body };
     },
-    publishAs: (next) => {
+    publishAs: (next, objects = []) => {
       state = next;
+      created = objects;
     },
   };
 }

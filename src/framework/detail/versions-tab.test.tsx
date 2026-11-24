@@ -5,12 +5,15 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppContextProvider } from 'src/app-context';
 import { guardRoutes } from 'src/app-routes';
 import { PermissionsKnown, servePermissions } from 'src/test-utils/permissions';
+import { servePublishLab } from 'src/test-utils/publish-lab';
 import {
+  distributionListHandler,
   listOf,
   page,
   pluginListHandler,
   pluginRepository,
   projectedBy,
+  publicationListHandler,
   repositoryVersion,
   role,
   roleAssignment,
@@ -499,6 +502,70 @@ describe(
       });
       expect(item.getAttribute('aria-disabled')).toBe('true');
       expect(item.textContent).toContain('Already the current version');
+    });
+  },
+);
+
+describe(
+  'Integration: publishing one version from the Versions tab',
+  { tags: ['integration'] },
+  () => {
+    const ADD = 'file.add_filepublication';
+
+    function servePublishing(lab: ReturnType<typeof serveLab>) {
+      server.use(
+        distributionListHandler('file', []).handler,
+        publicationListHandler('file', []).handler,
+      );
+      return servePublishLab({ repository: lab.repository });
+    }
+
+    it('publishes the version of the row it is chosen on, and no other', async () => {
+      const lab = serveLab({ count: 3 });
+      const publishing = servePublishing(lab);
+
+      const { user } = renderTab('/file/repositories/tools/versions');
+
+      const row = await rowOf(/^1/);
+      await user.click(
+        await within(row).findByRole('button', { name: 'Actions' }),
+      );
+      await user.click(
+        await screen.findByRole('menuitem', { name: 'Publish this version' }),
+      );
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        within(dialog).getByText('Publish version 1 of "tools"'),
+      ).toBeVisible();
+      await user.click(within(dialog).getByRole('button', { name: 'Publish' }));
+
+      await waitFor(() => expect(publishing.publishes).toHaveLength(1));
+      expect(publishing.publishes[0]).toEqual({
+        repository_version: lab.versions[1]?.pulp_href,
+      });
+    });
+
+    it('offers it, and nothing to revert, to a user who holds the add publication permission only', async () => {
+      permissions.stop();
+      permissions = servePermissions({
+        id: 7,
+        isStaff: false,
+        own: [[ADD]],
+      });
+      const lab = serveLab({ count: 2 });
+      servePublishing(lab);
+      server.use(http.get(`*${API}/roles/`, () => HttpResponse.json(page([]))));
+
+      const { user } = renderTab('/file/repositories/tools/versions');
+
+      const row = await rowOf(/^0/);
+      await user.click(
+        await within(row).findByRole('button', { name: 'Actions' }),
+      );
+      expect(
+        await screen.findByRole('menuitem', { name: 'Publish this version' }),
+      ).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: /Revert/ })).toBeNull();
     });
   },
 );
