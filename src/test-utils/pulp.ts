@@ -1213,6 +1213,10 @@ export interface UploadLabOptions {
   failTask?: (create: LabCreate) => string | undefined;
   // How long a content create waits before it answers.
   createMs?: number;
+  // A content create whose task completes without naming any content.
+  emptyTask?: boolean;
+  // The reason the server gives when it refuses a modify with a 400.
+  refuseModify?: string;
 }
 
 // The upload endpoints of a server, the content create of one plugin, the
@@ -1229,12 +1233,15 @@ export function uploadLab({
   refuseCreate,
   failTask,
   createMs = 0,
+  emptyTask = false,
+  refuseModify,
 }: UploadLabOptions = {}) {
   const events: string[] = [];
   const uploads: { href: string; size: number }[] = [];
   const chunks: LabChunk[] = [];
   const creates: LabCreate[] = [];
   const removed: string[] = [];
+  const contentHrefs: string[] = [];
   const modifies: { href: string; body: unknown }[] = [];
   const tasks = new Map<string, ITaskRow>();
   const state = {
@@ -1314,17 +1321,22 @@ export function uploadLab({
       const content = href(
         contentPath.replace(/^\/pulp\/api\/v3\//, '').replace(/\/$/, ''),
       );
+      if (failure === undefined && !emptyTask) {
+        contentHrefs.push(content);
+      }
       const row = startTask(
-        failure === undefined
-          ? {
-              created_resources: [
-                content,
-                ...(fields['repository']
-                  ? [`${fields['repository']}versions/1/`]
-                  : []),
-              ],
-            }
-          : { state: 'failed', error: { description: failure } },
+        failure !== undefined
+          ? { state: 'failed', error: { description: failure } }
+          : emptyTask
+            ? { created_resources: [] }
+            : {
+                created_resources: [
+                  content,
+                  ...(fields['repository']
+                    ? [`${fields['repository']}versions/1/`]
+                    : []),
+                ],
+              },
       );
       return HttpResponse.json({ task: row.pulp_href }, { status: 202 });
     }),
@@ -1332,6 +1344,9 @@ export function uploadLab({
       const url = new URL(request.url).pathname;
       modifies.push({ href: url, body: await request.json() });
       events.push('modify');
+      if (refuseModify !== undefined) {
+        return HttpResponse.json({ detail: refuseModify }, { status: 400 });
+      }
       const row = startTask({ created_resources: [`${url}versions/9/`] });
       return HttpResponse.json({ task: row.pulp_href }, { status: 202 });
     }),
@@ -1350,6 +1365,7 @@ export function uploadLab({
     chunks,
     creates,
     removed,
+    contentHrefs,
     modifies,
     state,
   };
