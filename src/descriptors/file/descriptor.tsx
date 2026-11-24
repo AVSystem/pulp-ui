@@ -1,11 +1,17 @@
 import { i18n } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
+import { DateComponent } from 'src/components';
+import { fileContent } from 'src/entities/file/content';
 import { fileDistribution } from 'src/entities/file/distribution';
-import type { FileRepository } from 'src/entities/file/model';
+import type { FileContent, FileRepository } from 'src/entities/file/model';
 import { filePublication } from 'src/entities/file/publication';
 import { fileRemote } from 'src/entities/file/remote';
 import { fileRepository } from 'src/entities/file/repository';
-import type { FieldDef, PluginDescriptor } from 'src/framework/descriptor';
+import {
+  type FieldDef,
+  type PluginDescriptor,
+  contentType,
+} from 'src/framework/descriptor';
 import { distributionsTab } from 'src/framework/detail/distributions-tab';
 import { publicationsTab } from 'src/framework/detail/publications-tab';
 import { versionsTab } from 'src/framework/detail/versions-tab';
@@ -134,6 +140,34 @@ const descriptor: PluginDescriptor<FileRepository> = {
     filters: REMOTE_FILTERS,
     detailRows: [POLICY_ROW],
   },
+  contentTypes: [
+    contentType<FileContent>({
+      id: 'file.file',
+      label: msg`Files`,
+      pulpType: 'file.file',
+      entity: fileContent,
+      fields: ['relative_path', 'pulp_created', 'pulp_href'],
+      columns: [
+        {
+          id: 'relative-path',
+          label: msg`Relative path`,
+          sortField: 'relative_path',
+          render: ({ relative_path }) => relative_path,
+        },
+        {
+          id: 'created',
+          label: msg`Created`,
+          sortField: 'pulp_created',
+          render: ({ pulp_created }) =>
+            pulp_created ? <DateComponent date={pulp_created} /> : t`None`,
+        },
+      ],
+      filters: [
+        { param: 'relative_path__contains', label: msg`Relative path` },
+      ],
+      defaultSort: 'relative_path',
+    }),
+  ],
   distribution: { entity: fileDistribution },
   publication: {
     entity: filePublication,

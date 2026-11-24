@@ -4,7 +4,7 @@ import type {
   PythonRepository,
 } from 'src/entities/python/model';
 import { pythonPackage } from 'src/entities/python/package';
-import type { TabDef } from 'src/framework/descriptor';
+import { type TabDef, contentType } from 'src/framework/descriptor';
 import {
   ContentList,
   type ContentListConfig,
@@ -56,6 +56,19 @@ const PACKAGES: ContentListConfig<PythonPackage> = {
   defaultPageSize: 20,
   defaultSort: 'name',
 };
+
+// The packages as a kind of content of the plugin: the lists of a repository
+// version's page show the same columns and filters as the Packages tab.
+export const packageContentType = contentType<PythonPackage>({
+  id: 'python.package',
+  label: msg`Packages`,
+  pulpType: 'python.python',
+  entity: PACKAGES.entity,
+  fields: PACKAGES.fields,
+  columns: PACKAGES.columns,
+  filters: PACKAGES.filters,
+  defaultSort: PACKAGES.defaultSort,
+});
 
 interface Props {
   repository: PythonRepository;

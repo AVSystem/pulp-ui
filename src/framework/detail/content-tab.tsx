@@ -72,12 +72,36 @@ export interface ContentListConfig<Row extends { pulp_href: string }> {
   defaultSort: string;
 }
 
+// Which part of a repository version a list shows: the content the version
+// holds, what it added to the version before it or what it removed.
+export type VersionSection = 'present' | 'added' | 'removed';
+
+const FILTER_OF_SECTION = {
+  present: 'repository_version',
+  added: 'repository_version_added',
+  removed: 'repository_version_removed',
+} as const;
+
+// Where a list keeps its page, order and filters when the address is not its
+// to use: a page of several lists keeps each one's own.
+export interface ListAddress {
+  search: string;
+  onChange: (search: string) => void;
+}
+
 interface Props<Row extends { pulp_href: string }> {
   config: ContentListConfig<Row>;
   // The address of the repository version whose content is listed, or none for
   // a repository that has no version yet. Without one nothing is read: the
   // server would list the content of every repository.
   version: string | null | undefined;
+  // What of the version is listed; the content it holds unless said.
+  section?: VersionSection;
+  // The name of the table for assistive technology, in place of the config's.
+  label?: string;
+  // Where the page, order and filters live; the address of the screen unless
+  // said.
+  address?: ListAddress;
 }
 
 // The content of one repository version as a page of a table. The page, its
@@ -86,11 +110,15 @@ interface Props<Row extends { pulp_href: string }> {
 export function ContentList<Row extends { pulp_href: string }>({
   config,
   version,
+  section = 'present',
+  label,
+  address,
 }: Props<Row>) {
   const { entity, fields, columns, filters, defaultPageSize, defaultSort } =
     config;
-  const { search } = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
+  const search = address ? address.search : location.search;
   const [inputText, setInputText] = useState('');
 
   const options = useMemo(
@@ -111,14 +139,20 @@ export function ContentList<Row extends { pulp_href: string }>({
   const filterIsSet = options.filters.some(
     (param) => params[param] !== undefined,
   );
-  const updateParams = (next: object) =>
-    navigate({ search: searchOf(next as ListParams, options) });
-
-  const request: ContentListParams = {
-    ...params,
-    repository_version: version ?? '',
-    fields: [...fields],
+  const updateParams = (next: object) => {
+    const to = searchOf(next as ListParams, options);
+    if (address) {
+      address.onChange(to);
+    } else {
+      navigate({ search: to });
+    }
   };
+
+  const request = {
+    ...params,
+    [FILTER_OF_SECTION[section]]: version ?? '',
+    fields: [...fields],
+  } as ContentListParams;
   const query = useEntityList(entity, request, { enabled: !!version });
 
   if (!version) {
@@ -217,7 +251,7 @@ export function ContentList<Row extends { pulp_href: string }>({
       {data.count === 0 ? (
         <EmptyStateFilter clearAllFilters={clearFilters} />
       ) : (
-        <Table aria-label={i18n._(config.title)}>
+        <Table aria-label={label ?? i18n._(config.title)}>
           <SortTable
             options={{ headers }}
             params={params}

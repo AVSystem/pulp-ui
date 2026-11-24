@@ -219,7 +219,7 @@ describe(
       });
       const headers = within(present)
         .getAllByRole('columnheader')
-        .map(({ textContent }) => textContent);
+        .map(({ textContent }) => textContent?.trim());
       expect(headers).toEqual(['Relative path', 'Created']);
       const row = (await within(present).findByText('present-a.txt')).closest(
         'tr',

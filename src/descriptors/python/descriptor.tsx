@@ -22,7 +22,7 @@ import {
   repositoryColumns,
 } from 'src/framework/repository-columns';
 import { shellQuote } from 'src/utilities/shell-quote';
-import { packagesTab } from './packages-tab';
+import { packageContentType, packagesTab } from './packages-tab';
 
 // What a python remote holds beyond what every remote has, read from the loose
 // shape of a remote the generic screens pass around.
@@ -264,7 +264,7 @@ const descriptor: PluginDescriptor<PythonRepository> = {
     detailRows: REMOTE_ROWS,
     fields: REMOTE_FIELDS,
   },
-  contentTypes: [{ id: 'python.package', label: msg`Packages` }],
+  contentTypes: [packageContentType],
   // A python distribution is served from the repository's versions, never
   // from its publications. Publications are deprecated, but a distribution can
   // still be bound to one, so they are read to find the repository such a

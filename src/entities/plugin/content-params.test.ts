@@ -98,9 +98,9 @@ describe(
 
     it('treats an empty version filter as not set', () => {
       const query = queryOf({
-        repository_version: undefined,
+        repository_version: '',
         repository_version_added: VERSION,
-      });
+      } as unknown as ContentListParams);
 
       expect(query.get('repository_version_added')).toBe(VERSION);
     });

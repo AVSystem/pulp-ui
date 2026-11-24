@@ -1,6 +1,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import type { ReactNode } from 'react';
 import type { AlertType } from 'src/components';
+import type { ContentEntity } from 'src/entities/plugin/content';
 import type {
   DistributionBase,
   DistributionChanges,
@@ -23,6 +24,7 @@ import type {
   RepositoryEntity,
   RevertBody,
 } from 'src/entities/plugin/repository';
+import type { ContentColumn, ContentFilter } from './detail/content-tab';
 import type { FrameworkPlugin } from './manifest';
 import type { RepositoryTab } from './route-patterns';
 
@@ -240,10 +242,35 @@ export interface SnippetDef {
   build: (input: { name: string; url: string }) => string;
 }
 
-// A kind of content a repository of the plugin holds.
-export interface ContentTypeDef {
+// A kind of content a repository of the plugin holds, with what it takes to
+// list it: where it is read from, what is shown and what can be filtered. A
+// repository version's page lists each kind of content the version has through
+// this.
+export interface ContentTypeDef<
+  Row extends { pulp_href: string } = { pulp_href: string },
+> {
   id: string;
   label: MessageDescriptor;
+  // The name the server gives the type: the key of the type in the content
+  // summary of a repository version and the value of the `pulp_type` filter.
+  pulpType: string;
+  entity: ContentEntity<Row>;
+  // The fields of a row a list reads, which are the only ones asked for.
+  fields: readonly string[];
+  // The columns of a list, at least one.
+  columns: readonly ContentColumn<Row>[];
+  filters?: readonly ContentFilter[];
+  // The field a list is ordered by when the address names none.
+  defaultSort: string;
+}
+
+// Declares a content type of one row shape as the descriptor holds it, with
+// the row type erased: a descriptor lists content types of different shapes,
+// and each list only ever receives the rows of its own entity.
+export function contentType<Row extends { pulp_href: string }>(
+  type: ContentTypeDef<Row>,
+): ContentTypeDef {
+  return type as unknown as ContentTypeDef;
 }
 
 export interface RepositoryKind<Row> {

@@ -15,8 +15,17 @@ const fileRepositorySchema = repositorySchema.extend({
 // listed as hidden) pass through unchanged.
 const fileRemoteSchema = remoteSchema.extend({});
 
+// One file of a repository version, as far as the version page reads it: its
+// path in the repository and when the server first saw it.
+const fileContentSchema = z.looseObject({
+  pulp_href: z.string(),
+  relative_path: z.string(),
+  pulp_created: z.string().nullish(),
+});
+
 type FileRepository = z.infer<typeof fileRepositorySchema>;
 type FileRemote = z.infer<typeof fileRemoteSchema>;
+type FileContent = z.infer<typeof fileContentSchema>;
 
-export { fileRemoteSchema, fileRepositorySchema };
-export type { FileRemote, FileRepository };
+export { fileContentSchema, fileRemoteSchema, fileRepositorySchema };
+export type { FileContent, FileRemote, FileRepository };
